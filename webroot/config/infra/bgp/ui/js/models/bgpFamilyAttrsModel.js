@@ -6,8 +6,10 @@
      var bgpFamilyAttrsModel = ContrailModel.extend({
          defaultConfig: {
              "address_family": null,
-             "loop_count": 0,
-             "prefix_limit": null
+             "loop_count": null,
+             "prefix_limit": null,
+             "familyAttrDataSource": [],
+             "disableFamilyAttr": false
          },
          formatModelConfig: function(modelConfig){
              return modelConfig
@@ -33,7 +35,7 @@
                  "loop_count" : function(value, attr, finalObj) {
                      if(value) {
                          if(isNaN(value) || Number(value) < 0 || Number(value) > 16) {
-                             return "Loop count should be in 0-16 range"
+                             return "Enter Loop count between 0 - 16"
                          }
                      }
                  },

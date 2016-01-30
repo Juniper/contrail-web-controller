@@ -23,7 +23,7 @@ define([
                 'address' : null,
                 'identifier' : null,
                 'hold_time' : 90,
-                'admin_down' : "false",
+                'admin_down' : false,
                 'autonomous_system' : null,
                 'local_autonomous_system' : null,
                 'address_families' : {
@@ -44,7 +44,8 @@ define([
             'user_created_address': null,
             'user_created_identifier': null,
             'addressFamilyData' : ctwc.BGP_ADDRESS_FAMILY_DATA,
-            'isAutoMeshEnabled' : null
+            'isAutoMeshEnabled' : null,
+            'user_created_admin_state': true
         },
         formatModelConfig : function(modelConfig) {
             self = this;
@@ -76,8 +77,10 @@ define([
                 modelConfig['user_created_autonomous_system'] =
                     bgpParams['autonomous_system'];
             }
-            bgpParams['admin_down'] =
-                bgpParams['admin_down'] ? bgpParams['admin_down'].toString() : "false";
+            if(bgpParams['admin_down'] != null) {
+                modelConfig['user_created_admin_state'] =
+                    !bgpParams['admin_down'];
+            }
             if(bgpParams['auth_data'] != null) {
                 var authData = bgpParams['auth_data'];
                 modelConfig['user_created_auth_key_type'] =
@@ -110,81 +113,110 @@ define([
             var availablePeers = window.bgp != null &&
                 window.bgp.availablePeers != null ?
                 window.bgp.availablePeers : [];
-            if(availablePeers.length > 0) {
-                for(var i = 0; i < availablePeers.length; i++) {
-                    var isSelected = false;
-                    var currentPeer = availablePeers[i];
+            if(selectedPeers.length > 0) {
+                for(var i = 0; i < selectedPeers.length; i++) {
+                    var currentPeer = selectedPeers[i];
                     var authData = null;
-                    var adminDown = "false", passive = false;
+                    var adminDown = false, passive = false;
                     var holdTime = 0, loopCount = 0;
                     var familyAttrs = [];
-                    if(selectedPeers.length > 0) {
-                        for(var j = 0; j < selectedPeers.length; j++) {
-                            var selectedPeer = selectedPeers[j];
-                            if(currentPeer.name === selectedPeer.to[4]) {
-                                isSelected = true;
-                                var attr = getValueByJsonPath(selectedPeer,
-                                    "attr;session;0;attributes;0", null);
-                                if(attr) {
-                                    authData = getValueByJsonPath(attr, "auth_data", null);
-                                    adminDown = getValueByJsonPath(attr, "admin_down", "false").toString();
-                                    passive = getValueByJsonPath(attr, "passive", false);
-                                    holdTime = getValueByJsonPath(attr, "hold_time", 0);
-                                    loopCount = getValueByJsonPath(attr, "loop_count", 0);
-                                    familyAttrs = getValueByJsonPath(attr, "family_attributes", []);
-                                }
-                                break;
-                            }
-                        }
+                    var attr = getValueByJsonPath(currentPeer,
+                        "attr;session;0;attributes;0", null);
+                    if(attr) {
+                        authData = getValueByJsonPath(attr, "auth_data", null);
+                        adminDown = getValueByJsonPath(attr, "admin_down", false);
+                        passive = getValueByJsonPath(attr, "passive", false);
+                        holdTime = getValueByJsonPath(attr, "hold_time", 0);
+                        loopCount = getValueByJsonPath(attr, "loop_count", 0);
+                        familyAttrs = getValueByJsonPath(attr, "family_attributes", []);
                     }
                     peerModel = new BGPPeersModel({
-                        isPeerSelected : isSelected,
-                        peerName : currentPeer.name,
+                        peerName : currentPeer.uuid,
                         disabled : true,
                         auth_data : authData,
-                        admin_down : adminDown,
+                        admin_state : !adminDown,
                         passive : passive,
                         hold_time : holdTime,
                         loop_count : loopCount,
-                        peerASN :
-                            currentPeer.bgp_router_parameters.autonomous_system,
+                        /*peerASN :
+                            currentPeer.bgp_router_parameters.autonomous_system,*/
                         family_attributes: familyAttrs,
                         user_created_auth_key_type : null,
-                        user_created_auth_key: null
+                        user_created_auth_key: null,
+                        peerDataSource: availablePeers
                     });
-                    peerModel.disableUnSelItem = ko.computed(function(){
-                        var disableFlag = !this.isPeerSelected();
-                        if(disableFlag) {
-                            this.user_created_auth_key_type("none");
-                        }
-                        return disableFlag;
-                    },peerModel);
-                    peerModel.__kb.view_model.model().on('change:user_created_auth_key_type',
-                        function(model, newValue){
-                             var currPeer = self.getCurrentPeer(
-                                 this.attributes.peerName);
-                            if(newValue === 'none') {
-                                currPeer.user_created_auth_key('');
-                                currPeer.disableAuthKey(true);
-                            } else {
-                                var authKey = '';
-                                if(currPeer.auth_data() != null) {
-                                    var authData = currPeer.auth_data();
-                                    authKey = authData.key_items != null &&
-                                        authData.key_items.length > 0 ?
-                                        authData.key_items[0].key : '';
-                                }
-                                currPeer.user_created_auth_key(authKey);
-                                currPeer.disableAuthKey(false);
-                            }
-                        }
-                    );
+                    self.subscribePeerModelChangeEvents(peerModel);
                     peerModels.push(peerModel)
                 }
             };
             peerCollectionModel = new Backbone.Collection(peerModels);
             modelConfig['peers'] = peerCollectionModel;
             return modelConfig;
+        },
+        subscribePeerModelChangeEvents: function(peerModel) {
+            peerModel.__kb.view_model.model().on('change:user_created_auth_key_type',
+                function(model, newValue){
+                     var currPeer = self.getCurrentPeer(
+                         this.attributes.peerName);
+                    if(newValue === 'none') {
+                        currPeer.user_created_auth_key('');
+                        currPeer.disableAuthKey(true);
+                    } else {
+                        var authKey = '';
+                        if(currPeer.auth_data() != null) {
+                            var authData = currPeer.auth_data();
+                            authKey = authData.key_items != null &&
+                                authData.key_items.length > 0 ?
+                                authData.key_items[0].key : '';
+                        }
+                        currPeer.user_created_auth_key(authKey);
+                        currPeer.disableAuthKey(false);
+                    }
+                }
+            );
+        },
+        addPeer: function() {
+            var peers = this.model().attributes['peers'],
+                peersArry = peers.toJSON();
+            var filteredPeers = [], peerUUIDS = [];
+            var newPeer;
+            var avlPeers = window.bgp.availablePeers;
+            if(peersArry.length) {
+                _.each(peersArry, function(peer) {
+                    peerUUIDS.push(peer.peerName());
+                });
+                _.each(avlPeers, function(peer) {
+                    if($.inArray(peer.uuid, peerUUIDS) === -1) {
+                        filteredPeers.push(peer);
+                    }
+                });
+                if(!filteredPeers.length) {
+                    return;
+                }
+            } else {
+                filteredPeers = avlPeers;
+            }
+            newPeer = new BGPPeersModel({
+                peerName : null,
+                disabled: false,
+                auth_data : null,
+                admin_state : true,
+                passive : false,
+                hold_time : null,
+                loop_count : null,
+                family_attributes: [],
+                user_created_auth_key_type : null,
+                user_created_auth_key: null,
+                peerDataSource: filteredPeers
+
+            });
+            this.subscribePeerModelChangeEvents(newPeer);
+            kbValidation.bind(this.editView,
+                {collection: newPeer.model().attributes.family_attrs});
+            peers.add([newPeer]);
+        },
+        deletePeer: function(data, kbInterface) {
+            data.model().collection.remove(kbInterface.model());
         },
         getCurrentPeer: function(name){
             var model;
@@ -201,28 +233,26 @@ define([
             var peerCollection = attr.peers.toJSON(),
                 peerArray = [];
             for(var i = 0; i < peerCollection.length; i++) {
-                if(peerCollection[i].isPeerSelected()) {
-                    var peer = peerCollection[i];
-                    var authData = null;
-                    if(peer.user_created_auth_key_type() != 'none') {
-                        authData = {
-                            key_type : peer.user_created_auth_key_type(),
-                            key_items : [{
-                                key_id : 0,
-                                key : peer.user_created_auth_key()
-                            }]
-                       };
-                    }
-                    peerArray.push({
-                        peerName : peer.peerName(),
-                        adminDown : peer.admin_down() === "true" ? true : false,
-                        passive : peer.passive(),
-                        holdTime : peer.hold_time() ? Number(peer.hold_time()) : 0,
-                        loopCount : peer.loop_count() ? Number(peer.loop_count()) : 0,
-                        authData : authData,
-                        familyAttrs : peer.getFamilyAttrs(peer.family_attrs())
-                    });
+                var peer = peerCollection[i];
+                var authData = null;
+                if(peer.user_created_auth_key_type() != 'none') {
+                    authData = {
+                        key_type : peer.user_created_auth_key_type(),
+                        key_items : [{
+                            key_id : 0,
+                            key : peer.user_created_auth_key()
+                        }]
+                   };
                 }
+                peerArray.push({
+                    peerName : peer.peerName(),
+                    adminDown : !peer.admin_state(),
+                    passive : peer.passive(),
+                    holdTime : peer.hold_time() ? Number(peer.hold_time()) : 0,
+                    loopCount : peer.loop_count() ? Number(peer.loop_count()) : 0,
+                    authData : authData,
+                    familyAttrs : peer.getFamilyAttrs(peer.family_attrs())
+                });
             }
             return peerArray;
         },
@@ -260,7 +290,7 @@ define([
                     var selectedData = self.getPeers(newBGPRouterCfgData);
                     for (var i = 0; i < selectedData.length; i++) {
                         for (var j = 0; j < self.bgpData.length; j++) {
-                            if (self.bgpData[j].name == selectedData[i].peerName) {
+                            if (self.bgpData[j].uuid == selectedData[i].peerName) {
                                 var peerAttr = selectedData[i];
                                 var attr = {};
                                 attr.session = [];
@@ -282,8 +312,8 @@ define([
                                         "uuid":self.bgpData[j].uuid,
                                         "href":self.bgpData[j].href,
                                         "_id_params":self.bgpData[j]._id_params,
-                                        "to":["default-domain", "default-project" ,
-                                            "ip-fabric", "__default__", selectedData[i].peerName],
+                                        "to":["default-domain", "default-project",
+                                            "ip-fabric", "__default__", self.bgpData[j].name],
                                         "attr" : attr
                                     }
                                 );
@@ -319,11 +349,6 @@ define([
                     newBGPRouterCfgData.bgp_router_parameters.source_port;
                 newBGPRouterCfgData.bgp_router_parameters.source_port =
                     sourcePort ? Number(sourcePort) : 0;
-                var state =
-                    newBGPRouterCfgData.bgp_router_parameters.admin_down;
-                newBGPRouterCfgData.bgp_router_parameters.admin_down =
-                    state === "true" ? true : false;
-
                 //handling auth data
                 if(newBGPRouterCfgData.user_created_auth_key_type != 'none') {
                     newBGPRouterCfgData.bgp_router_parameters.auth_data = {
