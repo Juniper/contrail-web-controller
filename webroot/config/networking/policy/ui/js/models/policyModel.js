@@ -9,6 +9,8 @@ define([
     'config/networking/policy/ui/js/views/policyFormatters'
 ], function (_, ContrailModel, RuleModel, PolicyFormatters) {
     var policyFormatters = new PolicyFormatters();
+    var SIDataSource;
+    var self;
     var policyModel = ContrailModel.extend({
         defaultConfig: {
             'fq_name':null,
@@ -20,6 +22,7 @@ define([
             'policyName':''
         },
         formatModelConfig: function (config) {
+            self = this;
             var modelConfig = $.extend({},true,config);
             modelConfig['rawData'] = config;
             var ruleModels = [];
@@ -50,6 +53,26 @@ define([
                 }
             }
         },
+        setServiceTemplateDataSource: function(SIDataSource) {
+            self.SIDataSource = SIDataSource;
+            var policeyRule = (self.model().attributes.PolicyRules).toJSON(),
+                policeyRuleLen = policeyRule.length;
+            for (var i = 0; i < policeyRuleLen; i++){
+                var SI = policeyRule[i].service_instance();
+                if (SI != null) {
+                    var SIArr = SI.split(",");
+                    SIArr = this.getApplyService(SIArr, SIDataSource);
+                    policeyRule[i].service_instance(SIArr);
+                }
+            }
+        },
+        getApplyService: function(applyService, SIDataSource) {
+            var applyServiceLen = applyService.length;
+            for (var j = 0; j < applyServiceLen; j++) {
+                applyService[j] = SIDataSource[applyService[j]];
+            }
+            return applyService;
+        },
         addRule: function() {
             var rulesList = this.model().attributes['PolicyRules'],
                 newRuleModel = new RuleModel();
@@ -75,6 +98,8 @@ define([
             ruleModels.showMirror = ko.computed((function(){
                 if (this.mirror_to_check() == true) {
                     this.protocol("ANY");
+                    this.src_ports_text("ANY");
+                    this.dst_ports_text("ANY");
                     return (this.mirror_to_check);
                 } else {
                     return false;
@@ -191,7 +216,7 @@ define([
                         } else {
                             newPoliceyRule[i].action_list.apply_service = [];
                             var SIVal = policeyRule[i].service_instance().split(",");
-                            var SIValLen = SIVal.lengh;
+                            var SIValLen = SIVal.length;
                             for (var m = 0; m < SIValLen; m++) {
                                 SIVal[m] = SIVal[m].split(" ")[0];
                             }

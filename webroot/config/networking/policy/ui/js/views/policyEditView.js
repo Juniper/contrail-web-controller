@@ -15,14 +15,14 @@ define([
     var prefixId = ctwl.POLICY_PREFIX_ID,
         modalId = 'configure-' + prefixId,
         editTemplate = contrail.getTemplate4Id(cowc.TMPL_GENERIC_EDIT_FORM),
-        externalGatewayDS = [];
+        externalGatewayDS = [],
+        self = {};
 
     var PolicyCreateEditView = ContrailView.extend({
         modalElementId: '#' + modalId,
         renderPolicyPopup: function (options) {
-            var editLayout = editTemplate(
-                                {modalId: modalId, prefixId: prefixId}),
-                self = this;
+            var editLayout = editTemplate({modalId: modalId, prefixId: prefixId});
+            self = this;
 
             cowu.createModal({'modalId': modalId,
                               'className': 'modal-980',
@@ -56,6 +56,7 @@ define([
 
            this.fetchAllData(this ,
                 function(allData) {
+                   self.model.setServiceTemplateDataSource(allData.service_instances_ref);
                    var disableElement = false
                    if(options['mode'] == "edit") {
                        disableElement = true;
@@ -253,8 +254,10 @@ define([
                         }
                     }
                     returnArr["service_instances"] = [];
+                    returnArr["service_instances_ref"] = [];
                     var analyzerInsts = [];
                     var serviceInsts = [];
+                    var serviceInstsRef = [];
                     if (null !== sts && sts.length > 0) {
                         for (var i = 0; i < sts.length; i++) {
                             var serviceTemplateMode = getValueByJsonPath(sts[i],
@@ -290,11 +293,14 @@ define([
                                     si_val_objClon.value +=
                                             " " + serviceTemplateMode;
                                     serviceInsts.push(si_val_objClon);
+                                    serviceInstsRef[si_val_obj.value] =
+                                            si_val_objClon.value;
                                 }
                             }
                         }
                     }
                     returnArr["service_instances"] = serviceInsts;
+                    returnArr["service_instances_ref"] = serviceInstsRef;
                     returnArr["analyzerInsts"] = analyzerInsts;
                     //add other project policies at the end
                     for(var i = 0; i < policies.length; i++) {
@@ -453,6 +459,7 @@ define([
                                  class: "",
                                  width: 40,
                                  viewConfig: {
+                                    disabled: "mirror_to_check()",
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     path: 'src_ports_text',
                                     dataBindValue: 'src_ports_text()'
@@ -520,6 +527,7 @@ define([
                                  class: "",
                                  width: 40,
                                  viewConfig: {
+                                    disabled: "mirror_to_check()",
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     path: 'dst_ports_text',
                                     dataBindValue: 'dst_ports_text()'
