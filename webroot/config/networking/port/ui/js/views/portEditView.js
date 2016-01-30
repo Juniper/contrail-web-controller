@@ -245,6 +245,9 @@ define([
         var staticRoutArr = {};
         staticRoutArr.data = [];
         staticRoutArr.data[0] = {'type':'interface-route-tables', 'fields':''};
+        var routingInstance = {};
+        routingInstance.data = [];
+        routingInstance.data[0] = {'type':'routing-instances', 'fields':''};
         return {
             elementId: cowu.formatElementId([prefixId, ctwl.TITLE_EDIT_PORT]),
             view: "SectionView",
@@ -568,6 +571,19 @@ define([
                             }
                         }]
                     }, {
+                        columns: [{
+                            elementId: 'local_preference',
+                            name: "Local Preference",
+                            view: "FormInputView",
+                            viewConfig: {
+                                path: 'virtual_machine_interface_properties.local_preference',
+                                label: 'Local Preference',
+                                placeholder: '1 - 4294967295',
+                                dataBindValue: 'virtual_machine_interface_properties().local_preference',
+                                class: ""
+                            }
+                        }]
+                    }, {
                         columns: [
                             {
                                 elementId: 'ecmpHashingIncFields',
@@ -579,6 +595,7 @@ define([
                                     dataBindValue:
                                             'ecmp_hashing_include_fields',
                                     elementConfig: {
+                                        placeholder: 'Select ECMP Hashing Fields',
                                         dataTextField: "text",
                                         dataValueField: "id",
                                             data: [
@@ -781,6 +798,117 @@ define([
                                    }
                                 }
                             }
+                        }]
+                    } , {
+                        columns: [{
+                            elementId: 'is_mirror',
+                            name: "Mirror To",
+                            view: "FormCheckboxView",
+                            viewConfig: {
+                                path: 'is_mirror',
+                                label: "Mirror To",
+                                dataBindValue: 'is_mirror',
+                                class: "span6"
+                            }
+                        }]
+                    }, {
+                        columns: [{
+                            elementId: 'interface_mirror',
+                            view: 'AccordianView',
+                            viewConfig : [{
+                            visible : 'is_mirror',
+                                elementId: 'mirror',
+                                title: 'Mirror To',
+                                view: "SectionView",
+                                viewConfig : {
+                                    rows : [{
+                                        columns: [{
+                                            elementId: 'mirrorToTrafficDirection',
+                                            name: "Direction",
+                                            view: "FormDropdownView",
+                                            viewConfig: {
+                                                path: 'mirrorToTrafficDirection',
+                                                dataBindValue: 'mirrorToTrafficDirection',
+                                                placeholder: 'Direction',
+                                                label: 'Direction',
+                                                elementConfig: {
+                                                    dataTextField: "text",
+                                                    dataValueField: "value",
+                                                    data : [
+                                                        {'text':'Ingress', 'value':'ingress'},
+                                                        {'text':'Egress', 'value':'egress'},
+                                                        {'text':'Both', 'value':'both'}
+                                                    ]
+                                                }
+                                            }
+                                        }]
+                                    }, {
+                                        columns: [{
+                                            elementId: 'mirrorToAnalyzerName',
+                                            name: "Analyzer",
+                                            view: "FormInputView",
+                                            viewConfig: {
+                                                path: 'mirrorToAnalyzerName',
+                                                dataBindValue: 'mirrorToAnalyzerName',
+                                                placeholder: 'Analyzer',
+                                                label: 'Analyzer',
+                                            }
+                                        }]
+                                    }, {
+                                        columns: [{
+                                            elementId: 'mirrorToAnalyzerIpAddress',
+                                            name: "Analyzer IP Address",
+                                            view: "FormInputView",
+                                            viewConfig: {
+                                                path: 'mirrorToAnalyzerIpAddress',
+                                                placeholder: 'xxx.xxx.xxx.xxx',
+                                                dataBindValue: 'mirrorToAnalyzerIpAddress',
+                                                label: 'Analyzer IP Address'
+                                            }
+                                        }]
+                                    }, {
+                                        columns: [{
+                                            elementId: 'mirrorToUdpPort',
+                                            name: "UDP Port",
+                                            view: "FormInputView",
+                                            viewConfig: {
+                                                path: 'mirrorToUdpPort',
+                                                placeholder: '1 to 65535',
+                                                dataBindValue: 'mirrorToUdpPort',
+                                                label: 'UDP Port'
+                                            }
+                                        }]
+                                    }, {
+                                        columns: [{
+                                            elementId: 'mirrorToRoutingInstance',
+                                            name: "Routing Instance",
+                                            view: "FormDropdownView",
+                                            viewConfig: {
+                                                path: 'mirrorToRoutingInstance',
+                                                dataBindValue: 'mirrorToRoutingInstance',
+                                                label: 'Routing Instance',
+                                                elementConfig: {
+                                                    placeholder: 'Select Routing Instance',
+                                                    dataTextField: "text",
+                                                    dataValueField: "value",
+                                                    dataSource : {
+                                                        type: 'remote',
+                                                        requestType: 'post',
+                                                        postData: JSON.stringify(routingInstance),
+                                                        url:'/api/tenants/config/get-config-list',
+                                                        parse: function(result) {
+                                                            return portFormatter.routingInstDDFormatter(
+                                                                                 result,
+                                                                                 isDisable,
+                                                                                 self);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }]
+                                    }]
+                                }
+                            }]
                         }]
                     }]
                     }

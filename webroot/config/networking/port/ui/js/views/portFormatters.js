@@ -118,6 +118,17 @@ define([
             }
             return MACAddress;
         };
+        //Grid column expand label: Local Preference//
+        this.localPrefFormater = function(d, c, v, cd, dc) {
+            var localPref = "-";
+            var localPrefValue = getValueByJsonPath(dc,
+                                "virtual_machine_interface_properties;local_preference",
+                                "")
+            if(localPrefValue != ""){
+                localPref = localPrefValue;
+            }
+            return localPref;
+        };
         //Grid column expand label: Fixed IPs//
         this.fixedIPFormaterExpand = function(d, c, v, cd, dc) {
             var instanceIP = "";
@@ -331,6 +342,50 @@ define([
             }
             return AAP;
         };
+        //Grid column expand label: Mirror//
+        this.mirrorFormatter = function(d, c, v, cd, dc) {
+            var mirror = "";
+            var mirrorDirection = getValueByJsonPath(dc,
+                          "virtual_machine_interface_properties;interface_mirror;traffic_direction",
+                          "");
+            if (mirrorDirection != "") {
+                mirror += this.addTableRow(["Mirror Direction", " : ", mirrorDirection]);
+            }
+            var mirrorObj = getValueByJsonPath(dc,
+                          "virtual_machine_interface_properties;interface_mirror;mirror_to",
+                          "");
+            if (mirrorObj != "") {
+                var temp = getValueByJsonPath(mirrorObj, "analyzer_name", "");
+                mirror += this.addTableRow(["Analyzer Name", " : ", temp]);
+
+                temp = getValueByJsonPath(mirrorObj, "analyzer_ip_address", "-");
+                mirror += this.addTableRow(["Analyzer IP Address", " : ", temp]);
+
+                temp = getValueByJsonPath(mirrorObj, "udp_port", "-");
+                mirror += this.addTableRow(["UDP port", " : ", temp]);
+
+                temp = getValueByJsonPath(mirrorObj, "routing_instance", "-");
+                if (temp != "") {
+                    temp = ctwu.formatCurrentFQName(temp.split(":"));
+                }
+                mirror += this.addTableRow(["Routing Instance", " : ", temp]);
+            }
+            if (mirror == "") {
+                mirror = "-";
+            } else {
+                mirror = "<table>" + mirror + "</table>";
+            }
+            return mirror;
+        };
+        this.addTableRow = function(arr) {
+            var str = "<tr>";
+            var arrLen = arr.length;
+            for (var i = 0; i < arr.length; i++) {
+                str += "<td>"+arr[i]+"</td>";
+            }
+            str += "<tr>";
+            return str;
+        }
         //Grid column expand label: Device ID//
         this.deviceUUIDFormatter = function(d, c, v, cd, dc) {
             var deviceUUID = "";
@@ -498,6 +553,26 @@ define([
                 }
             }
             return rtList;
+        };
+        /*
+            Create / Edit Routing Instance drop down data formatter
+        */
+        this.routingInstDDFormatter = function(response, edit, portModel) {
+            var routingInstList = [];
+            var routingInst = response[0]["routing-instances"];
+            var responseLen = routingInst.length;
+            var routingInstResponseVal = "";
+            for(var i = 0; i < responseLen; i++) {
+                var routingInstResponse = getValueByJsonPath(routingInst[i], 'fq_name', '');
+                if(routingInstResponse != '') {
+                    routingInstResponseVal = routingInstResponse.join(":");
+                    var objArr = routingInstResponse;
+                    var text = "";
+                    text = ctwu.formatCurrentFQName(routingInstResponse)
+                    routingInstList.push({value: routingInstResponseVal, text: text});
+                }
+            }
+            return routingInstList;
         };
         /*
             Create / Edit Floating IP drop down data formatter
