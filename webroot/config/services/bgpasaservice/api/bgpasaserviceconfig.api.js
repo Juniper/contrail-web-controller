@@ -138,17 +138,106 @@ function createBGPAsAService (request, response, appData)
 {
     var bgpasaserviceCreateURL = '/bgp-as-a-services';
     var bgpasaservicePostData  = request.body;
-
     if (typeof(bgpasaservicePostData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    configApiServer.apiPost(bgpasaserviceCreateURL, bgpasaservicePostData, appData,
-        function(error, data) {
-            commonUtils.handleJSONResponse(error, response, data);
+    updateVMIDetails(appData, bgpasaservicePostData, function(error, bgpaasData) {
+        if(error) {
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
         }
-    );
+        configApiServer.apiPost(bgpasaserviceCreateURL, bgpasaservicePostData, appData,
+            function(error, data) {
+                commonUtils.handleJSONResponse(error, response, data);
+            }
+        );
+    });
+}
+
+function updateVMIDetails(appData, bgpasaservicePostData, callback) {
+    var vmiRefs = commonUtils.getValueByJsonPath(bgpasaservicePostData,
+        "bgp-as-a-service;virtual_machine_interface_refs", []);
+    var vmiUUIDs = [], bgpaasBackRefUUDs = [], bgpaasUUIDs = [], bgpaasPutObjArray = [];
+    var vmiIndex, vmiRefLength, bgpaasBackRef, bgpaasIndex,
+        bgpaasLength, bgpaasPutURl, currbgpaasVMIs;
+    if(vmiRefs.length) {
+        vmiRefLength = vmiRefs.length
+        for(vmiIndex = 0;  vmiIndex < vmiRefLength; vmiIndex++) {
+            vmiUUIDs.push(vmiRefs[vmiIndex].uuid);
+        }
+        //get virtual machine interfaces
+        configApiServer.apiGet("/virtual-machine-interfaces?detail=true&fields=bgp_as_a_service_back_refs&obj_uuids="
+            + vmiUUIDs.join(","), appData,
+            function(error, vmiDetails) {
+                vmiDetails = commonUtils.getValueByJsonPath(vmiDetails,
+                    "virtual-machine-interfaces", [])
+                if(error || !vmiDetails.length) {
+                    callback(error, null);
+                    return;
+                }
+
+                // filter the virtual machine interfaces with bgp_as_a_service_back_refs
+                vmiRefLength = vmiDetails.length;
+                for(vmiIndex = 0; vmiIndex < vmiRefLength; vmiIndex++) {
+                    bgpaasBackRef =
+                    commonUtils.getValueByJsonPath(vmiDetails[vmiIndex],
+                        "virtual-machine-interface;bgp_as_a_service_back_refs;0", null);
+                    if(bgpaasBackRef) {
+                        bgpaasUUIDs.push(bgpaasBackRef.uuid);
+                    }
+                }
+                if(bgpaasUUIDs.length) {
+                    //get bgp as a services
+                    configApiServer.apiGet("/bgp-as-a-services?detail=true&obj_uuids="
+                        + bgpaasUUIDs.join(","), appData,
+                        function(err, bgpaasData) {
+                        bgpaasData = commonUtils.getValueByJsonPath(bgpaasData,
+                            "bgp-as-a-services", [])
+                        if(err || !bgpaasData.length) {
+                            callback(err, null);
+                            return;
+                        }
+                        bgpaasLength = bgpaasData.length;
+                        var bgpaasPutObjArray = [];
+                        for(bgpaasIndex = 0; bgpaasIndex < bgpaasLength; bgpaasIndex++){
+                            bgpaasPutURl = '/bgp-as-a-service/' + bgpaasData[bgpaasIndex]['bgp-as-a-service'].uuid;
+                            currbgpaasVMIs =
+                                bgpaasData[bgpaasIndex]['bgp-as-a-service']['virtual_machine_interface_refs'];
+                            for(var i =  currbgpaasVMIs.length - 1; i >= 0 ;i--){
+                                for(var k = 0; k < vmiUUIDs.length; k++){
+                                    if(currbgpaasVMIs[i] != null && currbgpaasVMIs[i]['uuid'] == vmiUUIDs[k]){
+                                        /*remove the vmi_refs from the existing
+                                        bgpasaservice whose are part of new bgpasaservice*/
+                                        currbgpaasVMIs.splice(i, 1);
+                                    }
+                                }
+                            }
+                            commonUtils.createReqObj(bgpaasPutObjArray, bgpaasPutURl, global.HTTP_REQUEST_PUT,
+                                    commonUtils.cloneObj(bgpaasData[bgpaasIndex]), null, null, appData);
+                        }
+                        if(bgpaasPutObjArray.length >0) {
+                            async.map(bgpaasPutObjArray,commonUtils.getAPIServerResponse(configApiServer.apiPut, true),
+                                function(err, bgpaasPutDetails){
+                                    if(err){
+                                        callback(err, null);
+                                        return;
+                                    }
+                                    callback(null, bgpasaservicePostData);
+                                }
+                            );
+                        } else {
+                            callback(null, bgpasaservicePostData);
+                        }
+                    });
+                } else {
+                    callback(null, bgpasaservicePostData);
+                }
+        });
+    } else {
+        callback(null, bgpasaservicePostData);
+    }
 }
 
 /**
@@ -176,11 +265,17 @@ function updateBGPAsAService (request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    configApiServer.apiPut(bgpasaserviceUpdateURL, bgpasaserviceData, appData,
-        function(error, data) {
-            commonUtils.handleJSONResponse(error, response, data);
+    updateVMIDetails(appData, bgpasaserviceData, function(error, bgpaasData) {
+        if(error) {
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
         }
-    );
+        configApiServer.apiPut(bgpasaserviceUpdateURL, bgpasaserviceData, appData,
+            function(error, data) {
+                commonUtils.handleJSONResponse(error, response, data);
+            }
+        );
+    });
 }
 
 /**

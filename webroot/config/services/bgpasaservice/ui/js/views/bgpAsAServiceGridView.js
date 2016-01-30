@@ -98,6 +98,19 @@ define([
                     }
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading BGP as a Service..'
+                    },
+                    empty: {
+                        text: 'No BGP as a Service.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting BGP as a Service.'
+                    }
                 }
             },
             columnHeader: {

@@ -6,8 +6,8 @@
      var bgpaasFamilyAttrsModel = ContrailModel.extend({
          defaultConfig: {
              "address_family": "inet",
-             "loop_count": null,
-             "prefix_limit": null
+             "loop_count": 0,
+             "prefix_limit": 0
          },
          formatModelConfig: function(modelConfig){
              return modelConfig
