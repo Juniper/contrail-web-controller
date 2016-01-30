@@ -406,19 +406,43 @@ define([
                 }]
             }
         },
-        this.getPortTuplePropView = function(isDisabled) {
+        this.getSvcInstV1PropView = function(isDisabled) {
             return {
-                elementId: 'svcInstProp',
+                elementId: 'svcInstPropV1',
                 view: 'AccordianView',
                 viewConfig: [{
-                    visible: 'showPortTuplesView',
-                    elementId: 'svcInstPropSection',
+                    elementId: 'svcInstV1PropSection',
                     title: 'Service Instance Properties',
+                    view: 'SectionView',
+                    visible: 'showInterfaceCollectionView',
+                    viewConfig: {
+                        rows: [{
+                            columns: [{
+                                elementId: 'svcInstV1PropAccordian',
+                                view: 'AccordianView',
+                                viewConfig: [
+                                    this.getRtPolicyAccordianView(isDisabled),
+                                    this.getRtAggregateAccordianView(isDisabled)
+                                ]
+                            }]
+                        }]
+                    }
+                }]
+            }
+        },
+        this.getSvcInstV2PropView = function(isDisabled) {
+            return {
+                elementId: 'svcInstPropV2',
+                view: 'AccordianView',
+                viewConfig: [{
+                    elementId: 'svcInstV2PropSection',
+                    title: 'Service Instance Properties',
+                    visible: 'showPortTuplesView',
                     view: 'SectionView',
                     viewConfig: {
                         rows: [{
                             columns: [{
-                                elementId: 'svcInstPropAccordian',
+                                elementId: 'svcInstV2PropAccordian',
                                 view: 'AccordianView',
                                 viewConfig: [
                                     this.getSvcHealthCheckAccordianView(isDisabled),
@@ -602,11 +626,19 @@ define([
                                         path: 'interface_type',
                                         dataBindValue: 'interface_type()',
                                         dataBindOptionList:
-                                            'interfaceTypesData()',
+                                            'rtPolicyInterfaceTypesData()',
                                         elementConfig: {
                                             minimumResultsForSearch: 1,
                                             placeholder: 'Select Interface ' +
-                                                         'Type',
+                                                'Type'
+                                            /*
+                                            dataTextField: 'text',
+                                            dataValueField: 'value',
+                                            data: [
+                                                {text: 'left', value: 'left'},
+                                                {text: 'right', value: 'right'}
+                                            ]
+                                            */
                                         }
                                     }
                                 },

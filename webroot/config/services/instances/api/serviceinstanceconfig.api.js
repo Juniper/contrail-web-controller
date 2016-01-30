@@ -808,6 +808,7 @@ function createServiceInstance(request, response, appData)
         version = svcTmpl[0]['service_template_properties']['version'];
     }
     delete siPostData['service-instance']['svcTmplDetails'];
+    /*
     if (1 == version) {
         configApiServer.apiPost(siCreateURL, siPostData, appData,
             function (error, data) {
@@ -815,6 +816,7 @@ function createServiceInstance(request, response, appData)
         });
         return;
     }
+    */
     var dataObjArr = [];
     var vmisDataObjArr = [];
     var portTuples = [];
@@ -1538,6 +1540,7 @@ function updateServiceInstance(request, response, appData)
     }
     delete siPostData['service-instance']['svcTmplDetails'];
 
+    /*
     if (1 == version) {
         jsonDiff.getJSONDiffByConfigUrl(siPutURL, appData, siPostData,
                                         function(err, delta) {
@@ -1548,6 +1551,7 @@ function updateServiceInstance(request, response, appData)
         });
         return;
     }
+    */
 
     var portTuples = [];
     var portTuplesCnt = 0;

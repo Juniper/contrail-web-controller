@@ -336,7 +336,12 @@ define([
                 },
                 {
                     columns: [
-                        svcInstUtils.getPortTuplePropView(isDisabled)
+                        svcInstUtils.getSvcInstV1PropView(isDisabled)
+                    ]
+                },
+                {
+                    columns: [
+                        svcInstUtils.getSvcInstV2PropView(isDisabled)
                     ]
                 }]
             }

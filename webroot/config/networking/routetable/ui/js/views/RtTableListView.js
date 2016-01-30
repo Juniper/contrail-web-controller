@@ -75,7 +75,7 @@ define([
                     {
                         columns: [
                             {
-                                elementId: ctwl.CONFIG_RT_TABLE_ID,
+                                elementId: ctwl.NETWORK_ROUTE_TABLE_ID,
                                 title: ctwl.TITLE_RT_TABLE,
                                 view: "RtTableGridView",
                                 viewPathPrefix: "config/networking/routetable/ui/js/views/",
