@@ -231,9 +231,46 @@ function getConfigDetailsAsync (dataObj, callback)
         url += 'back_ref_id=' + dataObj['back_ref_id'];
         startDone = true;
     }
-    configApiServer.apiGet(url, appData, function(err, data) {
-        callback(err, data);
-    });
+    if (null != dataObj['obj_uuids']) {
+        if (true == startDone) {
+            url += '&';
+        } else {
+            url += '?';
+        }
+        url += 'obj_uuids=' + dataObj['obj_uuids'].join(',');
+        startDone = true;
+    }
+    if (null != dataObj['fq_name']) {
+        var postData = {
+            'appData': appData,
+            'fqnReq' : {
+                'fq_name': dataObj['fq_name'].split(':'),
+                'type':
+                    dataObj['type'] != null ? dataObj['type'].slice(0, -1) : null}
+        };
+        getUUIDByFQN(postData, function(error, data) {
+            if ( null != error) {
+                var error = new appErrors.RESTServerError('Invalid fqn provided');
+                callback(error, null);
+                return;
+            }
+            var uuid = data.uuid;
+            if (true == startDone) {
+                url += '&';
+            } else {
+                url += '?';
+            }
+            url += 'obj_uuids=' + uuid;
+            configApiServer.apiGet(url, appData, function(err, data) {
+                callback(err, data);
+            });
+        });
+    } else {
+        configApiServer.apiGet(url, appData, function(err, data) {
+            callback(err, data);
+        });
+    }
+
 }
 
 function getConfigDetails (req, res, appData)
@@ -262,6 +299,9 @@ function getConfigAsync (postData, detail, appData, callback)
         if (null != postData[i]['parent_id']) {
             dataObjArr[i]['parent_id'] = postData[i]['parent_id'];
         }
+        if (null != postData[i]['obj_uuids']) {
+            dataObjArr[i]['obj_uuids'] = postData[i]['obj_uuids'];
+        }
         if ((null != postData[i]['parent_fq_name_str']) &&
             (null != postData[i]['parent_type'])) {
             dataObjArr[i]['parent_fq_name_str'] =
@@ -271,6 +311,9 @@ function getConfigAsync (postData, detail, appData, callback)
         var backRefIds = postData[i]['back_ref_id'];
         if ((null != backRefIds) && (backRefIds.length > 0)) {
             dataObjArr[i]['back_ref_id'] = backRefIds.join(',');
+        }
+        if (null != postData[i]['fq_name']) {
+            dataObjArr[i]['fq_name'] = postData[i]['fq_name'];
         }
     }
     async.map(dataObjArr, getConfigDetailsAsync, function(err, results) {
