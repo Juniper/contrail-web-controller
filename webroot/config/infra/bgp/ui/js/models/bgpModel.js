@@ -36,7 +36,7 @@ define([
             'user_created_router_type' : null,
             'user_created_autonomous_system' : null,
             'user_created_address_family' :
-                'inet-vpn,inet6-vpn,route-target,e-vpn',
+                'inet-vpn,route-target,inet6-vpn,e-vpn',
             'user_created_auth_key_type' : 'none',
             'user_created_auth_key' : null,
             'user_created_physical_router' : 'none',
@@ -481,7 +481,7 @@ define([
                 'user_created_auth_key' : function(value, attr, finalObj){
                     if (finalObj['user_created_auth_key_type'] != 'none'
                         && (value == null || value.trim() == '')) {
-                        return "Enter a valid Authentication key";
+                        return "Enter Authentication Key";
                     }
                 },
                 'bgp_router_parameters.port' :  function(value, attr, finalObj){
@@ -516,6 +516,11 @@ define([
                             return "Vendor name cannot be 'contrail'.\
                                 Enter valid vendor name or SKU such as 'Juniper' or 'MX-40'";
                         }
+                    }
+                },
+                "user_created_address_family" : function(value, attr, finalObj) {
+                    if(!value) {
+                        return "At least one Address Family is required";
                     }
                 }
             }

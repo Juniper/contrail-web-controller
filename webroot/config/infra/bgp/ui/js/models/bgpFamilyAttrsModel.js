@@ -30,18 +30,18 @@
              familyAttrValidation : {
                  "address_family" : {
                      required: true,
-                     msg: "Address family is required"
+                     msg: "Address Family is required"
                  },
                  "loop_count" : function(value, attr, finalObj) {
                      if(value) {
                          if(isNaN(value) || Number(value) < 0 || Number(value) > 16) {
-                             return "Enter Loop count between 0 - 16"
+                             return "Enter Loop Count between 0 - 16"
                          }
                      }
                  },
                  "prefix_limit" : function(value, attr, finalObj) {
                      if(value && isNaN(value)) {
-                         return "Prefix limit should be a number";
+                         return "Prefix Limit should be a number";
                      }
                  }
              }
