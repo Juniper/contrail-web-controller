@@ -505,12 +505,12 @@ define([
                                                locked : true
                                            },
                                            {
-                                               text : 'inet6-vpn',
-                                               value : 'inet6-vpn'
-                                           },
-                                           {
                                                 text : 'route-target',
                                                 value : 'route-target'
+                                           },
+                                           {
+                                               text : 'inet6-vpn',
+                                               value : 'inet6-vpn'
                                            },
                                            {
                                                 text : 'e-vpn',
@@ -540,10 +540,6 @@ define([
                                           }
                                       ];
         this.FAMILY_ATTR_ADDRESS_FAMILY_DATA = [
-                                          {
-                                              text: "inet",
-                                              value: "inet"
-                                          },
                                           {
                                               text: "inet-vpn",
                                               value: "inet-vpn"
