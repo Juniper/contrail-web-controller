@@ -23,7 +23,7 @@ define([
                 "hold_time": null,
                 "loop_count": null,
                 "address_families": {
-                    "family": ["inet", "inet6"]
+                    "family": []
                 },
                 "family_attributes": []
             },
@@ -41,6 +41,8 @@ define([
             if(bgpaasSessionAttrs) {
                 var familyAttrs = getValueByJsonPath(bgpaasSessionAttrs,
                     "family_attributes", []);
+                var addressFamilies = getValueByJsonPath(bgpaasSessionAttrs,
+                    "address_families;family", []);
                 if(!familyAttrs.length) {
                     familyAttrArray.push(new BGPAsAServiceFamilyAttrModel({
                                            address_family: "inet",
@@ -61,6 +63,11 @@ define([
                                            });
                         familyAttrArray.push(familyAttr);
                     }
+                }
+
+                if(!addressFamilies.length) {
+                    modelConfig["bgpaas_session_attributes"]["address_families"]["family"] =
+                        ["inet", "inet6"];
                 }
                 if(bgpaasSessionAttrs['auth_data'] != null) {
                     var authData = bgpaasSessionAttrs['auth_data'];
