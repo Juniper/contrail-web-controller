@@ -327,34 +327,56 @@ function getServiceInstanceStatusByProject (request, response, appData)
             }
         }
         var svcTmpl = null;
+        var UUIDList = [];
         for (var i = 0; i < instCnt; i++) {
-            var version = 1;
-            if (null != svcInstIdxToTmplUUIDMapArr[i]) {
-                svcTmpl = svcTmpls[svcInstIdxToTmplUUIDMapArr[i]];
-                version =
-                    commonUtils.getValueByJsonPath(svcTmpl,
-                                                   'service_template_properties;version',
-                                                   1);
-            }
             var svcInstUUID =
                 commonUtils.getValueByJsonPath(filteredResults[i],
                                                'service-instance;uuid', null);
             if (null == svcInstUUID) {
                 continue;
             }
-            siObjArr[i] = {};
-            siObjArr[i]['req'] = response.req;
-            siObjArr[i]['appData'] = appData;
-            siObjArr[i]['servInstId'] = svcInstUUID;
-            siObjArr[i]['servInstData'] = filteredResults[i];
-            siObjArr[i]['svcTmplVersion'] = version;
+            UUIDList.push(svcInstUUID);
         }
 
-        logutils.logger.debug("VM Status Nova Query Started at:" + new Date());
-        async.map(siObjArr, getServiceInstDetails, function(err, data) {
-            logutils.logger.debug("VM Status Nova Response processed at:" + new
-                                  Date());
-            commonUtils.handleJSONResponse(null, response, data);
+        var svcInstGetUrl =
+            '/service-instances?detail=true&fields=virtual_machine_back_refs' +
+            '&obj_uuids=' + UUIDList.join(',');
+        configApiServer.apiGet(svcInstGetUrl, appData,
+                               function(error, svcInstData) {
+            if ((null != error) || (null == svcInstData) ||
+                (null == svcInstData['service-instances'])) {
+                commonUtils.handleJSONResponse(null, response, []);
+                return;
+            }
+            instCnt = svcInstData['service-instances'].length;
+            for (var i = 0; i < instCnt; i++) {
+                var version = 1;
+                if (null != svcInstIdxToTmplUUIDMapArr[i]) {
+                    svcTmpl = svcTmpls[svcInstIdxToTmplUUIDMapArr[i]];
+                    version =
+                        commonUtils.getValueByJsonPath(svcTmpl,
+                                                       'service_template_properties;version',
+                                                       1);
+                }
+                var svcInstUUID =
+                    commonUtils.getValueByJsonPath(filteredResults[i],
+                                                   'service-instance;uuid', null);
+                if (null == svcInstUUID) {
+                    continue;
+                }
+                siObjArr[i] = {};
+                siObjArr[i]['req'] = response.req;
+                siObjArr[i]['appData'] = appData;
+                siObjArr[i]['servInstId'] = svcInstUUID;
+                siObjArr[i]['servInstData'] = svcInstData['service-instances'][i];
+                siObjArr[i]['svcTmplVersion'] = version;
+            }
+            logutils.logger.debug("VM Status Nova Query Started at:" + new Date());
+            async.map(siObjArr, getServiceInstDetails, function(err, data) {
+                logutils.logger.debug("VM Status Nova Response processed at:" + new
+                                      Date());
+                commonUtils.handleJSONResponse(null, response, data);
+            });
         });
     });
 }
