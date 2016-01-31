@@ -435,6 +435,44 @@ function getPhysicalRouter (request, response, appData)
     });
 }
 
+function updateBGPRouter(appData, postData, callback)
+{
+    var physicalRouterUUID;
+    var bgpUUID = commonUtils.getValueByJsonPath(postData,
+        "physical-router;bgp_router_refs;0;uuid", null);
+    if(bgpUUID) {
+        configApiServer.apiGet('/bgp-router/' + bgpUUID, appData,
+                function(error, bgpData) {
+                    if(error || !bgpData["bgp-router"]){
+                        callback(error, null);
+                        return;
+                    }
+                    physicalRouterUUID = commonUtils.getValueByJsonPath(bgpData,
+                        "bgp-router;physical_router_back_refs;0;uuid", null);
+                    console.log("physicalRouterUUID:" + physicalRouterUUID);
+                    if(physicalRouterUUID) {
+                        configApiServer.apiGet('/physical-router/' + physicalRouterUUID, appData,
+                            function(err, prData) {
+                                if(err || !prData["physical-router"]) {
+                                   callback(err, null);
+                                   return;
+                                }
+                                prData["physical-router"].bgp_router_refs = [];
+                                configApiServer.apiPut('/physical-router/' + physicalRouterUUID,
+                                    prData, appData,
+                                    function(er, prData) {
+                                        callback(er, prData);
+                                });
+                        });
+                    } else {
+                        callback(null, postData);
+                    }
+        });
+    } else {
+        callback(null, postData);
+    }
+}
+
 /**
  * @createPhysicalRouters
  * public function
@@ -476,18 +514,8 @@ function createPhysicalRouters (request, response, appData)
                                                        commonUtils.handleJSONResponse(error, response, null);
                                                        return;
                                                    } else {
-                                                       delete postData['physical-router']['virtual-routers'];
-                                                       delete postData['physical-router']['virtual_router_type'];
                                                        //create physical router
-                                                       configApiServer.apiPost('/physical-routers', postData, appData,
-                                                               function(error, data) {
-                                                                   if(error){
-                                                                       commonUtils.handleJSONResponse(error, response, null);
-                                                                       return;
-                                                                   }
-                                                                   getPhysicalRoutersWithIntfCount(request, response, appData);
-                                                               });
-
+                                                       createPRouter(request, response, postData, appData);
                                                    }
                                                 });
                                     }
@@ -500,32 +528,14 @@ function createPhysicalRouters (request, response, appData)
                                     commonUtils.handleJSONResponse(error, response, null);
                                     return;
                                 } else {
-                                    delete postData['physical-router']['virtual-routers'];
-                                    delete postData['physical-router']['virtual_router_type'];
                                     //create physical router
-                                    configApiServer.apiPost('/physical-routers', postData, appData,
-                                            function(error, data) {
-                                                if(error){
-                                                    commonUtils.handleJSONResponse(error, response, null);
-                                                    return;
-                                                }
-                                                getPhysicalRoutersWithIntfCount(request, response, appData);
-                                            });
+                                    createPRouter(request, response, postData, appData);
                                 }
                              });
                  }
              } else {
-                 delete postData['physical-router']['virtual-routers'];
-                 delete postData['physical-router']['virtual_router_type'];
                  //create physical router
-                 configApiServer.apiPost('/physical-routers', postData, appData,
-                         function(error, data) {
-                             if(error){
-                                 commonUtils.handleJSONResponse(error, response, null);
-                                 return;
-                             }
-                             getPhysicalRoutersWithIntfCount(request, response, appData);
-                         });
+                 createPRouter(request, response, postData, appData);
              }
          }
          //If Tor Agent
@@ -547,44 +557,41 @@ function createPhysicalRouters (request, response, appData)
                             commonUtils.handleJSONResponse(error, response, null);
                             return;
                          }
-                         delete postData['virtual-routers'];
-                         delete postData['virtual_router_type'];
                          //create physical router
-                         configApiServer.apiPost('/physical-routers', postData, appData,
-                                 function(error, data) {
-                                     if(error){
-                                         commonUtils.handleJSONResponse(error, response, null);
-                                         return;
-                                     }
-                                     getPhysicalRoutersWithIntfCount(request, response, appData);
-                                 });
+                         createPRouter(request, response, postData, appData);
                      }
                  );
              } else {
-                 delete postData['virtual-routers'];
-                 delete postData['virtual_router_type'];
                  //create physical router
-                 configApiServer.apiPost('/physical-routers', postData, appData,
-                         function(error, data) {
-                             if(error){
-                                 commonUtils.handleJSONResponse(error, response, null);
-                                 return;
-                             }
-                             getPhysicalRoutersWithIntfCount(request, response, appData);
-                         });
+                 createPRouter(request, response, postData, appData);
              }
          }
      } else {
          //create physical router
-         configApiServer.apiPost('/physical-routers', postData, appData,
-                 function(error, data) {
-                     if(error){
-                         commonUtils.handleJSONResponse(error, response, null);
-                         return;
-                     }
-                     getPhysicalRoutersWithIntfCount(request, response, appData);
-                 });
+         createPRouter(request, response, postData, appData);
      }
+}
+
+
+function createPRouter(request, response, postData, appData) {
+
+    delete postData['physical-router']['virtual-routers'];
+    delete postData['physical-router']['virtual_router_type'];
+    updateBGPRouter(appData, postData, function(err, prData) {
+        if(err) {
+           commonUtils.handleJSONResponse(err, response, null);
+           return;
+        }
+        //create physical router
+        configApiServer.apiPost('/physical-routers', postData, appData,
+                function(error, data) {
+                    if(error){
+                        commonUtils.handleJSONResponse(error, response, null);
+                        return;
+                    }
+                    getPhysicalRoutersWithIntfCount(request, response, appData);
+                });
+    });
 }
 
 /**
@@ -707,14 +714,20 @@ function updatePRouter(request, response, pRouterId, postData, appData){
     delete postData['virtual_router_type'];
     delete postData['physical-router']['isVirtualRouterEdit'];
     //update physical router
-    configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
-            function(error, data) {
-                if(error){
-                    commonUtils.handleJSONResponse(error, response, null);
-                    return;
-                }
-                commonUtils.handleJSONResponse(error, response, data);
-            });
+    updateBGPRouter(appData, postData, function(err, prData) {
+        if(err) {
+            commonUtils.handleJSONResponse(err, response, null);
+            return;
+        }
+        configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
+                function(error, data) {
+                    if(error){
+                        commonUtils.handleJSONResponse(error, response, null);
+                        return;
+                    }
+                    commonUtils.handleJSONResponse(error, response, data);
+                });
+    });
 }
 
 /**
