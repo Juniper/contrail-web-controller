@@ -12,7 +12,7 @@ define([
             'name' : null,
             'display_name' : null,
             'physical_router_vendor_name' : null,
-            'physical_router_product_name' : null,
+            'physical_router_product_name' : "",
             'physical_router_management_ip' : null,
             'physical_router_dataplane_ip' : null,
             'snmpMntd' : false,
@@ -65,7 +65,7 @@ define([
             var ports = getValueByJsonPath(modelConfig,
                 'physical_router_junos_service_ports;service_port', []),
                 portModels = [], portModel,
-                portCollectionModel;
+                portCollectionModel, bgpRouterRef;
             if(ports.length > 0) {
                 modelConfig['isJunosPortEnabled'] = true;
                 for(var i = 0; i < ports.length; i++) {
@@ -120,11 +120,13 @@ define([
                     "password" : null
                  };
             }
-            modelConfig['user_created_bgp_router'] = 'None';
-            if(modelConfig['bgp_router_refs'] != null &&
-                modelConfig['bgp_router_refs'].length === 1) {
+            bgpRouterRef = getValueByJsonPath(modelConfig,
+                "bgp_router_refs;0", null);
+            if(bgpRouterRef) {
                     modelConfig['user_created_bgp_router'] =
-                         modelConfig['bgp_router_refs'][0].to[4];
+                         bgpRouterRef.to[4] + "~" + bgpRouterRef.uuid;
+            } else {
+                modelConfig['user_created_bgp_router'] = "none";
             }
             modelConfig['user_created_virtual_network'] = 'None';
             if(modelConfig['virtual_network_refs'] != null &&
@@ -266,13 +268,15 @@ define([
                 }
                 if(type === ctwl.PHYSICAL_ROUTER_TYPE) {
                     if(attr.user_created_bgp_router != null &&
-                        attr.user_created_bgp_router != "None") {
-                        var bgpRouterRefs = [{"to":["default-domain",
+                        attr.user_created_bgp_router != "none") {
+                        var bgpRouterRefs =
+                            attr.user_created_bgp_router.split("~");
+                        bgpRouterRefs = [{"to":["default-domain",
                             "default-project" , "ip-fabric", "__default__",
-                            attr.user_created_bgp_router]}];
+                            bgpRouterRefs[0]], "uuid": bgpRouterRefs[1]}];
                         postObject["physical-router"]["bgp_router_refs"] =
                             bgpRouterRefs;
-                    } else if(attr.user_created_bgp_router == 'None') {
+                    } else {
                         postObject["physical-router"]["bgp_router_refs"] = [];
                     }
                     postObject["physical-router"]
