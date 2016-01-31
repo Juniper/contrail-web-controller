@@ -77,7 +77,8 @@ define([
             id: 'name',
             field: 'name',
             name: 'Configuration Option',
-            cssClass: 'cell-text-blue'
+            cssClass: 'cell-text-blue',
+            sortable: false
         },
         {
             id: 'value',
@@ -172,7 +173,8 @@ define([
                     return dispStr;
                 }
                 return val;
-            }
+            },
+            sortable: false
         }
     ];
 

@@ -262,6 +262,9 @@ define([
                     return "-";
                 }
                 return val;
+            },
+            sortable: {
+                sortBy: 'formattedValue'
             }
         },
         /*

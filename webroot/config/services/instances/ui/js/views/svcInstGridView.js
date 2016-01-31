@@ -974,6 +974,9 @@ define([
             width: 55,
             formatter: function(row, col, val, d, rowData) {
                 return svcTmplFormatter(row, col, val, d, rowData);
+            },
+            sortable: {
+                sortBy: 'formattedValue'
             }
         },
         {
@@ -981,6 +984,9 @@ define([
             width: 30,
             formatter: function(row, col, val, d, rowData) {
                 return statusFormatter(row, col, val, d, rowData);
+            },
+            sortable: {
+                sortBy: 'formattedValue'
             }
         },
         {
@@ -988,12 +994,18 @@ define([
             width: 35,
             formatter: function(row, col, val, d, rowData) {
                 return instCountFormatter(row, col, val, d, rowData);
+            },
+            sortable: {
+                sortBy: 'formattedValue'
             }
         },
         {
             name: 'Networks / Port Tuples',
             formatter: function(row, col, val, d, rowData) {
                 return networksFormatter(row, col, val, d, rowData, false);
+            },
+            sortable: {
+                sortBy: 'formattedValue'
             }
         }
     ];

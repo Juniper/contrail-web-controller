@@ -122,6 +122,9 @@ define([
                     return dispStr;
                 }
                 return "";
+            },
+            sortable: {
+                sortBy: 'formattedValue'
             }
         },
         {
@@ -145,6 +148,9 @@ define([
                     return dispStr;
                 }
                 return "";
+            },
+            sortable: {
+                sortBy: 'formattedValue'
             }
         }
     ];

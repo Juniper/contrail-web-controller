@@ -209,7 +209,10 @@ define([
             field: "sgRules",
             name: "Rules",
             width: 650,
-            formatter: sgUtils.secGrpRulesFormatter
+            formatter: sgUtils.secGrpRulesFormatter,
+            sortable: {
+                sortBy: 'formattedValue'
+            }
         }
     ];
 

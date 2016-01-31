@@ -269,6 +269,9 @@ define([
                 return getValueByJsonPath(rowData,
                                           'service_appliance_ip_address',
                                           '-');
+            },
+            sortable: {
+                sortBy: 'formattedValue'
             }
         },
         {
@@ -300,6 +303,9 @@ define([
                     dispStr += "(" + (len - traverseLen).toString() + " more)";
                 }
                 return dispStr;
+            },
+            sortable: {
+                sortBy: 'formattedValue'
             }
         },
         /*

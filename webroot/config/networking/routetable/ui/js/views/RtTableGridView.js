@@ -280,7 +280,10 @@ define([
             field: "route",
             width: 80,
             name: "Routes",
-            formatter: rtTablesFormatter
+            formatter: rtTablesFormatter,
+            sortable: {
+                sortBy: 'formattedValue'
+            }
         }
     ];
 
