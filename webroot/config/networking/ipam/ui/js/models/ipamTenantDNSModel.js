@@ -28,9 +28,23 @@ define([
 
         validations: {
             ipamTenantDNSConfigValidations: {
-                'ip_addr': {
-                    required: true,
-                    msg: 'Enter DNS Server IP address'
+                'ip_addr': 
+                    function (value, attr, finalObj) {
+                    msg = 'Enter DNS Server IP address(es)';
+                    err = [];
+                    if (value && value.length) {
+                        var dnsServers = value.split(' ');
+                        $.each(dnsServers, function (idx, dnsServer) {
+                            if (!isValidIP(dnsServer)) {
+                                err.push(dnsServer);
+                            }
+                        });
+                        if (err.length) {
+                            return msg;
+                        }
+                    } else {
+                        return msg;
+                    }
                 }
             }
         }
