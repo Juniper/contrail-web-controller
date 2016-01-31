@@ -830,13 +830,13 @@ define([
                 var intfType = attr['interfaceType']();
                 intfList[i]['virtual_network'] = vn;
                 /* Now check if we have Static RTs */
-                if ('Right' == intfType) {
+                if ('right' == intfType) {
                     siProp['right_virtual_network'] = vn;
                 }
-                if ('Left' == intfType) {
+                if ('left' == intfType) {
                     siProp['left_virtual_network'] = vn;
                 }
-                if ('Management' == intfType) {
+                if ('management' == intfType) {
                     siProp['management_virtual_network'] = vn;
                 }
                 var staticRTs = attr.staticRoutes();
