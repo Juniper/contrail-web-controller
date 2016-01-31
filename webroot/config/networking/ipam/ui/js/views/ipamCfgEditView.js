@@ -234,7 +234,6 @@ define([
                         columns: [{
                              elementId : 'tenantDNSIPSection',
                              view: "SectionView",
-                             //visible: "network_ipam_mgmt().ipam_dns_method === 'tenant-dns-server'",
                              viewConfig : {
                                 visible: "user_created_dns_method() == 'tenant-dns-server'",
                                  rows : [
@@ -247,8 +246,6 @@ define([
                                                      path : 'tenant_dns_server',
                                                      validations:
                                                     'ipamTenantDNSConfigValidations',
-                                                     //path : 'network_ipam_mgmt.ipam_dns_server.tenant_dns_server_address.ip_address',
-                                                     //collection: 'network_ipam_mgmt().ipam_dns_server.tenant_dns_server_address.ip_address',
                                                      collection:
                                                          'tenant_dns_server',
                                                      columns: [
@@ -291,7 +288,7 @@ define([
                 {
                     columns: [
                         {
-                            elementId: 'ntpServer',
+                            elementId: 'ntp_server',
                             view: 'FormInputView',
                             viewConfig: {
                                 label: 'NTP Server IP',

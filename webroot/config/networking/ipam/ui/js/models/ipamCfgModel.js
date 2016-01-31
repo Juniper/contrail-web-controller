@@ -43,7 +43,7 @@ define([
                 dhcpList = [], vDnsName = null;
 
            dhcpList =
-          modelConfig['network_ipam_mgmt']['dhcp_option_list']['dhcp_option'] =
+           modelConfig['network_ipam_mgmt']['dhcp_option_list']['dhcp_option'] =
                 getValueByJsonPath(modelConfig,
                 'network_ipam_mgmt;dhcp_option_list;dhcp_option', []);
 
@@ -123,20 +123,48 @@ define([
                     required: true,
                     msg: 'Enter Name'
                 },
-                //'network_ipam_mgmt.ipam_dns_method': {
-                'user_created_dns_method': {
-                    required: true,
-                    msg: 'Select Valid DNS Method'
-                }
+                'user_created_dns_method': 
+                    function (value, attr, finalObj) {
+                        var vdns = finalObj.network_ipam_mgmt.ipam_dns_server.virtual_dns_server_name;
+                        if (value == 'virtual-dns-server' &&
+                            (vdns == null || vdns.length == 0)) {
+                            return "Select a Virtual DNS Server";
+                        }
+                    },
+                'network_ipam_mgmt.ipam_dns_server.virtual_dns_server_name':
+                    function (value, attr, finalObj) {
+                        if (finalObj.user_created_dns_method == 'virtual-dns-server' &&
+                            (value == null || value.length == 0)) {
+                            return "Select a Virtual DNS Server";
+                        }
+                    },
+                'user_created.ntp_server':
+                    function (value, attr, finalObj) {
+                        if ((value != null && value.length != 0) &&
+                                !isValidIP(value)) {
+                            return "Enter valid NTP IP";
+                        }
+                    },
             }
         },
 
         addEditIpamCfg: function (callbackObj, ajaxMethod) {
             var ajaxConfig = {}, returnFlag = false;
             var postData = {'network-ipam':{}};
+            var validation = [{
+                                key: null,
+                                type: cowc.OBJECT_TYPE_MODEL,
+                                getValidation: 'ipamCfgConfigValidations'
+                              },
+                              {
+                                key: 'tenant_dns_server',
+                                type: cowc.OBJECT_TYPE_COLLECTION,
+                                getValidation: 'ipamTenantDNSConfigValidations'
+                              }
+                            ];
 
             var self = this;
-            if (self.model().isValid(true, "ipamCfgConfigValidations")) {
+            if (this.isDeepValid(validation)) { 
 
                 var newipamCfgData = $.extend(true,
                                                 {}, self.model().attributes);
@@ -168,9 +196,9 @@ define([
                         ['ipam_dns_server']['virtual_dns_server_name'];
                 } else {
                     newipamCfgData['user_created']['domain_name'] = null;
-                    newipamCfgData['virtual_DNS_refs'] = [{to:
-                        newipamCfgData['network_ipam_mgmt']['ipam_dns_server']
-                            ['virtual_dns_server_name'].split(":")}];
+                    vdns = getValueByJsonPath(newipamCfgData,
+                            'network_ipam_mgmt;ipam_dns_server;virtual_dns_server_name', '');
+                    newipamCfgData['virtual_DNS_refs'] = [{to: vdns.split(":")}];
                 }
 
                 if (dnsMethod != 'tenant-dns-server') {
