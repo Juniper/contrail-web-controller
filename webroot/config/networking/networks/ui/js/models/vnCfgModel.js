@@ -249,8 +249,10 @@ define([
         deleteFipPool: function(data, kbFipPool) {
             var fipPoolCollection = data.model().collection,
                 fipPool = kbFipPool.model();
-
-            fipPoolCollection.remove(fipPool);
+            if (fipPool.attributes.name() != 'default' &&
+                fipPool.attributes.disable() != true) {
+                fipPoolCollection.remove(fipPool);
+            }
         },
 
         getFipPool : function(attr) {
@@ -274,7 +276,11 @@ define([
                     var projList = fipPoolObj.projects().split(',');
                     var projects = []
                     _.each(projList, function (proj) {
-                        projects.push({'uuid': proj.trim()});
+                        var projData = proj.trim().split('~');
+                        if (projData.length != 2) {
+                            return;
+                        }
+                        projects.push({'uuid': projData[1]});
                     });
                     fipPoolArray.push({'to': fipFQN, 'projects': projects});
                 } else {
