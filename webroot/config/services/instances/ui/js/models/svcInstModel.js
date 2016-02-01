@@ -657,7 +657,7 @@ define([
             }
             return;
         },
-        addPortTuple: function(data1, data2) {
+        addPortTuple: function() {
             var svcInstName = this.model().get('display_name');
             if ((null == svcInstName) || (!svcInstName.trim().length)) {
                 var model = this.model();

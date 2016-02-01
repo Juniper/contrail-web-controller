@@ -1066,8 +1066,10 @@ define([
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;version', 1);
             if (2 == tmplVer) {
+                $( "#ha_mode" ).addClass( "no-margin" );
                 return true;
             }
+            $( "#ha_mode" ).removeClass( "no-margin" );
             return false;
         }), model);
         model.showAvailibilityZone = ko.computed((function() {

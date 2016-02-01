@@ -293,8 +293,8 @@ define([
                     elementId: 'portTupleName',
                     view: 'FormInputView',
                     class: "", width: "600",
+                    name: 'Port Tuple Name',
                     viewConfig: {
-                        label: 'Port Tuple Name',
                         disabled: true,
                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                         path: 'portTupleName',
@@ -306,14 +306,14 @@ define([
         this.getPortTupleViewConfig = function(isDisabled) {
             return {
                 columns: [{
-                    elementId: 'port-tuples-vmi-collection',
-                    view: "FormCollectionView",
+                    elementId: 'port_tuples_vmi_collection',
+                    view: "FormEditableGridView",
                     viewConfig: {
                         colSpan: '2',
                         path: 'portTupleInterfaces',
                         collection: 'portTupleInterfaces()',
                         validation: 'portTupleInterfacesValidation',
-                        templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
+                        templateId: cowc.TMP_EDITABLE_GRID_VIEW,
                         /*
                         collectionActions: {
                             add: {onClick: "addPortTupleInterface()",
@@ -322,7 +322,7 @@ define([
                             }
                         },
                         */
-                        rows: [{
+                        //rows: [{
                             /*
                             rowActions: [
                                 {onClick: "deletePortTupleInterface()",
@@ -333,6 +333,7 @@ define([
                                 elementId: 'interfaceType',
                                 view: 'FormInputView',
                                 class: "", width: 385,
+                                name:'Interface Type',
                                 viewConfig: {
                                     placeholder: 'Select Interface Type',
                                     disabled: true,
@@ -346,6 +347,7 @@ define([
                                 elementId: 'interface',
                                 view: 'FormDropdownView',
                                 class: "", width: 345,
+                                name:'Interface',
                                 viewConfig: {
                                     templateId:
                                         cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
@@ -359,7 +361,7 @@ define([
                                         data: window.vmiList
                                     }
                                 }
-                            }]
+                            //}]
                         }]
                     }
                 }]
@@ -384,13 +386,13 @@ define([
                                     collection: 'portTuples()',
                                     validation: 'portTuplesValidation',
                                     //accordionable: true,
-                                    templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
-                                    collectionActions: {
-                                        add: {onClick: "function() {addPortTuple(self, this);}",
-                                              iconClass: 'icon-plus',
-                                              buttonTitle: 'Add Port Tuple'
-                                        }
-                                    },
+                                    templateId: cowc.TMPL_COLLECTION_GRIDACTION_HEADING_VIEW,
+                                        gridActions: [
+                                            {
+                                                onClick: "function() {addPortTuple();}",
+                                                buttonTitle: ""
+                                            }
+                                        ],
                                     rows: [/*{
                                         rowActions: [
                                             {onClick: "deletePortTuple()",
