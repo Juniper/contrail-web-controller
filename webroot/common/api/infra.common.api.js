@@ -19,6 +19,8 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/errors/app.errors'),
     redisUtils = require(process.mainModule.exports["corePath"] +
                          '/src/serverroot/utils/redis.utils'),
+    rest = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/rest.api'),
     async = require('async');
 
 var redisInfraClient = null;
@@ -829,10 +831,46 @@ function getSandeshData (req, res, appData)
     }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT));
 }
 
+function getConfigApiNetworkReachableIP (dataObj, callback)
+{
+    var ip = dataObj['ip'];
+    var port = dataObj['port'];
+    var req = dataObj['req'];
+    var resultJSON = {};
+
+    var userRoles = req.session.userRoles;
+    var authApi = require(process.mainModule.exports["corePath"] +
+        '/src/serverroot/common/auth.api');
+    console.log("aithApi as:", authApi);
+    var adminProjectList = authApi.getAdminProjectList(req);
+    var headers = {};
+
+    if ((null != adminProjectList) && (adminProjectList.length > 0)) {
+        var adminProject = adminProjectList[0];
+        headers['X_API_ROLE'] = req.session.userRoles[adminProject].join(',');
+        headers['X-AUTH-TOKEN'] =
+            req.session.tokenObjs[adminProject]['token']['id'];
+    }
+    console.log("Headers as:", headers);
+    var newConfigRESTServer =
+        rest.getAPIServer({apiName: global.label.VNCONFIG_API_SERVER,
+                           server: ip, port: port});
+    console.log("newConfigRESTServer  as:", newConfigRESTServer);
+    var apiUrl = '/';
+    newConfigRESTServer.api.get(apiUrl,
+            commonUtils.doEnsureExecution(function(err, data) {
+        resultJSON['ip'] = ip;
+        resultJSON['port'] = port;
+        callback(null, resultJSON);
+    }, 10000), headers);
+}
+
 function getNetworkReachableIP (dataObj, callback)
 {
     var ip = dataObj['ip'];
     var port = dataObj['port'];
+    var req = dataObj['req'];
+    var isConfig = dataObj['isConfig'];
     var resultJSON = {};
     var options = {};
     options['method'] = 'GET';
@@ -845,7 +883,14 @@ function getNetworkReachableIP (dataObj, callback)
     resultJSON['error'] = null;
     resultJSON['data'] = null;
 
+    console.log("isConfig as:", isConfig);
+    if ('true' == isConfig) {
+        getConfigApiNetworkReachableIP(dataObj, callback);
+        return;
+    }
+
     request(options, commonUtils.doEnsureExecution(function(err, data) {
+    console.log("Getting resp as:", err, data)
         if ((err === undefined) && (data === undefined)) {
             var errStr = 'API timeout Server:' + ip + ':' + port;
             err = new appErrors.RESTServerError(errStr);
@@ -898,17 +943,27 @@ function getReachableIP (req, res, appData)
     }
     var data = postBody['data'];
     var len = data.length;
+    console.log("LKEN as:", len, data);
     for (var i = 0; i < len; i++) {
+        /*
         if (false == checkValidIP(data[i]['ip'])) {
+                console.log("Sending wrong ip", data[i]['ip']);
             continue;
         }
+        */
         if ((null == data[i]['ip']) || (null == data[i]['port'])) {
             error = new appErrors.RESTServerError('IP/PORT not found in post ' +
                                                   ' body in ' + i + 'th index');
             commonUtils.handleJSONResponse(error, res, null);
             return;
         }
-        dataObjArr.push({'ip': data[i]['ip'], 'port': data[i]['port']});
+        var isConfig = false;
+        if (null != data[i]['isConfig']) {
+            isConfig = data[i]['isConfig'];
+        }
+        console.log("getong isCofig aS:", isConfig);
+        dataObjArr.push({'ip': data[i]['ip'], 'port': data[i]['port'],
+                         'req': req, isConfig: isConfig});
     }
 
     async.map(dataObjArr, getNetworkReachableIP, function(err, data) {
