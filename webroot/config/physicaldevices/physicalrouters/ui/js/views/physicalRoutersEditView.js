@@ -479,7 +479,7 @@ define([
                                 bgpRouter['vendor'].toLowerCase() !=
                                 'contrail'){
                                 self.bgpDS.push({text : bgpRouter.name,
-                                    value : bgpRouter.uuid});
+                                    value : bgpRouter.name + "~" + bgpRouter.uuid});
                             }
                         }
                     } else {
@@ -622,7 +622,7 @@ define([
                                         elementConfig: {
                                             allowClear: true,
                                             dataTextField: "text",
-                                            dataValueField: "text",
+                                            dataValueField: "value",
                                             data : self.bgpDS
                                         }
                                     }
