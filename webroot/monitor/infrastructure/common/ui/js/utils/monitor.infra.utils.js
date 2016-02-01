@@ -1210,14 +1210,15 @@ define([
             return lastTimeStamp;
         }
 
-        self.getPostDataForReachableIpsCall = function(ips,port) {
-            var postData;
-            var ipPortList = [];
-            $.each(ips,function(idx,obj){
-                ipPortList.push({ip:obj,port:port});
+        /**
+         * Returns the post data to be used for the reachable ip call
+         */
+        self.getPostDataForReachableIpsCall = function(ipPortList) {
+            var list = [];
+            $.each(ipPortList,function(idx,obj){
+                list.push({ip:obj.ip,port:obj.port});
             });
-            postData = {data:ipPortList};
-            return postData;
+            return {data:list};
         }
 
         /**
@@ -1321,11 +1322,16 @@ define([
 
         self.createMonInfraDetailsFooterLinks = function (parent, ipList, port) {
             var ipDeferredObj = $.Deferred();
-            self.getReachableIp(ipList,
-                                port,ipDeferredObj);
-            ipDeferredObj.done (function (nodeIp) {
-                if(nodeIp != null) {
-                var leftColumnContainer = '#left-column-container';
+            var ipPortList = [];
+            $.each(ipList,function(i,d) {
+               ipPortList.push({
+                   "ip" : d,
+                   "port" : port
+               });
+            });
+            self.getReachableIpFromList(ipPortList,ipDeferredObj);
+            ipDeferredObj.done (function (res) {
+                if(res != null) {
                     self.
                         createFooterLinks(parent,
                     [
@@ -1333,21 +1339,96 @@ define([
                           name:'introspect',
                           onClick: function () {
                                     monitorInfraUtils.
-                                        onIntrospectLinkClick(nodeIp,
-                                                port);
+                                        onIntrospectLinkClick(res.ip,
+                                                res.port);
                                 }
                       },
                       {
                           name:'status',
                           onClick : function () {
                                     monitorInfraUtils.
-                                        onStatusLinkClick(nodeIp);
+                                        onStatusLinkClick(res.ip);
                                 }
                       }
                     ]);
                 }
             });
         };
+
+        self.createConfigNodeDetailsFooterLinks = function (parent, ipList) {
+            var apiIpPortsDeferredObj = $.Deferred();
+            self.getApiServerIpPorts (apiIpPortsDeferredObj);
+            apiIpPortsDeferredObj.done (function (apiServerDetails) {
+                if (apiServerDetails != null) {
+                    var cnt = apiServerDetails.length;
+                    var ipPortList = [];
+                    for (var i = 0 ; i < cnt; i++) {
+                        ipPortList.push({
+                            "ip"   : apiServerDetails[i]['ip-address'],
+                            "port" : apiServerDetails[i]['port']
+                        })
+                    }
+                    var ipDeferredObj = $.Deferred();
+                    self.getReachableIpFromList(ipPortList,
+                                                ipDeferredObj);
+                    ipDeferredObj.done (function (res){
+                        var footerlinks = [];
+                        if (res != null) {
+                            footerlinks.push({
+                              name:'introspect',
+                              onClick: function () {
+                                        monitorInfraUtils.
+                                            onConfigLinkClick(res.ip,
+                                                    res.port);
+                                    }
+                            });
+                            footerlinks.push({
+                                name:'status',
+                                onClick : function () {
+                                          monitorInfraUtils.
+                                              onStatusLinkClick(res.ip);
+                                      }
+                            });
+                        }
+                        self.createFooterLinks(parent,footerlinks);
+                    });
+                }
+            });
+        };
+
+        /**
+         * Try to get the port from discovery.
+         * If not found get it from the config.global.js and return
+         */
+        self.getApiServerIpPorts = function (deferredObj) {
+            var apiServersInfo = [];
+            //If discovery is enabled fetch api server details from discovery
+            if (getValueByJsonPath(globalObj,
+                    'webServerInfo;discoveryEnabled',true)) {
+                $.ajax({
+                    url:'/api/tenant/monitoring/discovery-service-list',
+                    type:'GET',
+                }).done(function(result) {
+                    var apiServers = getValueByJsonPath(result,
+                            'ApiServer;data;ApiServer', []);
+                    deferredObj.resolve(apiServers);
+                    return;
+                }).fail(function(result) {
+                    deferredObj.resolve(apiServersInfo);
+                });
+            } else {
+              //Not found in discovery so check in config
+                var apiServerPort = getValueByJsonPath(globalObj,
+                        'webServerInfo;configServerPort', null);
+                var apiServerIp = getValueByJsonPath(globalObj,
+                        'webServerInfo;configServerIP', null);
+                apiServers.push({
+                    "ip-address":apiServerIp,
+                    "port":apiServerIp
+                });
+                deferredObj.resolve(apiServers);
+            }
+        }
 
         self.createFooterLinks = function (parent, config) {
             var template = contrail.
@@ -1369,6 +1450,10 @@ define([
         self.onIntrospectLinkClick = function (nodeIp, introspectPort) {
             window.open('/proxy?proxyURL=http://'+nodeIp+':'+ introspectPort +
                     '&indexPage', '_blank');
+        }
+
+        self.onConfigLinkClick = function (nodeIp, introspectPort) {
+            window.open('/proxy?proxyURL=http://'+nodeIp+':'+ introspectPort , '_blank');
         }
 
         self.onStatusLinkClick = function (nodeIp) {
@@ -1397,24 +1482,24 @@ define([
             });
         }
 
-        self.getReachableIp = function (ips,port,deferredObj){
+        self.getReachableIpFromList = function (ipPortList,deferredObj){
             var res;
-            if(ips != null && ips.length > 0){
-                var postData = self.getPostDataForReachableIpsCall(ips,port);
+            if(ipPortList != null && ipPortList.length > 0){
+                var postData = self.getPostDataForReachableIpsCall(ipPortList);
                 $.ajax({
                     url:'/api/service/networking/get-network-reachable-ip',
                     type:'POST',
                     data:postData
                 }).done(function(result) {
-                    if(result != null && result['ip'] != null){
-                        res = result['ip'];
-                    }
-                    deferredObj.resolve(res);
-                }).fail(function(result) {
-                    deferredObj.resolve(res);
+                    deferredObj.resolve(result);
+                }).fail(function(err) {
+                    deferredObj.resolve(null);
                 });
+            } else {
+                deferredObj.resolve(null);
             }
         }
+
         //Default tooltip render function for buckets
         self.getNodeTooltipContentsForBucket = function(currObj,formatType) {
             var nodes = currObj['children'];
