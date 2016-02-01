@@ -1349,6 +1349,36 @@ define([
             });
         };
 
+        self.createConfigNodeDetailsFooterLinks = function (parent, ipList, port) {
+            var ipDeferredObj = $.Deferred();
+            self.getReachableIp(ipList,
+                                port,ipDeferredObj);
+            ipDeferredObj.done (function (nodeIp) {
+                if(nodeIp != null) {
+                var leftColumnContainer = '#left-column-container';
+                    self.
+                        createFooterLinks(parent,
+                    [
+                      {
+                          name:'config',
+                          onClick: function () {
+                                    monitorInfraUtils.
+                                        onConfigLinkClick(nodeIp,
+                                                port);
+                                }
+                      },
+                      {
+                          name:'status',
+                          onClick : function () {
+                                    monitorInfraUtils.
+                                        onStatusLinkClick(nodeIp);
+                                }
+                      }
+                    ]);
+                }
+            });
+        };
+
         self.createFooterLinks = function (parent, config) {
             var template = contrail.
                 getTemplate4Id('monitor-infra-details-footer-links-template');
@@ -1369,6 +1399,10 @@ define([
         self.onIntrospectLinkClick = function (nodeIp, introspectPort) {
             window.open('/proxy?proxyURL=http://'+nodeIp+':'+ introspectPort +
                     '&indexPage', '_blank');
+        }
+
+        self.onConfigLinkClick = function (nodeIp, introspectPort) {
+            window.open('/proxy?proxyURL=http://'+nodeIp+':'+ introspectPort , '_blank');
         }
 
         self.onStatusLinkClick = function (nodeIp) {

@@ -81,10 +81,10 @@ define([
 
                     obj['lastLogTimestamp'] = getLastLogTime(result);
 
-                    monitorInfraUtils.createMonInfraDetailsFooterLinks (
+                    monitorInfraUtils.createConfigNodeDetailsFooterLinks (
                             $('#left-column-container').parent(),
                             obj['ips'].split(','),
-                            '8084');
+                            '8082');
                     return obj;
                 }
             }
