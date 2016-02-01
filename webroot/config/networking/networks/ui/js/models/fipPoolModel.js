@@ -10,7 +10,7 @@ define([
 
         defaultConfig: {
             'name': null,
-            'projects': null,
+            'projects': null, 
             'disable': true
         },
 
