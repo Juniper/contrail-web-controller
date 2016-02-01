@@ -149,7 +149,10 @@ define([
                                 field:"setup_time_utc",
                                 name:"Setup Time",
                                 formatter:function(r,c,v,cd,dc){
-                                    return new XDate(dc['setup_time_utc']/1000).toLocaleString();
+                                    if(dc['setup_time_utc'] != null && dc['setup_time_utc'] != '-') {
+                                        return new XDate(dc['setup_time_utc']/1000).toLocaleString();
+                                    }
+                                    return dc['setup_time_utc'];
                                 },
                                 minWidth:85
                             }];
