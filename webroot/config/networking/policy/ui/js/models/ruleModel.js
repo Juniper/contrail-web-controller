@@ -33,6 +33,7 @@ define([
             'simple_action': 'pass',
             'service_instance':'',
             'mirror':'',
+            'rule_uuid':'',
             'analyzer_name':'',
             'src_customValue':{
                 'text': 'ANY (All Networks in Current Project)',
@@ -235,8 +236,47 @@ define([
                     if(dscProt.toUpperCase() != "ANY") {
                         return "Only 'ANY' protocol allowed while mirroring services."
                     }
+                },
+                'src_ports_text' : function(val, attr, data) {
+                    var result = self.validatePort(val);
+                    if (result != "") {
+                        return result;
+                    }
+                },
+                'dst_ports_text' : function(val, attr, data) {
+                    var result = self.validatePort(val);
+                    if (result != "") {
+                        return result;
+                    }
                 }
             }
+        },
+        validatePort: function(port) {
+            if (_.isString(port)) {
+                if (port.toUpperCase() != "ANY") {
+                    var portArr = port.split(",");
+                    for (var i = 0; i < portArr.length; i++) {
+                        var portSplit = portArr[i].split("-");
+                        if (portSplit.length > 2) {
+                            return "Invalid Port Data";
+                        }
+                        for (var j = 0; j < portSplit.length; j++) {
+                            if (portSplit[j] == "") {
+                                return "Port has to be a number";
+                            }
+                            if (!isNumber(portSplit[j])) {
+                                return "Port has to be a number";
+                            }
+                            if (portSplit[j] % 1 != 0) {
+                                return "Port has to be a number";
+                            }
+                        }
+                    }
+                }
+            } else if (!isNumber(port)) {
+                return "Port has to be a number";
+            }
+            return "";
         },
         isBothSrcDscCIDR: function(data) {
             var msg = "";
@@ -329,8 +369,7 @@ define([
                 if (group == 'subnet') {
                     if (!isValidIP(value) ||
                         value.split("/").length != 2) {
-                        return "Enter a valid CIDR in \
-                            xxx.xxx.xxx.xxx/xx format for "+srcOrDesString;
+                        return "Enter valid Subnet/Mask";
                     }
                 }
                 var addValue = value.split(":");
