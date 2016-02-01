@@ -214,12 +214,21 @@ define([
             $.each(pools, function (i, obj) {
                 var poolName = getValueByJsonPath(obj, 'to;3', '');
                 var disable = poolName == 'default' ? true : false; 
-                poolStr.push(poolName);
+                var poolProjects = getValueByJsonPath(obj, 'projects', []);
+                var projects = [], projectsStr = [];
+                $.each(poolProjects, function (projIdx, proj) {
+                    projects.push(proj.to.join(':') + '~' + proj.uuid);
+                    projectsStr.push(proj.to.join(':'));
+                });
+
                 poolArr.push({'name': poolName,
-                    'projects': [], 'disable': disable});
+                    'projects': projects.join(','), 'disable': disable});
+
+                poolStr.push(poolName + (projectsStr.length ?
+                    ' (' + projectsStr.join(', ') + ')' : ''));
             });
 
-            return cd == -1 ? poolArr : poolStr.join(', ');
+            return cd == -1 ? poolArr : poolStr.join('<br>');
         };
 
         /*
@@ -632,7 +641,7 @@ define([
             $.each(projResponse, function (i, obj) {
                 var flatName = obj.fq_name[0] + ':' +
                                 obj.fq_name[1];
-                projList.push({id: obj.uuid, text: flatName});
+                projList.push({id: flatName + '~' + obj.uuid, text: flatName});
             });
 
             return projList;
