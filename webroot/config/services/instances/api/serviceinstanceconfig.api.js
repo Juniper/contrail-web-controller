@@ -1845,14 +1845,9 @@ function deleteServiceInstanceCB (deleteObj, callback)
     var req = deleteObj.request;
     var userData = deleteObj.userData;
     var siURL = '/service-instance/' + uuid;
-    if (1 == userData.template_version) {
-        configApiServer.apiDelete(siURL, appData,
-                                  function (error, data) {
-            callback(null, {'error': error, 'data': data});
-            return;
-        });
-        return;
-    }
+    /* Template Version 1 */
+    /* Call deleteAllSIRefsAndSI to delete all the refs and SI
+     */
     /* Template Version 2 */
     /* 1. Get the VMI details attached to the port tuples of this service
      *    instance, and then remove the references of port tuples

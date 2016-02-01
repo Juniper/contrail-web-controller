@@ -57,41 +57,7 @@ define([
             },
             body: {
                 options: {
-                    actionCell: function(dc) {
-                        if ((null != dc) && (null != dc['svcTmplDetails']) &&
-                            (null != dc['svcTmplDetails'][0])) {
-                            var svcTmplDetails = dc['svcTmplDetails'];
-                            var staticRtEnable = false;
-                            var svcScaleEnable =
-                                getValueByJsonPath(svcTmplDetails[0],
-                                                   'service_template_properties;service_scaling',
-                                                   null);
-                            var intfTypes =
-                                getValueByJsonPath(svcTmplDetails[0],
-                                                   'service_template_properties;interface_type',
-                                                   []);
-                            var tmplVersion =
-                                getValueByJsonPath(svcTmplDetails[0],
-                                                   'service_template_properties;version',
-                                                   1);
-                            if (2 == tmplVersion) {
-                                return rowActionConfig;
-                            }
-                            var cnt = intfTypes.length;
-                            for (var i = 0; i < cnt; i++) {
-                                if (true ==
-                                    intfTypes[i]['static_route_enable']) {
-                                    staticRtEnable = true;
-                                    break;
-                                }
-                            }
-                            if ((true == svcScaleEnable) ||
-                                (true == staticRtEnable)) {
-                                return rowActionConfig;
-                            }
-                        }
-                        return [rowActionConfig[1]];
-                    },
+                    actionCell: rowActionConfig,
                     detail: {
                         template:
                             cowu.generateDetailTemplateHTML(getSvcInstDetailsTemplateConfig(),
