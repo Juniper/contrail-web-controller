@@ -76,7 +76,7 @@ define([
             policyCreateEditView.model = policyModel;
             policyCreateEditView.renderDeletePolicy({
                                   "title": ctwl.TITLE_REMOVE,
-                                  selectedGridData: [dataItem.name],
+                                  selectedGridData: [dataItem],
                                   callback: function() {
                 var dataView =
                     $(gridElId).data("contrailGrid")._dataView;
@@ -218,7 +218,10 @@ define([
                                     label:'Display Name',
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
-                                        formatter: "PolicyNameFormatter"
+                                        formatter: "PolicyNameFormatter",
+                                        sortable: {
+                                           sortBy: 'formattedValue'
+                                        }
                                     }
                                 }, {
                                     keyClass:'span3',
@@ -230,7 +233,10 @@ define([
                                     label:'Connected networks',
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
-                                        formatter: "AssociatedNetworksFormatter"
+                                        formatter: "AssociatedNetworksFormatter",
+                                        sortable: {
+                                           sortBy: 'formattedValue'
+                                        }
                                     }
                                 }, {
                                     keyClass:'span3',
@@ -239,7 +245,10 @@ define([
                                     key: 'network_policy_entries',
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
-                                        formatter: "PolicyRulesExpandFormatter"
+                                        formatter: "PolicyRulesExpandFormatter",
+                                        sortable: {
+                                           sortBy: 'formattedValue'
+                                        }
                                     }
                                 }]
                             }]

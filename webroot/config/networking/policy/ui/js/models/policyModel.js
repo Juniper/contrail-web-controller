@@ -137,6 +137,10 @@ define([
                 policeyRuleLen = policeyRule.length;
                 for (var i = 0; i < policeyRuleLen; i++){
                     newPoliceyRule[i] = {};
+                    var ruleUuid = policeyRule[i].rule_uuid();
+                    if (ruleUuid != '') {
+                        newPoliceyRule[i].rule_uuid = ruleUuid;
+                    }
                     newPoliceyRule[i].action_list =
                                       policeyRule[i].action_list();
                     newPoliceyRule[i].action_list.simple_action =
@@ -161,8 +165,9 @@ define([
                     var desArr = policeyRule[i].dst_address().split("~");
                     //var desArr = policeyRule[i].dst_customValue().value.split("~");
                     if (desArr.length == 2 && desArr[1] !== 'subnet') {
-                        var remoteAddrArr = desArr[0].split(':');
-                        newPoliceyRule[i].dst_addresses[0][desArr[1]] = desArr[0];
+                        newPoliceyRule[i].dst_addresses[0][desArr[1]] = 
+                            self.getPostAddressFormat(desArr[0], selectedDomain,
+                                                 selectedProject);
                     } else {
                         newPoliceyRule[i].dst_addresses[0]["subnet"] = {};
                         var subnet = desArr[0].split("/");
@@ -180,7 +185,9 @@ define([
                     var srcArr = policeyRule[i].src_address().split("~");
                     //var srcArr = policeyRule[i].src_customValue().value.split("~");
                     if (srcArr.length == 2 && srcArr[1] != 'subnet') {
-                        newPoliceyRule[i].src_addresses[0][srcArr[1]] = srcArr[0];
+                        newPoliceyRule[i].src_addresses[0][srcArr[1]] = 
+                            self.getPostAddressFormat(srcArr[0], selectedDomain,
+                                                 selectedProject);
                     } else {
                         newPoliceyRule[i].src_addresses[0]["subnet"] = {};
                         var subnet = srcArr[0].split("/");
@@ -298,6 +305,23 @@ define([
                 }
             }
             return returnFlag;
+        },
+        getPostAddressFormat: function(arr, selectedDomain, selectedProject) {
+            var array = arr.split(":");
+            var returnval = null;
+            if (array.length == 1) {
+                if (String(array[0]).toLowerCase() != "any" &&
+                    String(array[0]).toLowerCase() != "local") {
+                    returnval = selectedDomain + ":" +
+                                selectedProject + ":" +
+                                array[0];
+                } else {
+                    returnval = array[0].toLowerCase();
+                }
+            } else if(array.length == 3) {
+                returnval = arr;
+            }
+            return returnval;
         },
         deletePolicy: function(selectedGridData, callbackObj) {
             var ajaxConfig = {}, returnFlag = false,

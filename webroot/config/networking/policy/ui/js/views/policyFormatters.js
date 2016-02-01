@@ -58,7 +58,7 @@ define([
                 }
                 if (isSet(rule["action_list"]) && isSet(rule["action_list"]["log"]) &&
                     true === rule["action_list"]["log"])
-                    rule_display += policyRuleFormat(", log ");
+                    rule_display += policyRuleFormat(" log ");
 
                 if (isSet(rule["application"]) &&
                     rule["application"].length > 0) {
