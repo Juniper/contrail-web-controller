@@ -67,6 +67,12 @@ define([
             var filteredFamilyAttrs = [], selFamilyAttrNames = [];
             var newFamilyAttr;
             var avlFamilyAttrs = ctwc.FAMILY_ATTR_ADDRESS_FAMILY_DATA;
+            if(root.model().attributes.user_created_router_type ===
+                ctwl.BGP_ROUTER_TYPE) {
+                avlFamilyAttrs = _.filter(avlFamilyAttrs, function(familyAttr){
+                    return familyAttr.text !== "erm-vpn";
+                });
+            }
             if(familyAttrsArry.length) {
                 _.each(familyAttrsArry, function(familyAttr){
                     selFamilyAttrNames.push(familyAttr.address_family());
@@ -124,17 +130,21 @@ define([
         },
         validations: {
             peerValidation : {
+                 "peerName" : {
+                     required: true,
+                     msg: "Enter Peer Name"
+                 },
                 'user_created_auth_key' : function(value, attr, finalObj){
                     if (finalObj['user_created_auth_key_type'] != 'none'
                         && (value == null || value.trim() == '')) {
-                        return "Enter Auth key";
+                        return "Enter Auth Key";
                     }
                 },
                 "hold_time" : function(value, attr, finalObj) {
                     if(value) {
                         var holdTime = Number(value);
                         if (isNaN(holdTime) || holdTime < 1 || holdTime > 65535) {
-                            return "Enter valid  hold time between 1 - 65535" ;
+                            return "Enter valid  Hold Time between 1 - 65535" ;
                         }
                     }
                 },

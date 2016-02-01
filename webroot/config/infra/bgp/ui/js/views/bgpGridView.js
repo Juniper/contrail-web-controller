@@ -262,7 +262,7 @@ define([
                     bgpModel.user_created_vendor('');
                     bgpModel.addressFamilyData(ctwc.BGP_ADDRESS_FAMILY_DATA);
                     bgpModel.user_created_address_family(
-                        'inet-vpn,inet6-vpn,route-target,e-vpn');
+                        'inet-vpn,route-target,inet6-vpn,e-vpn');
                     /*var peers = bgpModel.model().attributes['peers'].toJSON();
                     peers.forEach(function(peer){
                         peer.isPeerSelected(false);

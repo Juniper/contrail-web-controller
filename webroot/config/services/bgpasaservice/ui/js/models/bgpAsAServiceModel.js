@@ -23,7 +23,7 @@ define([
                 "hold_time": null,
                 "loop_count": null,
                 "address_families": {
-                    "family": ["inet", "inet6"]
+                    "family": []
                 },
                 "family_attributes": []
             },
@@ -41,7 +41,7 @@ define([
             if(bgpaasSessionAttrs) {
                 var familyAttrs = getValueByJsonPath(bgpaasSessionAttrs,
                     "family_attributes", []);
-                if(!familyAttrs.length) {
+                if(!modelConfig.uuid) {
                     familyAttrArray.push(new BGPAsAServiceFamilyAttrModel({
                                            address_family: "inet",
                                            loop_count: 0,
@@ -61,6 +61,11 @@ define([
                                            });
                         familyAttrArray.push(familyAttr);
                     }
+                }
+
+                if(!modelConfig.uuid) {
+                    modelConfig["bgpaas_session_attributes"]["address_families"]["family"] =
+                        ["inet", "inet6"];
                 }
                 if(bgpaasSessionAttrs['auth_data'] != null) {
                     var authData = bgpaasSessionAttrs['auth_data'];
@@ -323,6 +328,11 @@ define([
                     if (finalObj['user_created_auth_key_type'] != 'none'
                         && (value == null || value.trim() == '')) {
                         return "Enter a valid Authentication key";
+                    }
+                },
+                "bgpaas_session_attributes.address_families.family" : function(value, attr, finalObj) {
+                    if(!value) {
+                        return "At least one Address Family is required";
                     }
                 }
             }
