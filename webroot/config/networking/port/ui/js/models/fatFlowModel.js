@@ -35,7 +35,8 @@ define([
                 },
                 'port': function(value, attr, finalObj) {
                     if(finalObj.protocol != "icmp") {
-                        if(value.trim() == "") {
+                        value = String(value).trim();
+                        if(value == "") {
                             return "Enter valid port between 1 to 65535 for Fat Flow Record";
                         }
                         if (!isNumber(value)) {

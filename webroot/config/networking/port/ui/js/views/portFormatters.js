@@ -359,10 +359,10 @@ define([
                 mirror += this.addTableRow(["Analyzer Name", " : ", temp]);
 
                 temp = getValueByJsonPath(mirrorObj, "analyzer_ip_address", "-");
-                mirror += this.addTableRow(["Analyzer IP Address", " : ", temp]);
+                var temp1 = getValueByJsonPath(mirrorObj, "udp_port", "-");
 
-                temp = getValueByJsonPath(mirrorObj, "udp_port", "-");
-                mirror += this.addTableRow(["UDP port", " : ", temp]);
+                mirror += this.addTableRow(["Analyzer IP Address", " : ",
+                                            temp + ", UDP port : " + temp1]);
 
                 temp = getValueByJsonPath(mirrorObj, "routing_instance", "-");
                 if (temp != "") {
@@ -507,11 +507,10 @@ define([
         /*
             Create / Edit Security Group drop down data formatter
         */
-        this.sgDDFormatter = function(response, edit, portModel) {
+        this.sgDDFormatter = function(response, edit, portEditView) {
             var sgList = [];
             var sg = response["security-groups"];
             var responseLen = sg.length;
-            var defaultSelectedVal = [];
             var sgResponseVal = "";
             for(var i = 0; i < responseLen; i++) {
                 var sgResponse = getValueByJsonPath(sg[i], 'fq_name', '');
@@ -520,17 +519,8 @@ define([
                     var objArr = sgResponse;
                     var text = "";
                     text = ctwu.formatCurrentFQName(sgResponse)
-                    if(text == "default") {
-                        defaultSelectedVal.push(sgResponseVal);
-                    }
                     sgList.push({value: sgResponseVal, text: text});
                 }
-            }
-            portModel.sgDefaultValue = defaultSelectedVal
-            if(!edit) {
-                //portModel.model.is_sec_grp = true;//KO stops working if we put this
-                //portModel.model.is_sec_grp_disabled = false;
-                portModel.model.securityGroupValue(defaultSelectedVal);
             }
             return sgList;
         };

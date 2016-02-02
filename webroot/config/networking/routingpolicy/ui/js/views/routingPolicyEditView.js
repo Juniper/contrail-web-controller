@@ -165,7 +165,7 @@ define([
                             label:"Terms",
                             path: "termCollection",
                             validation: 'termValidation',
-                            templateId: cowc.TMPL_COLLECTION_VIEW,
+                            templateId: cowc.TMPL_EDITABLE_GRID_VIEW,
                             collection: "termCollection",
                             columns: [{
                                 elementId: 'fromValue',
