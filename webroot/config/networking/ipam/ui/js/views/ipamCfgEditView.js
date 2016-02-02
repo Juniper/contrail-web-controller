@@ -57,7 +57,8 @@ define([
                                          false);
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
-                kbValidation.bind(self);
+                kbValidation.bind(self,
+                    {collection: self.model.model().attributes.tenant_dns_server});
                                     });
         },
 
@@ -102,7 +103,8 @@ define([
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
-                kbValidation.bind(self);
+                kbValidation.bind(self,
+                    {collection: self.model.model().attributes.tenant_dns_server});
                                     });
         },
 
@@ -240,11 +242,11 @@ define([
                                      {
                                          columns : [
                                              {
-                                                 elementId: 'tenantDNSServer',
+                                                 elementId: 'tenant_dns_server',
                                                  view: "FormEditableGridView",
                                                  viewConfig: {
                                                      path : 'tenant_dns_server',
-                                                     validations:
+                                                     validation:
                                                     'ipamTenantDNSConfigValidations',
                                                      collection:
                                                          'tenant_dns_server',

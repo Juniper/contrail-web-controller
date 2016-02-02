@@ -23,7 +23,24 @@ define([
                     dataParser: ctwp.vnCfgDataParser
                 },
                 vlRemoteConfig:{
-                    vlRemoteList: [ {
+                    vlRemoteList: [
+                    {
+                        getAjaxConfig  : function () {
+                            return {
+                                url: '/api/tenants/config/get-config-details',
+                                type: 'POST',
+                                data: JSON.stringify({
+                                        'data': [
+                                        {type: 'floating-ip-pools',
+                                        fields: ['project_back_refs']}]
+                                        }),
+                            }
+                        }, 
+                        successCallback: function (response, contrailListModel) {
+                            setFIPEnabledNets(response, contrailListModel);
+                        }
+                    },
+                    {
                         getAjaxConfig  : function () {
                             return {
                                 url: ctwc.get(ctwc.URL_CFG_VN_DETAILS) +
@@ -34,18 +51,6 @@ define([
                         }, 
                         successCallback: function (response, contrailListModel) {
                             contrailListModel.addData(ctwp.vnCfgDataParser(response, true));
-                            var ajaxConfig = {
-                                url: '/api/tenants/config/get-config-details',
-                                type: 'POST',
-                                data: JSON.stringify({
-                                        'data': [
-                                        {type: 'floating-ip-pools',
-                                        fields: ['project_back_refs']}]
-                                        }),
-                            }
-                            contrail.ajaxHandler(ajaxConfig, null, function (response) {
-                                                setFIPEnabledNets(response, contrailListModel);
-                            });
                         }
                     },
                     {
@@ -95,6 +100,7 @@ define([
                 if (projs.length) {
                     nets[netIdx].floating_ip_pools[poolIdx]['projects'] =
                             projs;
+                    contrailListModel.updateData([nets[netIdx]]);
                 }
             });
         });

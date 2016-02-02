@@ -66,6 +66,10 @@ define([
                     {collection: self.model.model().attributes.user_created_dns_servers});
                 kbValidation.bind(self,
                     {collection: self.model.model().attributes.user_created_route_targets});
+                kbValidation.bind(self,
+                    {collection: self.model.model().attributes.user_created_import_route_targets});
+                kbValidation.bind(self,
+                    {collection: self.model.model().attributes.user_created_export_route_targets});
                                     });
         },
 
@@ -1055,7 +1059,7 @@ define([
                                                      'user_created_export_route_targets',
                                                  columns: [
                                                      {
-                                                      elementId: 'e_asn',
+                                                      elementId: 'asn',
                                                       name:
                                                         'ASN',
                                                       view: "FormInputView",
@@ -1070,7 +1074,7 @@ define([
                                                         }
                                                      },
                                                      {
-                                                      elementId: 'e_target',
+                                                      elementId: 'target',
                                                       name:
                                                         'Target',
                                                       view: "FormInputView",
@@ -1131,7 +1135,7 @@ define([
                                                      'user_created_import_route_targets',
                                                  columns: [
                                                      {
-                                                      elementId: 'i_asn',
+                                                      elementId: 'asn',
                                                       name:
                                                         'ASN',
                                                       view: "FormInputView",
@@ -1146,7 +1150,7 @@ define([
                                                         }
                                                      },
                                                      {
-                                                      elementId: 'i_target',
+                                                      elementId: 'target',
                                                       name:
                                                         'Target',
                                                       view: "FormInputView",
