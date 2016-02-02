@@ -414,7 +414,7 @@ define([
                 view: 'AccordianView',
                 viewConfig: [{
                     elementId: 'svcInstV1PropSection',
-                    title: 'Service Instance Properties',
+                    title: 'Advanced Options',
                     view: 'SectionView',
                     visible: 'showInterfaceCollectionView',
                     viewConfig: {
@@ -438,7 +438,7 @@ define([
                 view: 'AccordianView',
                 viewConfig: [{
                     elementId: 'svcInstV2PropSection',
-                    title: 'Service Instance Properties',
+                    title: 'Advanced Options',
                     visible: 'showPortTuplesView',
                     view: 'SectionView',
                     viewConfig: {

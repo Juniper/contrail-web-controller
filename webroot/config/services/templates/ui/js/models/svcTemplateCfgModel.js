@@ -189,16 +189,29 @@ define([
 
             ifCollection.remove(delInterface);
         },
-
-        getSvcTemplateInterfaceList : function(attr) {
+        showIntfTypeParams: function(version) {
+            if ((null != version) && (1 != Number(version))) {
+                return false;
+            }
+            return true;
+        },
+        getSvcTemplateInterfaceList : function(attr, version) {
             var ifCollection = attr.interfaces.toJSON(), ifList = [];
             for(var i = 0; i < ifCollection.length; i++) {
                 var intf = ifCollection[i];
-                ifList.push({
-                            'static_route_enable': intf.static_route_enable(),
-                            'shared_ip': intf.shared_ip(),
-                            'service_interface_type': intf.service_interface_type()
-                            });
+                var intfObj = {};
+                if (1 == version) {
+                    intfObj = {
+                        'static_route_enable': intf.static_route_enable(),
+                        'shared_ip': intf.shared_ip(),
+                        'service_interface_type': intf.service_interface_type()
+                    };
+                } else {
+                    intfObj = {
+                        'service_interface_type': intf.service_interface_type()
+                    };
+                }
+                ifList.push(intfObj);
             }
             return ifList;
         },
@@ -275,14 +288,16 @@ define([
                     newSvcTemplateCfgData['fq_name'][1] = newSvcTemplateCfgData['name'];
                 }
 
-                newSvcTemplateCfgData['service_template_properties']['interface_type'] =
-                    self.getSvcTemplateInterfaceList(newSvcTemplateCfgData);;
-
                 var version =
                     getValueByJsonPath(newSvcTemplateCfgData,
                                        'user_created_version', 1);
+                version = Number(version);
+                newSvcTemplateCfgData['service_template_properties']['interface_type'] =
+                    self.getSvcTemplateInterfaceList(newSvcTemplateCfgData,
+                                                     version);
+
                 newSvcTemplateCfgData['service_template_properties']['version'] =
-                    Number(version);
+                    version;
                 var svcVirtType =
                     getValueByJsonPath(newSvcTemplateCfgData,
                                        'user_created_service_virtualization_type',

@@ -296,6 +296,8 @@ define([
                                                           class: "",
                                                           viewConfig:
                                                             {
+                                                             visible:
+                                                                '$root.showIntfTypeParams($root.user_created_version())',
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
                                                              width: 100,
                                                              path: "shared_ip",
@@ -309,6 +311,8 @@ define([
                                                           class: "", width: 100,
                                                           viewConfig:
                                                             {
+                                                             visible:
+                                                                '$root.showIntfTypeParams($root.user_created_version())',
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
                                                              path: "static_route_enable",
                                                              dataBindValue:
