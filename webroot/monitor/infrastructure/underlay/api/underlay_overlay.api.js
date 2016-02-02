@@ -1147,7 +1147,38 @@ function getUnderlayPathByTopoData (req, topoData, srcVM, destVM, appData,
         for (var i = 0; i < linksCnt; i++) {
             tempLinksObjArr.push(links[i]['endpoints']);
         }
-        var nodes = 
+        if ((null == destVM) && ((null != topoData) &&
+                                 (null != topoData['nodes']))) {
+            /* In this case, check with destVM as prouter nodes which got
+             * returned from OverlayToUnderlayFlowMap table
+             */
+            var pRouterList = [];
+            var topoNodeList = topoData['nodes'];
+            var nodeLen = topoNodeList.length;
+            for (i = 0; i < nodeLen; i++) {
+                if (ctrlGlobal.NODE_TYPE_PROUTER ==
+                    topoNodeList[i]['node_type']) {
+                    pRouterList.push(topoNodeList[i]['name']);
+                }
+            }
+            if (!pRouterList.length) {
+                callback(null, [], false);
+                return;
+            }
+            var pathList = [];
+            var prCnt = pRouterList.length;
+            for (var i = 0; i < prCnt; i++) {
+                var paths =
+                    commonUtils.findAllPathsInEdgeGraph(tempLinksObjArr,
+                                                        srcVM,
+                                                        pRouterList[i]);
+                pathList = pathList.concat(paths);
+            }
+            var endpoints = computePathByNodeList(pathList, topoData);
+            callback(null, endpoints, false);
+            return;
+        }
+        var nodes =
             commonUtils.findAllPathsInEdgeGraph(tempLinksObjArr, srcVM, destVM);
         var endpoints = computePathByNodeList(nodes, topoData);
         callback(null, endpoints, false);
@@ -1230,7 +1261,7 @@ function getUnderlayPath (req, res, appData)
 
     queries.executeQueryString(queryJSON, function(err, result) {
         var flowPostData = {};
-        flowPostData['cfilt'] = ['PRouterEntry:ipMib'];
+        flowPostData['cfilt'] = ['PRouterEntry:ipMib', 'ContrailConfig'];
         var url = '/analytics/uves/prouter';
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  flowPostData, null, null, null);
@@ -1716,12 +1747,32 @@ function getIPToProuterMapTable (prouterData)
             var prData = prouterData['value'][i]['value'];
             var ipTable = prData['PRouterEntry']['ipMib'];
             var ipCnt = ipTable.length;
+            var prName =
+                commonUtils.getValueByJsonPath(prouterData['value'][i],
+                                               'name', null);
         } catch(e) {
             ipCnt = 0;
         }
         for (var idx = 0; idx < ipCnt; idx++) {
-            ipPrTable[ipTable[idx]['ipAdEntIfIndex']] =
-                prouterData['value'][i]['name'];
+            if (null == ipPrTable[ipTable[idx]['ipAdEntIfIndex']]) {
+                ipPrTable[ipTable[idx]['ipAdEntIfIndex']] = prName;
+            }
+        }
+        var prMgmtIP =
+            commonUtils.getValueByJsonPath(prouterData['value'][i],
+                                           'value;ContrailConfig;elements;physical_router_management_ip',
+                                           null);
+        if (null != prMgmtIP) {
+            var prIP = null;
+            try {
+                prIP = JSON.parse(prMgmtIP);
+                prIP = prIP.split('\n')[0];
+            } catch(e) {
+                prIP = prMgmtIP;
+            }
+            if (null == ipPrTable[prIP]) {
+                ipPrTable[prIP] = prName;
+            }
         }
     }
     return ipPrTable;
@@ -1748,7 +1799,7 @@ function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, srcVN, destVN,
         var hopList = jsonPath(results, "$..hop[0]");
         url = '/analytics/uves/prouter';
         var prPostData = {};
-        prPostData['cfilt'] = ['PRouterEntry:ipMib'];
+        prPostData['cfilt'] = ['PRouterEntry:ipMib', 'ContrailConfig'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  prPostData, null, null, null);
         url = '/analytics/uves/vrouter';
