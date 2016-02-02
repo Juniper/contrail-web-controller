@@ -76,6 +76,7 @@ define([
                         }
                     } else if(options['mode'] == "edit") {
                         if(self.model.security_group_refs().length <= 0) {
+                            //this.securityGroupValue(portEditView.sgDefaultValue);
                             self.model.is_sec_grp(false);
                         }
                     }
@@ -676,7 +677,65 @@ define([
                             }]
                         }
                         }]
-                    },{
+                    },
+                        this.deviceOwner(isDisable, selectedProjectVal)
+                    , {
+                        columns: [{
+                            elementId: 'is_sub_interface',
+                            name: "Sub Interface",
+                            view: "FormCheckboxView",
+                            viewConfig: {
+                                path: 'is_sub_interface',
+                                label: "Sub Interface",
+                                dataBindValue: 'is_sub_interface',
+                                class: "span6"
+                            }
+                        }]
+                    }, {
+                        columns: [{
+                            elementId: 'sub_interface_vlan_tag',
+                            name: "VLAN",
+                            view: "FormInputView",
+                            viewConfig: {
+                                visible: "is_sub_interface",
+                                placeholder: 'Specify VLAN',
+                                path: 'virtual_machine_interface_properties.sub_interface_vlan_tag',
+                                dataBindValue: 'virtual_machine_interface_properties().sub_interface_vlan_tag',
+                                class: "span6",
+                                label: 'VLAN'
+                            }
+                        }]
+                    }, {
+                        columns: [{
+                            elementId: 'subInterfaceVMIValue',
+                            name: "Primary Interface",
+                            view: "FormDropdownView",
+                            viewConfig: {
+                                path: 'subInterfaceVMIValue',
+                                visible: "is_sub_interface",
+                                placeholder: 'Primary Interface',
+                                disabled: "disable_sub_interface()",
+                                label: "Primary Interface",
+                                dataBindValue: 'subInterfaceVMIValue',
+                                elementConfig:{
+                                   dataTextField: "text",
+                                   dataValueField: "value",
+                                   //defaultValueId : 0,
+                                   dataSource : {
+                                      type: 'remote',
+                                      url:"/api/tenants/config/get-virtual-machines-ips?uuid="
+                                          +selectedProjectVal,
+                                    parse: function(result) {
+                                        return portFormatter.subInterfaceFormatter(
+                                                             result,
+                                                             isDisable,
+                                                             self);
+                                    }
+                                   }
+                                }
+                            }
+                        }]
+                    }, {
                         columns: [{
                         elementId: 'portBindingCollection',
                         view: 'FormEditableGridView',
@@ -741,72 +800,14 @@ define([
                             }]
                         }
                         }]
-                    },
-                        this.deviceOwner(isDisable, selectedProjectVal)
-                    , {
-                        columns: [{
-                            elementId: 'is_sub_interface',
-                            name: "Sub Interface",
-                            view: "FormCheckboxView",
-                            viewConfig: {
-                                path: 'is_sub_interface',
-                                label: "Sub Interface",
-                                dataBindValue: 'is_sub_interface',
-                                class: "span6"
-                            }
-                        }]
                     }, {
-                        columns: [{
-                            elementId: 'sub_interface_vlan_tag',
-                            name: "VLAN",
-                            view: "FormInputView",
-                            viewConfig: {
-                                visible: "is_sub_interface",
-                                placeholder: 'Specify VLAN',
-                                path: 'virtual_machine_interface_properties.sub_interface_vlan_tag',
-                                dataBindValue: 'virtual_machine_interface_properties().sub_interface_vlan_tag',
-                                class: "span6",
-                                label: 'VLAN'
-                            }
-                        }]
-                    }, {
-                        columns: [{
-                            elementId: 'subInterfaceVMIValue',
-                            name: "Primary Interface",
-                            view: "FormDropdownView",
-                            viewConfig: {
-                                path: 'subInterfaceVMIValue',
-                                visible: "is_sub_interface",
-                                placeholder: 'Primary Interface',
-                                disabled: "disable_sub_interface()",
-                                label: "Primary Interface",
-                                dataBindValue: 'subInterfaceVMIValue',
-                                elementConfig:{
-                                   dataTextField: "text",
-                                   dataValueField: "value",
-                                   //defaultValueId : 0,
-                                   dataSource : {
-                                      type: 'remote',
-                                      url:"/api/tenants/config/get-virtual-machines-ips?uuid="
-                                          +selectedProjectVal,
-                                    parse: function(result) {
-                                        return portFormatter.subInterfaceFormatter(
-                                                             result,
-                                                             isDisable,
-                                                             self);
-                                    }
-                                   }
-                                }
-                            }
-                        }]
-                    } , {
                         columns: [{
                             elementId: 'is_mirror',
-                            name: "Mirror To",
+                            name: "Enable Port Mirroring",
                             view: "FormCheckboxView",
                             viewConfig: {
                                 path: 'is_mirror',
-                                label: "Mirror To",
+                                label: "Enable Port Mirroring",
                                 dataBindValue: 'is_mirror',
                                 class: "span6"
                             }
@@ -818,7 +819,7 @@ define([
                             viewConfig : [{
                             visible : 'is_mirror',
                                 elementId: 'mirror',
-                                title: 'Mirror To',
+                                title: 'Port Mirroring',
                                 view: "SectionView",
                                 viewConfig : {
                                     rows : [{
@@ -845,13 +846,13 @@ define([
                                     }, {
                                         columns: [{
                                             elementId: 'mirrorToAnalyzerName',
-                                            name: "Analyzer",
+                                            name: "Analyzer Name",
                                             view: "FormInputView",
                                             viewConfig: {
                                                 path: 'mirrorToAnalyzerName',
                                                 dataBindValue: 'mirrorToAnalyzerName',
-                                                placeholder: 'Analyzer',
-                                                label: 'Analyzer',
+                                                placeholder: 'Analyzer Name',
+                                                label: 'Analyzer Name',
                                             }
                                         }]
                                     }, {
@@ -860,25 +861,25 @@ define([
                                             name: "Analyzer IP Address",
                                             view: "FormInputView",
                                             viewConfig: {
+                                                class: "span6",
                                                 path: 'mirrorToAnalyzerIpAddress',
                                                 placeholder: 'xxx.xxx.xxx.xxx',
                                                 dataBindValue: 'mirrorToAnalyzerIpAddress',
                                                 label: 'Analyzer IP Address'
                                             }
-                                        }]
-                                    }, {
-                                        columns: [{
+                                        }, {
                                             elementId: 'mirrorToUdpPort',
                                             name: "UDP Port",
                                             view: "FormInputView",
                                             viewConfig: {
+                                                class: "span6",
                                                 path: 'mirrorToUdpPort',
                                                 placeholder: '1 to 65535',
                                                 dataBindValue: 'mirrorToUdpPort',
                                                 label: 'UDP Port'
                                             }
                                         }]
-                                    }, {
+                                    },{
                                         columns: [{
                                             elementId: 'mirrorToRoutingInstance',
                                             name: "Routing Instance",

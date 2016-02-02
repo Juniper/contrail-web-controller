@@ -359,10 +359,10 @@ define([
                 mirror += this.addTableRow(["Analyzer Name", " : ", temp]);
 
                 temp = getValueByJsonPath(mirrorObj, "analyzer_ip_address", "-");
-                mirror += this.addTableRow(["Analyzer IP Address", " : ", temp]);
+                var temp1 = getValueByJsonPath(mirrorObj, "udp_port", "-");
 
-                temp = getValueByJsonPath(mirrorObj, "udp_port", "-");
-                mirror += this.addTableRow(["UDP port", " : ", temp]);
+                mirror += this.addTableRow(["Analyzer IP Address", " : ",
+                                            temp + ", UDP port : " + temp1]);
 
                 temp = getValueByJsonPath(mirrorObj, "routing_instance", "-");
                 if (temp != "") {

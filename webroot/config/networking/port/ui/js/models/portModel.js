@@ -833,6 +833,7 @@ define([
                 var fatFlowCollection =
                       newPortData["fatFlowCollection"].toJSON();
                 newPortData.virtual_machine_interface_fat_flow_protocols = {};
+                newPortData.virtual_machine_interface_fat_flow_protocols.fat_flow_protocol = [];
                 if (fatFlowCollection && fatFlowCollection.length > 0) {
                     var fatFlowLocal = [];
                     for(i = 0 ; i< fatFlowCollection.length ; i++){

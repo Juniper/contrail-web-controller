@@ -68,10 +68,10 @@ define([
                         return;
                     }
                     self.appendNewData(result);
-                    self.portGetChunkCnt = 200;
                         cbparam.allUUID = cbparam.allUUID.slice(
                                           self.portGetChunkCnt,
                                           cbparam.allUUID.length);
+                    self.portGetChunkCnt = 200;
                     if(cbparam.allUUID.length > 0) {
                         //$("#"+ctwl.PORT_GRID_ID).data("contrailGrid").showGridMessage("loading");
                         self.fetchPortChunk(cbparam.allUUID, cbparam.cbparam);
