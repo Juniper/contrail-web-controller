@@ -27,8 +27,14 @@ define([
         },
         validations: {
             rtTableRoutesValidation: {
-                'prefix': {
-                    required: true
+                'prefix': function(val, attr, fieldObj) {
+                    if ((null == val) || (!val.trim().length)) {
+                        return 'prefix is required';
+                    }
+                    if (false == isValidIP(val.trim())) {
+                        return 'provide prefix in xxx.xxx.xxx.xxx or ' +
+                            'xxx.xxx.xxx.xxx/xx format';
+                    }
                 }
             }
         }
