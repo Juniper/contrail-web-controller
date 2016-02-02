@@ -2071,7 +2071,7 @@ define([
             var sourceType = getValueByJsonPath(data,'sourceElement;node_type','-');
             var targetType = getValueByJsonPath(data,'targetElement;node_type','-');
             var view = 'LineWithFocusChartView', modelMap = null;
-            var viewConfig = {}, viewPathPrefix;
+            var viewConfig = {}, viewPathPrefix, app;
             if(sourceType == ctwc.PROUTER && targetType == ctwc.PROUTER) {
                 var postData = {
                         "data": {
@@ -2137,6 +2137,7 @@ define([
                     'targetElement;more_attributes;vm_name','-');
                 var modelKey = ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID);
                 view = 'InstanceTrafficStatsView';
+                app = cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix = 'monitor/networking/ui/js/views/';
                 modelMap = {};
                 modelMap[modelKey] =
@@ -2164,6 +2165,7 @@ define([
             }
             return {
                 view: view,
+                app: app,
                 viewPathPrefix: viewPathPrefix,
                 elementId: ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID,
                 title: ctwl.TITLE_TRAFFIC_STATISTICS,
