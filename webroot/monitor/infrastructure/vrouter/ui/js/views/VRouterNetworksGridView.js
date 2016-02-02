@@ -42,7 +42,6 @@ define([
                 cssClass: 'cell-hyperlink-blue',
                 events: {
                     onClick: function(e, dc) {
-                        var tabIdx = $.inArray("routes", computeNodeTabs);
                         var data = {
                             tab: "routes",
                             filters: [{
