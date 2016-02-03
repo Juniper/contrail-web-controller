@@ -91,6 +91,7 @@ define([
             'disable_sub_interface' : false,
             'subnetGroupVisible': true,
             'ecmp_hashing_include_fields': {/*
+                'hashing_configured': false,
                 'source_mac': true,
                 'destination_mac': true,
                 'source_ip': true,
@@ -264,7 +265,8 @@ define([
                 var ecmpHashIncFieldsObj =
                     modelConfig['ecmp_hashing_include_fields'];
                 for (var key in ecmpHashIncFieldsObj) {
-                    if (true == ecmpHashIncFieldsObj[key]) {
+                    if (true == ecmpHashIncFieldsObj[key] &&
+                        ecmpHashIncFieldsObj[key] != "hashing_configured") {
                         ecmpHashIncFields.push(key);
                     }
                 }
@@ -940,12 +942,14 @@ define([
                         newPortData['ecmp_hashing_include_fields'].split(',');
                     var cnt = tmpEcmpHashIncFields.length;
                     for (var i = 0; i < cnt; i++) {
-                        if (tmpEcmpHashIncFields[i].length > 0) {
+                        if (tmpEcmpHashIncFields[i].length > 0 &&
+                            tmpEcmpHashIncFields[i] != "hashing_configured") {
                             ecmpHashIncFields[tmpEcmpHashIncFields[i]] = true;
                             count++;
                         }
                     }
                 }
+                ecmpHashIncFields.hashing_configured = true;
                 if (count == 0) {
                     ecmpHashIncFields = {};
                 }

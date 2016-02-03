@@ -257,7 +257,7 @@ define([
                         ip_protocol, source_port, destination_port");
             }
             for (var key in ecmp) {
-                if (true == ecmp[key]) {
+                if (true == ecmp[key] && key != "hashing_configured") {
                     key = key.replace('_', '-');
                     fields.push(key);
                 }
