@@ -10,7 +10,7 @@ define([
         defaultConfig: {
             'prefix': '',
             'next_hop': '',
-            'next_hop_type': '',
+            'next_hop_type': 'service-instance',
             'community_attr': ''
         },
         validateAttr: function (attributePath, validation, data) {
@@ -29,11 +29,30 @@ define([
             rtTableRoutesValidation: {
                 'prefix': function(val, attr, fieldObj) {
                     if ((null == val) || (!val.trim().length)) {
-                        return 'prefix is required';
+                        return 'Prefix is required';
                     }
                     if (false == isValidIP(val.trim())) {
-                        return 'provide prefix in xxx.xxx.xxx.xxx or ' +
-                            'xxx.xxx.xxx.xxx/xx format';
+                        return 'Invalid IP Address';
+                    }
+                },
+                'next_hop_type': {
+                    required: true
+                },
+                'next_hop': function(val, attr, fieldObj) {
+                    if ((null == val) || (!val.trim().length)) {
+                        return 'Next Hop is required';
+                    }
+                    val = val.trim();
+                    if ('ip-address' == fieldObj['next_hop_type']) {
+                        if (false == isValidIP(val)) {
+                            return 'Invalid IP Address';
+                        }
+                    }
+                    if ('service-instance' == fieldObj['next_hop_type']) {
+                        var splitArr = val.split(':');
+                        if (3 != splitArr.length) {
+                            return 'Invalid Service Instance FQN';
+                        }
                     }
                 }
             }
