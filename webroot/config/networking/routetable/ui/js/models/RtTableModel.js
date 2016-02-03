@@ -53,7 +53,7 @@ define([
         addRtTable: function() {
             var routes = this.model().attributes['routes'];
             var newRoute = new RtTableRoutesModel(
-                {prefix: '', next_hop: '', next_hop_type: ''});
+                {prefix: '', next_hop: '', next_hop_type: 'ip-address'});
             routes.add([newRoute]);
         },
         getRoutesList: function(attr) {

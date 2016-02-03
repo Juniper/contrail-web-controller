@@ -10,7 +10,7 @@ define([
         defaultConfig: {
             'prefix': '',
             'next_hop': '',
-            'next_hop_type': '',
+            'next_hop_type': 'ip-address',
             'community_attr': ''
         },
         validateAttr: function (attributePath, validation, data) {
@@ -34,6 +34,28 @@ define([
                     if (false == isValidIP(val.trim())) {
                         return 'provide prefix in xxx.xxx.xxx.xxx or ' +
                             'xxx.xxx.xxx.xxx/xx format';
+                    }
+                },
+                'next_hop_type': {
+                    required: true
+                },
+                'next_hop': function(val, attr, fieldObj) {
+                    if ((null == val) || (!val.trim().length)) {
+                        return 'next-hop is required';
+                    }
+                    val = val.trim();
+                    if ('ip-address' == fieldObj['next_hop_type']) {
+                        if ((-1 != val.indexOf('/')) ||
+                             (false == isValidIP(val))) {
+                            return 'provide next-hop in xxx.xxx.xxx.xxx format';
+                        }
+                    }
+                    if ('service-instance' == fieldObj['next_hop_type']) {
+                        var splitArr = val.split(':');
+                        if (3 != splitArr.length) {
+                            return 'provide service-instance name in ' +
+                                'FQN(domain:project:service-instance) format';
+                        }
                     }
                 }
             }
