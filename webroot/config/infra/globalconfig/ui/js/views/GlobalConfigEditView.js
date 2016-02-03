@@ -211,14 +211,10 @@ define([
                                 viewConfig: {
                                     path: 'autonomous_system',
                                     dataBindValue: 'autonomous_system',
-                                    class: 'span12',
+                                    class: 'span6',
                                     placeholder: 'Enter BGP ASN Value'
                                 }
-                            }
-                        ]
-                    },
-                    {
-                        columns: [
+                            },
                             {
                                 elementId: 'ibgp_auto_mesh',
                                 view: 'FormCheckboxView',
@@ -226,7 +222,7 @@ define([
                                     label: 'Enable iBGP Auto Mesh',
                                     path: 'ibgp_auto_mesh',
                                     dataBindValue: 'ibgp_auto_mesh',
-                                    class: 'span12'
+                                    class: 'span6'
                                 }
                             }
                         ]
@@ -247,6 +243,7 @@ define([
                                         view: 'FormInputView',
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                            placeholder: 'xxx.xxx.xxx.xxx/xx',
                                             width: 300,
                                             path: 'ip_fabric_subnets',
                                             dataBindValue:
@@ -286,7 +283,8 @@ define([
                                     path: 'flow_export_rate',
                                     dataBindValue: 'flow_export_rate',
                                     class: 'span12',
-                                    placeholder: 'Enter flow export rate'
+                                    placeholder: 'Flow export rate' +
+                                            ' in number'
                                 }
                             }
                         ]
