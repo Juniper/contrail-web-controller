@@ -126,29 +126,40 @@ define([
                                 }
                             },
                             {
-                                elementId: 'next_hop',
-                                view: 'FormInputView',
-                                class: "",
-                                name: 'Next Hop',
-                                viewConfig: {
-                                    placeholder: 'Next Hop',
-                                    width: 150,
-                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                    path: 'next_hop',
-                                    dataBindValue: 'next_hop()'
-                                }
-                            },
-                            {
                                 elementId: 'next_hop_type',
-                                view: 'FormInputView',
+                                view: 'FormDropdownView',
                                 class: "",
                                 name: 'Next Hop Type',
                                 viewConfig: {
                                     placeholder: 'Next Hop Type',
                                     width: 150,
-                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                    templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                     path: 'next_hop_type',
-                                    dataBindValue: 'next_hop_type()'
+                                    dataBindValue: 'next_hop_type()',
+                                    elementConfig: {
+                                        dataTextField: 'text',
+                                        dataValueField: 'value',
+                                        data: [
+                                        {value: 'service-instance',
+                                            text: 'service-instance'},
+                                        {value: 'ip-address',
+                                            text: 'ip-address'}
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                elementId: 'next_hop',
+                                view: 'FormInputView',
+                                class: "",
+                                name: 'Next Hop',
+                                viewConfig: {
+                                    placeholder: 'IP or Service ' +
+                                                 'Instance FQN',
+                                    width: 150,
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                    path: 'next_hop',
+                                    dataBindValue: 'next_hop()'
                                 }
                             },
                             {
