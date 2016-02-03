@@ -323,7 +323,7 @@ define([
                 portTuples.models[i].attributes.portTupleName(splitArr.join(''));
             }
         },
-        formRoutingPolicyToDisplay (rtList, intfType) {
+        formRoutingPolicyToDisplay: function(rtList, intfType) {
             if (!rtList.length) {
                 return null;
             }
