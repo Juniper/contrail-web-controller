@@ -282,7 +282,19 @@ define([
                 var defaultDropdownOptions = {
                         urlValue: (urlValue !== null) ? urlValue.split(':').splice(1, 1).join(':') : null,
                         cookieKey: cowc.COOKIE_PROJECT,
-                        parentSelectedValueData: domainSelectedValueData
+                        parentSelectedValueData: domainSelectedValueData,
+                        preSelectCB : function(selectedValueData) {
+                            if(getValueByJsonPath(selectedValueData,'value') != null) {
+                                return $.ajax({
+                                            type:"GET",
+                                            url:'/api/tenants/config/project/' + selectedValueData['value'] + '?exclude_back_refs=true&exclude_children=true'
+                                        });
+                            } else {
+                                var defObj = $.Deferred();
+                                defObj.resolve();
+                                return defObj;
+                            }
+                        }
                     },
                     dropdownOptions = $.extend(true, {}, defaultDropdownOptions, customProjectDropdownOptions);
 
