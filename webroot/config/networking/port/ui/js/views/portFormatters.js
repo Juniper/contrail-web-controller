@@ -252,12 +252,13 @@ define([
             var ecmp = getValueByJsonPath(dc, "ecmp_hashing_include_fields", ""),
                 dispStr = '-';
                 fields = [];
-            if (!("ecmp_hashing_include_fields" in dc)) {
-                return("source_mac, destination_mac, source_ip, destination_ip,\
-                        ip_protocol, source_port, destination_port");
+            var hashingConfigured = getValueByJsonPath(ecmp,
+                    'hashing_configured', false);
+            if (hashingConfigured == false) {
+                return fields;
             }
             for (var key in ecmp) {
-                if (true == ecmp[key]) {
+                if (true == ecmp[key] && key != "hashing_configured") {
                     key = key.replace('_', '-');
                     fields.push(key);
                 }
