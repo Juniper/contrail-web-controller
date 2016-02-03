@@ -10,11 +10,11 @@ define([
     var routingPolicyFormatter = new RoutingPolicyFormatter();
     var RoutingPolicyTermModel = ContrailModel.extend({
         defaultConfig: {
-            "fromxx":{
+            "term_match_condition":{
                 "community":"",
                 "prefix":[]
             },
-            "then":{
+            "term_action_list":{
                 "update": {
                     "community":{},
                     "local_pref" : "",
@@ -28,22 +28,22 @@ define([
         formatModelConfig: function (config) {
             var modelConfig = $.extend({},true,config);
             var community =
-                getValueByJsonPath(modelConfig, "fromxx;community", "");
+                getValueByJsonPath(modelConfig, "term_match_condition;community", "");
             var prefix =
-                getValueByJsonPath(modelConfig, "fromxx;prefix", []);
+                getValueByJsonPath(modelConfig, "term_match_condition;prefix", []);
             if(community != "" || prefix.length > 0) {
                 modelConfig["fromValue"] =
-                    routingPolicyFormatter.fromObjToStr(modelConfig["fromxx"]);
+                    routingPolicyFormatter.fromObjToStr(modelConfig["term_match_condition"]);
             }
             var thenComm =
-                getValueByJsonPath(modelConfig, "then;update;community", "");
+                getValueByJsonPath(modelConfig, "term_action_list;update;community", "");
             var localpref =
-                getValueByJsonPath(modelConfig, "then;update;local_pref", "");
+                getValueByJsonPath(modelConfig, "term_action_list;update;local_pref", "");
             if(thenComm != "" || localpref != "") {
                 modelConfig["thenValue"] =
-                  routingPolicyFormatter.thenObjToStr(modelConfig["then"]["update"]);
+                  routingPolicyFormatter.thenObjToStr(modelConfig["term_action_list"]["update"]);
             }
-            switch(modelConfig["then"]["action"]) {
+            switch(modelConfig["term_action_list"]["action"]) {
                 case "accept":
                 {
                     modelConfig["action"] = "Accept";

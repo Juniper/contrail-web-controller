@@ -103,9 +103,9 @@ define([
                         var fromStructured =
                                 routingPolicyFormatter.buildFromStructure(from);
                         if(fromStructured.error.available == false) {
-                            newPoliceyRule[i].fromxx = {};
+                            newPoliceyRule[i].term_match_condition = {};
                             delete fromStructured.error;
-                            newPoliceyRule[i].fromxx = fromStructured;
+                            newPoliceyRule[i].term_match_condition = fromStructured;
                         } else {
                             if (contrail.checkIfFunction(callbackObj.error)) {
                                 callbackObj.error(this.getFormErrorText
@@ -118,10 +118,10 @@ define([
                         var thenStructured =
                                 routingPolicyFormatter.buildThenStructure(then);
                         if(thenStructured.error.available == false) {
-                            newPoliceyRule[i].then = {};
-                            newPoliceyRule[i].then.update = {};
+                            newPoliceyRule[i].term_action_list = {};
+                            newPoliceyRule[i].term_action_list.update = {};
                             delete thenStructured.error;
-                            newPoliceyRule[i].then.update = thenStructured;
+                            newPoliceyRule[i].term_action_list.update = thenStructured;
                         } else {
                             if (contrail.checkIfFunction(callbackObj.error)) {
                                 callbackObj.error(this.getFormErrorText
@@ -131,10 +131,10 @@ define([
                     }
                     if(routingPoliceyTerm[i].action().trim() != "" &&
                        routingPoliceyTerm[i].action().trim() != "Default") {
-                        if(newPoliceyRule[i].then == undefined) {
-                            newPoliceyRule[i].then = {};
+                        if(newPoliceyRule[i].term_action_list == undefined) {
+                            newPoliceyRule[i].term_action_list = {};
                         }
-                        newPoliceyRule[i].then.action =
+                        newPoliceyRule[i].term_action_list.action =
                                 routingPoliceyTerm[i].action().toLowerCase();
                     }
                     delete(routingPoliceyTerm[i])

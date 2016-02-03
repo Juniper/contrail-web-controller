@@ -61,20 +61,20 @@ define([
 
         this.termFormatting = function(term) {
             var formattedTerm = "";
-            var from = getValueByJsonPath(term, "fromxx", "")
+            var from = getValueByJsonPath(term, "term_match_condition", "")
             formattedTerm += "from ";
             if (from != "") {
-                var community = getValueByJsonPath(term, "fromxx;community", "");
+                var community = getValueByJsonPath(term, "term_match_condition;community", "");
                 if(community != "") {
                     formattedTerm +=  "community " + self.termFormat(community) + " ";
                 }
                 var termPrefix = getValueByJsonPath(term,
-                                             "fromxx;prefix", []);
+                                             "term_match_condition;prefix", []);
                 if (termPrefix.length > 0) {
                     var prefixLen = termPrefix.length;
                     for (var i = 0; i < prefixLen; i++) {
                         var perPrefix = termPrefix[i],
-                            type = getValueByJsonPath(perPrefix, "type_", ""),
+                            type = getValueByJsonPath(perPrefix, "prefix_type", ""),
                             prefix = getValueByJsonPath(perPrefix, "prefix", "");
                         if(prefix != "") {
                             formattedTerm +=  "prefix " + self.termFormat(prefix) + " ";
@@ -89,28 +89,28 @@ define([
             }
             var thenValue = "";
             var then =
-                getValueByJsonPath(term, "then;update;community;add", "");
+                getValueByJsonPath(term, "term_action_list;update;community;add", "");
             var thenCommunity = [];
             if(then != "") {
                 thenValue +=  "add ";
                 var thenCommunity = getValueByJsonPath(term,
-                                       "then;update;community;add;community",
+                                       "term_action_list;update;community;add;community",
                                        []);
             } else {
                 then =
-                   getValueByJsonPath(term, "then;update;community;remove", "");
+                   getValueByJsonPath(term, "term_action_list;update;community;remove", "");
                 if(then != "") {
                     thenValue +=  "remove ";
                     thenCommunity = getValueByJsonPath(term,
-                                       "then;update;community;remove;community",
+                                       "term_action_list;update;community;remove;community",
                                        []);
                 } else {
                     then = getValueByJsonPath(term,
-                                       "then;update;community;set", "");
+                                       "term_action_list;update;community;set", "");
                     if(then != "") {
                         thenValue +=  "set ";
                         thenCommunity = getValueByJsonPath(term,
-                                       "then;update;community;set;community",
+                                       "term_action_list;update;community;set;community",
                                        []);
                     }
                 }
@@ -122,7 +122,7 @@ define([
             }
 
             var localPref = getValueByJsonPath(term,
-                                       "then;update;local_pref", "")
+                                       "term_action_list;update;local_pref", "")
             if(localPref != "") {
                 thenValue +=  "local-preference "
                               + self.termFormat(localPref) + " ";
@@ -134,7 +134,7 @@ define([
                 formattedTerm += " then ";
                 formattedTerm += thenValue;
             }
-            var action = getValueByJsonPath(term, "then;action", "")
+            var action = getValueByJsonPath(term, "term_action_list;action", "")
             if(action != "") {
                 formattedTerm +=  " action " + self.termFormat(action) + " ";
             } else {
@@ -211,7 +211,7 @@ define([
                                             returnObject.error.available = true;
                                             return returnObject;
                                         }
-                                        returnObject.prefix[0].type_ =
+                                        returnObject.prefix[0].prefix_type =
                                                             "exact";
                                     } else {
                                         var prefixType =
@@ -219,7 +219,7 @@ define([
                                         if(prefixType == "orlonger" ||
                                            prefixType == "longer" ||
                                            prefixType == "exact") {
-                                        returnObject.prefix[0].type_ =
+                                        returnObject.prefix[0].prefix_type =
                                                             fromArraySplit[2];
                                         } else {
                                             returnObject.error.message =
@@ -429,7 +429,7 @@ define([
             }
             for (var i = 0; i < prefixLen; i++) {
                 var prefixIP = getValueByJsonPath(prefixVal[i], "prefix", "");
-                    prefixType = getValueByJsonPath(prefixVal[i], "type_", "");
+                    prefixType = getValueByJsonPath(prefixVal[i], "prefix_type", "");
                 if(prefixIP != "") {
                     returnStr += "prefix " + prefixIP;
                     returnStr += " " + prefixType;
