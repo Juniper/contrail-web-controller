@@ -55,6 +55,7 @@ define([
                 'physical_network': null
             },
             'ecmp_hashing_include_fields': { /*
+                'hashing_configured': false,
                 'source_mac': false,
                 'destination_mac': false,
                 'source_ip': false,
@@ -681,8 +682,17 @@ define([
             var hashingFields = getValueByJsonPath(modelConfig,
                                 'ecmp_hashing_include_fields', {});
 
+            var hashingConfigured = getValueByJsonPath(hashingFields,
+                    'hashing_configured', false);
+
+            if (hashingConfigured == false) {
+                modelConfig['ecmp_hashing_include_fields'] = '';
+                return;
+            }
+
             for (var key in hashingFields) {
-                if (true == hashingFields[key]) {
+                if (true == hashingFields[key]
+                        && key != 'hashing_configured') {
                     hashArr.push(key);
                 }
             }
@@ -710,6 +720,7 @@ define([
                     hashDisableCnt++;
                 }
             }
+            hashObj['hashing_configured'] = true;
 
             if (hashDisableCnt == keyLen) {
                 hashObj = {}
