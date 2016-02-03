@@ -20,6 +20,7 @@ define([
             'forwarding_mode': "Default",
             'ibgp_auto_mesh': true,
             'ecmp_hashing_include_fields': {
+                'hashing_configured': true,
                 'source_mac': true,
                 'destination_mac': true,
                 'source_ip': true,
@@ -129,6 +130,9 @@ define([
                     modelConfig['ecmp_hashing_include_fields'];
                 for (var key in ecmpHashIncFieldsObj) {
                     if (true == ecmpHashIncFieldsObj[key]) {
+                        if ('hashing_configured' == key) {
+                            continue;
+                        }
                         ecmpHashIncFields.push(key);
                     }
                 }
@@ -377,6 +381,7 @@ define([
                         ecmpHashIncFields[key] = true;
                     }
                 }
+                ecmpHashIncFields['hashing_configured'] = true;
                 putData['global-vrouter-config']['ecmp_hashing_include_fields']
                     = ecmpHashIncFields;
                 ajaxConfig.type = "PUT";

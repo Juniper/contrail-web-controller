@@ -162,6 +162,9 @@ define([
                     dispStr = '-';
                     var fields = [];
                     for (var key in val) {
+                        if ('hashing_configured' == key) {
+                            continue;
+                        }
                         if (true == val[key]) {
                             key = key.replace('_', '-');
                             fields.push(key);
