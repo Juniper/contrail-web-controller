@@ -51,8 +51,8 @@ define([
 
     function getUUIDTableNamesListConfig (hashParams) {
         var gridConfig = {
-            url       : "/api/query/cassandra/keys/obj_uuid_table",
-            table     : "obj_uuid_table",
+            url       : ctwc.URL_OBJECT_UUID_TABLE,
+            table     : ctwc.OBJECT_UUID_TABLE,
             gridTitle : ctwl.CDB_TITLE_UUID_TABLE,
             columnName: 'keys',
             actionCell: true,
@@ -97,8 +97,8 @@ define([
 
     function getSharedTableNamesListConfig (hashParams) {
         var gridConfig = {
-            url       : "/api/query/cassandra/keys/obj_shared_table",
-            table     : "obj_shared_table",
+            url       : ctwc.URL_OBJECT_SHARED_TABLE,
+            table     : ctwc.OBJECT_SHARED_TABLE,
             gridTitle : ctwl.CDB_TITLE_SHARED_TABLE,
             columnName: 'keys',
             actionCell: true,
@@ -401,15 +401,31 @@ define([
     };
 
     function createModalForDelete (selectedRow, type){
-        var textTemplate = '<div>Are you sure you want to delete <b>'+selectedRow.key +'</b> ?</div>',
-            modalId = "delete-cdb";
+        var textTemplate = '', modalId = "delete-cdb",
+            callbackObj = {
+                init: function () {
+                    cowu.enableModalLoading(modalId);
+                },
+                success: function () {
+                    $("#" + modalId).modal('hide');
+                },
+                error: function (error) {
+                    cowu.disableModalLoading(modalId, function () {});
+                }
+            };
+
+        if( (contrail.checkIfExist(selectedRow.keyvalue)) && (type == ctwc.DELETE_KEY_VALUE_TYPE) ){
+            textTemplate = '<div>Are you sure you want to delete <b>' + selectedRow.keyvalue + '</b> ?</div>';
+        } else if ((contrail.checkIfExist(selectedRow.key)) && (type == ctwc.DELETE_KEY_TYPE)) {
+            textTemplate = '<div>Are you sure you want to delete <b>' + selectedRow.key + '</b> ?</div>';
+        }
 
         cowu.createModal({'modalId': modalId , 'className': 'modal-700', 'title': "Delete ", 'btnName': 'Confirm', 'body': textTemplate, 'onSave': function () {
             var url, ajaxConfig = {};
 
-            if (type = "delete-key"){
+            if (type == ctwc.DELETE_KEY_TYPE) {
                 url = "/api/query/cassandra/key/" + selectedRow.table + "/" + selectedRow.key;
-            } else if (type = "delete-key-value") {
+            } else if (type == ctwc.DELETE_KEY_VALUE_TYPE) {
                 url = "/api/query/cassandra/value/" + selectedRow.table + "/" + selectedRow.key + "/" + selectedRow.keyvalue;
             }
 
@@ -421,7 +437,6 @@ define([
                     callbackObj.success();
                 }
             }, function (error) {
-                console.log(error);
                 if (contrail.checkIfFunction(callbackObj.error)) {
                     callbackObj.error(error);
                 }

@@ -203,6 +203,12 @@ define([
 
         // Config DB constants
         this.TMPL_CDB_ITEM_DELETE = "cdb-delete-item-template";
+        this.DELETE_KEY_TYPE = "delete-key";
+        this.DELETE_KEY_VALUE_TYPE = "delete-key-value";
+        this.URL_OBJECT_UUID_TABLE = "/api/query/cassandra/keys/obj_uuid_table";
+        this.URL_OBJECT_SHARED_TABLE = "/api/query/cassandra/keys/obj_shared_table";
+        this.OBJECT_SHARED_TABLE = "obj_shared_table";
+        this.OBJECT_UUID_TABLE = "obj_uuid_table";
 
         // Underlay constants
         this.UNDERLAY_TOPOLOGY_CACHE = "underlayTopology";
