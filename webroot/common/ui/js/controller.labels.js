@@ -1038,6 +1038,13 @@ define([
         this.CFG_VN_TITLE_MULTI_DELETE = 'Delete Network(s)';
         // End VN Config labels
 
+        /* Route Aggregate Labels */
+        this.TITLE_ROUTE_AGGREGATE = 'Route Aggregates';
+        this.TITLE_EDIT_ROUTE_AGGREGATE = 'Edit Route Aggregate';
+        this.TITLE_ROUTE_AGGREGATE_DELETE = 'Delete Route Aggregate';
+        this.TITLE_ROUTE_AGGREGATE_MULTI_DELETE = 'Delete Route Aggregate(s)';
+        this.TITLE_ADD_ROUTE_AGGREGATE = 'Create Route Aggregate';
+
     };
     return CTLabels;
 });

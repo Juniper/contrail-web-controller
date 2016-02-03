@@ -5,12 +5,12 @@ define([
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
-    'config/services/bgpasaservice/test/ui/views/bgpAsAServiceGridView.mock.data',
+    'config/networking/routeaggregate/test/ui/views/routeAggregateGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite'
 ], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
-    var moduleId = cttm.BGP_AS_A_SERVICE_GRID_VIEW_COMMON_TEST_MODULE;
+    var moduleId = cttm.ROUTE_AGGREGATE_GRID_VIEW_COMMON_TEST_MODULE;
 
     var testType = cotc.VIEW_TEST;
 
@@ -20,15 +20,15 @@ define([
         var responses = [];
         responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/tenants\/config\/domains.*$/,
-            body: JSON.stringify(TestMockdata.bgpAsAServiceDomainsData)
+            body: JSON.stringify(TestMockdata.routeAggregateDomainsData)
         }));
         responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/tenants\/config\/projects\/default-domain.*$/,
-            body: JSON.stringify(TestMockdata.bgpAsAServicePojectsData)
+            body: JSON.stringify(TestMockdata.routeAggregatePojectsData)
         }));
         responses.push(cotr.createFakeServerResponse( {
-            url: /\/api\/tenants\/config\/get-bgp-as-a-services\/90ab868a-da21-4ed9-922f-a309967eb0a0.*$/,
-            body: JSON.stringify(TestMockdata.bgpAsAServiceMockData)
+            url: /\/api\/tenants\/config\/route-aggregates\/ee14bbf4-a3fc-4f98-a7b3-f1fe1d8b29bb.*$/,
+            body: JSON.stringify(TestMockdata.routeAggregateMockData)
         }));
 
         return responses;
@@ -37,16 +37,16 @@ define([
 
     var pageConfig = cotr.getDefaultPageConfig();
     pageConfig.hashParams = {
-        p: 'config_sc_bgpasaservice'
+        p: 'config_net_rtaggregate'
     };
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 2;
 
     var getTestConfig = function() {
         return {
-            rootView: configBGPAsAServicePageLoader.bgpAsAServiceView,
+            rootView: configRouteAggregatePageLoader.routeAggregateView,
             tests: [
                 {
-                    viewId: ctwc.BGP_AS_A_SERVICE_GRID_ID,
+                    viewId: ctwc.ROUTE_AGGREGATE_GRID_ID,
                     suites: [
                         {
                             class: GridViewTestSuite,

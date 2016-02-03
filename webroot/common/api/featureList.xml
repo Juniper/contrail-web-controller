@@ -155,5 +155,8 @@
     </item>
     <item>
         <feature>bgpasaserviceconfig</feature>
-    </item>    
+    </item>
+    <item>
+        <feature>routeaggregateconfig</feature>
+    </item>
 </featureLists>
