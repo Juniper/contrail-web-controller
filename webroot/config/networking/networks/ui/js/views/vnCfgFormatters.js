@@ -565,7 +565,8 @@ define([
                                 'ecmp_hashing_include_fields', {});
 
             for (var key in hashingFields) {
-                if (true == hashingFields[key]) {
+                if (true == hashingFields[key] &&
+                        key != 'hashing_configured') {
                     hashArr.push(key.replace(/_/,'-'));
                 }
             }

@@ -55,6 +55,7 @@ define([
                 'physical_network': null
             },
             'ecmp_hashing_include_fields': { /*
+                'hashing_configured': false,
                 'source_mac': false,
                 'destination_mac': false,
                 'source_ip': false,
@@ -682,7 +683,8 @@ define([
                                 'ecmp_hashing_include_fields', {});
 
             for (var key in hashingFields) {
-                if (true == hashingFields[key]) {
+                if (true == hashingFields[key]
+                        && key != 'hashing_configured') {
                     hashArr.push(key);
                 }
             }
@@ -710,6 +712,7 @@ define([
                     hashDisableCnt++;
                 }
             }
+            hashObj['hashing_configured'] = true;
 
             if (hashDisableCnt == keyLen) {
                 hashObj = {}
