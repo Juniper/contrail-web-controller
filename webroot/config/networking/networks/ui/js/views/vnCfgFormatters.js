@@ -564,8 +564,16 @@ define([
             var hashingFields = getValueByJsonPath(dc,
                                 'ecmp_hashing_include_fields', {});
 
+            var hashingConfigured = getValueByJsonPath(hashingFields,
+                    'hashing_configured', false);
+
+            if (hashingConfigured == false) {
+                return hashArr;
+            }
+
             for (var key in hashingFields) {
-                if (true == hashingFields[key]) {
+                if (true == hashingFields[key] &&
+                        key != 'hashing_configured') {
                     hashArr.push(key.replace(/_/,'-'));
                 }
             }
