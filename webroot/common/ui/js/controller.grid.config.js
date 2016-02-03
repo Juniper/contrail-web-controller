@@ -37,8 +37,13 @@ define([
 
         this.projectInstancesColumns = [
             {
+                field: 'uuid',
+                name: 'UUID',
+                minWidth: 100
+            },
+            {
                 field: 'vmName',
-                name: 'Instance',
+                name: 'Instance Name',
                 formatter: function (r, c, v, cd, dc) {
                     if(!contrail.checkIfExist(dc['vmName'])) {
                         return '-';
@@ -48,7 +53,7 @@ define([
                         return cowf.formatElementName({name: 'instance', value: dc['vmName'], cssClass: 'cell-hyperlink-blue'});
                     }
                 },
-                minWidth: 230,
+                minWidth: 150,
                 searchable: true,
                 events: {
                     onClick: ctwu.onClickNetworkMonitorGrid
@@ -64,7 +69,7 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return cowf.formatElementName({name: 'vn', value: dc['vn'], cssClass: 'cell-hyperlink-blue'});
                 },
-                minWidth: 230,
+                minWidth: 150,
                 searchable: true,
                 events: {
                     onClick: ctwu.onClickNetworkMonitorGrid
@@ -109,6 +114,19 @@ define([
                     return cowu.addUnits2Bytes(dc['inBytes60'], true) + ' / ' + cowu.addUnits2Bytes(dc['outBytes60'], true);
                 },
                 minWidth: 200
+            },
+            {
+                field: '',
+                name: '',
+                minWidth: 30,
+                maxWidth: 30,
+                formatter: function (r, c, v, cd, dc) {
+                    if(contrail.checkIfExist(dc.raw_json) && !contrail.checkIfKeyExistInObject(false, dc.raw_json.value, 'UveVirtualMachineAgent')) {
+                        return '<i class="icon-warning-sign red" title="Instance data is available in config but not available in analytics."></i>';
+                    } else {
+                        return '';
+                    }
+                }
             }
         ];
         this.getVMInterfacesLazyRemoteConfig = function () {
@@ -116,13 +134,12 @@ define([
                 {
                     getAjaxConfig: function (responseJSON) {
                         var lazyAjaxConfig,
-                            interfaceList = getValueByJsonPath(responseJSON, 
-                                'value;UveVirtualMachineAgent;interface_list', []);
+                            interfaceList = getValueByJsonPath(responseJSON, 'value;UveVirtualMachineAgent;interface_list', []);
 
                         lazyAjaxConfig = {
                             url: ctwc.URL_VM_INTERFACES,
                             type: 'POST',
-                            data: JSON.stringify({kfilt: interfaceList.join(',')})
+                            data: JSON.stringify({kfilt: interfaceList.join(','), parentType: ctwc.TYPE_VIRTUAL_MACHINE})
                         };
 
                         return lazyAjaxConfig;
@@ -364,6 +381,7 @@ define([
                             url: ctwc.URL_VM_INTERFACES,
                             type: 'POST',
                             data: JSON.stringify({
+                                parentType: ctwc.TYPE_VIRTUAL_MACHINE,
                                 kfilt: interfaceList.join(','),
                                 cfilt: ctwc.FILTERS_INSTANCE_LIST_INTERFACES.join(',')
                             })

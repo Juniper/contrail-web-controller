@@ -86,6 +86,7 @@ define([
                                                 renderOnActivate: true
                                             },
                                             viewConfig: {
+                                                parentType: ctwc.TYPE_PROJECT,
                                                 projectFQN: projectFQN,
                                                 elementId: ctwl.PROJECT_INTERFACE_GRID_ID
                                             }

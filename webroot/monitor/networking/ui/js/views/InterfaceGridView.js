@@ -12,44 +12,53 @@ define([
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig,
-                modelMap = this.modelMap,
-                projectFQN = viewConfig['projectFQN'],
-                networkFQN = viewConfig['networkFQN'],
-                instanceUUID = viewConfig['instanceUUID'],
-                elementId = viewConfig['elementId'],
+                modelMap = this.modelMap, parentType = viewConfig['parentType'],
+                domain = viewConfig['domain'], projectFQN = viewConfig['projectFQN'],
+                networkFQN = viewConfig['networkFQN'], instanceUUID = viewConfig['instanceUUID'],
+                elementId = viewConfig['elementId'], interfaceList = [],
                 interfacesAjaxConfig, viewModel, ucid;
 
-            if (contrail.checkIfExist(projectFQN)) {
-                ucid = ctwc.get(ctwc.UCID_PROJECT_INTERFACE_LIST, projectFQN);
-                interfacesAjaxConfig = getInterfacesAjaxConfig(null, projectFQN);
-                self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
-            } else if (modelMap != null && modelMap[viewConfig['modelKey']] != null) {
+            if (parentType == ctwc.TYPE_VIRTUAL_MACHINE && contrail.checkIfExist(modelMap) && modelMap[viewConfig['modelKey']] != null) {
                 ucid = ctwc.get(ctwc.UCID_INSTANCE_INTERFACE_LIST, networkFQN, instanceUUID);
                 //TODO: Create a model from data coming from ModelMap
                 viewModel = modelMap[viewConfig['modelKey']];
                 if (!(viewModel.isRequestInProgress())) {
-                    interfacesAjaxConfig = getInterfacesAjaxConfig(viewModel.attributes);
+                    interfaceList = contrail.checkIfExist(viewModel.attributes) ? viewModel.attributes['value']['UveVirtualMachineAgent']['interface_list'] : [];
+                    interfacesAjaxConfig = getInterfacesAjaxConfig(parentType, {interfaceList: interfaceList});
                     self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
                 }
 
                 viewModel.onAllRequestsComplete.subscribe(function () {
-                    interfacesAjaxConfig = getInterfacesAjaxConfig(viewModel.attributes);
+                    interfaceList = contrail.checkIfExist(viewModel.attributes) ? viewModel.attributes['value']['UveVirtualMachineAgent']['interface_list'] : [];
+                    interfacesAjaxConfig = getInterfacesAjaxConfig(parentType, {interfaceList: interfaceList});
                     self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
                 });
+            } else if (parentType == ctwc.TYPE_VIRTUAL_NETWORK) {
+                ucid = ctwc.get(ctwc.UCID_NETWORK_INTERFACE_LIST, networkFQN);
+                interfacesAjaxConfig = getInterfacesAjaxConfig(parentType, {domain: domain, projectFQN: projectFQN, networkFQN: networkFQN});
+                self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
+            } else if (parentType == ctwc.TYPE_PROJECT) {
+                ucid = ctwc.get(ctwc.UCID_PROJECT_INTERFACE_LIST, projectFQN);
+                interfacesAjaxConfig = getInterfacesAjaxConfig(parentType, {domain: domain, projectFQN: projectFQN, networkFQN: networkFQN});
+                self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
             }
         }
     });
 
-    function getInterfacesAjaxConfig(responseJSON, projectFQN) {
+    function getInterfacesAjaxConfig(parentType, options) {
         var ajaxConfig,
-            interfaceList = contrail.checkIfExist(responseJSON) ? responseJSON['value']['UveVirtualMachineAgent']['interface_list'] : [];
+            interfaceList = contrail.checkIfExist(options['interfaceList']) ? options['interfaceList'] : [];
 
         ajaxConfig = {
             url: ctwc.URL_VM_INTERFACES,
             type: 'POST',
             data: JSON.stringify({
+                parentType: parentType,
+                domain: options['domain'],
+                projectFQN: options['projectFQN'],
+                networkFQN: options['networkFQN'],
                 kfilt: interfaceList.join(','),
-                projectFQN: projectFQN
+                cfilt: ctwc.FILTERS_INSTANCE_LIST_INTERFACES.join(',')
             })
         };
 

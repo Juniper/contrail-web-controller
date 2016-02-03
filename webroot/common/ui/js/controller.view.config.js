@@ -92,6 +92,7 @@ define([
                             }
                         },
                         viewConfig: {
+                            parentType: ctwc.TYPE_VIRTUAL_MACHINE,
                             modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
                             instanceUUID: instanceUUID,
                             networkFQN: networkFQN,

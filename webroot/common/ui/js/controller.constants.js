@@ -43,22 +43,14 @@ define([
         this.URL_QUERY = '/api/admin/reports/query';
         this.URL_GET_GLOBAL_VROUTER_CONFIG = '/api/tenants/config/global-vrouter-config';
 
-        this.URL_GET_PROJECT_QUOTA_USED =
-            '/api/tenants/config/project-quotas-info?id={0}';
-        this.URL_GET_GLOBAL_VROUTER_CONFIG =
-            '/api/tenants/config/global-vrouter-config';
-        this.URL_GET_GLOBAL_ASN =
-            '/api/tenants/admin/config/global-asn';
-        this.URL_GET_SECURITY_GROUP_DETAILS =
-            '/api/tenants/config/securitygroup-details?projUUID={0}'
-        this.URL_GET_SEC_GRP_LIST =
-            '/api/tenants/config/securitygroup';
-        this.URL_GET_LIST_SERVICE_INSTS_CONFIG =
-            '/api/tenants/config/list-service-instances/{0}';
-        this.URL_GET_SERVICE_INSTS_STATUS =
-            '/api/tenants/config/service-instances-status/{0}';
-        this.URL_GET_SERVICE_INST_TMPLTS =
-            '/api/tenants/config/service-instance-templates/{0}';
+        this.URL_GET_PROJECT_QUOTA_USED = '/api/tenants/config/project-quotas-info?id={0}';
+        this.URL_GET_GLOBAL_VROUTER_CONFIG = '/api/tenants/config/global-vrouter-config';
+        this.URL_GET_GLOBAL_ASN = '/api/tenants/admin/config/global-asn';
+        this.URL_GET_SECURITY_GROUP_DETAILS = '/api/tenants/config/securitygroup-details?projUUID={0}'
+        this.URL_GET_SEC_GRP_LIST = '/api/tenants/config/securitygroup';
+        this.URL_GET_LIST_SERVICE_INSTS_CONFIG = '/api/tenants/config/list-service-instances/{0}';
+        this.URL_GET_SERVICE_INSTS_STATUS = '/api/tenants/config/service-instances-status/{0}';
+        this.URL_GET_SERVICE_INST_TMPLTS = '/api/tenants/config/service-instance-templates/{0}';
 
         this.FILTERS_COLUMN_VN = ['UveVirtualNetworkAgent:interface_list', 'UveVirtualNetworkAgent:in_bandwidth_usage', 'UveVirtualNetworkAgent:out_bandwidth_usage',
             'UveVirtualNetworkConfig:connected_networks', 'UveVirtualNetworkAgent:virtualmachine_list', 'UveVirtualNetworkAgent:acl', 'UveVirtualNetworkAgent:total_acl_rules',
@@ -144,8 +136,7 @@ define([
 
         this.UCID_BC_ALL_DOMAINS = this.UCID_PREFIX_BREADCRUMB + ':all-domains';
         this.UCID_BC_ALL_SA_SETS = this.UCID_PREFIX_BREADCRUMB + ':all-sa-sets';
-        this.UCID_BC_ALL_GLOBAL_SYS_CONFIGS = this.UCID_PREFIX_BREADCRUMB +
-            ':all-global-sys-configs';
+        this.UCID_BC_ALL_GLOBAL_SYS_CONFIGS = this.UCID_PREFIX_BREADCRUMB + ':all-global-sys-configs';
         this.UCID_BC_DOMAIN_ALL_PROJECTS = this.UCID_PREFIX_BREADCRUMB + ':{0}:all-projects';
         this.UCID_BC_DOMAIN_ALL_DNS = this.UCID_PREFIX_BREADCRUMB + ':{0}:all-dns';
         this.UCID_BC_PROJECT_ALL_NETWORKS = this.UCID_PREFIX_BREADCRUMB + ':{0}:all-networks';
@@ -158,6 +149,7 @@ define([
         this.UCID_CONNECTED_NETWORK_TRAFFIC_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:traffic-stats";
         this.UCID_INSTANCE_INTERFACE_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:interfaces";
         this.UCID_PROJECT_INTERFACE_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:interfaces";
+        this.UCID_NETWORK_INTERFACE_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:interfaces";
         this.UCID_ALL_INTERFACE_LIST = this.UCID_PREFIX_MN_LISTS + "all-interfaces";
         this.UCID_INSTANCE_CPU_MEMORY_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:cpu-memory";
 
@@ -580,8 +572,7 @@ define([
         this.URL_PHYSICAL_ROUTER_CREATE =
             '/api/tenants/config/physical-routers';
         this.URL_BGP_ROUTER_DETAILS = '/api/admin/nodes/bgp';
-        this.URL_VIRTUAL_NETWORK_DETAILS =
-            '/api/tenants/config/virtual-networks';
+        this.URL_VIRTUAL_NETWORK_DETAILS = '/api/tenants/config/virtual-networks';
         this.SNMP_VERSION_DATA = [
             {'value' : '2', "label" : '2c'},
             {'value' : '3', "label" : '3'}
@@ -658,8 +649,7 @@ define([
         ];
 
         // Virtual Network Config Constants
-        this.URL_CFG_VN_DETAILS =
-                        '/api/tenants/config/virtual-network-details';
+        this.URL_CFG_VN_DETAILS = '/api/tenants/config/virtual-network-details';
         //Dns constants
         this.ACTIVE_DNS_DATA = "/api/tenants/config/sandesh/virtual-DNS/";
     };
