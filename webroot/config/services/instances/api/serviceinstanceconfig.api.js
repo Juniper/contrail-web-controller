@@ -830,15 +830,6 @@ function createServiceInstance(request, response, appData)
         version = svcTmpl[0]['service_template_properties']['version'];
     }
     delete siPostData['service-instance']['svcTmplDetails'];
-    /*
-    if (1 == version) {
-        configApiServer.apiPost(siCreateURL, siPostData, appData,
-            function (error, data) {
-                setSIRead(error, data, response, appData);
-        });
-        return;
-    }
-    */
     var dataObjArr = [];
     var vmisDataObjArr = [];
     var portTuples = [];
@@ -1174,7 +1165,8 @@ function updatePortTuples (configSIData, siPostData, vmiDetails, appData,
     }
     for (i = 0; i < uiOldPortTuplesCnt; i++) {
         var fqn = uiOldPortTuples[i]['to'].join(':');
-        if (null == tmpUIPortTupleObjs[fqn]) {
+        if ((null == tmpUIPortTupleObjs[fqn]) &&
+            (null != uiOldPortTuples[i]['vmis'])) {
             tmpUIPortTupleObjs[fqn] =
                 commonUtils.cloneObj(uiOldPortTuples[i]['vmis']);
         }
@@ -1519,6 +1511,76 @@ function updateSIRefs (configSIData, siPostData, appData, callback)
     });
 }
 
+function getOldPortTuplesBySIid (siId, request, appData, callback)
+{
+    var oldPortTupleList = [];
+    var siURL = '/service-instance/' + siId;
+    configApiServer.apiGet(siURL, appData, function(error, siConfig) {
+        if ((null != error) || (null == siConfig) ||
+            (null == siConfig['service-instance'])) {
+            callback(error, siConfig);
+            return;
+        }
+        var portTuples =
+            commonUtils.getValueByJsonPath(siConfig,
+                                           'service-instance;port_tuples',
+                                           []);
+        var portTuplesCnt = portTuples.length;
+        var portTupleUUIDList = [];
+        var tmpPortTupleUUIDToIdxMap = {};
+        for (var i = 0; i < portTuplesCnt; i++) {
+            portTupleUUIDList.push(portTuples[i]['uuid']);
+            oldPortTupleList.push({'to': portTuples[i]['to'],
+                                   'uuid': portTuples[i]['uuid']});
+            tmpPortTupleUUIDToIdxMap[portTuples[i]['uuid']] = i;
+        }
+        if (!portTupleUUIDList.length) {
+            callback(null, []);
+            return;
+        }
+        var vmiURL = '/virtual-machine-interfaces?detail=true&back_ref_id=' +
+            portTupleUUIDList.join(',');
+        configApiServer.apiGet(vmiURL, appData, function(error, vmiData) {
+            if ((null != error) || (null == vmiData)) {
+                callback(error, vmiData);
+                return;
+            }
+            var vmis =
+                commonUtils.getValueByJsonPath(vmiData,
+                                               'virtual-machine-interfaces',
+                                               []);
+            var vmisCnt = vmis.length;
+            for (var i = 0; i < vmisCnt; i++) {
+                var vmi = vmis[i]['virtual-machine-interface'];
+                var portTupleRefs =
+                    commonUtils.getValueByJsonPath(vmi,
+                                                   'port_tuple_refs', []);
+                var portTupleRefsCnt = portTupleRefs.length;
+                var intfType =
+                    commonUtils.getValueByJsonPath(vmi,
+                                'virtual_machine_interface_properties;' +
+                                'service_interface_type',
+                                null);
+                for (var j = 0; j < portTupleRefsCnt; j++) {
+                    var portTupleID = portTupleRefs[j]['uuid'];
+                    var idx = tmpPortTupleUUIDToIdxMap[portTupleID];
+                    if (null != idx) {
+                        if (null == oldPortTupleList[idx]['vmis']) {
+                            oldPortTupleList[idx]['vmis'] = [];
+                        }
+                        oldPortTupleList[idx]['vmis'].push({'fq_name':
+                                                        vmi['fq_name'],
+                                                      'uuid': vmi['uuid'],
+                                                      'interfaceType':
+                                                        intfType});
+                    }
+                }
+            }
+            callback(null, oldPortTupleList);
+        });
+    });
+}
+
 /**
  * @updateServiceInstance
  * public function
@@ -1562,18 +1624,13 @@ function updateServiceInstance(request, response, appData)
     }
     delete siPostData['service-instance']['svcTmplDetails'];
 
-    /*
-    if (1 == version) {
-        jsonDiff.getJSONDiffByConfigUrl(siPutURL, appData, siPostData,
-                                        function(err, delta) {
-            configApiServer.apiPut(siPutURL, delta, appData,
-                                   function (error, data) {
-                setSIRead(error, data, response, appData);
-            });
-        });
-        return;
-    }
-    */
+    getOldPortTuplesBySIid(siId, request, appData,
+                           function(error, oldPortTuples) {
+        if (null != error) {
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
+        }
+        siPostData['service-instance']['old_port_tuples'] = oldPortTuples;
 
     var portTuples = [];
     var portTuplesCnt = 0;
@@ -1708,6 +1765,7 @@ function updateServiceInstance(request, response, appData)
             });
         });
     });
+  });
 }
 
 /**
