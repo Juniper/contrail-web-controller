@@ -144,7 +144,7 @@ define([
             traceFlowGridColumns,
             formModel) {
         var gridId = ctwc.TRACEFLOW_RESULTS_GRID_ID;
-        var customControls = [], footer = true;
+        var customControls = [], footer = false;
         var gridTitle = '',
             underlayGraphModel = monitorInfraUtils.getUnderlayGraphModel();
         if (formModel.traceflow_radiobtn_name() == 'vRouter') {
@@ -152,7 +152,6 @@ define([
                 '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
                 '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
             ];
-            footer = false;
             gridTitle = contrail.format("{0} ({1})",'Active flows of Virtual Router',
                 formModel.vrouter_dropdown_name());
         } else {
@@ -162,6 +161,13 @@ define([
                 getValueByJsonPath(vmDetails, 'more_attributes;vm_name', '-');
             if(name == '-')
                 name = getValueByJsonPath(vmDetails, 'name', '-');
+            footer = {
+                pager: {
+                    options: {
+                        pageSize: 10,
+                    }
+                }
+            };
             gridTitle = contrail.format('{0} ({1})','Last 10 minute flows of Virtual Machine', name);
         }
         function resetLoadingIcon () {
@@ -316,6 +322,7 @@ define([
              dataItem['direction'] == 'ingress') {
             if(formModel != null && formModel.showvRouter()) {
                 postData['nodeIP'] = contextVrouterIp;
+                postData['resolveVrfId'] = contextVrouterIp;
             } else if(formModel != null && formModel.showInstance()) {
                 if (dataItem['vrouter_ip'] != null) {
                     postData['nodeIP'] = dataItem['vrouter_ip'];
@@ -324,7 +331,6 @@ define([
             if(dataItem['raw_json'] != null &&
                 dataItem['raw_json']['vrf'] != null) {
                 postData['vrfId'] = parseInt(dataItem['raw_json']['vrf']);
-                postData['resolveVrfId'] = postData['nodeIP'];
             }
             nwFqName = dataItem['sourcevn'] != null ?
                 dataItem['sourcevn'] : dataItem['src_vn'];
@@ -334,13 +340,12 @@ define([
                     dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
             if(dataItem['raw_json'] != null && dataItem['raw_json']['vrf'] != null) {
                 postData['vrfId'] = parseInt(dataItem['raw_json']['vrf']);
-                postData['resolveVrfId'] = postData['nodeIP'];
+                postData['resolveVrfId'] = contextVrouterIp;
             }
             nwFqName = dataItem['sourcevn'] != null ?
                 dataItem['sourcevn'] : dataItem['src_vn'];
         }
-        if(postData['nodeIP'] == null ||
-                graphModel.checkIPInVrouterList(postData['nodeIP'])) {
+        if(postData['nodeIP'] != null && (!graphModel.checkIPInVrouterList(postData))) {
             if(deferredObj != null) {
                 deferredObj.resolve(true);
             }
@@ -411,6 +416,7 @@ define([
         if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
             if(formModel != null && formModel.showvRouter()) {
                 postData['nodeIP'] = contextVrouterIp;
+                postData['resolveVrfId'] = contextVrouterIp;
             } else if(formModel != null && formModel.showInstance()) {
                 if (dataItem['vrouter_ip'] != null) {
                     postData['nodeIP'] = dataItem['vrouter_ip'];
@@ -422,7 +428,6 @@ define([
                 dataItem['raw_json']['dest_vrf'] != null) {
                 postData['vrfId'] =
                     parseInt(dataItem['raw_json']['dest_vrf']);
-                postData['resolveVrfId'] = postData['nodeIP'];
             }
         } else if(dataItem['direction_ing'] == 1 ||
               dataItem['direction'] == 'ingress') {
@@ -433,10 +438,11 @@ define([
             if(dataItem['raw_json'] != null &&
                  dataItem['raw_json']['dest_vrf'] != null) {
                 postData['vrfId'] = parseInt(dataItem['raw_json']['dest_vrf']);
-                postData['resolveVrfId'] = postData['nodeIP'];
+                postData['resolveVrfId'] = contextVrouterIp;
             }
         }
-        if(graphModel.checkIPInVrouterList(postData['nodeIP'])) {
+        if(postData['nodeIP'] != null &&
+            (!graphModel.checkIPInVrouterList(postData))) {
             if(deferredObj != null) {
                 deferredObj.resolve(true);
             }
@@ -479,7 +485,7 @@ define([
         $.ajax({
             url:'/api/tenant/networking/trace-flow',
             type:'POST',
-            timeout:5000,
+            timeout:30000,
             cache: true,
             data:{
                 data: postData

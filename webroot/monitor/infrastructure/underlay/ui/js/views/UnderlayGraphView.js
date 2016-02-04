@@ -38,18 +38,10 @@ define([
                 color: "rgba(57,57,57,.6)"
             },
             flowPathDefault: {
-                //color: "rgba(148,226,241,1)" //orange
-                //color: "rgba(154,215,210,1)" //blue
-                //color: "rgba(226,208,146,1)" //brown
-                //color: "rgba(186,162,74,1)" //dark brown
                 color: "rgba(0,150,136,.8)" //teal
 
             },
             flowPathDimlight: {
-                //color: "rgba(148,226,241,.6)" //orange
-                //color: "rgba(154,215,210,.6)" //blue
-                //color: "rgba(226,208,146,.6)" //brown
-                //color: "rgba(186,162,74,.5)" //dark brown
                 color: "rgba(0,150,136,.5)" //teal
             }
         },
@@ -75,7 +67,7 @@ define([
             },
             physics: {
                 stabilization: {
-                    iterations: 100
+                    iterations: 1000
                 }
             },
             layout: {
@@ -112,13 +104,6 @@ define([
                     roundness: .7 //not to be used with dynamic
                 }
             }
-            /*edges: {
-                smooth: {
-                    enabled: true,
-                    type: "dynamic",
-                    forceDirection: "none"
-                }
-            }*/
         },
         enableFreeflow: function() {
             self.network.setOptions({physics:{enabled: false}, layout: {hierarchical: {enabled:false}}});
@@ -128,6 +113,14 @@ define([
             this.tooltipConfigWidth = 0;
             this.tooltipConfigHeight = 0;
         },
+        removeUnderlayEffects: function() {
+            monitorInfraUtils.removeUndelrayFlowInfoFromBreadCrumb();
+            //Removing the selected row styling in trace flow and map flow results.
+            $("#" + ctwc.TRACEFLOW_RESULTS_GRID_ID+
+                " div.slick-row.selected-slick-row").removeClass('selected-slick-row');
+            $("#searchFlow-results div.slick-row.selected-slick-row").removeClass('selected-slick-row');
+            this.clearFlowPath();
+        },
         render: function() {
             var self = this,
                 graphTemplate =
@@ -136,6 +129,26 @@ define([
                 graphModel =
                 new UnderlayGraphModel(this.getUnderlayGraphModelConfig());
             self.$el.html(graphTemplate());
+            $("#" + ctwl.TOP_CONTENT_CONTAINER).addClass("underlay-container");
+            $("#" + ctwl.TOP_CONTENT_CONTAINER).css('border-bottom', '8px solid #fafafa');
+            $('#' + ctwl.TOP_CONTENT_CONTAINER).resizable({
+                handles: 's',
+                minHeight: 260,
+                resize: function(e, ui) {
+                    var parent = ui.element.parent();
+                    var remainingSpace =
+                        parent.height() - ui.element.outerHeight(),
+                        divTwo = $('#' + ctwl.BOTTOM_CONTENT_CONTAINER),
+                        divTwoHeight = (remainingSpace -
+                            (divTwo.outerHeight() - divTwo.height()))/parent.height()*100+"%";
+                    divTwo.height(divTwoHeight);
+                    self.network.setSize(
+                        ui.element.outerWidth() + "px",
+                        ui.element.outerHeight() + "px");
+
+                    self.network.redraw(); self.network.fit();
+                },
+            });
             $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel', graphModel);
             this.model = graphModel;
             this.model.listenTo(graphModel, "change", function (updatedGraphModel) {
@@ -146,12 +159,7 @@ define([
                 self.resetTopology({
                     resetBelowTabs: true
                 });
-                monitorInfraUtils.removeUndelrayFlowInfoFromBreadCrumb();
-                //Removing the selected row styling in trace flow and map flow results.
-                $("#" + ctwc.TRACEFLOW_RESULTS_GRID_ID+
-                    " div.slick-row.selected-slick-row").removeClass('selected-slick-row');
-                $("#searchFlow-results div.slick-row.selected-slick-row").removeClass('selected-slick-row');
-                self.clearFlowPath();
+                self.removeUnderlayEffects();
             });
             var graphWidth = $(selectorId).width();
             var graphHeight = $(selectorId).height();
@@ -163,21 +171,40 @@ define([
                     edges: this.edgesDataSet
                 },
                 this.visOptions);
-            /*var rearrange = $('<div style="display:inline-block; width:15px; height:15px; background-image:none; top:130px; right:10px; position:absolute; background-color:#f9f9f9; border:1px solid #efefef; color:#777; font-family:FontAwesome; font-size:15px; z-index:1; padding: 7px 7px; line-height:normal; background-position:2px 2px; cursor:pointer; background-repeat:no-repeat" title="Reset Layout"><i class="icon-align-center" /></div>');
+            var rearrange = $('<div id="rearrange" style="display:inline-block; width:15px; height:15px; background-image:none; top:130px; right:10px; position:absolute; background-color:#f9f9f9; border:1px solid #efefef; color:#777; font-family:FontAwesome; font-size:15px; z-index:1; padding: 7px 7px; line-height:normal; background-position:2px 2px; cursor:pointer; background-repeat:no-repeat" title="Reset Layout"><i class="icon-align-center" /></div>');
             $(rearrange).on("click", function(){
-                _network.setOptions(self.visOptions);
-                $('.vis-button vis-zoomExtends').click();
-                self.enableFreeflow();
+                var nodeIds = self.nodesDataSet.getIds();
+                var nodes = [];
+                _.each(nodeIds, function(id, idx) {
+                    if($.inArray(id, self.underlayPathIds.nodes) == -1) {
+                        var node = network.findNode(id);
+                        if(node && node.length == 1) {
+                            node = node[0];
+                            node.x = 0;
+                            node.y = 0;
+                            nodes.push(node);
+                        }
+                    }
+                });
+                if(nodes.length > 0) {
+                    _network.setOptions(self.visOptions);
+                    _network.setData({
+                        nodes: self.nodesDataSet,
+                        edges: self.edgesDataSet
+                    });
+                    self.duplicatePathsDrawn = false;
+                }
             });
             $('.vis-navigation').append(rearrange);
-            var resetTopo = $('<div style="display:inline-block; width:15px; height:15px; background-image:none; top:170px; right:10px; position:absolute; background-color:#f9f9f9; border:1px solid #efefef; color:#777; font-family:FontAwesome; font-size:15px; z-index:1; padding: 7px 7px; line-height:normal; background-position:2px 2px; cursor:pointer; background-repeat:no-repeat" title="Reset Topology"><i class="icon-check" /></div>');
+            var resetTopo = $('<div style="display:inline-block; width:15px; height:15px; background-image:none; top:170px; right:10px; position:absolute; background-color:#f9f9f9; border:1px solid #efefef; color:#777; font-family:FontAwesome; font-size:15px; z-index:1; padding: 7px 7px; line-height:normal; background-position:2px 2px; cursor:pointer; background-repeat:no-repeat" title="Reset Topology"><i class="icon-play-circle" /></div>');
             $(resetTopo).on("click", function(){
-                    self.resetTopology({
-                        resetBelowTabs: false,
-                        model: graphModel
-                    });
+                self.resetTopology({
+                    resetBelowTabs: true,
+                    restorePosition: false
+                });
+                self.removeUnderlayEffects();
             });
-            $('.vis-navigation').append(resetTopo);*/
+            $('.vis-navigation').append(resetTopo);
 
             var _network = this.network;
             window.network = _network;
@@ -392,6 +419,7 @@ define([
                             'onSave': function () {
                                 self.underlayPathIds.nodes = [];
                                 self.underlayPathIds.links = [];
+                                self.removeUnderlayEffects();
                                 self.expandNodes(params);
                                 $("#resetTopologyModal").modal('hide');
                             },
@@ -556,7 +584,9 @@ define([
                 //graphModel.flowPath.set('nodes',[], {silent: true});
                 //graphModel.flowPath.set('links',[], {silent: true});
             });
-
+            $(".vis-button.vis-zoomIn").attr('title', 'Zoom In');
+            $(".vis-button.vis-zoomOut").attr('title', 'Zoom Out');
+            $(".vis-button.vis-zoomExtends").attr('title', 'Zoom Reset');
         },
         duplicatePaths: function(eventName) {
             var self = this;
@@ -565,6 +595,26 @@ define([
                 self.model.flowPath.attributes.links.length > 0 &&
                 self.duplicatePathsDrawn == false) {
                 self.duplicatePathsDrawn = true;
+                if(self.underlayPathIds.nodes.length > 0) {
+                    _.each(self.underlayPathIds.nodes, function(id, idx) {
+                        var node = self.nodesDataSet.get(id);
+                        if(node) {
+                            self.nodesDataSet.remove(node);
+                        }
+                    });
+                }
+                if(self.underlayPathIds.links.length > 0) {
+                    _.each(self.underlayPathIds.links, function(id, idx) {
+                        var edge = self.edgesDataSet.get(id);
+                        if(edge) {
+                            self.edgesDataSet.remove(edge);
+                        }
+                    });
+                }
+                self.underlayPathIds = {
+                    nodes:[],
+                    links:[]
+                }
                 var dupNodes = {}, dupLinks = {};
                 var underlayPathIds = {
                     nodes: [],
@@ -632,7 +682,8 @@ define([
                         dupNodes[parentNode.nodeDetails.name] = {};
                         dupNodes[parentNode.nodeDetails.name]["id"]= newParentNode.id;
                         dupNodes[parentNode.nodeDetails.name]["data"]= newParentNode;
-                        underlayPathIds.nodes.push(newParentNode.id);
+                        if($.inArray(newParentNode.id, underlayPathIds.nodes) == -1)
+                            underlayPathIds.nodes.push(newParentNode.id);
                         self.nodesDataSet.add(newParentNode);
                     }
 
@@ -655,7 +706,8 @@ define([
                         dupNodes[childNode.nodeDetails.name] = {};
                         dupNodes[childNode.nodeDetails.name]["id"]= newChildNode.id;
                         dupNodes[childNode.nodeDetails.name]["data"]= newChildNode;
-                        underlayPathIds.nodes.push(newParentNode.id);
+                        if($.inArray(newChildNode.id, underlayPathIds.nodes) == -1)
+                            underlayPathIds.nodes.push(newChildNode.id);
                         self.nodesDataSet.add(newChildNode);
                     }
 
@@ -663,7 +715,8 @@ define([
                         newParentNode.id, newChildNode.id, arrowPosition, eventName);
                     var currentLinkId = newLink.id;
                     self.edgesDataSet.add(newLink);
-                    underlayPathIds.links.push(currentLinkId);
+                    if($.inArray(currentLinkId, underlayPathIds.links) == -1)
+                        underlayPathIds.links.push(currentLinkId);
                     dupLinks[parentNode.nodeDetails.name+ "<->" + childNode.nodeDetails.name] = currentLinkId;
                     dupLinks[childNode.nodeDetails.name+ "<->" + parentNode.nodeDetails.name] = currentLinkId;
                 }
@@ -704,8 +757,7 @@ define([
                             graphModel['adjacencyList'] = adjList;
                             var childElementsArray = self
                                 .createElementsFromAdjacencyList(graphModel);
-                            self.addElementsToGraph(childElementsArray,
-                                graphModel);
+                            self.addElementsToGraph(childElementsArray);
                             self.markErrorNodes();
                             self.addDimlightToConnectedElements();
                             var thisNode = [nodeDetails];
@@ -779,7 +831,7 @@ define([
                     }
                     graphModel['adjacencyList'] = newAdjList;
                     var childElementsArray = self.createElementsFromAdjacencyList(graphModel);
-                    self.addElementsToGraph(childElementsArray, graphModel);
+                    self.addElementsToGraph(childElementsArray);
                     self.addDimlightToConnectedElements();
                     var thisNode = [nodeDetails];
                     self.addHighlightToNodesAndLinks(thisNode, childElementsArray, graphModel);
@@ -1196,7 +1248,7 @@ define([
             this.model.initializeUnderlayModel(response);
             var elements = this.createElementsFromAdjacencyList(this.model);
             if (elements.length > 0) {
-                this.addElementsToGraph(elements, this.model);
+                this.addElementsToGraph(elements);
                 this.markErrorNodes();
             } else {
                 var notFoundTemplate =
@@ -1247,11 +1299,11 @@ define([
                 }
                 /*cacheConfig: {
                     ucid: ctwc.UNDERLAY_TOPOLOGY_CACHE
-                }*/,
+                },*/
             };
         },
 
-        addElementsToGraph: function(elements, graphModel) {
+        addElementsToGraph: function(elements, restorePosition) {
             var network = this.network;
             var nodesDataSet = this.nodesDataSet;
             var edgesDataSet = this.edgesDataSet;
@@ -1264,13 +1316,15 @@ define([
                 if(newElementIds.indexOf(id) == -1) {
                     nodesDataSet.remove(id);
                 } else {
-                    var node = network.findNode(id);
-                    if(node && node.length == 1) {
-                        node = node[0];
-                        mapPositions[id] = {};
-                        mapPositions[id] = {
-                            x: node.x,
-                            y: node.y
+                    if(false !== restorePosition) {
+                        var node = network.findNode(id);
+                        if(node && node.length == 1) {
+                            node = node[0];
+                            mapPositions[id] = {};
+                            mapPositions[id] = {
+                                x: node.x,
+                                y: node.y
+                            }
                         }
                     }
                 }
@@ -1307,6 +1361,7 @@ define([
             //if(mapPositions === {})
                 network.setOptions(this.visOptions);
             var updatedNodes = [];
+            if(false !== restorePosition) {
             _.each(mapPositions, function(position, id) {
                 for (var i = 0; i < elements.length; i++) {
                     if (elements[i].id == id) {
@@ -1318,6 +1373,7 @@ define([
                     }
                 }
             });
+            }
             var newElements = [];
             var newParentElement = null;
             if(updatedNodes.length > 0) {
@@ -1451,7 +1507,7 @@ define([
             }
             edgesDataSet.update(edges);
         },
-        resetConnectedElements: function() {
+        resetConnectedElements: function(restorePosition) {
             var network = this.network;
             var _this = this;
             var nodesDataSet = this.nodesDataSet;
@@ -1461,6 +1517,15 @@ define([
             var nodes = [];
             var flowPathEdges = this.underlayPathIds.links;
             var mapPositions = {};
+            if(restorePosition == false) {
+                for (var i = 0; i < nodeIds.length; i++) {
+                    var node = nodesDataSet.get(nodeIds[i]);
+                    node.icon.color = _this.style.default.color;
+                    nodes.push(node);
+                }
+                nodesDataSet.update(nodes);
+                return;
+            }
             for (var i = 0; i < nodeIds.length; i++) {
                 var node = nodesDataSet.get(nodeIds[i]);
                 var nodeEl = network.findNode(nodeIds[i]);
@@ -1735,11 +1800,6 @@ define([
                         }
                         if ("" == instanceName)
                             instanceName = nodeDetails['name'];
-                        /*actions.push({
-                            text: 'View',
-                            iconClass: 'icon-external-link'
-                        });*/
-
                         tooltipContent = {
                             iconClass: 'icon-contrail-virtual-machine font-size-30',
                             actions: actions
@@ -1766,25 +1826,7 @@ define([
                         }
                         tooltipContent['info'] = tooltipLblValues;
                         return tooltipContentTmpl(tooltipContent);
-                    },
-                    /*dimension: {
-                        width: 355
-                    },
-                    actionsCallback: function(nodeDetails) {
-                        var actions = [];
-                        actions.push({
-                            callback: function(key, options) {
-                                graphModel.selectedElement.set({
-                                    'nodeType': ctwc.VIRTUALMACHINE,
-                                    'nodeDetail': nodeDetails});
-                                graphModel.selectedElement.set({
-                                    'nodeType': '',
-                                    'nodeDetail': {}},{silent:true});
-                            }
-                        });
-
-                        return actions;
-                    }*/
+                    }
                 },
                 link: {
                     title: function(linkDetails) {
@@ -1836,12 +1878,8 @@ define([
                             info: data,
                             iconClass: 'icon-resize-horizontal'
                         });
-                    },
-                    /*dimension: {
-                        width: 400
-                    }*/
+                    }
                 }
-
             };
         },
 
@@ -1849,13 +1887,14 @@ define([
             var self = this;
             var underlayGraphModel = self.model;
             this.removeUnderlayPathIds();
-            this.resetConnectedElements()
+            var restorePosition = options.restorePosition;
+            this.resetConnectedElements(restorePosition);
             var adjList = _.clone(underlayGraphModel['underlayAdjacencyList']);
             underlayGraphModel['adjacencyList'] = adjList;
             self.network.setOptions(self.visOptions);
             var childElementsArray =
                 this.createElementsFromAdjacencyList(underlayGraphModel);
-            this.addElementsToGraph(childElementsArray, underlayGraphModel);
+            this.addElementsToGraph(childElementsArray, restorePosition);
             this.markErrorNodes();
             if (options['resetBelowTabs'] == true) {
                 monitorInfraUtils.removeUnderlayTabs(
@@ -1865,7 +1904,7 @@ define([
                 'nodeType': '',
                 'nodeDetail': {}});
 
-            $('.vis-button vis-zoomExtends').click();
+            $('.vis-button.vis-zoomExtends').click();
             self.enableFreeflow();
         },
 
