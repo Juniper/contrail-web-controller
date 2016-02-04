@@ -210,14 +210,14 @@ define([
                                         key: 'queryReqObj.formModelAttrs.from_time_utc',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
-                                            formatter: 'date-time'
+                                            formatter: 'date'
                                         }
                                     },
                                     {
                                         key: 'queryReqObj.formModelAttrs.to_time_utc',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
-                                            formatter: 'date-time'
+                                            formatter: 'date'
                                         }
                                     },
                                     {
@@ -267,7 +267,7 @@ define([
                                         key: 'startTime',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
-                                            formatter: 'date-time'
+                                            formatter: 'date'
                                         }
                                     },
                                     {
