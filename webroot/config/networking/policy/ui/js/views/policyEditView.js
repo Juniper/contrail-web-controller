@@ -408,7 +408,7 @@ define([
                                      dataBindValue: "protocol()",
                                      disabled: "mirror_to_check()",
                                      elementConfig:{
-                                     data:['ANY', 'TCP', 'UDP', 'ICMP']
+                                     data:['ANY', 'TCP', 'UDP', 'ICMP', 'ICMP6']
                                     }}
                                 },
                                 {
