@@ -71,6 +71,26 @@ define([
                                             }
                                         },
                                         {
+                                            elementId: ctwl.NETWORK_INTERFACES_ID,
+                                            title: ctwl.TITLE_INTERFACES,
+                                            view: "InterfaceGridView",
+                                            viewPathPrefix: "monitor/networking/ui/js/views/",
+                                            app: cowc.APP_CONTRAIL_CONTROLLER,
+                                            tabConfig: {
+                                                activate: function(event, ui) {
+                                                    if ($('#' + ctwl.NETWORK_INTERFACE_GRID_ID).data('contrailGrid')) {
+                                                        $('#' + ctwl.NETWORK_INTERFACE_GRID_ID).data('contrailGrid').refreshView();
+                                                    }
+                                                },
+                                                renderOnActivate: true
+                                            },
+                                            viewConfig: {
+                                                parentType: ctwc.TYPE_VIRTUAL_NETWORK,
+                                                networkFQN: networkFQN,
+                                                elementId: ctwl.NETWORK_INTERFACE_GRID_ID
+                                            }
+                                        },
+                                        {
                                             elementId: ctwl.NETWORK_TRAFFIC_STATS_ID,
                                             title: ctwl.TITLE_TRAFFIC_STATISTICS,
                                             view: "LineWithFocusChartView",
