@@ -59,6 +59,11 @@ define([
                                 "while setting VxLAN identifier mode";
                         }
                     }
+                },
+                'ecmp_hashing_include_fields': function(val, attr, fieldObj) {
+                    if ((null == val) || (!val.length)) {
+                        return 'At least one field should be selected';
+                    }
                 }
             }
         },

@@ -30,6 +30,9 @@ define([
             },
             'user_created_service_virtualization_type': 'virtual-machine',
             'user_created_version': 1,
+            'user_created_service_scaling': false,
+            'user_created_service_mode': 'transparent',
+            'user_created_service_type': 'firewall',
             'service_appliance_set': null,
             'interfaces' : []
         },
@@ -115,6 +118,11 @@ define([
             var intfTypesList = [];
             var tmpIntfList = intfTypes;
             var otherIntfIdxList = [];
+            var svcType = this.model().get('user_created_service_type');
+            if (('analyzer' == svcType) && (len >= 2)) {
+                /* Analyzer, only two interface types can be added */
+                return;
+            }
             for (var i = 0; i < len; i++) {
                 var modIntf = intfColl.at(i).get('service_interface_type')();
                 intfTypesList.push(modIntf);
@@ -183,17 +191,66 @@ define([
             interfaces.add([newInterface]);
         },
 
-        deleteSvcTemplateInterface: function(data, kbInterfaces) {
+        deleteSvcTemplateInterface: function(parentModel, data, kbInterfaces) {
+            /* Remove any error message if any */
             var ifCollection = data.model().collection,
                 delInterface = kbInterfaces.model();
 
             ifCollection.remove(delInterface);
+            if (ifCollection.length > 2) {
+                return;
+            }
+            /* Only 2 there now */
+            var intfModel = parentModel.model();
+            var attr = cowu.getAttributeFromPath('user_created_service_type');
+            var errors = intfModel.get(cowc.KEY_MODEL_ERRORS);
+            var attrErrorObj = {};
+            attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] = null;
+            errors.set(attrErrorObj);
         },
         showIntfTypeParams: function(version) {
             if ((null != version) && (1 != Number(version))) {
                 return false;
             }
             return true;
+        },
+        disableStaticRoute: function(parentModel, model) {
+            var svcMode = parentModel.user_created_service_mode();
+            if ('transparent' == svcMode) {
+                model.static_route_enable()(false);
+                return true;
+            } else {
+                return false;
+            }
+        },
+        disableSharedIP: function(parentModel, model) {
+            var svcScaling = parentModel.user_created_service_scaling();
+            var svcMode = parentModel.user_created_service_mode();
+            if (true == svcScaling) {
+                var intfType = model.service_interface_type()();
+                switch (intfType) {
+                case 'left':
+                    model.shared_ip()(true);
+                    return true;
+                case 'right':
+                    if (('transparent' == svcMode) ||
+                        ('in-network' == svcMode)) {
+                        model.shared_ip()(true);
+                    } else {
+                        model.shared_ip()(false);
+                    }
+                    return true;
+                case 'management':
+                    model.shared_ip()(false);
+                    return true;
+                default:
+                    model.shared_ip()(false);
+                    return false;
+                }
+            } else {
+                model.shared_ip()(false);
+                return true;
+            }
         },
         getSvcTemplateInterfaceList : function(attr, version) {
             var ifCollection = attr.interfaces.toJSON(), ifList = [];
@@ -263,6 +320,36 @@ define([
                     if (null == val) {
                         return "Select Service Appliance Set"
                     }
+                },
+                'user_created_service_type': function(val, attr, data) {
+                    if ((null == val) || (!val.trim().length)) {
+                        return 'service type is required';
+                    }
+                    if ('firewall' == val) {
+                        return;
+                    }
+                    /* Analyzer case */
+                    if ('analyzer' == val) {
+                        var intfTypesLen = data.interfaces.length;
+                        if (intfTypesLen > 2) {
+                            return 'Analyzer cannot have more than two ' +
+                                'interfaces';
+                        }
+                    }
+                },
+                'interfaces': function(val, attr, data) {
+                    var intfColl = data.interfaces.toJSON();
+                    var intfTypesList = [];
+                    var cnt = intfColl.length;
+                    for (var i = 0; i < cnt; i++) {
+                        var intfType = intfColl[i].service_interface_type();
+                        intfTypesList.push(intfType);
+                    }
+                    if (intfTypesList.length !=
+                        (_.uniq(intfTypesList)).length) {
+                        return 'Same interface type can not be used multiple ' +
+                            'times';
+                    }
                 }
             }
         },
@@ -296,6 +383,24 @@ define([
                     self.getSvcTemplateInterfaceList(newSvcTemplateCfgData,
                                                      version);
 
+                var svcMode =
+                    getValueByJsonPath(newSvcTemplateCfgData,
+                                       'user_created_service_mode',
+                                       'transparent');
+                newSvcTemplateCfgData['service_template_properties']
+                                     ['service_mode'] = svcMode;
+                var svcScaling =
+                    getValueByJsonPath(newSvcTemplateCfgData,
+                                       'user_created_service_scaling',
+                                       false);
+                newSvcTemplateCfgData['service_template_properties']
+                                     ['service_scaling'] = svcScaling;
+                var svcType =
+                    getValueByJsonPath(newSvcTemplateCfgData,
+                                       'user_created_service_type',
+                                       'firewall');
+                newSvcTemplateCfgData['service_template_properties']
+                                     ['service_type'] = svcType;
                 newSvcTemplateCfgData['service_template_properties']['version'] =
                     version;
                 var svcVirtType =
@@ -330,6 +435,9 @@ define([
                 delete
                     newSvcTemplateCfgData.service_appliance_set;
                 delete newSvcTemplateCfgData.user_created_version;
+                delete newSvcTemplateCfgData.user_created_service_mode;
+                delete newSvcTemplateCfgData.user_created_service_scaling;
+                delete newSvcTemplateCfgData.user_created_service_type;
 
                 postData['service-template'] = newSvcTemplateCfgData;
 
