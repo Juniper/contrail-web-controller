@@ -658,6 +658,17 @@ define([
         this.URL_CFG_VN_DETAILS = '/api/tenants/config/virtual-network-details';
         //Dns constants
         this.ACTIVE_DNS_DATA = "/api/tenants/config/sandesh/virtual-DNS/";
+
+        /* Route Aggregate Constants */
+        this.CONFIG_ROUTE_AGGREGATE_LIST_ID = "config-route-aggregate-list";
+        this.ROUTE_AGGREGATE_GRID_ID = "route-aggregate-grid";
+        this.URL_GET_ROUTE_AGGREGATE_DATA = "/api/tenants/config/route-aggregates/";
+        this.CONFIG_ROUTE_AGGREGATE_SECTION_ID = "config-route-aggregate-section";
+        this.CONFIG_ROUTE_AGGREGATE_ID = "config-route-aggregate";
+        this.CONFIG_ROUTE_AGGREGATE_LIST_VIEW_ID = "config-route-aggregate-list-view";
+        this.ROUTE_AGGREGATE_PREFIX_ID = "route_aggregate";
+        this.URL_CREATE_ROUTE_AGGREGATE = "/api/tenants/config/route-aggregates";
+        this.URL_UPDATE_ROUTE_AGGREGATE = "/api/tenants/config/route-aggregate/";
     };
 
     //str will be [0-9]+(m|h|s|d)
