@@ -201,9 +201,9 @@ define([
                                 view: 'FormInputView',
                                 viewConfig: {
                                     label: 'Primary VLAN',
-                                    path: 'pVlanId',
+                                    path: 'sVlanId',
                                     class: 'span6',
-                                    dataBindValue: 'pVlanId',
+                                    dataBindValue: 'sVlanId',
                                     visible: '(isVCenter()) && disable() == false',
                                 }
                             },
@@ -212,9 +212,9 @@ define([
                                 view: 'FormInputView',
                                 viewConfig: {
                                     label: 'Secondary VLAN',
-                                    path: 'sVlanId',
+                                    path: 'pVlanId',
                                     class: 'span6',
-                                    dataBindValue: 'sVlanId',
+                                    dataBindValue: 'pVlanId',
                                     visible: '(isVCenter()) && disable() == false',
                                 }
                             }
