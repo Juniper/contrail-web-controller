@@ -365,9 +365,11 @@ define([
                 mirror += this.addTableRow(["Analyzer IP Address", " : ",
                                             temp + ", UDP port : " + temp1]);
 
-                temp = getValueByJsonPath(mirrorObj, "routing_instance", "-");
-                if (temp != "") {
-                    temp = ctwu.formatCurrentFQName(temp.split(":"));
+                temp = getValueByJsonPath(mirrorObj, "routing_instance", []);
+                if (temp.length > 0) {
+                    temp = ctwu.formatCurrentFQName(temp);
+                } else {
+                    temp = "-";
                 }
                 mirror += this.addTableRow(["Routing Instance", " : ", temp]);
             }
@@ -446,10 +448,11 @@ define([
         //Grid column expand label: Sub Interface Parent Port//
         this.parentUUIDFormatter = function(d, c, v, cd, dc) {
             var parentUUIDFormatter = "";
-            if("virtual_machine_interface_refs" in dc &&
-               (!("virtual_machine_interface_properties" in dc) ||
-               ("sub_interface_vlan_tag" in
-                dc["virtual_machine_interface_properties"] ))){
+            var subInterface =
+                   getValueByJsonPath(dc,
+                   "virtual_machine_interface_properties;sub_interface_vlan_tag", "");
+            var vmiRef = getValueByJsonPath(dc, "virtual_machine_interface_refs", []);
+            if( vmiRef.length > 0 && subInterface != ""){
                 var len = dc["virtual_machine_interface_refs"].length-1;
                 for(var i=0;i<=len;i++){
                     if(parentUUIDFormatter != "") {
