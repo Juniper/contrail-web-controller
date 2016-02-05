@@ -512,6 +512,9 @@ define([
                 if (hostRoutes.length == 0) {
                     delete subnet['host_routes'];
                 }
+                if(dnsServers.length == 0) {
+                    delete subnet['dhcp_option_list'];
+                }
 
                 delete subnet['errors'];
                 delete subnet['locks'];
