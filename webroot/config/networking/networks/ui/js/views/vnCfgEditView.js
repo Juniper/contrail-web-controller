@@ -228,7 +228,7 @@ define([
                                 viewConfig: {
                                     label: 'Network Policy(s)',
                                     path: 'network_policy_refs',
-                                    class: 'span6',
+                                    class: 'span12',
                                     dataBindValue: 'network_policy_refs',
                                     elementConfig: {
                                         placeholder: 'Select Network Policies',
@@ -269,11 +269,40 @@ define([
                                                 'subnetModelConfigValidations',
                                                  collection:
                                                      'network_ipam_refs',
+                                                     templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                                                 gridActions: [
+                                                     {onClick: "function() {\
+                                                         if (!isVCenter())\
+                                                             addSubnet();\
+                                                         }",
+                                                      buttonTitle: ""}
+                                                 ],
+
+                                                gridActions: [
+                                                     {onClick: "function() {\
+                                                         if (!isVCenter())\
+                                                             addSubnet();\
+                                                         }",
+                                                      buttonTitle: ""}
+                                                 ],
+                                                 rowActions: [
+                                                     {onClick: "function() {\
+                                                         if (!isVCenter())\
+                                                             $root.addSubnet();\
+                                                         }",
+                                                      iconClass: 'icon-plus'},
+                                                     {onClick: "function() {\
+                                                         if (!isVCenter())\
+                                                         $root.deleteSubnet($data, this);\
+                                                        }",
+                                                      iconClass: 'icon-minus'}
+                                                 ],
                                                  columns: [
                                                     {
                                                         elementId: 'user_created_ipam_fqn',
                                                         view: "FormDropdownView",
                                                         name: 'IPAM',
+                                                        width:160,
                                                         viewConfig: {
                                                             templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                             path : 'user_created_ipam_fqn',
@@ -297,6 +326,7 @@ define([
                                                       elementId: 'user_created_cidr',
                                                       name:
                                                         'CIDR',
+                                                      width:160,
                                                       view: "FormInputView",
                                                       viewConfig:
                                                         {
@@ -313,6 +343,7 @@ define([
                                                       elementId: 'allocation_pools',
                                                       name:
                                                         'Allocation Pools',
+                                                      width:160,
                                                       view: "FormTextAreaView",
                                                       viewConfig:
                                                         {
@@ -329,6 +360,7 @@ define([
                                                       elementId: 'user_created_enable_gateway',
                                                       name:
                                                         '',
+                                                      width:50,
                                                       view: "FormCheckboxView",
                                                       viewConfig:
                                                         {
@@ -348,6 +380,7 @@ define([
                                                       elementId: 'default_gateway',
                                                       name:
                                                         'Gateway',
+                                                      width:160,
                                                       view: "FormInputView",
                                                       viewConfig:
                                                         {
@@ -399,20 +432,6 @@ define([
                                                         }
                                                      },
                                                  ],
-                                                 rowActions: [
-                                                     {onClick: "function() {\
-                                                         if (!isVCenter())\
-                                                         $root.deleteSubnet($data, this);\
-                                                        }",
-                                                      iconClass: 'icon-minus'}
-                                                 ],
-                                                 gridActions: [
-                                                     {onClick: "function() {\
-                                                         if (!isVCenter())\
-                                                             addSubnet();\
-                                                         }",
-                                                      buttonTitle: "Subnet"}
-                                                 ]
                                              }
                                          }
                                         ]
@@ -443,6 +462,7 @@ define([
                                                  path : 'user_created_host_routes',
                                                  validation:
                                                 'hostRouteModelConfigValidations',
+                                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                  collection:
                                                      'user_created_host_routes',
                                                  columns: [
@@ -479,6 +499,10 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
+                                                         $root.addHostRoute();\
+                                                         }",
+                                                      iconClass: 'icon-plus'},
+                                                     {onClick: "function() {\
                                                          $root.deleteHostRoute($data, this);\
                                                         }",
                                                       iconClass: 'icon-minus'}
@@ -487,7 +511,7 @@ define([
                                                      {onClick: "function() {\
                                                          addHostRoute();\
                                                          }",
-                                                      buttonTitle: "Host Route"}
+                                                      buttonTitle: ""}
                                                  ]
                                              }
                                          }
@@ -554,8 +578,9 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'is_shared',
-                                                class : "span6",
+                                                class : "span4",
                                                 label:'Shared',
+                                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'is_shared',
                                                 elementConfig : {
                                                     isChecked:false
@@ -567,55 +592,55 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'router_external',
-                                                class : "span6",
+                                                class : "span4",
                                                 label:'External',
+                                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'router_external',
                                                 elementConfig : {
                                                     isChecked:false
                                                 }
                                             }
                                         },
-                                        ]
-                                    },
-                                    {
-                                        columns: [
                                         {
                                             elementId: 'allow_transit',
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'virtual_network_properties.allow_transit',
-                                                class : "span6",
+                                                class : "span4",
                                                 label:'Allow Transit',
+                                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'virtual_network_properties().allow_transit',
                                                 elementConfig : {
                                                     isChecked:false
                                                 }
                                             }
-                                        },
+                                        }
+                                        ]
+                                    },
+                                    {
+                                        columns: [
                                         {
                                             elementId: 'flood_unknown_unicast',
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'flood_unknown_unicast',
-                                                class : "span6",
+                                                class : "span4",
                                                 label:'Flood Unknown Unicast',
+                                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'flood_unknown_unicast',
                                                 elementConfig : {
                                                     isChecked:false
                                                 }
                                             }
                                         },
-                                        ]
-                                    },
-                                    {
-                                        columns: [
                                         {
                                             elementId: 'rpf',
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'virtual_network_properties.rpf',
-                                                class : "span6",
+                                                class : "span4",
                                                 label:'Reverse Path Forwarding',
+                                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'virtual_network_properties().rpf',
                                                 elementConfig : {
                                                     isChecked:false
@@ -627,14 +652,15 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'multi_policy_service_chains_enabled',
-                                                class : "span6",
+                                                class : "span4",
                                                 label:'Multiple Service Chains',
+                                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'multi_policy_service_chains_enabled',
                                                 elementConfig : {
                                                     isChecked:false
                                                 }
                                             }
-                                        },
+                                        }
                                         ]
                                     },
                                     {
@@ -830,6 +856,7 @@ define([
                                                  path : 'user_created_dns_servers',
                                                  validation:
                                                 'subnetDNSModelConfigValidations',
+                                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                  collection:
                                                      'user_created_dns_servers',
                                                  columns: [
@@ -850,6 +877,10 @@ define([
                                                      },
                                                  ],
                                                  rowActions: [
+                                                     {onClick: "function() {\
+                                                         $root.addSubnetDNS();\
+                                                         }",
+                                                      iconClass: 'icon-plus'},
                                                     {onClick: "function() {\
                                                          $root.deleteSubnetDNS($data, this);\
                                                         }",
@@ -860,7 +891,7 @@ define([
                                                     {onClick: "function() {\
                                                          addSubnetDNS();\
                                                          }",
-                                                      buttonTitle: "DNS Server"
+                                                      buttonTitle: ""
                                                     }
                                                  ]
                                              }
@@ -891,6 +922,7 @@ define([
                                              view: "FormEditableGridView",
                                              viewConfig: {
                                                  path : 'floating_ip_pools',
+                                                 templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                  validation:
                                                 'fipPoolModelConfigValidations',
                                                  collection:
@@ -939,6 +971,10 @@ define([
                                                 ],
                                                  rowActions: [
                                                      {onClick: "function() {\
+                                                         $root.addFipPool();\
+                                                         }",
+                                                      iconClass: 'icon-plus'},
+                                                     {onClick: "function() {\
                                                          $root.deleteFipPool($data, this);\
                                                         }",
                                                       iconClass: 'icon-minus'}
@@ -947,7 +983,7 @@ define([
                                                      {onClick: "function() {\
                                                          addFipPool();\
                                                          }",
-                                                      buttonTitle: "Floating IP Pool"}
+                                                      buttonTitle: ""}
                                                  ]
                                              }
                                          }
@@ -979,6 +1015,7 @@ define([
                                                  path : 'user_created_route_targets',
                                                  validation:
                                                 'routeTargetModelConfigValidations',
+                                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                  collection:
                                                      'user_created_route_targets',
                                                  columns: [
@@ -1015,6 +1052,10 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
+                                                         $root.addRouteTarget('user_created_route_targets');\
+                                                         }",
+                                                      iconClass: 'icon-plus'},
+                                                     {onClick: "function() {\
                                                          $root.deleteRouteTarget($data, this);\
                                                         }",
                                                       iconClass: 'icon-minus'}
@@ -1023,7 +1064,7 @@ define([
                                                      {onClick: "function() {\
                                                          addRouteTarget('user_created_route_targets');\
                                                          }",
-                                                      buttonTitle: "Route Target"}
+                                                      buttonTitle: ""}
                                                  ]
                                              }
                                          }
@@ -1055,6 +1096,7 @@ define([
                                                  path : 'user_created_export_route_targets',
                                                  validation:
                                                 'routeTargetModelConfigValidations',
+                                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                  collection:
                                                      'user_created_export_route_targets',
                                                  columns: [
@@ -1091,6 +1133,10 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
+                                                         $root.addRouteTarget('user_created_export_route_targets');\
+                                                         }",
+                                                      iconClass: 'icon-plus'},
+                                                     {onClick: "function() {\
                                                          $root.deleteRouteTarget($data, this);\
                                                         }",
                                                       iconClass: 'icon-minus'}
@@ -1099,7 +1145,7 @@ define([
                                                      {onClick: "function() {\
                                                          addRouteTarget('user_created_export_route_targets');\
                                                          }",
-                                                      buttonTitle: "Export Route Target"}
+                                                      buttonTitle: ""}
                                                  ]
                                              }
                                          }
@@ -1131,6 +1177,7 @@ define([
                                                  path : 'user_created_import_route_targets',
                                                  validation:
                                                 'routeTargetModelConfigValidations',
+                                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                  collection:
                                                      'user_created_import_route_targets',
                                                  columns: [
@@ -1167,6 +1214,10 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
+                                                         $root.addRouteTarget('user_created_import_route_targets');\
+                                                         }",
+                                                      iconClass: 'icon-plus'},
+                                                     {onClick: "function() {\
                                                          $root.deleteRouteTarget($data, this);\
                                                         }",
                                                       iconClass: 'icon-minus'}
@@ -1175,7 +1226,7 @@ define([
                                                      {onClick: "function() {\
                                                          addRouteTarget('user_created_import_route_targets');\
                                                          }",
-                                                      buttonTitle: "Import Route Target"}
+                                                      buttonTitle: ""}
                                                  ]
                                              }
                                          }
