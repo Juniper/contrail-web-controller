@@ -143,7 +143,7 @@ define([
     function advancedOptionsViewConfig () {
         return {
             elementId: 'advanced_options',
-            title: 'Properties',
+            title: 'Advanced Options',
             view: 'SectionView',
             viewConfig: {
                 rows: [{
@@ -184,7 +184,8 @@ define([
                                  iconClass: 'icon-minus'}
                             ],
                             gridActions: [
-                                {onClick: "function() { addKeyValuePair(); }", buttonTitle: "Add"}
+                                {onClick: "function() { addKeyValuePair(); }",
+                                 buttonTitle: "Property"}
                             ]
                         }
                     }]

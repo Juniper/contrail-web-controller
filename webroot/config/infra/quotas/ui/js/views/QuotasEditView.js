@@ -18,7 +18,7 @@ define([
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
             var editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
                 self = this;
-            cowu.createModal({'modalId': modalId, 'className': 'modal-420',
+            cowu.createModal({'modalId': modalId, 'className': 'modal-400',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 self.model.configureQuotas(options['projUUID'], {

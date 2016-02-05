@@ -54,7 +54,8 @@ define([
                     self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
                                              false);
                     Knockback.applyBindings(self.model, document.getElementById(modalId));
-                    kbValidation.bind(self);
+                    kbValidation.bind(self,
+                        {collection: self.model.model().attributes.interfaces});
                                    });
         },
 
@@ -129,7 +130,7 @@ define([
                                 viewConfig: {
                                     path:
                                         'user_created_version',
-                                    class: 'span12',
+                                    class: 'span6',
                                     dataBindValue:
                                         'user_created_version',
                                     elementConfig : {
@@ -139,18 +140,14 @@ define([
                                                {id: 2, text: 'v2'}]
                                     }
                                 }
-                            }
-                        ]
-                    },
-                    {
-                        columns: [
+                            },
                             {
                                 elementId: 'virtualization_type',
                                 view: "FormDropdownView",
                                 viewConfig: {
                                     path :
                                         'user_created_service_virtualization_type',
-                                    class: 'span12',
+                                    class: 'span6',
                                     dataBindValue :
                                             'user_created_service_virtualization_type',
                                     elementConfig : {
@@ -166,13 +163,13 @@ define([
                     {
                         columns: [
                             {
-                                elementId: 'service_mode',
+                                elementId: 'user_created_service_mode',
                                 view: "FormDropdownView",
                                 viewConfig: {
                                     visible: 'isSvcVirtTypeNonPhysicalDevice',
-                                    path : 'service_template_properties.service_mode',
+                                    path : 'user_created_service_mode',
                                     class: 'span6',
-                                    dataBindValue : 'service_template_properties().service_mode',
+                                    dataBindValue : 'user_created_service_mode',
                                     elementConfig : {
                                         dataTextField : "text",
                                         dataValueField : "id",
@@ -183,13 +180,13 @@ define([
                                 }
                             },
                             {
-                                elementId: 'service_type',
+                                elementId: 'user_created_service_type',
                                 view: "FormDropdownView",
                                 viewConfig: {
                                     visible: 'isSvcVirtTypeNonPhysicalDevice',
-                                    path : 'service_template_properties.service_type',
+                                    path : 'user_created_service_type',
                                     class: 'span6',
-                                    dataBindValue : 'service_template_properties().service_type',
+                                    dataBindValue : 'user_created_service_type',
                                     elementConfig : {
                                         dataTextField : "text",
                                         dataValueField : "id",
@@ -296,6 +293,8 @@ define([
                                                           class: "",
                                                           viewConfig:
                                                             {
+                                                             disabled:
+                                                                '$root.disableSharedIP($root, $data)',
                                                              visible:
                                                                 '$root.showIntfTypeParams($root.user_created_version())',
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
@@ -313,6 +312,8 @@ define([
                                                             {
                                                              visible:
                                                                 '$root.showIntfTypeParams($root.user_created_version())',
+                                                             disabled:
+                                                                 '$root.disableStaticRoute($root, $data)',
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
                                                              path: "static_route_enable",
                                                              dataBindValue:
@@ -322,7 +323,7 @@ define([
                                                       ],
                                                      rowActions: [
                                                          {onClick: "function() {\
-                                                             $root.deleteSvcTemplateInterface($data, this);\
+                                                             $root.deleteSvcTemplateInterface($root, $data, this);\
                                                             }",
                                                           iconClass: 'icon-minus'}
                                                      ],
@@ -330,7 +331,8 @@ define([
                                                          {onClick: "function() {\
                                                              $root.addSvcTemplateInterface();\
                                                              }",
-                                                          buttonTitle: "Add"}
+                                                          buttonTitle:
+                                                            "Interface"}
                                                      ]
                                                  }
                                              }
@@ -357,12 +359,13 @@ define([
                                     {
                                         columns: [
                                         {
-                                            elementId: 'service_scaling',
+                                            elementId: 'user_created_service_scaling',
                                             view: "FormCheckboxView",
                                             viewConfig : {
-                                                path : 'service_template_properties.service_scaling',
+                                                label: 'Service Scaling',
+                                                path : 'user_created_service_scaling',
                                                 class : "span6",
-                                                dataBindValue : 'service_template_properties().service_scaling',
+                                                dataBindValue : 'user_created_service_scaling',
                                                 elementConfig : {
                                                     label:'Service Scaling',
                                                     isChecked:false
