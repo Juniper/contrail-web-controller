@@ -1788,7 +1788,7 @@ define(
                         var vRouterIp =
                             validateIPAddress(cowu.handleNull4Grid(obj['vrouter_ip'])) == true ?
                             cowu.handleNull4Grid(obj['vrouter_ip']) : noDataStr,
-                                formattedVrouter = noDataStr;
+                                formattedVrouter = vRouterIp;
                         var vrouter = ifNull(obj['vrouter'],noDataStr);
                         if(vRouterIp != noDataStr || vrouter != noDataStr)
                             formattedVrouter =
@@ -1796,7 +1796,7 @@ define(
                         var othervRouterIp =
                             validateIPAddress(cowu.handleNull4Grid(obj['other_vrouter_ip'])) == true ?
                                 cowu.handleNull4Grid(obj['other_vrouter_ip']) : noDataStr,
-                                formattedOtherVrouter = noDataStr;
+                                formattedOtherVrouter = othervRouterIp;
                             if(othervRouterIp != noDataStr) {
                                 $.each(vRouters,function(idx,obj){
                                     var ipList = getValueByJsonPath(obj,
