@@ -494,7 +494,8 @@ define([
     };
 
     function getQueryResultGridTabViewConfig(self, queryQueueItem, queryResultType, queueColorMap) {
-        var queryFormAttributes = queryQueueItem.queryReqObj,
+        var childViewMap = self.childViewMap,
+            queryFormAttributes = queryQueueItem.queryReqObj,
             queryId = queryFormAttributes.queryId,
             queryIdSuffix = '-' + queryId,
             queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID + queryIdSuffix,
@@ -515,6 +516,13 @@ define([
                 removable: true,
                 onRemoveTab: function () {
                     removeBadgeColorFromQueryQueue(queueColorMap, queryId);
+
+                    var queryQueueResultTabView = childViewMap[cowl.QE_QUERY_QUEUE_TABS_ID],
+                        chartTabIndex = queryQueueResultTabView.tabsIdMap[cowl.QE_QUERY_QUEUE_RESULT_CHART_TAB_ID + queryIdSuffix + '-tab'];
+
+                    if (contrail.checkIfExist(chartTabIndex)) {
+                        queryQueueResultTabView.removeTab(chartTabIndex)
+                    }
                 }
             },
             viewConfig: {
