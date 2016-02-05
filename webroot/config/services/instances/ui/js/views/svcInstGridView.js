@@ -302,7 +302,7 @@ define([
                                         }
                                     },
                                     {
-                                        key: 'service_instance_properties',
+                                        key: 'service_instance_properties.interface_list',
                                         keyClass: 'span2',
                                         label: 'Networks',
                                         templateGenerator: 'TextGenerator',

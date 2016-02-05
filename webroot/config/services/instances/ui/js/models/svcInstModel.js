@@ -33,7 +33,6 @@ define([
                     max_instances: 1
                 },
             },
-            service_template: null,
             service_template_refs: [],
             fq_name: [],
             uuid: null,
@@ -820,9 +819,16 @@ define([
         getSIProperties: function() {
             var siProp = {};
             var intfList = [];
+            var stVersion;
+            var sTemplate = getValueByJsonPath(this.model().attributes,
+                "service_template", "");
+            stVersion = sTemplate.split('] - ')[1];
             var coll = this.model().attributes.interfaces;
             var len = coll.length;
             var models = coll['models'];
+            if(stVersion.toString().toLowerCase() === "v2") {
+                return siProp;
+            }
             for (var i = 0; i < len; i++) {
                 var attr = models[i]['attributes'];
                 intfList[i] = {};
@@ -867,21 +873,32 @@ define([
             if ((null != list) && (list.length > 0)) {
                 propObjs['interface_route_table_back_refs'] =
                     list;
+            } else {
+                propObjs['interface_route_table_back_refs'] = [];
             }
+
             list =
                 this.getSvcInstPropertiesByType('service_health_check_back_refs');
             if ((null != list) && (list.length > 0)) {
                 propObjs['service_health_check_back_refs'] = list;
+            } else {
+                propObjs['service_health_check_back_refs'] = [];
             }
+
             list =
                 this.getSvcInstPropertiesByType('route_aggregate_back_refs');
             if ((null != list) && (list.length > 0)) {
                 propObjs['route_aggregate_back_refs'] = list;
+            }else {
+                propObjs['route_aggregate_back_refs'] = [];
             }
+
             list =
                 this.getSvcInstPropertiesByType('routing_policy_back_refs');
             if ((null != list) && (list.length > 0)) {
                 propObjs['routing_policy_back_refs'] = list;
+            } else {
+                propObjs['routing_policy_back_refs'] = [];
             }
             return propObjs;
         },
