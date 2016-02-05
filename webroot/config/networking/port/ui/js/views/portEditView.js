@@ -327,7 +327,7 @@ define([
                             label:'',
                             path: 'securityGroupValue',
                             dataBindValue: 'securityGroupValue',
-                            class: 'span6',
+                            class: 'span9',
                             disabled : "is_sec_grp_disabled",
                             elementConfig:{
                                 allowClear: true,
@@ -390,6 +390,7 @@ define([
                             label:"Fixed IPs",
                             path: "subnetDataSource",
                             validation: 'fixedIPValidations',
+                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                             collection: "fixedIPCollection",
                             columns: [{
                                 elementId: 'subnet_uuid',
@@ -425,6 +426,10 @@ define([
                                 }
                             }],
                             rowActions: [{
+                                onClick: "function() { $root.addFixedIP(); }",
+                                iconClass: 'icon-plus',
+                            },
+                            {
                                 onClick:
                                 "function() { $root.deleteFixedIP($data, this);}",
                                  iconClass: 'icon-minus'
@@ -432,7 +437,7 @@ define([
                             gridActions: [{
                                 name:"fixedIPAddBtn",
                                 onClick: "function() { addFixedIP(); }",
-                                 buttonTitle: "Add Fixed IP",
+                                 buttonTitle: "",
                             }]
                         }
                         }]
@@ -457,6 +462,7 @@ define([
                                 label:"Allowed address pairs",
                                 path: "allowedAddressPairCollection",
                                 validation: 'allowedAddressPairValidations',
+                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                 collection: "allowedAddressPairCollection",
                                 columns: [{
                                     elementId: 'ipPrefixVal',
@@ -484,13 +490,17 @@ define([
                                     }
                                 }],
                                 rowActions: [{
+                                 onClick: "function() { $root.addAAP(); }",
+                                iconClass: 'icon-plus',
+                                },
+                                {
                                     onClick:
                                     "function() { $root.deleteAAP($data, this);}",
                                      iconClass: 'icon-minus'
                                 }],
                                 gridActions: [{
                                     onClick: "function() { addAAP(); }",
-                                    buttonTitle: "Add Allowed Address Pair"
+                                    buttonTitle: ""
                                 }]
                             }
                         }]
@@ -502,6 +512,7 @@ define([
                             label:"DHCP Option",
                             path: "dhcpOptionCollection",
                             validation: 'dhcpValidations',
+                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                             collection: "dhcpOptionCollection",
                             columns: [{
                                 elementId: 'dhcp_option_name',
@@ -531,13 +542,17 @@ define([
                                 }
                             }],
                             rowActions: [{
+                                onClick: "function() { $root.addDHCP(); }",
+                                iconClass: 'icon-plus',
+                                },
+                                {
                                 onClick:
                                 "function() { $root.deleteDHCP($data, this); }",
                                 iconClass: 'icon-minus'
                             }],
                             gridActions: [{
                                 onClick: "function() { addDHCP(); }",
-                                buttonTitle: "Add DHCP Option"
+                                buttonTitle: ""
                             }]
                         }
                         }]
@@ -626,6 +641,7 @@ define([
                             label:"Fat Flow",
                             path: "fatFlowCollection",
                             validation: 'fatFlowValidations',
+                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                             collection: "fatFlowCollection",
                             columns: [{
                                 elementId: 'protocol',
@@ -666,13 +682,17 @@ define([
                                 }
                             }],
                             rowActions: [{
+                                onClick: "function() { $root.addFatFlow(); }",
+                                iconClass: 'icon-plus',
+                                },
+                                {
                                 onClick:
                                 "function() { $root.deleteFatFlow($data, this); }",
                                 iconClass: 'icon-minus'
                             }],
                             gridActions: [{
                                 onClick: "function() { addFatFlow(); }",
-                                buttonTitle: "Add Fat Flow"
+                                buttonTitle: ""
                             }]
                         }
                         }]
@@ -742,6 +762,7 @@ define([
                             label:"Port Binding",
                             path: "portBindingCollection",
                             validation: 'portBindingValidations',
+                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                             collection: "portBindingCollection",
                             columns: [{
                                 elementId: 'key',
@@ -788,6 +809,10 @@ define([
                                 }
                             }],
                             rowActions: [{
+                                onClick: "function() { $root.addPortBinding(); }",
+                                iconClass: 'icon-plus',
+                                },
+                                {
                                 onClick:
                                 "function() { $root.deletePortBinding($data, this); }",
                                 iconClass: 'icon-minus',
@@ -795,7 +820,7 @@ define([
                             }],
                             gridActions: [{
                                 onClick: "function() { addPortBinding(); }",
-                                buttonTitle: "Add Port Binding"
+                                buttonTitle: ""
                             }]
                         }
                         }]
