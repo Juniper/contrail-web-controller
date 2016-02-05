@@ -37,7 +37,7 @@ define([
 
     var pageConfig = cotr.getDefaultPageConfig();
     pageConfig.hashParams = {
-        p: 'config_net_rtaggregate'
+        p: 'config_net_rtaggregates'
     };
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 2;
 
