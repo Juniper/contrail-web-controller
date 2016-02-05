@@ -11,13 +11,15 @@ define([
     var prefixId = ctwl.RT_TABLE_PREFIX_ID;
     var modalId = 'configure-' + prefixId;
     var formId = '#' + modalId + '-form';
-
+    var rtTableType, viewConfigNextHop, viewConfigNextHopType, viewConfigPrefix,
+        viewConfigCommunityAttr;
     var RtTableEditView = ContrailView.extend({
         renderConfigureRtTable: function(options) {
             var editTemplate =
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
             var editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
                 self = this;
+            rtTableType = options['type'];
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
@@ -97,22 +99,7 @@ define([
         }
     });
 
-    function getRtTableViewConfig () {
-        return {
-            elementId: 'route_table',
-            title: 'Route Table',
-            view: 'SectionView',
-            viewConfig: {
-                rows: [{
-                    columns: [{
-                        elementId: 'routes',
-                        view: 'FormEditableGridView',
-                        viewConfig: {
-                            path: 'routes',
-                            collection: 'routes',
-                            validation: 'rtTableRoutesValidation',
-                            class: "span12",
-                            columns: [{
+    viewConfigPrefix = {
                                 elementId: 'prefix',
                                 view: 'FormInputView',
                                 class: "",
@@ -124,8 +111,8 @@ define([
                                     path: 'prefix',
                                     dataBindValue: 'prefix()'
                                 }
-                            },
-                            {
+                            };
+    viewConfigNextHopType = {
                                 elementId: 'next_hop_type',
                                 view: 'FormDropdownView',
                                 class: "",
@@ -147,8 +134,8 @@ define([
                                         ]
                                     }
                                 }
-                            },
-                            {
+                            };
+   viewConfigNextHop = {
                                 elementId: 'next_hop',
                                 view: 'FormInputView',
                                 class: "",
@@ -161,8 +148,9 @@ define([
                                     path: 'next_hop',
                                     dataBindValue: 'next_hop()'
                                 }
-                            },
-                            {
+                        };
+
+   viewConfigCommunityAttr = {
                                 elementId: 'community_attr',
                                 view: 'FormTextAreaView',
                                 class: "",
@@ -175,7 +163,35 @@ define([
                                     path: 'community_attr',
                                     dataBindValue: 'community_attr()'
                                 }
-                            }],
+                            };
+
+    function getRouteTableColViewConfigs() {
+        var columns = [];
+        columns.push(viewConfigPrefix);
+        if(rtTableType === "route-table") {
+            columns.push(viewConfigNextHopType);
+            columns.push(viewConfigNextHop);
+        }
+        columns.push(viewConfigCommunityAttr);
+        return columns;
+    }
+
+    function getRtTableViewConfig () {
+        return {
+            elementId: 'route_table',
+            title: 'Route Table',
+            view: 'SectionView',
+            viewConfig: {
+                rows: [{
+                    columns: [{
+                        elementId: 'routes',
+                        view: 'FormEditableGridView',
+                        viewConfig: {
+                            path: 'routes',
+                            collection: 'routes',
+                            validation: 'rtTableRoutesValidation',
+                            class: "span12",
+                            columns: getRouteTableColViewConfigs(),
                             rowActions: [
                                 { onClick: "function() { $root.deleteRtTable($data, this); }",
                                   iconClass: 'icon-minus'},

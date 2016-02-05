@@ -56,7 +56,7 @@ define([
                 {prefix: '', next_hop: '', next_hop_type: 'service-instance'});
             routes.add([newRoute]);
         },
-        getRoutesList: function(attr) {
+        getRoutesList: function(attr, type) {
             var routesArr = [];
             var routesCollection = attr.routes.toJSON();
             var cnt = routesCollection.length;
@@ -74,8 +74,12 @@ define([
                     nextHopType = null;
                 }
 
-                var obj = {prefix: prefix, next_hop: nextHop,
-                    next_hop_type: nextHopType};
+                var obj = {};
+                obj["prefix"] = prefix;
+                if(type === "route-table") {
+                    obj["next_hop"] = nextHop;
+                    obj["next_hop_type"] = nextHopType
+                }
                 var commAttrs = routesCollection[i].community_attr();
                 var arr = commAttrs.split('\n');
                 var len = arr.length;
@@ -118,7 +122,7 @@ define([
                 var locks = this.model().attributes.locks.attributes;
                 var newRtTableData = $.extend({}, true, this.model().attributes);
 
-                var routesList = this.getRoutesList(newRtTableData);
+                var routesList = this.getRoutesList(newRtTableData, type);
                 if (null == newRtTableData['fq_name']) {
                     newRtTableData['fq_name'] =
                         projFqn.concat([newRtTableData['display_name']]);
