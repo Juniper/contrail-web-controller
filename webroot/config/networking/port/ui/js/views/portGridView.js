@@ -60,6 +60,11 @@ define([
             portEditView.model = portModel;
             //portModel.editViewObj = portEditView;
             showHideModelAttrs(portModel);
+            subscribeModelChangeEvents(portModel);
+            if (portModel.mirrorToRoutingInstance() == "") {
+                portModel.updateMirrorRoutingInterface(portModel,
+                                   portModel.virtualNetworkName());
+            }
             portEditView.renderPortPopup({
                                   "title": ctwl.TITLE_EDIT_PORT +
                                   ' (' + dataItem.name + ')',
@@ -93,6 +98,8 @@ define([
             var portModel = new PortModel(dataItem);
             portEditView.model = portModel;
             showHideModelAttrs(portModel);
+            subscribeModelChangeEvents(portModel);
+            portModel.updateMirrorRoutingInterface(portModel, portModel.virtualNetworkName());
             portEditView.renderPortPopup({
                                   "title": ctwl.TITLE_ADD_SUBINTERFACE +
                                   '  to port (' + gridDataItem.name + ')',
@@ -290,6 +297,7 @@ define([
                     var portModel = new PortModel(dataItem);
                     portEditView.model = portModel;
                     showHideModelAttrs(portModel);
+                    subscribeModelChangeEvents(portModel);
                     portEditView.renderPortPopup({
                                      "title": ctwl.TITLE_ADD_PORT,
                                      mode : "add",
@@ -526,6 +534,13 @@ define([
             return({});
         }
     }
+    function subscribeModelChangeEvents(portModel) {
+        portModel.__kb.view_model.model().on('change:virtualNetworkName',
+            function(model, newValue){
+                portModel.updateMirrorRoutingInterface(portModel, newValue);
+            }
+        );
+    };
     this.networkFormater = function (v, dc) {
         return portFormatters.networkFormater("", "", v, "", dc);
     };
