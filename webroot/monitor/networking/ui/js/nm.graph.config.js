@@ -212,7 +212,7 @@ define([
 
                         actions.push({
                             callback: function (key, options) {
-                                loadFeature({p: 'config_net_vn'});
+                                loadFeature({p: 'config_networking_networks'});
                             }
                         });
 

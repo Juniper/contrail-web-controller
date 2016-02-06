@@ -71,17 +71,17 @@ define([
             queryFormModel.is_request_in_progress(true);
             qewu.fetchServerCurrentTime(function(serverCurrentTime) {
                 var timeRange = parseInt(queryFormModel.time_range()),
-                    queryResultPostData;
+                    queryRequestPostData;
 
                 if (timeRange !== -1) {
                     queryFormModel.to_time(serverCurrentTime);
                     queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
                 }
 
-                queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+                queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
 
                 self.renderView4Config($(queryResultId), self.model,
-                    getQueryResultTabViewConfig(queryResultPostData, queryResultTabId), null, null, modelMap,
+                    getQueryResultTabViewConfig(queryRequestPostData, queryResultTabId), null, null, modelMap,
                     function() {
                         var queryResultListModel = modelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL];
 
@@ -252,18 +252,18 @@ define([
         }
     });
 
-    function getQueryResultTabViewConfig(queryResultPostData, queryResultTabId) {
+    function getQueryResultTabViewConfig(queryRequestPostData, queryResultTabId) {
         return {
             elementId: queryResultTabId,
             view: "TabsView",
             viewConfig: {
                 theme: cowc.TAB_THEME_WIDGET_CLASSIC,
-                tabs: [getQueryResultGridViewConfig(queryResultPostData)]
+                tabs: [getQueryResultGridViewConfig(queryRequestPostData)]
             }
         };
     }
 
-    function getQueryResultGridViewConfig(queryResultPostData) {
+    function getQueryResultGridViewConfig(queryRequestPostData) {
         var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID;
 
         return {
@@ -279,7 +279,7 @@ define([
                 }
             },
             viewConfig: {
-                queryResultPostData: queryResultPostData,
+                queryRequestPostData: queryRequestPostData,
                 gridOptions: {
                     titleText: cowl.TITLE_OBJECT_LOGS,
                     queryQueueUrl: cowc.URL_QUERY_LOG_QUEUE,
