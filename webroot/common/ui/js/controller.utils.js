@@ -743,8 +743,11 @@ define([
         this.setNameFromDisplayName = function (cfgModel) {
             var displayName = getValueByJsonPath(cfgModel, 'display_name', "");
             var name = getValueByJsonPath(cfgModel, 'name', "");
-            if (name == '') {
+            if (('' == name) && ('' != displayName)) {
                 cfgModel['name'] = displayName;
+            }
+            if (('' == displayName) && ('' != name)) {
+                cfgModel['display_name'] = name;
             }
         };
 

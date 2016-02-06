@@ -67,6 +67,7 @@ define([
             svcApplPropCollectionModel = new
                 Backbone.Collection(svcApplPropModels);
             modelConfig['svcApplProperties'] = svcApplPropCollectionModel;
+            ctwu.setNameFromDisplayName(modelConfig);
             if (null != modelConfig['service_appliance_set_properties']) {
                 delete modelConfig['service_appliance_set_properties'];
             }
