@@ -70,17 +70,17 @@ define([
             queryFormModel.is_request_in_progress(true);
             qewu.fetchServerCurrentTime(function(serverCurrentTime) {
                 var timeRange = parseInt(queryFormModel.time_range()),
-                    queryResultPostData;
+                    queryRequestPostData;
 
                 if (timeRange !== -1) {
                     queryFormModel.to_time(serverCurrentTime);
                     queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
                 }
 
-                queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+                queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
 
                 self.renderView4Config($(queryResultId), self.model,
-                    getQueryResultTabViewConfig(self, queryResultPostData, queryResultTabId), null, null, modelMap,
+                    getQueryResultTabViewConfig(self, queryRequestPostData, queryResultTabId), null, null, modelMap,
                     function() {
                         var queryResultListModel = modelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL];
 
@@ -89,6 +89,34 @@ define([
                         });
                     });
             });
+        },
+
+        renderSessionAnalyzer: function(selectedFlowRecord) {
+            var self = this,
+                viewConfig = self.attributes.viewConfig,
+                childViewMap = self.childViewMap,
+                widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
+                modelMap = contrail.handleIfNull(self.modelMap, {}),
+                selectedFlowRecord = contrail.checkIfExist(selectedFlowRecord) ? selectedFlowRecord : viewConfig['selectedFlowRecord'],
+                queryFormAttributes = self.model.getFormModelAttributes(),
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FR_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
+                queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FR_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
+                queryResultTabsId = cowl.QE_FLOW_RECORD_TAB_ID,
+                queryResultTabsView = contrail.checkIfExist(childViewMap[queryResultTabsId]) ? childViewMap[queryResultTabsId] : null;
+
+            if (widgetConfig !== null) {
+                $(queryFormId).parents('.widget-box').data('widget-action').collapse();
+            }
+
+            // If Result Tab already exist, add new Tab else create tab view.
+            if (queryResultTabsView == null) {
+                self.renderView4Config($(queryResultId), null,
+                    getSessionAnalyzerTabsViewConfig(queryResultTabsId, queryFormAttributes, selectedFlowRecord),
+                    null, null, modelMap, null);
+            } else {
+               queryResultTabsView.renderNewTab(queryResultTabsId,
+                   getSessionAnalyzerTabViewConfig(queryFormAttributes, selectedFlowRecord), true, modelMap, null);
+            }
         },
 
         getViewConfig: function () {
@@ -252,19 +280,30 @@ define([
         }
     });
 
-    function getQueryResultTabViewConfig(self, queryResultPostData, queryResultTabId) {
+    function getQueryResultTabViewConfig(self, queryRequestPostData, queryResultTabsId) {
         return {
-            elementId: queryResultTabId,
+            elementId: queryResultTabsId,
             view: "TabsView",
             viewConfig: {
                 theme: cowc.TAB_THEME_WIDGET_CLASSIC,
-                tabs: [getQueryResultGridViewConfig(self, queryResultPostData)]
+                tabs: [getQueryResultGridViewConfig(self, queryRequestPostData, queryResultTabsId)]
             }
         };
-    }
+    };
 
-    function getQueryResultGridViewConfig(self, queryResultPostData) {
-        var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID;
+    function getQueryResultGridViewConfig(self, queryRequestPostData) {
+        var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID,
+            iconFormatterFn = null,
+            cssClass = null,
+            onClickEventFn = null;
+
+        if (qewu.enableSessionAnalyzer(null, queryRequestPostData.formModelAttrs)) {
+            iconFormatterFn = qewgc.setAnalyzerIconFormatter;
+            cssClass = 'cell-hyperlink-blue';
+            onClickEventFn = function(e, selRowDataItem) {
+                self.renderSessionAnalyzer(selRowDataItem);
+            };
+        }
 
         return {
             elementId: queryResultGridId,
@@ -279,7 +318,7 @@ define([
                 }
             },
             viewConfig: {
-                queryResultPostData: queryResultPostData,
+                queryRequestPostData: queryRequestPostData,
                 gridOptions: {
                     titleText: cowl.TITLE_FLOW_RECORD,
                     queryQueueUrl: cowc.URL_QUERY_FLOW_QUEUE,
@@ -287,19 +326,92 @@ define([
                     gridColumns: [{
                         id: 'fr-details', field: "", name: "", resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: {allow: false},
                         allowColumnPickable: false,
-                        formatter: function (r, c, v, cd, dc) {
-                            return '<i class="icon-external-link-sign" title="Analyze Session"></i>';
-                        },
-                        cssClass: 'cell-hyperlink-blue',
+                        formatter: iconFormatterFn,
+                        cssClass:  cssClass,
                         events: {
-                            onClick: qewgc.getOnClickFlowRecord(self, queryResultPostData.formModelAttrs)
+                            onClick: onClickEventFn
                         }
-                    }]
-
+                    }],
+                    //actionCellCB: function(gridModelMap, gridItem) {
+                    //    return getFlowRecordActionItems(self, gridModelMap, queryRequestPostData, gridItem);
+                    //}
                 }
             }
         }
-    }
+    };
+
+    //function getFlowRecordActionItems(flowRecordFormView, gridModelMap, queryRequestPostData, queryResultItem) {
+    //    var resultGridListModel = gridModelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL],
+    //        //queryFormModelData = queryResultItem.queryReqObj.formModelAttrs,
+    //        status = queryResultItem.status,
+    //        //queryId = queryResultItem.queryReqObj.queryId,
+    //        errorMessage = queryResultItem.errorMessage,
+    //        //queryFormTimeRange = queryFormModelData.time_range,
+    //        actionCell = [];
+    //
+    //    if(status == 'queued'){
+    //        return actionCell;
+    //    }
+    //
+    //    if(status != "error") {
+    //        if (qewu.enableSessionAnalyzer(null, queryRequestPostData.formModelAttrs)) {
+    //            actionCell.push({
+    //                title: cowl.TITLE_ACTION_SESSION_ANALYZER,
+    //                iconClass: 'icon-bar-chart',
+    //                onClick: function(rowIndex){
+    //                    var selectedFlowRecord = resultGridListModel.getItem(rowIndex);
+    //                    flowRecordFormView.renderSessionAnalyzer(selectedFlowRecord);
+    //                }
+    //            });
+    //        }
+    //
+    //    } else if(errorMessage != null) {
+    //        if(errorMessage.message != null && errorMessage.message != '') {
+    //            errorMessage = errorMessage.message;
+    //        }
+    //        actionCell.push({
+    //            title: cowl.TITLE_VIEW_QUERY_ERROR,
+    //            iconClass: 'icon-exclamation-sign',
+    //            onClick: function(rowIndex){
+    //                //TODO - create info modal
+    //                showInfoWindow(errorMessage, cowl.TITLE_ERROR);
+    //            }
+    //        });
+    //    }
+    //    return actionCell;
+    //};
+
+    function getSessionAnalyzerTabsViewConfig(queryResultTabsId, queryFormAttributes, selectedFlowRecord) {
+        return {
+            elementId: queryResultTabsId,
+            view: "TabsView",
+            viewConfig: {
+                theme: cowc.TAB_THEME_WIDGET_CLASSIC,
+                tabs: getSessionAnalyzerTabViewConfig(queryFormAttributes, selectedFlowRecord)
+            }
+        };
+    };
+
+    function getSessionAnalyzerTabViewConfig(queryFormAttributes, selectedFlowRecord) {
+        var queryId = qewu.generateQueryUUID();
+        return [{
+            elementId: cowl.QE_SESSION_ANALYZER_VIEW_ID + '-' +queryId,
+            title: cowl.TITLE_SESSION_ANALYZER,
+            iconClass: 'icon-bar-chart',
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            viewPathPrefix: 'controller-basedir/reports/qe/ui/js/views/',
+            view: 'SessionAnalyzerView',
+            tabConfig: {
+                removable: true,
+            },
+            viewConfig: {
+                queryType: cowc.QUERY_TYPE_ANALYZE,
+                queryId: queryId,
+                queryFormAttributes: queryFormAttributes,
+                selectedFlowRecord: selectedFlowRecord
+            }
+        }];
+    };
 
     return FlowRecordQueryView;
 });

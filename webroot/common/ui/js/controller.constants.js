@@ -117,6 +117,7 @@ define([
         this.TMPL_QUERY_QUEUE_PAGE = "query-queue-page-template";
         this.TMPL_QUERY_TEXT = "query-text-template";
         this.TMPL_FORM_RESULT = 'form-result-page-template';
+        this.TMPL_SESSION_ANALYZER = "session-analyzer-view-template";
 
         this.DEFAULT_DOMAIN = "default-domain";
         this.UCID_PREFIX_MN = "monitor-networking";
