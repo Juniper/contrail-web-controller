@@ -575,7 +575,7 @@ define([
             }
         },
         // Function to update the routing Instance when the network is changed
-        updateMirrorRoutingInterface(portModel, newValue) {
+        updateMirrorRoutingInterface: function(portModel, newValue) {
             var vnName = newValue.split(":");
             vnName = getValueByJsonPath(vnName, "2");
             portModel.mirrorToRoutingInstance(newValue+":"+vnName);
