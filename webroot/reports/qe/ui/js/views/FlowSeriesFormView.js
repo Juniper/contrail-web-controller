@@ -70,28 +70,28 @@ define([
             queryFormModel.is_request_in_progress(true);
             qewu.fetchServerCurrentTime(function(serverCurrentTime) {
                 var timeRange = parseInt(queryFormModel.time_range()),
-                    queryResultPostData;
+                    queryRequestPostData;
 
                 if (timeRange !== -1) {
                     queryFormModel.to_time(serverCurrentTime);
                     queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
                 }
 
-                queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+                queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
 
                 self.renderView4Config($(queryResultId), self.model,
-                    getQueryResultTabViewConfig(queryResultPostData, queryResultTabId), null, null, modelMap,
+                    getQueryResultTabViewConfig(queryRequestPostData, queryResultTabId), null, null, modelMap,
                     function() {
                         var queryResultTabView = self.childViewMap[queryResultTabId],
                             queryResultListModel = modelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL];
 
                         if (!(queryResultListModel.isRequestInProgress()) && queryResultListModel.getItems().length > 0) {
-                            self.renderQueryResultChartTab(queryResultTabView, queryResultTabId, queryFormModel, queryResultPostData)
+                            self.renderQueryResultChartTab(queryResultTabView, queryResultTabId, queryFormModel, queryRequestPostData)
                             queryFormModel.is_request_in_progress(false);
                         } else {
                             queryResultListModel.onAllRequestsComplete.subscribe(function () {
                                 if (queryResultListModel.getItems().length > 0) {
-                                    self.renderQueryResultChartTab(queryResultTabView, queryResultTabId, queryFormModel, queryResultPostData)
+                                    self.renderQueryResultChartTab(queryResultTabView, queryResultTabId, queryFormModel, queryRequestPostData)
                                 }
                                 queryFormModel.is_request_in_progress(false);
                             });
@@ -100,7 +100,20 @@ define([
             });
         },
 
-        renderQueryResultChartTab: function(queryResultTabView, queryResultTabId, queryFormModel, queryResultPostData) {
+        renderSessionAnalyzer: function (elementId, sessionAnalyzerViewConfig) {
+            var self = this,
+                childViewMap = self.childViewMap,
+                modelMap = contrail.handleIfNull(self.modelMap, {}),
+                queryResultTabsId = cowl.QE_FLOW_SERIES_TAB_ID,
+                queryResultTabsView = contrail.checkIfExist(childViewMap[queryResultTabsId]) ? childViewMap[queryResultTabsId] : null;
+
+            if (queryResultTabsView != null) {
+                queryResultTabsView.renderNewTab(queryResultTabsId, [sessionAnalyzerViewConfig], true, modelMap, null);
+            }
+
+        },
+
+        renderQueryResultChartTab: function(queryResultTabView, queryResultTabId, queryFormModel, queryRequestPostData) {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 queryFormAttributes = contrail.checkIfExist(viewConfig.queryFormAttributes) ? viewConfig.queryFormAttributes : {},
@@ -110,7 +123,7 @@ define([
 
             if (selectArray.indexOf("T=") !== -1 && $('#' + flowSeriesChartId).length === 0) {
                 queryResultTabView
-                    .renderNewTab(queryResultTabId, getQueryResultChartViewConfig(queryResultPostData));
+                    .renderNewTab(queryResultTabId, getQueryResultChartViewConfig(queryRequestPostData, self.el.id));
             }
         },
 
@@ -277,18 +290,18 @@ define([
     });
 
 
-    function getQueryResultTabViewConfig(queryResultPostData, queryResultTabId) {
+    function getQueryResultTabViewConfig(queryRequestPostData, queryResultTabId) {
         return {
             elementId: queryResultTabId,
             view: "TabsView",
             viewConfig: {
                 theme: cowc.TAB_THEME_WIDGET_CLASSIC,
-                tabs: [getQueryResultGridViewConfig(queryResultPostData)]
+                tabs: [getQueryResultGridViewConfig(queryRequestPostData)]
             }
         };
     }
 
-    function getQueryResultGridViewConfig(queryResultPostData) {
+    function getQueryResultGridViewConfig(queryRequestPostData) {
         var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID;
 
         return {
@@ -304,7 +317,7 @@ define([
                 }
             },
             viewConfig: {
-                queryResultPostData: queryResultPostData,
+                queryRequestPostData: queryRequestPostData,
                 gridOptions: {
                     titleText: cowl.TITLE_FLOW_SERIES,
                     queryQueueUrl: cowc.URL_QUERY_FLOW_QUEUE,
@@ -314,7 +327,7 @@ define([
         }
     }
 
-    function getQueryResultChartViewConfig(queryResultPostData) {
+    function getQueryResultChartViewConfig(queryRequestPostData, clickOutElementId) {
         var queryResultChartId = cowl.QE_FLOW_SERIES_CHART_ID,
             queryResultChartGridId = cowl.QE_FLOW_SERIES_CHART_GRID_ID,
             flowSeriesChartTabViewConfig = [];
@@ -334,10 +347,11 @@ define([
                 renderOnActivate: true
             },
             viewConfig: {
-                queryId: queryResultPostData.queryId,
-                queryFormAttributes: queryResultPostData.formModelAttrs,
+                queryId: queryRequestPostData.queryId,
+                queryFormAttributes: queryRequestPostData.formModelAttrs,
                 queryResultChartId: queryResultChartId,
-                queryResultChartGridId: queryResultChartGridId
+                queryResultChartGridId: queryResultChartGridId,
+                clickOutElementId: clickOutElementId
             }
         });
 
