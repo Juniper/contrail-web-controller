@@ -747,6 +747,16 @@ define([
                 cfgModel['name'] = displayName;
             }
         };
+        /**
+         * Set a resource's display_name from name
+         */
+        this.setDisplayNameFromName = function (cfgModel) {
+            var displayName = getValueByJsonPath(cfgModel, 'display_name', "");
+            var name = getValueByJsonPath(cfgModel, 'name', "");
+            if ('' == displayName) {
+                cfgModel['display_name'] = name;
+            }
+        };
 
     };
     return CTUtils;
