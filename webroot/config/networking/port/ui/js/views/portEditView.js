@@ -696,9 +696,80 @@ define([
                             }]
                         }
                         }]
-                    },
-                        this.deviceOwner(isDisable, selectedProjectVal)
-                    , {
+                    },{
+                        columns: [{
+                        elementId: 'deviceOwnerValue',
+                        name: "Device Owner",
+                        view: "FormDropdownView",
+                            viewConfig: {
+                                visible : "!isVCenter()",
+                                path: 'deviceOwnerValue',
+                                dataBindValue: 'deviceOwnerValue',
+                                class: "span6",
+                                label: "Device Owner",
+                                elementConfig:{
+                                    allowClear: true,
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    data : [
+                                        {"text":"None","value":"none"},
+                                        {"text":"Compute","value":"compute"},
+                                        {"text":"Router","value":"router"}
+                                    ]
+                                }
+                            }
+                        },{
+                        elementId: 'virtualMachineValue',
+                        view: "FormComboboxView",
+                        viewConfig: {
+                            path: 'virtualMachineValue',
+                            label: "Compute UUID",
+                            dataBindValue: 'virtualMachineValue',
+                            class: "span6",
+                            visible: "deviceComputeShow()",
+                            elementConfig:{
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                defaultValueId : 0,
+                                dataSource : {
+                                    type: 'remote',
+                                    url:'/api/tenants/config/listVirtualMachines',
+                                    parse: function(result) {
+                                        return portFormatter.computeUUIDFormatter(
+                                                             result,
+                                                             isDisable,
+                                                             self);
+                                    }
+                                }
+                            }
+                        }
+                        },{
+                        elementId: 'logicalRouterValue',
+                        view: "FormDropdownView",
+                        viewConfig: {
+                            path: 'logicalRouterValue',
+                            label: "Router",
+                            dataBindValue: 'logicalRouterValue',
+                            class: "span6",
+                            visible: "deviceRouterShow()",
+                            elementConfig:{
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                //defaultValueId : 0,
+                                dataSource : {
+                                   type: 'remote',
+                                   url:"/api/tenants/config/list-logical-routers?projUUID="
+                                       +selectedProjectVal,
+                                    parse: function(result) {
+                                        return portFormatter.routerFormater(
+                                                             result,
+                                                             isDisable,
+                                                             self);
+                                    }
+                                }
+                            }}
+                        }]
+                    } , {
                         columns: [{
                             elementId: 'is_sub_interface',
                             name: "Sub Interface",
@@ -941,86 +1012,6 @@ define([
                 }]
             }]
         }
-        }
-    },
-    deviceOwner : function(isDisable, selectedProjectVal) {
-        if(!isVCenter()) {
-            return({
-                columns: [{
-                elementId: 'deviceOwnerValue',
-                name: "Device Owner",
-                view: "FormDropdownView",
-                    viewConfig: {
-                        visible: true,
-                        path: 'deviceOwnerValue',
-                        dataBindValue: 'deviceOwnerValue',
-                        class: "span6",
-                        label: "Device Owner",
-                        elementConfig:{
-                            allowClear: true,
-                            dataTextField: "text",
-                            dataValueField: "value",
-                            data : [
-                                {"text":"None","value":"none"},
-                                {"text":"Compute","value":"compute"},
-                                {"text":"Router","value":"router"}
-                            ]
-                        }
-                    }
-                },{
-                elementId: 'virtualMachineValue',
-                view: "FormComboboxView",
-                viewConfig: {
-                    path: 'virtualMachineValue',
-                    label: "Compute UUID",
-                    dataBindValue: 'virtualMachineValue',
-                    class: "span6",
-                    visible: "deviceComputeShow()",
-                    elementConfig:{
-                        dataTextField: "text",
-                        dataValueField: "value",
-                        defaultValueId : 0,
-                        dataSource : {
-                            type: 'remote',
-                            url:'/api/tenants/config/listVirtualMachines',
-                            parse: function(result) {
-                                return portFormatter.computeUUIDFormatter(
-                                                     result,
-                                                     isDisable,
-                                                     self);
-                            }
-                        }
-                    }
-                }
-                },{
-                elementId: 'logicalRouterValue',
-                view: "FormDropdownView",
-                viewConfig: {
-                    path: 'logicalRouterValue',
-                    label: "Router",
-                    dataBindValue: 'logicalRouterValue',
-                    class: "span6",
-                    visible: "deviceRouterShow()",
-                    elementConfig:{
-                        dataTextField: "text",
-                        dataValueField: "value",
-                        //defaultValueId : 0,
-                        dataSource : {
-                           type: 'remote',
-                           url:"/api/tenants/config/list-logical-routers?projUUID="
-                               +selectedProjectVal,
-                            parse: function(result) {
-                                return portFormatter.routerFormater(
-                                                     result,
-                                                     isDisable,
-                                                     self);
-                            }
-                        }
-                    }}
-                }]
-            });
-        } else {
-            return ({columns: []});
         }
     }
     });
