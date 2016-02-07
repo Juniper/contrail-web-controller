@@ -145,8 +145,8 @@ function getProjectAsync (projectObj, callback)
     var projectId = projectObj['uuid'];
     var appData   = projectObj['appData'];
     var params    = projectObj['params'];
+    var reqUrl = (projectId == 'all') ? '/projects' : ('/project/' + projectId);
 
-    var reqUrl = '/project/' + projectId;
     reqUrl = getUrlWithParameters(reqUrl, params);
     configApiServer.apiGet(reqUrl, appData, function(err, data) {
         callback(err, data);

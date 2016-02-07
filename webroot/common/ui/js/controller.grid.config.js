@@ -174,7 +174,11 @@ define([
                  field: 'floatingIP',
                  name: 'Floating IPs In/Out',
                  formatter: function (r, c, v, cd, dc) {
-                     return cowf.formatValueArray4Grid(dc['floatingIP']);
+                     if (!contrail.checkIfExist(dc['floatingIP']) || dc['floatingIP'].length == 0) {
+                         return '-';
+                     } else {
+                         return dc['floatingIP'].join(', ');
+                     }
                  },
                  minWidth: 200
              },
