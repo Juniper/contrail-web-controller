@@ -2,8 +2,9 @@ define([
     'underscore',
     'contrail-list-model',
     'core-basedir/js/views/LoginWindowView',
-    'core-basedir/js/models/LoginWindowModel'
-], function (_, ContrailListModel, LoginWindowView, LoginWindowModel) {
+    'core-basedir/js/models/LoginWindowModel',
+    'monitor/infrastructure/common/ui/js/views/MonitorInfraObjectLogsPopUpView'
+], function (_, ContrailListModel, LoginWindowView, LoginWindowModel, MonitorInfraObjectLogsPopUpView) {
     var MonitorInfraUtils = function () {
         var self = this;
         var noDataStr = monitorInfraConstants.noDataStr;
@@ -2932,6 +2933,14 @@ define([
             for (var i = (tabCnt - 1); i >= 2; i--) {
                 underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].removeTab(i);
             }
+        };
+
+        self.showObjLogs = function (objId,type) {
+            var monInfraObjLogsView = new MonitorInfraObjectLogsPopUpView ();
+            monInfraObjLogsView.render ({
+                                        type: type,
+                                        objId: objId
+                                    });
         };
     };
     return MonitorInfraUtils;

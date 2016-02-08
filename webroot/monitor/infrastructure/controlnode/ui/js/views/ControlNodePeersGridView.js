@@ -5,8 +5,9 @@
 define([
     'underscore',
     'contrail-view',
-    'contrail-list-model'
-], function (_, ContrailView, ContrailListModel) {
+    'contrail-list-model',
+    'monitor/infrastructure/common/ui/js/views/MonitorInfraObjectLogsPopUpView'
+], function (_, ContrailView, ContrailListModel, MonitorInfraObjectLogsPopUpView) {
     var hostname;
     var ControlNodePeersGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -68,7 +69,7 @@ define([
         cssClass : 'cell-hyperlink-blue',
         events : {
             onClick : function(e, dc) {
-                showObjLog(dc.name, dc.encoding + '_peer');
+                monitorInfraUtils.showObjLogs (dc.name,dc.encoding + '_peer');
             }
         },
         sortable : true,
@@ -130,7 +131,7 @@ define([
                 },
                 empty: {
                    text: 'No Peers to display'
-                }, 
+                },
                 errorGettingData: {
                    type: 'error',
                    iconClasses: 'icon-warning',
