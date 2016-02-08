@@ -254,6 +254,7 @@ define([
                     }
 
                 } else if(newValue === ctwl.EXTERNAL_CONTROL_NODE_TYPE) {
+                    bgpModel.user_created_vendor('');
                     bgpModel.user_created_physical_router('none');
                     bgpModel.addressFamilyData(ctwc.CN_ADDRESS_FAMILY_DATA);
                     bgpModel.user_created_address_family(
