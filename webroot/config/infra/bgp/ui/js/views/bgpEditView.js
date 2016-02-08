@@ -276,20 +276,6 @@ define([
                                     }
                                 },
                                 {
-                                    elementId: "local_autonomous_system",
-                                    view: "FormInputView",
-                                    viewConfig: {
-                                       path: "bgp_router_parameters.local_autonomous_system",
-                                       dataBindValue: "bgp_router_parameters().local_autonomous_system",
-                                       label: "Local Autonomous System",
-                                       class: "span6"
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            columns: [
-                                {
                                     elementId: 'user_created_address_family',
                                     view: 'FormMultiselectView',
                                     viewConfig: {
@@ -298,7 +284,7 @@ define([
                                             'user_created_address_family',
                                         dataBindOptionList: 'addressFamilyData',
                                         label : 'Address Families',
-                                        class: 'span12',
+                                        class: 'span6',
                                         elementConfig: {
                                              dataTextField: "text",
                                              dataValueField: "value",
