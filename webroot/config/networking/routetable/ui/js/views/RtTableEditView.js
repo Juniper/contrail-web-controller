@@ -221,6 +221,7 @@ define([
                         view: 'FormInputView',
                         viewConfig: {
                             label: 'Name',
+                            disabled: isDisable,
                             placeholder: 'Enter Route Table Name',
                             path: 'display_name',
                             class: 'span9',

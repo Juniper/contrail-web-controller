@@ -282,7 +282,7 @@ function getServiceInstanceStatusByProject (request, response, appData)
     var instCnt = filteredResults.length;
     var serviceInstances = {};
     serviceInstances['service_instances'] = filteredResults;
-    var svcInstIdxToTmplUUIDMapArr = [];
+    var svcInstIdToTmplUUIDMapArr = {};
     var uuidList = [];
     if (!instCnt) {
         commonUtils.handleJSONResponse(null, response, []);
@@ -293,11 +293,14 @@ function getServiceInstanceStatusByProject (request, response, appData)
             commonUtils.getValueByJsonPath(filteredResults[i],
                                            'service-instance;service_template_refs;0;uuid',
                                            null);
-        if (null != tmplUUID) {
+        var svcInstUUID =
+            commonUtils.getValueByJsonPath(filteredResults[i],
+                                           'service-instance;uuid', null);
+        if ((null != tmplUUID) && (null != svcInstUUID)) {
             uuidList.push(tmplUUID);
-            svcInstIdxToTmplUUIDMapArr[i] = tmplUUID;
+            svcInstIdToTmplUUIDMapArr[svcInstUUID] = tmplUUID;
         } else {
-            svcInstIdxToTmplUUIDMapArr[i] = null;
+            svcInstIdToTmplUUIDMapArr[svcInstUUID] = null;
         }
     }
     uuidList = _.uniq(uuidList);
@@ -351,8 +354,11 @@ function getServiceInstanceStatusByProject (request, response, appData)
             instCnt = svcInstData['service-instances'].length;
             for (var i = 0; i < instCnt; i++) {
                 var version = 1;
-                if (null != svcInstIdxToTmplUUIDMapArr[i]) {
-                    svcTmpl = svcTmpls[svcInstIdxToTmplUUIDMapArr[i]];
+                var svcInstUUID =
+                    commonUtils.getValueByJsonPath(svcInstData['service-instances'][i],
+                                                   'service-instance;uuid', null);
+                if (null != svcInstIdToTmplUUIDMapArr[svcInstUUID]) {
+                    svcTmpl = svcTmpls[svcInstIdToTmplUUIDMapArr[svcInstUUID]];
                     version =
                         commonUtils.getValueByJsonPath(svcTmpl,
                                                        'service_template_properties;version',

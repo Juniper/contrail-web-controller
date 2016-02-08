@@ -142,6 +142,15 @@ define([
         return svcTmplUtils.svcTemplateFormatter(obj['service_template']);
     }
 
+    this.displayNameFormatter = function(val, obj) {
+        var displayName =
+            ctwu.getDisplayNameOrName(obj);
+        if ((null != displayName) && (displayName.length > 0)) {
+            return displayName;
+        }
+        return "-";
+    }
+
     this.svcApplSetPropFormatter = function(val, obj) {
         var dispStr = "";
         var keyValPair =
@@ -180,9 +189,12 @@ define([
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [
                                     {
-                                        key: 'display_name',
+                                        key: 'uuid',
                                         label: 'Display Name',
-                                        templateGenerator: 'TextGenerator'
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'displayNameFormatter'
+                                        }
                                     },
                                     {
                                         key: 'uuid',
