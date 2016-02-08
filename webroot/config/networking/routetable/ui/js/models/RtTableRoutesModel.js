@@ -34,24 +34,23 @@ define([
                     if (false == isValidIP(val.trim())) {
                         return 'Invalid IP Address';
                     }
-                },
+                }/*,
                 'next_hop_type': {
                     required: true
-                },
+                }*/,
                 'next_hop': function(val, attr, fieldObj) {
-                    if ((null == val) || (!val.trim().length)) {
-                        return 'Next Hop is required';
-                    }
-                    val = val.trim();
-                    if ('ip-address' == fieldObj['next_hop_type']) {
-                        if (false == isValidIP(val)) {
-                            return 'Invalid IP Address';
+                    if(val) {
+                        val = val.trim();
+                        if ('ip-address' == fieldObj['next_hop_type']) {
+                            if (false == isValidIP(val)) {
+                                return 'Invalid IP Address';
+                            }
                         }
-                    }
-                    if ('service-instance' == fieldObj['next_hop_type']) {
-                        var splitArr = val.split(':');
-                        if (3 != splitArr.length) {
-                            return 'Invalid Service Instance FQN';
+                        if ('service-instance' == fieldObj['next_hop_type']) {
+                            var splitArr = val.split(':');
+                            if (3 != splitArr.length) {
+                                return 'Invalid Service Instance FQN';
+                            }
                         }
                     }
                 }
