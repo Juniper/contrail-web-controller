@@ -25,7 +25,6 @@ define([
                 'hold_time' : 90,
                 'admin_down' : false,
                 'autonomous_system' : null,
-                'local_autonomous_system' : null,
                 'address_families' : {
                     'family' : []
                 },
@@ -328,15 +327,6 @@ define([
                     newProuter :
                         newBGPRouterCfgData.user_created_physical_router
                 };
-                var localASN =
-                    newBGPRouterCfgData.bgp_router_parameters.local_autonomous_system;
-                if(localASN) {
-                    newBGPRouterCfgData.bgp_router_parameters.local_autonomous_system =
-                        Number(localASN);
-                } else {
-                    newBGPRouterCfgData.bgp_router_parameters.local_autonomous_system =
-                        null;
-                }
                 var holdTime =
                     newBGPRouterCfgData.bgp_router_parameters.hold_time;
                 newBGPRouterCfgData.bgp_router_parameters.hold_time =
@@ -458,14 +448,6 @@ define([
                      var asn = Number(value);
                      if (isNaN(asn) || asn < 1 || asn > 65534) {
                          return "Enter valid BGP ASN number between 1-65534";
-                     }
-                },
-                'bgp_router_parameters.local_autonomous_system' : function(value, attr, finalObj){
-                     if(value) {
-                         var asn = Number(value);
-                         if (isNaN(asn) || asn < 1 || asn > 65534) {
-                             return "Enter valid Local ASN number between 1-65534";
-                         }
                      }
                 },
                 'user_created_identifier' : function(value, attr, finalObj){
