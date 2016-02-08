@@ -21,8 +21,6 @@ define([
             'ibgp_auto_mesh': true,
             'ecmp_hashing_include_fields': {
                 'hashing_configured': true,
-                'source_mac': true,
-                'destination_mac': true,
                 'source_ip': true,
                 'destination_ip': true,
                 'ip_protocol': true,
@@ -285,8 +283,7 @@ define([
             encapOrdCollection.remove(encapOrd);
         },
         getNonDefaultECMPHashingFields: function() {
-            return { 'source_mac': false, 'destination_mac': false,
-                'source_ip': false, 'destination_ip': false,
+            return { 'source_ip': false, 'destination_ip': false,
                 'ip_protocol': false, 'source_port': false,
                 'destination_port': false};
         },
