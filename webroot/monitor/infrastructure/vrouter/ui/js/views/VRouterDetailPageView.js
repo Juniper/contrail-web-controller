@@ -320,7 +320,7 @@ define([
 
             for (var i=0; i< peerList.length;i++){
                 var node = '';
-                node = '<span onclick="showObjLog(\'default-domain%3Adefault-project%3Aip-fabric%3A__default__%3A'+
+                node = '<span onclick="monitorInfraUtils.showObjLogs(\'default-domain%3Adefault-project%3Aip-fabric%3A__default__%3A'+
                     peerList[i].ip+'\',\'vRouter\');" onmouseover="" style="cursor: pointer;">'+
                     peerList[i].ip +'</span>' ;
 
