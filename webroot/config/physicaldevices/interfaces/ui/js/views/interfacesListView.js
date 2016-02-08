@@ -153,7 +153,7 @@ define([
             for(var j = 0; j < result.length; j++) {
                 for(var i = newData.length - 1; i > -1; i--) {
                     var logicalInf = getValueByJsonPath(result[j],
-                        'logical-interface', null);
+                        'logical-interface', null, false);
                     if(logicalInf !== null && logicalInf.parent_uuid ===
                         newData[i].uuid){
                         var lInterface = result[j]['logical-interface'];
