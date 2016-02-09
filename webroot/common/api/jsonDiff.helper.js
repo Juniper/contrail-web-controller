@@ -53,6 +53,14 @@ var configJsonModifyObj = {
         'optFields': ['service_instance_properties'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
+    'bgp-as-a-service': {
+        'isConfig': true,
+        'preProcessCB': {
+            'applyOnOldJSON': modifyConfigDataByAttrHref,
+        },
+        'optFields': ['bgpaas_session_attributes', 'bgpaas_ip_address', 'virtual_machine_interface_refs'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
     'physical-interface': {
         'isConfig': true,
         'optFields': ['physical_interface_refs'],

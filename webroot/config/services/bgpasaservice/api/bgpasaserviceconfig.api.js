@@ -265,17 +265,22 @@ function updateBGPAsAService (request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    updateVMIDetails(appData, bgpasaserviceData, function(error, bgpaasData) {
-        if(error) {
-            commonUtils.handleJSONResponse(error, response, null);
-            return;
+    jsonDiff.getJSONDiffByConfigUrl(bgpasaserviceUpdateURL, appData,
+        bgpasaserviceData,
+        function(err, bgpasaserviceDeltaConfig){
+            updateVMIDetails(appData, bgpasaserviceDeltaConfig, function(error, bgpaasData) {
+                if(error) {
+                    commonUtils.handleJSONResponse(error, response, null);
+                    return;
+                }
+                configApiServer.apiPut(bgpasaserviceUpdateURL, bgpasaserviceDeltaConfig, appData,
+                    function(error, data) {
+                        commonUtils.handleJSONResponse(error, response, data);
+                    }
+                );
+            });
         }
-        configApiServer.apiPut(bgpasaserviceUpdateURL, bgpasaserviceData, appData,
-            function(error, data) {
-                commonUtils.handleJSONResponse(error, response, data);
-            }
-        );
-    });
+    );
 }
 
 /**
