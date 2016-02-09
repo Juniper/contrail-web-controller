@@ -23,6 +23,17 @@ define([
             }
             return vmiData;
         }
+        this.uuidWithName = function(d, c, v, cd, dc) {
+            var uuidName = "-";
+            var uuid = getValueByJsonPath(dc, "uuid", "")
+            var name = getValueByJsonPath(dc, "fq_name;2", "")
+            if(uuid != name){
+                uuidName = name + " (" + uuid+ ")";
+            } else {
+                uuidName = uuid;
+            }
+            return uuidName;
+        };
         //Start of grid data formating//
         //Grid column label: Network//
         //Grid column expand label : Network//
@@ -40,15 +51,15 @@ define([
             var instIP = getValueByJsonPath(dc, "instance_ip_back_refs", []);
             if(instIP.length > 0) {
                 var instIP_length = instIP.length;
-                for(var i = 0; i < instIP_length && i < 3 ;i++) {
+                for(var i = 0; i < instIP_length && i < 2 ;i++) {
                     var ip = getValueByJsonPath(instIP[i], "fixedip;ip", "");
                     instanceIP += ip;
                     if(instanceIP != "") {
                         instanceIP += "<br> ";
                     }
                 }
-                if(instIP_length > 3) {
-                    instanceIP += "(" + Number(Number(instIP_length)-3)+" more)";
+                if(instIP_length > 2) {
+                    instanceIP += "(" + Number(Number(instIP_length)-2)+" more)";
                 }
             } else {
                 instanceIP = "-";
@@ -61,14 +72,14 @@ define([
             var fipData = getValueByJsonPath(dc, "floating_ip_back_refs", []);
             if(fipData.length > 0) {
                 var fip_length = fipData.length;
-                for(var i = 0; i < fip_length && i < 3 ;i++) {
+                for(var i = 0; i < fip_length && i < 2 ;i++) {
                     floatingIP += fipData[i]["floatingip"]["ip"];
                     if(floatingIP != "") {
                         floatingIP += "<br>";
                     }
                 }
-                if(fip_length > 3) {
-                    floatingIP += "(" + Number(Number(fip_length)-3)+" more)";
+                if(fip_length > 2) {
+                    floatingIP += "(" + Number(Number(fip_length)-2)+" more)";
                 }
             } else {
                 floatingIP = "-";
@@ -246,6 +257,26 @@ define([
                 staticRout = "-";
             }
             return staticRout;
+        };
+
+        //Grid column expand label: Service Health Check//
+        this.serviceHealthCheckFormatter = function(d, c, v, cd, dc) {
+            var serviceHealthCheck = "";
+            var serviceHealthCheckValues = getValueByJsonPath(dc,
+                                   "service_health_check_refs",
+                                   []);
+            if(serviceHealthCheckValues.length > 0) {
+                var serviceHealthChecklength = serviceHealthCheckValues.length;
+                for(var i = 0; i < serviceHealthChecklength;i++) {
+                    var serviceHealthCheckTo =
+                        getValueByJsonPath(serviceHealthCheckValues[i], "to", []);
+                    temp = ctwu.formatCurrentFQName(serviceHealthCheckTo);
+                    serviceHealthCheck += temp;
+                }
+            } else {
+                serviceHealthCheck = "-";
+            }
+            return serviceHealthCheck;
         };
         //Grid column expand label: Static Routes//
         this.ECMPHashingFormatter = function(d, c, v, cd, dc) {
@@ -674,6 +705,26 @@ define([
             return lrReturn;
         }
         /*
+            Create / Edit Health check drop down data formatter
+        */
+        this.healthCheckDDFormatter = function(response, edit, portModel) {
+            var healthCheckDataReturn = [];
+            var healthCheckData = response[0]["service-health-checks"];
+            var healthCheckLen = healthCheckData.length;
+            var healthCheckVal = {};
+            for(var i = 0; i < healthCheckLen; i++) {
+                var healthCheckFQName = getValueByJsonPath(healthCheckData[i], 'fq_name', []);
+                var healthCheckUUID = getValueByJsonPath(healthCheckData[i], 'uuid', '');
+                if(healthCheckFQName.length > 0) {
+                    healthCheckVal = healthCheckFQName.join(":") + " " + healthCheckUUID;
+                    var text = ctwu.formatCurrentFQName(healthCheckFQName);
+                    healthCheckDataReturn.push({value: healthCheckVal, text: text});
+                }
+            }
+            return healthCheckDataReturn;
+        }
+        
+        /*
             Create / Edit Sub Interface drop down data formatter
         */
         this.subInterfaceFormatter = function(response, edit, portModel) {
@@ -827,6 +878,29 @@ define([
                     getCookie('project');
             }
             return fqn;
+        };
+        this.isParentPort = function(selectedGridData) {
+            var vlanTag = getValueByJsonPath(selectedGridData,
+                       "virtual_machine_interface_properties;sub_interface_vlan_tag","");
+            var vmiRefTo = getValueByJsonPath(selectedGridData,
+                                "virtual_machine_interface_refs",[]);
+            if (vmiRefTo.length > 0 && vlanTag == "") {
+                return true;
+            }
+            return false;
+        };
+        this.getVMIRelation = function(selectedGridData) {
+            var vlanTag = getValueByJsonPath(selectedGridData,
+                       "virtual_machine_interface_properties;sub_interface_vlan_tag","");
+            var vmiRefTo = getValueByJsonPath(selectedGridData,
+                                "virtual_machine_interface_refs",[]);
+            if (vmiRefTo.length > 0 && vlanTag == "") {
+                return "primaryInterface";
+            }
+            if (vmiRefTo.length > 0 && vlanTag != "") {
+                return "subInterface";
+            }
+            return "vmi";
         };
     }
     return PortFormatters;
