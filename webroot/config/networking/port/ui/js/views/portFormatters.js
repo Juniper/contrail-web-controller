@@ -365,9 +365,10 @@ define([
                 mirror += this.addTableRow(["Analyzer IP Address", " : ",
                                             temp + ", UDP port : " + temp1]);
 
-                temp = getValueByJsonPath(mirrorObj, "routing_instance", []);
-                if (temp.length > 0) {
-                    temp = ctwu.formatCurrentFQName(temp);
+                temp = getValueByJsonPath(mirrorObj, "routing_instance", "");
+                if (temp != "") {
+                    var routingInst = temp.split(":");
+                    temp = ctwu.formatCurrentFQName(routingInst);
                 } else {
                     temp = "-";
                 }

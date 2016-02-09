@@ -295,9 +295,9 @@ define([
                        = getValueByJsonPath(mirrorObj, "analyzer_ip_address", null);
                 modelConfig['mirrorToUdpPort']
                        = getValueByJsonPath(mirrorObj, "udp_port", null);
-                var routingInst = getValueByJsonPath(mirrorObj, "routing_instance", []);
-                if (routingInst.length > 0) {
-                    modelConfig['mirrorToRoutingInstance'] = routingInst.join(":");
+                var routingInst = getValueByJsonPath(mirrorObj, "routing_instance", "");
+                if (routingInst != "") {
+                    modelConfig['mirrorToRoutingInstance'] = routingInst;
                 } else {
                     modelConfig['mirrorToRoutingInstance'] = null;
                 }
@@ -1112,7 +1112,7 @@ define([
                     mirror.mirror_to.analyzer_name = newPortData.mirrorToAnalyzerName;
                     mirror.mirror_to.analyzer_ip_address = newPortData.mirrorToAnalyzerIpAddress;
                     var ri = getValueByJsonPath(newPortData, 'mirrorToRoutingInstance', '');
-                    mirror.mirror_to.routing_instance = ri.split(':');
+                    mirror.mirror_to.routing_instance = ri;
                     mirror.mirror_to.udp_port = Number(newPortData.mirrorToUdpPort);
                     newPortData.virtual_machine_interface_properties.interface_mirror = mirror;
                 }
