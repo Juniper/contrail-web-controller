@@ -198,7 +198,8 @@ define([
             field:"uuid",
             name:"UUID",
             minWidth : 280,
-            sortable: true
+            sortable: true,
+            formatter: portFormatters.uuidWithName
         },
         {
             id:"network",

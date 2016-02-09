@@ -90,6 +90,7 @@ define([
             'templateGeneratorData': 'rawData',
             'disable_sub_interface' : false,
             'subnetGroupVisible': true,
+            'isParent' : false,
             'ecmp_hashing_include_fields': {/*
                 'hashing_configured': false,
                 'source_ip': true,
@@ -411,6 +412,14 @@ define([
                     modelConfig["subInterfaceVMIValue"] = subInterfaceVMI;
                     modelConfig["disable_sub_interface"] = true;
                 }
+            }
+            if(vlanTag == ""){
+                var vmiRefTo = getValueByJsonPath(modelConfig,
+                                    "virtual_machine_interface_refs",[]);
+                if (vmiRefTo.length > 0) {
+                    modelConfig['isParent'] = true;
+                }
+                
             }
             modelConfig['deviceOwnerValue'] = deviceOwnerValue;
             return modelConfig;
@@ -1096,10 +1105,10 @@ define([
                     newPortData.virtual_machine_interface_refs[0].uuid = uuid;
                     newPortData.virtual_machine_interface_refs[0].to = to;
                 } else {
-                    newPortData.virtual_machine_interface_refs = [];
-                    //if(selectedParentVMIObject.length > 0) {
-                    //    newPortData["virtual_machine_interface_refs"] = selectedParentVMIObject;
-                    //}
+                    newPortData.virtual_machine_interface_properties.sub_interface_vlan_tag = null;
+                    if (newPortData.isParent != true) {
+                        newPortData.virtual_machine_interface_refs = [];
+                    }
                 }
                 newPortData.virtual_machine_interface_properties.interface_mirror = {}
                 if (newPortData.is_mirror == true) {
@@ -1188,6 +1197,7 @@ define([
                 delete(newPortData.mirrorToAnalyzerIpAddress);
                 delete(newPortData.mirrorToRoutingInstance);
                 delete(newPortData.mirrorToUdpPort);
+                delete(newPortData.isParent);
                 if("parent_href" in newPortData) {
                     delete(newPortData.parent_href);
                 }

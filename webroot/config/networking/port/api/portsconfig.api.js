@@ -1138,6 +1138,9 @@ function linkUnlinkDetails (error, result, DataObjectLenDetail, portPutData, boo
                             "sub_interface_vlan_tag" in result[i]['virtual-machine-interface']['virtual_machine_interface_properties']) {
                             //delete only sub_interface_vlan_tag to make sure it wont affect if a port is created from the SI which has extra fields. 
                             delete result[i]['virtual-machine-interface']['virtual_machine_interface_properties']['sub_interface_vlan_tag'];
+                            if ('virtual_machine_refs' in result[i]['virtual-machine-interface']) {
+                                result[i]['virtual-machine-interface']['virtual_machine_refs'] = [];
+                            }
                         }
                         if (vmiData['virtual-machine-interface']['virtual_machine_refs']) {
                             var vmiChildUrl = '/virtual-machine-interface/' +
@@ -1886,7 +1889,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelFloatingIP(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1899,7 +1902,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 removeRefSubInterface(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1912,7 +1915,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelLogicalInterface(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1925,7 +1928,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 delSubnet(error, results, dataObj['vmiData'], dataObj['appData'],
                     function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1938,7 +1941,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 delVm(error, results, dataObj['appData'],
                     function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1951,7 +1954,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelLogicalRout(error, results, dataObj['vmiData'],
                      dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         return;
                 });
         });
@@ -2338,7 +2341,11 @@ function removeRefSubInterface(error, results, vmiData, appData, callback)
                                "sub_interface_vlan_tag" in results[i]['virtual-machine-interface']['virtual_machine_interface_properties']) {
                                 //delete only sub_interface_vlan_tag to make sure it wont affect if a port is created from the SI which has extra fields.
                                 delete results[i]['virtual-machine-interface']['virtual_machine_interface_properties']['sub_interface_vlan_tag'];
+                                if ('virtual_machine_refs' in results[i]['virtual-machine-interface']) {
+                                    results[i]['virtual-machine-interface']['virtual_machine_refs'] = [];
+                                }
                             }
+                                
                             j--;
                             vmiRefLen--;
                             commonUtils.createReqObj(DataObjectArr, vmiRefURL,
