@@ -1254,7 +1254,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                     } else if (portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "network:router_interface") {
                     //Add new router entrey
                     if(result[uiIndex] != null){
-                        if(DataObjectLenDetail["LogicalRouterUICount"] == 1)
+                        if(DataObjectLenDetail["LogicalRouterUICount"] == 1) {
                             var logicalRouterURL = '/logical-router/'+result[uiIndex]['logical-router']['uuid'];
                             var responceData = {};
                             var responceData = createlogicalRouterDataObject(responceData,portPutData,result[uiIndex]);
@@ -1265,12 +1265,13 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                             var domainProject = [];
                             domainProject.push(portPutData["virtual-machine-interface"]["logical_router_back_refs"][0]["to"][0]);
                             domainProject.push(portPutData["virtual-machine-interface"]["logical_router_back_refs"][0]["to"][1]);
-                            callback(error, rtData, DataObjectArr);
+                            callback(error, result, DataObjectArr);
                             return;
                         } else {
                             callback(error, result, DataObjectArr);
                             return;
                         }
+                    }
                     } else {
                         //No attach/edit
                         callback(error, result, DataObjectArr);
@@ -1886,7 +1887,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelFloatingIP(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1899,7 +1900,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 removeRefSubInterface(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1912,7 +1913,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelLogicalInterface(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1925,7 +1926,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 delSubnet(error, results, dataObj['vmiData'], dataObj['appData'],
                     function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1938,7 +1939,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 delVm(error, results, dataObj['appData'],
                     function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1951,7 +1952,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelLogicalRout(error, results, dataObj['vmiData'],
                      dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         return;
                 });
         });
