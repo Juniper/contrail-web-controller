@@ -130,7 +130,7 @@ define([
                     formatter: bgpAsAServiceFormatter.ipAddressFormatter
                 },                {
                     field: "virtual_machine_interface_refs",
-                    name: "Ports",
+                    name: "Virtual Machine Interface(s)",
                     sortable: true,
                     formatter: bgpAsAServiceFormatter.vmiFormatter
                 }]
@@ -274,7 +274,7 @@ define([
                                 },{
                                     key: "virtual_machine_interface_refs",
                                     templateGenerator: "TextGenerator",
-                                    label: "Interfaces",
+                                    label: "Virtual Machine Interface(s)",
                                     templateGeneratorConfig: {
                                         formatter: "VMIFormatter"
                                     }
