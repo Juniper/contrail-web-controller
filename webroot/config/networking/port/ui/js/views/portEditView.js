@@ -128,12 +128,20 @@ define([
             var selectedGridData = options['selectedGridData'],
                 elId = 'deletePortID';
             var items = "";
+            var errorString = "";
             var rowIdxLen = selectedGridData.length;
             for (var i = 0; i < rowIdxLen; i++) {
-                items +=
-                    selectedGridData[i]["name"];
-                if (i < rowIdxLen - 1) {
-                    items += ',';
+                var isParentPortBool = portFormatter.isParentPort(selectedGridData[i]);
+                if (isParentPortBool != true) {
+                    if (items != "") {
+                        items += ', ';
+                    }
+                    items += selectedGridData[i]["name"];
+                } else {
+                    if (errorString != "") {
+                        errorString += ", ";
+                    }
+                    errorString += selectedGridData[i]["name"];
                 }
             }
             var delTemplate =
@@ -142,12 +150,19 @@ define([
             var delLayout = delTemplate({prefixId: prefixId,
                                         item: ctwl.TEXT_PORT,
                                         itemId: items})
+            var errorMessage = false;
+            if (errorString != "") {
+                errorMessage = "Deleting Primary Interface(s) "+errorString+" deletes all its sub interfaces. Do you want to continue?";
+            }
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'btnName': 'Confirm',
                              'body': delLayout, 'onSave': function () {
+                self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+                         errorMessage);
                 self.model.deletePort(selectedGridData, {
                     init: function () {
-                        self.model.showErrorAttr(elId, false);
+                        self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+                                                 false);
                         cowu.enableModalLoading(modalId);
                     },
                     success: function () {
@@ -156,7 +171,8 @@ define([
                     },
                     error: function (error) {
                         cowu.disableModalLoading(modalId, function () {
-                            self.model.showErrorAttr(elId, error.responseText);
+                            self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+                                                     error.responseText);
                         });
                     }
                 });
@@ -165,7 +181,7 @@ define([
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
-            this.model.showErrorAttr(elId, false);
+            this.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, errorMessage);
             Knockback.applyBindings(this.model,
                                     document.getElementById(modalId));
             kbValidation.bind(this);
@@ -183,7 +199,7 @@ define([
                              'body': delLayout, 'onSave': function () {
                 self.model.deleteAllPort({
                     init: function () {
-                        self.model.showErrorAttr(elId, false);
+                        self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                         cowu.enableModalLoading(modalId);
                     },
                     success: function () {
@@ -192,7 +208,8 @@ define([
                     },
                     error: function (error) {
                         cowu.disableModalLoading(modalId, function () {
-                            self.model.showErrorAttr(elId, error.responseText);
+                            self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+                                                     error.responseText);
                         });
                     }
                 });
@@ -201,7 +218,7 @@ define([
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
-            this.model.showErrorAttr(elId, false);
+            this.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
             Knockback.applyBindings(this.model,
                                     document.getElementById(modalId));
             kbValidation.bind(this);
@@ -248,6 +265,9 @@ define([
         var routingInstance = {};
         routingInstance.data = [];
         routingInstance.data[0] = {'type':'routing-instances', 'fields':''};
+        var healthCheck = {};
+        healthCheck.data = [];
+        healthCheck.data[0] = {'type':'service-health-checks', 'fields':''};
         return {
             elementId: cowu.formatElementId([prefixId, ctwl.TITLE_EDIT_PORT]),
             view: "SectionView",
@@ -485,6 +505,35 @@ define([
                                 }
                             }
                         }]
+                    },{
+                        columns: [{
+                            elementId: 'ServiceHealthCheck',
+                            view: 'FormDropdownView',
+                            name: 'Static Routes',
+                            viewConfig: {
+                                label:'Service Health Check',
+                                path: 'service_health_check_refs',
+                                dataBindValue: 'service_health_check_refs',
+                                elementConfig:{
+                                    allowClear: true,
+                                    placeholder: 'Service Health Check',
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    dataSource : {
+                                        type: 'remote',
+                                        requestType: 'post',
+                                        postData: JSON.stringify(healthCheck),
+                                        url:'/api/tenants/config/get-config-list',
+                                        parse: function(result) {
+                                            return portFormatter.healthCheckDDFormatter(
+                                                                 result,
+                                                                 isDisable,
+                                                                 self);
+                                        }
+                                    }
+                                }
+                            }
+                        }]
                     }, {
                         columns: [{
                         elementId: 'allowedAddressPairCollection',
@@ -579,9 +628,80 @@ define([
                                 }
                             }
                         ]
-                    },
-                        this.deviceOwner(isDisable, selectedProjectVal)
-                    , {
+                    },{
+                        columns: [{
+                        elementId: 'deviceOwnerValue',
+                        name: "Device Owner",
+                        view: "FormDropdownView",
+                            viewConfig: {
+                                visible : "!isVCenter()",
+                                path: 'deviceOwnerValue',
+                                dataBindValue: 'deviceOwnerValue',
+                                class: "span6",
+                                label: "Device Owner",
+                                elementConfig:{
+                                    allowClear: true,
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    data : [
+                                        {"text":"None","value":"none"},
+                                        {"text":"Compute","value":"compute"},
+                                        {"text":"Router","value":"router"}
+                                    ]
+                                }
+                            }
+                        },{
+                        elementId: 'virtualMachineValue',
+                        view: "FormComboboxView",
+                        viewConfig: {
+                            path: 'virtualMachineValue',
+                            label: "Compute UUID",
+                            dataBindValue: 'virtualMachineValue',
+                            class: "span6",
+                            visible: "deviceComputeShow()",
+                            elementConfig:{
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                defaultValueId : 0,
+                                dataSource : {
+                                    type: 'remote',
+                                    url:'/api/tenants/config/listVirtualMachines',
+                                    parse: function(result) {
+                                        return portFormatter.computeUUIDFormatter(
+                                                             result,
+                                                             isDisable,
+                                                             self);
+                                    }
+                                }
+                            }
+                        }
+                        },{
+                        elementId: 'logicalRouterValue',
+                        view: "FormDropdownView",
+                        viewConfig: {
+                            path: 'logicalRouterValue',
+                            label: "Router",
+                            dataBindValue: 'logicalRouterValue',
+                            class: "span6",
+                            visible: "deviceRouterShow()",
+                            elementConfig:{
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                //defaultValueId : 0,
+                                dataSource : {
+                                   type: 'remote',
+                                   url:"/api/tenants/config/list-logical-routers?projUUID="
+                                       +selectedProjectVal,
+                                    parse: function(result) {
+                                        return portFormatter.routerFormater(
+                                                             result,
+                                                             isDisable,
+                                                             self);
+                                    }
+                                }
+                            }}
+                        }]
+                    } , {
                         columns: [{
                         elementId: 'portBindingCollection',
                         view: 'FormEditableGridView',
@@ -651,12 +771,14 @@ define([
                             }]
                         }
                         }]
-                    },{
+                    }, {
                         columns: [{
                             elementId: 'is_sub_interface',
                             name: "Sub Interface",
                             view: "FormCheckboxView",
                             viewConfig: {
+                                visible : "!isParent()",
+                                disabled: "disable_sub_interface",
                                 path: 'is_sub_interface',
                                 label: "Sub Interface",
                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
@@ -989,91 +1111,11 @@ define([
                         }
                         }]
                     }]
-                                }
-                            }]
-                        }]
+                    }
+                }]
+            }]
             }]
         }
-        }
-    },
-    deviceOwner : function(isDisable, selectedProjectVal) {
-        if(!isVCenter()) {
-            return({
-                columns: [{
-                elementId: 'deviceOwnerValue',
-                name: "Device Owner",
-                view: "FormDropdownView",
-                    viewConfig: {
-                        visible: true,
-                        path: 'deviceOwnerValue',
-                        dataBindValue: 'deviceOwnerValue',
-                        class: "span6",
-                        label: "Device Owner",
-                        elementConfig:{
-                            allowClear: true,
-                            dataTextField: "text",
-                            dataValueField: "value",
-                            data : [
-                                {"text":"None","value":"none"},
-                                {"text":"Compute","value":"compute"},
-                                {"text":"Router","value":"router"}
-                            ]
-                        }
-                    }
-                },{
-                elementId: 'virtualMachineValue',
-                view: "FormComboboxView",
-                viewConfig: {
-                    path: 'virtualMachineValue',
-                    label: "Compute UUID",
-                    dataBindValue: 'virtualMachineValue',
-                    class: "span6",
-                    visible: "deviceComputeShow()",
-                    elementConfig:{
-                        dataTextField: "text",
-                        dataValueField: "value",
-                        defaultValueId : 0,
-                        dataSource : {
-                            type: 'remote',
-                            url:'/api/tenants/config/listVirtualMachines',
-                            parse: function(result) {
-                                return portFormatter.computeUUIDFormatter(
-                                                     result,
-                                                     isDisable,
-                                                     self);
-                            }
-                        }
-                    }
-                }
-                },{
-                elementId: 'logicalRouterValue',
-                view: "FormDropdownView",
-                viewConfig: {
-                    path: 'logicalRouterValue',
-                    label: "Router",
-                    dataBindValue: 'logicalRouterValue',
-                    class: "span6",
-                    visible: "deviceRouterShow()",
-                    elementConfig:{
-                        dataTextField: "text",
-                        dataValueField: "value",
-                        //defaultValueId : 0,
-                        dataSource : {
-                           type: 'remote',
-                           url:"/api/tenants/config/list-logical-routers?projUUID="
-                               +selectedProjectVal,
-                            parse: function(result) {
-                                return portFormatter.routerFormater(
-                                                     result,
-                                                     isDisable,
-                                                     self);
-                            }
-                        }
-                    }}
-                }]
-            });
-        } else {
-            return ({columns: []});
         }
     }
     });
