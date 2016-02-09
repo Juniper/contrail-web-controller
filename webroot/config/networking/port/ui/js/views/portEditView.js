@@ -704,6 +704,7 @@ define([
                             name: "Sub Interface",
                             view: "FormCheckboxView",
                             viewConfig: {
+                                visible : "!isParent()",
                                 path: 'is_sub_interface',
                                 label: "Sub Interface",
                                 dataBindValue: 'is_sub_interface',
