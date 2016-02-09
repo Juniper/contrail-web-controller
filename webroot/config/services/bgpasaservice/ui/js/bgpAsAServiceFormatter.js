@@ -56,27 +56,39 @@
           * vmiFormatter
           */
          this.vmiFormatter = function(r, c, v, cd, dc) {
-             var vmiStr = "";
+             var formattedVMIStr = "", vmiStr;
              var vmiRefs = getValueByJsonPath(dc,
                  "virtual_machine_interface_refs", []);
-             if(vmiRefs.length > 0) {
-                 for(var i = 0; i < vmiRefs.length; i++) {
-                     var vmi = vmiRefs[i]["virtual-machine-interface"];
-                     var vnTo = getValueByJsonPath(vmi,
+             var i, vnTo, vmi, vmiRefsCnt = vmiRefs.length;
+             if(vmiRefsCnt) {
+                 for(i = 0; i < vmiRefsCnt; i++) {
+                     if(i > 1 && cd) {
+                         break;
+                     }
+                     vmi = getValueByJsonPath(vmiRefs[i],
+                         "virtual-machine-interface", {});
+                     vnTo = getValueByJsonPath(vmi,
                          "virtual_network_refs;0;to", {});
                      if(vnTo) {
-                         vmiStr += vmi.name + " (" + vnTo[1] + ":" + vnTo[2] + ")";
+                         vmiStr = vmi.name + " (" + vnTo[1] + ":" + vnTo[2] + ")";
                      } else {
-                         vmiStr += vmi.name;
+                         vmiStr = vmi.name;
                      }
-                     if(i != vmiRefs.length-1) {
-                         vmiStr += "</br>";
+                     if(i === 0) {
+                         formattedVMIStr = vmiStr;
+                     } else {
+                         formattedVMIStr += "<br>" + vmiStr;
                      }
-                 };
+                 }
+                 if (vmiRefsCnt > 2 && cd) {
+                     formattedVMIStr += '<br><span class="moredataText">(' +
+                        (vmiRefsCnt - 2) + ' more)</span><span class="moredata"' +
+                        ' style="display:none;"></span>';
+                 }
              } else {
-                 vmiStr = "-";
+                 formattedVMIStr = "-";
              }
-             return vmiStr;
+             return formattedVMIStr;
          };
 
          /*
