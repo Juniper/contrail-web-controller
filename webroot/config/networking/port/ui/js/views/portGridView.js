@@ -426,8 +426,8 @@ define([
                                         formatter: "DHCPFormatter"
                                     }
                                 }, 
-                                    self.deviceOwner(),
-                                    self.deviceOwnerUUID()
+                                    this.deviceOwner(),
+                                    this.deviceOwnerUUID()
                                 ,{
                                     key: 'interface_route_table_refs',
                                     name:"interface_route_table_refs",

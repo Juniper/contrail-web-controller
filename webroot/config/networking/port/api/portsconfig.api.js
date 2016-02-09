@@ -324,26 +324,7 @@ function putVMISubInterface (orginalPortData, currentVMIDetail, results, appData
             };
             configApiServer.apiPut(subInterfacePutURL, vmiSubInterfaceJSON, appData,
                 function (error, data) {
-                    var vmRefs =
-                        vmiData['virtual-machine-interface']['virtual_machine_refs'];
-                    if (null == vmRefs) {
                     callback(error, data);
-                        return;
-                    }
-                    var putData = {};
-                    putData['virtual-machine-interface'] = {
-                        'fq_name':
-                            results['virtual-machine-interface']['fq_name'],
-                        'uuid': results['virtual-machine-interface']['uuid'],
-                        'virtual_machine_refs': commonUtils.cloneObj(vmRefs)
-                    };
-
-                    var vmiUrl = '/virtual-machine-interface/' +
-                        results['virtual-machine-interface']['uuid'];
-                    configApiServer.apiPut(vmiUrl, putData, appData,
-                                           function(error, data) {
-                        callback(error, data);
-                    });
                 });
         });
     } else {
@@ -560,31 +541,29 @@ function portSendResponse (error, req, portConfig, orginalPortData, apiLogicalRo
             }
         }
     }
-
-    if("virtual_machine_interface_device_owner" in orginalPortData["virtual-machine-interface"] &&
-       (orginalPortData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") {
-        body = {};
-        body.portID = portConfig["virtual-machine-interface"]["uuid"];
-        //body.netID = portConfig["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
-        body.vmUUID = orginalPortData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"];
-        attachVMICompute(req, body, function (novaError, results){
-            updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portConfig, fixedIpPoolRefLen, appData, function(error, result){
-                if(novaError != null){
-                    if(error != null){
-                        error.messages += "<br>" +novaError.messages;
-                    } else {
-                        error = novaError;
-                    }
-                }
-                callback(error, result);
+    updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portConfig, fixedIpPoolRefLen, appData, function(error, result) {
+        if (error) {
+            callback(error, null);
+            return;
+        }
+        if ("virtual_machine_interface_device_owner" in orginalPortData["virtual-machine-interface"] &&
+           (orginalPortData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") {
+            body = {};
+            body.portID = portConfig["virtual-machine-interface"]["uuid"];
+            //body.netID = portConfig["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
+            body.vmUUID = orginalPortData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"];
+            attachVMICompute(req, body, function (novaError, results){
+                callback(novaError, results);
+                return;
             });
-        });
-    } else {
-        updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portConfig, fixedIpPoolRefLen, appData, function(error, result){
+        } else {
             callback(error, result);
-        });
-    }
+            return;
+        }
+    });
 }
+
+
 
 function updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portConfig, fixedIpPoolRefLen, appData, callback)
 {
@@ -596,7 +575,7 @@ function updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portC
     async.map(DataObjectArr,
         commonUtils.getServerResponseByRestApi(configApiServer, true),
         function(error, results) {
-                callback(error, portConfig);
+            callback(error, portConfig);
     });
   });
 
@@ -704,7 +683,6 @@ function compareUpdateVMI (error, request, portPutData, vmiData, appData, callba
     var deleteFloatingIpLen = 0;
     var createVMISubInterfaceLen = 0;
     var deleteVMISubInterfaceLen = 0;
-
     if ("floating_ip_back_refs" in portPutData["virtual-machine-interface"] ||
         "floating_ip_back_refs" in vmiData["virtual-machine-interface"]) {
         filterUpdateFloatingIP(error, portPutData, vmiData, function(createFloatingIp,deleteFloatingip){
@@ -847,6 +825,8 @@ function compareUpdateVMI (error, request, portPutData, vmiData, appData, callba
                         portPutData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"]) {
                         portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = 
                         vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"];
+                        delete(portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]);
+                        delete(portPutData["virtual-machine-interface"]["virtual_machine_refs"]);
                         boolDeviceOwnerChange = false;
                     }
                 }
@@ -920,7 +900,7 @@ function processDataObjects (error, DataObjectArr, DataObjectDelArr, vmiData, po
         commonUtils.getServerResponseByRestApi(configApiServer, true),
         function(error, result) {
             if(error){
-                callback(error, results);
+                callback(error, result);
                 return;
             }
             linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, boolDeviceOwnerChange, vmiData, request, appData,
@@ -1041,6 +1021,9 @@ function removeBackRef (portPutData)
     if ("logical_router_back_refs" in portPutData["virtual-machine-interface"]) {
         delete portPutData["virtual-machine-interface"]["logical_router_back_refs"];
     }
+    if ("floating_ip_back_refs" in portPutData["virtual-machine-interface"]) {
+        delete portPutData["virtual-machine-interface"]["floating_ip_back_refs"];
+    }
     if ('virtual_machine_interface_refs' in 
         portPutData['virtual-machine-interface']) {
         delete 
@@ -1109,9 +1092,7 @@ function linkUnlinkDetails (error, result, DataObjectLenDetail, portPutData, boo
                     vmiData['virtual-machine-interface']['uuid'];
                 var vmiPutData = { 'virtual-machine-interface' : {
                     'fq_name': vmiData['virtual-machine-interface']['fq_name'],
-                    'uuid': vmiData['virtual-machine-interface']['uuid'],
-                    'virtual_machine_refs':
-                        result[i]['virtual-machine-interface']['virtual_machine_refs']
+                    'uuid': vmiData['virtual-machine-interface']['uuid']
                     }
                 }
 
@@ -1165,32 +1146,43 @@ function linkUnlinkDetails (error, result, DataObjectLenDetail, portPutData, boo
             }
         }
     }
-    
-    if(boolDeviceOwnerChange == true) {
-        deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, portPutData, vmiData, request, appData, function(error, data, DataObjectArr){
-            if(error){
-                callback(error, data, subIntfObjArr);
-                return;
-            }
-            if(DataObjectArr != null && DataObjectArr.length > 0){
-                async.map(DataObjectArr,
-                commonUtils.getAPIServerResponse(configApiServer.apiPut, true),
-                function(error, results) {
-                    callback(error, results, subIntfObjArr);
-                    return;
-                });
-            } else {
-                callback(error, result, subIntfObjArr);
-                return;
-            }
-        });
-    } else {    
+
+    if (DataObjectArr != null && DataObjectArr.length > 0) {
         async.map(DataObjectArr,
         commonUtils.getAPIServerResponse(configApiServer.apiPut, true),
         function(error, results) {
-            callback(error, results, subIntfObjArr);
+            if (error) {
+                callback(error, results, subIntfObjArr);
+            }
+            setDeviceOwner (error, result, DataObjectArr, DataObjectLenDetail,
+                            portPutData, vmiData, boolDeviceOwnerChange, request,
+                            appData, function(error, result) {
+                callback(error, result, subIntfObjArr);
+                return;
+            })
+        });
+    } else {
+        setDeviceOwner (error, result, DataObjectArr, DataObjectLenDetail,
+                        portPutData, vmiData, boolDeviceOwnerChange, request,
+                        appData, function(error, result) {
+            callback(error, result, subIntfObjArr);
+            return;
+        })
+    }
+}
+
+function setDeviceOwner(error, result, DataObjectArr, DataObjectLenDetail,
+                        portPutData, vmiData, boolDeviceOwnerChange, request,
+                        appData, callback) {
+    if (boolDeviceOwnerChange == true) {
+        deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail,
+                          portPutData, vmiData, request, appData, function(
+                                               error, data, DataObjectArr){
+            callback(error, DataObjectArr);
             return;
         });
+    } else {
+        callback(error, DataObjectArr);
     }
 }
 
@@ -1214,6 +1206,9 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
         } else {
             vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
         }
+    }
+    if (!("virtual_machine_interface_device_owner" in vmiData["virtual-machine-interface"])) {
+        vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
     }
     if ("virtual_machine_interface_device_owner" in portPutData["virtual-machine-interface"] &&
             "virtual_machine_interface_device_owner" in vmiData["virtual-machine-interface"]) {
@@ -1254,7 +1249,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                     } else if (portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "network:router_interface") {
                     //Add new router entrey
                     if(result[uiIndex] != null){
-                        if(DataObjectLenDetail["LogicalRouterUICount"] == 1)
+                        if(DataObjectLenDetail["LogicalRouterUICount"] == 1) {
                             var logicalRouterURL = '/logical-router/'+result[uiIndex]['logical-router']['uuid'];
                             var responceData = {};
                             var responceData = createlogicalRouterDataObject(responceData,portPutData,result[uiIndex]);
@@ -1265,12 +1260,13 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                             var domainProject = [];
                             domainProject.push(portPutData["virtual-machine-interface"]["logical_router_back_refs"][0]["to"][0]);
                             domainProject.push(portPutData["virtual-machine-interface"]["logical_router_back_refs"][0]["to"][1]);
-                            callback(error, rtData, DataObjectArr);
+                            callback(error, result, DataObjectArr);
                             return;
                         } else {
                             callback(error, result, DataObjectArr);
                             return;
                         }
+                    }
                     } else {
                         //No attach/edit
                         callback(error, result, DataObjectArr);
@@ -1283,7 +1279,6 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                 return;
             }
         }
-
         if (vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "network:router_interface") {
             if (portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] != "network:router_interface"
                || ((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "network:router_interface") &&
@@ -1378,7 +1373,6 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                 }
             }
         }
-
         if (vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "") {
             if (portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "network:router_interface") {
                 var logicalRouterURL = '/logical-router/'+result[uiIndex]['logical-router']['uuid'];
@@ -1886,7 +1880,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelFloatingIP(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1899,7 +1893,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 removeRefSubInterface(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1912,7 +1906,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelLogicalInterface(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1925,7 +1919,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 delSubnet(error, results, dataObj['vmiData'], dataObj['appData'],
                     function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1938,7 +1932,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 delVm(error, results, dataObj['appData'],
                     function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1951,7 +1945,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelLogicalRout(error, results, dataObj['vmiData'],
                      dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         return;
                 });
         });
