@@ -324,26 +324,7 @@ function putVMISubInterface (orginalPortData, currentVMIDetail, results, appData
             };
             configApiServer.apiPut(subInterfacePutURL, vmiSubInterfaceJSON, appData,
                 function (error, data) {
-                    var vmRefs =
-                        vmiData['virtual-machine-interface']['virtual_machine_refs'];
-                    if (null == vmRefs) {
                     callback(error, data);
-                        return;
-                    }
-                    var putData = {};
-                    putData['virtual-machine-interface'] = {
-                        'fq_name':
-                            results['virtual-machine-interface']['fq_name'],
-                        'uuid': results['virtual-machine-interface']['uuid'],
-                        'virtual_machine_refs': commonUtils.cloneObj(vmRefs)
-                    };
-
-                    var vmiUrl = '/virtual-machine-interface/' +
-                        results['virtual-machine-interface']['uuid'];
-                    configApiServer.apiPut(vmiUrl, putData, appData,
-                                           function(error, data) {
-                        callback(error, data);
-                    });
                 });
         });
     } else {
@@ -1109,9 +1090,7 @@ function linkUnlinkDetails (error, result, DataObjectLenDetail, portPutData, boo
                     vmiData['virtual-machine-interface']['uuid'];
                 var vmiPutData = { 'virtual-machine-interface' : {
                     'fq_name': vmiData['virtual-machine-interface']['fq_name'],
-                    'uuid': vmiData['virtual-machine-interface']['uuid'],
-                    'virtual_machine_refs':
-                        result[i]['virtual-machine-interface']['virtual_machine_refs']
+                    'uuid': vmiData['virtual-machine-interface']['uuid']
                     }
                 }
 
@@ -1886,7 +1865,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelFloatingIP(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1899,7 +1878,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 removeRefSubInterface(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1912,7 +1891,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelLogicalInterface(error, results, dataObj['vmiData'],
                                     dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1925,7 +1904,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 delSubnet(error, results, dataObj['vmiData'], dataObj['appData'],
                     function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1938,7 +1917,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 delVm(error, results, dataObj['appData'],
                     function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         //return;
                 });
         });
@@ -1951,7 +1930,7 @@ function deletePortAsync (dataObj, callback)
             function(error, results) {
                 vmiDelLogicalRout(error, results, dataObj['vmiData'],
                      dataObj['appData'], function(err, data){
-                        callback(error, results);
+                        callback(err, results);
                         return;
                 });
         });
