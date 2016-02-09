@@ -147,7 +147,8 @@ define([
                              'body': delLayout, 'onSave': function () {
                 self.model.deletePort(selectedGridData, {
                     init: function () {
-                        self.model.showErrorAttr(elId, false);
+                        self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+                                                 false);
                         cowu.enableModalLoading(modalId);
                     },
                     success: function () {
@@ -156,7 +157,8 @@ define([
                     },
                     error: function (error) {
                         cowu.disableModalLoading(modalId, function () {
-                            self.model.showErrorAttr(elId, error.responseText);
+                            self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+                                                     error.responseText);
                         });
                     }
                 });
@@ -165,7 +167,7 @@ define([
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
-            this.model.showErrorAttr(elId, false);
+            this.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
             Knockback.applyBindings(this.model,
                                     document.getElementById(modalId));
             kbValidation.bind(this);
@@ -183,7 +185,7 @@ define([
                              'body': delLayout, 'onSave': function () {
                 self.model.deleteAllPort({
                     init: function () {
-                        self.model.showErrorAttr(elId, false);
+                        self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                         cowu.enableModalLoading(modalId);
                     },
                     success: function () {
@@ -192,7 +194,8 @@ define([
                     },
                     error: function (error) {
                         cowu.disableModalLoading(modalId, function () {
-                            self.model.showErrorAttr(elId, error.responseText);
+                            self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+                                                     error.responseText);
                         });
                     }
                 });
@@ -201,7 +204,7 @@ define([
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
-            this.model.showErrorAttr(elId, false);
+            this.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
             Knockback.applyBindings(this.model,
                                     document.getElementById(modalId));
             kbValidation.bind(this);
@@ -657,6 +660,7 @@ define([
                             name: "Sub Interface",
                             view: "FormCheckboxView",
                             viewConfig: {
+                                visible : "!isParent()",
                                 path: 'is_sub_interface',
                                 label: "Sub Interface",
                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
