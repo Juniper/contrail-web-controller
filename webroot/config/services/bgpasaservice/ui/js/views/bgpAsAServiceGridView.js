@@ -20,6 +20,8 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+            bgpAsAServiceEditView.currentProjectUUID =
+                viewConfig.currentProjectUUID;
             self.renderView4Config(self.$el, self.model,
                 getBGPAsAServiceGridViewConfig(pagerOptions));
         }

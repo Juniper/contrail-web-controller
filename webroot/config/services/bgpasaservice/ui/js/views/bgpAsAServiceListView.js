@@ -14,7 +14,7 @@ define([
         render: function () {
             self = this;
             var viewConfig = this.attributes.viewConfig;
-            currentProject = viewConfig["projectSelectedValueData"];
+            var currentProject = viewConfig["projectSelectedValueData"];
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
@@ -28,7 +28,7 @@ define([
             };
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                    contrailListModel, getBGPAsAServiceGridViewConfig());
+                    contrailListModel, getBGPAsAServiceGridViewConfig(currentProject));
         },
         parseBGPAsAServiceData : function(result){
             var gridDS = [];
@@ -42,7 +42,7 @@ define([
         }
     });
 
-    var getBGPAsAServiceGridViewConfig = function () {
+    var getBGPAsAServiceGridViewConfig = function (currentProject) {
         return {
             elementId: cowu.formatElementId([ctwc.CONFIG_BGP_AS_A_SERVICE_SECTION_ID]),
             view: "SectionView",
@@ -62,7 +62,8 @@ define([
                                             pageSize: 10,
                                             pageSizeSelect: [10, 50, 100]
                                         }
-                                    }
+                                    },
+                                    currentProjectUUID: currentProject.value
                                 }
                             }
                         ]

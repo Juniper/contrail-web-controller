@@ -43,21 +43,21 @@ define([
                     "family_attributes", []);
                 if(!modelConfig.uuid) {
                     familyAttrArray.push(new BGPAsAServiceFamilyAttrModel({
-                                           address_family: "inet",
-                                           loop_count: 0,
-                                           prefix_limit: 0
+                                           bgpaas_address_family: "inet",
+                                           bgpaas_loop_count: 0,
+                                           bgpaas_prefix_limit: 0
                                        }));
                     familyAttrArray.push(new BGPAsAServiceFamilyAttrModel({
-                                           address_family: "inet6",
-                                           loop_count: 0,
-                                           prefix_limit: 0
+                                           bgpaas_address_family: "inet6",
+                                           bgpaas_loop_count: 0,
+                                           bgpaas_prefix_limit: 0
                                        }));
                 } else {
                     for(var i = 0; i < familyAttrs.length; i++) {
                         var familyAttr =  new BGPAsAServiceFamilyAttrModel({
-                                               address_family: familyAttrs[i].address_family,
-                                               loop_count: familyAttrs[i].loop_count,
-                                               prefix_limit: getValueByJsonPath(familyAttrs[i], "prefix_limit;maximum", null)
+                                               bgpaas_address_family: familyAttrs[i].address_family,
+                                               bgpaas_loop_count: familyAttrs[i].loop_count,
+                                               bgpaas_prefix_limit: getValueByJsonPath(familyAttrs[i], "prefix_limit;maximum", null)
                                            });
                         familyAttrArray.push(familyAttr);
                     }
@@ -106,13 +106,13 @@ define([
                 addressFamily = inetFamily;
             } else if(familyAttrsArry.length === 1) {
                 addressFamily =
-                    familyAttrsArry[0].address_family() === inetFamily ?
+                    familyAttrsArry[0].bgpaas_address_family() === inetFamily ?
                     "inet6" : inetFamily;
             } else if(familyAttrsArry.length === 2) {
                 return;
             }
-            var newFamilyAttr = new BGPAsAServiceFamilyAttrModel({address_family: addressFamily,
-                loop_count: 0, prefix_limit: 0});
+            var newFamilyAttr = new BGPAsAServiceFamilyAttrModel({bgpaas_address_family: addressFamily,
+                bgpaas_loop_count: 0, bgpaas_prefix_limit: 0});
             familyAttrs.add([newFamilyAttr]);
         },
         deleteFamilyAttr: function(data, kbInterface) {
@@ -125,9 +125,9 @@ define([
                 for(var i = 0; i < familyAttrs.length; i++) {
                     var familyAttr = familyAttrs[i];
                     actFamilyAttrs.push({
-                        address_family: familyAttr.address_family(),
-                        loop_count: Number(familyAttr.loop_count()),
-                        prefix_limit: {maximum : Number(familyAttr.prefix_limit())}
+                        address_family: familyAttr.bgpaas_address_family(),
+                        loop_count: Number(familyAttr.bgpaas_loop_count()),
+                        prefix_limit: {maximum : Number(familyAttr.bgpaas_prefix_limit())}
                     });
                 }
             }

@@ -183,7 +183,8 @@ define([
                                                 url: "/api/tenants/config/get-config-details",
                                                 postData: JSON.stringify({
                                                     data: [{type: "virtual-machine-interfaces",
-                                                    fields: ["virtual_network_refs"]}]}),
+                                                    fields: ["virtual_network_refs"],
+                                                    parent_id: this.currentProjectUUID}]}),
                                                 parse : bgpAsAServiceFomatter.parseVMIDetails
                                             }
                                         }
@@ -295,17 +296,18 @@ define([
                                                         path: "familyAttrs",
                                                         collection: "familyAttrs",
                                                         validation: "familyAttrValidation",
+                                                        templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                         columns: [{
-                                                            elementId: "address_family",
+                                                            elementId: "bgpaas_address_family",
                                                             name: "Address Family",
                                                             view: "FormDropdownView",
                                                             width: 200,
                                                             viewConfig: {
                                                                 disabled: true,
                                                                 width: 200,
-                                                                path: "address_family",
+                                                                path: "bgpaas_address_family",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                                                dataBindValue: "address_family()",
+                                                                dataBindValue: "bgpaas_address_family()",
                                                                 elementConfig: {
                                                                     placeholder: "Select Address Family",
                                                                     dataValueField: "value",
@@ -314,31 +316,36 @@ define([
                                                                 }
                                                             }
                                                         },{
-                                                            elementId: "loop_count",
+                                                            elementId: "bgpaas_loop_count",
                                                             name: "Loop Count",
                                                             view: "FormInputView",
                                                             width: 200,
                                                             viewConfig: {
                                                                 placeholder: "Enter Loop Count",
                                                                 width: 200,
-                                                                path: "loop_count",
+                                                                path: "bgpaas_loop_count",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                                                dataBindValue: "loop_count()",
+                                                                dataBindValue: "bgpaas_loop_count()",
                                                             }
                                                         },{
-                                                            elementId: "prefix_limit",
+                                                            elementId: "bgpaas_prefix_limit",
                                                             name: "Prefix Limit",
                                                             view: "FormInputView",
                                                             width: 200,
                                                             viewConfig: {
                                                                 placeholder: "Enter Prefix Limit",
                                                                 width: 200,
-                                                                path: "prefix_limit",
-                                                                dataBindValue: "prefix_limit()",
+                                                                path: "bgpaas_prefix_limit",
+                                                                dataBindValue: "bgpaas_prefix_limit()",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW
                                                             }
                                                         }],
                                                         rowActions: [
+                                                            {
+                                                                onClick: "function() {\
+                                                                $root.addFamilyAttr(); }",
+                                                                iconClass: 'icon-plus'
+                                                            },
                                                             {
                                                                 onClick: "function() {\
                                                                 $root.deleteFamilyAttr($data, this)\
@@ -350,7 +357,7 @@ define([
                                                             {
                                                                 onClick: "function() {\
                                                                 addFamilyAttr(); }",
-                                                                buttonTitle: "Address Family Attributes"
+                                                                buttonTitle: ""
                                                             }
                                                         ]
                                                     }
