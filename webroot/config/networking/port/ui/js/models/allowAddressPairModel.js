@@ -48,6 +48,9 @@ define([
                     }
                 },
                 'mac': function(value, attr, finalObj) {
+                    if (typeof value != "string") {
+                        return "Enter valid MAC Address in Allowed address pairs";
+                    }
                     if(value != "" &&
                        isValidMACAddress(value) == false){
                         return "Enter valid MAC Address in Allowed address pairs";

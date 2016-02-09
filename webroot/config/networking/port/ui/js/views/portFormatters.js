@@ -23,6 +23,17 @@ define([
             }
             return vmiData;
         }
+        this.uuidWithName = function(d, c, v, cd, dc) {
+            var uuidName = "-";
+            var uuid = getValueByJsonPath(dc, "uuid", "")
+            var name = getValueByJsonPath(dc, "fq_name;2", "")
+            if(uuid != name){
+                uuidName = name + " (" + uuid+ ")";
+            } else {
+                uuidName = uuid;
+            }
+            return uuidName;
+        };
         //Start of grid data formating//
         //Grid column label: Network//
         //Grid column expand label : Network//
@@ -40,15 +51,15 @@ define([
             var instIP = getValueByJsonPath(dc, "instance_ip_back_refs", []);
             if(instIP.length > 0) {
                 var instIP_length = instIP.length;
-                for(var i = 0; i < instIP_length && i < 3 ;i++) {
+                for(var i = 0; i < instIP_length && i < 2 ;i++) {
                     var ip = getValueByJsonPath(instIP[i], "fixedip;ip", "");
                     instanceIP += ip;
                     if(instanceIP != "") {
                         instanceIP += "<br> ";
                     }
                 }
-                if(instIP_length > 3) {
-                    instanceIP += "(" + Number(Number(instIP_length)-3)+" more)";
+                if(instIP_length > 2) {
+                    instanceIP += "(" + Number(Number(instIP_length)-2)+" more)";
                 }
             } else {
                 instanceIP = "-";
@@ -61,14 +72,14 @@ define([
             var fipData = getValueByJsonPath(dc, "floating_ip_back_refs", []);
             if(fipData.length > 0) {
                 var fip_length = fipData.length;
-                for(var i = 0; i < fip_length && i < 3 ;i++) {
+                for(var i = 0; i < fip_length && i < 2 ;i++) {
                     floatingIP += fipData[i]["floatingip"]["ip"];
                     if(floatingIP != "") {
                         floatingIP += "<br>";
                     }
                 }
-                if(fip_length > 3) {
-                    floatingIP += "(" + Number(Number(fip_length)-3)+" more)";
+                if(fip_length > 2) {
+                    floatingIP += "(" + Number(Number(fip_length)-2)+" more)";
                 }
             } else {
                 floatingIP = "-";
@@ -827,6 +838,29 @@ define([
                     getCookie('project');
             }
             return fqn;
+        };
+        this.isParentPort = function(selectedGridData) {
+            var vlanTag = getValueByJsonPath(selectedGridData,
+                       "virtual_machine_interface_properties;sub_interface_vlan_tag","");
+            var vmiRefTo = getValueByJsonPath(selectedGridData,
+                                "virtual_machine_interface_refs",[]);
+            if (vmiRefTo.length > 0 && vlanTag == "") {
+                return true;
+            }
+            return false;
+        };
+        this.getVMIRelation = function(selectedGridData) {
+            var vlanTag = getValueByJsonPath(selectedGridData,
+                       "virtual_machine_interface_properties;sub_interface_vlan_tag","");
+            var vmiRefTo = getValueByJsonPath(selectedGridData,
+                                "virtual_machine_interface_refs",[]);
+            if (vmiRefTo.length > 0 && vlanTag == "") {
+                return "primaryInterface";
+            }
+            if (vmiRefTo.length > 0 && vlanTag != "") {
+                return "subInterface";
+            }
+            return "vmi";
         };
     }
     return PortFormatters;
