@@ -229,12 +229,6 @@ define([
             this.network.on("stabilizationIterationsDone", function(params){
                 self.enableFreeflow();
             });
-            $(document).bind('mousemove',function(e) {
-                self.cursorPosition = {
-                    "left": e.pageX,
-                    "top": e.pageY
-                };
-            });
             this.network.on("showPopup", function(elementId) {
                 var timer = null;
                 var tooltipConfig = null;
@@ -251,10 +245,17 @@ define([
                 self.tooltipConfigWidth = tooltipConfig.dimension.width;
                 self.tooltipConfigHeight = tooltipConfig.dimension.height;
                 var ttPosition = $(".vis-network-tooltip").offset();
-                var cursorPosition = self.cursorPosition;
+                var cursorPosition = 
+                self.network.canvasToDOM({
+                    x:hoveredElement.x,
+                    y:hoveredElement.y
+                });
+                var visContainerPosition = $('.vis-network').offset();
+                cursorPosition.x = cursorPosition.x + visContainerPosition.left;
+                cursorPosition.y = cursorPosition.y + visContainerPosition.top;
                 var diffPosition = {
-                    top: cursorPosition.top,
-                    left: cursorPosition.left - 20
+                    left: cursorPosition.x-20,
+                    top: cursorPosition.y
                 };
                 $('.popover').remove();
                 $(".vis-network-tooltip").offset(diffPosition);
@@ -262,7 +263,9 @@ define([
                     trigger: 'hover',
                     html: true,
                     animation: false,
-                    placement: function (context, src) {  //src is mouse position
+                    placement: function (context, src) {
+                        //src is div.vis-network-tooltip
+                        //context is div.popover
                         var srcOffset = $(src).offset(),
                             srcWidth = $(src)[0].getBoundingClientRect().width,
                             bodyWidth = $('body').width(),
@@ -1351,6 +1354,35 @@ define([
                     //check if already exists.
                     if (nodesDataSet.getIds().indexOf(elements[i].id) == -1) {
                         try {
+                            var parent = elements[i].nodeDetails.parent;
+                            if(parent) {
+                                var parentElId = 
+                                    this.model.elementMap.node[parent];
+                                if(null !== parentElId) {
+                                    var parentEl =
+                                    nodesDataSet.get(parentElId);
+                                    if(parentEl && !isNaN(parentEl.x) &&
+                                        !isNaN(parentEl.y)) {
+                                        elements[i].x = parentEl.x;
+                                        elements[i].y = parentEl.y +
+                                        (this.visOptions.layout
+                                            .hierarchical.levelSeparation-20);
+                                    } else {
+                                        parentEl = this.network.findNode(parentElId);
+                                        if(parentEl && parentEl.length == 1 &&
+                                            JSON.stringify(mapPositions) !== "{}") {
+                                            parentEl = parentEl[0];
+                                            if(parentEl && !isNaN(parentEl.x) &&
+                                                !isNaN(parentEl.y)) {
+                                                elements[i].x = parentEl.x;
+                                                elements[i].y = parentEl.y +
+                                                (this.visOptions.layout.hierarchical
+                                                    .levelSeparation-20);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             nodesDataSet.add(elements[i]);
                         } catch (e) {
 

@@ -104,7 +104,7 @@ define([
                            },
                            events: {
                               onClick: function(e,dc) {
-                                if(dc['vm_name'] != null && dc['vm_name'].trim() != '') {
+                                if(dc['vm_name'] != null && dc['vm_name'].trim() != '' && viewConfig['isUnderlayPage'] != true) {
                                   setInstanceURLHashParams(null, dc['vn_name'], dc['vm_uuid'], true);
                                   //layoutHandler.setURLHashParams({vmName:dc['vm_name'],fqName:dc['vm_uuid'],srcVN:dc['vn_name']},{p:'mon_networking_instances',merge:false,triggerHashChange:true});
                                 }

@@ -2653,8 +2653,32 @@ define([
                   getValueByJsonPath(nodeDetails,
                   'more_attributes;VrouterAgent;sandesh_http_port',
                   ctwc.DEFAULT_INTROSPECTPORT),
-              vRouterType: vRouterType.toString()
+              vRouterType: vRouterType.toString(),
+              isUnderlayPage: true
             };
+        };
+
+        /*
+         * Function, checks the flag isUnderlayPage in viewConfig
+         * In case of true
+         *      Appends the hostName in the widget header title
+         */
+
+        self.appendHostNameInWidgetTitleForUnderlayPage = function (viewConfig) {
+            var isUnderlayPage = viewConfig['isUnderlayPage'];
+            var widgetTitle = null;
+            if (isUnderlayPage == true) {
+                widgetTitle = getValueByJsonPath(viewConfig,
+                    'widgetConfig;viewConfig;header;title', null);
+                if (widgetTitle != null ) {
+                    widgetTitle =
+                        contrail.format('{0} ({1})', widgetTitle,
+                                ifNull(viewConfig['hostname'], '-'));
+                    viewConfig['widgetConfig']['viewConfig']['header']['title'] =
+                        widgetTitle;
+                }
+            }
+            return viewConfig;
         };
 
         self.getMarkersForUnderlay = function () {

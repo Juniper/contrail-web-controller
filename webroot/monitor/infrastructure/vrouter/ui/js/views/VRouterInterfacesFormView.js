@@ -22,7 +22,7 @@ define([
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ?
                         viewConfig.widgetConfig : null,
                 routesFormId = "#" + prefix + "-form";
-
+            viewConfig = monitorInfraUtils.appendHostNameInWidgetTitleForUnderlayPage(viewConfig);
             self.model = vRouterInterfacesFormModel;
             self.$el.append(routesTmpl({prefix: prefix}));
 

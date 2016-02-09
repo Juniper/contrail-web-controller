@@ -14,6 +14,7 @@ define([
             self.renderView4Config(self.$el, null, self.getViewConfig(), null,
                 null, null, function (traceFlowResultView) {
                 flowKeyStack = [];
+                var isPrevClicked = false;
                 $("#"+ctwc.TRACEFLOW_RESULTS_GRID_ID).find('i.icon-forward')
                     .parent().click(function () {
                         var vRouterDetails = getSelectedVrouterDetails(self.model);
@@ -39,6 +40,10 @@ define([
                                + '?ip=' + vRouterDetails['ip']
                                + '&introspectPort='
                                + vRouterDetails['introspectPort'];
+                     if (!isPrevClicked) {
+                         flowKeyStack.pop();
+                         isPrevClicked = true;
+                     }
                      // Need to remove last two keys in the array to get the
                      // previous set of records
                         flowKeyStack.pop();
@@ -130,13 +135,18 @@ define([
 
     function fetchvRouterFlowRecords(url) {
         var resultGrid = $("#"+ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
+        resultGrid.showGridMessage('loading');
         $.ajax({
            url: url,
         }).done(function (response) {
-            var response = monitorInfraParsers.parseVRouterFlowsData(response);
-            resultGrid._dataView.setData(response['data']);
+            resultGrid.removeGridLoading('loading');
+            resultGrid.removeGridMessage('loading');
+            response = monitorInfraParsers.parseVRouterFlowsData(response);
+            resultGrid._dataView.setData(response);
         }).fail(function () {
-            resultGrid.showMessage('error');
+            resultGrid.removeGridLoading('loading');
+            resultGrid.removeGridMessage('loading');
+            resultGrid.showGridMessage('error');
         });
     }
 
