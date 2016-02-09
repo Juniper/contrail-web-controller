@@ -426,8 +426,8 @@ define([
                                         formatter: "DHCPFormatter"
                                     }
                                 }, 
-                                    self.deviceOwner(),
-                                    self.deviceOwnerUUID()
+                                    this.deviceOwner(),
+                                    this.deviceOwnerUUID()
                                 ,{
                                     key: 'interface_route_table_refs',
                                     name:"interface_route_table_refs",
@@ -501,8 +501,8 @@ define([
                                         formatter: "subInterfaceVXLANUUID"
                                     }
                                 }, {
-                                    key: 'virtual_machine_interface_refs',
-                                    name:"virtual_machine_interface_refs",
+                                    key: 'virtual_machine_interface_properties.sub_interface_vlan_tag',
+                                    name:"virtual_machine_interface_refs.sub_interface_vlan_tag",
                                     label:"Parent Port",
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
