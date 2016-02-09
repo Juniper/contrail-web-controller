@@ -124,7 +124,7 @@ function deleteByType(dataObj, callback)
         console.log("Didnt find the handler");
         delCB = defaultConfigDeleteHandler;
     }
-    async.mapLimit(dataObj, 100, delCB,
+    async.mapSeries(dataObj, delCB,
       function(err, data) {
         var dataArrLen = data.length;
         var errorMsg = "";

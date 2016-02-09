@@ -90,6 +90,7 @@ define([
             'templateGeneratorData': 'rawData',
             'disable_sub_interface' : false,
             'subnetGroupVisible': true,
+            'isParent' : false,
             'ecmp_hashing_include_fields': {/*
                 'hashing_configured': false,
                 'source_ip': true,
@@ -322,6 +323,10 @@ define([
 
             //Modal config default Port Binding formatting
             var portBinding = [];
+            var devOwner = getValueByJsonPath(modelConfig, 'virtual_machine_interface_device_owner');
+            if ("compute" == devOwner.substring(0,7)) {
+                devOwner = "compute";
+            }
             var portBindingList =
               modelConfig["virtual_machine_interface_bindings"]["key_value_pair"];
             if(portBindingList != null && portBindingList.length > 0) {
@@ -332,10 +337,11 @@ define([
                        port_binding_obj.value == "direct" ) {
                        port_binding_obj.key = "SR-IOV (vnic_type:direct)";
                     }
-                    if(port_binding_obj.key == "SR-IOV (vnic_type:direct)" ||
+                    if(devOwner == "compute" &&  
+                      (port_binding_obj.key == "SR-IOV (vnic_type:direct)" ||
                        port_binding_obj.key == "vnic_type" ||
                        port_binding_obj.key == "vif_type" ||
-                       port_binding_obj.key == "vif_details") {
+                       port_binding_obj.key == "vif_details")) {
                         port_binding_obj.disablePortBindKey = true;
                     }
                     var portBindingModel = new PortBindingModel(port_binding_obj);
@@ -412,6 +418,13 @@ define([
                     modelConfig["disable_sub_interface"] = true;
                 }
             }
+            if(vlanTag == ""){
+                var vmiRefTo = getValueByJsonPath(modelConfig,
+                                    "virtual_machine_interface_refs",[]);
+                if (vmiRefTo.length > 0) {
+                    modelConfig['isParent'] = true;
+                }
+            }
             modelConfig['deviceOwnerValue'] = deviceOwnerValue;
             return modelConfig;
         },
@@ -481,6 +494,17 @@ define([
                     if(value == "" &&
                        finalObj.deviceOwnerValue == "router") {
                         return "Device Owner UUID cannot be empty.";
+                    }
+                },
+                'deviceOwnerValue': function(value, attr, finalObj) {
+                    if (value == "router") {
+                        if (finalObj.isParent == true) {
+                            return "Router cannot be set to a parent port.";
+                        }
+                        if (finalObj.is_sub_interface == true) {
+                            return "Router cannot be set to a Sub Interface.";
+                        }
+                        
                     }
                 },
                 'portBindingCollection': function(value, attr, finalObj) {
@@ -1096,10 +1120,10 @@ define([
                     newPortData.virtual_machine_interface_refs[0].uuid = uuid;
                     newPortData.virtual_machine_interface_refs[0].to = to;
                 } else {
-                    newPortData.virtual_machine_interface_refs = [];
-                    //if(selectedParentVMIObject.length > 0) {
-                    //    newPortData["virtual_machine_interface_refs"] = selectedParentVMIObject;
-                    //}
+                    newPortData.virtual_machine_interface_properties.sub_interface_vlan_tag = null;
+                    if (newPortData.isParent != true) {
+                        newPortData.virtual_machine_interface_refs = [];
+                    }
                 }
                 newPortData.virtual_machine_interface_properties.interface_mirror = {}
                 if (newPortData.is_mirror == true) {
@@ -1188,6 +1212,7 @@ define([
                 delete(newPortData.mirrorToAnalyzerIpAddress);
                 delete(newPortData.mirrorToRoutingInstance);
                 delete(newPortData.mirrorToUdpPort);
+                delete(newPortData.isParent);
                 if("parent_href" in newPortData) {
                     delete(newPortData.parent_href);
                 }
@@ -1250,30 +1275,46 @@ define([
         deletePort: function(selectedGridData, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
             var delDataID = [];
-            for(var i=0;i<selectedGridData.length;i++) {
-                delDataID.push(selectedGridData[i]["uuid"]);
+            var parentPort = [];
+            var isParentPortBool;
+            for (var i=0; i < selectedGridData.length; i++) {
+                isParentPortBool = portFormatters.isParentPort(selectedGridData[i]);
+                if (isParentPortBool != true) {
+                    delDataID.push(selectedGridData[i]["uuid"]);
+                } else {
+                    var vmiChildlen = selectedGridData[i]["virtual_machine_interface_refs"].length;
+                    for (var j = 0; j < vmiChildlen; j++) {
+                        var chiledUUID = selectedGridData[i]["virtual_machine_interface_refs"][j]["uuid"];
+                        delDataID.push(chiledUUID);
+                    }
+                    parentPort.push(selectedGridData[i]["uuid"]);
+                }
             }
-             var sentData = [{"type": "virtual-machine-interface",
-                              "deleteIDs": delDataID}];
-            ajaxConfig.async = false;
-            ajaxConfig.type = "POST";
-            ajaxConfig.data = JSON.stringify(sentData);
-            ajaxConfig.url = "/api/tenants/config/delete";
-            contrail.ajaxHandler(ajaxConfig, function () {
-                if (contrail.checkIfFunction(callbackObj.init)) {
-                    callbackObj.init();
-                }
-            }, function (response) {
-                if (contrail.checkIfFunction(callbackObj.success)) {
-                    callbackObj.success();
-                }
-                returnFlag = true;
-            }, function (error) {
-                if (contrail.checkIfFunction(callbackObj.error)) {
-                    callbackObj.error(error);
-                }
-                returnFlag = false;
-            });
+            delDataID = delDataID.concat(parentPort);
+            delDataID = _.uniq(delDataID);
+            if (delDataID.length > 0) {
+                var sentData = [{"type": "virtual-machine-interface",
+                                  "deleteIDs": delDataID}];
+                ajaxConfig.async = false;
+                ajaxConfig.type = "POST";
+                ajaxConfig.data = JSON.stringify(sentData);
+                ajaxConfig.url = "/api/tenants/config/delete";
+                contrail.ajaxHandler(ajaxConfig, function () {
+                    if (contrail.checkIfFunction(callbackObj.init)) {
+                        callbackObj.init();
+                    }
+                }, function (response) {
+                    if (contrail.checkIfFunction(callbackObj.success)) {
+                        callbackObj.success();
+                    }
+                    returnFlag = true;
+                }, function (error) {
+                    if (contrail.checkIfFunction(callbackObj.error)) {
+                        callbackObj.error(error);
+                    }
+                    returnFlag = false;
+                });
+            }
             return returnFlag;
         },
         deleteAllPort: function(callbackObj) {
