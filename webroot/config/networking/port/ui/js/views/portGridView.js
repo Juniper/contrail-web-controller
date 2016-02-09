@@ -426,8 +426,8 @@ define([
                                         formatter: "DHCPFormatter"
                                     }
                                 }, 
-                                    self.deviceOwner(),
-                                    self.deviceOwnerUUID()
+                                    this.deviceOwner(),
+                                    this.deviceOwnerUUID()
                                 ,{
                                     key: 'interface_route_table_refs',
                                     name:"interface_route_table_refs",
@@ -435,6 +435,14 @@ define([
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
                                         formatter: "staticRoutFormatter"
+                                    }
+                                }, {
+                                    key: 'service_health_check_refs',
+                                    name:"service_health_check_refs",
+                                    label:"Service Health Check",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "serviceHealthCheckFormatter"
                                     }
                                 }, {
                                     key: 'virtual_machine_interface_properties',
@@ -501,8 +509,8 @@ define([
                                         formatter: "subInterfaceVXLANUUID"
                                     }
                                 }, {
-                                    key: 'virtual_machine_interface_refs',
-                                    name:"virtual_machine_interface_refs",
+                                    key: 'virtual_machine_interface_properties.sub_interface_vlan_tag',
+                                    name:"virtual_machine_interface_refs.sub_interface_vlan_tag",
                                     label:"Parent Port",
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
@@ -610,6 +618,9 @@ define([
     };
     this.mirrorFormatter = function(v, dc) {
         return portFormatters.mirrorFormatter("", "", v, "", dc);
+    };
+    this.serviceHealthCheckFormatter = function(v, dc) {
+        return portFormatters.serviceHealthCheckFormatter("", "", v, "", dc);
     };
     this.localPrefFormater = function(v, dc) {
         return portFormatters.localPrefFormater("", "", v, "", dc);
