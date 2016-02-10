@@ -56,8 +56,6 @@ define([
             },
             'ecmp_hashing_include_fields': { /*
                 'hashing_configured': false,
-                'source_mac': false,
-                'destination_mac': false,
                 'source_ip': false,
                 'destination_ip': false,
                 'ip_protocol': false,
@@ -707,8 +705,6 @@ define([
             var hashingFields = getValueByJsonPath(attr,
                                 'ecmp_hashing_include_fields', "");
             var hashObj       = {
-                                    'source_mac': true,
-                                    'destination_mac': true,
                                     'source_ip': true,
                                     'destination_ip': true,
                                     'ip_protocol': true,

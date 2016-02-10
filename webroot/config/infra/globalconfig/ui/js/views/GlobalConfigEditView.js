@@ -171,10 +171,6 @@ define([
                                         dataTextField: "text",
                                         dataValueField: "id",
                                             data: [
-                                                {text: 'source-mac',
-                                                 id: 'source_mac'},
-                                                {text: 'destination-mac',
-                                                 id: 'destination_mac'},
                                                 {text: 'source-ip',
                                                  id: 'source_ip'},
                                                 {text: 'destination-ip',

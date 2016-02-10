@@ -199,8 +199,6 @@ define([
                 }
                 if ('ecmp_hashing_include_fields' == key) {
                     dataItems[i]['value'] = {
-                        'source_mac': true,
-                        'destination_mac': true,
                         'source_ip': true,
                         'destination_ip': true,
                         'ip_protocol': true,
