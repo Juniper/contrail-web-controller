@@ -275,27 +275,6 @@ define([
                         }
                     }
                 }, {
-                    elementId: 'enable',
-                    name: "Enable",
-                    view: "FormDropdownView",
-                    viewConfig: {
-                        path: 'id_perms.enable',
-                        dataBindValue: 'id_perms().enable',
-                        class: "span6",
-                        label: 'Admin State',
-                        elementConfig:{
-                            allowClear: true,
-                            dataTextField: "text",
-                            dataValueField: "value",
-                            data : [
-                              {"text":"Up","value":true},
-                              {"text":"Down","value":false}
-                            ]
-                        }
-                    }
-                }]
-            },{
-                columns: [{
                     elementId: 'name',
                     name: "Name",
                     view: "FormInputView",
@@ -305,7 +284,7 @@ define([
                         label: 'Name',
                         placeholder: 'Port Name',
                         dataBindValue: 'name',
-                        class: ""
+                        class: "span6"
                     }
                 }]
             },{
@@ -315,19 +294,22 @@ define([
                         name: 'is_sec_grp',
                         viewConfig: {
                             label: 'Security Group(s)',
+                            templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                             path: 'is_sec_grp',
-                            class: 'span3',
+                            class: 'span12',
                             dataBindValue: 'is_sec_grp'
                         }
-                    }, {
+                    }
+                ]
+            },{
+                columns: [{
                         elementId: 'securityGroupValue',
                         view: 'FormMultiselectView',
                         name: 'SG',
                         viewConfig: {
-                            label:'',
                             path: 'securityGroupValue',
                             dataBindValue: 'securityGroupValue',
-                            class: 'span9',
+                            class: 'span12',
                             disabled : "is_sec_grp_disabled",
                             elementConfig:{
                                 allowClear: true,
@@ -382,6 +364,39 @@ define([
                 view: "SectionView",
                 viewConfig : {
                     rows : [{
+                        columns: [{
+                            elementId: 'macAddress',
+                            name: 'MAC Address',
+                            view: 'FormInputView',
+                            viewConfig: {
+                                disabled: isDisable,
+                                path: 'macAddress',
+                                label: 'MAC Address',
+                                class: 'span6',
+                                placeholder: 'Specify MAC Address',
+                                dataBindValue: 'macAddress'
+                            }
+                        },{
+                    elementId: 'enable',
+                    name: "Enable",
+                    view: "FormDropdownView",
+                    viewConfig: {
+                        path: 'id_perms.enable',
+                        dataBindValue: 'id_perms().enable',
+                        class: "span6",
+                        label: 'Admin State',
+                        elementConfig:{
+                            allowClear: true,
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            data : [
+                              {"text":"Up","value":true},
+                              {"text":"Down","value":false}
+                            ]
+                        }
+                    }
+                }]
+                    },{
                         columns: [{
                         elementId: 'fixedIPCollection',
                         view: "FormEditableGridView",
@@ -443,15 +458,31 @@ define([
                         }]
                     },{
                         columns: [{
-                            elementId: 'macAddress',
-                            name: 'MAC Address',
-                            view: 'FormInputView',
+                            elementId: 'staticRoute',
+                            view: 'FormMultiselectView',
+                            name: 'Static Routes',
                             viewConfig: {
-                                disabled: isDisable,
-                                path: 'macAddress',
-                                label: 'MAC Address',
-                                placeholder: 'Specify MAC Address',
-                                dataBindValue: 'macAddress'
+                                label:'Static Routes',
+                                path: 'staticRoute',
+                                dataBindValue: 'staticRoute',
+                                elementConfig:{
+                                    allowClear: true,
+                                    placeholder: 'Select Static Routes',
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    dataSource : {
+                                        type: 'remote',
+                                        requestType: 'post',
+                                        postData: JSON.stringify(staticRoutArr),
+                                        url:'/api/tenants/config/get-config-list',
+                                        parse: function(result) {
+                                            return portFormatter.srDDFormatter(
+                                                                 result,
+                                                                 isDisable,
+                                                                 self);
+                                        }
+                                    }
+                                }
                             }
                         }]
                     }, {
@@ -504,88 +535,7 @@ define([
                                 }]
                             }
                         }]
-                    }, {
-                        columns: [{
-                        elementId: 'dhcpOptionCollection',
-                        view: 'FormEditableGridView',
-                        viewConfig: {
-                            label:"DHCP Option",
-                            path: "dhcpOptionCollection",
-                            validation: 'dhcpValidations',
-                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
-                            collection: "dhcpOptionCollection",
-                            columns: [{
-                                elementId: 'dhcp_option_name',
-                                name: "Code",
-                                view: "FormInputView",
-                                viewConfig: {
-                                    path: 'dhcp_option_name',
-                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                    dataBindValue: 'dhcp_option_name()',
-                                    placeholder: 'Option code',
-                                    class: "span6",
-                                    width:275,
-                                    label: 'Code'
-                                }
-                            }, {
-                                elementId: 'dhcp_option_value',
-                                name: "Value",
-                                view: "FormInputView",
-                                viewConfig: {
-                                    path: 'dhcp_option_value',
-                                    placeholder: 'Option value',
-                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                    dataBindValue: 'dhcp_option_value()',
-                                    class: "span6",
-                                    width:275,
-                                    label: 'Value'
-                                }
-                            }],
-                            rowActions: [{
-                                onClick: "function() { $root.addDHCP(); }",
-                                iconClass: 'icon-plus',
-                                },
-                                {
-                                onClick:
-                                "function() { $root.deleteDHCP($data, this); }",
-                                iconClass: 'icon-minus'
-                            }],
-                            gridActions: [{
-                                onClick: "function() { addDHCP(); }",
-                                buttonTitle: ""
-                            }]
-                        }
-                        }]
-                    }, {
-                        columns: [{
-                            elementId: 'staticRoute',
-                            view: 'FormMultiselectView',
-                            name: 'Static Routes',
-                            viewConfig: {
-                                label:'Static Routes',
-                                path: 'staticRoute',
-                                dataBindValue: 'staticRoute',
-                                elementConfig:{
-                                    allowClear: true,
-                                    placeholder: 'Select Static Routes',
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    dataSource : {
-                                        type: 'remote',
-                                        requestType: 'post',
-                                        postData: JSON.stringify(staticRoutArr),
-                                        url:'/api/tenants/config/get-config-list',
-                                        parse: function(result) {
-                                            return portFormatter.srDDFormatter(
-                                                                 result,
-                                                                 isDisable,
-                                                                 self);
-                                        }
-                                    }
-                                }
-                            }
-                        }]
-                    }, {
+                    },{
                         columns: [{
                             elementId: 'local_preference',
                             name: "Local Preference",
@@ -629,133 +579,14 @@ define([
                                 }
                             }
                         ]
-                    }, {
-                        columns: [{
-                        elementId: 'fatFlowCollection',
-                        view: 'FormEditableGridView',
-                        viewConfig: {
-                            label:"Fat Flow",
-                            path: "fatFlowCollection",
-                            validation: 'fatFlowValidations',
-                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
-                            collection: "fatFlowCollection",
-                            columns: [{
-                                elementId: 'protocol',
-                                name: "Protocol",
-                                view: "FormDropdownView",
-                                viewConfig: {
-                                    path: 'protocol',
-                                    templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                    dataBindValue: 'protocol()',
-                                    placeholder: 'Protocol',
-                                    class: "span6",
-                                    width:275,
-                                    label: 'Protocol',
-                                    elementConfig:{
-                                        dataTextField: "text",
-                                        dataValueField: "value",
-                                        data : [
-                                            {'text':'TCP','value':'tcp'},
-                                            {'text':'UDP','value':'udp'},
-                                            {'text':'SCTP','value':'sctp'},
-                                            {'text':'ICMP','value':'icmp'}
-                                        ]
-                                    }
-                                }
-                            }, {
-                                elementId: 'port',
-                                name: "Port",
-                                view: "FormInputView",
-                                viewConfig: {
-                                    path: 'port',
-                                    placeholder: '1 to 65535',
-                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                    dataBindValue: 'port()',
-                                    disabled: "disablePort()",
-                                    class: "span6",
-                                    width:275,
-                                    label: 'Value'
-                                }
-                            }],
-                            rowActions: [{
-                                onClick: "function() { $root.addFatFlow(); }",
-                                iconClass: 'icon-plus',
-                                },
-                                {
-                                onClick:
-                                "function() { $root.deleteFatFlow($data, this); }",
-                                iconClass: 'icon-minus'
-                            }],
-                            gridActions: [{
-                                onClick: "function() { addFatFlow(); }",
-                                buttonTitle: ""
-                            }]
-                        }
-                        }]
                     },
                         this.deviceOwner(isDisable, selectedProjectVal)
                     , {
                         columns: [{
-                            elementId: 'is_sub_interface',
-                            name: "Sub Interface",
-                            view: "FormCheckboxView",
-                            viewConfig: {
-                                path: 'is_sub_interface',
-                                label: "Sub Interface",
-                                dataBindValue: 'is_sub_interface',
-                                class: "span6"
-                            }
-                        }]
-                    }, {
-                        columns: [{
-                            elementId: 'sub_interface_vlan_tag',
-                            name: "VLAN",
-                            view: "FormInputView",
-                            viewConfig: {
-                                visible: "is_sub_interface",
-                                placeholder: 'Specify VLAN',
-                                path: 'virtual_machine_interface_properties.sub_interface_vlan_tag',
-                                dataBindValue: 'virtual_machine_interface_properties().sub_interface_vlan_tag',
-                                class: "span6",
-                                label: 'VLAN'
-                            }
-                        }]
-                    }, {
-                        columns: [{
-                            elementId: 'subInterfaceVMIValue',
-                            name: "Primary Interface",
-                            view: "FormDropdownView",
-                            viewConfig: {
-                                path: 'subInterfaceVMIValue',
-                                visible: "is_sub_interface",
-                                placeholder: 'Primary Interface',
-                                disabled: "disable_sub_interface()",
-                                label: "Primary Interface",
-                                dataBindValue: 'subInterfaceVMIValue',
-                                elementConfig:{
-                                   dataTextField: "text",
-                                   dataValueField: "value",
-                                   //defaultValueId : 0,
-                                   dataSource : {
-                                      type: 'remote',
-                                      url:"/api/tenants/config/get-virtual-machines-ips?uuid="
-                                          +selectedProjectVal,
-                                    parse: function(result) {
-                                        return portFormatter.subInterfaceFormatter(
-                                                             result,
-                                                             isDisable,
-                                                             self);
-                                    }
-                                   }
-                                }
-                            }
-                        }]
-                    }, {
-                        columns: [{
                         elementId: 'portBindingCollection',
                         view: 'FormEditableGridView',
                         viewConfig: {
-                            label:"Port Binding",
+                            label:"Port Bindings",
                             path: "portBindingCollection",
                             validation: 'portBindingValidations',
                             templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -820,6 +651,96 @@ define([
                             }]
                         }
                         }]
+                    },{
+                        columns: [{
+                            elementId: 'is_sub_interface',
+                            name: "Sub Interface",
+                            view: "FormCheckboxView",
+                            viewConfig: {
+                                path: 'is_sub_interface',
+                                label: "Sub Interface",
+                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                dataBindValue: 'is_sub_interface',
+                                class: "span6"
+                            }
+                        }]
+                    }, {
+                        columns: [{
+                            elementId: 'sub_interface_vlan_tag',
+                            name: "VLAN",
+                            view: "FormInputView",
+                            visible: "is_sub_interface",
+                            viewConfig: {
+                                visible: "is_sub_interface",
+                                placeholder: 'Specify VLAN',
+                                path: 'virtual_machine_interface_properties.sub_interface_vlan_tag',
+                                dataBindValue: 'virtual_machine_interface_properties().sub_interface_vlan_tag',
+                                class: "span6",
+                                label: 'VLAN',
+                            }
+                        },{
+                            elementId: 'subInterfaceVMIValue',
+                            name: "Primary Interface",
+                            view: "FormDropdownView",
+                            visible: "is_sub_interface",
+                            viewConfig: {
+                                path: 'subInterfaceVMIValue',
+                                visible: "is_sub_interface",
+                                placeholder: 'Primary Interface',
+                                disabled: "disable_sub_interface()",
+                                class: "span6",
+                                label: "Primary Interface",
+                                dataBindValue: 'subInterfaceVMIValue',
+                                elementConfig:{
+                                   dataTextField: "text",
+                                   dataValueField: "value",
+                                   //defaultValueId : 0,
+                                   dataSource : {
+                                      type: 'remote',
+                                      url:"/api/tenants/config/get-virtual-machines-ips?uuid="
+                                          +selectedProjectVal,
+                                    parse: function(result) {
+                                        return portFormatter.subInterfaceFormatter(
+                                                             result,
+                                                             isDisable,
+                                                             self);
+                                    }
+                                   }
+                                }
+                            }
+                        }],
+
+                    },  {
+                        columns: [{
+                            elementId: 'subInterfaceVMIValue',
+                            name: "Primary Interface",
+                            view: "FormDropdownView",
+                            visible: "is_sub_interface",
+                            viewConfig: {
+                                path: 'subInterfaceVMIValue',
+                                visible: "is_sub_interface",
+                                placeholder: 'Primary Interface',
+                                disabled: "disable_sub_interface()",
+                                label: "Primary Interface",
+                                dataBindValue: 'subInterfaceVMIValue',
+                                elementConfig:{
+                                   dataTextField: "text",
+                                   dataValueField: "value",
+                                   //defaultValueId : 0,
+                                   dataSource : {
+                                      type: 'remote',
+                                      url:"/api/tenants/config/get-virtual-machines-ips?uuid="
+                                          +selectedProjectVal,
+                                    parse: function(result) {
+                                        return portFormatter.subInterfaceFormatter(
+                                                             result,
+                                                             isDisable,
+                                                             self);
+                                    }
+                                   }
+                                }
+                            }
+                        }]
                     }, {
                         columns: [{
                             elementId: 'is_mirror',
@@ -827,22 +748,13 @@ define([
                             view: "FormCheckboxView",
                             viewConfig: {
                                 path: 'is_mirror',
-                                label: "Enable Port Mirroring",
+                                label: "Mirroring",
+                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                 dataBindValue: 'is_mirror',
                                 class: "span6"
                             }
                         }]
                     }, {
-                        columns: [{
-                            elementId: 'interface_mirror',
-                            view: 'AccordianView',
-                            viewConfig : [{
-                            visible : 'is_mirror',
-                                elementId: 'mirror',
-                                title: 'Port Mirroring',
-                                view: "SectionView",
-                                viewConfig : {
-                                    rows : [{
                                         columns: [{
                                             elementId: 'mirrorToTrafficDirection',
                                             name: "Direction",
@@ -852,6 +764,7 @@ define([
                                                 dataBindValue: 'mirrorToTrafficDirection',
                                                 placeholder: 'Direction',
                                                 label: 'Direction',
+                                                visible: "is_mirror",
                                                 elementConfig: {
                                                     dataTextField: "text",
                                                     dataValueField: "value",
@@ -873,6 +786,7 @@ define([
                                                 dataBindValue: 'mirrorToAnalyzerName',
                                                 placeholder: 'Analyzer Name',
                                                 label: 'Analyzer Name',
+                                                visible: "is_mirror"
                                             }
                                         }]
                                     }, {
@@ -885,7 +799,8 @@ define([
                                                 path: 'mirrorToAnalyzerIpAddress',
                                                 placeholder: 'xxx.xxx.xxx.xxx',
                                                 dataBindValue: 'mirrorToAnalyzerIpAddress',
-                                                label: 'Analyzer IP Address'
+                                                label: 'Analyzer IP Address',
+                                                visible: "is_mirror"
                                             }
                                         }, {
                                             elementId: 'mirrorToUdpPort',
@@ -896,7 +811,8 @@ define([
                                                 path: 'mirrorToUdpPort',
                                                 placeholder: '1 to 65535',
                                                 dataBindValue: 'mirrorToUdpPort',
-                                                label: 'UDP Port'
+                                                label: 'UDP Port',
+                                                visible: "is_mirror"
                                             }
                                         }]
                                     },{
@@ -908,6 +824,7 @@ define([
                                                 path: 'mirrorToRoutingInstance',
                                                 dataBindValue: 'mirrorToRoutingInstance',
                                                 label: 'Routing Instance',
+                                                visible: "is_mirror",
                                                 elementConfig: {
                                                     placeholder: 'Select Routing Instance',
                                                     dataTextField: "text",
@@ -928,13 +845,153 @@ define([
                                             }
                                         }]
                                     }]
-                                }
-                            }]
-                        }]
-                    }]
                     }
                 }]
                 }]
+            },
+            {
+                        columns: [{
+                            elementId: 'dhcpOptionsAccordion',
+                            view: 'AccordianView',
+                            viewConfig : [{
+                                elementId: 'dhcpOptions',
+                                title: 'DHCP Options',
+                                view: "SectionView",
+                                viewConfig : {
+                                    rows : [
+            {
+                        columns: [{
+                        elementId: 'dhcpOptionCollection',
+                        view: 'FormEditableGridView',
+                        viewConfig: {
+                            path: "dhcpOptionCollection",
+                            validation: 'dhcpValidations',
+                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                            collection: "dhcpOptionCollection",
+                            columns: [{
+                                elementId: 'dhcp_option_name',
+                                name: "Code",
+                                view: "FormInputView",
+                                viewConfig: {
+                                    path: 'dhcp_option_name',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                    dataBindValue: 'dhcp_option_name()',
+                                    placeholder: 'Option code',
+                                    class: "span6",
+                                    width:275,
+                                    label: 'Code'
+                                }
+                            }, {
+                                elementId: 'dhcp_option_value',
+                                name: "Value",
+                                view: "FormInputView",
+                                viewConfig: {
+                                    path: 'dhcp_option_value',
+                                    placeholder: 'Option value',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                    dataBindValue: 'dhcp_option_value()',
+                                    class: "span6",
+                                    width:275,
+                                    label: 'Value'
+                                }
+                            }],
+                            rowActions: [{
+                                onClick: "function() { $root.addDHCP(); }",
+                                iconClass: 'icon-plus',
+                                },
+                                {
+                                onClick:
+                                "function() { $root.deleteDHCP($data, this); }",
+                                iconClass: 'icon-minus'
+                            }],
+                            gridActions: [{
+                                onClick: "function() { addDHCP(); }",
+                                buttonTitle: ""
+                            }]
+                        }
+                        }]
+                    }
+                                    ]
+                                }
+                            }]
+                        }]
+            },
+                        {
+                        columns: [{
+                            elementId: 'fatFlowAccordion',
+                            view: 'AccordianView',
+                            viewConfig : [{
+                                elementId: 'fatFlow',
+                                title: 'Fat Flows',
+                                view: "SectionView",
+                                viewConfig : {
+                                    rows : [
+                                    {
+                        columns: [{
+                        elementId: 'fatFlowCollection',
+                        view: 'FormEditableGridView',
+                        viewConfig: {
+                            path: "fatFlowCollection",
+                            validation: 'fatFlowValidations',
+                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                            collection: "fatFlowCollection",
+                            columns: [{
+                                elementId: 'protocol',
+                                name: "Protocol",
+                                view: "FormDropdownView",
+                                viewConfig: {
+                                    path: 'protocol',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                    dataBindValue: 'protocol()',
+                                    placeholder: 'Protocol',
+                                    class: "span6",
+                                    width:275,
+                                    label: 'Protocol',
+                                    elementConfig:{
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        data : [
+                                            {'text':'TCP','value':'tcp'},
+                                            {'text':'UDP','value':'udp'},
+                                            {'text':'SCTP','value':'sctp'},
+                                            {'text':'ICMP','value':'icmp'}
+                                        ]
+                                    }
+                                }
+                            }, {
+                                elementId: 'port',
+                                name: "Port",
+                                view: "FormInputView",
+                                viewConfig: {
+                                    path: 'port',
+                                    placeholder: '1 to 65535',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                    dataBindValue: 'port()',
+                                    disabled: "disablePort()",
+                                    class: "span6",
+                                    width:275,
+                                    label: 'Value'
+                                }
+                            }],
+                            rowActions: [{
+                                onClick: "function() { $root.addFatFlow(); }",
+                                iconClass: 'icon-plus',
+                                },
+                                {
+                                onClick:
+                                "function() { $root.deleteFatFlow($data, this); }",
+                                iconClass: 'icon-minus'
+                            }],
+                            gridActions: [{
+                                onClick: "function() { addFatFlow(); }",
+                                buttonTitle: ""
+                            }]
+                        }
+                        }]
+                    }]
+                                }
+                            }]
+                        }]
             }]
         }
         }
