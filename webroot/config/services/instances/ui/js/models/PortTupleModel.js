@@ -6,9 +6,11 @@
 define([
     'underscore',
     'contrail-model',
-    'config/services/instances/ui/js/models/InterfaceTypesModel'
-], function (_, ContrailModel, InterfaceTypesModel) {
+    'config/services/instances/ui/js/models/InterfaceTypesModel',
+    'config/services/instances/ui/js/svcInst.utils'
+], function (_, ContrailModel, InterfaceTypesModel, SvcInstUtils) {
     var gridElId = "#" + ctwl.SERVICE_INSTANCES_GRID_ID;
+    var svcInstUtils = new SvcInstUtils();
     var InterfacesModel = ContrailModel.extend({
 
         defaultConfig: {
@@ -36,15 +38,24 @@ define([
                 getValueByJsonPath(modelConfig,
                                    'portTupleData;virtual-machine-interfaces',
                                    []);
+            var vnVmis = modelConfig.parentIntfs;
+
             var vmisCnt = vmis.length;
             for (var i = 0; i < vmisCnt; i++) {
                 var intfType =
                     vmis[i]['virtual_machine_interface_properties']
                         ['service_interface_type'];
+                var vnName = vnVmis[intfType];
+                var vmiList = [];
+                if (window.vnVmiMaps[vnName]) {
+                    vmiList = window.vnVmiMaps[vnName];
+                }
+                var vmi = vmis[i]['fq_name'].join(':') + "~~" + vmis[i]['uuid'];
                 var propModel =
                     new InterfaceTypesModel({interfaceType: intfType,
                                       interface: vmis[i]['fq_name'].join(':') +
-                                      "~~" + vmis[i]['uuid']});
+                                      "~~" + vmis[i]['uuid'],
+                                      vmiListData: vmiList});
                 propModels.push(propModel);
             }
             if (!vmisCnt) {
@@ -53,9 +64,15 @@ define([
                 var intfCnt = intfTypes.length;
                 var vmi = null;
                 for (var i = 0; i < intfCnt; i++) {
+                    var vnName = vnVmis[intfTypes[i]];
+                    var vmiList = [];
+                    if (window.vnVmiMaps[vnName]) {
+                        vmiList = window.vnVmiMaps[vnName];
+                    }
                     var propModel =
                         new InterfaceTypesModel({interfaceType: intfTypes[i],
-                                                interface: vmi});
+                                                interface: vmi,
+                                                vmiListData: vmiList});
                     propModels.push(propModel);
                 }
             }

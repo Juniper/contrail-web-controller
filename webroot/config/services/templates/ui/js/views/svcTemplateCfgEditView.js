@@ -169,6 +169,7 @@ define([
                                     visible: 'isSvcVirtTypeNonPhysicalDevice',
                                     path : 'user_created_service_mode',
                                     class: 'span6',
+                                    label: 'Service Mode',
                                     dataBindValue : 'user_created_service_mode',
                                     elementConfig : {
                                         dataTextField : "text",
@@ -185,6 +186,7 @@ define([
                                 viewConfig: {
                                     visible: 'isSvcVirtTypeNonPhysicalDevice',
                                     path : 'user_created_service_type',
+                                    label: 'Service Type',
                                     class: 'span6',
                                     dataBindValue : 'user_created_service_type',
                                     elementConfig : {

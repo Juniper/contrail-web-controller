@@ -13,7 +13,8 @@ define([
             interfaceType: "",
             virtualNetwork: null,
             interfaceIndex: -1,
-            interfaceData: null
+            interfaceData: null,
+            allVNListData: []
         },
 
         validateAttr: function (attributePath, validation, data) {

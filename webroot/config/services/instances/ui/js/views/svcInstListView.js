@@ -242,6 +242,12 @@ define([
                             getCookie('project'),
                         'parent_type': 'project'
                         */
+                    },
+                    {
+                        'type': 'virtual-networks',
+                        'parent_fq_name_str': contrail.getCookie('domain') +
+                            ':' + contrail.getCookie('project'),
+                        'parent_type': 'project'
                     }]
                 };
                 var lazyAjaxConfig = {
@@ -258,6 +264,7 @@ define([
                 window.routingPolicyList = [];
                 window.routeAggregateList = [];
                 window.vmiList = [];
+                window.allVNList = [];
                 if (null == response) {
                     return;
                 }
@@ -276,6 +283,10 @@ define([
                 window.vmiList =
                     buildTextValueByConfigList(response[4],
                                                'virtual-machine-interfaces');
+                window.allVNList = svcInstUtils.virtNwListFormatter(response[5]);
+                if (window.allVNList.length > 0) {
+                    window.allVNList.unshift({'text':"Auto Configured", 'id':""});
+                }
             },
             failureCallback: function(error, contrailListModel) {
                 window.healthCheckServiceList = [];
@@ -332,16 +343,18 @@ define([
         {
             getAjaxConfig: function(response) {
                 var lazyAjaxConfig = {
-                    url: '/api/tenants/config/virtual-networks',
+                    url:
+                        '/api/tenants/config/get-virtual-machine-details?' +
+                        'proj_fqn=' + contrail.getCookie('domain') + ':' +
+                            contrail.getCookie('project'),
                     type: 'GET'
                 };
                 return lazyAjaxConfig;
             },
             successCallback: function(response, contrailListModel) {
-                window.vnList = svcInstUtils.virtNwListFormatter(response);
-                if (window.vnList.length > 0) {
-                    window.vnList.unshift({'text':"Auto Configured", 'id':""});
-                }
+                var vnObjs = svcInstUtils.vmiListFormatter(response);
+                window.vnList = vnObjs.vnList;
+                window.vnVmiMaps = vnObjs.vnVmiMaps;
             }
         },
         {
