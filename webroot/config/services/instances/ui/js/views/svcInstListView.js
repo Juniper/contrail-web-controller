@@ -332,16 +332,18 @@ define([
         {
             getAjaxConfig: function(response) {
                 var lazyAjaxConfig = {
-                    url: '/api/tenants/config/virtual-networks',
+                    url:
+                        '/api/tenants/config/get-virtual-machine-details?' +
+                        'proj_fqn=' + contrail.getCookie('domain') + ':' +
+                            contrail.getCookie('project'),
                     type: 'GET'
                 };
                 return lazyAjaxConfig;
             },
             successCallback: function(response, contrailListModel) {
-                window.vnList = svcInstUtils.virtNwListFormatter(response);
-                if (window.vnList.length > 0) {
-                    window.vnList.unshift({'text':"Auto Configured", 'id':""});
-                }
+                var vnObjs = svcInstUtils.vmiListFormatter(response);
+                window.vnList = vnObjs.vnList;
+                window.vnVmiMaps = vnObjs.vnVmiMaps;
             }
         },
         {

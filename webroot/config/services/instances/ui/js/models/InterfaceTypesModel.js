@@ -11,6 +11,8 @@ define([
         defaultConfig: {
             interfaceType: null,
             interface: null,
+            interfaceListData: [],
+            vmiListData: []
         },
 
         validateAttr: function (attributePath, validation, data) {

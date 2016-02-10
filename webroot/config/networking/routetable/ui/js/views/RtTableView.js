@@ -47,8 +47,10 @@ define([
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
-                       if ($('#' + ctwl.NETWORK_ROUTE_TABLE_ID)) {
-                           $('#' + ctwl.NETWORK_ROUTE_TABLE_ID).trigger('refresh');
+                       if ($('#' +
+                             ctwl.NETWORK_ROUTE_TABLE_ID).data('contrailGrid')) {
+                           $('#' +
+                             ctwl.NETWORK_ROUTE_TABLE_ID).data('contrailGrid').refreshView();
                        }
                    }
                }
@@ -61,8 +63,10 @@ define([
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
-                        if ($('#' + ctwl.INTERFACE_ROUTE_TABLE_ID)) {
-                            $('#' + ctwl.INTERFACE_ROUTE_TABLE_ID).trigger('refresh');
+                        if ($('#' +
+                              ctwl.INTERFACE_ROUTE_TABLE_ID).data('contrailGrid')) {
+                            $('#' +
+                              ctwl.INTERFACE_ROUTE_TABLE_ID).data('contrailGrid').refreshView();
                         }
                     },
                     renderOnActivate: true

@@ -428,7 +428,68 @@ define([
         return dispStr;
     }
 
-    function instCountFormatter (row, col, val, d, rowData) {
+    function getV2SvcInstCount (dataObj, isExpand) {
+        var portTuples = dataObj['port_tuples'];
+        var portTuplesCnt = 0;
+        var noInstCnt = 0;
+        if ((null == portTuples) || (!portTuples.length)) {
+            return '-';
+        }
+        portTuplesCnt = portTuples.length;
+        var vmRefsAssigned;
+        var vmRefs = {};
+        for (var i = 0; i < portTuplesCnt; i++) {
+            var vmListObjs = {};
+            var vmList = [];
+            var vmis = portTuples[i]['vmis'];
+            if (null == vmis) {
+                return '-';
+            }
+            var vmisCnt = vmis.length;
+            var found = true;
+            for (var j = 0; j < vmisCnt; j++) {
+                vmRefs = getValueByJsonPath(vmis[j],
+                                            'virtual_machine_refs', []);
+                var vmId = getValueByJsonPath(vmRefs, '0;uuid', null);
+                if (null == vmId) {
+                    found = false;
+                    break;
+                }
+                if (0 == j) {
+                    vmListObjs = {};
+                    vmListObjs[vmId] = true;
+                } else {
+                    if (null == vmListObjs[vmId]) {
+                        if (isExpand) {
+                            var errStr = 'Error';
+                            errStr +=
+                                ' (Different virtual machine ' +
+                                'associated wth same port-tuple)';
+                            return errStr;
+                        } else {
+                            return '-';
+                        }
+                    }
+                }
+            }
+            if (true == found) {
+                noInstCnt++;
+            }
+        }
+        if (noInstCnt > portTuplesCnt) {
+            var errStr = 'Error';
+            if (isExpand) {
+                errStr += ' (One / more port tuple have more than one ' +
+                          'virtual machine)';
+                return errStr;
+            } else {
+                return '-';
+            }
+        }
+        return noInstCnt.toString() + ' instance';
+    }
+
+    function instCountFormatter (row, col, val, d, rowData, isExpand) {
         var svcTmplDetails =
             getValueByJsonPath(rowData, 'svcTmplDetails', null);
         if ((null != svcTmplDetails) && (null != svcTmplDetails[0])) {
@@ -444,7 +505,7 @@ define([
                                    'service_template_properties;version',
                                    1);
             if (2 == tmplVersion) {
-                return '-';
+                return getV2SvcInstCount(rowData, isExpand);;
             }
             var svcType =
                 getValueByJsonPath(svcTmplDetails[0],
@@ -479,20 +540,6 @@ define([
 
     function networksFormatter (row, col, val, d, rowData, isExpand) {
         var dispStr = "";
-        if (null != rowData['svcTmplDetails']) {
-            var tmplVer =
-                getValueByJsonPath(rowData['svcTmplDetails'][0],
-                                   'service_template_properties;version',
-                                   1);
-            if (2 == tmplVer) {
-                return portTuplesFormatter(row, col, rowData['port_tuples'], d,
-                                       rowData, isExpand);
-            }
-        } else if ((null != rowData['port_tuples']) &&
-                   (rowData['port_tuples'].length > 0)) {
-            return portTuplesFormatter(row, col, rowData['port_tuples'], d,
-                                       rowData, isExpand);
-        }
         if ((null == rowData['svcTmplDetails']) ||
             (null == rowData['svcTmplDetails'][0])) {
             return "-";
@@ -668,10 +715,17 @@ define([
     }
 
     function availabilityZoneFormatter (row, col, val, d, rowData) {
+        var tmplVersion =
+            getValueByJsonPath(rowData,
+                               'svcTmplDetails;0;service_template_properties;version',
+                               1);
+        if (2 == tmplVersion) {
+            return '-';
+        }
         if (null != val) {
             var zone =
-                getValueByJsonPath(val[0],
-                                   'service_template_properties;',
+                getValueByJsonPath(val,
+                                   'availability_zone',
                                    null);
             if (("" == zone) || (null == zone)) {
                 return "ANY:ANY";
@@ -883,7 +937,7 @@ define([
     }
 
     this.instCountFormatter = function(val, rowData) {
-        return instCountFormatter(null, null, val, null, rowData);
+        return instCountFormatter(null, null, val, null, rowData, true);
     }
 
     this.haModeFormatter = function(val, rowData) {
@@ -942,14 +996,14 @@ define([
             name: '# Instance(s)',
             width: 35,
             formatter: function(row, col, val, d, rowData) {
-                return instCountFormatter(row, col, val, d, rowData);
+                return instCountFormatter(row, col, val, d, rowData, false);
             },
             sortable: {
                 sortBy: 'formattedValue'
             }
         },
         {
-            name: 'Networks / Port Tuples',
+            name: 'Networks',
             formatter: function(row, col, val, d, rowData) {
                 return networksFormatter(row, col, val, d, rowData, false);
             },
@@ -1008,9 +1062,29 @@ define([
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;version', 1);
             if (2 == tmplVersion) {
-                return true;
+                return false;
             }
             return svcScaling;
+        }), model);
+        model.showIfV1Template = ko.computed((function(version) {
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var tmplVersion =
+                getValueByJsonPath(svcTmpl,
+                                   'service_template_properties;version', 1);
+            if (1 == tmplVersion) {
+                return true;
+            }
+            return false;
+        }), model);
+        model.showIfV2Template = ko.computed((function(version) {
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var tmplVersion =
+                getValueByJsonPath(svcTmpl,
+                                   'service_template_properties;version', 1);
+            if (2 == tmplVersion) {
+                return true;
+            }
+            return false;
         }), model);
         model.showInstCnt = ko.computed((function() {
             var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());

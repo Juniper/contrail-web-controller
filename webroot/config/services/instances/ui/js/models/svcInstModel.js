@@ -171,9 +171,6 @@ define([
                         getValueByJsonPath(svcTmplObj,
                                            'service_template_properties;version',
                                            1);
-                    if (1 != version) {
-                        return;
-                    }
                     var svcMode =
                         getValueByJsonPath(svcTmplObj,
                                            'service_template_properties;service_mode',
@@ -467,12 +464,36 @@ define([
             modelConfig[modelKey] = collection;
             return modelConfig;
         },
+        setVMIsByVN: function(modelConfig, vnName, intfType) {
+            var pTuples = modelConfig.get('portTuples');
+            var vmiList = [];
+            if (null == pTuples) {
+                return;
+            }
+            var portTuplesCnt = pTuples.length;
+            for (var i = 0; i < portTuplesCnt; i++) {
+                var portTupleIntfs =
+                    pTuples.models[i].get('portTupleInterfaces')();
+                var portTupleIntfsCnt = portTupleIntfs.length;
+                for (var j = 0; j < portTupleIntfsCnt; j++) {
+                    if (intfType == portTupleIntfs[j]['interfaceType']()()) {
+                        if (window.vnVmiMaps[vnName]) {
+                            vmiList = window.vnVmiMaps[vnName];
+                        }
+                        portTupleIntfs[j]['vmiListData']()(vmiList);
+                        break;
+                    }
+                }
+            }
+            return;
+        },
         formatModelConfig: function(modelConfig) {
             if (!window.svcTmplsFormatted.length) {
                 showInfoWindow("No Service Template found.",
                                "Add Service Template");
                 return null;
             }
+            var self = this;
             var intfTypes = [];
             if ((null != modelConfig) &&
                 (null != modelConfig['svcTmplDetails']) &&
@@ -559,13 +580,22 @@ define([
                 /*
                 intfType = intfType.replace(intfType[0], intfType[0].toUpperCase());
                 */
+                var vnList = window.vnList;
                 var interfacesModel =
                     new InterfacesModel({interfaceType: intfType,
                                         virtualNetwork:
                                         intfList[i]['virtual_network'],
                                         interfaceIndex: i,
-                                        interfaceData: intfList[i]});
+                                        interfaceData: intfList[i],
+                                        allVNListData: vnList});
                 interfacesModels.push(interfacesModel);
+                interfacesModel.__kb.view_model.model().on('change:virtualNetwork',
+                                                           function(model,
+                                                                    newValue) {
+                    self.setVMIsByVN(self.model(),
+                                     newValue,
+                                     model.get('interfaceType'));
+                });
             }
             interfacesCollectionModel = new Backbone.Collection(interfacesModels);
             modelConfig['interfaces'] = interfacesCollectionModel;
@@ -577,14 +607,16 @@ define([
             if (null != portTupleList) {
                 portTuplesCnt = portTupleList.length;
             }
+            var intfs =
+                this.getInterfaceTypeVNMap(modelConfig['interfaces'].toJSON());
             for (var i = 0; i < portTuplesCnt; i++) {
                 var portTupleModel =
                     new PortTupleModel({portTupleName:
                                             portTupleList[i]['to'][3],
                                         portTupleData:
                                             portTupleList[i],
-                                        intfTypes: intfTypes
-                                       });
+                                        intfTypes: intfTypes,
+                                        parentIntfs: intfs});
                 portTupleModels.push(portTupleModel);
             }
             var portTuplesCollection = new Backbone.Collection(portTupleModels);
@@ -609,6 +641,7 @@ define([
             if (true == isDisabled) {
                 return;
             }
+            var self = this;
             var cnt = intfTypes.length;
             var svcTmpl = this.model().get('service_template');
             var svcTmpls = $(gridElId).data('svcInstTmplts');
@@ -634,21 +667,33 @@ define([
                                          intfTypes[i][0].toUpperCase());
                 */
                 var vn = null;
+                /*
                 if ((null != window.vnList) && (window.vnList.length > 0)) {
                     vn = svcInstUtils.getVNByTmplType(intfTypes[i], svcTmplObj);
                     if (null != vn) {
                         vn = vn['id'];
                     }
                 }
+                */
                 var intfList =
                     getValueByJsonPath(this.model().attributes,
                                        'service_instance_properties;interface_list',
                                        []);
+                var vnList = window.vnList;
                 var newInterface =
                     new InterfacesModel({'interfaceType': intfType,
                                         'virtualNetwork': vn,
                                         'interfaceIndex': i,
-                                        interfaceData: intfList[i]});
+                                        interfaceData: intfList[i],
+                                        allVNListData: vnList});
+                newInterface.__kb.view_model.model().on('change:virtualNetwork',
+                                                           function(model,
+                                                                    newValue) {
+                    self.setVMIsByVN(self.model(),
+                                     newValue,
+                                     model.get('interfaceType'));
+                });
+
                 kbValidation.bind(this.editView,
                                   {collection:
                                   newInterface.model().attributes.staticRoutes});
@@ -716,14 +761,31 @@ define([
             var newUUID = UUIDjs.create();
             var portTupleName = svcInstName + '-port-tuple' +
                 tmpPortTupleId.toString() + '-' + newUUID['hex'];
+            var intfs =
+                this.getInterfaceTypeVNMap(this.model().get('interfaces').toJSON());
             var newPortTupleEntry =
                 new PortTupleModel({portTupleName: portTupleName,
                                    portTupleData: {},
-                                   intfTypes: this.getIntfTypes(true)});
+                                   intfTypes: this.getIntfTypes(true),
+                                   parentIntfs: intfs});
+
             kbValidation.bind(this.editView,
                                {collection:
                                newPortTupleEntry.model().attributes.portTupleInterfaces});
             portTupleCollection.add([newPortTupleEntry]);
+        },
+        getInterfaceTypeVNMap: function(intfData) {
+            var intfObjs = {};
+            if (null == intfData) {
+                return intfs;
+            }
+            var cnt = intfData.length;
+            for (var i = 0; i < cnt; i++) {
+                var intfType = intfData[i]['interfaceType']();
+                var vn = intfData[i]['virtualNetwork']();
+                intfObjs[intfType] = vn;
+            }
+            return intfObjs;
         },
         getIntfTypes: function(isRaw) {
             var tmpl =
@@ -811,6 +873,12 @@ define([
                 getValueByJsonPath(tmplData[tmplStr],
                                    'service_template_properties;interface_type',
                                    []);
+            var tmplVersion =
+                getValueByJsonPath(tmplData[tmplStr],
+                                   'service_template_properties;version', 1);
+            if (2 == tmplVersion) {
+                return false;
+            }
             if (null != intfType[idx]) {
                 return intfType[idx]['static_route_enable'];
             }
@@ -826,9 +894,6 @@ define([
             var coll = this.model().attributes.interfaces;
             var len = coll.length;
             var models = coll['models'];
-            if(stVersion.toString().toLowerCase() === "v2") {
-                return siProp;
-            }
             for (var i = 0; i < len; i++) {
                 var attr = models[i]['attributes'];
                 intfList[i] = {};
@@ -845,6 +910,9 @@ define([
                 if ('management' == intfType) {
                     siProp['management_virtual_network'] = vn;
                 }
+                if ('v2' == stVersion) {
+                    continue;
+                }
                 var staticRTs = attr.staticRoutes();
                 var staticRTsCnt = staticRTs.length;
                 for (var j = 0; j < staticRTsCnt; j++) {
@@ -859,7 +927,7 @@ define([
             }
             var siP = this.model().get('service_instance_properties');
             if ((null != siP) && (null != siP['ha_mode'])) {
-                if ("" != siP['ha_mode']) {
+                if (("" != siP['ha_mode']) && ('v2' != stVersion)) {
                     siProp['ha_mode'] = siP['ha_mode'];
                 }
             }
@@ -1070,18 +1138,24 @@ define([
                 var svcTmpls = $(gridElId).data('svcInstTmplts');
                 var svcTmplFqn =
                     newSvcInst['service_template_refs'][0]['to'].join(':');
+                var svcTmplVersion = 1;
                 if (null != svcTmpls[svcTmplFqn]) {
                     newSvcInst['svcTmplDetails'] = [];
                     newSvcInst['svcTmplDetails'][0] = svcTmpls[svcTmplFqn];
+                    svcTmplVersion =
+                        getValueByJsonPath(svcTmpls[svcTmplFqn],
+                                           'service_template_properties;version',
+                                           1);
                 }
                 newSvcInst['fq_name'] =
                     [getCookie('domain'), getCookie('project'),
                     newSvcInst['display_name']];
-                newSvcInst['service_instance_properties']['scale_out'] =
-                    {};
-                newSvcInst['service_instance_properties']['scale_out']
-                    ['max_instances'] =
-                    parseInt(newSvcInst['no_of_instances']);
+                if (1 == svcTmplVersion) {
+                    newSvcInst['service_instance_properties']['scale_out'] = {};
+                    newSvcInst['service_instance_properties']['scale_out']
+                        ['max_instances'] =
+                        parseInt(newSvcInst['no_of_instances']);
+                }
                 var availZone = "";
                 if ('ANY' != newSvcInst['availability_zone']) {
                     availZone = newSvcInst['availability_zone'];

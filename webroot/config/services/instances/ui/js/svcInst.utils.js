@@ -22,7 +22,7 @@ define([
                 return vnFqn[2];
             }
             return vnFqn[2] + " (" + vnFqn[0] + ":" + vnFqn[1] + ")";
-        }
+        },
         this.virtNwListFormatter = function(response) {
             var vnListResp =
                 getValueByJsonPath(response, 'virtual-networks', []);
@@ -37,6 +37,91 @@ define([
                             vnListResp[i]['fq_name'].join(':')});
             }
             return vnList;
+        },
+        this.buildVMI = function(vmi) {
+            var vmVmiListObjs = {};
+            if (null == vmi) {
+                return {};
+            }
+            var domain = contrail.getCookie('domain');
+            var project = contrail.getCookie('project');
+            var results = [];
+            var text = "";
+
+            var instIpAddrs = getValueByJsonPath(vmi, 'instance_ip_address',
+                                                 []);
+            var fqn = JSON.parse(JSON.stringify(vmi['fq_name']));
+            var domProj = fqn.splice(0, 2);
+            if ((domain == domProj[0]) && (project == domProj[1])) {
+                text = vmi['uuid'];
+                if (instIpAddrs.length > 0) {
+                    text = text + ' - (' + instIpAddrs.join(', ') + ')';
+                }
+                return {text: text, id:
+                             vmi['fq_name'].join(':') + "~~" + vmi['uuid']};
+            } else {
+                var tmpFqn =
+                    JSON.parse(JSON.stringify(vmi['fq_name']));
+                var domProj = tmpFqn.splice(0, 2);
+                text = vmi['uuid']  + " (" + domProj.join(':') + ")";
+                if (instIpAddrs.length > 0) {
+                    text = text + ' - (' + instIpAddrs.join(', ') + ')';
+                }
+                return {text: text +" (" + domProj.join(':')
+                             + ")",
+                             id: vmi['fq_name'].join(':') +
+                             "~~" + vmi['uuid']};
+            }
+            return {};
+        },
+        this.vmiListFormatter = function(vmis) {
+            var vnVmiMaps = {};
+            var vnList = [];
+            if ((null == vmis) || (!vmis.length)) {
+                return ({vnList:
+                        [{id: null, text: "No Virtual Networks found"}],
+                        vnVmiMaps: vnVmiMaps});
+            }
+            var vmisCnt = vmis.length;
+            var tmpVNIds = {};
+            window.allVMIList = [];
+            for (var i = 0; i < vmisCnt; i++) {
+                var vmi =
+                    getValueByJsonPath(vmis[i],
+                                       'virtual-machine-interface', null);
+                if (null == vmi) {
+                    continue;
+                }
+                var builtVMI = this.buildVMI(vmi);
+                window.allVMIList.push(builtVMI);
+                var vmRefs = getValueByJsonPath(vmi,
+                                                'virtual_machine_refs',
+                                                []);
+                //if (vmRefs.length > 0) {
+                    /* If already vm_refs found, skip those */
+                 //   continue;
+                //}
+                var vnRefs = getValueByJsonPath(vmi,
+                                                'virtual_network_refs', []);
+                //if (!vnRefs.length) {
+                    /* We should not come here */
+                 //   continue;
+                //}
+                var vnRefsCnt = vnRefs.length;
+                for (var j = 0; j < vnRefsCnt; j++) {
+                    var vnText = this.getVNNameFormatter(vnRefs[j]['to']);
+                    var vnFqn = vnRefs[j]['to'].join(':');
+                    if (null == tmpVNIds[vnFqn]) {
+                        vnList.push({'text': vnText, id: vnFqn});
+                        tmpVNIds[vnFqn] = true;
+                    }
+                    if (null == vnVmiMaps[vnFqn]) {
+                        vnVmiMaps[vnFqn] = [];
+                    }
+                    vnVmiMaps[vnFqn].push(builtVMI);
+                }
+            }
+            return {vnList: vnList, vnVmiMaps: vnVmiMaps};
         }
         this.svcTemplateFormatter = function(svcTmpl) {
             var svcIntfTypes = [];
@@ -90,6 +175,14 @@ define([
             }
             return svcIntfTypes;
         },
+        this.getVNListByVNValue = function(vnVal) {
+            var vnList = window.vnVmiList;
+            var splitArr = vnVal.split('~~');
+            if (null != vnList(splitArr[1])) {
+                return vnList(splitArr[1]);
+            }
+            return [];
+        }
         this.getPortTuples = function(svcInstName, portTupleCollection) {
             var nameList = [];
             if (null == portTupleCollection) {
@@ -104,7 +197,7 @@ define([
                 var portTupleData = attr['portTupleData']();
                 nameList[i]['to'] = [contrail.getCookie('domain'),
                     contrail.getCookie('project'), svcInstName, name];
-                if (null != portTupleData) {
+                if ((null != portTupleData) && (null != portTupleData['uuid'])) {
                     nameList[i]['uuid'] = portTupleData['uuid'];
                 }
                 var intfs = attr['portTupleInterfaces']();
@@ -217,11 +310,21 @@ define([
                         label: 'Virtual Network',
                         path: 'virtualNetwork',
                         dataBindValue: 'virtualNetwork()',
+                        dataBindOptionList: 'allVNListData()',
+                        elementConfig: {
+                            minimumResultsForSearch: 1,
+                            placeholder: 'Select Virtual Network'
+                        }
+                        /*
+                        dataBindOptionList:
                         elementConfig: {
                             dataTextField: 'text',
                             dataValueField: 'id',
-                            data: window.vnList
+                            data: window.vnList,
+                            minimumResultsForSearch: 1,
+                            placeholder: 'Select Virtual Network'
                         }
+                        */
                     }
                 }]
             }
@@ -293,7 +396,7 @@ define([
                     elementId: 'portTupleName',
                     view: 'FormInputView',
                     class: "", width: "600",
-                    name: 'Port Tuple Name',
+                    name: 'Tuple Name',
                     viewConfig: {
                         disabled: true,
                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
@@ -347,18 +450,18 @@ define([
                                 elementId: 'interface',
                                 view: 'FormDropdownView',
                                 class: "", width: 345,
-                                name:'Interface',
+                                name:'Virtual Machine Interface',
                                 viewConfig: {
                                     templateId:
                                         cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                     path: 'interface',
+                                    disabled: isDisabled,
                                     dataBindValue: 'interface()',
+                                    dataBindOptionList: 'vmiListData()',
                                     elementConfig: {
+                                        minimumResultsForSearch: 1,
                                         placeholder: 'Select Virtual Machine' +
                                                      ' Interface',
-                                        dataTextField: 'text',
-                                        dataValueField: 'value',
-                                        data: window.vmiList
                                     }
                                 }
                             //}]
@@ -410,52 +513,76 @@ define([
         },
         this.getSvcInstV1PropView = function(isDisabled) {
             return {
-                elementId: 'svcInstPropV1',
-                view: 'AccordianView',
-                viewConfig: [{
-                    elementId: 'svcInstV1PropSection',
-                    title: 'Advanced Options',
-                    view: 'SectionView',
-                    visible: 'showInterfaceCollectionView',
-                    viewConfig: {
-                        rows: [{
-                            columns: [{
-                                elementId: 'svcInstV1PropAccordian',
-                                view: 'AccordianView',
-                                viewConfig: [
-                                    this.getRtPolicyAccordianView(isDisabled),
-                                    this.getRtAggregateAccordianView(isDisabled)
-                                ]
-                            }]
+                elementId: 'svcInstV1PropSection',
+                title: 'Advanced Options',
+                view: 'SectionView',
+                viewConfig: {
+                    visible: 'showIfV1Template',
+                    rows: [{
+                        columns: [{
+                            elementId: 'rtPolicyAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getRtPolicyAccordianView(isDisabled),
+                            ]
                         }]
-                    }
-                }]
+                    },
+                    {
+                        columns: [{
+                            elementId: 'rtAggAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getRtAggregateAccordianView(isDisabled)
+                            ]
+                        }]
+                    }]
+                }
             }
         },
         this.getSvcInstV2PropView = function(isDisabled) {
             return {
-                elementId: 'svcInstPropV2',
-                view: 'AccordianView',
-                viewConfig: [{
-                    elementId: 'svcInstV2PropSection',
-                    title: 'Advanced Options',
-                    visible: 'showPortTuplesView',
-                    view: 'SectionView',
-                    viewConfig: {
-                        rows: [{
-                            columns: [{
-                                elementId: 'svcInstV2PropAccordian',
-                                view: 'AccordianView',
-                                viewConfig: [
-                                    this.getSvcHealthCheckAccordianView(isDisabled),
-                                    this.getIntfRtTableAccordianView(isDisabled),
-                                    this.getRtPolicyAccordianView(isDisabled),
-                                    this.getRtAggregateAccordianView(isDisabled)
-                                ]
-                            }]
+                elementId: 'svcInstV2PropSection',
+                title: 'Advanced Options',
+                view: 'SectionView',
+                viewConfig: {
+                    visible: 'showIfV2Template',
+                    rows: [{
+                        columns: [{
+                            elementId: 'svcHealthChkAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getSvcHealthCheckAccordianView(isDisabled),
+                            ]
                         }]
-                    }
-                }]
+                    },
+                    {
+                        columns: [{
+                            elementId: 'intfRtTableAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getIntfRtTableAccordianView(isDisabled)
+                            ]
+                        }]
+                    },
+                    {
+                        columns: [{
+                            elementId: 'rtPolicyAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getRtPolicyAccordianView(isDisabled)
+                            ]
+                        }]
+                    },
+                    {
+                        columns: [{
+                            elementId: 'rtAggAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getRtAggregateAccordianView(isDisabled)
+                            ]
+                        }]
+                    }]
+                }
             }
         },
         this.getSvcHealthCheckAccordianView = function (isDisabled) {
@@ -633,14 +760,6 @@ define([
                                             minimumResultsForSearch: 1,
                                             placeholder: 'Select Interface ' +
                                                 'Type'
-                                            /*
-                                            dataTextField: 'text',
-                                            dataValueField: 'value',
-                                            data: [
-                                                {text: 'left', value: 'left'},
-                                                {text: 'right', value: 'right'}
-                                            ]
-                                            */
                                         }
                                     }
                                 },
@@ -756,11 +875,7 @@ define([
         },
         this.getInterfaceCollectionView = function (isDisabled) {
             return {
-                elementId: 'interfaceCollection',
-                view: 'AccordianView',
-                viewConfig: [{
                     elementId: 'interfaceCollectionAccordian',
-                    visible: 'showInterfaceCollectionView',
                     title: 'Interface Details',
                     view: 'SectionView',
                     viewConfig: {
@@ -782,8 +897,7 @@ define([
                             }]
                         }]
                     }
-                }]
-            }
+                }
         }
     };
     return svcInstUtils;

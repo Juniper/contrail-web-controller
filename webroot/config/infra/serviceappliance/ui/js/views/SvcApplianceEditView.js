@@ -259,7 +259,7 @@ define([
                                     path: 'interface_name',
                                     dataBindValue: 'interface_name()',
                                     elementConfig: {
-                                    placeholder: 'Select physical interface',
+                                        placeholder: 'Select Physical Interface',
                                         dataTextField: 'text',
                                         dataValueField: 'id',
                                         data: window.svcApplData.piList
