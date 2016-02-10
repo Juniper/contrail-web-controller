@@ -101,6 +101,12 @@ define(
                        sorter:cowu.comparatorStatus
                    },
                    {
+                       field:"formattedAnalyticsDbSize",
+                       name:"Analytics DB Size",
+                       minWidth:110,
+                       sortField:"analyticsDbSize"
+                   },
+                   {
                        field:"formattedAvailableSpace",
                        name:"Available Space",
                        minWidth:110,
@@ -111,12 +117,6 @@ define(
                        name:"Used Space",
                        minWidth:110,
                        sortField:"dbSpaceUsed"
-                   },
-                   {
-                       field:"formattedAnalyticsDbSize",
-                       name:"Analytics DB Size",
-                       minWidth:110,
-                       sortField:"analyticsDbSize"
                    }
                 ];
                 var gridElementConfig = {

@@ -170,6 +170,12 @@ define([
                         templateGenerator: 'TextGenerator'
                     },
                     {
+                        key: 'formattedAnalyticsDbSize',
+                        label: 'Analytics DB Size',
+                        keyClass: 'indent-right',
+                        templateGenerator: 'TextGenerator'
+                    },
+                    {
                         key: 'formattedAvailableSpace',
                         label: 'Available Space',
                         keyClass: 'indent-right',
@@ -181,12 +187,7 @@ define([
                         keyClass: 'indent-right',
                         templateGenerator: 'TextGenerator'
                     },
-                    {
-                        key: 'formattedAnalyticsDbSize',
-                        label: 'Analytics DB Size',
-                        keyClass: 'indent-right',
-                        templateGenerator: 'TextGenerator'
-                    }
+                    
 
                 ]
         );
