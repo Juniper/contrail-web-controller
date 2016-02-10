@@ -121,17 +121,20 @@ define([
                     field: "name",
                     name: "Name",
                     sortable: true,
+                    minWidth: 200,
                     sorter : comparatorIP,
                 },
                 {
                     field: "bgpaas_ip_address",
                     name: "IP Address",
                     sortable: true,
+                    minWidth: 200,
                     formatter: bgpAsAServiceFormatter.ipAddressFormatter
                 },                {
                     field: "virtual_machine_interface_refs",
                     name: "Virtual Machine Interface(s)",
                     sortable: true,
+                    minWidth: 400,
                     formatter: bgpAsAServiceFormatter.vmiFormatter
                 }]
             }
