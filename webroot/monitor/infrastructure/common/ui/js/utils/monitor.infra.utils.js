@@ -1430,19 +1430,20 @@ define([
             } else {
                 return {
                     content: {
+                        iconClass: false,
                         info: tooltipContents.slice(1),
                         actions: [
                             {
                                 type: 'link',
                                 text: 'View',
-                                iconClass: 'icon-external-link',
+                                iconClass: 'icon-external-link'
                                 // callback: onScatterChartClick
                             }
                         ]
                     },
                     title: {
                         name: tooltipContents[0]['value'],
-                        type: 'virtual router'
+                        type: 'Virtual Router'
                     }
                 }
             }
@@ -2932,6 +2933,84 @@ define([
             for (var i = (tabCnt - 1); i >= 2; i--) {
                 underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].removeTab(i);
             }
+        };
+       self.getScatterChartLegendConfigForNodes = function() {
+           return {
+               groups : [{
+                   id : 'by-node-color',
+                   title : 'Node Color',
+                   items : [ {
+                       text : 'Critical',
+                       labelCssClass : 'icon-circle error',
+                       events : {
+                           click : function(event) {
+                           }
+                       }
+                   },{
+                       text : 'Error',
+                       labelCssClass : 'icon-circle warning',
+                       events : {
+                           click : function(event) {
+                           }
+                       }
+                   },{
+                       text : 'Intialized',
+                       labelCssClass : 'icon-circle medium',
+                       events : {
+                           click : function(event) {
+                           }
+                       }
+                   },{
+                       text : 'Up',
+                       labelCssClass : 'icon-circle okay',
+                       events : {
+                           click : function(event) {
+                           }
+                       }
+                   }]
+               },{
+                    id: 'by-node-size',
+                    title: 'Bubble Size',
+                    items: [
+                        {
+                            text: 'Bandwidth',
+                            labelCssClass: 'icon-circle',
+                            events: {
+                                click: function (event) {}
+                            }
+                        }
+                    ]
+                }]
+           };
+       };
+        self.getScatterChartFilterConfigForNodes = function() {
+            return {
+                groups: [
+                    {
+                        id: 'by-node-color',
+                        title: false,
+                        type: 'checkbox-circle',
+                        items: [
+                            {
+                                text: 'Critical',
+                                labelCssClass: 'error'
+                            },
+                            {
+                                text: 'Error',
+                                labelCssClass: 'warning'
+                            },
+                            {
+                                text: 'Initialized',
+                                labelCssClass: 'default'
+                            },
+                            {
+                                text: 'Up',
+                                labelCssClass: 'okay'
+                            }
+                        ]
+                    }
+                ]
+            };
         };
     };
     return MonitorInfraUtils;

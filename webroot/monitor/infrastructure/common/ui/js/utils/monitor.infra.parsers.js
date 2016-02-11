@@ -254,12 +254,6 @@ define(
                                 'VrouterStatsAgent;cpu_info;meminfo;virt', '--')) /
                             1024;
                         obj['size'] = getValueByJsonPath(dValue,
-                                'VrouterStatsAgent;phy_if_1min_usage;0;out_bandwidth_usage',
-                                0) +
-                            getValueByJsonPath(dValue,
-                                'VrouterStatsAgent;phy_if_1min_usage;0;in_bandwidth_usage',
-                                0);
-                        obj['size'] = getValueByJsonPath(dValue,
                                 'VrouterStatsAgent;phy_if_5min_usage;0;out_bandwidth_usage',
                                 0) +
                             getValueByJsonPath(dValue,
