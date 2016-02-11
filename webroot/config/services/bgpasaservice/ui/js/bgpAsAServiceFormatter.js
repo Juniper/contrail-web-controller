@@ -19,7 +19,7 @@
           */
          this.parseVMIDetails = function(response) {
              var parsedData = [];
-             var vmiDetail, displayText, actValue, vnName, instIPs, instIPStr;
+             var vmiDetail, displayText, actValue, instIPs, instIPStr;
              if(response) {
                  _.each(response, function(vmi){
                      vmiDetail =
@@ -27,19 +27,8 @@
                          if(vmiDetail) {
                              displayText = vmiDetail.name;
                              instIPStr = "";
-                             vnName = getValueByJsonPath(vmiDetail,
-                                 "virtual_network_refs;0;to;2", null);
                              instIPs = getValueByJsonPath(vmiDetail,
                                  "instance_ip_address", []);
-                             if(instIPs.length) {
-                                 _.each(instIPs, function(ip, ipIndex){
-                                     if(ipIndex === 0) {
-                                         instIPStr = ip
-                                     } else {
-                                         instIPStr += ", " + ip;
-                                     }
-                                 });
-                             }
                              if(vmiDetail.fq_name &&
                                  vmiDetail.fq_name.length === 3) {
                                  actValue = vmiDetail.uuid + " " + vmiDetail.fq_name[0]
@@ -47,11 +36,9 @@
                              } else {
                                  actValue = vmiDetail.uuid;
                              }
+                             instIPStr = instIPs.join(", ");
                              if(instIPStr) {
-                                 displayText += " [" + instIPStr + "]";
-                             }
-                             if(vnName) {
-                                 displayText += " (" + vnName + ")";
+                                 displayText += " (" + instIPStr + ")";
                              }
                              parsedData.push({
                                  text : displayText,
@@ -70,20 +57,21 @@
              var formattedVMIStr = "", vmiStr;
              var vmiRefs = getValueByJsonPath(dc,
                  "virtual_machine_interface_refs", []);
-             var i, vnTo, vmi, vmiRefsCnt = vmiRefs.length;
+             var i, vmi, vmiRefsCnt = vmiRefs.length, instIPs, instIPStr;
              if(vmiRefsCnt) {
                  for(i = 0; i < vmiRefsCnt; i++) {
                      if(i > 1 && cd) {
                          break;
                      }
+                     instIPStr = "";
                      vmi = getValueByJsonPath(vmiRefs[i],
-                         "virtual-machine-interface", {});
-                     vnTo = getValueByJsonPath(vmi,
-                         "virtual_network_refs;0;to", {});
-                     if(vnTo) {
-                         vmiStr = vmi.name + " (" + vnTo[1] + ":" + vnTo[2] + ")";
-                     } else {
-                         vmiStr = vmi.name;
+                         "to;2", {});
+                     vmiStr = vmi;
+                     instIPs = getValueByJsonPath(vmiRefs[i],
+                         "instance_ip_address", []);
+                     instIPStr = instIPs.join(", ");
+                     if(instIPStr) {
+                         vmiStr += " (" +  instIPStr + ")";
                      }
                      if(i === 0) {
                          formattedVMIStr = vmiStr;

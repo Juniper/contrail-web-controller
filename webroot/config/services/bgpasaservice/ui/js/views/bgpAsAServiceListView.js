@@ -30,10 +30,9 @@ define([
             this.renderView4Config(this.$el,
                     contrailListModel, getBGPAsAServiceGridViewConfig(currentProject));
         },
-        parseBGPAsAServiceData : function(result){
+        parseBGPAsAServiceData : function(bgpAsAServices){
             var gridDS = [];
-            if(result && result["bgp-as-a-services"] instanceof  Array)  {
-               var bgpAsAServices = result["bgp-as-a-services"];
+            if(bgpAsAServices instanceof  Array)  {
                for(var i = 0; i < bgpAsAServices.length; i++) {
                    gridDS.push(bgpAsAServices[i]["bgp-as-a-service"]);
                }

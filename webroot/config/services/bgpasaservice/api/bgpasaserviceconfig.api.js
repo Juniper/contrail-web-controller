@@ -50,7 +50,8 @@ function getBGPAsAServices (request, response, appData)
     var tenantId      = null;
     var requestParams = url.parse(request.url,true);
     var bgpAsAServiceListURL   = '/bgp-as-a-services?detail=true';
-
+    var vmiList, i, j, k, bgpaas, bgpaasDataCnt, instIPDataCnt, instIP,
+        vmiRefs, vmiRefsCnt;
     if (tenantId = request.param('id').toString()) {
         bgpAsAServiceListURL += '&parent_id=' + tenantId.toString();
     } else {
@@ -60,70 +61,90 @@ function getBGPAsAServices (request, response, appData)
     }
 
     configApiServer.apiGet(bgpAsAServiceListURL, appData,
-        function(error, bgpaasData) {
-            if(error || !bgpaasData || !bgpaasData["bgp-as-a-services"]
-                || !bgpaasData["bgp-as-a-services"].length) {
-                commonUtils.handleJSONResponse(error, response, null);
+        function(bgpaasError, bgpaasData) {
+            bgpaasData = commonUtils.getValueByJsonPath(bgpaasData,
+                "bgp-as-a-services", []);
+            if(bgpaasError || !bgpaasData.length) {
+                commonUtils.handleJSONResponse(bgpaasError, response, null);
                 return;
             }
-            var vmiList = [];
-            var bgpaasDataArry = bgpaasData["bgp-as-a-services"];
-            var bgpaasDataCnt = bgpaasDataArry.length;
-            for(var j = 0; j < bgpaasDataCnt; j++) {
-                var bgpaas = bgpaasDataArry[j]['bgp-as-a-service'];
-                if('virtual_machine_interface_refs' in bgpaas) {
-                    var vmiRefs = bgpaas['virtual_machine_interface_refs'];
-                    for(var k = 0 ; k < vmiRefs.length; k++){
-                        vmiList.push(vmiRefs[k].uuid);
-                    }
+            vmiList = [];
+            bgpaasDataCnt = bgpaasData.length;
+            for(j = 0; j < bgpaasDataCnt; j++) {
+                vmiRefs = commonUtils.getValueByJsonPath(bgpaasData[j],
+                    "bgp-as-a-service;virtual_machine_interface_refs", []);
+                vmiRefsCnt = vmiRefs.length;
+                for(k = 0; k < vmiRefsCnt; k++){
+                    vmiList.push(vmiRefs[k].uuid);
                 }
             }
-            if(vmiList.length > 0) {
-                getVMIDetails(appData, vmiList, function(err, vmiData) {
-                    if(err || !vmiData || !vmiData.length) {
-                        commonUtils.handleJSONResponse(err, response, null);
-                        return
+            if(vmiList.length) {
+                getInstanceIPs(appData, vmiList, function(instIPerr, instIPData) {
+                    if(instIPerr || !instIPData || !instIPData.length) {
+                        commonUtils.handleJSONResponse(instIPerr, response, null);
+                        return;
                     }
-                    for(var i = 0; i < bgpaasDataCnt; i++) {
-                        var bgpaas = bgpaasDataArry[i]['bgp-as-a-service'];
-                        var vmiRefs = bgpaas['virtual_machine_interface_refs'];
-                        if(vmiRefs != null && vmiRefs.length > 0) {
-                            var vmiRefsCnt =  vmiRefs.length;
-                            for(var j = 0; j < vmiRefsCnt; j++) {
-                                var uuid = vmiRefs[j].uuid;
-                                var vmiDataCnt = vmiData.length;
-                                for(var k = 0; k < vmiDataCnt; k++) {
-                                    if(vmiData[k]['virtual-machine-interface'].uuid === uuid) {
-                                        vmiRefs[j] = vmiData[k];
-                                        break;
+                    for(i = 0; i < bgpaasDataCnt; i++) {
+                        if(!bgpaasData[i] || !bgpaasData[i]['bgp-as-a-service']) {
+                            continue;
+                        }
+                        bgpaas = bgpaasData[i]['bgp-as-a-service'];
+                        vmiRefs = bgpaas['virtual_machine_interface_refs'];
+                        if(vmiRefs && vmiRefs.length) {
+                            vmiRefsCnt = vmiRefs.length;
+                            for(j = 0; j < vmiRefsCnt; j++) {
+                                instIPDataCnt = instIPData.length;
+                                vmiRefs[j]['instance_ip_address'] = [];
+                                for(k = 0; k < instIPDataCnt; k++) {
+                                    if(commonUtils.getValueByJsonPath(instIPData[k],"instance-ip;virtual_machine_interface_refs;0;uuid", "") ===
+                                        vmiRefs[j].uuid) {
+                                        instIP = commonUtils.getValueByJsonPath(instIPData[k],
+                                            "instance-ip;instance_ip_address", "");
+                                        if(instIP) {
+                                            vmiRefs[j]['instance_ip_address'].push(instIP);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                    commonUtils.handleJSONResponse(error, response, bgpaasData)
+                    commonUtils.handleJSONResponse(null, response, bgpaasData)
                 });
             } else {
-                commonUtils.handleJSONResponse(error, response, bgpaasData)
+                commonUtils.handleJSONResponse(null, response, bgpaasData)
             }
         }
     );
 }
 
-function getVMIDetails(appData, vmiList, callback) {
-    var dataObjArr = [];
-    var resultJSON = [];
-    var vmiResourceObj = [];
-    var vmiCnt = vmiList.length;
-    for(var i = 0; i < vmiCnt; i++) {
-        var vmiUrl = '/virtual-machine-interface/' + vmiList[i];
-        commonUtils.createReqObj(dataObjArr, vmiUrl, global.HTTP_REQUEST_GET,
+function getInstanceIPs(appData, vmiList, callback)
+{
+    var dataObjArr = [], instIPDetailsLen;
+    var vmiListCnt = vmiList.length;
+    var chunk = 200, chunkedVMIList, i, instIPUrl, instIPData;
+    for(i = 0; i < vmiListCnt; i += chunk) {
+        chunkedVMIList = vmiList.slice(i, i + chunk);
+        instIPUrl =
+            '/instance-ips?detail=true&back_ref_id=' +
+            chunkedVMIList.join(",");
+        commonUtils.createReqObj(dataObjArr, instIPUrl, global.HTTP_REQUEST_GET,
                                     null, null, null, appData);
     }
-    async.mapLimit(dataObjArr, global.ASYNC_MAP_LIMIT_COUNT,
+    async.map(dataObjArr,
         commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
-        function(error, vmiData) {
-            callback(error, vmiData);
+        function(error, instIPDetails) {
+            if(error) {
+                callback(error, null);
+                return;
+            }
+            instIPData = [];
+            instIPDetailsLen = instIPDetails.length;
+            for(i = 0; i < instIPDetailsLen; i++) {
+                if(instIPDetails[i]) {
+                    instIPData = instIPData.concat(instIPDetails[i]["instance-ips"]);
+                }
+            }
+            callback(error, instIPData);
         }
     );
 }
@@ -156,7 +177,8 @@ function createBGPAsAService (request, response, appData)
     });
 }
 
-function updateVMIDetails(appData, bgpasaservicePostData, callback) {
+function updateVMIDetails(appData, bgpasaservicePostData, callback)
+{
     var vmiRefs = commonUtils.getValueByJsonPath(bgpasaservicePostData,
         "bgp-as-a-service;virtual_machine_interface_refs", []);
     var vmiUUIDs = [], bgpaasBackRefUUDs = [], bgpaasUUIDs = [], bgpaasPutObjArray = [];
