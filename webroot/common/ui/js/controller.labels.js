@@ -300,8 +300,8 @@ define([
         /** Titles used in node details chart widget **/
         this.TITLE_CONTROLNODE_CPU_MEM_UTILIZATION = 'Control Node CPU/Memory Utilization';
         this.TITLE_VROUTER_AGENT_CPU_MEM_UTILIZATION = 'Virtual Router Agent CPU/Memory Utilization';
-        this.TITLE_VROUTER_SYSTEM_CPU_MEM_UTILIZATION = 'Virtual Router System CPU/Memory Utilization';
-        this.TITLE_VROUTER_BANDWIDTH_UTILIZATION = 'Virtual Router Physical Bandwidth Utilization';
+        this.TITLE_VROUTER_SYSTEM_CPU_MEM_UTILIZATION = 'System CPU/Memory Utilization';
+        this.TITLE_VROUTER_BANDWIDTH_UTILIZATION = 'Physical Bandwidth Utilization';
         this.TITLE_ANALYTICS_COLLECTOR_CPU_MEM_UTILIZATION = 'Collector CPU/Memory Utilization';
         this.TITLE_ANALYTICS_QE_CPU_MEM_UTILIZATION = 'Query Engine CPU/Memory Utilization';
         this.TITLE_ANALYTICS_ANALYTICS_CPU_MEM_UTILIZATION = 'OpServer CPU/Memory Utilization';
