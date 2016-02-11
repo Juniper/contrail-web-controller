@@ -465,7 +465,7 @@ define([
         var chartEnableKeys = _.clone(cowc.SESSION_ANALYZER_CHART_DATA_KEY), //will show all data in chart by default.
             selectArray = formModelAttrs.select.replace(/ /g, "").split(","),
             saDefaultGridColumns = qewgc.getColumnDisplay4Grid(formModelAttrs.table_name, formModelAttrs.table_type, selectArray),
-            saDefaultGridIds = ['vrouter', 'sourcevn', 'destvn', 'sourceip', 'destip', 'sport', 'dport', 'protocol', 'direction_ing'],
+            saDefaultGridIds = ['sourcevn', 'destvn', 'sourceip', 'destip', 'sport', 'dport', 'protocol', 'direction_ing'],
             saSummaryGridColumns = [];
 
         _.each(saDefaultGridIds, function(gridId) {
