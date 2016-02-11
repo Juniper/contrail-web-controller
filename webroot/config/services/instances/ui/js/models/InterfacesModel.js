@@ -42,10 +42,15 @@ define([
                 var prefix = ((null != intfData[i]) &&
                               (null != intfData[i]['prefix'])) ?
                     intfData[i]['prefix'] : '';
+                var commAttr =
+                    getValueByJsonPath(intfData[i],
+                                       'community_attributes;community_attribute',
+                                       []);
                 var nextHop = 'Interface ' + (idx + 1).toString();
                 staticRTModel =
                     new StaticRTModel({prefix: prefix,
-                                      next_hop: nextHop});
+                                      next_hop: nextHop,
+                                      community_attributes: commAttr.join(',')});
                 staticRTModels.push(staticRTModel);
             }
             staticRTCollectionModel = new Backbone.Collection(staticRTModels);
@@ -56,7 +61,8 @@ define([
             var idx = this.model().attributes.interfaceIndex();
             var nextHop = 'Interface ' + (idx + 1).toString();
             var newStaticRT =
-                new StaticRTModel({'prefix': null, 'next_hop': nextHop});
+                new StaticRTModel({'prefix': null, 'next_hop': nextHop,
+                                  'community_attributes': ''});
             var staticRTs = this.model().attributes.model().get('staticRoutes');
             staticRTs.add([newStaticRT]);
         },

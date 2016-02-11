@@ -10,7 +10,8 @@ define([
 
         defaultConfig: {
             prefix: null,
-            next_hop: null
+            next_hop: null,
+            community_attributes: ''
         },
         validateAttr: function (attributePath, validation, data) {
             var model = data.model().attributes.model(),

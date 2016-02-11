@@ -359,7 +359,7 @@ define([
                             columns: [{
                                 elementId: 'prefix',
                                 view: 'FormInputView',
-                                class: "", width: 385,
+                                class: "", width: 200,
                                 viewConfig: {
                                     label: 'Prefix',
                                     templateId:
@@ -371,7 +371,7 @@ define([
                             {
                                 elementId: 'next_hop',
                                 view: 'FormInputView',
-                                class: "", width: 345,
+                                class: "", width: 150,
                                 viewConfig: {
                                     disabled: true,
                                     label: 'Next Hop',
@@ -379,6 +379,19 @@ define([
                                         cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     path: 'next_hop',
                                     dataBindValue: 'next_hop()'
+                                }
+                            },
+                            {
+                                elementId: 'community_attributes',
+                                view: 'FormTextAreaView',
+                                viewConfig: {
+                                    label: 'Community',
+                                    width: 250,
+                                    placeHolder: 'Attributes seperated by ' +
+                                        'comma or press enter',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_TEXTAREA_VIEW,
+                                    path: 'community_attributes',
+                                    dataBindValue: 'community_attributes()'
                                 }
                             }]
                         }]
