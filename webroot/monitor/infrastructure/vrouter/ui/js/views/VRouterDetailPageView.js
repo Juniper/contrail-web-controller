@@ -107,7 +107,7 @@ define([
                     monitorInfraUtils.createMonInfraDetailsFooterLinks (
                             $('#left-column-container').parent(),
                             ipList,
-                            '8085');
+                            getValueByJsonPath(viewConfig,'introspectPort','8085'));
 
                     return obj;
                 }
@@ -374,7 +374,7 @@ define([
     }
 
     function getFlowCount (vrouterData) {
-        return (getValueByJsonPath(vrouterData,"VrouterStatsAgent;active_flows",
+        return (getValueByJsonPath(vrouterData,"VrouterStatsAgent;flow_rate;active_flows",
                 noDataStr) + ' Active, ' +
                 getValueByJsonPath(vrouterData,"VrouterStatsAgent;total_flows",
                 noDataStr) + ' Total');

@@ -1964,7 +1964,13 @@ define([
                         postData['select'] = 'Source, T, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
                     } else if (moduleType == 'vRouterBandwidth') {
                         postData['table'] = 'StatTable.VrouterStatsAgent.phy_if_band';
-                        postData['select'] = 'Source, T, phy_if_band.in_bandwidth_usage, phy_if_band.out_bandwidth_usage';
+                        postData['select'] = 'Source, T=, phy_if_band.in_bandwidth_usage, phy_if_band.out_bandwidth_usage';
+                        postData['tgValue'] = 60;
+                    } else if (moduleType == 'vRouterFlowRate') {
+                        postData['table'] = 'StatTable.VrouterStatsAgent.flow_rate';
+                        postData['select'] = 'Source, name, T=, MAX(flow_rate.active_flows)';
+                        postData['tgValue'] = 60;
+                        postData['plotFields'] = ['MAX(flow_rate.active_flows)'];
                     }
                     postData['where'] = '(Source = '+ node +')';
                 } else {
