@@ -31,18 +31,19 @@ define([
                                 view: "LineBarWithFocusChartView",
                                 viewConfig: {
                                     parseFn: function (response) {
-                                        var dimensions = ['phy_if_band.in_bandwidth_usage',
+                                        var dimensions = ['MAX(flow_rate.active_flows)',
+                                                          'phy_if_band.in_bandwidth_usage',
                                                           'phy_if_band.out_bandwidth_usage'];
-                                        var axisLabels = ['Bandwidth In','Bandwidth Out'];
+                                        var axisLabels = ['Flow Rate','Bandwidth In','Bandwidth Out'];
                                         var options = {dimensions:dimensions,axisLabels:axisLabels};
-                                        return ctwp.parseLineChartDataForNodeDetails(response,options);
+                                        return ctwp.parseLineChartDataForVRouterBandwidth(response,options);
                                     },
                                     chartOptions: {
-                                        y1AxisLabel:'Bandwidth In',
+                                        y1AxisLabel:'Flow Rate',
                                         y1Formatter: function (y1Value) {
-                                            return formatBytes(y1Value * 1024, true);
+                                            return y1Value;
                                         },
-                                        y2AxisLabel:'Bandwidth Out',
+                                        y2AxisLabel:'Bandwidth In/Out',
                                         y2Formatter: function (y2Value) {
                                             return formatBytes(y2Value * 1024, true);
                                         },

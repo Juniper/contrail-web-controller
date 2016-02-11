@@ -41,7 +41,8 @@ define([
         var vRouterDetailsAgentChartListModel = new VRouterDetailsAgentChartListModel(config);
         var vRouterDetailsSystemChartListModel = new VRouterDetailsSystemChartListModel(config);
         var vRouterDetailsBandwidthChartListModel = new VRouterDetailsBandwidthChartListModel(config);
-        return [{
+        return [
+        {
             title: 'Virtual Router Agent',
             prefix:'vrouterAgent',
             sparklineTitle1:'CPU Share (%)',
@@ -64,9 +65,9 @@ define([
         {
             title: 'Physical Bandwidth',
             prefix:'vrouterBandwidth',
-            sparklineTitle1:'Bandwidth In',
-            sparklineTitle2:'Bandwidth Out',
-            sparkline1Dimension: 'phy_if_band.in_bandwidth_usage',
+            sparklineTitle1:'Flow Rate',
+            sparklineTitle2:'Bandwidth In',
+            sparkline1Dimension: 'MAX(flow_rate.active_flows)',
             sparkline2Dimension:'phy_if_band.out_bandwidth_usage',
             view: VRouterDetailsBandwidthLineChartView,
             model: vRouterDetailsBandwidthChartListModel

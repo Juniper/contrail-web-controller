@@ -1934,9 +1934,10 @@ define([
                 moduleType = options.moduleType,
                 node = options.node;
             var postData = {
-                    pageSize:50,
+                    pageSize:25000,
                     page:1,
 //                    timeRange:600,
+                    tgValue:'60',
                     tgUnits:'secs',
                     fromTimeUTC:'now-2h',
                     toTimeUTC:'now',
@@ -1965,6 +1966,10 @@ define([
                     } else if (moduleType == 'vRouterBandwidth') {
                         postData['table'] = 'StatTable.VrouterStatsAgent.phy_if_band';
                         postData['select'] = 'Source, T, phy_if_band.in_bandwidth_usage, phy_if_band.out_bandwidth_usage';
+                    } else if (moduleType == 'vRouterFlowRate') {
+                        postData['table'] = 'StatTable.VrouterStatsAgent.flow_rate';
+                        postData['select'] = 'Source, T, MAX(flow_rate.active_flows)';
+                        postData['plotFields'] = ['MAX(flow_rate.active_flows)'];
                     }
                     postData['where'] = '(Source = '+ node +')';
                 } else {

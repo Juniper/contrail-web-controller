@@ -374,7 +374,7 @@ define([
     }
 
     function getFlowCount (vrouterData) {
-        return (getValueByJsonPath(vrouterData,"VrouterStatsAgent;active_flows",
+        return (getValueByJsonPath(vrouterData,"VrouterStatsAgent;flow_rate;active_flows",
                 noDataStr) + ' Active, ' +
                 getValueByJsonPath(vrouterData,"VrouterStatsAgent;total_flows",
                 noDataStr) + ' Total');
