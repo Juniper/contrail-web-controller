@@ -19,15 +19,27 @@
           */
          this.parseVMIDetails = function(response) {
              var parsedData = [];
-             var vmis = getValueByJsonPath(response, "0;virtual-machine-interfaces", null);
-             if(vmis) {
-                 _.each(vmis, function(vmi){
-                     var vmiDetail =
+             var vmiDetail, displayText, actValue, vnName, instIPs, instIPStr;
+             if(response) {
+                 _.each(response, function(vmi){
+                     vmiDetail =
                          getValueByJsonPath(vmi, "virtual-machine-interface", null);
                          if(vmiDetail) {
-                             var displayText, actValue;
-                             var vnName = getValueByJsonPath(vmiDetail,
-                                 "virtual_network_refs;0;to", []);
+                             displayText = vmiDetail.name;
+                             instIPStr = "";
+                             vnName = getValueByJsonPath(vmiDetail,
+                                 "virtual_network_refs;0;to;2", null);
+                             instIPs = getValueByJsonPath(vmiDetail,
+                                 "instance_ip_address", []);
+                             if(instIPs.length) {
+                                 _.each(instIPs, function(ip, ipIndex){
+                                     if(ipIndex === 0) {
+                                         instIPStr = ip
+                                     } else {
+                                         instIPStr += ", " + ip;
+                                     }
+                                 });
+                             }
                              if(vmiDetail.fq_name &&
                                  vmiDetail.fq_name.length === 3) {
                                  actValue = vmiDetail.uuid + " " + vmiDetail.fq_name[0]
@@ -35,13 +47,12 @@
                              } else {
                                  actValue = vmiDetail.uuid;
                              }
-                             if(vnName.length == 3) {
-                                 vnName = vnName[1] + ":" + vnName[2];
-                                 displayText = vmiDetail.name + " (" + vnName + ")";
-                             } else {
-                                 displayText = vmiDetail.name;
+                             if(instIPStr) {
+                                 displayText += " [" + instIPStr + "]";
                              }
-
+                             if(vnName) {
+                                 displayText += " (" + vnName + ")";
+                             }
                              parsedData.push({
                                  text : displayText,
                                  value : actValue

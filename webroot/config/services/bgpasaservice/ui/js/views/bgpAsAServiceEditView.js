@@ -179,12 +179,9 @@ define([
                                             dataValueField: "value",
                                             dataSource: {
                                                 type: "remote",
-                                                requestType: "POST",
-                                                url: "/api/tenants/config/get-config-details",
-                                                postData: JSON.stringify({
-                                                    data: [{type: "virtual-machine-interfaces",
-                                                    fields: ["virtual_network_refs"],
-                                                    parent_id: this.currentProjectUUID}]}),
+                                                requestType: "GET",
+                                                url: "/api/tenants/config/get-virtual-machine-details?proj_fqn=" +
+                                                    getCookie("domain") + ":" + getCookie("project"),
                                                 parse : bgpAsAServiceFomatter.parseVMIDetails
                                             }
                                         }
