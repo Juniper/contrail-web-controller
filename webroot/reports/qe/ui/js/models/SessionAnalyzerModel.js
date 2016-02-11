@@ -114,13 +114,6 @@ define([
                         }
                     }
                     break;
-
-                case "vrouter":
-                    if(contrail.checkIfExist(selectedFlowRecord[key])) {
-                        appendWhereClause += appendWhereClause.length > 0 ? " AND " : '';
-                        appendWhereClause += "vrouter = " + selectedFlowRecord[key];
-                    }
-                    break;
             }
 
         }
