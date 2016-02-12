@@ -345,8 +345,6 @@ define([
 
         //Monitor Infra common
         this.MONITOR_INFRA_VIEW_PATH = 'monitor/infrastructure/common/ui/js/views/';
-        this.DASHBOARD_LOGS_URL = '/api/admin/reports/query?where=&filters=&level=4' + '&fromTimeUTC=now-10m&toTimeUTC=now&table=MessageTable&limit=10';
-        this.CACHE_DASHBORAD_LOGS = 'cache-dashboard-logs';
 
         this.VROUTER_DASHBOARD_CHART_ID = 'vrouter-dashboard-chart';
         this.VROUTER_DASHBOARD_SPARKLINE_ID = 'vrouter-dashboard-sparkline';
