@@ -39,7 +39,7 @@ define([
         var alarmsObj = {};
         alarmsObj =  coreAlarmUtils.wrapUVEAlarms('database-node',hostname,
                 getValueByJsonPath(response,'databaseNode;UVEAlarms',[]));
-        return coreAlarmUtils.alarmDataParser(alarmsObj);
+        return coreAlarmParsers.alarmDataParser(alarmsObj);
     }
 
     var getDatabaseNodeAlarmsViewConfig = function (viewConfig) {

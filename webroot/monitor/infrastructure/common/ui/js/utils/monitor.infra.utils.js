@@ -477,10 +477,10 @@ define([
             }
             if(nodeAlertSeverity == sevLevels['ERROR'] ||
                     processLevelSeverity == sevLevels['ERROR'])
-                return ctwc.COLOR_SEVERITY_MAP['red'];
+                return cowc.COLOR_SEVERITY_MAP['red'];
             if(nodeAlertSeverity == sevLevels['WARNING'] ||
                     processLevelSeverity == sevLevels['WARNING'])
-                return ctwc.COLOR_SEVERITY_MAP['orange'];
+                return cowc.COLOR_SEVERITY_MAP['orange'];
             return false;
         };
 
@@ -494,7 +494,7 @@ define([
             }
             if(nodeColor != false)
                 return nodeColor;
-            return ctwc.COLOR_SEVERITY_MAP['blue'];
+            return cowc.COLOR_SEVERITY_MAP['blue'];
         };
 
         self.getControlNodeColor = function (d,obj) {
@@ -509,9 +509,9 @@ define([
                 return nodeColor;
             //If connected to atleast one XMPP Peer
             if(obj['totalXMPPPeerCnt'] - obj['downXMPPPeerCnt'] > 0)
-                return ctwc.COLOR_SEVERITY_MAP['green'];
+                return cowc.COLOR_SEVERITY_MAP['green'];
             else if(obj['downBgpPeerCnt'] == 0 && obj['downXMPPPeerCnt'] == 0)
-                return ctwc.COLOR_SEVERITY_MAP['blue'];    //Default color
+                return cowc.COLOR_SEVERITY_MAP['blue'];    //Default color
         };
 
         self.getDatabaseNodeColor = function (d,obj) {
@@ -524,7 +524,7 @@ define([
             }
             if(nodeColor != false)
                 return nodeColor;
-            return ctwc.COLOR_SEVERITY_MAP['blue'];
+            return cowc.COLOR_SEVERITY_MAP['blue'];
         };
 
         self.getAnalyticsNodeColor = function (d, obj) {
@@ -537,7 +537,7 @@ define([
             }
             if(nodeColor != false)
                 return nodeColor;
-            return ctwc.COLOR_SEVERITY_MAP['blue'];
+            return cowc.COLOR_SEVERITY_MAP['blue'];
         };
 
         self.getvRouterColor = function(d,obj) {
@@ -552,9 +552,9 @@ define([
             obj = ifNull(obj,{});
             var instCnt = obj['instCnt'];
             if(instCnt == 0)
-                return ctwc.COLOR_SEVERITY_MAP['blue'];
+                return cowc.COLOR_SEVERITY_MAP['blue'];
             else if(instCnt > 0)
-                return ctwc.COLOR_SEVERITY_MAP['green'];
+                return cowc.COLOR_SEVERITY_MAP['green'];
         };
 
         self.getGeneratorsAjaxConfigForInfraNodes = function (dsName,responseJSON) {

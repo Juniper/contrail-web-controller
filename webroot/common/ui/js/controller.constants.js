@@ -187,12 +187,6 @@ define([
 
         this.TOP_IN_LAST_MINS = 10;
         this.NUM_DATA_POINTS_FOR_FLOW_SERIES = 120;
-        this.COLOR_SEVERITY_MAP = {
-             red : 'error',
-             orange : 'warning',
-             blue : 'default',
-             green : 'okay'
-        };
         this.LINK_CONNECTOR_STRING = " --- ";
 
 

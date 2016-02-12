@@ -40,7 +40,7 @@ define([
         if(response != null && response.UVEAlarms != null) {
             alarmsObj =  coreAlarmUtils.wrapUVEAlarms('vrouter',hostname,response.UVEAlarms);
         }
-        return coreAlarmUtils.alarmDataParser(alarmsObj);
+        return coreAlarmParsers.alarmDataParser(alarmsObj);
     }
 
     var getVRouterAlarmsViewConfig = function (viewConfig) {
