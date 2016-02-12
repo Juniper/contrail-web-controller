@@ -147,14 +147,18 @@ define([
             field:"virtual_network_refs",
             name:"External Gateway",
             minWidth : 300,
-            sortable: true,
+            sortable: {
+               sortBy: 'formattedValue'
+            },
             formatter: lRFormatters.extGatewayFormatter
         },
         {
             id:"virtual_machine_interface_refs",
             field:"virtual_machine_interface_refs",
             name:"Connected Network",
-            sortable: true,
+            sortable: {
+               sortBy: 'formattedValue'
+            },
             minWidth : 400,
             formatter: lRFormatters.conNetworkFormatter
         },

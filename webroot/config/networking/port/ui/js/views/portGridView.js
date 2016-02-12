@@ -198,33 +198,46 @@ define([
             field:"uuid",
             name:"UUID",
             minWidth : 280,
-            sortable: true
+            sortable: {
+               sortBy: 'formattedValue'
+            },
+            formatter: portFormatters.uuidWithName
         },
         {
             id:"network",
             field:"network",
             name:"Network",
             minWidth : 230,
-            sortable: true,
+            sortable: {
+               sortBy: 'formattedValue'
+            },
             formatter: portFormatters.networkFormater
         },
         {
             id:"fixed_ip",
             field:"fixed_ip",
             name:"Fixed IPs",
-            sortable: true,
+            sortable: {
+               sortBy: 'formattedValue'
+            },
             minWidth : 200,
             formatter: portFormatters.fixedIPFormater
         },
         {
             field:"floating_ip",
             name:"Floating IPs",
+            sortable: {
+               sortBy: 'formattedValue'
+            },
             minWidth : 200,
             formatter: portFormatters.floatingIPFormatter
         },
         {
             field:"virtual_machine_interface_device_owner",
             name:"Device",
+            sortable: {
+               sortBy: 'formattedValue'
+            },
             minWidth : 180,
             formatter: portFormatters.deviceOwnerFormatter
         }

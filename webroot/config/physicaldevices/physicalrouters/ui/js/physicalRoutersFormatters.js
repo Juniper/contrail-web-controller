@@ -86,12 +86,16 @@ define([
          * @virtualNetworksFormatter
          */
         self.virtualNetworksFormatter = function(r, c, v, cd, dc) {
-            var virtualNetworks  = [];
+            var virtualNetworks  = "";
             if(dc['virtual_network_refs'].length > 0){
                 var vnRefs  = dc['virtual_network_refs'];
                 $.each(vnRefs, function(i,d){
-                    virtualNetworks.push(
-                        d.to[2] + ' (' + d.to[0] + ':' + d.to[1] + ')');
+                    d = d.to[2] + ' (' + d.to[0] + ':' + d.to[1] + ')';
+                    if(i === 0) {
+                        virtualNetworks = d;
+                    } else {
+                        virtualNetworks += "<br>" + d;
+                    }
                 });
             } else {
                 virtualNetworks = '-';

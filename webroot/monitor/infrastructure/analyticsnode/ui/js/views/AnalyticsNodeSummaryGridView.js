@@ -124,7 +124,7 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                        formatter:function(r,c,v,cd,dc) {
                            return '<div class="gridSparkline display-inline">' +
                                   '</div><span class="display-inline">' +
-                                    dc['cpu'] + '</span>';
+                                  ifNotNumeric(dc['cpu'],'-')  + '</span>';
                        },
                        asyncPostRender: renderSparkLines,
                        searchFn:function(d){

@@ -121,7 +121,7 @@ define(
                            return '<div class="gridSparkline display-inline">' +
                                    '</div>' +
                                   '<span class="display-inline">' +
-                                    dc['cpu'] + '</span>';
+                                  ifNotNumeric(dc['cpu'],'-') + '</span>';
                        },
                        asyncPostRender: renderSparkLines,
                        searchFn:function(d){
