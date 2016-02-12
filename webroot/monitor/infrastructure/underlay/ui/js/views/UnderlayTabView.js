@@ -162,7 +162,9 @@ define([
     function showVRouterTabs (nodeDetails, underlayTabView) {
         monitorInfraUtils.removeUnderlayTabs(underlayTabView);
         var vRouterParams =
-            monitorInfraUtils.getUnderlayVRouterParams(nodeDetails);
+            monitorInfraParsers.parseVRouterDetails(nodeDetails['more_attributes']);
+        vRouterParams['hostname'] = nodeDetails['name'];
+        vRouterParams['isUnderlayPage'] = true;
         var vRouterTabConfig = ctwvc.getVRouterDetailsPageTabs(vRouterParams);
         underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
             ctwc.UNDERLAY_TAB_ID, vRouterTabConfig
