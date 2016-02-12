@@ -144,7 +144,9 @@ define([
         label:"Display Name",
         name:"Routing Policy",
         width: 200,
-        sortable: true,
+        sortable: {
+           sortBy: 'formattedValue'
+        },
         formatter: routingPolicyFormatter.RoutingPoliceyNameFormatter
     },
     {
@@ -153,6 +155,9 @@ define([
         field: "routing_policy_entries",
         name: "Term",
         width: 650,
+        sortable: {
+           sortBy: 'formattedValue'
+        },
         formatter: routingPolicyFormatter.RoutingPolicyTermFormatter
     }];
     function getHeaderActionConfig(gridElId) {
