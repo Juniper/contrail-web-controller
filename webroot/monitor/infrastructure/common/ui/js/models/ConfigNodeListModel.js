@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ */
+
 define([
     'contrail-list-model'
 ], function (ContrailListModel) {
