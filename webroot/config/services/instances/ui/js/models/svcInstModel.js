@@ -926,9 +926,32 @@ define([
                         intfList[i]['static_routes'] = {'route': []};
                     }
                     var staticRTAttr = staticRTs[j].model().attributes;
+                    var commAttrs = staticRTAttr['community_attributes']();
+                    var arr = commAttrs.split('\n');
+                    var arrLen = arr.length;
+                    var commAttrArr = [];
+                    for (var k = 0; k < arrLen; k++) {
+                        if (null == arr[k]) {
+                            continue;
+                        }
+                        var tmpArr = arr[k].split(',');
+                        if (tmpArr.length > 0) {
+                            var arrLen = tmpArr.length;
+                            for (var l = 0; l < arrLen; l++) {
+                                if (tmpArr[l].length > 0) {
+                                    commAttrArr.push(tmpArr[l].trim());
+                                }
+                            }
+                        }
+                    }
                     var routeObj = {'prefix': staticRTAttr['prefix'](),
-                        'next_hop': null, 'next_hop_type': null};
-                    intfList[i]['static_routes']['route'].push(routeObj);
+                        'next_hop': null, 'next_hop_type': null,
+                        'community_attributes': {
+                            'community_attribute': commAttrArr
+                        }
+                    };
+                    intfList[i]['static_routes']
+                        ['route'].push($.extend({}, true, routeObj));
                 }
             }
             var siP = this.model().get('service_instance_properties');
