@@ -34,6 +34,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                            chartOptions : {
                                xLabel : 'CPU (%)',
                                yLabel : 'Memory (MB)',
+                               margin: {top:10},
                                forceX : [ 0, 1 ],
                                forceY : [ 0, 20 ],
                                dataParser : function(
@@ -134,7 +135,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
            return {
                groups : [{
                    id : 'by-node-color',
-                   title : 'Cluster Color',
+                   title : 'Node Color',
                    items : [ {
                        text : infraAlertMsgs['UVE_MISSING'] + ' or ' +
                            infraAlertMsgs['CONFIG_MISSING'] + ' or ' +

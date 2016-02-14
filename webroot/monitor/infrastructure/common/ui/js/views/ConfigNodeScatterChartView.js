@@ -34,6 +34,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                            chartOptions : {
                                xLabel : 'CPU (%)',
                                yLabel : 'Memory (MB)',
+                               margin: {top:10},
                                forceX : [ 0, 1 ],
                                forceY : [ 0, 20 ],
                                dataParser : function(
