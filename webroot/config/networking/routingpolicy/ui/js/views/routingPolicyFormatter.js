@@ -72,17 +72,33 @@ define([
                                              "term_match_condition;prefix", []);
                 if (termPrefix.length > 0) {
                     var prefixLen = termPrefix.length;
+                    var prefixStr = "";
                     for (var i = 0; i < prefixLen; i++) {
                         var perPrefix = termPrefix[i],
                             type = getValueByJsonPath(perPrefix, "prefix_type", ""),
                             prefix = getValueByJsonPath(perPrefix, "prefix", "");
+                        if (prefixStr != "") {
+                            prefixStr += ", ";
+                        }
                         if(prefix != "") {
-                            formattedTerm +=  "prefix " + self.termFormat(prefix) + " ";
+                            prefixStr +=   self.termFormat(prefix) + " ";
                         }
                         if(type != "") {
-                            formattedTerm += self.termFormat(type) + " ";
+                            prefixStr += self.termFormat(type);
                         }
                     }
+                    if (prefixStr != "") {
+                        formattedTerm +=  "prefix [" + prefixStr + "] ";
+                    }
+                }
+                var termProtocol = getValueByJsonPath(term,
+                                             "term_match_condition;protocol", []);
+                if (termProtocol.length > 0) {
+                    formattedTerm += "protocol ";
+                    formattedTerm += self.termFormat(termProtocol.join(", "));
+                }
+                if (formattedTerm == "from ") {
+                    formattedTerm += self.termFormat("any ");
                 }
                 var termProtocol = getValueByJsonPath(term,
                                              "term_match_condition;protocol", []);
@@ -104,8 +120,8 @@ define([
                                     []);
                 if((typeof(thenCommunity) != "string") && thenCommunity.length > 0) {
                     var thenCommunityVal = thenCommunity.join(", ");
-                    thenValue += "communities "
-                                  + self.termFormat(thenCommunityVal) + " ";
+                    thenValue += "communities ["
+                                  + self.termFormat(thenCommunityVal) + "] ";
                 }
             }
             then = getValueByJsonPath(term,
@@ -117,8 +133,8 @@ define([
                                 []);
                 if((typeof(thenCommunity) != "string") && thenCommunity.length > 0) {
                     var thenCommunityVal = thenCommunity.join(", ");
-                    thenValue += "communities "
-                                  + self.termFormat(thenCommunityVal) + " ";
+                    thenValue += "communities ["
+                                  + self.termFormat(thenCommunityVal) + "] ";
                 }
             }
             then = getValueByJsonPath(term,
@@ -130,8 +146,8 @@ define([
                                 []);
                 if((typeof(thenCommunity) != "string") && thenCommunity.length > 0) {
                     var thenCommunityVal = thenCommunity.join(", ");
-                    thenValue += "communities "
-                                  + self.termFormat(thenCommunityVal) + " ";
+                    thenValue += "communities ["
+                                  + self.termFormat(thenCommunityVal) + "] ";
                 }
             }
 
@@ -167,7 +183,7 @@ define([
             return '<span class="rule-format">' + text  + '</span>';
         };
 
-        this.fromObjToStr = function(fromObj) {
+/*        this.fromObjToStr = function(fromObj) {
             if(fromObj == null) {
                 return "";
             }
@@ -191,7 +207,7 @@ define([
             }
             return returnStr;
         };
-
+*/
         this.thenObjToStr = function(thenObj) {
             if(thenObj == null) {
                 return "";
