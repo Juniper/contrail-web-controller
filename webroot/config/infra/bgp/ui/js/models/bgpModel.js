@@ -121,6 +121,10 @@ define([
                     var familyAttrs = [];
                     var attr = getValueByJsonPath(currentPeer,
                         "attr;session;0;attributes;0", null);
+                    if($.inArray(getValueByJsonPath(currentPeer,
+                        "to;4", ""), ctwc.BGP_AAS_ROUTERS) !== -1) {
+                        continue;
+                    }
                     if(attr) {
                         authData = getValueByJsonPath(attr, "auth_data", null);
                         adminDown = getValueByJsonPath(attr, "admin_down", false);
@@ -350,6 +354,12 @@ define([
                     };
                 } else {
                    newBGPRouterCfgData.bgp_router_parameters.auth_data = null;
+                }
+
+                //source port
+                port = newBGPRouterCfgData.bgp_router_parameters.source_port;
+                if(!port) {
+                   delete newBGPRouterCfgData.bgp_router_parameters.source_port;
                 }
 
                 delete newBGPRouterCfgData.errors;
