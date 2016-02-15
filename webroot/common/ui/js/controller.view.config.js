@@ -288,7 +288,8 @@ define([
                             if(getValueByJsonPath(selectedValueData,'value') != null) {
                                 return $.ajax({
                                             type:"GET",
-                                            url:'/api/tenants/config/project/' + selectedValueData['value'] + '?exclude_back_refs=true&exclude_children=true'
+                                            url:'/api/tenants/get-project-role?id=' +
+                                                selectedValueData['value']
                                         });
                             } else {
                                 var defObj = $.Deferred();
