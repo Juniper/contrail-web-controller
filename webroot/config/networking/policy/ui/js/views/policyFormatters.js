@@ -257,7 +257,7 @@ define([
                 var mt = action_list.mirror_to;
                 if (isSet(as) && as.length > 0 && as[0] != null) {
                     var services_value = "";
-                    //if(as[0].length > 0) as = as[0];
+                    if(as[0].length > 0) as = as[0];
                     for (var i = 0; i < as.length; i++) {
                         var item = as[i].split(':');
                         if(item.length === 3) {
