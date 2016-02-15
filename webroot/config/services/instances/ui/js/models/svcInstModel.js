@@ -1075,10 +1075,9 @@ define([
                             } else {
                                 attr = {'interface_type': intfType};
                             }
-                            propList.push({
-                                'to': data[0].split(':'), 'uuid': data[1],
-                                'attr': attr
-                            });
+                            var backRefObj = {'to': data[0].split(':'), 'attr': attr,
+                                'uuid': data[1]};
+                            propList.push(backRefObj);
                         }
                     }
                 }

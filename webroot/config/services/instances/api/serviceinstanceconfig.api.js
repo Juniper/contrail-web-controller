@@ -1520,6 +1520,17 @@ function updatePortTupleRefsInVMI (portTuples, tmpUIPortTupleObjs, vmiDetails,
     });
 }
 
+function deleteHrefFromBackRefs (backRefs)
+{
+    if (null == backRefs) {
+        return;
+    }
+    var cnt = backRefs.length;
+    for (var i = 0; i < cnt; i++) {
+        delete backRefs[i]['href'];
+    }
+}
+
 function updateSIRefs (configSIData, siPostData, appData, callback)
 {
     var cfgRtTabBackRefs =
@@ -1538,15 +1549,19 @@ function updateSIRefs (configSIData, siPostData, appData, callback)
         configSIData['service-instance']['service_health_check_back_refs'];
     var uiSvcHealthChkBackRefs =
         siPostData['service-instance']['service_health_check_back_refs'];
+    deleteHrefFromBackRefs(cfgRtTabBackRefs);
     var rtTabArrDiff =
         jsonDiff.getConfigArrayDelta('interface-route-table',
                                      cfgRtTabBackRefs, uiRtTabBackRefs);
+    deleteHrefFromBackRefs(cfgRtAggBackRefs);
     var rtAggArrDiff =
         jsonDiff.getConfigArrayDelta('route-aggregate',
                                      cfgRtAggBackRefs, uiRtAggBackRefs);
+    deleteHrefFromBackRefs(cfgRtPolBackRefs);
     var rtPolArrDiff =
         jsonDiff.getConfigArrayDelta('routing-policy',
                                      cfgRtPolBackRefs, uiRtPolBackRefs);
+    deleteHrefFromBackRefs(cfgSvcHealthChkBackRefs);
     var svcHealthChkArrDiff =
         jsonDiff.getConfigArrayDelta('service-health-check',
                                      cfgSvcHealthChkBackRefs,
