@@ -908,6 +908,28 @@ define(
                     return retArr;
                 };
 
+                this.parseVRouterDetails = function (data) {
+                    var vRouterDetails = {};
+                    //If IP address is not available in UVE,pick it from ConfigData
+                    vRouterDetails['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',
+                            getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
+                    vRouterDetails['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',
+                            monitorInfraConstants.defaultIntrospectPort);
+                    vRouterDetails['vrouterModuleId'] = getValueByJsonPath(data,'NodeStatus;process_status;0;module_id',
+                            monitorInfraConstants.UVEModuleIds['VROUTER_AGENT']);
+                    vRouterDetails['vRouterType'] = getValueByJsonPath(data,
+                            'ConfigData;virtual-router;virtual_router_type','hypervisor');
+                        if(vRouterDetails['vRouterType'] instanceof Array) {
+                            vRouterDetails['vRouterType'] =
+                                vRouterDetails['vRouterType'][0];
+                        }
+                        if(vRouterDetails['vRouterType'] == '' ||
+                                vRouterDetails['vRouterType'] == null) {
+                            vRouterDetails['vRouterType'] = 'hypervisor';
+                        }
+                   return vRouterDetails;
+                };
+
                 this.parseVRouterInterfaceData = function(response) {
                     var retArray = [];
                     var sandeshData = jsonPath(response,'$..ItfSandeshData');

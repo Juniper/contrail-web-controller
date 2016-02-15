@@ -32,23 +32,8 @@ define([
         computeNodeInfo['hostname'] = currHashParams.focusedElement.node;
         monitorInfraUtils.getComputeNodeDetails(computeNodeDeferredObj,computeNodeInfo['hostname']);
         computeNodeDeferredObj.done(function(data) {
-            //If IP address is not available in UVE,pick it from ConfigData
-            computeNodeInfo['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',
-                getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
-            computeNodeInfo['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',
-                monitorInfraConstants.defaultIntrospectPort);
-            computeNodeInfo['vrouterModuleId'] = getValueByJsonPath(data,'NodeStatus;process_status;0;module_id', 
-                monitorInfraConstants.UVEModuleIds['VROUTER_AGENT']);
-            computeNodeInfo['vRouterType'] = getValueByJsonPath(data,
-                'ConfigData;virtual-router;virtual_router_type','hypervisor');
-            if(computeNodeInfo['vRouterType'] instanceof Array) {
-                computeNodeInfo['vRouterType'] =
-                    computeNodeInfo['vRouterType'][0];
-            }
-            if(computeNodeInfo['vRouterType'] == '' ||
-                computeNodeInfo['vRouterType'] == null) {
-                computeNodeInfo['vRouterType'] = 'hypervisor';
-            }
+            var details = monitorInfraParsers.parseVRouterDetails(data);
+            computeNodeInfo = $.extend(computeNodeInfo,details);
             vRouterDefObj.resolve({
                 elementId: cowu.formatElementId([ctwl.VROUTER_TAB_SECTION_ID]),
                 view: "SectionView",
