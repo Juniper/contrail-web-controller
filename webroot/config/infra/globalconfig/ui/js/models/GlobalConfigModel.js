@@ -88,7 +88,8 @@ define([
             var fabSubnetModel;
             var fabSubnetModels = [];
             var fabSubnetCollectionModel;
-            var ipSubnets = modelConfig['ip_fabric_subnets']['subnet'];
+            var ipSubnets = getValueByJsonPath(modelConfig,
+                "ip_fabric_subnets;subnet", []);
             var ipSubnetsCnt = ipSubnets.length;
             for (var i = 0; i < ipSubnetsCnt; i++) {
                 fabSubnetModel =
@@ -290,7 +291,7 @@ define([
         configureGlobalConfig: function (configData, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
             var putData = {};
-
+            var ipFabricSubnets;
             var validations = [
                 {
                     key: null,
@@ -351,9 +352,14 @@ define([
                 putData['global-vrouter-config']['encapsulation_priorities']
                     ['encapsulation'] =
                     gcUtils.mapUIEncapToConfigEncap(encapList);
-                putData['global-system-config']['ip_fabric_subnets'] = {};
-                putData['global-system-config']['ip_fabric_subnets']['subnet'] =
-                    this.getIPSubnetList(newGlobalConfig);
+                ipFabricSubnets = this.getIPSubnetList(newGlobalConfig);
+                if(ipFabricSubnets.length) {
+                    putData['global-system-config']['ip_fabric_subnets'] = {};
+                    putData['global-system-config']['ip_fabric_subnets']['subnet'] =
+                        ipFabricSubnets;
+                } else {
+                    putData['global-system-config']['ip_fabric_subnets'] = null;
+                }
                 putData['global-system-config']['ibgp_auto_mesh'] =
                     newGlobalConfig['ibgp_auto_mesh'];
                 putData['global-system-config']['autonomous_system'] =

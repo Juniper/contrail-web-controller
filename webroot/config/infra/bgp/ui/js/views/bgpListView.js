@@ -31,7 +31,7 @@ define([
         parseBGPData : function(result){
             var gridDS = [];
             if(result instanceof Array) {
-               /*the below code is required to maintain router type backword
+               /*the below code is required to maintain router type backward
                    compatibility with vendor */
                 for(var i = 0; i < result.length;i++) {
                     var bgpParams = getValueByJsonPath(result[i],
@@ -39,8 +39,7 @@ define([
                     if(bgpParams) {
                         var routerType = getValueByJsonPath(bgpParams,
                             "router_type", "");
-                        if(routerType === "bgpaas-server" ||
-                            routerType === "bgpaas-client") {
+                        if($.inArray(routerType, ctwc.BGP_AAS_ROUTERS) !== -1) {
                             continue;
                         }
                         if(!routerType) {

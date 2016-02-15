@@ -504,8 +504,8 @@ define([
                             var fqname = vn.fq_name;
                             var data = fqname;
                             var val = vn.uuid;
-                            self.vnDS.push({text : fqname[2] + ' ' + fqname[0] +
-                                ':' + fqname[1] + '',
+                            self.vnDS.push({text : fqname[2] + ' (' + fqname[0] +
+                                ':' + fqname[1] + ')',
                                 value : data[0]+" "+data[1]+" "+data[2]});
                         }
                     } else {
