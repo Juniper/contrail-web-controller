@@ -86,9 +86,8 @@ define([
                 "virtual_machine_interface_refs", []);
             if(vmiRefs.length > 0) {
                 _.each(vmiRefs, function(vmiRef){
-                    var vmi = vmiRef["virtual-machine-interface"];
-                    var fqName = vmi.fq_name;
-                    editVMIRefs.push(vmi.uuid + " " + fqName[0] +
+                    var fqName = vmiRef.to;
+                    editVMIRefs.push(vmiRef.uuid + " " + fqName[0] +
                         " " + fqName[1] + " " + fqName[2]);
                 });
                 modelConfig["user_created_virtual_machine_interface"] =
@@ -179,6 +178,11 @@ define([
                     ];
                 var sessionAttrs =
                     newBGPAsAServiceData["bgpaas_session_attributes"];
+
+                //ip address
+                if(!newBGPAsAServiceData["bgpaas_ip_address"]){
+                    newBGPAsAServiceData["bgpaas_ip_address"] = null;
+                }
 
                 //autonomous system
                 newBGPAsAServiceData["autonomous_system"] =
