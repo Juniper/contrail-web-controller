@@ -1,4 +1,5 @@
 /*
+
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
@@ -122,18 +123,9 @@ define([
                     }
                 },
                 'routing_policy': function(val, attr, data) {
-                    var svcTmpl = data.service_template;
-                    var svcTmplObj =
-                        svcInstUtils.getSvcTmplDetailsBySvcTmplStr(svcTmpl);
-                    var tmplVer =
-                        getValueByJsonPath(svcTmplObj,'service_template_properties;version',
-                                           1);
-                    if (1 == tmplVer) {
-                        return;
-                    }
                     var rtPolicys = data['rtPolicys'];
                     if (null == rtPolicys) {
-                        return;
+                        return 'Select routing policy in order';
                     }
                     rtPolicys = rtPolicys.toJSON();
                     var len = rtPolicys.length;
@@ -205,10 +197,6 @@ define([
                                 return errStr;
                             }
                         }
-                    }
-                    if (vnList.length != (_.uniq(vnList)).length) {
-                        return 'Same virtual network assigned to multiple ' +
-                            'interface types';
                     }
                 },
                 'interface': function(val, attr, data) {
@@ -619,7 +607,7 @@ define([
                                         portTupleData:
                                             portTupleList[i],
                                         intfTypes: intfTypes,
-                                        parentIntfs: intfs});
+                                        parentIntfs: intfs, disable: true});
                 portTupleModels.push(portTupleModel);
             }
             var portTuplesCollection = new Backbone.Collection(portTupleModels);
@@ -773,7 +761,7 @@ define([
                 new PortTupleModel({portTupleName: portTupleName,
                                    portTupleData: {},
                                    intfTypes: this.getIntfTypes(true),
-                                   parentIntfs: intfs});
+                                   parentIntfs: intfs, disable: false});
 
             kbValidation.bind(this.editView,
                                {collection:
