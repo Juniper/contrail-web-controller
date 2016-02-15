@@ -63,6 +63,7 @@ define([
                 viewModel.model().attributes.additionalValueDS(self.getPrefixConditionOptionList(viewModel));
             } else if(termFromName == "protocol") {
                 viewModel.model().attributes.additionalValueDS(self.getProtocolConditionOptionList(viewModel));
+                viewModel.model().attributes.value("");
             }
             return $.map(namesOption, function(optionValue, optionKey) {
                 return {id: optionValue, text: optionValue}
