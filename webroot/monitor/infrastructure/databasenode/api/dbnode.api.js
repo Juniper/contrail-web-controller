@@ -251,10 +251,66 @@ function getDBNodeStatsFlowSeries (req, res, appData)
     });
 }
 
+function getDBUsage (req, res, appData) {
+    var url = '/analytics/uves/database-node/*';
+    opApiServer.apiGet(url, appData, function (error, resultJSON) {
+        if(!error) {
+            var resultsArray = resultJSON['value'],
+                responseJSON = [];
+
+            for(var i = 0; resultsArray != null && i < resultsArray.length; i++) {
+                var analyticsDBStats = {},
+                    dbUsageInfo = resultsArray[i]['value']['DatabaseUsageInfo'],
+                    key;
+
+                analyticsDBStats['name'] = resultsArray[i]['name'];
+
+                if(dbUsageInfo != null) {
+                   for(key in dbUsageInfo) {
+                       analyticsDBStats[key] = dbUsageInfo[key];
+                   }
+                }
+
+                responseJSON.push(analyticsDBStats);
+            }
+            commonUtils.handleJSONResponse(null, res, responseJSON);
+        } else {
+            logutils.logger.error(error.stack);
+            commonUtils.handleJSONResponse(error, res, null);
+        }
+    });
+}
+
+function purgeDB (req, res, appData) {
+    var url = '/analytics/operation/database-purge',
+        purgeInputStr = req.param('purge_input'),
+        purgeInput, postData;
+
+    try {
+        purgeInput = parseInt(purgeInputStr);
+        postData = {
+            purge_input: purgeInput
+        };
+
+        opApiServer.apiPost(url, postData, appData, function (error, responseJSON) {
+            if(!error) {
+                commonUtils.handleJSONResponse(null, res, responseJSON);
+            } else {
+                logutils.logger.error(error.stack);
+                commonUtils.handleJSONResponse(error, res, null);
+            }
+        });
+    } catch (error) {
+        logutils.logger.error(error.stack);
+        commonUtils.handleJSONResponse({"status": "error", "message": "Invalid input for purge."}, res, null);
+    }
+}
+
 exports.postProcessDatabaseNodeSummary = postProcessDatabaseNodeSummary;
 exports.postProcessDatabaseNodeDetails = postProcessDatabaseNodeDetails;
 exports.getDatabaseNodesSummary = getDatabaseNodesSummary;
 exports.getDatabaseNodeDetails = getDatabaseNodeDetails;
 exports.getDatabaseNodesList = getDatabaseNodesList;
 exports.getDBNodeStatsFlowSeries = getDBNodeStatsFlowSeries;
-
+exports.getDBUsage = getDBUsage;
+exports.purgeDB = purgeDB;

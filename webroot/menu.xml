@@ -146,6 +146,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 <resource>
                                     <rootDir>/monitor/infrastructure/databasenode/ui</rootDir>
                                     <js>databasenode.main.js</js>
+                                    <template>databasenode.tmpl</template>
                                     <class>databaseNodesLoader</class>
                                     <renderFn>renderDatabaseNode</renderFn>
                                 </resource>

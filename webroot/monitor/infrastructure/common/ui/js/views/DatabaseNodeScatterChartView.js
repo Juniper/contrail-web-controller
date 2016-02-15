@@ -118,7 +118,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
               },
               {
                   label : 'Analytics DB',
-                  value:'', options:{noLabelColon: true}
+                  value: databaseNode['formattedAnalyticsDbSize']
               }
            ];
            var tooltipAlerts = monitorInfraUtils.getTooltipAlerts(databaseNode);

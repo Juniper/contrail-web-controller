@@ -41,5 +41,17 @@
         <feature>database-node</feature>
         <callback>infraDb.getDBNodeStatsFlowSeries</callback>
     </item>
+    <item>
+        <url>/api/query/analytics/db/usage</url>
+        <method>get</method>
+        <feature>database-node</feature>
+        <callback>infraDb.getDBUsage</callback>
+    </item>
+    <item>
+        <url>/api/analytics/db/purge</url>
+        <method>get</method>
+        <feature>database-node</feature>
+        <callback>infraDb.purgeDB</callback>
+    </item>
 </urlLists>
 
