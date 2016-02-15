@@ -437,6 +437,11 @@ define([
                     templateGenerator: 'TextGenerator'
                 },
                 {
+                    key: 'uuid',
+                    label: 'UUID',
+                    templateGenerator: 'TextGenerator'
+                },
+                {
                     key: 'physical_router_vendor_name',
                     label: 'Vendor',
                     templateGenerator: 'TextGenerator'
