@@ -3014,6 +3014,26 @@ define([
                 ]
             };
         };
+
+        self.purgeAnalyticsDB = function (purgePercentage) {
+            var ajaxConfig = {
+                type: "GET",
+                url: "/api/analytics/db/purge?purge_input=" + purgePercentage
+            };
+
+            contrail.ajaxHandler(ajaxConfig, null, function(response) {
+                if(response != null && response['status'] == 'started') {
+                    showInfoWindow("Analytics DB purge has been started.", "Success");
+                } else if (response != null && response['status'] == 'running') {
+                    showInfoWindow ("Analytics DB purge already running.", "Success");
+                } else {
+                    showInfoWindow(contrail.parseErrorMsgFromXHR(response), "Purge Response");
+                }
+            }, function(response){
+                var errorMsg = contrail.parseErrorMsgFromXHR(response);
+                showInfoWindow(errorMsg, "Error");
+            });
+        };
     };
     return MonitorInfraUtils;
 });
