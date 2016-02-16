@@ -16,11 +16,12 @@ define([
 
     var svcTemplateCfgEditView = new SvcTemplateCfgEditView();
 
+    var self;
     var svcTemplateCfgGridView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
-            var self = this;
+            self = this;
             var viewConfig = this.attributes.viewConfig;
 
             this.renderView4Config(self.$el, self.model,

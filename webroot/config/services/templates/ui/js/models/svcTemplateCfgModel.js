@@ -34,6 +34,7 @@ define([
             'user_created_service_mode': 'transparent',
             'user_created_service_type': 'firewall',
             'service_appliance_set': null,
+            'user_created_image_list': [],
             'interfaces' : []
         },
 
@@ -178,6 +179,12 @@ define([
             var intfTypes = [];
             var cnt = tmpIntfList.length;
             for (var i = 0; i < cnt; i++) {
+                if ('analyzer' == svcType) {
+                    if (('management' != tmpIntfList[i]) &&
+                        ('left' != tmpIntfList[i])) {
+                        continue;
+                    }
+                }
                 intfTypes.push({text: tmpIntfList[i], id: tmpIntfList[i]});
             }
             var newInterface
@@ -294,6 +301,19 @@ define([
                     if (null == val) {
                         return 'Select an Image';
                     }
+                    var imageList =
+                        getValueByJsonPath(data, 'user_created_image_list', []);
+                    var cnt = imageList.length;
+                    var imgCnt = 0;
+                    for (var i = 0; i < cnt; i++) {
+                        if (val == imageList[i]['id']) {
+                            imgCnt++;
+                        }
+                        if (imgCnt >= 2) {
+                            return 'Selected Image ' + val + ' has duplicate ' +
+                                'reference';
+                        }
+                    }
                 },
                 'service_template_properties.flavor': function(val, attr,
                                                                data) {
@@ -341,14 +361,41 @@ define([
                     var intfColl = data.interfaces.toJSON();
                     var intfTypesList = [];
                     var cnt = intfColl.length;
+                    if (!cnt) {
+                        return 'At least one interface is required';
+                    }
+                    var svcType =
+                        getValueByJsonPath(data,
+                                           'user_created_service_type',
+                                           'firewall');
                     for (var i = 0; i < cnt; i++) {
                         var intfType = intfColl[i].service_interface_type();
                         intfTypesList.push(intfType);
                     }
-                    if (intfTypesList.length !=
-                        (_.uniq(intfTypesList)).length) {
-                        return 'Same interface type can not be used multiple ' +
-                            'times';
+                    if ('analyzer' != svcType) {
+                        if ((-1 == intfTypesList.indexOf('left')) &&
+                            (-1 == intfTypesList.indexOf('right'))) {
+                            return 'Left or right interface is required';
+                        }
+                    } else {
+                        if (-1 == intfTypesList.indexOf('left')) {
+                            return 'Left interface is required for analyzer ' +
+                                'service type';
+                        }
+                        if ((-1 == intfTypesList.indexOf('left')) &&
+                            (-1 == intfTypesList.indexOf('management'))) {
+                                return 'Only management and left allowed in ' +
+                                    'analyzer service type';
+                        }
+                    }
+                    var cnt = intfTypesList.length;
+                    var tmpSvcTypeObjs = {};
+                    for (var i = 0; i < cnt; i++) {
+                        if (null != tmpSvcTypeObjs[intfTypesList[i]]) {
+                            return 'Only one ' + intfTypesList[i] +
+                                ' interface can be configured';
+                        }
+                        tmpSvcTypeObjs[intfTypesList[i]] = true;
                     }
                 }
             }

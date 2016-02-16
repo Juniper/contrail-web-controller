@@ -12,7 +12,8 @@ define([
             interfaceType: null,
             interface: null,
             interfaceListData: [],
-            vmiListData: []
+            vmiListData: [],
+            disable: false
         },
 
         validateAttr: function (attributePath, validation, data) {

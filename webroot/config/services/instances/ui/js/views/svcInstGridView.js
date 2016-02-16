@@ -486,6 +486,9 @@ define([
                 return '-';
             }
         }
+        if (!noInstCnt) {
+            return '-';
+        }
         return noInstCnt.toString() + ' instance';
     }
 
