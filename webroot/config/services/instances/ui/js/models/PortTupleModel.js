@@ -16,7 +16,8 @@ define([
         defaultConfig: {
             portTupleName: "",
             portTupleData: null,
-            intfTypes: []
+            intfTypes: [],
+            disable: false
         },
 
         validateAttr: function (attributePath, validation, data) {
@@ -55,7 +56,8 @@ define([
                     new InterfaceTypesModel({interfaceType: intfType,
                                       interface: vmis[i]['fq_name'].join(':') +
                                       "~~" + vmis[i]['uuid'],
-                                      vmiListData: vmiList});
+                                      vmiListData: vmiList,
+                                      disable: modelConfig['disable']});
                 propModels.push(propModel);
             }
             if (!vmisCnt) {
@@ -72,7 +74,8 @@ define([
                     var propModel =
                         new InterfaceTypesModel({interfaceType: intfTypes[i],
                                                 interface: vmi,
-                                                vmiListData: vmiList});
+                                                vmiListData: vmiList,
+                                                disable: modelConfig['disable']});
                     propModels.push(propModel);
                 }
             }

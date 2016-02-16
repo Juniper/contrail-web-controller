@@ -122,18 +122,9 @@ define([
                     }
                 },
                 'routing_policy': function(val, attr, data) {
-                    var svcTmpl = data.service_template;
-                    var svcTmplObj =
-                        svcInstUtils.getSvcTmplDetailsBySvcTmplStr(svcTmpl);
-                    var tmplVer =
-                        getValueByJsonPath(svcTmplObj,'service_template_properties;version',
-                                           1);
-                    if (1 == tmplVer) {
-                        return;
-                    }
                     var rtPolicys = data['rtPolicys'];
                     if (null == rtPolicys) {
-                        return;
+                        return 'Select routing policy in order';
                     }
                     rtPolicys = rtPolicys.toJSON();
                     var len = rtPolicys.length;
@@ -182,33 +173,25 @@ define([
                     var models = interfaceCollection['models'];
                     var len = interfaceCollection.length;
                     var errStr = "Auto Configured network not allowed";
-                    var vnList = [];
                     for (var i = 0; i < len; i++) {
                         var attr = models[i]['attributes'];
                         var vn = attr['virtualNetwork']();
-                        if ("" != vn) {
-                            vnList.push(vn);
-                        }
                         if ('management' !=
                              svcTmplIntfs[i]['service_interface_type']) {
                             if (('in-network' == svcMode) ||
                                 ('in-network-nat' == svcMode) ||
                                 ('other' ==
                                  svcTmplIntfs[i]['service_interface_type'])) {
-                                if ("" == vn) {
+                                if ("autoConfigured" == vn) {
                                     return errStr;
                                 }
                             }
                         }
                         if (true == svcTmplIntfs[i]["static_route_enable"]) {
-                            if ("" == vn) {
+                            if ("autoConfigured" == vn) {
                                 return errStr;
                             }
                         }
-                    }
-                    if (vnList.length != (_.uniq(vnList)).length) {
-                        return 'Same virtual network assigned to multiple ' +
-                            'interface types';
                     }
                 },
                 'interface': function(val, attr, data) {
@@ -487,6 +470,35 @@ define([
             }
             return;
         },
+        getVNListBySvcIntfType: function(svcTmpl, intf) {
+            var vnList = $.extend([], true, window.allVNList);
+            if (null == intf) {
+                return vnList;
+            }
+            var showAuto = true;
+            var svcMode =
+                getValueByJsonPath(svcTmpl,
+                                   'service_template_properties;service_mode',
+                                   null);
+            if ('management' != intf['service_interface_type']) {
+                if (('in-network' == svcMode) ||
+                    ('in-network-nat' == svcMode)) {
+                    showAuto = false;
+                }
+            }
+            if (-1 != intf['service_interface_type'].indexOf('other')) {
+                showAuto = false;
+            }
+            if (true == intf['static_route_enable']) {
+                showAuto = false;
+            }
+            if ((false == showAuto) && (vnList.length > 0)) {
+                if ('autoConfigured' == vnList[0]['id']) {
+                    vnList.splice(0, 1);
+                }
+            }
+            return vnList;
+        },
         formatModelConfig: function(modelConfig) {
             if (!window.svcTmplsFormatted.length) {
                 showInfoWindow("No Service Template found.",
@@ -543,15 +555,15 @@ define([
                 getValueByJsonPath(svcTmpls[svcTmplFqn],
                                    'service_template_properties;version',
                                    1);
+            var interfaeTypes = [];
+            var intfsCnt = intfTypes.length;
+            if ((null != svcTmpls) && (null != svcTmpls[svcTmplFqn])) {
+                interfaeTypes =
+                    getValueByJsonPath(svcTmpls[svcTmplFqn],
+                                       'service_template_properties;interface_type',
+                                       []);
+            }
             if (!intfList.length) {
-                var intfsCnt = intfTypes.length;
-                var interfaeTypes = [];
-                if ((null != svcTmpls) && (null != svcTmpls[svcTmplFqn])) {
-                    interfaeTypes =
-                        getValueByJsonPath(svcTmpls[svcTmplFqn],
-                                           'service_template_properties;interface_type',
-                                           []);
-                }
                 var interfaeTypesCnt = interfaeTypes.length;
                 for (var i = 0; i < intfsCnt; i++) {
                     var intfType = intfTypes[i];
@@ -572,6 +584,12 @@ define([
                     intfList.push({virtual_network: vn});
                 }
             }
+            var len = intfList.length;
+            for (i = 0; i < len; i++) {
+                if ("" == intfList[i]['virtual_network']) {
+                    intfList[i]['virtual_network'] = 'autoConfigured';
+                }
+            }
             var interfacesModels = [];
             var interfacesCollectionModel;
             var cnt = intfTypes.length;
@@ -583,7 +601,11 @@ define([
                 var vnList = window.allVNList;
                 if (2 == tmplVer) {
                     vnList = window.vnList;
+                } else {
+                    vnList = this.getVNListBySvcIntfType(svcTmpls[svcTmplFqn],
+                                                         interfaeTypes[i]);
                 }
+
                 var interfacesModel =
                     new InterfacesModel({interfaceType: intfType,
                                         virtualNetwork:
@@ -619,7 +641,7 @@ define([
                                         portTupleData:
                                             portTupleList[i],
                                         intfTypes: intfTypes,
-                                        parentIntfs: intfs});
+                                        parentIntfs: intfs, disable: true});
                 portTupleModels.push(portTupleModel);
             }
             var portTuplesCollection = new Backbone.Collection(portTupleModels);
@@ -662,22 +684,16 @@ define([
             this.deleteModelCollectionData(this.model(), 'rtPolicys');
             this.deleteModelCollectionData(this.model(), 'rtAggregates');
             var interfaces = this.model().attributes['interfaces'];
+            var interfaeTypes = [];
+            if ((null != svcTmpls) && (null != svcTmpls[svcTmplFqn])) {
+                interfaeTypes =
+                    getValueByJsonPath(svcTmpls[svcTmplFqn],
+                                       'service_template_properties;interface_type',
+                                       []);
+            }
             for (var i = 0; i < cnt; i++) {
                 var intfType = intfTypes[i];
-                /*
-                var intfType =
-                    intfTypes[i].replace(intfTypes[i][0],
-                                         intfTypes[i][0].toUpperCase());
-                */
                 var vn = null;
-                /*
-                if ((null != window.vnList) && (window.vnList.length > 0)) {
-                    vn = svcInstUtils.getVNByTmplType(intfTypes[i], svcTmplObj);
-                    if (null != vn) {
-                        vn = vn['id'];
-                    }
-                }
-                */
                 var intfList =
                     getValueByJsonPath(this.model().attributes,
                                        'service_instance_properties;interface_list',
@@ -685,6 +701,9 @@ define([
                 var vnList = window.allVNList;
                 if (2 == tmplVer) {
                     vnList = window.vnList;
+                } else {
+                    vnList = this.getVNListBySvcIntfType(svcTmpls[svcTmplFqn],
+                                                         interfaeTypes[i]);
                 }
                 var newInterface =
                     new InterfacesModel({'interfaceType': intfType,
@@ -773,7 +792,7 @@ define([
                 new PortTupleModel({portTupleName: portTupleName,
                                    portTupleData: {},
                                    intfTypes: this.getIntfTypes(true),
-                                   parentIntfs: intfs});
+                                   parentIntfs: intfs, disable: false});
 
             kbValidation.bind(this.editView,
                                {collection:
@@ -846,6 +865,16 @@ define([
             var rtAggregates = this.model().get('rtAggregates');
             var rtAgg = "";
             var types = this.getIntfTypes(false);
+            if (null != types) {
+                var typesCnt = types.length;
+                for (var i = 0; i < typesCnt; i++) {
+                    if ('management' == types[i]['id']) {
+                        /* Remove management */
+                        types.splice(0, 1);
+                        break;
+                    }
+                }
+            }
             var newEntry =
                 new RtAggregateModel({route_aggregate: null,
                                       interface_type: null,
@@ -890,6 +919,12 @@ define([
             }
             return false;
         },
+        getSIVirtualNetwork: function(vn) {
+            if ('autoConfigured' == vn) {
+                return "";
+            }
+            return vn;
+        },
         getSIProperties: function() {
             var siProp = {};
             var intfList = [];
@@ -904,6 +939,7 @@ define([
                 var attr = models[i]['attributes'];
                 intfList[i] = {};
                 var vn = attr['virtualNetwork']();
+                vn = this.getSIVirtualNetwork(vn);
                 var intfType = attr['interfaceType']();
                 intfList[i]['virtual_network'] = vn;
                 /* Now check if we have Static RTs */
