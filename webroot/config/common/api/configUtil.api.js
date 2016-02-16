@@ -43,7 +43,8 @@ var configCBDelete =
     'network-policy': policyConfig.deletePolicyAsync,
     'routing-policy': routingPolicyConfig.deleteRoutingPolicyAsync,
     'virtual-network': vnConfig.deleteVirtualNetworkAsync,
-    'service-instance': svcInst.deleteServiceInstanceCB
+    'service-instance': svcInst.deleteServiceInstanceCB,
+    'service-analyzer':svcInst.deleteAnalyzerCB
 }
 
 var getConfigPageRespCB = {

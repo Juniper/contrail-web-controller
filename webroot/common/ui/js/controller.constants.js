@@ -675,6 +675,16 @@ define([
             {text:"no-export-subconfed",id:"no-export-subconfed"},
             {text:"no-reoriginate",id:"no-reoriginate"}
         ];
+
+        /* Packet Capture Constants */
+        this.PACKET_CAPTURE_LIST_ID = "packet-capture-list";
+        this.PACKET_CAPTURE_GRID_ID = "packet-capture-grid";
+        this.URL_GET_PACKET_CAPTURE_DATA = "/api/tenants/config/service-instances/";
+        this.PACKET_CAPTURE_SECTION_ID = "packet-capture-section";
+        this.PACKET_CAPTURE_ID = "packet-capture-list";
+        this.PACKET_CAPTURE_LIST_VIEW_ID = "packet-capture-list-view";
+        this.PACKET_CAPTURE_PREFIX_ID = "packet_capture";
+        this.URL_GET_SERVICE_TEMPLATE_IMAGES = "/api/tenants/config/service-template-images";
     };
 
     //str will be [0-9]+(m|h|s|d)
