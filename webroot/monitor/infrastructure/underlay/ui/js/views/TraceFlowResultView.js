@@ -362,34 +362,12 @@ define([
             showInfoWindow("Cannot Trace route for the selected flow", "Info");
             return;
         }
+        constructVRFName (dataItem, postData, nwFqName);
         postData['action'] = 'Trace Flow';
-        if (postData['vrfId'] != null) {
+        if (postData['vrfId'] != null || postData['vrfName'] != null) {
             doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
-            $.ajax({
-                url:'/api/tenants/config/get-config-list',
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    data: [{
-                        type: 'virtual-networks',
-                        fields: ['routing_instances'],
-                        fq_name: nwFqName,
-                    }]
-                },
-            }).always(function(networkDetails){
-                var vrfList = getValueByJsonPath(networkDetails,
-                    '0;virtual-networks;0;routing_instances',[]);
-                if(vrfList[0] != null && vrfList[0]['to'] != null) {
-                    nwFqName = vrfList[0]['to'].join(':');
-                } else {
-                 // if there is no vrf name in the response then
-                    // just constructing it in general format
-                    nwFqName += ":"+nwFqName.split(':')[2];
-                }
-                postData['vrfName'] = nwFqName;
-                doTraceFlowRequest(postData, graphModel, deferredObj);
-            });
+            getVRFListForVN(nwFqName, postData, graphModel, deferredObj);
         }
     }
 
@@ -459,35 +437,59 @@ define([
             showInfoWindow("Cannot Trace route for the selected flow", "Info");
             return;
         }
+        constructVRFName (dataItem, postData, nwFqName);
         postData['action'] = 'Reverse Trace Flow';
-        if(postData['vrfId'] != null) {
+        if(postData['vrfId'] != null || postData['vrfName'] != null) {
             doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
-            $.ajax({
-                url:'/api/tenants/config/get-config-list',
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    data: [{
-                        type: 'virtual-networks',
-                        fields: ['routing_instances'],
-                        fq_name: nwFqName,
-                    }]
-                },
-            }).always(function(networkDetails){
-                var vrfList = getValueByJsonPath(networkDetails,
-                    '0;virtual-networks;0;routing_instances',[]);
-                if(vrfList[0] != null && vrfList[0]['to'] != null) {
-                    nwFqName = vrfList[0]['to'].join(':');
-                } else {
-                 // if there is no vrf name in the response then
-                    // just constructing it in general format
-                    nwFqName += ":"+nwFqName.split(':')[2];
-                }
-                postData['vrfName'] = nwFqName;
-                doTraceFlowRequest(postData, graphModel, deferredObj);
-            });
+            getVRFListForVN(nwFqName, postData, graphModel, deferredObj);
         }
+    }
+    // Checks the source VRF and dest VRF are same and source VN
+    // and Dest VN are different then based on the direction either source or dest vn
+    // is used to construct the VRF name which is hack because of bug in vrouter
+    // https://bugs.launchpad.net/juniperopenstack/+bug/1541794
+    function constructVRFName (dataItem, postData, nwFqName) {
+        var vrfName = null;
+        if (dataItem['raw_json'] != null && dataItem['raw_json']['vrf'] != null &&
+           dataItem['raw_json']['dest_vrf'] != null &&
+           dataItem['src_vn'] != null && dataItem['dst_vn'] != null &&
+           dataItem['raw_json']['vrf'] == dataItem['raw_json']['dest_vrf'] &&
+           dataItem['src_vn'] != dataItem['dst_vn'] && nwFqName != null) {
+            vrfName = nwFqName + ':' + nwFqName.split(":")[2]
+            postData['vrfName'] = vrfName;
+            delete postData['vrfId'];
+        }
+        return postData;
+    }
+    /*
+     * Fetches this VRF list of the give VN from the config server
+     */
+    function getVRFListForVN (nwFqName, postData, graphModel, deferredObj) {
+        $.ajax({
+            url:'/api/tenants/config/get-config-list',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                data: [{
+                    type: 'virtual-networks',
+                    fields: ['routing_instances'],
+                    fq_name: nwFqName,
+                }]
+            },
+        }).always(function(networkDetails){
+            var vrfList = getValueByJsonPath(networkDetails,
+                '0;virtual-networks;0;routing_instances',[]);
+            if(vrfList[0] != null && vrfList[0]['to'] != null) {
+                nwFqName = vrfList[0]['to'].join(':');
+            } else {
+             // if there is no vrf name in the response then
+                // just constructing it in general format
+                nwFqName += ":"+nwFqName.split(':')[2];
+            }
+            postData['vrfName'] = nwFqName;
+            doTraceFlowRequest(postData, graphModel, deferredObj);
+        });
     }
 
     function doTraceFlowRequest (postData, graphModel, deferredObj) {
