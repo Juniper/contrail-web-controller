@@ -1063,6 +1063,13 @@ define([
         this.CFG_SVC_HEALTH_CHK_TITLE_CREATE = 'Create Health Check Service';
         this.CFG_SVC_HEALTH_CHK_TITLE_DELETE = 'Delete Health Check Service';
         this.CFG_SVC_HEALTH_CHK_TITLE_MULTI_DELETE = 'Delete Health Check Service(s)';
+
+        /* Packet Capture Labels */
+        this.TITLE_PACKET_CAPTURE = 'Analyzers';
+        this.TITLE_EDIT_PACKET_CAPTURE = 'Edit Analyzer';
+        this.TITLE_PACKET_CAPTURE_DELETE = 'Delete Analyzer';
+        this.TITLE_PACKET_CAPTURE_MULTI_DELETE = 'Delete Analyzer(s)';
+        this.TITLE_ADD_PACKET_CAPTURE = 'Create Analyzer';
     };
     return CTLabels;
 });
