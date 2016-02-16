@@ -64,6 +64,7 @@ define([
                 options: {
                     /* Required, modify to use for enabling disabling edit button */
                     autoRefresh: false,
+                    disableRowsOnLoading:true,
                     checkboxSelectable: {
                         onNothingChecked: function(e){
                             $('#linkVNDelete').addClass('disabled-link');
