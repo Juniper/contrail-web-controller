@@ -2,8 +2,9 @@ define([
     'underscore',
     'contrail-list-model',
     'core-basedir/js/views/LoginWindowView',
-    'core-basedir/js/models/LoginWindowModel'
-], function (_, ContrailListModel, LoginWindowView, LoginWindowModel) {
+    'core-basedir/js/models/LoginWindowModel',
+    'monitor/infrastructure/common/ui/js/views/MonitorInfraObjectLogsPopUpView'
+], function (_, ContrailListModel, LoginWindowView, LoginWindowModel, MonitorInfraObjectLogsPopUpView) {
     var MonitorInfraUtils = function () {
         var self = this;
         var noDataStr = monitorInfraConstants.noDataStr;
@@ -3013,6 +3014,13 @@ define([
                     }
                 ]
             };
+        }
+        self.showObjLogs = function (objId,type) {
+            var monInfraObjLogsView = new MonitorInfraObjectLogsPopUpView ();
+            monInfraObjLogsView.render ({
+                                        type: type,
+                                        objId: objId
+                                    });
         };
 
         self.purgeAnalyticsDB = function (purgePercentage) {
