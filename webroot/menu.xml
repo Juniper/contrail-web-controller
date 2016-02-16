@@ -229,11 +229,14 @@ and need to add the iconClass tag wherever we need to show some icons
                             <label>Packet Capture</label>
                             <hash>mon_debug_pcapture</hash>
                             <resources>
-                                <resource>
-                                    <rootDir>/monitor/debug/packet_capture</rootDir>
-                                    <js>packet_capture.js</js>
-                                    <view>packet_capture.view</view>
-                                    <class>PacketCaptureObj</class>
+                            <resource>
+                                <rootDir>/common/ui</rootDir>
+                            </resource>
+                            <resource>
+                                    <rootDir>/monitor/debug/packetcapture/ui</rootDir>
+                                    <js>packetCapture.main.js</js>
+                                    <class>packetCapturePageLoader</class>
+                                    <function>renderPacketCapture</function>
                                 </resource>
                             </resources>
                             <searchStrings>Packet Capture, Analyzer</searchStrings>

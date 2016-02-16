@@ -659,48 +659,23 @@ function getNetworkPolicyDetailsByProjList(projList, appData, callback) {
 
 function updateServiceInstanceWithPolicy(serviceInstances, configData) {
     var insertedVN = [];
-    var siCnt = serviceInstances.length;
+    var siCnt = serviceInstances.length, analyzerName;
     for (var i = 0; i < siCnt; i++) {
-        serviceInstances[i]['more_attr'] = {};
+        serviceInstances[i]['network_policy'] = {};
         try {
-            var fqName =
-                serviceInstances[i]['service-instance']['fq_name'].join(':');
+            var fqName = commonUtils.getValueByJsonPath(serviceInstances[i],
+                "service-instance;fq_name", []).join(":");
             var policyCnt = configData.length;
         } catch (e) {
             continue;
         }
         for (var j = 0; j < policyCnt; j++) {
-            try {
-                var rule =
-                    configData[j]['network-policy']['network_policy_entries']['policy_rule'];
-                var ruleCnt = rule.length;
-            } catch (e) {
-                logutils.logger.debug("In updateServiceInstanceWithPolicy():" +
-                    "JSON Parse error:" + e);
-                continue;
-            }
-            for (var k = 0; k < ruleCnt; k++) {
-                try {
-                    var appServ = rule[k]['action_list']['apply_service'];
-                    var servCnt = appServ.length;
-                } catch (e) {
-                    continue;
-                }
-                for (var l = 0; l < servCnt; l++) {
-                    if (fqName == appServ[l]) {
-                        try {
-                            var polRule =
-                                serviceInstances[i]['more_attr']['policy_rule'];
-                            var len = polRule.length;
-                        } catch (e) {
-                            serviceInstances[i]['more_attr']['policy_rule']
-                                = [];
-                            len = 0;
-                        }
-                        serviceInstances[i]['more_attr']['policy_rule'][len]
-                            = rule[k];
-                    }
-                }
+            analyzerName = commonUtils.getValueByJsonPath(configData[j],
+                "network-policy;network_policy_entries;policy_rule;0;action_list;mirror_to;analyzer_name",
+                null);
+            if(fqName === analyzerName) {
+                serviceInstances[i]['service-instance']['network_policy'] = configData[j]["network-policy"];
+                break;
             }
         }
     }
@@ -2158,6 +2133,24 @@ function deleteAllSIRefsAndSI (deleteObj, deleteRefs, portTupleUUIDList,
     });
 }
 
+function deleteAnalyzerCB (deleteObj, callback)
+{
+    var appData = deleteObj.appData;
+    var uuid = deleteObj.uuid;
+    var userData = deleteObj.userData,
+        analyzerPolicyId = userData ? userData.policyuuid : null;
+    if (analyzerPolicyId != null && analyzerPolicyId != '') {
+        policyConfigApi.deleteAnalyzerPolicy(analyzerPolicyId, appData, function (error) {
+            if (error) {
+                logutils.logger.error(error.stack);
+            }
+            deleteServiceInstanceCB(deleteObj, callback);
+        });
+    } else {
+        deleteServiceInstanceCB(deleteObj, callback);
+    }
+}
+
 function deleteServiceInstanceCB (deleteObj, callback)
 {
     var appData = deleteObj.appData;
@@ -2939,3 +2932,4 @@ exports.getHostList = getHostList;
 exports.getAvailabilityZone = getAvailabilityZone;
 exports.getServiceInstanceStatusByProject = getServiceInstanceStatusByProject;
 exports.deleteServiceInstanceCB = deleteServiceInstanceCB;
+exports.deleteAnalyzerCB = deleteAnalyzerCB;
