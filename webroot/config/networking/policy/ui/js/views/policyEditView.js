@@ -369,13 +369,15 @@ define([
                         view: "FormCollectionView",
                         //view: "FormEditableGridView",
                         viewConfig: {
-                            label:"Policy Rules",
+                            label:"Policy Rule(s)",
                             path: "PolicyRules",
                             validation: 'ruleValidation',
                             templateId: cowc.TMPL_COLLECTION_HEADING_VIEW,
                             collection: "PolicyRules",
                             rows:[{
                                rowActions: [
+                                   {onClick: "function() { $root.addRule(); }",
+                                   iconClass: 'icon-plus'},
                                    {onClick:
                                    "function() { $root.deleteRules($data, this); }",
                                     iconClass: 'icon-minus'}
@@ -577,7 +579,7 @@ define([
                                      view: "FormMultiselectView",
                                      width: 100,
                                      viewConfig: {
-                                         colSpan: "11",
+                                         colSpan: "10",
                                          class: "span10",
                                          placeholder:"Select a service to apply...",
                                          //visible: "$root.showService",
@@ -601,7 +603,7 @@ define([
                                      width: 100,
                                      viewConfig: {
                                          placeholder:"Select a service to mirror...",
-                                         colSpan: "11",
+                                         colSpan: "10",
                                          visible: "mirror_to_check()",
                                          templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_LEFT_LABEL_VIEW,
                                          path: "mirror",
@@ -621,7 +623,7 @@ define([
                         }],
                             gridActions: [
                                 {onClick: "function() { addRule(); }",
-                                 buttonTitle: "Add Rule"}
+                                 buttonTitle: ""}
                             ]
                     }
                     }]

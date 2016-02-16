@@ -248,6 +248,7 @@ define([
                                                      path : 'tenant_dns_server',
                                                      validation:
                                                     'ipamTenantDNSConfigValidations',
+                                                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                      collection:
                                                          'tenant_dns_server',
                                                      columns: [
@@ -268,6 +269,10 @@ define([
                                                      ],
                                                      rowActions: [
                                                          {onClick: "function() {\
+                                                             $root.addTenantDNS();\
+                                                             }",
+                                                             iconClass: 'icon-plus'},
+                                                         {onClick: "function() {\
                                                              $root.deleteTenantDNS($data, this);\
                                                             }",
                                                           iconClass: 'icon-minus'}
@@ -276,7 +281,7 @@ define([
                                                          {onClick: "function() {\
                                                              addTenantDNS();\
                                                              }",
-                                                          buttonTitle: "Add"}
+                                                          buttonTitle: ""}
                                                      ]
                                                  }
                                              }

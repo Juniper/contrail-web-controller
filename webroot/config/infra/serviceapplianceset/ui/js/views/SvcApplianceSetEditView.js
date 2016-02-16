@@ -148,6 +148,7 @@ define([
                             path: 'svcApplProperties',
                             collection: 'svcApplProperties',
                             validation: 'svcApplPropValidation',
+                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                             class: 'span12',
                             columns: [{
                                 elementId: 'key',
@@ -174,12 +175,14 @@ define([
                                 }
                             }],
                             rowActions: [
+                                {onClick: "function() { $root.addKeyValuePair(); }",
+                                 iconClass: 'icon-plus'},
                                 {onClick: "function() { $root.deleteKeyValuePair($data, this); }",
                                  iconClass: 'icon-minus'}
                             ],
                             gridActions: [
                                 {onClick: "function() { addKeyValuePair(); }",
-                                 buttonTitle: "Property"}
+                                 buttonTitle: ""}
                             ]
                         }
                     }]

@@ -490,7 +490,7 @@ define([
                         elementId: 'allowedAddressPairCollection',
                         view: 'FormEditableGridView',
                             viewConfig: {
-                                label:"Allowed address pairs",
+                                label:"Allowed address pair(s)",
                                 path: "allowedAddressPairCollection",
                                 validation: 'allowedAddressPairValidations',
                             templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -586,7 +586,7 @@ define([
                         elementId: 'portBindingCollection',
                         view: 'FormEditableGridView',
                         viewConfig: {
-                            label:"Port Bindings",
+                            label:"Port Binding(s)",
                             path: "portBindingCollection",
                             validation: 'portBindingValidations',
                             templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -855,7 +855,7 @@ define([
                             view: 'AccordianView',
                             viewConfig : [{
                                 elementId: 'dhcpOptions',
-                                title: 'DHCP Options',
+                                title: 'DHCP Option(s)',
                                 view: "SectionView",
                                 viewConfig : {
                                     rows : [
@@ -922,7 +922,7 @@ define([
                             view: 'AccordianView',
                             viewConfig : [{
                                 elementId: 'fatFlow',
-                                title: 'Fat Flows',
+                                title: 'Fat Flow(s)',
                                 view: "SectionView",
                                 viewConfig : {
                                     rows : [

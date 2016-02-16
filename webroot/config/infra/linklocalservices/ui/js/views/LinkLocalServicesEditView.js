@@ -232,6 +232,7 @@ define([
                                     path: 'ipFabAddresses',
                                     collection: 'ipFabAddresses',
                                     validation: "fabAddressValidation",
+                                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                     class: "span5",
                                     columns: [{
                                         elementId: 'ip_fabric_service_ip',
@@ -245,11 +246,13 @@ define([
                                         }
                                     }],
                                     rowActions: [
+                                         {onClick: "function() { $root.addAddress(); }",
+                                         iconClass: 'icon-plus'},
                                         {onClick: "function() { $root.deleteAddress($data, this); }",
                                          iconClass: 'icon-minus'}
                                     ],
                                     gridActions: [
-                                        {onClick: "function() { addAddress(); }", buttonTitle: "Add"}
+                                        {onClick: "function() { addAddress(); }", buttonTitle: ""}
                                     ]
                                 }
                             },
