@@ -1529,6 +1529,9 @@ define(
                     var nextHopData = nhData['nh']['NhSandeshData'];
                     var intf = nextHopData['itf'], mac = nextHopData['mac'], destVN = nhData['dest_vn'], source = nhData['peer'], policy = nextHopData['policy'], lbl = nhData['label'];
                     var sip = nextHopData['sip'], dip = nextHopData['dip'], tunnelType = nextHopData['tunnel_type'], valid = nextHopData['valid'], vrf = nextHopData['vrf'];
+                    var destVNList = getValueByJsonPath(nhData,'dest_vn_list;list;element','');
+                    if(destVNList instanceof Array)
+                        destVNList = destVNList.join(',');
                     if (nhType == 'arp') {
                         return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) +
                                 wrapLabelValue('Mac', nextHopData['mac']) +
@@ -1538,20 +1541,20 @@ define(
                                 wrapLabelValue('Valid', valid));
                     } else if (nhType == 'resolve' || nhType == 'receive') {
                         return contrail.format(wrapLabelValue('Source', nhData['peer']) +
-                                wrapLabelValue('Destination VN', nhData['dest_vn'])  +
+                                wrapLabelValue('Destination VN', destVNList)  +
                                 wrapLabelValue('Policy', policy) +
                                 wrapLabelValue('Peer', peer) +
                                 wrapLabelValue('Valid', valid));
                     } else if (nhType == 'interface') {
                         return contrail.format(wrapLabelValue('Interface', intf) +
-                                wrapLabelValue('Destination VN', destVN) +
+                                wrapLabelValue('Destination VN', destVNList) +
                                 wrapLabelValue('Policy', policy) +
                                 wrapLabelValue('Peer', peer) +
                                 wrapLabelValue('Valid', valid));
                     } else if (nhType == 'tunnel') {
                         return contrail.format(wrapLabelValue('Source IP', sip) +
                                 wrapLabelValue('Destination IP', dip) +
-                                wrapLabelValue('Destination VN', destVN) +
+                                wrapLabelValue('Destination VN', destVNList) +
                                 wrapLabelValue('Label', lbl) +
                                 wrapLabelValue('Tunnel type', tunnelType) +
                                 wrapLabelValue('Policy', policy) +
@@ -1559,7 +1562,7 @@ define(
                                 wrapLabelValue('Valid', valid));
                     } else if (nhType == 'vlan') {
                         return contrail.format(wrapLabelValue('Source', nhData['peer']) +
-                                wrapLabelValue('Destination VN', destVN) +
+                                wrapLabelValue('Destination VN', destVNList) +
                                 wrapLabelValue('Label', lbl) +
                                 wrapLabelValue('Policy', policy) +
                                 wrapLabelValue('Peer', peer) +
