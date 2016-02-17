@@ -244,7 +244,7 @@ define([
         /*
          * @imageDropDownFormatter
          */
-        this.imageDropDownFormatter = function(response) {
+        this.imageDropDownFormatter = function(response, model) {
             var imagesResponse = getValueByJsonPath(response,
                     'images', []);
             var imageList = [];
@@ -252,7 +252,7 @@ define([
             $.each(imagesResponse, function (i, obj) {
                 imageList.push({id: obj.name, text: obj.name});
             });
-
+            model['user_created_image_list'](imageList);
             return imageList;
         };
 
@@ -278,7 +278,7 @@ define([
         /*
          * @flavorDropDownFormatter
          */
-        this.flavorDropDownFormatter = function(response) {
+        this.flavorDropDownFormatter = function(response, model) {
             var flavorsResponse = getValueByJsonPath(response,
                     'flavors', []);
             var flavorList = [];
@@ -301,6 +301,9 @@ define([
 
                 flavorTxt = obj.name + ' (' +
                                 flavorDesc.join(", ") + ')';
+                if (-1 != flavorTxt.indexOf('medium')) {
+                    model['service_template_properties']().flavor = obj.name;
+                }
 
                 flavorList.push({id: obj.name, text: flavorTxt});
             });

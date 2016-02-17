@@ -47,7 +47,7 @@ define([
             }});
             self.renderView4Config($("#" + modalId).find("#" + prefixId + "-form"),
                                    self.model,
-                                   getSvcTemplateCfgViewConfig(false),
+                                   getSvcTemplateCfgViewConfig(false, self.model),
                                    "svcTemplateCfgConfigValidations", null, null,
                                    function () {
 
@@ -99,7 +99,7 @@ define([
         }
     });
 
-    function getSvcTemplateCfgViewConfig (disableOnEdit) {
+    function getSvcTemplateCfgViewConfig (disableOnEdit, model) {
         var prefixId = ctwl.CFG_SVC_TEMPLATE_PREFIX_ID;
         var svcTemplateCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
@@ -217,7 +217,10 @@ define([
                                         dataSource : {
                                             type: 'remote',
                                             url: '/api/tenants/config/service-template-images',
-                                            parse: formatSvcTemplateCfg.imageDropDownFormatter
+                                            parse: function(result) {
+                                                return formatSvcTemplateCfg.imageDropDownFormatter(result,
+                                                                                                   model);
+                                            }
                                         }
                                     }
                                 }
@@ -407,9 +410,11 @@ define([
                                                     dataValueField : "id",
                                                     dataSource : {
                                                         type: 'remote',
-                                                        //domain for , why?
                                                         url: '/api/tenants/config/system-flavors',
-                                                        parse: formatSvcTemplateCfg.flavorDropDownFormatter
+                                                        parse: function(result) {
+                                                            return formatSvcTemplateCfg.flavorDropDownFormatter(result,
+                                                                                                                model);
+                                                        }
                                                     }
                                                 }
                                             }

@@ -285,7 +285,8 @@ define([
                                                'virtual-machine-interfaces');
                 window.allVNList = svcInstUtils.virtNwListFormatter(response[5]);
                 if (window.allVNList.length > 0) {
-                    window.allVNList.unshift({'text':"Auto Configured", 'id':""});
+                    window.allVNList.unshift({'text':"Auto Configured",
+                                             'id':"autoConfigured"});
                 }
             },
             failureCallback: function(error, contrailListModel) {

@@ -468,7 +468,7 @@ define([
                                     templateId:
                                         cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                     path: 'interface',
-                                    disabled: isDisabled,
+                                    disabled: 'disable()',
                                     dataBindValue: 'interface()',
                                     dataBindOptionList: 'vmiListData()',
                                     elementConfig: {
