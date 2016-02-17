@@ -341,11 +341,12 @@ define([
                         path: 'staticRoutes',
                         collection: 'staticRoutes()',
                         validation: 'staticRoutesValidation',
-                        templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
+                        //templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
+                        templateId: cowc.TMPL_COLLECTION_COMMON_HEADING_VIEW,
                         collectionActions: {
                             add: {onClick: "addStaticRt()",
                                   iconClass: 'icon-plus',
-                                  buttonTitle: 'Add Static Routes'
+                                  buttonTitle: ''
                             }
                         },
                         rows: [{
@@ -359,7 +360,7 @@ define([
                             columns: [{
                                 elementId: 'prefix',
                                 view: 'FormInputView',
-                                class: "", width: 200,
+                                class: "", width: 217,
                                 viewConfig: {
                                     label: 'Prefix',
                                     templateId:
@@ -371,7 +372,7 @@ define([
                             {
                                 elementId: 'next_hop',
                                 view: 'FormInputView',
-                                class: "", width: 150,
+                                class: "", width: 167,
                                 viewConfig: {
                                     disabled: true,
                                     label: 'Next Hop',
@@ -384,9 +385,10 @@ define([
                             {
                                 elementId: 'community_attributes',
                                 view: 'FormTextAreaView',
+                                width:161,
                                 viewConfig: {
                                     label: 'Community',
-                                    width: 250,
+                                    width: 161,
                                     placeHolder: 'Attributes seperated by ' +
                                         'comma or press enter',
                                     templateId: cowc.TMPL_EDITABLE_GRID_TEXTAREA_VIEW,
@@ -901,7 +903,7 @@ define([
                                     collection: 'interfaces()',
                                     validation: 'interfacesValidation',
                                     //accordionable: true,
-                                    templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
+                                    templateId: cowc.TMPL_COLLECTION_COMMON_HEADING_VIEW,
                                     rows: [
                                         this.getIntfVNCollectionView(isDisabled),
                                         this.getStaticRtsCollectionView(isDisabled)
