@@ -292,17 +292,18 @@ define([
     };
 
     function getQueryResultGridViewConfig(self, queryRequestPostData) {
-        var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID,
-            iconFormatterFn = null,
-            cssClass = null,
-            onClickEventFn = null;
+        var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID, actionCell = [];
 
         if (qewu.enableSessionAnalyzer(null, queryRequestPostData.formModelAttrs)) {
-            iconFormatterFn = qewgc.setAnalyzerIconFormatter;
-            cssClass = 'cell-hyperlink-blue';
-            onClickEventFn = function(e, selRowDataItem) {
-                self.renderSessionAnalyzer(selRowDataItem);
-            };
+            actionCell = [
+                {
+                    title: 'Analyze Session',
+                    iconClass: 'icon-external-link-sign',
+                    onClick: function (e, targetElement, selRowDataItem) {
+                        self.renderSessionAnalyzer(selRowDataItem);
+                    }
+                }
+            ]
         }
 
         return {
@@ -323,63 +324,11 @@ define([
                     titleText: cowl.TITLE_FLOW_RECORD,
                     queryQueueUrl: cowc.URL_QUERY_FLOW_QUEUE,
                     queryQueueTitle: cowl.TITLE_FLOW,
-                    gridColumns: [{
-                        id: 'fr-details', field: "", name: "", resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: {allow: false},
-                        allowColumnPickable: false,
-                        formatter: iconFormatterFn,
-                        cssClass:  cssClass,
-                        events: {
-                            onClick: onClickEventFn
-                        }
-                    }],
-                    //actionCellCB: function(gridModelMap, gridItem) {
-                    //    return getFlowRecordActionItems(self, gridModelMap, queryRequestPostData, gridItem);
-                    //}
+                    actionCell:actionCell
                 }
             }
         }
     };
-
-    //function getFlowRecordActionItems(flowRecordFormView, gridModelMap, queryRequestPostData, queryResultItem) {
-    //    var resultGridListModel = gridModelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL],
-    //        //queryFormModelData = queryResultItem.queryReqObj.formModelAttrs,
-    //        status = queryResultItem.status,
-    //        //queryId = queryResultItem.queryReqObj.queryId,
-    //        errorMessage = queryResultItem.errorMessage,
-    //        //queryFormTimeRange = queryFormModelData.time_range,
-    //        actionCell = [];
-    //
-    //    if(status == 'queued'){
-    //        return actionCell;
-    //    }
-    //
-    //    if(status != "error") {
-    //        if (qewu.enableSessionAnalyzer(null, queryRequestPostData.formModelAttrs)) {
-    //            actionCell.push({
-    //                title: cowl.TITLE_ACTION_SESSION_ANALYZER,
-    //                iconClass: 'icon-bar-chart',
-    //                onClick: function(rowIndex){
-    //                    var selectedFlowRecord = resultGridListModel.getItem(rowIndex);
-    //                    flowRecordFormView.renderSessionAnalyzer(selectedFlowRecord);
-    //                }
-    //            });
-    //        }
-    //
-    //    } else if(errorMessage != null) {
-    //        if(errorMessage.message != null && errorMessage.message != '') {
-    //            errorMessage = errorMessage.message;
-    //        }
-    //        actionCell.push({
-    //            title: cowl.TITLE_VIEW_QUERY_ERROR,
-    //            iconClass: 'icon-exclamation-sign',
-    //            onClick: function(rowIndex){
-    //                //TODO - create info modal
-    //                showInfoWindow(errorMessage, cowl.TITLE_ERROR);
-    //            }
-    //        });
-    //    }
-    //    return actionCell;
-    //};
 
     function getSessionAnalyzerTabsViewConfig(queryResultTabsId, queryFormAttributes, selectedFlowRecord) {
         return {
@@ -393,9 +342,9 @@ define([
     };
 
     function getSessionAnalyzerTabViewConfig(queryFormAttributes, selectedFlowRecord) {
-        var queryId = qewu.generateQueryUUID();
+        var queryId = queryFormAttributes.queryId;
         return [{
-            elementId: cowl.QE_SESSION_ANALYZER_VIEW_ID + '-' +queryId,
+            elementId: cowl.QE_SESSION_ANALYZER_VIEW_ID + '-' +queryId + '-' + selectedFlowRecord.cgrid,
             title: cowl.TITLE_SESSION_ANALYZER,
             iconClass: 'icon-bar-chart',
             app: cowc.APP_CONTRAIL_CONTROLLER,

@@ -135,7 +135,8 @@ define([
                         iconClass: false,
                         defaultErrorMessage: false,
                         defaultNavLinks: false
-                    });
+                    }),
+                    blankDblClickFn = getCgBlankDblClick(self, connectedSelectorId, graphConfig);
 
                 if (!contrail.checkIfExist(contrailGraphModel.elementsDataObj)) {
                     notFoundConfig.title = ctwm.NO_DATA_FOUND;
@@ -145,14 +146,23 @@ define([
                     notFoundConfig.title = ctwm.NO_VM_FOUND;
                 }
                 $(selectorId).html(notFoundTemplate(notFoundConfig));
+
+                $(selectorId)
+                    .off('dblclick', blankDblClickFn)
+                    .on('dblclick', blankDblClickFn);
             },
             failureCallback: function (contrailGraphModel) {
                 var xhr = contrailGraphModel.errorList[0],
                     notFoundTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
-                    notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_ERROR_PAGE, {errorMessage: xhr.responseText});
+                    notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_ERROR_PAGE, {errorMessage: xhr.responseText}),
+                    blankDblClickFn = getCgBlankDblClick(self, connectedSelectorId, graphConfig);
 
                 if (!(xhr.status === 0 && xhr.statusText === 'abort')) {
                     $(selectorId).html(notFoundTemplate(notFoundConfig));
+
+                    $(selectorId)
+                        .off('dblclick', blankDblClickFn)
+                        .on('dblclick', blankDblClickFn);
                 }
             },
             successCallback: function (graphView) {
@@ -196,6 +206,7 @@ define([
                     enabled: true,
                     selectorId: connectedSelectorId,
                     config: {
+                        focalZoom: true,
                         onReset: function () {
                             var focusedElement = graphConfig.focusedElement;
                             panConnectedGraph2Center(focusedElement, connectedSelectorId);
@@ -541,16 +552,16 @@ define([
             zoomFocal, zoomScale, zoomScaleX = 1, zoomScaleY = 1;
 
         if (actualConnectedGraphHeight > availableGraphHeight) {
-            if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT) {
-                panY = 35 - cowc.GRAPH_MARGIN_TOP;
-            }
+            //if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT) {
+            //    panY = 35 - cowc.GRAPH_MARGIN_TOP;
+            //}
             zoomScaleX = availableGraphHeight / actualConnectedGraphHeight;
         }
 
         if (actualConnectedGraphWidth > availableGraphWidth) {
-            if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT) {
-                panX = 35 - cowc.GRAPH_MARGIN_LEFT;
-            }
+            //if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT) {
+            //    panX = 35 - cowc.GRAPH_MARGIN_LEFT;
+            //}
             zoomScaleY = availableGraphWidth / actualConnectedGraphWidth;
         }
 

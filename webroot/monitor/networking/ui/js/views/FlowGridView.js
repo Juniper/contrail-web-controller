@@ -63,15 +63,15 @@ define([
                 options: {
                     autoRefresh: false,
                     checkboxSelectable: false,
-                    actionCell: [
-                        {
-                            title: 'Start Packet Capture',
-                            iconClass: 'icon-edit',
-                            onClick: function(rowIndex){
-                                startPacketCapture4Flow(ctwl.PROJECT_FLOW_GRID_ID, rowIndex, 'parseAnalyzerRuleParams4FlowByPort');
-                            }
-                        }
-                    ]
+                    //actionCell: [
+                    //    {
+                    //        title: 'Start Packet Capture',
+                    //        iconClass: 'icon-edit',
+                    //        onClick: function(rowIndex){
+                    //            startPacketCapture4Flow(ctwl.PROJECT_FLOW_GRID_ID, rowIndex, 'parseAnalyzerRuleParams4FlowByPort');
+                    //        }
+                    //    }
+                    //]
                 },
                 dataSource: {
                     remote: {
