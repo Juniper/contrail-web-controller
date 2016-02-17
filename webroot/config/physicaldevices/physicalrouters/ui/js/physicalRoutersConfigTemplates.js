@@ -370,6 +370,7 @@ define([
                         viewConfig: {
                             path: "servicePorts",
                             validation : "servicePortValidation",
+                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                             collection: "servicePorts",
                             columns: [
                                 {
@@ -386,6 +387,11 @@ define([
                                 },
                             ],
                             rowActions: [
+                             {
+                                    onClick: "function() {\
+                                    $root.addPort(); }",
+                                    iconClass: 'icon-plus'
+                                },
                                 {
                                     onClick: "function() {\
                                     $root.deletePort($data, this); }",
@@ -395,7 +401,7 @@ define([
                             gridActions: [
                                 {
                                     onClick: "function() { addPort(); }",
-                                    buttonTitle: "Add JUNOS Service Port"
+                                    buttonTitle: ""
                                 }
                             ]
                         }

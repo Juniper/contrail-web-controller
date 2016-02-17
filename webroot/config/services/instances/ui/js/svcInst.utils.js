@@ -315,16 +315,6 @@ define([
                             minimumResultsForSearch: 1,
                             placeholder: 'Select Virtual Network'
                         }
-                        /*
-                        dataBindOptionList:
-                        elementConfig: {
-                            dataTextField: 'text',
-                            dataValueField: 'id',
-                            data: window.vnList,
-                            minimumResultsForSearch: 1,
-                            placeholder: 'Select Virtual Network'
-                        }
-                        */
                     }
                 }]
             }
@@ -402,6 +392,8 @@ define([
         this.getPortTupleNameViewConfig = function(isDisabled) {
             return {
                 rowActions: [
+                    {onClick: "function() {$root.addPortTuple();}",
+                     iconClass: 'icon-plus'},
                     {onClick: "deletePortTuple()",
                      iconClass: 'icon-minus'}
                 ],
@@ -612,6 +604,7 @@ define([
                                 path: 'svcHealtchChecks',
                                 collection: 'svcHealtchChecks',
                                 validation: 'svcHealtchChecksValidation',
+                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                 columns: [{
                                     elementId: 'interface_type',
                                     name: 'Interface Type',
@@ -638,7 +631,7 @@ define([
                                     view: 'FormDropdownView',
                                     class: "",
                                     viewConfig: {
-                                        width: 350,
+                                        width: 340,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         path: 'service_health_check',
@@ -654,6 +647,12 @@ define([
                                     }
                                 }],
                                 rowActions: [{
+                                    onClick: "function() {\
+                                        $root.addPropSvcHealthChk();\
+                                    }",
+                                    iconClass: 'icon-plus'
+                                },
+                                {
                                     onClick: "function() {\
                                         $root.deleteSvcInstProperty($data, this);\
                                     }",
@@ -684,6 +683,7 @@ define([
                                 path: 'intfRtTables',
                                 collection: 'intfRtTables',
                                 validation: 'intfRtTablesValidation',
+                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                 columns: [{
                                     elementId: 'interface_type',
                                     name: 'Interface Type',
@@ -710,7 +710,7 @@ define([
                                     view: 'FormMultiselectView',
                                     class: "",
                                     viewConfig: {
-                                        width: 350,
+                                        width: 340,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                         path: 'interface_route_table',
@@ -726,6 +726,12 @@ define([
                                     }
                                 }],
                                 rowActions: [{
+                                    onClick: "function() {\
+                                        $root.addPropIntfRtTable();\
+                                    }",
+                                    iconClass: 'icon-plus'
+                                },
+                                {
                                     onClick: "function() {\
                                         $root.deleteSvcInstProperty($data, this);\
                                     }",
@@ -756,6 +762,7 @@ define([
                                 path: 'rtPolicys',
                                 collection: 'rtPolicys',
                                 validation: 'rtPolicysValidation',
+                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                 columns: [{
                                     elementId: 'interface_type',
                                     name: 'Interface Type',
@@ -782,7 +789,7 @@ define([
                                     view: 'FormMultiselectView',
                                     class: "",
                                     viewConfig: {
-                                        width: 350,
+                                        width: 340,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                         path: 'routing_policy',
@@ -798,6 +805,12 @@ define([
                                     }
                                 }],
                                 rowActions: [{
+                                    onClick: "function() {\
+                                        $root.addPropRtPolicy();\
+                                    }",
+                                    iconClass: 'icon-plus'
+                                },
+                                {
                                     onClick: "function() {\
                                         $root.deleteSvcInstProperty($data, this);\
                                     }",
@@ -828,6 +841,7 @@ define([
                                 path: 'rtAggregates',
                                 collection: 'rtAggregates',
                                 validation: 'rtAggregatesValidation',
+                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                 columns: [{
                                     elementId: 'interface_type',
                                     name: 'Interface Type',
@@ -854,7 +868,7 @@ define([
                                     view: 'FormMultiselectView',
                                     class: "",
                                     viewConfig: {
-                                        width: 350,
+                                        width: 340,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                         path: 'route_aggregate',
@@ -870,6 +884,12 @@ define([
                                     }
                                 }],
                                 rowActions: [{
+                                    onClick: "function() {\
+                                        $root.addPropRtAggregate();\
+                                    }",
+                                    iconClass: 'icon-plus'
+                                },
+                                {
                                     onClick: "function() {\
                                         $root.deleteSvcInstProperty($data, this);\
                                     }",

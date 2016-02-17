@@ -121,9 +121,6 @@ define([
                         },
                         {
                             columns: [{
-                                elementId: "rt_aggregate_routes_accordian",
-                                view: "AccordianView",
-                                viewConfig: [{
                                     elementId: "rt_aggregate_routes_section",
                                     title: "Aggregate Route Entries",
                                     view: "SectionView",
@@ -135,6 +132,8 @@ define([
                                                     viewConfig: {
                                                         path: "routes",
                                                         collection: "routes",
+                                                        label: 'Route Aggregate',
+                                                        templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                         columns: [{
                                                             elementId: "route",
                                                             name: "Route",
@@ -151,6 +150,11 @@ define([
                                                         rowActions: [
                                                             {
                                                                 onClick: "function() {\
+                                                                $root.addRoute(); }",
+                                                                iconClass: 'icon-plus'
+                                                            },
+                                                            {
+                                                                onClick: "function() {\
                                                                 $root.deleteRoute($data, this)\
                                                                 ;}",
                                                                 iconClass: 'icon-minus'
@@ -160,13 +164,12 @@ define([
                                                             {
                                                                 onClick: "function() {\
                                                                 addRoute(); }",
-                                                                buttonTitle: "Route Entry"
+                                                                buttonTitle: ""
                                                             }
                                                         ]
                                                     }
                                             }]}]
                                         }
-                                    }]
                                }]
                         }
                     ]

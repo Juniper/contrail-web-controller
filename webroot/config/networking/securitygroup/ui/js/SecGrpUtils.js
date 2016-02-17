@@ -316,9 +316,10 @@ define([
                                 elementId: 'rules',
                                 view: 'FormEditableGridView',
                                 viewConfig: {
-                                        label: 'Security Group Rules',
+                                        label: 'Security Group Rule(s)',
                                         path: 'rules',
                                         validation: 'secGrpRulesValidation',
+                                        templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                         collection: 'rules',
                                         columns: [
                                         {
@@ -335,6 +336,7 @@ define([
                                                 elementConfig: {
                                                     dataTextField: 'text',
                                                     dataValueField: 'value',
+                                                    width: 150,
                                                     data: [
                                                         {value: 'Ingress',
                                                           text: 'Ingress'},
@@ -358,6 +360,7 @@ define([
                                                 elementConfig: {
                                                     dataTextField: 'text',
                                                     dataValueField: 'value',
+                                                    width: 150,
                                                     data: [
                                                         {value: 'IPv4',
                                                             text: 'IPv4'},
@@ -380,6 +383,7 @@ define([
                                                 dataBindValue: 'remoteAddr()',
                                                 elementConfig: {
                                                     minimumResultsForSearch : 1,
+                                                    width: 250,
                                                     dataTextField: "text",
                                                     dataValueField: "value",
                                                     data: window.sg.secGrpList,
@@ -415,6 +419,7 @@ define([
                                                 elementConfig: {
                                                     dataTextField: 'text',
                                                     dataValueField: 'value',
+                                                    width: 100,
                                                     data: [
                                                         {text: 'ANY',
                                                             value: 'ANY'},
@@ -432,10 +437,12 @@ define([
                                             elementId: 'remotePorts',
                                             name: 'Port Range',
                                             view: 'FormInputView',
-                                            class: "span3",
+                                            class: "",
+                                            width:120,
                                             viewConfig: {
                                                 templateId:
                                                     cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                width:120,
                                                 placeholder: 'ANY',
                                                 path: 'remotePorts',
                                                 dataBindValue: 'remotePorts()',
@@ -443,6 +450,11 @@ define([
                                         }
                                     ],
                                     rowActions: [{
+                                        onClick: "function() {\
+                                            $root.addSecGrpRule();\
+                                        }",
+                                        iconClass: 'icon-plus'
+                                    },{
                                         onClick: "function() {\
                                             $root.deleteSecGrpRules($data, this);\
                                         }",
@@ -452,7 +464,7 @@ define([
                                         onClick: "function() {\
                                             $root.addSecGrpRule();\
                                         }",
-                                        buttonTitle: "Add Rule"
+                                        buttonTitle: ""
                                     }]
                                 }
                             }]

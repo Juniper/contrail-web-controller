@@ -194,6 +194,10 @@ define(['underscore'], function(_){
                                         rows: [{
                                         rowActions: [
                                             {
+                                                onClick: "function() { $root.addPeer(); }",
+                                                iconClass: 'icon-plus'
+                                            },
+                                            {
                                                 onClick: "function() {\
                                                 $root.deletePeer($data, this); }",
                                                 iconClass: 'icon-minus'
@@ -327,10 +331,9 @@ define(['underscore'], function(_){
                                                             elementId: "address_family",
                                                             name: "Address Family",
                                                             view: "FormDropdownView",
-                                                            width: 245,
                                                             viewConfig: {
                                                                 disabled: "disableFamilyAttr()",
-                                                                width: 245,
+                                                                width: 300,
                                                                 path: "address_family",
                                                                 dataBindOptionList : "familyAttrDataSource()",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
@@ -345,10 +348,9 @@ define(['underscore'], function(_){
                                                             elementId: "loop_count",
                                                             name: "Loop Count",
                                                             view: "FormInputView",
-                                                            width: 128,
                                                             viewConfig: {
                                                                 placeholder: "Enter Loop Count",
-                                                                width: 128,
+                                                                width: 195,
                                                                 path: "loop_count",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                                 dataBindValue: "loop_count()",
@@ -357,16 +359,20 @@ define(['underscore'], function(_){
                                                             elementId: "prefix_limit",
                                                             name: "Prefix Limit",
                                                             view: "FormInputView",
-                                                            width: 128,
                                                             viewConfig: {
                                                                 placeholder: "Enter Prefix Limit",
-                                                                width: 128,
+                                                                width: 195,
                                                                 path: "prefix_limit",
                                                                 dataBindValue: "prefix_limit()",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW
                                                             }
                                                         }],
                                                         rowActions: [
+                                                            {
+                                                                onClick: "function() {\
+                                                                ($parent.addFamilyAttrs())($root,$parentContext.$index, $data, $rawData); }",
+                                                                iconClass: 'icon-plus'
+                                                            },
                                                             {
                                                                 onClick: "function() {\
                                                                 ($parent.deleteFamilyAttrs())($data, this)\

@@ -169,7 +169,7 @@ define([
                             collection: 'termCollection()',
                             validation: 'termValidation',
                             templateId: 'query-routing-policy-terms-template',
-                            label: "Terms",
+                            label: "Term(s)",
                             accordionable: true,
                             accordionConfig: {
                                 header: '.or-clause-header'

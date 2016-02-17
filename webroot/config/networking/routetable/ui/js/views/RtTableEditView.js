@@ -176,38 +176,6 @@ define([
         return columns;
     }
 
-    function getRtTableViewConfig () {
-        return {
-            elementId: 'route_table',
-            title: 'Route Table',
-            view: 'SectionView',
-            viewConfig: {
-                rows: [{
-                    columns: [{
-                        elementId: 'routes',
-                        view: 'FormEditableGridView',
-                        viewConfig: {
-                            path: 'routes',
-                            collection: 'routes',
-                            validation: 'rtTableRoutesValidation',
-                            class: "span12",
-                            columns: getRouteTableColViewConfigs(),
-                            rowActions: [
-                                { onClick: "function() { $root.deleteRtTable($data, this); }",
-                                  iconClass: 'icon-minus'},
-                            ],
-                            gridActions: [
-                                { onClick: "function() { $root.addRtTable(); }",
-                                  iconClass: 'icon-plus',
-                                  buttonTitle: 'Add Routes'}
-                            ]
-                        }
-                    }]
-                }]
-            }
-        }
-    }
-
     function getEditRtTableViewConfig (isDisable) {
         var prefixId = ctwl.RT_TABLE_PREFIX_ID;
         var rtTableViewConfig = {
@@ -232,11 +200,37 @@ define([
                 },
                 {
                     columns: [{
-                        elementId: 'routesCollection',
-                        view: 'AccordianView',
-                        viewConfig: [
-                            getRtTableViewConfig()
-                        ]
+            elementId: 'route_table',
+            view: 'SectionView',
+            viewConfig: {
+                
+                rows: [{
+                    columns: [{
+                        elementId: 'routes',
+                        view: 'FormEditableGridView',
+                        viewConfig: {
+                            label: 'Route(s)',
+                            path: 'routes',
+                            collection: 'routes',
+                            validation: 'rtTableRoutesValidation',
+                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                            class: "span12",
+                            columns: getRouteTableColViewConfigs(),
+                            rowActions: [
+                                { onClick: "function() { $root.addRtTable($data, this); }",
+                                  iconClass: 'icon-plus'},
+                                { onClick: "function() { $root.deleteRtTable($data, this); }",
+                                  iconClass: 'icon-minus'},
+                            ],
+                            gridActions: [
+                                { onClick: "function() { $root.addRtTable(); }",
+                                  iconClass: 'icon-plus',
+                                  buttonTitle: ''}
+                            ]
+                        }
+                    }]
+                }]
+            }
                     }]
                 }]
             }
