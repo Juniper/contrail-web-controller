@@ -973,6 +973,12 @@ define([
         this.CDB_TITLE_FQ_TABLE = "FQ Name Table";
         this.CDB_TITLE_UUID_TABLE = "UUID Name Table";
         this.CDB_TITLE_SHARED_TABLE = "Shared Name Table";
+        this.CDB_TITLE_DELETE_RECORD = "Delete Record";
+        this.CDB_TMPL_DELETE_RECORD = "cdb-delete-template";
+        this.CDB_DELETE_MODAL_ID_ = "delete-cdb";
+
+        this.CDB_LABEL_KEY_VALUES = "keyvalues";
+        this.CDB_LABEL_KEY = "key";
         //Config DB Labels - End
 
         /* Service Appliance */
