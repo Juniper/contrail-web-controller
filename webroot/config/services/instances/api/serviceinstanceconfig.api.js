@@ -716,7 +716,7 @@ function getVNDetailsByServiceInstances(serviceInstances, appData, callback) {
         var serInst = serviceInstances[i]['service-instance'];
         var projUUID = serInst['parent_uuid'];
         if (null == insertedProjList[projUUID]) {
-            reqUrl = '/project/' + projUUID;
+            var reqUrl = '/project/' + projUUID;
             commonUtils.createReqObj(dataObjArr, reqUrl,
                 global.HTTP_REQUEST_GET,
                 null, null, null, appData);
@@ -1195,24 +1195,31 @@ function formSvcInstPortTupleRefsPostData (dataObjArr, vmiObj, portTupleObj,
         if ((null == vmi) || (null == vmi['virtual-machine-interface'])) {
             return;
         }
+        var vmiPutData = {};
         if (null == vmi['virtual-machine-interface']['port_tuple_refs']) {
             vmi['virtual-machine-interface']['port_tuple_refs'] = [];
         }
-        vmi['virtual-machine-interface']['port_tuple_refs'].push(
-            {'to': portTupleObj['to'], 'uuid': portTupleObj['uuid'],
-             'attr': null});
-        if (null == vmi['virtual-machine-interface']
-                ['virtual_machine_interface_properties']) {
-            vmi['virtual-machine-interface']
-                ['virtual_machine_interface_properties'] = {};
+        vmiPutData['port_tuple_ref'] = {'to': portTupleObj['to'], 'uuid':
+            portTupleObj['uuid'], 'attr': null};
+        vmiPutData['fq_name'] =
+            commonUtils.getValueByJsonPath(vmi,
+                                           'virtual-machine-interface;fq_name',
+                                           null);
+        vmiPutData['uuid'] =
+            commonUtils.getValueByJsonPath(vmi,
+                                           'virtual-machine-interface;uuid',
+                                           null);
+        var vmiProp =
+            commonUtils.getValueByJsonPath(vmi,
+                                           'virtual-machine-interface;virtual_machine_interface_properties',
+                                           null);
+        vmiPutData['virtual_machine_interface_properties'] = {};
+        if (null != vmiProp) {
+            vmiPutData['virtual_machine_interface_properties'] = vmiProp;
         }
-        vmi['virtual-machine-interface']
-            ['virtual_machine_interface_properties']['service_interface_type'] =
-            vmiObj['interfaceType'];
-        reqUrl = '/virtual-machine-interface/' +
-            vmi['virtual-machine-interface']['uuid'];
-        reqType = global.HTTP_REQUEST_PUT;
-        data = vmi;
+        vmiPutData['virtual_machine_interface_properties']
+            ['service_interface_type'] = vmiObj['interfaceType'];
+        dataObjArr.push(vmiPutData);
     } else {
         /*
         var portTupleRefs = vmi['virtual-machine-interface']['port_tuple_refs'];
@@ -1235,9 +1242,9 @@ function formSvcInstPortTupleRefsPostData (dataObjArr, vmiObj, portTupleObj,
             'attr': null
         };
         reqUrl = '/ref-update';
+        commonUtils.createReqObj(dataObjArr, reqUrl, reqType, data, null, null,
+                                 appData);
     }
-    commonUtils.createReqObj(dataObjArr, reqUrl, reqType, data, null, null,
-                             appData);
 }
 
 function updatePortTuples (configSIData, siPostData, vmiDetails, appData,
@@ -1430,6 +1437,7 @@ function updateVMIsInPortTuples (configSIData, siPostData, vmiDetails, appData,
             }
         }
         var dataObjArr = [];
+        var addDataObjArr = [];
         for (var i = 0; i < uiPortTuplesLen; i++) {
             var uiUUID = uiPortTuples[i]['uuid'];
             if (null != portTupleObjs[uiUUID]) {
@@ -1452,7 +1460,7 @@ function updateVMIsInPortTuples (configSIData, siPostData, vmiDetails, appData,
                         (vmisDelta['addedList'].length > 0)) {
                         var len = vmisDelta['addedList'].length;
                         for (var k = 0; k < len; k++) {
-                            formSvcInstPortTupleRefsPostData(dataObjArr,
+                            formSvcInstPortTupleRefsPostData(addDataObjArr,
                                                   vmisDelta['addedList'][k],
                                                   uiPortTuples[i], vmiDetails,
                                                   'ADD', appData);
@@ -1465,9 +1473,83 @@ function updateVMIsInPortTuples (configSIData, siPostData, vmiDetails, appData,
                   commonUtils.getServerResponseByRestApi(configApiServer,
                                                          false),
                   function(error, data) {
+            addPortTupleRefsInVMI(addDataObjArr, appData, function(error, data) {
+                callback(error, data);
+            });
+        });
+    });
+}
+
+function addPortTupleRefsInVMI (addDataObjArr, appData, callback)
+{
+    if (null == addDataObjArr) {
+        callback(null, null);
+        return;
+    }
+
+    var dataObjArr = [];
+    var addDataObjArrLen = addDataObjArr.length;
+    var vmiList = [];
+    var tmpVMIToIdxMap = {};
+    for (var i = 0; i < addDataObjArrLen; i++) {
+        vmiList.push(addDataObjArr[i]['uuid']);
+        tmpVMIToIdxMap[addDataObjArr[i]['uuid']] = i;
+    }
+    var vmiListLen = vmiList.length;
+    if (vmiListLen > 0) {
+        var vmiGetUrl = '/virtual-machine-interfaces?detail=true&obj_uuids=' +
+            vmiList.join(',') + '&fields=port_tuple_refs';
+        commonUtils.createReqObj(dataObjArr, vmiGetUrl, null, null, null, null,
+                                 appData);
+    }
+    if (!dataObjArr.length) {
+        callback(null, null);
+        return;
+    }
+
+    configApiServer.apiGet(vmiGetUrl, appData, function(error, vmiDetails) {
+        if ((null != error) || (null == vmiDetails) ||
+            (null == vmiDetails['virtual-machine-interfaces'])) {
+            callback(error, null);
+            return;
+        }
+        var vmiConfigData =
+            commonUtils.getValueByJsonPath(vmiDetails,
+                                           'virtual-machine-interfaces', []);
+        var vmiConfigDataLen = vmiConfigData.length;
+        dataObjArr = [];
+        for (var i = 0; i < vmiConfigDataLen; i++) {
+            var vmiConfig =
+            commonUtils.getValueByJsonPath(vmiConfigData[i],
+                                           'virtual-machine-interface', null);
+            var configUUID =
+                commonUtils.getValueByJsonPath(vmiConfig, 'uuid', null);
+            var idx = tmpVMIToIdxMap[configUUID];
+            if ((null != configUUID) && (null != idx)) {
+                var putData = {'virtual-machine-interface': {}};
+                if (null == vmiConfig['port_tuple_refs']) {
+                    vmiConfig['port_tuple_refs'] = [];
+                }
+                vmiConfig['port_tuple_refs'].push(addDataObjArr[idx]['port_tuple_ref']);
+                delete addDataObjArr[idx]['port_tuple_ref'];
+                addDataObjArr[idx]['port_tuple_refs'] =
+                    vmiConfig['port_tuple_refs'];
+                putData['virtual-machine-interface'] = addDataObjArr[idx];
+                var vmiPutUrl = '/virtual-machine-interface/' + configUUID;
+                commonUtils.createReqObj(dataObjArr, vmiPutUrl,
+                                         global.HTTP_REQUEST_PUT,
+                                         commonUtils.cloneObj(putData), null,
+                                         null, appData);
+            }
+        }
+        async.map(dataObjArr,
+                  commonUtils.getServerResponseByRestApi(configApiServer,
+                                                         false),
+                  function(error, data) {
             callback(error, data);
         });
     });
+    return;
 }
 
 function updatePortTupleRefsInVMI (portTuples, tmpUIPortTupleObjs, vmiDetails,
@@ -1479,6 +1561,7 @@ function updatePortTupleRefsInVMI (portTuples, tmpUIPortTupleObjs, vmiDetails,
         return;
     }
     var cnt = portTuples.length;
+    var addDataObjArr = [];
     for (var i = 0; i < cnt; i++) {
         var fqn = portTuples[i]['to'].join(':');
         var vmis = tmpUIPortTupleObjs[fqn];
@@ -1487,17 +1570,31 @@ function updatePortTupleRefsInVMI (portTuples, tmpUIPortTupleObjs, vmiDetails,
         }
         var vmisCnt = vmis.length;
         for (var j = 0; j < vmisCnt; j++) {
-            formSvcInstPortTupleRefsPostData(dataObjArr, vmis[j],
-                                             portTuples[i], vmiDetails,
-                                             operation, appData);
+            if ('DELETE' == operation) {
+                formSvcInstPortTupleRefsPostData(dataObjArr, vmis[j],
+                                                 portTuples[i], vmiDetails,
+                                                 operation, appData);
+            } else {
+                formSvcInstPortTupleRefsPostData(addDataObjArr, vmis[j],
+                                                 portTuples[i], vmiDetails,
+                                                 operation, appData);
+            }
         }
     }
+
     async.mapSeries(dataObjArr,
               commonUtils.getServerResponseByRestApi(configApiServer,
                                                      false),
               function(error, data) {
-        if ('ADD' == operation) {
+        if (null != error) {
             callback(error, data);
+            return;
+        }
+        if ('ADD' == operation) {
+            addPortTupleRefsInVMI(addDataObjArr, appData,
+                                  function(error, data) {
+                callback(error, data);
+            });
             return;
         }
         dataObjArr = [];

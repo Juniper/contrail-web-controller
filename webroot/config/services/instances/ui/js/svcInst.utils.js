@@ -442,10 +442,11 @@ define([
                             columns: [{
                                 elementId: 'interfaceType',
                                 view: 'FormInputView',
-                                class: "", width: 385,
+                                class: "",
                                 name:'Interface Type',
                                 viewConfig: {
                                     placeholder: 'Select Interface Type',
+                                    width: 385,
                                     disabled: true,
                                     templateId:
                                         cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
@@ -456,11 +457,12 @@ define([
                             {
                                 elementId: 'interface',
                                 view: 'FormDropdownView',
-                                class: "", width: 345,
+                                class: "",
                                 name:'Virtual Machine Interface',
                                 viewConfig: {
                                     templateId:
                                         cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                    width: 345,
                                     path: 'interface',
                                     disabled: 'disable()',
                                     dataBindValue: 'interface()',
