@@ -136,7 +136,9 @@ define([
         label:"Display Name",
         name:"Policy",
         width: 200,
-        sortable: true,
+        sortable: {
+           sortBy: 'formattedValue'
+        },
         formatter: policyFormatters.PoliceyNameFormatter
     },
     {
@@ -144,6 +146,9 @@ define([
         label:"Connected networks",
         field: "virtual_network_back_refs",
         name: "Associated Networks",
+        sortable: {
+           sortBy: 'formattedValue'
+        },
         width: 150,
         formatter: policyFormatters.AssociatedNetworksFormatter
     },
@@ -152,6 +157,9 @@ define([
         label:"Rules",
         field: "network_policy_entries",
         name: "Rules",
+        sortable: {
+           sortBy: 'formattedValue'
+        },
         width: 650,
         formatter: policyFormatters.PolicyRulesFormatter
     }];
