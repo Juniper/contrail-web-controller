@@ -1866,7 +1866,11 @@ define(
                 }
 
                 self.getCpuText = function (cpu, noCpuText) {
-                    return (cpu != null && cpu != NaN)? cpu + ' %' : noCpuText;
+                    var ret = ifNotNumeric(cpu,noCpuText)
+                    if(ret != noCpuText) { 
+                        ret += ' %' ;
+                    }
+                    return ret;
                 }
             };
 
