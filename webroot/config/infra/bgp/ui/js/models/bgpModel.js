@@ -109,9 +109,6 @@ define([
             var selectedPeers = ifNull(modelConfig['bgp_router_refs'],[]),
                 peerModels = [], peerModel,
                 peerCollectionModel;
-            var availablePeers = window.bgp != null &&
-                window.bgp.availablePeers != null ?
-                window.bgp.availablePeers : [];
             if(selectedPeers.length > 0) {
                 for(var i = 0; i < selectedPeers.length; i++) {
                     var currentPeer = selectedPeers[i];
@@ -141,8 +138,7 @@ define([
                             currentPeer.bgp_router_parameters.autonomous_system,*/
                         family_attributes: familyAttrs,
                         user_created_auth_key_type : null,
-                        user_created_auth_key: null,
-                        peerDataSource: availablePeers
+                        user_created_auth_key: null
                     });
                     self.subscribePeerModelChangeEvents(peerModel);
                     peerModels.push(peerModel)
@@ -177,24 +173,6 @@ define([
         addPeer: function() {
             var peers = this.model().attributes['peers'],
                 peersArry = peers.toJSON();
-            var filteredPeers = [], peerUUIDS = [];
-            var newPeer;
-            var avlPeers = window.bgp.availablePeers;
-            if(peersArry.length) {
-                _.each(peersArry, function(peer) {
-                    peerUUIDS.push(peer.peerName());
-                });
-                _.each(avlPeers, function(peer) {
-                    if($.inArray(peer.uuid, peerUUIDS) === -1) {
-                        filteredPeers.push(peer);
-                    }
-                });
-                if(!filteredPeers.length) {
-                    return;
-                }
-            } else {
-                filteredPeers = avlPeers;
-            }
             newPeer = new BGPPeersModel({
                 peerName : null,
                 disabled: false,
@@ -205,9 +183,7 @@ define([
                 loop_count : null,
                 family_attributes: [],
                 user_created_auth_key_type : null,
-                user_created_auth_key: null,
-                peerDataSource: filteredPeers
-
+                user_created_auth_key: null
             });
             this.subscribePeerModelChangeEvents(newPeer);
             kbValidation.bind(this.editView,
@@ -509,6 +485,22 @@ define([
                 "user_created_address_family" : function(value, attr, finalObj) {
                     if(!value) {
                         return "At least one Address Family is required";
+                    }
+                },
+                "peers" : function(value, attr, finalObj) {
+                    var peersArray =  finalObj.peers.toJSON();
+                    var peers = [], sortedPeers, sortedPeerCnt, i;
+                    if(peersArray) {
+                        _.each(peersArray, function(item){
+                            peers.push(item.peerName());
+                        });
+                        sortedPeers = peers.sort();
+                        sortedPeerCnt = sortedPeers.length;
+                        for(i = 0; i < sortedPeerCnt; i++){
+                            if(sortedPeers[i] === sortedPeers[i + 1]){
+                                return "Peers are repeated";
+                            }
+                        }
                     }
                 }
             }
