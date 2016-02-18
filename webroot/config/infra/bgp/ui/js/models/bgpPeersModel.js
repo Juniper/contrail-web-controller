@@ -20,8 +20,7 @@ define([
             'passive' : false,
             'hold_time' : null,
             'loop_count' : null,
-            'family_attributes': [],
-            'peerDataSource': [],
+            'family_attributes': []
         },
         formatModelConfig: function(modelConfig){
             //populate auth data
@@ -63,8 +62,6 @@ define([
         addFamilyAttrs: function(root, index) {
             var familyAttrs = root.model().attributes.peers.toJSON()[index()].
                 model().attributes.family_attrs;
-            var familyAttrsArry =  familyAttrs.toJSON();
-            var filteredFamilyAttrs = [], selFamilyAttrNames = [];
             var newFamilyAttr;
             var avlFamilyAttrs = ctwc.FAMILY_ATTR_ADDRESS_FAMILY_DATA;
             if(root.model().attributes.user_created_router_type ===
@@ -73,27 +70,12 @@ define([
                     return familyAttr.text !== "erm-vpn";
                 });
             }
-            if(familyAttrsArry.length) {
-                _.each(familyAttrsArry, function(familyAttr){
-                    selFamilyAttrNames.push(familyAttr.address_family());
-                });
-                _.each(avlFamilyAttrs, function(familyAttr){
-                    if($.inArray(familyAttr.value, selFamilyAttrNames) === -1) {
-                        filteredFamilyAttrs.push(familyAttr);
-                    }
-                });
-                if(!filteredFamilyAttrs.length) {
-                    return;
-                }
-            } else {
-                filteredFamilyAttrs = avlFamilyAttrs;
-            }
             newFamilyAttr = new BGPFamilyAttrsModel(
                 {
                     address_family: null,
                     loop_count: null,
                     prefix_limit: null,
-                    familyAttrDataSource: filteredFamilyAttrs,
+                    familyAttrDataSource: avlFamilyAttrs,
                     disableFamilyAttr : false
                 }
             );
@@ -154,7 +136,24 @@ define([
                              return "Enter Loop count between  0 - 16 "
                          }
                      }
-                 }
+                },
+                "family_attrs" : function(value, attr, finalObj) {
+                    var familyAttrsArray =  finalObj.family_attrs.toJSON();
+                    var familyAttrs = [], sortedFamilyAttrs,
+                        sortedFamilyAttrsCnt, i;
+                    if(familyAttrsArray) {
+                        _.each(familyAttrsArray, function(item){
+                            familyAttrs.push(item.address_family());
+                        });
+                        sortedFamilyAttrs = familyAttrs.sort();
+                        sortedFamilyAttrsCnt = sortedFamilyAttrs.length;
+                        for(i = 0; i < sortedFamilyAttrsCnt; i++){
+                            if(sortedFamilyAttrs[i] === sortedFamilyAttrs[i + 1]){
+                                return "Family Attributes are repeated";
+                            }
+                        }
+                    }
+                }
             }
         }
     });

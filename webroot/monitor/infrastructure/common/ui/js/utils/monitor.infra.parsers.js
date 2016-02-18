@@ -18,6 +18,12 @@ define(
                     var retArr = [];
                     $.each(result,function(idx,d) {
                         var obj = {};
+                        var routerType = getValueByJsonPath(d,
+                            "value;ConfigData;bgp-router;bgp_router_parameters;router_type",
+                            null);
+                        if($.inArray(routerType, ctwc.BGP_AAS_ROUTERS) !== -1) {
+                            return true;
+                        }
                         obj['x'] = parseFloat(jsonPath(d,'$.value.ControlCpuState.cpu_info[0].cpu_share')[0]);
                         //Info:Need to specify the processname explictly
                         //for which we need res memory && Convert to MB

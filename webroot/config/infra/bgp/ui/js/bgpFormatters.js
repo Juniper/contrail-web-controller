@@ -132,7 +132,7 @@ define(['underscore'], function(_){
         self.availablePeers =  function(data, currentBGP) {
             var peers = [];
             for(var i = 0; i < data.length; i++) {
-                var row = data[i];
+                var row = data[i]["bgp-router"];
                 if(currentBGP && currentBGP === row.name) {
                     continue;
                 }
@@ -194,7 +194,7 @@ define(['underscore'], function(_){
                  adminState = adminDown ? "False" : "True";
              }
              return adminState;
-         }
+         };
     };
     return bgpFormatters;
 });
