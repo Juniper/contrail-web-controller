@@ -30,9 +30,11 @@ define([
         },
         validations: {
             globalConfigValidations: {
-                'autonomous_system': {
-                    pattern: 'number',
-                    required: true
+                'autonomous_system': function(value, attr, finalObj) {
+                    var asn = Number(value);
+                    if (isNaN(asn) || asn < 1 || asn > 65534) {
+                        return "Enter ASN number between 1-65534";
+                    }
                 },
                 'flow_export_rate': {
                     pattern: 'number',
@@ -357,7 +359,7 @@ define([
                 putData['global-system-config']['ibgp_auto_mesh'] =
                     newGlobalConfig['ibgp_auto_mesh'];
                 putData['global-system-config']['autonomous_system'] =
-                    newGlobalConfig['autonomous_system'];
+                    Number(newGlobalConfig['autonomous_system']);
                 if (null != configData['global-vrouter-config']) {
                     putData['global-vrouter-config']['uuid'] =
                         configData['global-vrouter-config']['uuid'];

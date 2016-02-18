@@ -94,8 +94,7 @@ define([
                                      isIPBoundToRange(cidr, end) == true)) {
                                     err.push('Enter IP Addresses within range ' + cidr);
                                 }
-                                if (gateway && (start == gateway ||
-                                                end == gateway)) {
+                                if (gateway && isIPBoundToIPRange(start, end, gateway) === 0) {
                                     err.push('IP Address conflicts with gateway');
                                 }
                             }
