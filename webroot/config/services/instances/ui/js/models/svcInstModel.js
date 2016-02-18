@@ -72,10 +72,6 @@ define([
                     if (!dispName.length) {
                         return "Service Instance Name is required";
                     }
-                    if (-1 != dispName.indexOf('_')) {
-                        return 'Underscore is not allowed in Service ' +
-                            'Instance Name';
-                    }
                 },
                 'service_health_check': function(val, attr, data) {
                     var svcTmpl = data.service_template;
