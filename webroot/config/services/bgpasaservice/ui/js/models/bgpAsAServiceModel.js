@@ -18,10 +18,10 @@ define([
             "autonomous_system": null,
             "bgpaas_session_attributes": {
                 "admin_down": false,
-                "passive": true,
-                "auth_data": null,
+                /*"passive": true,
+                "auth_data": null,*/
                 "hold_time": null,
-                "loop_count": null,
+                /*"loop_count": null,*/
                 "address_families": {
                     "family": []
                 },
@@ -29,8 +29,8 @@ define([
             },
             "virtual_machine_interface_refs": [],
             "user_created_virtual_machine_interface": null,
-            "user_created_auth_key_type": "none",
-            "user_created_auth_key": null,
+            /*"user_created_auth_key_type": "none",
+            "user_created_auth_key": null*/
         },
         formatModelConfig : function(modelConfig) {
             //prepare family attributes collection
@@ -67,7 +67,7 @@ define([
                     modelConfig["bgpaas_session_attributes"]["address_families"]["family"] =
                         ["inet", "inet6"];
                 }
-                if(bgpaasSessionAttrs['auth_data'] != null) {
+                /*if(bgpaasSessionAttrs['auth_data'] != null) {
                     var authData = bgpaasSessionAttrs['auth_data'];
                     modelConfig['user_created_auth_key_type'] =
                         authData.key_type != null ? authData.key_type : 'none';
@@ -75,7 +75,7 @@ define([
                         authData.key_items != null &&
                         authData.key_items.length > 0 ?
                         authData.key_items[0].key : '';
-                }
+                }*/
                 if(bgpaasSessionAttrs["admin_down"] != null) {
                     modelConfig["bgpaas_session_attributes"]['admin_down'] =
                         !bgpaasSessionAttrs["admin_down"];
@@ -205,7 +205,7 @@ define([
                 newBGPAsAServiceData["bgpaas_session_attributes"]["hold_time"] =
                     sessionAttrs.hold_time ? Number(sessionAttrs.hold_time) : 0;
 
-                //loop count
+               /* //loop count
                 newBGPAsAServiceData["bgpaas_session_attributes"]["loop_count"] =
                     sessionAttrs.loop_count ? Number(sessionAttrs.loop_count) : 0;
 
@@ -220,7 +220,7 @@ define([
                     };
                 } else {
                    newBGPAsAServiceData["bgpaas_session_attributes"]["auth_data"] = null;
-                }
+                }*/
 
                 //virtual_machine_interface refs
                  newBGPAsAServiceData["virtual_machine_interface_refs"] =
@@ -232,8 +232,8 @@ define([
                 delete newBGPAsAServiceData.id_perms;
                 delete newBGPAsAServiceData.elementConfigMap;
                 delete newBGPAsAServiceData.user_created_virtual_machine_interface;
-                delete newBGPAsAServiceData.user_created_auth_key_type;
-                delete newBGPAsAServiceData.user_created_auth_key;
+                /*delete newBGPAsAServiceData.user_created_auth_key_type;
+                delete newBGPAsAServiceData.user_created_auth_key;*/
                 delete newBGPAsAServiceData.familyAttrs;
 
                 postBGPAsAServiceData['bgp-as-a-service'] = newBGPAsAServiceData;
@@ -321,7 +321,7 @@ define([
                         }
                     }
                 },
-                 "bgpaas_session_attributes.loop_count" : function(value, attr, finalObj) {
+                 /*"bgpaas_session_attributes.loop_count" : function(value, attr, finalObj) {
                     if(value) {
                         if(isNaN(value) || Number(value) < 0 || Number(value) > 16) {
                             return "Enter Loop count between 0-16"
@@ -333,7 +333,7 @@ define([
                         && (value == null || value.trim() == '')) {
                         return "Enter a valid Authentication key";
                     }
-                },
+                },*/
                 "bgpaas_session_attributes.address_families.family" : function(value, attr, finalObj) {
                     if(!value) {
                         return "At least one Address Family is required";
