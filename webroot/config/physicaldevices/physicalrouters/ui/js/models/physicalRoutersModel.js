@@ -462,7 +462,6 @@ define([
                     postObject["physical-router"]
                         ['physical_router_snmp_credentials'] = null;
                 }
-                ajaxConfig.async = true;
                 ajaxConfig.type = ajaxOpt.type;
                 ajaxConfig.data = JSON.stringify(postObject);
                 ajaxConfig.url = ajaxOpt.url;//ctwc.URL_PHYSICAL_ROUTER_CREATE;

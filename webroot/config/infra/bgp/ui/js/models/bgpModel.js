@@ -352,6 +352,12 @@ define([
                    newBGPRouterCfgData.bgp_router_parameters.auth_data = null;
                 }
 
+                //source port
+                port = newBGPRouterCfgData.bgp_router_parameters.source_port;
+                if(!port) {
+                   delete newBGPRouterCfgData.bgp_router_parameters.source_port;
+                }
+
                 delete newBGPRouterCfgData.errors;
                 delete newBGPRouterCfgData.locks;
                 delete newBGPRouterCfgData.cgrid;

@@ -84,7 +84,7 @@ define([
                                            'value': {'subnet': []}, 'key': key});
                             continue;
                         }
-                        var subnet = value['subnet'];
+                        var subnet = getValueByJsonPath(value, "subnet", []);
                         var subnetLen = subnet.length;
                         var subnets = {'subnet': []};
                         for (var j = 0; j < subnetLen; j++) {
