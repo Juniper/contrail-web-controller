@@ -215,13 +215,25 @@ define([
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] = null;
             errors.set(attrErrorObj);
         },
-        showIntfTypeParams: function(version) {
+        showIntfTypeParams: function(parentModel) {
+            var version = parentModel.user_created_version();
+            var virtType =
+                parentModel.user_created_service_virtualization_type();
+            if ('physical-device' == virtType) {
+                return true;
+            }
             if ((null != version) && (1 != Number(version))) {
                 return false;
             }
             return true;
         },
         disableStaticRoute: function(parentModel, model) {
+            var virtType =
+                parentModel.user_created_service_virtualization_type();
+            if ('physical-device' == virtType) {
+                model.static_route_enable()(false);
+                return false;
+            }
             var svcMode = parentModel.user_created_service_mode();
             if ('transparent' == svcMode) {
                 model.static_route_enable()(false);
@@ -233,6 +245,11 @@ define([
         disableSharedIP: function(parentModel, model) {
             var svcScaling = parentModel.user_created_service_scaling();
             var svcMode = parentModel.user_created_service_mode();
+            var virtType = parentModel.user_created_service_virtualization_type();
+            if ('physical-device' == virtType) {
+                model.shared_ip()(false);
+                return false;
+            }
             if (true == svcScaling) {
                 var intfType = model.service_interface_type()();
                 switch (intfType) {
@@ -406,7 +423,17 @@ define([
             var postData = {'service-template':{}};
 
             var self = this;
-            if (self.model().isValid(true, "svcTemplateCfgConfigValidations")) {
+            var validationList = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'svcTemplateCfgConfigValidations',
+            },
+            {
+                key: 'interfaces',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'svcTemplateInterfaceConfigValidations'
+            }];
+            if (this.isDeepValid(validationList)) {
 
                 var newSvcTemplateCfgData = $.extend(true, {}, self.model().attributes);
 
@@ -469,6 +496,16 @@ define([
                     delete newSvcTemplateCfgData.service_template_properties.image_name;
                     newSvcTemplateCfgData.service_template_properties.service_mode='transparent';
                     newSvcTemplateCfgData.service_template_properties.service_type='firewall';
+                }
+                if (2 == version) {
+                    newSvcTemplateCfgData['service_template_properties']['flavor']
+                        = null;
+                    newSvcTemplateCfgData['service_template_properties']['image_name']
+                        = null;
+                    newSvcTemplateCfgData['service_template_properties']['availability_zone_enable']
+                        = null;
+                    newSvcTemplateCfgData['service_template_properties']['service_scaling']
+                        = null;
                 }
                 ctwu.deleteCGridData(newSvcTemplateCfgData);
                 delete newSvcTemplateCfgData.id_perms;

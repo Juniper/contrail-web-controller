@@ -266,7 +266,7 @@ define([
                                                  view: "FormEditableGridView",
                                                  viewConfig: {
                                                      path : 'interfaces',
-                                                     validations:
+                                                     validation:
                                                          'svcTemplateInterfaceConfigValidations',
                                                      templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                      collection: 'interfaces',
@@ -303,7 +303,7 @@ define([
                                                              disabled:
                                                                 '$root.disableSharedIP($root, $data)',
                                                              visible:
-                                                                '$root.showIntfTypeParams($root.user_created_version())',
+                                                                '$root.showIntfTypeParams($root)',
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
                                                              width: 80,
                                                              path: "shared_ip",
@@ -318,7 +318,7 @@ define([
                                                           viewConfig:
                                                             {
                                                              visible:
-                                                                '$root.showIntfTypeParams($root.user_created_version())',
+                                                                '$root.showIntfTypeParams($root)',
                                                              disabled:
                                                                  '$root.disableStaticRoute($root, $data)',
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
