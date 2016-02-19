@@ -160,7 +160,7 @@ define([
                         ' ('+ dataItem['name'] +')';
 
                 bgpAsAServiceEditView.model = bgpAsAServiceModel;
-                subscribeModelChangeEvents(bgpAsAServiceModel);
+                /*subscribeModelChangeEvents(bgpAsAServiceModel);*/
                 bgpAsAServiceEditView.renderAddEditBGPAsAService(
                     {"title": title, checkedRow: checkedRow,
                         callback: function () {
@@ -229,7 +229,7 @@ define([
 	                "onClick" : function() {
 	                    var bgpAsAServiceModel = new BGPAsAServiceModel();
 	                    bgpAsAServiceEditView.model = bgpAsAServiceModel;
-                        subscribeModelChangeEvents(bgpAsAServiceModel);
+                        /*subscribeModelChangeEvents(bgpAsAServiceModel);*/
 	                    bgpAsAServiceEditView.renderAddEditBGPAsAService(
 	                        {"title": ctwl.TITLE_ADD_BGP_AS_A_SERVICE,
 	                            callback: function () {

@@ -10,7 +10,7 @@ define([
         defaultConfig: {
             'prefix': '',
             'next_hop': '',
-            'next_hop_type': 'service-instance',
+            'next_hop_type': 'ip-address',
             'community_attr': ''
         },
         validateAttr: function (attributePath, validation, data) {

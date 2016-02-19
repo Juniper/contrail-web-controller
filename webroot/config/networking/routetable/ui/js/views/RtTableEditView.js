@@ -105,13 +105,13 @@ define([
                                 class: "",
                                 name: 'Prefix',
                                 viewConfig: {
-                                    width: 150,
-                                    placeholder: 'Prefix',
+                                    width: 200,
+                                    placeholder: 'Enter Prefix',
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     path: 'prefix',
                                     dataBindValue: 'prefix()'
                                 }
-                            };
+                          };
     viewConfigNextHopType = {
                                 elementId: 'next_hop_type',
                                 view: 'FormDropdownView',
@@ -119,19 +119,17 @@ define([
                                 name: 'Next Hop Type',
                                 viewConfig: {
                                     placeholder: 'Next Hop Type',
-                                    width: 150,
+                                    width: 200,
                                     templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                     path: 'next_hop_type',
                                     dataBindValue: 'next_hop_type()',
                                     elementConfig: {
                                         dataTextField: 'text',
                                         dataValueField: 'value',
-                                        data: [
-                                        {value: 'service-instance',
-                                            text: 'service-instance'},
-                                        {value: 'ip-address',
-                                            text: 'ip-address'}
-                                        ]
+                                        data: [{
+                                            value: 'ip-address',
+                                            text: 'ip-address'
+                                        }]
                                     }
                                 }
                             };
@@ -141,9 +139,8 @@ define([
                                 class: "",
                                 name: 'Next Hop',
                                 viewConfig: {
-                                    placeholder: 'IP or Service ' +
-                                                 'Instance FQN',
-                                    width: 150,
+                                    placeholder: 'Enter IP Address',
+                                    width: 200,
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     path: 'next_hop',
                                     dataBindValue: 'next_hop()'
@@ -154,10 +151,10 @@ define([
                                 elementId: 'community_attr',
                                 view: 'FormTextAreaView',
                                 class: "",
-                                name: 'Community Attributes',
+                                name: 'Communities',
                                 viewConfig: {
-                                    width: 200,
-                                    placeHolder: 'Attributes seperated by ' +
+                                    width: 400,
+                                    placeHolder: 'Communities separated by ' +
                                         'comma or press enter',
                                     templateId: cowc.TMPL_EDITABLE_GRID_TEXTAREA_VIEW,
                                     path: 'community_attr',
@@ -171,8 +168,9 @@ define([
         if(rtTableType === "route-table") {
             columns.push(viewConfigNextHopType);
             columns.push(viewConfigNextHop);
+        } else {
+            columns.push(viewConfigCommunityAttr);
         }
-        columns.push(viewConfigCommunityAttr);
         return columns;
     }
 
@@ -203,7 +201,7 @@ define([
             elementId: 'route_table',
             view: 'SectionView',
             viewConfig: {
-                
+
                 rows: [{
                     columns: [{
                         elementId: 'routes',
