@@ -32,9 +32,27 @@ define([
 
         validations: {
             svcTemplateInterfaceConfigValidations: {
-                'service_interface_type': {
-                    required: true,
-                    msg: 'Select Service Interface Type '
+                'service_interface_type': function (val, attr, obj) {
+                    if ((null == val) || ("" == val)) {
+                        return 'Interface type is required';
+                    }
+                    var errStr = 'Interface types can be either management, left, ' +
+                           'right or otherX';
+                    var arrSplit = val.split('other');
+                    var len = arrSplit.length;
+                    if (len > 2) {
+                        return errStr;
+                    }
+                    if (2 == len) {
+                        if (("" == arrSplit[1]) || (isNaN(arrSplit[1]))) {
+                            return errStr;
+                        }
+                        return;
+                    }
+                    if (('left' != val) && ('right' != val) &&
+                        ('management' != val)) {
+                        return errStr;
+                    }
                 }
             }
         }
