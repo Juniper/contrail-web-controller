@@ -2,7 +2,9 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['underscore'], function(_){
+define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
+    function(_, BGPFormatters){
+    var bgpFormatters = new BGPFormatters();
     var bgpConfigTemplates = function() {
         var self = this;
         self.advancedOptions = function(disableId) {
@@ -164,7 +166,7 @@ define(['underscore'], function(_){
                 }
             ];
         };
-        self.peerSelection = function() {
+        self.peerSelection = function(bgpName) {
             return [{
                 elementId : 'peer_selection_accordian',
                 view : 'AccordianView',
@@ -214,13 +216,19 @@ define(['underscore'], function(_){
                                                     path: "peerName",
                                                     dataBindValue: "peerName()",
                                                     width: 150,
-                                                    dataBindOptionList : "peerDataSource()",
                                                     templateId:
                                                         cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                     elementConfig: {
                                                         placeholder: "Select Peer",
                                                         dataTextField: "name",
-                                                        dataValueField: "uuid"
+                                                        dataValueField: "uuid",
+                                                        dataSource: {
+                                                            type: "remote",
+                                                            url: ctwc.URL_GET_BGP,
+                                                            parse: function(result) {
+                                                                return bgpFormatters.availablePeers(result, bgpName);
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             },

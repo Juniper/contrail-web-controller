@@ -24,7 +24,7 @@ define([
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 if((!self.model.isAutoMeshEnabled() ||
-                    self.model.user_created_router_type !== ctwl.CONTROL_NODE_TYPE) &&
+                    self.model.user_created_router_type() !== ctwl.CONTROL_NODE_TYPE) &&
                     self.model.getPeers(self.model.model().attributes).length === 0) {
                     var confTemplate = contrail.getTemplate4Id("controller-bgp-peer-conf-form-template");
                     var confTempLayout = confTemplate();
@@ -299,7 +299,7 @@ define([
                         },
                         {
                             columns :
-                               bgpConfigTemplates.peerSelection()
+                               bgpConfigTemplates.peerSelection(self.model.name())
                         }
 
                     ]
