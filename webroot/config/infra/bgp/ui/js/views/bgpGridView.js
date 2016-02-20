@@ -115,10 +115,6 @@ define([
                 var dataItem =
                     $('#' + ctwl.BGP_GRID_ID).data("contrailGrid").
                         _dataView.getItem(rowIndex);
-                window.bgp = window.bgp || {};
-                window.bgp.availablePeers =
-                    bgpFormatters.availablePeers($('#' + ctwl.BGP_GRID_ID).
-	                data("contrailGrid")._dataView.getItems(), dataItem['name']);
                 var bgpModel = new BGPModel(dataItem),
                     checkedRow = dataItem,
                     title =
@@ -199,10 +195,6 @@ define([
 	                "title" : ctwl.TITLE_ADD_BGP,
 	                "iconClass" : "icon-plus",
 	                "onClick" : function() {
-                        window.bgp =  window.bgp || {};
-                        window.bgp.availablePeers =
-                            bgpFormatters.availablePeers($('#' + ctwl.BGP_GRID_ID).
-	                        data("contrailGrid")._dataView.getItems());
 	                    var bgpModel = new BGPModel();
                         subscribeModelChangeEvents(bgpModel);
 	                    bgpEditView.model = bgpModel;
