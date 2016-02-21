@@ -234,7 +234,7 @@ define([
                     networkText = localNetwork.fq_name[2];
                 }
                 if(localNetworks[j]["virtual-network"]["router_external"]
-                    == false &&
+                    != true &&
                   "network_ipam_refs" in localNetworks[j]["virtual-network"] &&
                   localNetworks[j]["virtual-network"]
                                   ["network_ipam_refs"].length > 0){
