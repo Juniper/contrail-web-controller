@@ -372,7 +372,7 @@ define([
                                                     }
                                                 },
                                                 {
-                                                    label: 'SR-IOV',
+                                                    label: 'Provider Network',
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {

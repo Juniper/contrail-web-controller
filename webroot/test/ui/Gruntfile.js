@@ -611,43 +611,43 @@ module.exports = function (grunt) {
                 },
                 feature: 'config'
             }
-        },
-        routeAggregateGridView : {
-            options: {
-                files: [
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/*.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/**/*.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/test/ui/views/*.js',
-                        included : false
-                    }
-                ],
-                preprocessors: {
-                    'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/**/*.js': ['coverage']
-                },
-                junitReporter: {
-                    outputDir:__dirname + '/reports/tests/config/views/',
-                    outputFile: 'route-aggregate-grid-view-test-results.xml',
-                    suite: 'routeAggregateGridView',
-                    useBrowserName: false
-                },
-                htmlReporter: {
-                    outputFile:__dirname + '/reports/tests/config/views/route-aggregate-grid-view-test-results.html'
-                },
-                coverageReporter: {
-                    type: 'html',
-                    dir: __dirname + '/reports/coverage/config/views/routeAggregateGridView/',
-                    subdir : browserSubdirFn
-                },
-                feature: 'config'
-            }
         }
+//        routeAggregateGridView : {
+//            options: {
+//                files: [
+//                    {
+//                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/*.js',
+//                        included : false
+//                    },
+//                    {
+//                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/**/*.js',
+//                        included : false
+//                    },
+//                    {
+//                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/test/ui/views/*.js',
+//                        included : false
+//                    }
+//                ],
+//                preprocessors: {
+//                    'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/**/*.js': ['coverage']
+//                },
+//                junitReporter: {
+//                    outputDir:__dirname + '/reports/tests/config/views/',
+//                    outputFile: 'route-aggregate-grid-view-test-results.xml',
+//                    suite: 'routeAggregateGridView',
+//                    useBrowserName: false
+//                },
+//                htmlReporter: {
+//                    outputFile:__dirname + '/reports/tests/config/views/route-aggregate-grid-view-test-results.html'
+//                },
+//                coverageReporter: {
+//                    type: 'html',
+//                    dir: __dirname + '/reports/coverage/config/views/routeAggregateGridView/',
+//                    subdir : browserSubdirFn
+//                },
+//                feature: 'config'
+//            }
+//        }
     };
 
     var allTestFiles = [],
@@ -880,10 +880,10 @@ module.exports = function (grunt) {
                 grunt.task.run('karma:bgpAsAServiceGridView');
                 testDir = 'bgpAsAServiceGridView'
                 break;
-            case 'routeaggregates' :
+            /* case 'routeaggregates' :
                 grunt.task.run('karma:routeAggregateGridView');
                 testDir = 'routeAggregateGridView'
-                break;
+                break; */
             default :
                 grunt.task.run('karma:runAllConfigTests');
                 testDir = 'runAllConfigTests';
