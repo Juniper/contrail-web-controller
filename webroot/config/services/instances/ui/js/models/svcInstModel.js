@@ -251,15 +251,15 @@ define([
                     if (2 == tmplVersion) {
                         return;
                     }
-                    if (null == imgName) {
-                        return 'Image name not found for this template';
-                    }
                     var svcVirtType =
                         getValueByJsonPath(tmpl,
                                            'service_template_properties;service_virtualization_type',
                                            null);
                     if ('physical-device' == svcVirtType) {
                         return;
+                    }
+                    if (null == imgName) {
+                        return 'Image name not found for this template';
                     }
                     var imgList = window.imageList;
                     var imgCnt = imgList.length;
