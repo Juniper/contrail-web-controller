@@ -667,6 +667,14 @@ define([
         this.ROUTE_AGGREGATE_PREFIX_ID = "route_aggregate";
         this.URL_CREATE_ROUTE_AGGREGATE = "/api/tenants/config/route-aggregates";
         this.URL_UPDATE_ROUTE_AGGREGATE = "/api/tenants/config/route-aggregate/";
+
+        this.DEFAULT_COMMUNITIES = [
+            {text:"no-export",id:"no-export"},
+            {text:"accept-own",id:"accept-own"},
+            {text:"no-advertise",id:"no-advertise"},
+            {text:"no-export-subconfed",id:"no-export-subconfed"},
+            {text:"no-reoriginate",id:"no-reoriginate"}
+        ];
     };
 
     //str will be [0-9]+(m|h|s|d)

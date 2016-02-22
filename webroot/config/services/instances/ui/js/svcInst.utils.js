@@ -374,16 +374,21 @@ define([
                             },
                             {
                                 elementId: 'community_attributes',
-                                view: 'FormTextAreaView',
+                                view: 'FormMultiselectView',
                                 width:161,
                                 viewConfig: {
                                     label: 'Community',
                                     width: 161,
-                                    placeHolder: 'Attributes seperated by ' +
-                                        'comma or press enter',
-                                    templateId: cowc.TMPL_EDITABLE_GRID_TEXTAREA_VIEW,
+                                    templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                     path: 'community_attributes',
-                                    dataBindValue: 'community_attributes()'
+                                    dataBindValue: 'community_attributes()',
+                                    elementConfig: {
+                                        placeholder: 'Select or Enter Communities',
+                                        dataTextField: "text",
+                                        dataValueField: "id",
+                                        data : ctwc.DEFAULT_COMMUNITIES,
+                                        tags: true
+                                    }
                                 }
                             }]
                         }]

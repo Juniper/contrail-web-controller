@@ -149,16 +149,21 @@ define([
 
    viewConfigCommunityAttr = {
                                 elementId: 'community_attr',
-                                view: 'FormTextAreaView',
+                                view: 'FormMultiselectView',
                                 class: "",
                                 name: 'Communities',
                                 viewConfig: {
                                     width: 400,
-                                    placeHolder: 'Communities separated by ' +
-                                        'comma or press enter',
-                                    templateId: cowc.TMPL_EDITABLE_GRID_TEXTAREA_VIEW,
+                                    templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                     path: 'community_attr',
-                                    dataBindValue: 'community_attr()'
+                                    dataBindValue: 'community_attr()',
+                                    elementConfig: {
+                                        placeholder: 'Select or Enter Communities',
+                                        dataTextField: "text",
+                                        dataValueField: "id",
+                                        data : ctwc.DEFAULT_COMMUNITIES,
+                                        tags: true
+                                    }
                                 }
                             };
 
@@ -207,7 +212,6 @@ define([
                         elementId: 'routes',
                         view: 'FormEditableGridView',
                         viewConfig: {
-                            label: 'Route(s)',
                             path: 'routes',
                             collection: 'routes',
                             validation: 'rtTableRoutesValidation',
