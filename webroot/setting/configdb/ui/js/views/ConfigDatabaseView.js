@@ -4,8 +4,10 @@
 
 define([
     'underscore',
-    'contrail-view'
-], function (_, ContrailView) {
+    'contrail-view',
+    'setting/configdb/ui/js/models/ConfigDatabaseModel',
+    'setting/configdb/ui/js/views/ConfigDatabaseActionView'
+], function (_, ContrailView, ConfigDatabaseModel, ConfigDatabaseActionView) {
     var ConfigDatabaseView = ContrailView.extend({
         el: $(contentContainer),
 
@@ -345,7 +347,7 @@ define([
                     forceFitColumns: true,
                     actionCell: function (dc) {
                         if (gridConfig.actionCell && globalObj['configDBEditEnabled']) {
-                            return getActionCog(gridConfig.columnName, gridId);
+                            return getRowActionConfig(gridConfig.columnName, gridId);
                         } else {
                             return [];
                         }
@@ -385,66 +387,30 @@ define([
         }
     };
 
-    function getActionCog(columnName, gridId){
-        return [{
-            title: 'Delete',
-            iconClass: 'icon-trash',
-            onClick: function(rowIndex){
-                var selectedRow = $('#' + gridId).data('contrailGrid')._dataView.getItem(rowIndex);
-                if(columnName === "keys"){
-                    createModalForDelete(selectedRow, "delete-key");
-                }else if(columnName === "keyvalues"){
-                    createModalForDelete(selectedRow, "delete-key-value");
-                }
-            }
-        }];
-    };
+    function getRowActionConfig (columnName, gridId) {
+        var type = '',
+            rowActionConfig = [
+                ctwgc.getDeleteAction(function (rowIndex) {
+                    var dataItem = $('#' + gridId).data('contrailGrid')._dataView.getItem(rowIndex),
+                        configDatabaseModel = new ConfigDatabaseModel(dataItem),
+                        checkedRow = dataItem, title = ctwl.CDB_TITLE_DELETE_RECORD,
+                        configDatabaseActionView = new ConfigDatabaseActionView();
 
-    function createModalForDelete (selectedRow, type){
-        var textTemplate = '', modalId = "delete-cdb",
-            callbackObj = {
-                init: function () {
-                    cowu.enableModalLoading(modalId);
-                },
-                success: function () {
-                    $("#" + modalId).modal('hide');
-                },
-                error: function (error) {
-                    cowu.disableModalLoading(modalId, function () {});
-                }
-            };
-
-        if( (contrail.checkIfExist(selectedRow.keyvalue)) && (type == ctwc.DELETE_KEY_VALUE_TYPE) ){
-            textTemplate = '<div>Are you sure you want to delete <b>' + selectedRow.keyvalue + '</b> ?</div>';
-        } else if ((contrail.checkIfExist(selectedRow.key)) && (type == ctwc.DELETE_KEY_TYPE)) {
-            textTemplate = '<div>Are you sure you want to delete <b>' + selectedRow.key + '</b> ?</div>';
-        }
-
-        cowu.createModal({'modalId': modalId , 'className': 'modal-700', 'title': "Delete ", 'btnName': 'Confirm', 'body': textTemplate, 'onSave': function () {
-            var url, ajaxConfig = {};
-
-            if (type == ctwc.DELETE_KEY_TYPE) {
-                url = "/api/query/cassandra/key/" + selectedRow.table + "/" + selectedRow.key;
-            } else if (type == ctwc.DELETE_KEY_VALUE_TYPE) {
-                url = "/api/query/cassandra/value/" + selectedRow.table + "/" + selectedRow.key + "/" + selectedRow.keyvalue;
-            }
-
-            ajaxConfig.type = "DELETE";
-            ajaxConfig.url = url;
-
-            contrail.ajaxHandler(ajaxConfig, function (response) {
-                if (contrail.checkIfFunction(callbackObj.success)) {
-                    callbackObj.success();
-                }
-            }, function (error) {
-                if (contrail.checkIfFunction(callbackObj.error)) {
-                    callbackObj.error(error);
-                }
-            });
-
-        }, 'onCancel': function () {
-            $("#" + modalId).modal('hide');
-        }});
+                    configDatabaseActionView.model = configDatabaseModel;
+                    if (columnName === ctwl.CDB_LABEL_KEY) {
+                        type = "delete-key";
+                    } else if (columnName === ctwl.CDB_LABEL_KEY_VALUES) {
+                        type = "delete-key-value";
+                    }
+                    configDatabaseActionView.renderDeleteRecord({
+                        "title": title, "type": type, checkedRows: checkedRow, callback: function () {
+                            var dataView = $('#' + gridId).data("contrailGrid")._dataView;
+                            dataView.refreshData();
+                        }
+                    });
+                })
+            ];
+        return rowActionConfig;
     };
 
     return ConfigDatabaseView;
