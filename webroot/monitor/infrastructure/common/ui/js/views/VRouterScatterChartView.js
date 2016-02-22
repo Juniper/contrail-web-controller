@@ -62,10 +62,10 @@ define(['underscore', 'contrail-view'], function(_, ContrailView) {
                                },
                                tooltipConfigCB: monitorInfraUtils.vRouterTooltipFn,
                                controlPanelConfig: {
-                                   legend: {
-                                       enable: true,
-                                       viewConfig: monitorInfraUtils.getScatterChartLegendConfigForNodes()
-                                   },
+                                   // legend: {
+                                   //     enable: true,
+                                   //     viewConfig: monitorInfraUtils.getScatterChartLegendConfigForNodes()
+                                   // },
                                     filter: {
                                         enable: false,
                                         viewConfig: monitorInfraUtils.getScatterChartFilterConfigForNodes()
