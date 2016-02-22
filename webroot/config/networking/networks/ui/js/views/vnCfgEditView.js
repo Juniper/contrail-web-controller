@@ -779,7 +779,7 @@ define([
                                                 elementId: 'user_created_sriov_enabled',
                                                 view: 'FormCheckboxView',
                                                 viewConfig: {
-                                                    label: 'SR-IOV',
+                                                    label: 'Provider Network',
                                                     path: 'user_created_sriov_enabled',
                                                     class: 'span2',
                                                     dataBindValue: 'user_created_sriov_enabled',
