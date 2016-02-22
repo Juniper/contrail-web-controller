@@ -91,7 +91,7 @@ define([
                 }
             },
             columnHeader: {
-                columns: rtTableColumns
+                columns: rtTableColumns(tabId)
             },
             footer: {
             }
@@ -240,15 +240,15 @@ define([
                     dispStr += 'prefix ';
                     dispStr += '<span class="gridLabel">' + v[i]['prefix'] + '</span>';
                 }
-                if (null != v[i]['next_hop']) {
-                    dispStr += 'next-hop ';
-                    dispStr += '<span class="gridLabel">' + v[i]['next_hop'] +
-                        '</span>';
-                }
                 if (null != v[i]['next_hop_type']) {
                     dispStr += 'next-hop-type ';
                     dispStr += '<span class="gridLabel">' +
                         v[i]['next_hop_type'] + '</span>';
+                }
+                if (null != v[i]['next_hop']) {
+                    dispStr += 'next-hop ';
+                    dispStr += '<span class="gridLabel">' + v[i]['next_hop'] +
+                        '</span>';
                 }
                 var commAttr =
                     getValueByJsonPath(v[i],
@@ -268,24 +268,26 @@ define([
         return dispStr;
     }
 
-    var rtTableColumns = [
-        {
-            id: 'display_name',
-            field: 'display_name',
-            width: 20,
-            name: 'Route Table',
-        },
-        {
-            id: "route",
-            field: "route",
-            width: 80,
-            name: "Routes",
-            formatter: rtTablesFormatter,
-            sortable: {
-                sortBy: 'formattedValue'
+    var rtTableColumns = function(tabId) {
+        return [
+            {
+                id: 'display_name',
+                field: 'display_name',
+                width: 20,
+                name: 'Route Table',
+            },
+            {
+                id: "route",
+                field: "route",
+                width: 80,
+                name: (tabId == 0) ? 'Network Routes' : 'Interface Routes',
+                formatter: rtTablesFormatter,
+                sortable: {
+                    sortBy: 'formattedValue'
+                }
             }
-        }
-    ];
+        ];
+    }
 
     function getHeaderActionConfig(tabText) {
         var rtTableName = getRtTableDisplayName();
