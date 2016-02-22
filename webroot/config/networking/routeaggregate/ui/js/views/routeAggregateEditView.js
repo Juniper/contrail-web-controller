@@ -132,7 +132,6 @@ define([
                                                     viewConfig: {
                                                         path: "routes",
                                                         collection: "routes",
-                                                        label: 'Route Aggregate',
                                                         templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                         columns: [{
                                                             elementId: "route",
