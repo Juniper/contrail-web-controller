@@ -631,9 +631,13 @@ define([
             var intfs =
                 this.getInterfaceTypeVNMap(modelConfig['interfaces'].toJSON());
             for (var i = 0; i < portTuplesCnt; i++) {
+                var portTupleDispName =
+                    this.getPortTupleDisplayName(portTupleList[i]['to'][3],
+                                                 portTupleList[i], intfTypes);
                 var portTupleModel =
                     new PortTupleModel({portTupleName:
                                             portTupleList[i]['to'][3],
+                                        portTupleDisplayName: portTupleDispName,
                                         portTupleData:
                                             portTupleList[i],
                                         intfTypes: intfTypes,
@@ -648,6 +652,87 @@ define([
             this.getBackRefsByType(modelConfig, 'route_aggregate');
 
             return modelConfig;
+        },
+        getPortTupleDisplayName: function(portTupleName, portTupleData,
+                                          intfTypes) {
+            var vmis = getValueByJsonPath(portTupleData,
+                                          'virtual-machine-interfaces', []);
+            var dispName = "port-tuple";
+            var splitArr = portTupleName.split('-port-tuple');
+            if (splitArr.length > 0) {
+                var newArr = splitArr[1].split('-');
+                if (newArr.length > 0) {
+                    dispName += newArr[0];
+                }
+            }
+            var vmisCnt = vmis.length;
+            var vmiTypeToObjMap = {};
+            for (var i = 0; i < vmisCnt; i++) {
+                var vmiType =
+                    getValueByJsonPath(vmis[i],
+                                       'virtual_machine_interface_properties;service_interface_type',
+                                       null);
+                if (null == vmiType) {
+                    /* Weired */
+                    console.error('service interface type is null');
+                    continue;
+                }
+                vmiTypeToObjMap[vmiType] = vmis[i];
+            }
+            var intfTypesCnt = intfTypes.length;
+            for (var i = 0; i < intfTypesCnt; i++) {
+                var vmiObj = vmiTypeToObjMap[intfTypes[i]];
+                if (null == vmiObj) {
+                    continue;
+                }
+                if (0 == i) {
+                    dispName += ' : ';
+                }
+                var vmiId = vmiObj['uuid'];
+                var instIps = window.vmiToInstIpsMap[vmiId];
+                if ((null != instIps) && (instIps.length > 0)) {
+                    dispName += instIps[0];
+                }
+                if (i < vmisCnt - 1) {
+                    dispName += ', ';
+                }
+            }
+            return dispName;
+        },
+        setPortTupleName: function(model, portTupleEntry) {
+            var intfTypes = portTupleEntry.intfTypes();
+            var ctIntfType = model.get('interfaceType');
+            var intfIdx = intfTypes.indexOf(ctIntfType);
+            if (-1 == intfIdx) {
+                return;
+            }
+            var portTupleDispName = portTupleEntry.portTupleDisplayName();
+            var portTupleSplit = portTupleDispName.split(' : ');
+            var ips = [];
+            if (null != portTupleSplit[1]) {
+                ips = portTupleSplit[1].split(', ');
+            }
+            var intf = model.get('interface');
+            var vmiId = intf.split('~~')[1];
+            var intfCnt = intfTypes.length;
+            var dispStr = portTupleSplit[0] + ' : ';
+            for (var i = 0; i < intfCnt; i++) {
+                if (i == intfIdx) {
+                    /* Set the IP here */
+                    var instIps = window.vmiToInstIpsMap[vmiId];
+                    if ((null != instIps) && (instIps.length > 0)) {
+                        dispStr += instIps[0];
+                    }
+                } else {
+                    if (null != ips[i]) {
+                        dispStr += ips[i];
+                    }
+                }
+                if (i < intfCnt - 1) {
+                    dispStr += ', ';
+                }
+            }
+            portTupleEntry['portTupleDisplayName'](dispStr);
         },
         deleteModelCollectionData: function(model, type) {
             var collection = model.attributes[type];
@@ -724,6 +809,7 @@ define([
         },
         addPortTuple: function() {
             var svcInstName = this.model().get('display_name');
+            var self = this;
             if ((null == svcInstName) || (!svcInstName.trim().length)) {
                 var model = this.model();
                 var attr = cowu.getAttributeFromPath('display_name');
@@ -784,15 +870,29 @@ define([
                 tmpPortTupleId.toString() + '-' + newUUID['hex'];
             var intfs =
                 this.getInterfaceTypeVNMap(this.model().get('interfaces').toJSON());
+            var intfTypes = this.getIntfTypes(true);
+            var portTupleDispName =
+                this.getPortTupleDisplayName(portTupleName, null, intfTypes);
             var newPortTupleEntry =
                 new PortTupleModel({portTupleName: portTupleName,
+                                   portTupleDisplayName: portTupleDispName,
                                    portTupleData: {},
-                                   intfTypes: this.getIntfTypes(true),
+                                   intfTypes: intfTypes,
                                    parentIntfs: intfs, disable: false});
-
             kbValidation.bind(this.editView,
                                {collection:
                                newPortTupleEntry.model().attributes.portTupleInterfaces});
+            var portTupleIntfsColl =
+                newPortTupleEntry.model().attributes.portTupleInterfaces;
+            var portTupleIntfsCollLen = portTupleIntfsColl.length;
+            for (var i = 0; i < portTupleIntfsCollLen; i++) {
+                var model = portTupleIntfsColl.models[i]['attributes'].model();
+                self.newPortTupleEntry = newPortTupleEntry;
+                model.on('change:interface', function(model, newValue) {
+                    self.setPortTupleName(model,
+                                          self.newPortTupleEntry);
+                });
+            }
             portTupleCollection.add([newPortTupleEntry]);
         },
         getInterfaceTypeVNMap: function(intfData) {

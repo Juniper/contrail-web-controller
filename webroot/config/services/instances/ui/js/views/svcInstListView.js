@@ -236,14 +236,6 @@ define([
                         'type': 'route-aggregates',
                     },
                     {
-                        'type': 'virtual-machine-interfaces',
-                        /*
-                        'parent_fq_name_str': getCookie('domain') + ':' +
-                            getCookie('project'),
-                        'parent_type': 'project'
-                        */
-                    },
-                    {
                         'type': 'virtual-networks',
                         'parent_fq_name_str': contrail.getCookie('domain') +
                             ':' + contrail.getCookie('project'),
@@ -263,7 +255,6 @@ define([
                 window.interfaceRouteTableList = [];
                 window.routingPolicyList = [];
                 window.routeAggregateList = [];
-                window.vmiList = [];
                 window.allVNList = [];
                 if (null == response) {
                     return;
@@ -280,9 +271,6 @@ define([
                 window.routeAggregateList =
                     buildTextValueByConfigList(response[3],
                                                'route-aggregates');
-                window.vmiList =
-                    buildTextValueByConfigList(response[4],
-                                               'virtual-machine-interfaces');
                 window.allVNList = svcInstUtils.virtNwListFormatter(response[5]);
                 if (window.allVNList.length > 0) {
                     window.allVNList.unshift({'text':"Auto Configured",
@@ -294,7 +282,7 @@ define([
                 window.interfaceRouteTableList = [];
                 window.routingPolicyList = [];
                 window.routeAggregateList = [];
-                window.vmiList = [];
+                window.allVNList = [];
             }
         },
         {
