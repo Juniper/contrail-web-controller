@@ -234,11 +234,11 @@ define([
         /*
          * @subnetTmplFormatter
          */
-        this.subnetTmplFormatter = function(d, c, v, cd, dc) {
-            var ipamObjs =
-                contrail.handleIfNull(dc['network_ipam_refs'], []);
-
-            var len = ipamObjs.length, count = 0,
+        self.subnetTmplFormatter =  function(r, c, v, cd, dc) {
+            var subnetString = "";
+            var ipamObjs = getValueByJsonPath(dc,"network_ipam_refs", []);
+            
+             var len = ipamObjs.length, count = 0,
                         subnetCnt = 0, returnStr = '';
 
             if (!len) {
@@ -257,8 +257,11 @@ define([
 
                 for(var j = 0; j < subnetLen; j++) {
                     var ip_block = ipam['attr'][field][j];
-                    var cidr = ip_block.subnet.ip_prefix + '/' +
-                               ip_block.subnet.ip_prefix_len;
+                    var ipam_block= ipam['to']; 
+                   // var cidr = ip_block.subnet.ip_prefix + '/' +
+  //                             ip_block.subnet.ip_prefix_len;
+                    var ipamto = ipam_block[2] + ' ( ' + ipam_block[0] + ':' +ipam_block[1] + ')';
+                    var cidr = getValueByJsonPath(ip_block,"subnet;ip_prefix", []);
                     var gw   = ip_block.default_gateway;
                     var dhcp = ip_block.enable_dhcp ? 'Enabled' : 'Disabled'; 
                     var dns  = getSubnetDNSStatus(ip_block) ? 'Enabled' : 'Disabled';
@@ -268,7 +271,8 @@ define([
                     var allocPools = [];
                     if ('allocation_pools' in ip_block &&
                                 ip_block.allocation_pools.length) {
-                        allocPools = ip_block.allocation_pools;
+                        //allocPools = ip_block.allocation_pools;
+                        allocPools = getValueByJsonPath(ip_block,"allocation_pools", []);
                     }
                     var allocPoolStr = [];
                     allocPools.every(function(pool) {
@@ -276,16 +280,36 @@ define([
                         return true;
                     });
                     allocPoolStr.join(",");
-
-                    returnStr += cidr + ', Gateway ' + gwStatus +
-                                ', DHCP ' + dhcp + ', DNS ' + dns +
-                                (allocPoolStr.length ? ', Allocation Pools: ' +
-                                allocPoolStr : '') + '<br/>'
-                 }
-             }
-
-             return returnStr;
-        };
+                
+            if(ipamObjs.length > 0){
+                subnetString =
+                    "<table style='width:1000px !important;'><thead><tr><th style='width:200px!important;'>IPAM</th>\
+                    <th style='width:70px!important;'>CIDR</th>\
+                    <th style='width:70px!important;'>Gateway</th>\
+                    <th style='width:50px!important;'>DNS</th>\
+                    <th style='width:50px!important;'>DHCP</th>\
+                    <th style='width:100px!important;'>Allocation Pools</th>\
+                    </tr></thead>";
+                ipamObjs.forEach(function(subNet){
+                    var attr = getValueByJsonPath(subNet,
+                        "attr;session;0;attributes;0", {});
+                    subnetString += "<tr style='vertical-align:top'><td>";
+                    subnetString += ipamto + "</td><td>";
+                    subnetString += cidr + "</td><td>";
+                    subnetString += gw + "</td><td>";
+                    subnetString += dhcp + "</td><td>";
+                    subnetString += dns + "</td><td>";
+                    subnetString += allocPoolStr+ "</td>";
+                    subnetString += "</tr>";
+                    subnetString += "</table>";
+                });
+            } else {
+                subnetString = "-";
+            }
+                }
+            }
+            return subnetString;
+        }
 
         /*
          * @subnetModelFormatter
