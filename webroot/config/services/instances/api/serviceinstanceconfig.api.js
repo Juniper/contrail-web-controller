@@ -2102,8 +2102,8 @@ function deletePortTuplesAndSI (portTupleUUIDList, siID, appData, callback)
     if ((null == portTupleUUIDList) || (!portTupleUUIDList.length)) {
         configApiServer.apiDelete(siDelURL, appData, function(error, data) {
             callback(error, data);
-            return;
         });
+        return;
     }
 
     var portTuplesCnt = portTupleUUIDList.length;
