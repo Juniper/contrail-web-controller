@@ -15,6 +15,7 @@ define([
 
         defaultConfig: {
             portTupleName: "",
+            portTupleDisplayName: "",
             portTupleData: null,
             intfTypes: [],
             disable: false
@@ -42,28 +43,37 @@ define([
             var vnVmis = modelConfig.parentIntfs;
 
             var vmisCnt = vmis.length;
+            var vmiTypeToObjMap = {};
             for (var i = 0; i < vmisCnt; i++) {
                 var intfType =
                     vmis[i]['virtual_machine_interface_properties']
                         ['service_interface_type'];
+                vmiTypeToObjMap[intfType] = vmis[i];
+            }
+
+            var intfTypes = getValueByJsonPath(modelConfig, 'intfTypes', []);
+            var intfCnt = intfTypes.length;
+            for (var i = 0; i < intfCnt; i++) {
+                intfType = intfTypes[i];
+                var vmiObj = vmiTypeToObjMap[intfType];
+                if (null == vmiObj) {
+                    continue;
+                }
                 var vnName = vnVmis[intfType];
                 var vmiList = [];
                 if (window.vnVmiMaps[vnName]) {
                     vmiList = window.vnVmiMaps[vnName];
                 }
-                var vmi = vmis[i]['fq_name'].join(':') + "~~" + vmis[i]['uuid'];
+                var vmi = vmiObj['fq_name'].join(':') + "~~" + vmiObj['uuid'];
                 var propModel =
                     new InterfaceTypesModel({interfaceType: intfType,
-                                      interface: vmis[i]['fq_name'].join(':') +
-                                      "~~" + vmis[i]['uuid'],
+                                      interface: vmiObj['fq_name'].join(':') +
+                                      "~~" + vmiObj['uuid'],
                                       vmiListData: vmiList,
                                       disable: modelConfig['disable']});
                 propModels.push(propModel);
             }
             if (!vmisCnt) {
-                var intfTypes = getValueByJsonPath(modelConfig, 'intfTypes',
-                                                   []);
-                var intfCnt = intfTypes.length;
                 var vmi = null;
                 for (var i = 0; i < intfCnt; i++) {
                     var vnName = vnVmis[intfTypes[i]];
@@ -82,38 +92,6 @@ define([
             propCollectionModel = new Backbone.Collection(propModels);
             modelConfig['portTupleInterfaces'] = propCollectionModel;
             return modelConfig;
-        },
-        addPortTupleInterface: function() {
-            var svcTmpl = $('#service_template_dropdown').val();
-            var svcTmpls = $(gridElId).data('svcInstTmplts');
-            var svcTmplFqn = getCookie('domain') + ":" +
-                svcTmpl.split(' - [')[0];
-            var svcTmplObj = svcTmpls[svcTmplFqn];
-            var intfTypes =
-                getValueByJsonPath(svcTmplObj,
-                                   'service_template_properties;interface_type',
-                                   []);
-            var origList = [];
-            var intfCnt = intfTypes.length;
-            for (var i = 0; i < intfCnt; i++) {
-                origList.push(intfTypes[i]['service_interface_type']);
-            }
-            var props = this.model().attributes.model().get('portTupleInterfaces');
-            if (props.length >= intfTypes.length) {
-                return;
-            }
-            var count = props.length;
-            var vmi = window.vmiList.length > 0 ? window.vmiList[0].value : "";
-            var propsList = [];
-            for (var i = 0; i < count; i++) {
-                var model = props.at(i);
-                propsList.push(model.attributes.interfaceType());
-            }
-            var newIntf = _.difference(origList, propsList);
-            var newProp =
-                new InterfaceTypesModel({'interfaceType': newIntf[0],
-                                       'interface': vmi});
-            props.add([newProp]);
         },
         deletePortTuple: function() {
             var portTupleCollection =this .model().collection;
