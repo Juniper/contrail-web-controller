@@ -150,14 +150,12 @@ define([
                         title: cowl.TITLE_DELETE_ALL_QUERY_QUEUE,
                         iconClass: 'icon-trash',
                         onClick: function (event, gridContainer, key) {
-                            if (!$('#' + cowl.QE_DELETE_MULTIPLE_QUERY_QUEUE_CONTROL_ID).hasClass('disabled-link')) {
-                                var gridCheckedRows = $(gridContainer).data('contrailGrid').getCheckedRows(),
-                                    queryIds = $.map(gridCheckedRows, function(rowValue, rowKey) {
-                                        return rowValue.queryReqObj.queryId;
-                                    });
+                            var gridCheckedRows = $(gridContainer).data('contrailGrid').getCheckedRows(),
+                                queryIds = $.map(gridCheckedRows, function(rowValue, rowKey) {
+                                    return rowValue.queryReqObj.queryId;
+                                });
 
-                                showDeleteQueueModal(queryQueueView, queryQueueType, queryIds, queueColorMap);
-                            }
+                            showDeleteQueueModal(queryQueueView, queryQueueType, queryIds, queueColorMap);
                         }
                     }
                 ]
