@@ -276,6 +276,21 @@ define([
                                     }
                                 },
                                 {
+                                    elementId: "local_autonomous_system",
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                       path: "bgp_router_parameters.local_autonomous_system",
+                                       placeholder : '1 - 65535',
+                                       dataBindValue: "bgp_router_parameters().local_autonomous_system",
+                                       label: "BGP Router ASN",
+                                       class: "span6"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns : [
+                               {
                                     elementId: 'user_created_address_family',
                                     view: 'FormMultiselectView',
                                     viewConfig: {
@@ -284,7 +299,7 @@ define([
                                             'user_created_address_family',
                                         dataBindOptionList: 'addressFamilyData',
                                         label : 'Address Families',
-                                        class: 'span6',
+                                        class: 'span12',
                                         elementConfig: {
                                              dataTextField: "text",
                                              dataValueField: "value",
