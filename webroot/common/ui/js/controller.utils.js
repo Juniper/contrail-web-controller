@@ -221,12 +221,13 @@ define([
 
                         $(contentContainer).html(dataErrorTemplate(dataErrorConfig));
                     }
-                },
+                }/*,
                 cacheConfig : {
                     ucid: ctwc.UCID_BC_ALL_SA_SETS,
                     loadOnTimeout: false,
                     cacheTimeout: cowc.DOMAIN_CACHE_UPDATE_INTERVAL
                 }
+                */
             }
         };
 
@@ -265,7 +266,7 @@ define([
         };
 
         this.getProjectListModelConfig = function(domainObj, dropdownOptions) {
-            return {
+            var modelConfig = {
                 remote: {
                     ajaxConfig: {
                         url: ctwc.getProjectsURL(domainObj,
@@ -287,13 +288,18 @@ define([
                         $(contentContainer).html(dataErrorTemplate(dataErrorConfig));
                     }
                 },
-                cacheConfig : {
+            };
+            if ((null == dropdownOptions) ||
+                (null == dropdownOptions['config']) ||
+                (false == dropdownOptions['config'])) {
+                modelConfig.cacheConfig = {
                     ucid: ctwc.get(ctwc.UCID_BC_DOMAIN_ALL_PROJECTS,
                                    domainObj.name),
                     loadOnTimeout: false,
                     cacheTimeout: cowc.PROJECT_CACHE_UPDATE_INTERVAL
-                }
-            };
+                };
+            }
+            return modelConfig;
         };
 
         this.getDNSListModelConfig = function(dns) {
