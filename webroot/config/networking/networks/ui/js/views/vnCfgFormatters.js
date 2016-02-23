@@ -234,11 +234,10 @@ define([
         /*
          * @subnetTmplFormatter
          */
-        this.subnetTmplFormatter = function(d, c, v, cd, dc) {
-            var ipamObjs =
-                contrail.handleIfNull(dc['network_ipam_refs'], []);
-
-            var len = ipamObjs.length, count = 0,
+        this.subnetTmplFormatter =  function(d, c, v, cd, dc) {
+            var subnetString = "";
+            var ipamObjs = getValueByJsonPath(dc,"network_ipam_refs", []);
+             var len = ipamObjs.length, count = 0,
                         subnetCnt = 0, returnStr = '';
 
             if (!len) {
@@ -252,13 +251,15 @@ define([
             for(var i = 0; i < len; i++) {
                 var ipam = ipamObjs[i];
                 var field = 'ipam_subnets';
+                var subnet = ipam['attr'][field];
                 var subnetLen = ipam['attr'][field].length;
-                var returnArr = [];
-
                 for(var j = 0; j < subnetLen; j++) {
                     var ip_block = ipam['attr'][field][j];
-                    var cidr = ip_block.subnet.ip_prefix + '/' +
-                               ip_block.subnet.ip_prefix_len;
+                    var ipam_block= ipam['to'];
+                    var ipamto = ipam_block[2] + ' ( ' + ipam_block[0] + ':' +ipam_block[1] + ')';
+                    var cidr = getValueByJsonPath(ip_block,"subnet;ip_prefix", []);
+                    var cidrlen=getValueByJsonPath(ip_block,"subnet;ip_prefix_len");
+                    cidr = cidr + '/' + cidrlen;
                     var gw   = ip_block.default_gateway;
                     var dhcp = ip_block.enable_dhcp ? 'Enabled' : 'Disabled'; 
                     var dns  = getSubnetDNSStatus(ip_block) ? 'Enabled' : 'Disabled';
@@ -268,24 +269,43 @@ define([
                     var allocPools = [];
                     if ('allocation_pools' in ip_block &&
                                 ip_block.allocation_pools.length) {
-                        allocPools = ip_block.allocation_pools;
+                        allocPools = getValueByJsonPath(ip_block,"allocation_pools", []);
                     }
-                    var allocPoolStr = [];
-                    allocPools.every(function(pool) {
-                        allocPoolStr.push(pool.start + '-' + pool.end);
-                        return true;
+                    var allocPoolStr = "-";
+                    _.each(allocPools, function(pool, index) {
+                        pool = pool.start + ' - ' + pool.end;
+                        if(index === 0) {
+                            allocPoolStr = pool;
+                        } else {
+                            allocPoolStr += "<br/>" + pool;
+                        }
                     });
-                    allocPoolStr.join(",");
-
-                    returnStr += cidr + ', Gateway ' + gwStatus +
-                                ', DHCP ' + dhcp + ', DNS ' + dns +
-                                (allocPoolStr.length ? ', Allocation Pools: ' +
-                                allocPoolStr : '') + '<br/>'
-                 }
-             }
-
-             return returnStr;
-        };
+                    subnetString += "<tr style='vertical-align:top'><td>";
+                    subnetString += cidr + "</td><td>";
+                    subnetString += gw + "</td><td>";
+                    subnetString += dhcp + "</td><td>";
+                    subnetString += dns + "</td><td>";
+                    subnetString += allocPoolStr+ "</td>";
+                    subnetString += "</tr>";
+                }
+            }
+            var returnString = "";
+            if(subnetString != ""){
+                returnString =
+                    "<table style='width:100%'><thead><tr>\
+                    <th style='width:25%'>CIDR</th>\
+                    <th style='width:25%'>Gateway</th>\
+                    <th style='width:10%'>DNS</th>\
+                    <th style='width:10%'>DHCP</th>\
+                    <th style='width:30%'>Allocation Pools</th>\
+                    </tr></thead><tbody>";
+                returnString += subnetString;
+                returnString += "</tbody></table>";
+            } else {
+                returnString += "";
+            }
+            return returnString;
+        }
 
         /*
          * @subnetModelFormatter
