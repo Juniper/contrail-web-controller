@@ -195,8 +195,8 @@ define([
                         return tooltipContentTmpl({
                             info: [
                                 {label: 'Project', value: virtualNetworkName[0] + ':' + virtualNetworkName[1]},
-                                {label: 'Instance Count', value: viewElement.attributes.nodeDetails.more_attributes.vm_count},
-                                {label: 'Interface Count', value: viewElement.attributes.nodeDetails.more_attributes.vmi_count},
+                                {label: 'Instance Count', value: contrail.checkIfExist(viewElement.attributes.nodeDetails.more_attributes.vm_count) ? viewElement.attributes.nodeDetails.more_attributes.vm_count : '-'},
+                                {label: 'Interface Count', value: contrail.checkIfExist(viewElement.attributes.nodeDetails.more_attributes.vmi_count) ? viewElement.attributes.nodeDetails.more_attributes.vmi_count : '-'},
                                 {label: 'Throughput In/Out', value: formatThroughput(viewElement.attributes.nodeDetails.more_attributes.in_throughput) + " / " + formatThroughput(viewElement.attributes.nodeDetails.more_attributes.out_throughput)},
                             ],
                             iconClass: 'icon-contrail-virtual-network',
