@@ -17,6 +17,17 @@ define([
 
     var getRtTableTabViewConfig = function(viewConfig) {
         return function (projectSelectedValueData) {
+            var domain = {
+                'name':projectSelectedValueData.parentSelectedValueData.name,
+                'uuid':projectSelectedValueData.parentSelectedValueData.value,
+            }
+            var project = {
+                'name':projectSelectedValueData.name,
+                'uuid':projectSelectedValueData.value,
+            }
+            //Store the domain and project along with uuid to be used later.
+            ctwu.setGlobalVariable("domain", domain);
+            ctwu.setGlobalVariable("project", project);
             var newViewConfig =
                 $.extend(true, {}, viewConfig,
                          {projectSelectedValueData: projectSelectedValueData})
@@ -37,41 +48,74 @@ define([
 
     function getRtTableTabView (viewConfig) {
         return {
-            theme: 'classic',
+            theme: 'default',
             active: 0,
             tabs: [{
                elementId: 'network_route_table',
-               title: 'Network Route Table',
+               title: 'Network Route Tables',
                view: "RtTableListView",
                viewPathPrefix: "config/networking/routetable/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
+                       var tabId = $('#rt-table-tab').tabs('option', 'active');
+                       var tabText = 'Tab' + tabId.toString();
                        if ($('#' +
-                             ctwl.NETWORK_ROUTE_TABLE_ID).data('contrailGrid')) {
+                               ctwl.RT_TABLE_GRID_ID + tabText).data('contrailGrid')) {
                            $('#' +
-                             ctwl.NETWORK_ROUTE_TABLE_ID).data('contrailGrid').refreshView();
+                               ctwl.RT_TABLE_GRID_ID + tabText).data('contrailGrid').refreshView();
                        }
                    }
                }
            },
            {
                elementId: 'interface_route_table',
-               title: 'Interface Route Table',
+               title: 'Interface Route Tables',
                view: "RtTableInterfaceListView",
                viewPathPrefix: "config/networking/routetable/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
-                        if ($('#' +
-                              ctwl.INTERFACE_ROUTE_TABLE_ID).data('contrailGrid')) {
+                       var tabId = $('#rt-table-tab').tabs('option', 'active');
+                       var tabText = 'Tab' + tabId.toString();
+                        if ($('#' + ctwl.RT_TABLE_GRID_ID + tabText).data('contrailGrid')) {
                             $('#' +
-                              ctwl.INTERFACE_ROUTE_TABLE_ID).data('contrailGrid').refreshView();
+                                    ctwl.RT_TABLE_GRID_ID + tabText).data('contrailGrid').refreshView();
                         }
                     },
                     renderOnActivate: true
                 }
-            }]
+            },
+            {
+                elementId: 'routing_policy_tab',
+                title: 'Routing Policies',
+                view: "routingPolicyListView",
+                viewPathPrefix: "config/networking/routingpolicy/ui/js/views/",
+                viewConfig: viewConfig,
+                tabConfig: {
+                    activate: function(event, ui) {
+                         if ($('#' + ctwl.ROUTING_POLICY_GRID_ID).data('contrailGrid')) {
+                             $('#' + ctwl.ROUTING_POLICY_GRID_ID).data('contrailGrid').refreshView();
+                         }
+                     },
+                     renderOnActivate: true
+                 }
+             },
+             {
+                 elementId: 'route_aggregates_tab',
+                 title: 'Route Aggregates',
+                 view: "routeAggregateListView",
+                 viewPathPrefix: "config/networking/routeaggregate/ui/js/views/",
+                 viewConfig: viewConfig,
+                 tabConfig: {
+                     activate: function(event, ui) {
+                          if ($('#' + ctwc.ROUTE_AGGREGATE_GRID_ID).data('contrailGrid')) {
+                              $('#' + ctwc.ROUTE_AGGREGATE_GRID_ID).data('contrailGrid').refreshView();
+                          }
+                      },
+                      renderOnActivate: true
+                  }
+              }]
         }
     }
     function getRtTableConfig (viewConfig) {

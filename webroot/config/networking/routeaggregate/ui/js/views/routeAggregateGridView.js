@@ -108,7 +108,7 @@ define([
                     formatter: routeAggregateFormatter.nextHopFormatter
                 },                {
                     field: "aggregate-route-entries.route",
-                    name: "Routes",
+                    name: "Route Aggregate Prefixes",
                     sortable: true,
                     formatter: routeAggregateFormatter.routesFormatter
                 }]
@@ -246,7 +246,7 @@ define([
                                 },{
                                     key: "aggregate_route_entries.route",
                                     templateGenerator: "TextGenerator",
-                                    label: "Routes",
+                                    label: "Route Aggregate Prefixes",
                                     templateGeneratorConfig: {
                                         formatter: "RoutesFormatter"
                                     }
