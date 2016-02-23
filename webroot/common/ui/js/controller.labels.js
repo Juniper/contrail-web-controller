@@ -1050,6 +1050,19 @@ define([
         this.TITLE_ROUTE_AGGREGATE_MULTI_DELETE = 'Delete Route Aggregate(s)';
         this.TITLE_ADD_ROUTE_AGGREGATE = 'Create Route Aggregate';
 
+        // Health Check Config labels
+        this.CFG_SVC_HEALTH_CHK_PAGE_ID = 'config-svc-health-chk-page';
+        this.CFG_SVC_HEALTH_CHK_LIST_ID = 'config-svc-health-chk-list';
+        this.CFG_SVC_HEALTH_CHK_LIST_VIEW_ID = 'config-svc-health-chk-list-view';
+        this.CFG_SVC_HEALTH_CHK_GRID_ID = 'config-svc-health-chk-grid';
+        this.CFG_SVC_HEALTH_CHK_PREFIX_ID = 'HealthCheckServices';
+        this.CFG_SVC_HEALTH_CHK_TITLE = 'Health Check Services';
+        this.CFG_SVC_HEALTH_CHK_TITLE_SUMMARY = 'Health Check Summary';
+        this.CFG_SVC_HEALTH_CHK_TITLE_DETAILS = 'Details';
+        this.CFG_SVC_HEALTH_CHK_TITLE_EDIT = 'Edit Health Check Service';
+        this.CFG_SVC_HEALTH_CHK_TITLE_CREATE = 'Create Health Check Service';
+        this.CFG_SVC_HEALTH_CHK_TITLE_DELETE = 'Delete Health Check Service';
+        this.CFG_SVC_HEALTH_CHK_TITLE_MULTI_DELETE = 'Delete Health Check Service(s)';
     };
     return CTLabels;
 });

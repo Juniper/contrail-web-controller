@@ -723,6 +723,23 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Configure Service Instances</searchStrings>
+                            </item>
+                            <item>
+                            <label>Health Check</label>
+                            <hash>config_service_healthchk</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/services/svchealthcheck/ui</rootDir>
+                                    <js>svcHealthChkCfg.main.js</js>
+                                    <class>svcHealthChkCfgLoader</class>
+                                    <function>rendersvcHealthChkCfg</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Service Health Check, Health, Check</searchStrings>
                         </item>
                         <item>
                             <label>BGP as a Service</label>
