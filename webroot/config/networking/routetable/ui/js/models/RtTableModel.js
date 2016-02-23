@@ -64,6 +64,14 @@ define([
                 var prefix = routesCollection[i]['prefix']();
                 if ((null != prefix) && (!prefix.length)) {
                     prefix = null;
+                } else {
+                    if (-1 == prefix.indexOf('/')) {
+                        if (isIPv4(prefix)) {
+                            prefix = prefix + '/32';
+                        } else if (isIPv6(prefix)) {
+                            prefix = prefix + '/128';
+                        }
+                    }
                 }
                 var nextHop = routesCollection[i]['next_hop']();
                 if ((null != nextHop) && (!nextHop.length)) {
