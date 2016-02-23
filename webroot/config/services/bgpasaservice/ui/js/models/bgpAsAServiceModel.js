@@ -303,6 +303,9 @@ define([
                     msg: 'Enter BGP as a Service Name'
                 },
                 'bgpaas_ip_address' : function(value, attr, finalObj){
+                    if (value == null || value == '') {
+                        return "Enter an IP Address";
+                    }
                     if (value && (!isValidIP(value) || value.trim().indexOf("/") != -1)) {
                         return "Enter an IP Address in the format xxx.xxx.xxx.xxx";
                     }

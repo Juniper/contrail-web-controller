@@ -407,14 +407,14 @@ define([
                                                 {
                                                     key :
                                                     'bgp_router_parameters.autonomous_system',
-                                                    label : 'BGP ASN',
+                                                    label : 'Autonomous System',
                                                     templateGenerator :
                                                         'TextGenerator'
                                                 },
                                                 {
                                                     key :
                                                     'bgp_router_parameters.local_autonomous_system',
-                                                    label : 'Local ASN',
+                                                    label : 'BGP Router ASN',
                                                     templateGenerator :
                                                         'TextGenerator'
                                                 },
