@@ -65,7 +65,7 @@ define([
             'UveVMInterfaceAgent:virtual_network', 'UveVMInterfaceAgent:ip6_address', 'UveVMInterfaceAgent:ip_address',
             'UveVMInterfaceAgent:gateway', 'UveVMInterfaceAgent:ip6_active', 'UveVMInterfaceAgent:vm_name', 'UveVMInterfaceAgent:if_stats',
             'UveVMInterfaceAgent:in_bw_usage', 'UveVMInterfaceAgent:out_bw_usage', "UveVMInterfaceAgent:mac_address",
-            'UveVMInterfaceAgent:uuid', 'UveVMInterfaceAgent:vm_uuid'
+            'UveVMInterfaceAgent:uuid', 'UveVMInterfaceAgent:vm_uuid', 'UveVMInterfaceAgent:active'
         ];
 
         this.FILTERS_COLUMN_VM = ['UveVirtualMachineAgent:interface_list', 'UveVirtualMachineAgent:vrouter', 'UveVirtualMachineAgent:fip_stats_list',
