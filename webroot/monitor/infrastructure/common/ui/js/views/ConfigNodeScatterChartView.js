@@ -61,10 +61,10 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                },
                                tooltipConfigCB : getConfigNodeTooltipConfig,
                                controlPanelConfig: {
-                                   legend: {
-                                       enable: true,
-                                       viewConfig: getControlPanelLegendConfig()
-                                   }
+                                   // legend: {
+                                   //     enable: true,
+                                   //     viewConfig: getControlPanelLegendConfig()
+                                   // }
                                },
                                clickCB : onScatterChartClick
                            }
