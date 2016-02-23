@@ -58,7 +58,8 @@ define([
                     text = text + ' - (' + instIpAddrs.join(', ') + ')';
                 }
                 return {text: text, id:
-                             vmi['fq_name'].join(':') + "~~" + vmi['uuid']};
+                             vmi['fq_name'].join(':') + "~~" + vmi['uuid'],
+                        instIps: instIpAddrs};
             } else {
                 var tmpFqn =
                     JSON.parse(JSON.stringify(vmi['fq_name']));
@@ -70,12 +71,14 @@ define([
                 return {text: text +" (" + domProj.join(':')
                              + ")",
                              id: vmi['fq_name'].join(':') +
-                             "~~" + vmi['uuid']};
+                             "~~" + vmi['uuid'],
+                        instIps: instIpAddrs};
             }
             return {};
         },
         this.vmiListFormatter = function(vmis) {
             var vnVmiMaps = {};
+            var vmiToInstIpsMap = {};
             var vnList = [];
             if ((null == vmis) || (!vmis.length)) {
                 return ({vnList:
@@ -85,6 +88,7 @@ define([
             var vmisCnt = vmis.length;
             var tmpVNIds = {};
             window.allVMIList = [];
+            window.vmiToInstIpsMap = {};
             for (var i = 0; i < vmisCnt; i++) {
                 var vmi =
                     getValueByJsonPath(vmis[i],
@@ -94,6 +98,9 @@ define([
                 }
                 var builtVMI = this.buildVMI(vmi);
                 window.allVMIList.push(builtVMI);
+                if (null != builtVMI.instIps) {
+                    window.vmiToInstIpsMap[vmi.uuid] = builtVMI.instIps;
+                }
                 var vmRefs = getValueByJsonPath(vmi,
                                                 'virtual_machine_refs',
                                                 []);
@@ -400,15 +407,15 @@ define([
                      iconClass: 'icon-minus'}
                 ],
                 columns: [{
-                    elementId: 'portTupleName',
+                    elementId: 'portTupleDisplayName',
                     view: 'FormInputView',
                     class: "", width: "600",
-                    name: 'Tuple Name',
+                    name: 'Tuple',
                     viewConfig: {
                         disabled: true,
                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                        path: 'portTupleName',
-                        dataBindValue: 'portTupleName()'
+                        path: 'portTupleDisplayName',
+                        dataBindValue: 'portTupleDisplayName()'
                     }
                 }]
             }
