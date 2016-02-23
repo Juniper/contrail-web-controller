@@ -584,9 +584,77 @@ function getUUIDByFQN (fqnAppObj, callback) {
     });
 }
 
+
+function createOrUpdateConfigObjectCB (dataObjArr, callback)
+{
+    var reqUrl = dataObjArr['reqUrl'];
+    var appData = dataObjArr['appData'];
+    var data = dataObjArr['data'];
+    var type = dataObjArr['type'];
+    if (global.HTTP_REQUEST_PUT == type) {
+        configApiServer.apiPut(reqUrl, data, appData, function(error, data) {
+            callback(error, data);
+        });
+    } else {
+        configApiServer.apiPost(reqUrl, data, appData, function(error, data) {
+            callback(error, data);
+        });
+    }
+}
+
+function createConfigObject (req, res, appData)
+{
+    var body = req.body;
+    if (null === body) {
+        var error = new appErrors.RESTServerError('Invalid POST Data');
+        commonUtils.handleJSONResponse(error, res, null);
+        return;
+    }
+    createOrUpdateConfigObject(body, global.HTTP_REQUEST_POST,
+                               appData, function(error, results) {
+        commonUtils.handleJSONResponse(error, res, results);
+    });
+}
+
+function updateConfigObject (req, res, appData)
+{
+    var body = req.body;
+    if (null === body) {
+        var error = new appErrors.RESTServerError('Invalid POST Data');
+        commonUtils.handleJSONResponse(error, res, null);
+        return;
+    }
+    createOrUpdateConfigObject(body, global.HTTP_REQUEST_PUT,
+                               appData, function(error, results) {
+        commonUtils.handleJSONResponse(error, res, results);
+    });
+}
+
+function createOrUpdateConfigObject (body, type, appData, callback)
+{
+    var dataObjArr = [];
+    var data = body['data'];
+    var reqCnt = data.length;
+    var dataObjArr = [];
+    for (var i = 0; i < reqCnt; i++) {
+        dataObjArr[i] = {};
+        dataObjArr[i]['type'] = type;
+        dataObjArr[i]['data'] = data[i]['data'];
+        dataObjArr[i]['appData'] = appData;
+        dataObjArr[i]['reqUrl'] = data[i]['reqUrl'];
+    }
+    async.map(dataObjArr, createOrUpdateConfigObjectCB,
+              function(err, results) {
+        callback(err, results);
+    });
+}
+
+
 exports.getConfigUUIDList = getConfigUUIDList;
 exports.deleteMultiObject = deleteMultiObject;
 exports.getConfigDetails = getConfigDetails;
+exports.createConfigObject = createConfigObject;
+exports.updateConfigObject = updateConfigObject;
 exports.getConfigList = getConfigList;
 exports.deleteMultiObjectCB = deleteMultiObjectCB;
 exports.deleteConfigObj = deleteConfigObj;
