@@ -549,7 +549,7 @@ define([
             var vlan =  attr.logical_interface_vlan_tag != null &&
                 attr.logical_interface_vlan_tag.toString().trim() != ''?
                 parseInt(attr.logical_interface_vlan_tag.toString().trim()) :
-                null;
+                0;
             var pRouterDD = editView.pRouterSelData;
             var pRouterUUID = pRouterDD.value;
             var postObject = {};

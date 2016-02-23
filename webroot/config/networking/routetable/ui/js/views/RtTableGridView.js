@@ -88,6 +88,19 @@ define([
                     },
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading '+ text +'..',
+                    },
+                    empty: {
+                        text: 'No '+ text +' to display'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Data.'
+                    }
                 }
             },
             columnHeader: {
