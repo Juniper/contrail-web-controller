@@ -225,6 +225,7 @@ define([
                                         dataBindValue:'vrf_name',
                                         elementConfig: {
                                             defaultValueId: 0,
+                                            dropdownAutoWidth : false,
                                             dataSource: {
                                                 type:'remote',
                                                 url: contrail.format(
