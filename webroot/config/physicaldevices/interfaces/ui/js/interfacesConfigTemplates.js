@@ -143,6 +143,7 @@ define([
                             viewConfig: {
                                 path: ctwl.VLAN,
                                 label : 'VLAN ID',
+                                placeholder : '0',
                                 dataBindValue: ctwl.VLAN,
                                 disabled: disableId,
                                 class: "span12"
