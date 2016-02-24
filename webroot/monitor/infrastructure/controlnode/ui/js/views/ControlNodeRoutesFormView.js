@@ -130,6 +130,7 @@ define([
                                         class: "span6",
                                         elementConfig: {
                                             defaultValueId: 0,
+                                            dropdownAutoWidth : false,
                                             dataTextField:'text',
                                             dataValueField:'value',
                                             data: routingInstancesDropdownList
