@@ -489,7 +489,7 @@ define([
         if (!noInstCnt) {
             return '-';
         }
-        return noInstCnt.toString() + ' instance';
+        return noInstCnt;
     }
 
     function instCountFormatter (row, col, val, d, rowData, isExpand) {
@@ -524,9 +524,9 @@ define([
                                    '-')
             if ("-" != maxInst) {
                 if (1 == maxInst) {
-                    return maxInst + " Instance";
+                    return maxInst;
                 } else {
-                    return maxInst + " Instances";
+                    return maxInst;
                 }
             }
             return maxInst;
