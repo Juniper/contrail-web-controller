@@ -13,9 +13,10 @@ define([
     'config/services/instances/ui/js/models/IntfRtTableModel',
     'config/services/instances/ui/js/models/RtPolicyModel',
     'config/services/instances/ui/js/models/RtAggregateModel',
+    'config/services/instances/ui/js/models/AllowedAddressPairModel'
 ], function (_, ContrailModel, Knockout, InterfacesModel, SvcInstUtils,
              PortTupleModel, SvcHealthChkModel, IntfRtTableModel, RtPolicyModel,
-             RtAggregateModel) {
+             RtAggregateModel, AllowedAddressPairModel) {
     var gridElId = "#" + ctwl.SERVICE_INSTANCES_GRID_ID;
     var svcInstUtils = new SvcInstUtils();
     var SvcInstModel = ContrailModel.extend({
@@ -651,6 +652,38 @@ define([
             this.getBackRefsByType(modelConfig, 'routing_policy');
             this.getBackRefsByType(modelConfig, 'route_aggregate');
 
+            /* Allowed Address Pair */
+            var intfList =
+                getValueByJsonPath(modelConfig,
+                                   'service_instance_properties;interface_list',
+                                   []);
+            var intfListLen = intfList.length;
+            var addrPairModels = [];
+            var len = intfTypes.length;
+            var typesDropDownList = [];
+            for (var i = 0; i < len; i++) {
+                typesDropDownList.push({text: intfTypes[i], id: intfTypes[i]});
+            }
+            for (var i = 0; i < intfListLen; i++) {
+                var allowedAddrPair =
+                    getValueByJsonPath(intfList[i],
+                                       'allowed_address_pairs;allowed_address_pair',
+                                       []);
+                var addrPairLen = allowedAddrPair.length;
+                if (!addrPairLen) {
+                    continue;
+                }
+                for (var j = 0; j < addrPairLen; j++) {
+                    var aapObj = allowedAddrPair[j];
+                    aapObj['interface_type'] = intfTypes[i];
+                    aapObj['interfaceTypesData'] = typesDropDownList;
+                    var allowAddressPairModel = new
+                        AllowedAddressPairModel(aapObj);
+                    addrPairModels.push(allowAddressPairModel);
+                }
+            }
+            var appCollectionModel = new Backbone.Collection(addrPairModels);
+            modelConfig['allowedAddressPairCollection'] = appCollectionModel;
             return modelConfig;
         },
         getPortTupleDisplayName: function(portTupleName, portTupleData,
@@ -764,6 +797,8 @@ define([
             this.deleteModelCollectionData(this.model(), 'intfRtTables');
             this.deleteModelCollectionData(this.model(), 'rtPolicys');
             this.deleteModelCollectionData(this.model(), 'rtAggregates');
+            this.deleteModelCollectionData(this.model(),
+                                           'allowedAddressPairCollection');
             var interfaces = this.model().attributes['interfaces'];
             var interfaeTypes = [];
             if ((null != svcTmpls) && (null != svcTmpls[svcTmplFqn])) {
@@ -810,6 +845,7 @@ define([
         addPortTuple: function() {
             var svcInstName = this.model().get('display_name');
             var self = this;
+            /*
             if ((null == svcInstName) || (!svcInstName.trim().length)) {
                 var model = this.model();
                 var attr = cowu.getAttributeFromPath('display_name');
@@ -820,6 +856,7 @@ define([
                 errors.set(attrErrorObj);
                 return;
             }
+            */
             /* Why this function gets called, even when the port_tuple stuff
                in invisible
              */
@@ -977,6 +1014,13 @@ define([
                                       interfaceTypesData: types});
             rtAggregates.add([newEntry]);
         },
+        addAAP: function() {
+            var types = this.getIntfTypes(false);
+            var aapList = this.model().attributes['allowedAddressPairCollection'],
+                allowAddressPairModel = new
+                AllowedAddressPairModel({'interfaceTypesData': types});
+            aapList.add([allowAddressPairModel]);
+        },
         deleteSvcInstProperty: function(data, property) {
             var collection = data.model().collection;
             var entry = property.model();
@@ -1021,6 +1065,43 @@ define([
             }
             return vn;
         },
+        getAllowedAddressPairsByIntfType: function(aapCollection) {
+            var intfTypeToAapMapList = {};
+            if (null == aapCollection) {
+                return intfTypeToAapMapList;
+            }
+            var aapCollectionLen = aapCollection.length;
+            for (var i = 0; i < aapCollectionLen; i++) {
+                var intfType = aapCollection[i]['interface_type']();
+                if (null == intfTypeToAapMapList[intfType]) {
+                    intfTypeToAapMapList[intfType] = [];
+                }
+                var aapObj = {};
+                var prefix = 32;
+                var ip = aapCollection[i].user_created_ip();
+                var mac = aapCollection[i].mac();
+                aapObj["mac"] = null;
+                if ((null != mac) && ("" != mac)) {
+                    aapObj["mac"] = mac;
+                }
+                if ((null != ip) && ("" != ip)) {
+                    aapObj["ip"] = {};
+                    if (2 == ip.split("/").length) {
+                        prefix = Number(ip.split("/")[1]);
+                        ip = ip.split("/")[0];
+                    } else {
+                        if (isIPv6(ip)) {
+                            prefix = 128;
+                        }
+                    }
+                    aapObj["ip"]["ip_prefix"] = ip;
+                    aapObj["ip"]["ip_prefix_len"] = prefix;
+                }
+                aapObj["address_mode"] = 'active-standby';
+                intfTypeToAapMapList[intfType].push(aapObj);
+            }
+            return intfTypeToAapMapList;
+        },
         getSIProperties: function() {
             var siProp = {};
             var intfList = [];
@@ -1031,6 +1112,10 @@ define([
             var coll = this.model().attributes.interfaces;
             var len = coll.length;
             var models = coll['models'];
+            var aapCollection =
+                this.model().attributes.allowedAddressPairCollection.toJSON();
+            var intfTypeToAapMapList =
+                this.getAllowedAddressPairsByIntfType(aapCollection);
             for (var i = 0; i < len; i++) {
                 var attr = models[i]['attributes'];
                 intfList[i] = {};
@@ -1038,6 +1123,12 @@ define([
                 vn = this.getSIVirtualNetwork(vn);
                 var intfType = attr['interfaceType']();
                 intfList[i]['virtual_network'] = vn;
+                var aapList = intfTypeToAapMapList[intfType];
+                if (null != aapList) {
+                    intfList[i]['allowed_address_pairs'] =
+                        {'allowed_address_pair': aapList};
+                }
+
                 /* Now check if we have Static RTs */
                 if ('right' == intfType) {
                     siProp['right_virtual_network'] = vn;
@@ -1253,6 +1344,11 @@ define([
                 getValidation: 'interfacesValidation',
             },
             {
+                key: 'allowedAddressPairCollection',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'allowedAddressPairValidations'
+            },
+            {
                 key: ['portTuples', 'portTupleInterfaces'],
                 type: cowc.OBJECT_TYPE_COLLECTION_OF_COLLECTION,
                 getValidation: 'portTupleInterfacesValidation'
@@ -1340,6 +1436,7 @@ define([
                 delete newSvcInst['svcHealtchChecks'];
                 delete newSvcInst['rtPolicys'];
                 delete newSvcInst['rtAggregates'];
+                delete newSvcInst['allowedAddressPairCollection'];
 
                 if (null == newSvcInst['uuid']) {
                     delete newSvcInst['uuid'];
