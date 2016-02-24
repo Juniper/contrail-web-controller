@@ -27,7 +27,7 @@ define([
                 queryFormModel = this.model,
                 limit = parseInt(queryFormModel.limit()),
                 reqObj = {
-                    async: 'false',
+                    async: false,
                     chunkSize: limit,
                     autoLimit: 'false'
                 };
