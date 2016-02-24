@@ -69,7 +69,10 @@ define([
 
     function activate (e, ui) {
         var selTab = $(ui.newTab.context).text();
-        if (selTab == ctwl.UNDERLAY_TRACEFLOW_TITLE &&
+        if (selTab == ctwl.UNDERLAY_SEARCHFLOW_TITLE &&
+            $('#' + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-results").data('contrailGrid') != null) {
+            $('#' + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-results").data('contrailGrid').refreshView();
+        } else if (selTab == ctwl.UNDERLAY_TRACEFLOW_TITLE &&
              $("#" + ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid') != null) {
             $("#" + ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid')
                                                    .refreshView();
