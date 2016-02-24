@@ -438,6 +438,20 @@ define([
             }
             return activeDNSRecData;
         };
+
+        this.svcHealthChkCfgDataParser = function(response) {
+           var retArr = [];
+           var svcHealthChk = getValueByJsonPath(response,
+                            '0;service-health-checks', []);
+
+           var length = svcHealthChk.length
+           for (var i = 0; i < length; i++) {
+               retArr.push(svcHealthChk[i]['service-health-check']);
+           }
+           return retArr;
+        };
+
+
     };
 
     return CTParsers;
