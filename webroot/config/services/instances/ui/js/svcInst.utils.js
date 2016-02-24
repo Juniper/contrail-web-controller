@@ -556,6 +556,15 @@ define([
                                 this.getRtAggregateAccordianView(isDisabled)
                             ]
                         }]
+                    },
+                    {
+                        columns: [{
+                            elementId: 'allowedAddrPairAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getAllowedAddressPairAccordianConfig(isDisabled)
+                            ]
+                        }]
                     }]
                 }
             }
@@ -600,6 +609,15 @@ define([
                             view: 'AccordianView',
                             viewConfig: [
                                 this.getRtAggregateAccordianView(isDisabled)
+                            ]
+                        }]
+                    },
+                    {
+                        columns: [{
+                            elementId: 'allowedAddrPairAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getAllowedAddressPairAccordianConfig(isDisabled)
                             ]
                         }]
                     }]
@@ -836,6 +854,113 @@ define([
                                     onClick: "function() {\
                                         $root.addPropRtPolicy();\
                                     }"
+                                }]
+                            }
+                        }]
+                    }]
+                }
+            }
+        },
+        this.getAllowedAddressPairAccordianConfig = function(isDisabled) {
+            return {
+                elementId: 'allowedAddressPairElId',
+                title: 'Allowed Address Pair',
+                view: 'SectionView',
+                viewConfig: {
+                    rows: [{
+                        columns: [{
+                        elementId: 'allowedAddressPairCollection',
+                        view: 'FormEditableGridView',
+                            viewConfig: {
+                                path: "allowedAddressPairCollection",
+                                validation: 'allowedAddressPairValidations',
+                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                                collection: "allowedAddressPairCollection",
+                                columns: [
+                                {
+                                    elementId: 'interface_type',
+                                    name: 'Interface Type',
+                                    view: 'FormDropdownView',
+                                    class: "",
+                                    viewConfig: {
+                                        width: 150,
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                        path: 'interface_type',
+                                        dataBindValue: 'interface_type()',
+                                        dataBindOptionList:
+                                            'interfaceTypesData()',
+                                        elementConfig: {
+                                            minimumResultsForSearch: 1,
+                                            placeholder: 'Select Interface ' +
+                                                'Type'
+                                        }
+                                    }
+                                },
+                                {
+                                    elementId: 'user_created_ip',
+                                    name: "IP",
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        path: 'user_created_ip',
+                                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                        dataBindValue: 'user_created_ip()',
+                                        placeholder: 'IP',
+                                        width:275,
+                                        label: 'IP'
+                                    }
+                                },
+                                {
+                                    elementId: 'mac',
+                                    name: "MAC",
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        path: 'mac',
+                                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                        dataBindValue: 'mac()',
+                                        placeholder: 'MAC',
+                                        width:275,
+                                        label: 'MAC'
+                                    }
+                                },
+                                {
+                                    elementId: 'address_mode',
+                                    name: 'Address Mode',
+                                    view: 'FormDropdownView',
+                                    class: "",
+                                    viewConfig: {
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                        width: 150,
+                                        path: 'address_mode',
+                                        dataBindValue: 'address_mode()',
+                                         elementConfig: {
+                                            dataTextField: 'text',
+                                            dataValueField: 'value',
+                                            width: 150,
+                                            data: [
+                                                {value: '',
+                                                  text: 'None'},
+                                                {value: 'active-active',
+                                                  text: 'Active-Active'},
+                                                {value: 'active-standby',
+                                                  text: 'Active-Standby'}
+                                            ]
+                                        }
+                                    }
+                                }],
+                                rowActions: [{
+                                 onClick: "function() { $root.addAAP(); }",
+                                iconClass: 'icon-plus',
+                                },
+                                {
+                                    onClick:
+                                    "function() { $root.deleteSvcInstProperty($data, this);}",
+                                     iconClass: 'icon-minus'
+                                }],
+                                gridActions: [{
+                                    onClick: "function() { addAAP(); }",
+                                    buttonTitle: ""
                                 }]
                             }
                         }]
