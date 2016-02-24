@@ -1032,8 +1032,11 @@ define([
             statsData = statsData['data'];
             $.each(statsData,function(idx,d){
                 var source = d['Source'];
+                var name = d['name'];
                 var t = JSON.stringify({"ts":d['T']});
-
+                if(source != name) {
+                    source = name;//In case of TOR agents the name is the key
+                }
                 if(ret[source] != null && ret[source]['history-10'] != null){
                     var hist10 = ret[source]['history-10'];
                     hist10[t] = d['cpu_info.cpu_share'];
@@ -1934,11 +1937,11 @@ define([
                 moduleType = options.moduleType,
                 node = options.node;
             var postData = {
-                    pageSize:50,
+                    pageSize:10000,
                     page:1,
 //                    timeRange:600,
                     tgUnits:'secs',
-                    fromTimeUTC:'now-2h',
+                    fromTimeUTC:'now-30m',
                     toTimeUTC:'now',
                     async:true,
                     queryId: qewu.generateQueryUUID(),
@@ -1959,16 +1962,16 @@ define([
                 postData['table'] = 'StatTable.ComputeCpuState.cpu_info';
                 if (moduleType != null && moduleType != '') {
                     if(moduleType == 'vRouterAgent') {
-                        postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
+                        postData['select'] = 'Source, name, T, cpu_info.cpu_share, cpu_info.mem_res';
                     } else if (moduleType == 'vRouterSystem') {
-                        postData['select'] = 'Source, T, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
+                        postData['select'] = 'Source, name, T, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
                     } else if (moduleType == 'vRouterBandwidth') {
                         postData['table'] = 'StatTable.VrouterStatsAgent.phy_if_band';
-                        postData['select'] = 'Source, T, phy_if_band.in_bandwidth_usage, phy_if_band.out_bandwidth_usage';
+                        postData['select'] = 'Source, name, T, phy_if_band.in_bandwidth_usage, phy_if_band.out_bandwidth_usage';
                     }
-                    postData['where'] = '(Source = '+ node +')';
+                    postData['where'] = '(Source = '+ node +' OR name = '+ node +')';
                 } else {
-                    postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
+                    postData['select'] = 'Source, name, T, cpu_info.cpu_share, cpu_info.mem_res';
                     postData['where'] = '';
                 }
             } else if (dsName == monitorInfraConstants.ANALYTICS_NODE) {
@@ -2005,7 +2008,21 @@ define([
                 postData['where'] = '(Source = '+ node +')';
             }
             return postData;
-        }
+        };
+
+        self.filterTORAgentData = function (data) {
+            if(data == null) {
+                return [];
+            }
+            var ret = [];
+            $.each(data,function(i,d){
+                if (d['Source'] == d['name']) {
+                    ret.push(d);
+                }
+            });
+            return ret;
+        };
+
         self.getComputeNodeDetails = function(deferredObj,hostname) {
             $.ajax({
                 url: contrail.format(monitorInfraConstants.monitorInfraUrls['VROUTER_DETAILS'] , hostname,true)
