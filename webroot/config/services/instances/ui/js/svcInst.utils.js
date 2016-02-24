@@ -298,9 +298,9 @@ define([
                 columns: [{
                     elementId: 'interfaceType',
                     view: 'FormInputView',
-                    class: "", width: 375,
+                    class: "", width: 395,
+                    name: 'Interface Type',
                     viewConfig: {
-                        label: 'Interface Type',
                         disabled: true,
                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                         path: 'interfaceType',
@@ -310,11 +310,11 @@ define([
                 {
                     elementId: 'virtualNetwork',
                     view: 'FormDropdownView',
-                    class: "", width: 340,
+                    class: "", width: 370,
+                    name: 'Virtual Network',
                     viewConfig: {
                         disabled: isDisabled,
                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                        label: 'Virtual Network',
                         path: 'virtualNetwork',
                         dataBindValue: 'virtualNetwork()',
                         dataBindOptionList: 'allVNListData()',
@@ -329,16 +329,16 @@ define([
         this.getStaticRtsCollectionView = function(isDisabled) {
             return {
                 columns: [{
-                    elementId: 'static-routes-collection',
+                    elementId: 'static_routes_collection',
                     view: "FormCollectionView",
                     viewConfig: {
-                        colSpan:"2",
+                        label:"Static Route(s)",
+                        colSpan:"3",
                         visible:
                             '$root.showHideStaticRTs(interfaceIndex())',
                         path: 'staticRoutes',
                         collection: 'staticRoutes()',
                         validation: 'staticRoutesValidation',
-                        //templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
                         templateId: cowc.TMPL_COLLECTION_COMMON_HEADING_VIEW,
                         collectionActions: {
                             add: {onClick: "addStaticRt()",
@@ -348,16 +348,15 @@ define([
                         },
                         rows: [{
                             rowActions: [
-                                {onClick: "deleteStaticRt()",
-                                 iconClass: 'icon-minus'}/*,
                                 {onClick: "addStaticRtByRow()",
-                                 iconClass: 'icon-plus'}
-                                 */
+                                 iconClass: 'icon-plus'},
+                                {onClick: "deleteStaticRt()",
+                                 iconClass: 'icon-minus'}
                             ],
                             columns: [{
                                 elementId: 'prefix',
                                 view: 'FormInputView',
-                                class: "", width: 217,
+                                class: "", width: 250,
                                 viewConfig: {
                                     label: 'Prefix',
                                     templateId:
@@ -365,7 +364,7 @@ define([
                                     path: 'prefix',
                                     dataBindValue: 'prefix()'
                                 }
-                            },
+                            },/*
                             {
                                 elementId: 'next_hop',
                                 view: 'FormInputView',
@@ -378,14 +377,14 @@ define([
                                     path: 'next_hop',
                                     dataBindValue: 'next_hop()'
                                 }
-                            },
+                            },*/
                             {
                                 elementId: 'community_attributes',
                                 view: 'FormMultiselectView',
-                                width:161,
+                                width:230,
                                 viewConfig: {
                                     label: 'Community',
-                                    width: 161,
+                                    width: 230,
                                     templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                     path: 'community_attributes',
                                     dataBindValue: 'community_attributes()',
@@ -458,7 +457,7 @@ define([
                                 name:'Interface Type',
                                 viewConfig: {
                                     placeholder: 'Select Interface Type',
-                                    width: 385,
+                                    width: 250,
                                     disabled: true,
                                     templateId:
                                         cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
@@ -474,7 +473,7 @@ define([
                                 viewConfig: {
                                     templateId:
                                         cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                    width: 345,
+                                    width: 230,
                                     path: 'interface',
                                     disabled: 'disable()',
                                     dataBindValue: 'interface()',
@@ -629,6 +628,7 @@ define([
                 elementId: 'healthChkSection',
                 title: 'Service Health Check',
                 view: 'SectionView',
+                active:false,
                 viewConfig: {
                     rows: [{
                         columns: [{
@@ -645,7 +645,7 @@ define([
                                     view: 'FormDropdownView',
                                     class: "",
                                     viewConfig: {
-                                        width: 150,
+                                        width: 280,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         path: 'interface_type',
@@ -665,7 +665,7 @@ define([
                                     view: 'FormDropdownView',
                                     class: "",
                                     viewConfig: {
-                                        width: 340,
+                                        width: 250,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         path: 'service_health_check',
@@ -706,8 +706,9 @@ define([
         this.getIntfRtTableAccordianView = function (isDisabled) {
             return {
                 elementId: 'intfRtTableSection',
-                title: 'Route Table',
+                title: 'Static Route',
                 view: 'SectionView',
+                active:false,
                 viewConfig: {
                     rows: [{
                         columns: [{
@@ -724,7 +725,7 @@ define([
                                     view: 'FormDropdownView',
                                     class: "",
                                     viewConfig: {
-                                        width: 150,
+                                        width: 280,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         path: 'interface_type',
@@ -740,11 +741,11 @@ define([
                                 },
                                 {
                                     elementId: 'interface_route_table',
-                                    name: 'Route Table',
+                                    name: 'Interface Route Table',
                                     view: 'FormMultiselectView',
                                     class: "",
                                     viewConfig: {
-                                        width: 340,
+                                        width: 250,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                         path: 'interface_route_table',
@@ -752,7 +753,7 @@ define([
                                         elementConfig: {
                                             minimumResultsForSearch: 1,
                                             placeholder: 'Select ' +
-                                                         'Route Table',
+                                                         'Interface Route Table',
                                             dataTextField: 'text',
                                             dataValueField: 'value',
                                             data: window.interfaceRouteTableList
@@ -786,7 +787,9 @@ define([
             return {
                 elementId: 'rtPolicySection',
                 title: 'Routing Policy',
+                active:false,
                 view: 'SectionView',
+                active:false,
                 viewConfig: {
                     rows: [{
                         columns: [{
@@ -803,7 +806,7 @@ define([
                                     view: 'FormDropdownView',
                                     class: "",
                                     viewConfig: {
-                                        width: 150,
+                                        width: 280,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         path: 'interface_type',
@@ -823,7 +826,7 @@ define([
                                     view: 'FormMultiselectView',
                                     class: "",
                                     viewConfig: {
-                                        width: 340,
+                                        width: 250,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                         path: 'routing_policy',
@@ -866,6 +869,7 @@ define([
                 elementId: 'allowedAddressPairElId',
                 title: 'Allowed Address Pair',
                 view: 'SectionView',
+                active:false,
                 viewConfig: {
                     rows: [{
                         columns: [{
@@ -883,7 +887,7 @@ define([
                                     view: 'FormDropdownView',
                                     class: "",
                                     viewConfig: {
-                                        width: 150,
+                                        width: 280,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         path: 'interface_type',
@@ -947,6 +951,7 @@ define([
                 elementId: 'rtAggregateSection',
                 title: 'Route Aggregate',
                 view: 'SectionView',
+                active:false,
                 viewConfig: {
                     rows: [{
                         columns: [{
@@ -963,7 +968,7 @@ define([
                                     view: 'FormDropdownView',
                                     class: "",
                                     viewConfig: {
-                                        width: 150,
+                                        width: 280,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         path: 'interface_type',
@@ -983,7 +988,7 @@ define([
                                     view: 'FormMultiselectView',
                                     class: "",
                                     viewConfig: {
-                                        width: 340,
+                                        width: 250,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                         path: 'route_aggregate',
@@ -1035,8 +1040,10 @@ define([
                                     path: 'interfaces',
                                     collection: 'interfaces()',
                                     validation: 'interfacesValidation',
+                                    hideAdd:true,
                                     //accordionable: true,
-                                    templateId: cowc.TMPL_COLLECTION_COMMON_HEADING_VIEW,
+                                    //templateId: cowc.TMPL_COLLECTION_COMMON_HEADING_VIEW,
+                                    templateId: cowc.TMPL_COLLECTION_GRIDACTION_HEADING_VIEW,
                                     rows: [
                                         this.getIntfVNCollectionView(isDisabled),
                                         this.getStaticRtsCollectionView(isDisabled)
