@@ -383,6 +383,7 @@ define([
                 elementId: 'advanced',
                 title: 'Advanced Options',
                 view: "SectionView",
+                active:false,
                 viewConfig : {
                     rows : [{
                         columns: [{
@@ -985,6 +986,7 @@ define([
                                 elementId: 'dhcpOptions',
                                 title: 'DHCP Option(s)',
                                 view: "SectionView",
+                                active:false,
                                 viewConfig : {
                                     rows : [
             {
@@ -1052,6 +1054,7 @@ define([
                                 elementId: 'fatFlow',
                                 title: 'Fat Flow(s)',
                                 view: "SectionView",
+                                active:false,
                                 viewConfig : {
                                     rows : [
                                     {

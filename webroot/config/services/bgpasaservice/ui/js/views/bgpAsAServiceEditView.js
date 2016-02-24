@@ -197,6 +197,7 @@ define([
                                     elementId: "bgpasas_advanced_opts_section",
                                     title: "Advanced Options",
                                     view: "SectionView",
+                                    active:false,
                                     viewConfig: {
                                         rows: [{
                                             columns: [
@@ -299,6 +300,7 @@ define([
                                     elementId: "bgpasas_session_attr_section",
                                     title: "Address Family Attributes",
                                     view: "SectionView",
+                                    active:false,
                                     viewConfig: {
                                         rows: [{
                                             columns: [{
