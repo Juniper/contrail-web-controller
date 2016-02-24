@@ -258,25 +258,21 @@ define([
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [
                                     {
-                                        keyClass: 'span2',
                                         key: 'name',
                                         label: 'Instance Name',
                                         templateGenerator: 'TextGenerator',
                                     },
                                     {
                                         key: 'display_name',
-                                        keyClass: 'span2',
                                         label: 'Display Name',
                                         templateGenerator: 'TextGenerator',
                                     },
                                     {
                                         key: 'uuid',
-                                        keyClass: 'span2',
                                         templateGenerator: 'TextGenerator'
                                     },
                                     {
                                         key: 'service_template_refs',
-                                        keyClass: 'span2',
                                         label: 'Template',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -285,7 +281,6 @@ define([
                                     },
                                     {
                                         key: 'service_instance_properties',
-                                        keyClass: 'span2',
                                         label: '# Instance(s)',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -294,7 +289,6 @@ define([
                                     },
                                     {
                                         key: 'service_instance_properties',
-                                        keyClass: 'span2',
                                         label: 'HA Mode',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -303,7 +297,6 @@ define([
                                     },
                                     {
                                         key: 'service_instance_properties.interface_list',
-                                        keyClass: 'span2',
                                         label: 'Networks',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -312,7 +305,6 @@ define([
                                     },
                                     {
                                         key: 'svcTmplDetails',
-                                        keyClass: 'span2',
                                         label: 'Image',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -321,7 +313,6 @@ define([
                                     },
                                     {
                                         key: 'port_tuples',
-                                        keyClass: 'span2',
                                         label: 'Port Tuples',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -330,7 +321,6 @@ define([
                                     },
                                                                         {
                                         key: 'service_health_check_back_refs',
-                                        keyClass: 'span2',
                                         label: 'Service Health Checks',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -339,7 +329,6 @@ define([
                                     },
                                     {
                                         key: 'interface_route_table_back_refs',
-                                        keyClass: 'span2',
                                         label: 'Interface Route Tables',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -348,7 +337,6 @@ define([
                                     },
                                     {
                                         key: 'routing_policy_back_refs',
-                                        keyClass: 'span2',
                                         label: 'Routing Policys',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -357,7 +345,6 @@ define([
                                     },
                                     {
                                         key: 'route_aggregate_back_refs',
-                                        keyClass: 'span2',
                                         label: 'Route Aggregates',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -366,7 +353,6 @@ define([
                                     },
                                     {
                                         key: 'svcTmplDetails',
-                                        keyClass: 'span2',
                                         label: 'Flavor',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -375,7 +361,6 @@ define([
                                     },
                                     {
                                         key: 'service_instance_properties',
-                                        keyClass: 'span2',
                                         label: 'Availability Zone',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -385,7 +370,6 @@ define([
                                     },
                                     {
                                         key: 'statusDetails',
-                                        keyClass: 'span2',
                                         valueClass: 'span11',
                                         label: 'Instance Status',
                                         templateGenerator: 'TextGenerator',
@@ -779,13 +763,13 @@ define([
             return 'No Service Instance found.';
         }
         var statusHeader =
-            '<tr class="bgCol">' +
-                 '<td class="span3"><label>Virtual Machine</label></td>' +
-                 '<td class="span2"><label>Status</label></td>' +
-                 '<td class="span2"><label>Power State</label></td>' +
-                 '<td class="span3"><label>Networks</label></td>' +
-                 '<td class="span2"><label></label></td>' +
-              '</tr>'
+            '<tr ><thead>' +
+                 '<th class="span3">Virtual Machine</th>' +
+                 '<th class="span2">Status</th>' +
+                 '<th class="span2">Power State</th>' +
+                 '<th class="span3">Networks</th>' +
+                 '<th class="span2"></th>' +
+              '</thead></tr>'
         returnHtml += statusHeader;
         for (i = 0; i < cnt; i++) {
             returnHtml += '<tr>';
@@ -827,7 +811,7 @@ define([
                 '\');"> View Console </a></td>';
             returnHtml += '</tr>';
         }
-        returnHtml = "<table class='table detailsSub'>" + returnHtml + "</table>";
+        returnHtml = "<table style='width:1000px !important;'>" + returnHtml + "</table>";
         return returnHtml;
     }
 

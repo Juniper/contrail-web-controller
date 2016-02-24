@@ -364,6 +364,7 @@ define([
                             visible: 'showIfNotTmplV2',
                             elementId: 'advanced',
                             title: 'Advanced Options',
+                            active:false,
                             view: "SectionView",
                             viewConfig: {
                                     rows: [

@@ -256,6 +256,7 @@ define([
                             elementId: 'subnet_vcfg',
                             title: 'Subnets',
                             view: "SectionView",
+                            active:false,
                             viewConfig: {
                                     rows: [
                                     {
@@ -443,6 +444,7 @@ define([
                             elementId: 'hostRoutes',
                             title: 'Host Route(s)',
                             view: "SectionView",
+                            active:false,
                             viewConfig: {
                                     rows: [
                                     {
@@ -524,6 +526,7 @@ define([
                             elementId: 'advanced',
                             title: 'Advanced Options',
                             view: "SectionView",
+                            active:false,
                             viewConfig: {
                                     rows: [
                                     {
@@ -833,6 +836,7 @@ define([
                             elementId: 'dnsServers',
                             title: 'DNS Server(s)',
                             view: "SectionView",
+                            active:false,
                             viewConfig: {
                                     rows: [
                                     {
@@ -901,6 +905,7 @@ define([
                             elementId: 'fip_pool_vcfg',
                             title: 'Floating IP Pool(s)',
                             view: "SectionView",
+                            active:false,
                             viewConfig: {
                                     rows: [
                                     {
@@ -992,6 +997,7 @@ define([
                             elementId: 'route_target_vcfg',
                             title: 'Route Target(s)',
                             view: "SectionView",
+                            active:false,
                             viewConfig: {
                                     rows: [
                                     {
@@ -1073,6 +1079,7 @@ define([
                             elementId: 'export_route_target_vcfg',
                             title: 'Export Route Target(s)',
                             view: "SectionView",
+                            active:false,
                             viewConfig: {
                                     rows: [
                                     {
@@ -1154,6 +1161,7 @@ define([
                             elementId: 'import_route_target_vcfg',
                             title: 'Import Route Target(s)',
                             view: "SectionView",
+                            active:false,
                             viewConfig: {
                                     rows: [
                                     {

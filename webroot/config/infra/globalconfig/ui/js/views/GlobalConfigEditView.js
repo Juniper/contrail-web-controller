@@ -65,6 +65,7 @@ define([
             elementId: 'forwarding_option',
             title: 'Forwarding Options',
             view: 'SectionView',
+            active:false,
             viewConfig: {
                 rows: [
                     {
@@ -197,6 +198,7 @@ define([
             elementId: 'bgp_option',
             title: 'BGP Options',
             view: 'SectionView',
+            active:false,
             viewConfig: {
                 rows: [
                     {
@@ -232,6 +234,7 @@ define([
                                     path: 'ipFabricSubnets',
                                     collection: 'ipFabricSubnets',
                                     validation: 'ipFabricSubnetsValidation',
+                                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                     class: "span12",
                                     columns: [{
                                         elementId: 'ip_fabric_subnets',
@@ -247,6 +250,8 @@ define([
                                         }
                                     }],
                                     rowActions: [
+                                        { onClick: "function() { $root.addSubnet(); }",
+                                          iconClass: 'icon-plus'},
                                         { onClick: "function() {$root.deleteSubnet($data, this); }",
                                           iconClass: 'icon-minus'}
                                     ],
@@ -268,6 +273,7 @@ define([
             elementId: 'flow_option',
             title: 'Flow Options',
             view: 'SectionView',
+            active:false,
             viewConfig: {
                 rows: [
                     {
@@ -294,6 +300,7 @@ define([
                                     path: 'flowAgingTimeout',
                                     collection: 'flowAgingTimeout',
                                     validation: 'flowAgingTimeoutValidation',
+                                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                     label: 'Flow Aging',
                                     class: '',
                                     columns: [{
@@ -344,7 +351,11 @@ define([
                                             placeholder: '180'
                                         }
                                     }],
-                                    rowActions: [{
+                                    rowActions: [
+                                        {onClick: "function() {\
+                                            $root.addFlowAgingTuple();\
+                                        }",
+                                        iconClass: 'icon-plus'},{
                                         onClick: "function() {\
                                             $root.deleteFlowAgingTuple($data, this);\
                                         }",
@@ -354,7 +365,7 @@ define([
                                         onClick: "function() {\
                                             $root.addFlowAgingTuple();\
                                         }",
-                                        buttonTitle: 'Flow Aging'
+                                        buttonTitle: ''
                                     }]
                                 }
                             }
