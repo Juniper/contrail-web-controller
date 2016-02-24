@@ -77,6 +77,9 @@ define([
                 kbValidation.bind(self,
                                   {collection:
                                   self.model.model().attributes.rtAggregates});
+                kbValidation.bind(self,
+                                  {collection:
+                                  self.model.model().attributes.allowedAddressPairCollection});
                 var interfaces = self.model.model().attributes.interfaces;
                 kbValidation.bind(self, {collection: interfaces});
                 var intfCnt = interfaces.length;
