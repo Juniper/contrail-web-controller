@@ -599,7 +599,8 @@ define(
                             'value;ConfigData')) ? true : false;
                         obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(d,
                             'value;databaseNode'))) ? true : false;
-                        obj['version'] = noDataStr;
+                        obj['version'] = ifEmpty(self.getNodeVersion(getValueByJsonPath(d,
+                                            'value;databaseNode;NodeStatus;build_info')),'-');
                         var configData;
                         if(!obj['isConfigMissing']){
                             configData = getValueByJsonPath(d,'value;ConfigData');
