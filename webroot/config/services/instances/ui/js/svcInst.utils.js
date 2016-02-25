@@ -129,7 +129,22 @@ define([
                 }
             }
             return {vnList: vnList, vnVmiMaps: vnVmiMaps};
-        }
+        },
+        this.getRouteAggregateInterfaceTypes = function(svcTmplIntfTypes) {
+            var rtAggIntfTypesList = [];
+            if ((null == svcTmplIntfTypes) || (!svcTmplIntfTypes.length)) {
+                return rtAggIntfTypesList;
+            }
+            var intfCnt = svcTmplIntfTypes.length;
+            for (var i = 0; i < intfCnt; i++) {
+                if (('left' == svcTmplIntfTypes[i]) ||
+                    ('right' == svcTmplIntfTypes[i])) {
+                    rtAggIntfTypesList.push({id: svcTmplIntfTypes[i],
+                                            text: svcTmplIntfTypes[i]});
+                }
+            }
+            return rtAggIntfTypesList;
+        },
         this.svcTemplateFormatter = function(svcTmpl) {
             var svcIntfTypes = [];
             var dispStr =
