@@ -47,7 +47,7 @@ define([
         return [{
             title: 'Collector',
             prefix:'analyticsCollector',
-            sparklineTitle1:'CPU Share (%)',
+            sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
             sparkline1Dimension:'cpu_info.cpu_share',
             sparkline2Dimension:'cpu_info.mem_res',
@@ -57,7 +57,7 @@ define([
         {
             title: 'Query Engine',
             prefix:'analyticsQE',
-            sparklineTitle1:'CPU Share (%)',
+            sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
             sparkline1Dimension:'cpu_info.cpu_share',
             sparkline2Dimension:'cpu_info.mem_res',
@@ -67,7 +67,7 @@ define([
         {
             title: 'OpServer',
             prefix:'analyticsAPI',
-            sparklineTitle1:'CPU Share (%)',
+            sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
             sparkline1Dimension:'cpu_info.cpu_share',
             sparkline2Dimension:'cpu_info.mem_res',

@@ -2670,7 +2670,7 @@ function getNodeTooltipContentsForBucket(currObj,formatType) {
     //var avgMem = d3.mean(nodes,function(d){return d.y});
     var tooltipContents = [
         {label:'', value: 'No. of Nodes: ' + nodes.length},
-        {label:'Avg. CPU', value:$.isNumeric(currObj['x']) ? currObj['x'].toFixed(2)  + '%' : currObj['x']},
+        {label:'Avg. ' + ctwl.TITLE_CPU, value:$.isNumeric(currObj['x']) ? currObj['x'].toFixed(2)  : currObj['x']},
         {label:'Avg. Memory', value:$.isNumeric(currObj['y']) ? formatBytes(currObj['y'] * 1024* 1024) : currObj['y']}
     ];
     if(formatType == 'simple') {

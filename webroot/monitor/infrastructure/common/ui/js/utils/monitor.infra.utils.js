@@ -1520,7 +1520,7 @@ define([
             //var avgMem = d3.mean(nodes,function(d){return d.y});
             var tooltipContents = [
                 {label:'', value: 'No. of Nodes: ' + nodes.length},
-                {label:'Avg. CPU', value:$.isNumeric(currObj['x']) ? currObj['x'].toFixed(2)  + '%' : currObj['x']},
+                {label:'Avg. CPU Share (%)', value:$.isNumeric(currObj['x']) ? currObj['x'].toFixed(2)  : currObj['x']},
                 {label:'Avg. Memory', value:$.isNumeric(currObj['y']) ? formatBytes(currObj['y'] * 1024* 1024) : currObj['y']}
             ];
             if(formatType == 'simple') {
@@ -1551,7 +1551,7 @@ define([
             var tooltipContents = [
                 {label:'Host Name', value: currObj['name']},
                 {label:'Version', value:currObj['version']},
-                {label:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : '-'},
+                {label: ctwl.TITLE_CPU, value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  : '-'},
                 {label:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
             ];
             //Get tooltipAlerts
