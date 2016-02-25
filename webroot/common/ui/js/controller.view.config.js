@@ -286,10 +286,16 @@ define([
                         parentSelectedValueData: domainSelectedValueData,
                         preSelectCB : function(selectedValueData) {
                             if(getValueByJsonPath(selectedValueData,'value') != null) {
+                                var isConfig =
+                                    customProjectDropdownOptions.config;
+                                if (null == isConfig) {
+                                    isConfig = false;
+                                }
                                 return $.ajax({
                                             type:"GET",
                                             url:'/api/tenants/get-project-role?id=' +
-                                                selectedValueData['value']
+                                                selectedValueData['value'] +
+                                                '&isConfig=' + isConfig
                                         });
                             } else {
                                 var defObj = $.Deferred();
