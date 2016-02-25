@@ -75,6 +75,13 @@ define(
                        sorter : comparatorIP
                    },
                    {
+                       field:"version",
+                       id:"version",
+                       name:"Version",
+                       sortable:true,
+                       minWidth:110
+                   },
+                   {
                        field:"status",
                        id:"status",
                        name:"Status",
