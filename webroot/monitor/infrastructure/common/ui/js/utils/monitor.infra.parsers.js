@@ -599,7 +599,9 @@ define(
                             'value;ConfigData')) ? true : false;
                         obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(d,
                             'value;databaseNode'))) ? true : false;
-                        obj['version'] = noDataStr;
+                        obj['version'] = obj['version'] = ifEmpty(self.
+                                getNodeVersion(getValueByJsonPath(d,
+                                            'value;databaseNode;NodeStatus;build_info')),'-');
                         var configData;
                         if(!obj['isConfigMissing']){
                             configData = getValueByJsonPath(d,'value;ConfigData');
@@ -1873,7 +1875,7 @@ define(
 
                 self.getCpuText = function (cpu, noCpuText) {
                     var ret = ifNotNumeric(cpu,noCpuText)
-                    if(ret != noCpuText) { 
+                    if(ret != noCpuText) {
                         ret += ' %' ;
                     }
                     return ret;
