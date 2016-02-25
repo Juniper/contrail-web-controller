@@ -157,6 +157,23 @@ define([
                             }
                         }
                     ]
+                },
+                {
+                    viewId: ctwl.PROJECT_INTERFACE_GRID_ID,
+                    suites: [
+                        {
+                            class: GridViewTestSuite,
+                            groups: ['all']
+                        },
+                        {
+                            class: GridListModelTestSuite,
+                            groups: ['all'],
+                            modelConfig: {
+                                dataGenerator: cttu.commonGridDataGenerator,
+                                dataParsers: {}
+                            }
+                        }
+                    ]
                 }
             ]
         } ;

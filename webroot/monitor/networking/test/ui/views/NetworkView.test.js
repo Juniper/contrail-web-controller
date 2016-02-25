@@ -182,6 +182,26 @@ define([
                             groups: ['all']
                         }
                     ]
+                },
+                {
+                    viewId: ctwl.NETWORK_INTERFACE_GRID_ID,
+                    suites: [
+                        {
+                            class: GridViewTestSuite,
+                            groups: ['all']
+                        },
+                        {
+                            class: GridListModelTestSuite,
+                            groups: ['all'],
+                            modelConfig: {
+                                dataGenerator: cttu.commonGridDataGenerator,
+                                dataParsers: {
+                                    mockDataParseFn: cttu.deleteSizeField,
+                                    gridDataParseFn: cttu.deleteSizeField
+                                }
+                            }
+                        }
+                    ]
                 }
 
                 // TODO add heat chart view test suite
@@ -203,7 +223,7 @@ define([
                 defObj.resolve();
             },
             // Add necessary timeout for the tab elements to load properly and resolve the promise
-            cotc.PAGE_INIT_TIMEOUT - 50
+            cotc.PAGE_INIT_TIMEOUT * 10
         );
 
         return;
