@@ -44,7 +44,7 @@ define([
         return [{
             title: 'Virtual Router Agent',
             prefix:'vrouterAgent',
-            sparklineTitle1:'CPU Share (%)',
+            sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
             sparkline1Dimension:'cpu_info.cpu_share',
             sparkline2Dimension:'cpu_info.mem_res',
