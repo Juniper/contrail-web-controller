@@ -98,7 +98,7 @@ define([
                     fromTermStr += name + ' ' + additionalValue;
                     fromTermArray.push(fromTermStr);
                 }
-                if (value != '') {
+                if (value != '' && name != 'protocol') {
                     fromTermStr = name + ' ' + value;
                     if (name == 'prefix') {
                         fromTermStr += ' ' + additionalValue;
