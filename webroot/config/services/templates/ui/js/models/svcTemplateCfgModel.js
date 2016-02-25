@@ -359,6 +359,13 @@ define([
                     }
                 },
                 'user_created_service_type': function(val, attr, data) {
+                    var virtType =
+                        getValueByJsonPath(data,
+                                           'user_created_service_virtualization_type',
+                                           'virtual-machine');
+                    if ('physical-device' == virtType) {
+                        return;
+                    }
                     if ((null == val) || (!val.trim().length)) {
                         return 'service type is required';
                     }
@@ -522,6 +529,7 @@ define([
                 delete newSvcTemplateCfgData.user_created_service_mode;
                 delete newSvcTemplateCfgData.user_created_service_scaling;
                 delete newSvcTemplateCfgData.user_created_service_type;
+                delete newSvcTemplateCfgData.user_created_image_list;
 
                 postData['service-template'] = newSvcTemplateCfgData;
 
