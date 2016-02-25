@@ -5,6 +5,7 @@
 define(['contrail-list-model'], function(ContrailListModel) {
     var VRouterDetailsBandwidthChartListModel = function(config) {
         var hostname = config['node'];
+        var isTORAgent = config['isTORAgent'];
         var postData = monitorInfraUtils.
                         getPostDataForCpuMemStatsQuery({
                                 nodeType:monitorInfraConstants.COMPUTE_NODE,
@@ -18,7 +19,11 @@ define(['contrail-list-model'], function(ContrailListModel) {
                     data: JSON.stringify(postData)
                 },
                 dataParser : function (response) {
-                    return response['data']
+                    if(!isTORAgent) {
+                        return monitorInfraUtils.filterTORAgentData(response['data']);
+                    } else {
+                        return response['data'];
+                    }
                 }
             },
             cacheConfig : {
