@@ -363,6 +363,7 @@ define([
             }
 
             var intfTypesList = [];
+            var rtAggIntfTypesList = [];
             var intfCnt = intfTypes.length;
             for (var i = 0; i < intfCnt; i++) {
                 intfTypesList.push({text: intfTypes[i], id: intfTypes[i]});
@@ -431,6 +432,10 @@ define([
             }
             if (('routing_policy' != type) &&
                 ('service_health_check' != type)) {
+                if ('route_aggregate' == type) {
+                    intfTypesList =
+                        svcInstUtils.getRouteAggregateInterfaceTypes(intfTypes);
+                }
                 for (var key in intfTypeToBackRefsMap) {
                     var entryObj = {};
                     entryObj[type] = intfTypeToBackRefsMap[key].join(',');
@@ -563,22 +568,7 @@ define([
             if (!intfList.length) {
                 var interfaeTypesCnt = interfaeTypes.length;
                 for (var i = 0; i < intfsCnt; i++) {
-                    var intfType = intfTypes[i];
-                    /*
-                    var intfType =
-                        intfTypes[i].replace(intfTypes[i][0],
-                                             intfTypes[i][0].toUpperCase());
-                    */
-                    var vn = "";
-                    if ((null != window.vnList) && (window.vnList.length > 0)) {
-                        vn = svcInstUtils.getVNByTmplType(intfType, svcTmpl);
-                        if (null == vn) {
-                            vn = "";
-                        } else {
-                            vn = vn['id'];
-                        }
-                    }
-                    intfList.push({virtual_network: vn});
+                    intfList.push({virtual_network: null});
                 }
             }
             var len = intfList.length;
@@ -997,21 +987,16 @@ define([
         addPropRtAggregate: function() {
             var rtAggregates = this.model().get('rtAggregates');
             var rtAgg = "";
-            var types = this.getIntfTypes(false);
+            var types = this.getIntfTypes(true);
+            var rtAggIntfTypes = [];
             if (null != types) {
-                var typesCnt = types.length;
-                for (var i = 0; i < typesCnt; i++) {
-                    if ('management' == types[i]['id']) {
-                        /* Remove management */
-                        types.splice(0, 1);
-                        break;
-                    }
-                }
+                rtAggIntfTypes =
+                    svcInstUtils.getRouteAggregateInterfaceTypes(types);
             }
             var newEntry =
                 new RtAggregateModel({route_aggregate: null,
                                       interface_type: null,
-                                      interfaceTypesData: types});
+                                      interfaceTypesData: rtAggIntfTypes});
             rtAggregates.add([newEntry]);
         },
         addAAP: function() {
