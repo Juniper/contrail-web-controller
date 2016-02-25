@@ -32,7 +32,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                        viewConfig : {
                            loadChartInChunks : true,
                            chartOptions : {
-                               xLabel : 'CPU (%)',
+                               xLabel : ctwl.TITLE_CPU,
                                yLabel : 'Memory (MB)',
                                forceX : [ 0, 1 ],
                                forceY : [ 0, 20 ],
@@ -98,7 +98,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                   value : analyticsNode.version
                               },
                               {
-                                  label : 'CPU',
+                                  label : ctwl.TITLE_CPU,
                                   value : analyticsNode.cpu,
                               },
                               {

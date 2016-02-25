@@ -229,7 +229,7 @@ define([
             },
             {
                 key: 'cpu',
-                label: 'CPU',
+                label: ctwl.TITLE_CPU,
                 templateGenerator: 'TextGenerator'
             },
             {
