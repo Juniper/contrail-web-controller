@@ -97,8 +97,8 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
            var databaseNode = data.rawData;
            var tooltipData = [
               {
-                  label : 'Host Name',
-                  value : databaseNode['name']
+                  label : 'Version',
+                  value : databaseNode['version']
               },
               {
                   label : 'Disk Space',
