@@ -26,11 +26,12 @@ define([
             var self = this;
             var viewConfig = this.attributes.viewConfig;
             var hostname = viewConfig['hostname'];
+            var isTORAgent = viewConfig['vRouterType'] == 'tor-agent'? true:false;
             var detailsChartsTmpl = contrail.getTemplate4Id(cowc.NODE_DETAILS_CHARTS);
             self.$el.append(detailsChartsTmpl);
             this.infoBoxView = new NodeDetailsInfoboxesView({el:$(contentContainer).
                 find('#infoboxes-container'), widgetTitle:'CPU and Memory Utilization'});
-            var infoBoxList = getInfoboxesConfig({node:hostname});
+            var infoBoxList = getInfoboxesConfig({node:hostname,isTORAgent:isTORAgent});
             for(var i=0;i<infoBoxList.length;i++) {
                 this.infoBoxView.add(infoBoxList[i]);
             }
