@@ -53,7 +53,7 @@ define([
                 $("#" + modalId).modal('hide');
             }});
 
-           this.fetchAllData(this ,
+           this.fetchPortPopupData(this ,
                 function(allNetworksDS, allNetwork) {
                     var disableElement = false;
                     self.model.setVNData(allNetwork);
@@ -81,7 +81,7 @@ define([
                     }
                     self.renderView4Config(
                         $("#" + modalId).find("#" + modalId + "-form"),
-                        self.model, self.getConfigureViewConfig
+                        self.model, self.getConfigurePortViewConfig
                         (disableElement, allNetworksDS),
                         'portValidations', null, null, function(){
                             if(options['mode'] == "edit") {
@@ -223,12 +223,12 @@ define([
                                     document.getElementById(modalId));
             kbValidation.bind(this);
         },
-        fetchAllData : function(self, callback) {
-            self.fetchAllVirtualNetworks(function (allNetworksDS, allNetwork) {
+        fetchPortPopupData : function(self, callback) {
+            self.fetchAllVirtualNetworksForPort(function (allNetworksDS, allNetwork) {
                 callback(allNetworksDS, allNetwork);
             });
         },
-        fetchAllVirtualNetworks : function(callback) {
+        fetchAllVirtualNetworksForPort : function(callback) {
             var selectedValue = ctwu.getGlobalVariable('project').uuid;
             contrail.ajaxHandler({url : ctwc.get(
                                         ctwc.URL_All_NETWORK_IN_PROJECT,
@@ -257,7 +257,7 @@ define([
                 }
             }
         },
-    getConfigureViewConfig : function(isDisable, allNetworksDS) {
+    getConfigurePortViewConfig : function(isDisable, allNetworksDS) {
         var selectedProjectVal = ctwu.getGlobalVariable('project').uuid;
         var staticRoutArr = {};
         staticRoutArr.data = [];

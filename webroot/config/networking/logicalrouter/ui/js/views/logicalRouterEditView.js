@@ -56,7 +56,7 @@ define([
                 $("#" + modalId).modal('hide');
             }});
 
-           this.fetchAllData(this ,
+           this.fetchRoutingPolicyPopupData(this ,
                 function(allNetworksDS, externalNetworksDS) {
                    var disableElement = false
                    if(options['mode'] == "edit") {
@@ -64,7 +64,7 @@ define([
                    }
                    self.renderView4Config(
                         $("#" + modalId).find("#" + modalId + "-form"),
-                        self.model, getConfigureViewConfig
+                        self.model, getConfigureLogicalRouterViewConfig
                         (disableElement, allNetworksDS, externalNetworksDS),
                         null, null, null, function(){
                             self.model.showErrorAttr(prefixId +
@@ -123,14 +123,14 @@ define([
                                     document.getElementById(modalId));
             kbValidation.bind(this);
         },
-        fetchAllData : function(self, callback) {
-            self.fetchAllVirtualNetworks(function (allNetworksDS) {
+        fetchRoutingPolicyPopupData : function(self, callback) {
+            self.fetchAllVirtualNetworksForLogicalRouter(function (allNetworksDS) {
                 self.fetchExternalNetworks(function (externalNetworksDS) {
                     callback(allNetworksDS, externalNetworksDS);
                 });
             });
         },
-        fetchAllVirtualNetworks : function(callback) {
+        fetchAllVirtualNetworksForLogicalRouter : function(callback) {
             var selectedValue = ctwu.getGlobalVariable('project').uuid;
             contrail.ajaxHandler({url : ctwc.get(
                                         ctwc.URL_All_NETWORK_IN_PROJECT,
@@ -165,7 +165,7 @@ define([
         }
     });
 
-    var getConfigureViewConfig = function(isDisable, allNetworksDS,
+    var getConfigureLogicalRouterViewConfig = function(isDisable, allNetworksDS,
                                           externalNetworksDS) {
         return {
             elementId: cowu.formatElementId(

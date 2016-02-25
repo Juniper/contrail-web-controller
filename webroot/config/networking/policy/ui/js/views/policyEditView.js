@@ -54,7 +54,7 @@ define([
                 $("#" + modalId).modal('hide');
             }});
 
-           this.fetchAllData(this ,
+           this.fetchPolicyPopupData(this ,
                 function(allData) {
                    self.model.setServiceTemplateDataSource(allData.service_instances_ref);
                    var disableElement = false
@@ -63,7 +63,7 @@ define([
                    }
                    self.renderView4Config(
                         $("#" + modalId).find("#" + modalId + "-form"),
-                        self.model, getConfigureViewConfig
+                        self.model, getConfigurePolicyViewConfig
                         (disableElement, allData),
                         'policyValidations', null, null, function(){
                             self.model.showErrorAttr(prefixId +
@@ -123,7 +123,7 @@ define([
                                     document.getElementById(modalId));
             kbValidation.bind(this);
         },
-        fetchAllData : function(self, callback) {
+        fetchPolicyPopupData : function(self, callback) {
             var getAjaxs = [];
             var selectedDomainUUID = ctwu.getGlobalVariable('domain').uuid;;
             var selectedDomain = ctwu.getGlobalVariable('domain').name;;
@@ -345,7 +345,7 @@ define([
         return returnText;
     }
 
-    getConfigureViewConfig = function(isDisable, allData) {
+    getConfigurePolicyViewConfig = function(isDisable, allData) {
         return {
             elementId: cowu.formatElementId(
                             [prefixId, ctwl.TITLE_EDIT_POLICY]),

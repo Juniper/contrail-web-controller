@@ -75,7 +75,7 @@ define([
             }
             self.renderView4Config(
                 $("#" + modalId).find("#" + modalId + "-form"), self.model,
-                    getConfigureViewConfig(disableElement), 'routingPolicyValidations', null, null, function () {
+                    getConfigureRoutingPolicyViewConfig(disableElement), 'routingPolicyValidations', null, null, function () {
                     self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                     Knockback.applyBindings(self.model, document.getElementById(modalId));
                     var termCollection = self.model.model().attributes.termCollection,
@@ -142,7 +142,7 @@ define([
         }
     });
 
-    getConfigureViewConfig = function (isDisable) {
+    getConfigureRoutingPolicyViewConfig = function (isDisable) {
         return {
             elementId: cowu.formatElementId(
                 [prefixId, ctwl.TITLE_ROUTING_POLICY_EDIT]),
