@@ -196,7 +196,7 @@ define([
                 }
             });
             $('.vis-navigation').append(rearrange);
-            var resetTopo = $('<div style="display:inline-block; width:15px; height:15px; background-image:none; top:170px; right:10px; position:absolute; background-color:#f9f9f9; border:1px solid #efefef; color:#777; font-family:FontAwesome; font-size:15px; z-index:1; padding: 7px 7px; line-height:normal; background-position:2px 2px; cursor:pointer; background-repeat:no-repeat" title="Reset Topology"><i class="icon-play-circle" /></div>');
+            /*var resetTopo = $('<div style="display:inline-block; width:15px; height:15px; background-image:none; top:170px; right:10px; position:absolute; background-color:#f9f9f9; border:1px solid #efefef; color:#777; font-family:FontAwesome; font-size:15px; z-index:1; padding: 7px 7px; line-height:normal; background-position:2px 2px; cursor:pointer; background-repeat:no-repeat" title="Reset Topology"><i class="icon-play-circle" /></div>');
             $(resetTopo).on("click", function(){
                 self.resetTopology({
                     resetBelowTabs: true,
@@ -204,7 +204,7 @@ define([
                 });
                 self.removeUnderlayEffects();
             });
-            $('.vis-navigation').append(resetTopo);
+            $('.vis-navigation').append(resetTopo);*/
 
             var _network = this.network;
             window.network = _network;
