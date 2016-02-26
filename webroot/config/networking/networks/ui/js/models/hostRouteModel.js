@@ -32,13 +32,13 @@ define([
             hostRouteModelConfigValidations: {
                 'prefix':
                     function (value, attr, finalObj) {
-                    if (!((value && value.indexOf('/') != -1) || isValidIP(value))) {
+                    if (!((value && value.indexOf('/') != -1) && isValidIP(value))) {
                         return 'Enter Prefix in form xxx.xxx.xxx.xxx/xx';
                     }
                 },
                 'next_hop':
                     function (value, attr, finalObj) {
-                    if (!(isValidIP(value))) {
+                    if ((value && value.indexOf('/') != -1) || !isValidIP(value)) {
                         return 'Enter Next Hop in form xxx.xxx.xxx.xxx';
                     }
                 },
