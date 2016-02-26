@@ -104,7 +104,7 @@ define(
                    },
                    {
                        field:"cpu",
-                       name:"CPU (%)",
+                       name: ctwl.TITLE_CPU,
                        formatter:function(r,c,v,cd,dc) {
                            return '<div class="gridSparkline display-inline">'+
                                '</div><span class="display-inline">'

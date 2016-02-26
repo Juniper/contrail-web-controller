@@ -32,7 +32,7 @@ define(['underscore', 'contrail-view'], function(_, ContrailView) {
                            cfDataSource : self.cfDataSource,
                            chartOptions: {
                                doBucketize: true,
-                               xLabel: 'CPU (%)',
+                               xLabel: ctwl.TITLE_CPU,
                                yLabel: 'Memory (MB)',
                                forceX: [0, 1],
                                forceY: [0, 20],
