@@ -304,6 +304,15 @@ define([
                 onClick: onClickFunction
             }
         };
+        this.getListAction = function (onClickFunction, title, divider) {
+            return {
+                title: title,
+                iconClass: 'icon-list-alt',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            }
+        };
         this.getDeleteAction = function (onClickFunction, divider) {
             return {
                 title: ctwl.TITLE_DELETE_CONFIG,
