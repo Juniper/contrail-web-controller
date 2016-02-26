@@ -56,7 +56,7 @@ define([
         {
             title: 'System',
             prefix:'vrouterSystem',
-            sparklineTitle1:'CPU Share (%)',
+            sparklineTitle1:ctwl.TITLE_CPU_LOAD,
             sparklineTitle2:'Memory',
             sparkline1Dimension: 'cpu_info.one_min_cpuload',
             sparkline2Dimension:'cpu_info.used_sys_mem',
