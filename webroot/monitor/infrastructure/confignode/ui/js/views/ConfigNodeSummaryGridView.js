@@ -14,28 +14,32 @@ define(
                                 pagerOptions = viewConfig['pagerOptions'];
                             this.renderView4Config(self.$el,
                             self.model,
-                            getConfigNodeSummaryGridViewConfig(pagerOptions));
+                            getConfigNodeSummaryGridViewConfig(pagerOptions),
+                            null,
+                            null,
+                            null,
+                            function() {
+                                self.model.onDataUpdate.subscribe(function () {
+                                    if($('#'+ctwl.CONFIGNODE_SUMMARY_GRID_ID).
+                                                data('contrailGrid')) {
+                                        $('#'+ctwl.CONFIGNODE_SUMMARY_GRID_ID).
+                                            data('contrailGrid')._grid.invalidate();
+                                    }
+                                });
+                            });
                         }
                     });
 
             function getConfigNodeSummaryGridViewConfig(
                     pagerOptions) {
                 return {
-                    elementId : ctwl.CONFIGNODE_SUMMARY_GRID_SECTION_ID,
-                    view : "SectionView",
+                    elementId : ctwl.CONFIGNODE_SUMMARY_GRID_ID,
+                    title : ctwl.CONFIGNODE_SUMMARY_TITLE,
+                    view : "GridView",
                     viewConfig : {
-                        rows : [ {
-                            columns : [ {
-                                elementId : ctwl.CONFIGNODE_SUMMARY_GRID_ID,
-                                title : ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                view : "GridView",
-                                viewConfig : {
-                                    elementConfig :
-                                        getConfigNodeSummaryGridConfig(
-                                                pagerOptions)
-                                }
-                            } ]
-                        } ]
+                        elementConfig :
+                            getConfigNodeSummaryGridConfig(
+                                    pagerOptions)
                     }
                 };
             }

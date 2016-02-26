@@ -1035,7 +1035,7 @@ define([
                 var source = d['Source'];
                 var name = d['name'];
                 var t = JSON.stringify({"ts":d['T']});
-                if(source != name) {
+                if(name != null && source != name) {
                     source = name;//In case of TOR agents the name is the key
                 }
                 if(ret[source] != null && ret[source]['history-10'] != null){
