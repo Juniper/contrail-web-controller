@@ -297,7 +297,9 @@ define([
         this.TITLE_PORT_DISTRIBUTION = "Port Distribution";
         this.TITLE_PORT_MAP = "Port Map";
 
-        this.TITLE_CPU = "CPU Share (%)"
+        this.TITLE_CPU = "CPU Share (%)";
+        this.TITLE_CPU_LOAD = "CPU Load";
+        this.TITLE_MEMORY = "Memory";
 
         /** Titles used in node details chart widget **/
         this.TITLE_CONTROLNODE_CPU_MEM_UTILIZATION = 'Control Node CPU/Memory Utilization';
