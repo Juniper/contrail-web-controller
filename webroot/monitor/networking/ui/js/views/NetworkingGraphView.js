@@ -1037,7 +1037,7 @@ define([
             highlightedElements = {nodes: [], links: []};
 
             $.each(sourceNode, function (sourceNodeKey, sourceNodeValue) {
-                if (contrail.checkIfExist(sourceNodeValue)) {
+                if (contrail.checkIfExist(sourceNodeValue) && !$.isArray(sourceNodeValue)) {
                     highlightedElements.nodes.push(sourceNodeValue);
                     policyRuleLinkKey.push(sourceNodeValue);
 
@@ -1059,7 +1059,7 @@ define([
                 }
             });
             $.each(destinationNode, function (destinationNodeKey, destinationNodeValue) {
-                if (contrail.checkIfExist(destinationNodeValue)) {
+                if (contrail.checkIfExist(destinationNodeValue) && !$.isArray(destinationNodeValue)) {
                     highlightedElements.nodes.push(destinationNodeValue);
                 }
             });
@@ -1075,8 +1075,6 @@ define([
                         highlightElements([$('div.VirtualMachine')]);
                         highlightSVGElements([$('g.VirtualMachine'), $('.VirtualMachineLink')]);
                     }
-
-
                 });
 
                 if (policyRuleValue.action_list.simple_action == 'pass') {
