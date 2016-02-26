@@ -116,7 +116,7 @@ define([
                     formatter: packetCaptureFormatter.vnFormatter
                 },{
                     field: "network_policy.virtual_network_back_refs",
-                    name: "Associate Network(s)",
+                    name: "Associated Networks",
                     minWidth: 100,
                     sortable: {
                         sortBy: "formattedValue"
@@ -124,7 +124,7 @@ define([
                     formatter: packetCaptureFormatter.associateVNFormatter
                 },{
                     field: "network_policy.network_policy_entries.policy_rule",
-                    name: "Analyzer Rule(s)",
+                    name: "Analyzer Rules",
                     minWidth: 400,
                     sortable: {
                         sortBy: "formattedValue"
@@ -149,11 +149,11 @@ define([
             if(self.analyzerImageAvbl.isAnalyzerImageAvailable) {
                 callback();
             } else {
-                showInfoWindow("Analyzer image is not found. Please ensure that a valid image of name analyzer is present.", "Warning");
+                showInfoWindow("Analyzer image is not found.", "Warning");
                 return;
             }
         } else {
-            showInfoWindow("Waiting to get the analyzer image. Please try again after few seconds.", "Message");
+            showInfoWindow("Waiting to get the analyzer image. Try again after some time.", "Message");
             return;
         }
     }
@@ -191,7 +191,7 @@ define([
                     vmUUID = getValueByJsonPath(dataItem, "vmDetails;0;server;id", null);
 
                 if(vmUUID == null) {
-                    showInfoWindow("Analyzer is not ready. Please try after few minutes.", "Launch Analyzer");
+                    showInfoWindow("Analyzer is not ready. Try after some time.", "Launch Analyzer");
                     return;
                 }
                 var ajaxConfig = {
@@ -307,14 +307,14 @@ define([
                                 },{
                                     key: "network_policy.virtual_network_back_refs",
                                     templateGenerator: "TextGenerator",
-                                    label: "Associated Network(s)",
+                                    label: "Associated Networks",
                                     templateGeneratorConfig: {
                                         formatter: "AssociateVNFormatter"
                                     }
                                 },{
                                     key: "network_policy.network_policy_entries.policy_rule",
                                     templateGenerator: "TextGenerator",
-                                    label: "Analyzer Rule(s)",
+                                    label: "Analyzer Rules",
                                     templateGeneratorConfig: {
                                         formatter: "AnalyzerRuleFormatter"
                                     }

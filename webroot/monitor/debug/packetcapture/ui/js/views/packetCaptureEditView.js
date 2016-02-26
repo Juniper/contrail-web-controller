@@ -183,10 +183,10 @@ define([
                                     viewConfig: {
                                         path: "user_created_associate_networks",
                                         dataBindValue: "user_created_associate_networks",
-                                        label: "Associate Network(s)",
+                                        label: "Associate Networks",
                                         class: "span12",
                                         elementConfig : {
-                                            placeholder: "Select Associate Network(s)",
+                                            placeholder: "Select Networks",
                                             dataValueField: "value",
                                             dataTextField: "text",
                                             data: networkList
@@ -201,7 +201,7 @@ define([
                                    view: "FormEditableGridView",
                                        viewConfig: {
                                            path: "rules",
-                                           label: "Analyzer Rule(s)",
+                                           label: "Analyzer Rules",
                                            collection: "rules",
                                            validation: "ruleValidation",
                                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
