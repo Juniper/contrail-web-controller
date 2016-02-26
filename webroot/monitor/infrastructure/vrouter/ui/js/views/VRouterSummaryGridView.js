@@ -13,27 +13,29 @@ define(
                         pagerOptions = viewConfig['pagerOptions'];
                     this.renderView4Config(self.$el,
                     self.model,
-                    getVRouterNodeSummaryGridViewConfig(pagerOptions));
+                    getVRouterNodeSummaryGridViewConfig(pagerOptions),
+                    null,
+                    null,
+                    null,
+                    function() {
+                        self.model.onDataUpdate.subscribe(function () {
+                            if($('#'+ctwl.VROUTER_SUMMARY_GRID_ID).data('contrailGrid')) {
+                                $('#'+ctwl.VROUTER_SUMMARY_GRID_ID).data('contrailGrid')._grid.invalidate();
+                            }
+                        });
+                    });
                 }
             });
 
             function getVRouterNodeSummaryGridViewConfig(pagerOptions) {
                 return {
-                    elementId : ctwl.VROUTER_SUMMARY_GRID_SECTION_ID,
-                    view : "SectionView",
+                    elementId : ctwl.VROUTER_SUMMARY_GRID_ID,
+                    title : ctwl.VROUTER_SUMMARY_TITLE,
+                    view : "GridView",
                     viewConfig : {
-                        rows : [ {
-                            columns : [ {
-                                elementId : ctwl.VROUTER_SUMMARY_GRID_ID,
-                                title : ctwl.VROUTER_SUMMARY_TITLE,
-                                view : "GridView",
-                                viewConfig : {
-                                    elementConfig :
-                                        getVRouterNodeSummaryGridConfig(
-                                                pagerOptions)
-                                }
-                            } ]
-                        } ]
+                        elementConfig :
+                            getVRouterNodeSummaryGridConfig(
+                                    pagerOptions)
                     }
                 };
             }
