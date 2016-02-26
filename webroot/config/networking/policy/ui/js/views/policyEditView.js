@@ -334,7 +334,7 @@ define([
             )
         }
     });
-    fqnameDisplayFormat = function(fqname, selectedDomain, selectedProject) {
+    var fqnameDisplayFormat = function(fqname, selectedDomain, selectedProject) {
         var returnText = "";
         returnText = getValueByJsonPath(fqname, "2", "");
         if(returnText != "" && (
@@ -345,7 +345,7 @@ define([
         return returnText;
     }
 
-    getConfigureViewConfig = function(isDisable, allData) {
+    var getConfigureViewConfig = function(isDisable, allData) {
         return {
             elementId: cowu.formatElementId(
                             [prefixId, ctwl.TITLE_EDIT_POLICY]),

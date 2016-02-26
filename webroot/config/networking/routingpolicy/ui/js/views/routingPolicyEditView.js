@@ -142,7 +142,7 @@ define([
         }
     });
 
-    getConfigureViewConfig = function (isDisable) {
+    var getConfigureViewConfig = function (isDisable) {
         return {
             elementId: cowu.formatElementId(
                 [prefixId, ctwl.TITLE_ROUTING_POLICY_EDIT]),
