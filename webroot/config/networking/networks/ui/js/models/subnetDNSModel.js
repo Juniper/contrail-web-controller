@@ -34,7 +34,7 @@ define([
                     if (value && value.length) {
                         var dnsServers = value.split(' ');
                         $.each(dnsServers, function (idx, dnsServer) {
-                            if (!isValidIP(dnsServer)) {
+                            if (dnsServer.indexOf('/') != -1 || !isValidIP(dnsServer)) {
                                 err.push(dnsServer);
                             }
                         });
