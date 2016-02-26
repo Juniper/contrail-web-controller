@@ -33,11 +33,14 @@ define([
                                     parseFn: function (response) {
                                         var dimensions = ['cpu_info.one_min_cpuload',
                                                           'cpu_info.used_sys_mem'];
-                                        var options = {dimensions:dimensions}
+                                        var axisLabels = [ctwl.TITLE_CPU_LOAD,ctwl.TITLE_MEMORY];
+                                        var options = {dimensions:dimensions,axisLabels:axisLabels};
                                         return ctwp.parseLineChartDataForNodeDetails(response,options);
                                     },
                                     chartOptions: {
-//                                        forceY1: [0, 1]
+                                        y1AxisLabel:ctwl.TITLE_CPU_LOAD,
+                                        y2AxisLabel:ctwl.TITLE_MEMORY,
+                                        forceY1: [0, 1]
                                     },
                                     widgetConfig: {
                                         elementId: ctwl.VROUTER_DETAILS_SYSTEM_CHART_WIDGET,
