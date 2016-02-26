@@ -30,7 +30,7 @@ define([
             var detailsChartsTmpl = contrail.getTemplate4Id(cowc.NODE_DETAILS_CHARTS);
             self.$el.append(detailsChartsTmpl);
             this.infoBoxView = new NodeDetailsInfoboxesView({el:$(contentContainer).
-                find('#infoboxes-container'), widgetTitle:'CPU and Memory Utilization'});
+                find('#infoboxes-container'), widgetTitle:'Resource Utilization'});
             var infoBoxList = getInfoboxesConfig({node:hostname,isTORAgent:isTORAgent});
             for(var i=0;i<infoBoxList.length;i++) {
                 this.infoBoxView.add(infoBoxList[i]);
@@ -42,7 +42,8 @@ define([
         var vRouterDetailsAgentChartListModel = new VRouterDetailsAgentChartListModel(config);
         var vRouterDetailsSystemChartListModel = new VRouterDetailsSystemChartListModel(config);
         var vRouterDetailsBandwidthChartListModel = new VRouterDetailsBandwidthChartListModel(config);
-        return [{
+        return [
+        {
             title: 'Virtual Router Agent',
             prefix:'vrouterAgent',
             sparklineTitle1: ctwl.TITLE_CPU,
@@ -65,9 +66,9 @@ define([
         {
             title: 'Physical Bandwidth',
             prefix:'vrouterBandwidth',
-            sparklineTitle1:'Bandwidth In',
-            sparklineTitle2:'Bandwidth Out',
-            sparkline1Dimension: 'phy_if_band.in_bandwidth_usage',
+            sparklineTitle1:'Flow Rate',
+            sparklineTitle2:'Bandwidth In',
+            sparkline1Dimension: 'MAX(flow_rate.active_flows)',
             sparkline2Dimension:'phy_if_band.out_bandwidth_usage',
             view: VRouterDetailsBandwidthLineChartView,
             model: vRouterDetailsBandwidthChartListModel
