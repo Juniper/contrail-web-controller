@@ -31,7 +31,7 @@ define([
         this.aNodeTabStrip = "analytics_tabstrip";
         this.ctrlNodeTabStrip = "control_tabstrip";
         this.dbNodeTabStrip = "db_tabstrip";
-        this.infraDetailsPageCPUChartTitle = 'CPU Share (%)';
+        this.infraDetailsPageCPUChartTitle = ctwl.TITLE_CPU;
         this.CONSOLE_LOGS_REFRESH_INTERVAL = 90000;//Auto refresh interval in console tab (ms)
 
         this.IS_NODE_MANAGER_INSTALLED = true;
