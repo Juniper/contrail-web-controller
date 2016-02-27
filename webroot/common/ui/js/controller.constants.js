@@ -244,10 +244,13 @@ define([
                 role = globalObj['webServerInfo']['role'],
                 activeOrchModel = globalObj['webServerInfo']['loggedInOrchestrationMode'];
 
-            /* In case of vcenter, get the projects from API Server only */
-            if ((activeOrchModel == 'vcenter') || (((null == getProjectsFromIdentity) || (false == getProjectsFromIdentity)) && ((null == config) || (false == config)))) {
+            if ((((null == getProjectsFromIdentity) || (false == getProjectsFromIdentity)) && ((null == config) || (false == config)))) {
                 url = '/api/tenants/projects/' + domainObj.name;
             }
+            if(activeOrchModel == 'vcenter') {
+                url = '/api/tenants/config/projects/' + domainObj.name;
+            }
+
             return url;
         };
 
