@@ -682,11 +682,13 @@ define([
                                           'virtual-machine-interfaces', []);
             var dispName = "port-tuple";
             var splitArr = portTupleName.split('-port-tuple');
-            if (splitArr.length > 0) {
+            if (splitArr.length > 1) {
                 var newArr = splitArr[1].split('-');
                 if (newArr.length > 0) {
                     dispName += newArr[0];
                 }
+            } else {
+                dispName = portTupleName;
             }
             var vmisCnt = vmis.length;
             var vmiTypeToObjMap = {};
