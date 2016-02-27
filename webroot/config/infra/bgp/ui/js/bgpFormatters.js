@@ -133,7 +133,10 @@ define(['underscore'], function(_){
             var peers = [];
             for(var i = 0; i < data.length; i++) {
                 var row = data[i]["bgp-router"];
-                if(currentBGP && currentBGP === row.name) {
+                var routerType = getValueByJsonPath(row,
+                    "bgp_router_parameters;router_type", null);
+                if((currentBGP && currentBGP === row.name) ||
+                    ($.inArray(routerType, ctwc.BGP_AAS_ROUTERS) !== -1)) {
                     continue;
                 }
                 peers.push(row);
