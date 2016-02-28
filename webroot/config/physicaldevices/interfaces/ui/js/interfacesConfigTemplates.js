@@ -103,6 +103,7 @@ define([
                                elementId: ctwl.LOGICAL_INF_SECTION,
                                title : ctwl.LOGICAL_INF_SECTION_TITLE,
                                view : "SectionView",
+                               active:false,
                                viewConfig : {
                                    rows : self.logicalInfProp(disableId,
                                        infEditView)

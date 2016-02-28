@@ -107,6 +107,7 @@ define([
             elementId: 'user_credentials',
             title: 'User Credentials',
             view: 'SectionView',
+            active: false,
             viewConfig: {
                 rows: [{
                     columns: [{
@@ -145,6 +146,7 @@ define([
             elementId: 'advanced_options',
             title: 'Advanced Options',
             view: 'SectionView',
+            active:false,
             viewConfig: {
                 rows: [{
                     columns: [{

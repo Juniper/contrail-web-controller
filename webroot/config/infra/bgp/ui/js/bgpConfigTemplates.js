@@ -17,6 +17,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                             elementId : 'advance_options_section',
                             title : 'Advanced Options',
                             view : 'SectionView',
+                            active:false,
                             viewConfig : {
                                 rows : [
                                {
@@ -176,6 +177,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                         elementId : 'peer_selection_section',
                         title : 'Associate Peer(s)',
                         view : 'SectionView',
+                        active:false,
                         viewConfig : {
                             rows : [{
                                 columns :[{
