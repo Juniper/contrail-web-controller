@@ -343,6 +343,7 @@ define([
                                elementId: ctwl.OVSDB_SNMP_SECTION,
                                title : ctwl.OVSDB_SNMP_SECTION_TITLE,
                                view: "SectionView",
+                               active:false,
                                visible : "snmpMntd",
                                viewConfig:{
                                    rows: [
@@ -415,6 +416,7 @@ define([
                     {
                          elementId : 'netConfSection',
                          view: "SectionView",
+                         active:false,
                          viewConfig : {
                              rows : [
                                  self.svcPortsBaseView()
@@ -653,6 +655,7 @@ define([
                 elementId: ctwl.NETCONF_SETTINGS_SECTION,
                 title : ctwl.NETCONF_SETTINGS_TITLE,
                 view: "SectionView",
+                active:false,
                 viewConfig:{
                     rows : [
                         {

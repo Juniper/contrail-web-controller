@@ -139,6 +139,7 @@ define([
             elementId: 'advanced_options',
             title: 'Advanced Options',
             view: 'SectionView',
+            active:false,
             viewConfig: {
                 rows: [{
                     columns: [{
