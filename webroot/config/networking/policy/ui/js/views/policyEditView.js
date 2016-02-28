@@ -401,17 +401,28 @@ define([
                                 {
                                  elementId: 'protocol',
                                  name: 'Protocol',
-                                 view: "FormDropdownView",
+                                 view: "FormComboboxView",
                                  class: "",
-                                 width: 60,
+                                 width: 150,
                                  viewConfig: {
-                                     templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                     templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
                                      path: "protocol",
                                      dataBindValue: "protocol()",
                                      disabled: "mirror_to_check()",
                                      elementConfig:{
-                                     data:['ANY', 'TCP', 'UDP', 'ICMP', 'ICMP6']
-                                    }}
+                                         dataTextField: 'text',
+                                         dataValueField: 'value',
+                                         dataSource: {
+                                             type: 'local',
+                                             data:[{text:'ANY', value:'ANY' },
+                                                   {text:'TCP', value:'TCP' },
+                                                   {text:'UDP', value:'UDP' },
+                                                   {text:'ICMP', value:'ICMP' },
+                                                   {text:'ICMP6', value:'ICMP6' }
+                                                  ]
+                                            }
+                                        }
+                                    }
                                 },
                                 {
                                     elementId: 'src_address',
@@ -419,10 +430,10 @@ define([
                                         "FormHierarchicalDropdownView",
                                     name: 'Source',
                                     class: "",
-                                    width: 225,
+                                    width: 200,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                        width: 225,
+                                        width: 200,
                                         path: 'src_address',
                                         dataBindValue: 'src_address()',
                                         elementConfig: {
@@ -488,10 +499,10 @@ define([
                                         "FormHierarchicalDropdownView",
                                     name: 'Destination',
                                     class: "span2",
-                                    width: 225,
+                                    width: 200,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                        width: 225,
+                                        width: 200,
                                         path: 'dst_address',
                                         dataBindValue: 'dst_address()',
                                         elementConfig: {

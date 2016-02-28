@@ -408,11 +408,11 @@ define([
                                         {
                                             elementId: 'protocol',
                                             name: 'Protocol',
-                                            view: 'FormDropdownView',
+                                            view: 'FormComboboxView',
                                             class: "",
                                             viewConfig: {
                                                 templateId:
-                                                    cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                                    cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
                                                 width: 100,
                                                 path: 'protocol',
                                                 dataBindValue: 'protocol()',
@@ -420,16 +420,21 @@ define([
                                                     dataTextField: 'text',
                                                     dataValueField: 'value',
                                                     width: 100,
-                                                    data: [
-                                                        {text: 'ANY',
-                                                            value: 'ANY'},
-                                                        {text: 'TCP',
-                                                            value: 'TCP'},
-                                                        {text: 'UDP',
-                                                            value: 'UDP'},
-                                                        {text: 'ICMP',
-                                                            value: 'ICMP'}
-                                                    ]
+                                                    dataSource: {
+                                                        type: 'local',
+                                                        data: [
+                                                            {text: 'ANY',
+                                                                value: 'ANY'},
+                                                            {text: 'TCP',
+                                                                value: 'TCP'},
+                                                            {text: 'UDP',
+                                                                value: 'UDP'},
+                                                            {text: 'ICMP',
+                                                                value: 'ICMP'}
+                                                            {text: 'ICMP6',
+                                                                value: 'ICMP6'}
+                                                        ]
+                                                    }
                                                 }
                                             }
                                         },
