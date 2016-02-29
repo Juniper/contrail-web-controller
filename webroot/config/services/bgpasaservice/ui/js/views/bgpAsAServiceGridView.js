@@ -328,14 +328,14 @@ define([
                                     templateGeneratorConfig: {
                                         formatter: "AuthModeFormatter"
                                     }
-                                },{
+                                }/*,{
                                     key: "bgpaas_session_attributes.family_attributes",
                                     templateGenerator: "TextGenerator",
                                     label: "Address Family Attributes",
                                     templateGeneratorConfig: {
                                         formatter: "FamilyAttrsFormatter"
                                     }
-                                }]
+                                }*/]
                             }]
                         }]
                     }
@@ -369,9 +369,9 @@ define([
     this.AuthModeFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.authModeFormatter("", "", v, "", dc);
     };
-    this.FamilyAttrsFormatter = function(v, dc) {
+    /*this.FamilyAttrsFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.familyAttrsFormatter("", "", v, "", dc);
-    };
+    };*/
     return bgpAsAServiceGridView;
 });
 
