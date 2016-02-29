@@ -291,7 +291,7 @@ define([
                                        }
                                  }]
                             }]
-                        },
+                        }/*,
                         {
                             columns: [{
                                 elementId: "bgpasas_session_attr_accordian",
@@ -379,7 +379,7 @@ define([
                                         }
                                     }]
                                }]
-                        }
+                        }*/
                     ]
                 }
             };
