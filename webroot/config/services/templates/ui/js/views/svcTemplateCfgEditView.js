@@ -281,7 +281,7 @@ define([
                                                             {
                                                              templateId:
                                                                 cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
-                                                             width: 400,
+                                                             width: 318,
                                                              path: "service_interface_type",
                                                              dataBindValue: 'service_interface_type()',
                                                              dataBindOptionList:
@@ -305,7 +305,7 @@ define([
                                                              visible:
                                                                 '$root.showIntfTypeParams($root)',
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
-                                                             width: 80,
+                                                             width: 140,
                                                              path: "shared_ip",
                                                              dataBindValue: 'shared_ip()'
                                                             }
@@ -314,7 +314,7 @@ define([
                                                           elementId: 'static_route_enable',
                                                           name: 'Static Routes',
                                                           view: "FormCheckboxView",
-                                                          class: "text-center", width: 100,
+                                                          class: "text-center",
                                                           viewConfig:
                                                             {
                                                              visible:
@@ -322,6 +322,7 @@ define([
                                                              disabled:
                                                                  '$root.disableStaticRoute($root, $data)',
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
+                                                             width: 140,
                                                              path: "static_route_enable",
                                                              dataBindValue:
                                                                  'static_route_enable()'

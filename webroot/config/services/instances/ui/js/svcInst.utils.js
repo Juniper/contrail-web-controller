@@ -555,7 +555,8 @@ define([
                 view: 'SectionView',
                 viewConfig: {
                     visible: 'showIfV1Template',
-                    rows: [{
+                    rows: [
+                    {
                         columns: [{
                             elementId: 'rtPolicyAccordian',
                             view: 'AccordianView',
@@ -570,15 +571,6 @@ define([
                             view: 'AccordianView',
                             viewConfig: [
                                 this.getRtAggregateAccordianView(isDisabled)
-                            ]
-                        }]
-                    },
-                    {
-                        columns: [{
-                            elementId: 'allowedAddrPairAccordian',
-                            view: 'AccordianView',
-                            viewConfig: [
-                                this.getAllowedAddressPairAccordianConfig(isDisabled)
                             ]
                         }]
                     }]
@@ -598,15 +590,6 @@ define([
                             view: 'AccordianView',
                             viewConfig: [
                                 this.getSvcHealthCheckAccordianView(isDisabled),
-                            ]
-                        }]
-                    },
-                    {
-                        columns: [{
-                            elementId: 'intfRtTableAccordian',
-                            view: 'AccordianView',
-                            viewConfig: [
-                                this.getIntfRtTableAccordianView(isDisabled)
                             ]
                         }]
                     },
@@ -634,6 +617,15 @@ define([
                             view: 'AccordianView',
                             viewConfig: [
                                 this.getAllowedAddressPairAccordianConfig(isDisabled)
+                            ]
+                        }]
+                    },
+                    {
+                        columns: [{
+                            elementId: 'intfRtTableAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getIntfRtTableAccordianView(isDisabled)
                             ]
                         }]
                     }]
