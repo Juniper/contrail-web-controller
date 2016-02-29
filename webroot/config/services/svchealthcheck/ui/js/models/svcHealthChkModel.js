@@ -79,7 +79,7 @@ define([
                     newsvcHealthChkCfgData['fq_name'][2] = newsvcHealthChkCfgData['name'];
                 }
 
-                var delay, timeout, max_retries;
+                var delay, timeout, max_retries, protocol, url;
 
                 delay = getValueByJsonPath(newsvcHealthChkCfgData,
                                 'service_health_check_properties;delay', '').toString();
@@ -94,6 +94,24 @@ define([
                 newsvcHealthChkCfgData['service_health_check_properties']['timeout'] = timeout;
                 max_retries = max_retries.trim().length != 0 ? Number(max_retries) : null;
                 newsvcHealthChkCfgData['service_health_check_properties']['max_retries'] = max_retries;
+
+                protocol = getValueByJsonPath(newsvcHealthChkCfgData,
+                                'service_health_check_properties;monitor_type', 'PING');
+                url      = getValueByJsonPath(newsvcHealthChkCfgData,
+                                'service_health_check_properties;url_path', '');
+
+                if (protocol == 'HTTP') {
+                    if (!(url.startsWith('http://') ||
+                                url.startsWith('HTTP://'))) {
+                         newsvcHealthChkCfgData['service_health_check_properties']['url_path'] =
+                             'http://' + url; 
+                        
+                    }
+                } else if (protocol == 'PING') {
+                    url = url.split('://');
+                    newsvcHealthChkCfgData['service_health_check_properties']['url_path'] =
+                    url.length > 1 ? url[1] : url[0];
+                }
 
                 ctwu.deleteCGridData(newsvcHealthChkCfgData);
                 delete newsvcHealthChkCfgData.id_perms;
