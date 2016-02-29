@@ -555,15 +555,7 @@ define([
                 view: 'SectionView',
                 viewConfig: {
                     visible: 'showIfV1Template',
-                    rows: [{
-                        columns: [{
-                            elementId: 'svcHealthChkAccordian',
-                            view: 'AccordianView',
-                            viewConfig: [
-                                this.getSvcHealthCheckAccordianView(isDisabled),
-                            ]
-                        }]
-                    },
+                    rows: [
                     {
                         columns: [{
                             elementId: 'rtPolicyAccordian',
@@ -579,15 +571,6 @@ define([
                             view: 'AccordianView',
                             viewConfig: [
                                 this.getRtAggregateAccordianView(isDisabled)
-                            ]
-                        }]
-                    },
-                    {
-                        columns: [{
-                            elementId: 'allowedAddrPairAccordian',
-                            view: 'AccordianView',
-                            viewConfig: [
-                                this.getAllowedAddressPairAccordianConfig(isDisabled)
                             ]
                         }]
                     }]
