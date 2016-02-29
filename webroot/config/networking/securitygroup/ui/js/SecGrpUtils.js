@@ -360,7 +360,7 @@ define([
                                                 elementConfig: {
                                                     dataTextField: 'text',
                                                     dataValueField: 'value',
-                                                    width: 150,
+                                                    width: 100,
                                                     data: [
                                                         {value: 'IPv4',
                                                             text: 'IPv4'},
