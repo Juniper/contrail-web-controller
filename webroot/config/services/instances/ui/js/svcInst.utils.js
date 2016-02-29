@@ -557,6 +557,15 @@ define([
                     visible: 'showIfV1Template',
                     rows: [{
                         columns: [{
+                            elementId: 'svcHealthChkAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getSvcHealthCheckAccordianView(isDisabled),
+                            ]
+                        }]
+                    },
+                    {
+                        columns: [{
                             elementId: 'rtPolicyAccordian',
                             view: 'AccordianView',
                             viewConfig: [
