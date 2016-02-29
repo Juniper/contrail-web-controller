@@ -156,10 +156,11 @@ define([
             });
 
             $('body').on("click", '#flow-info span.reset', function () {
+                self.removeUnderlayPathIds();
+                self.removeUnderlayEffects();
                 self.resetTopology({
                     resetBelowTabs: true
                 });
-                self.removeUnderlayEffects();
             });
             var graphWidth = $(selectorId).width();
             var graphHeight = $(selectorId).height();
@@ -245,7 +246,7 @@ define([
                 self.tooltipConfigWidth = tooltipConfig.dimension.width;
                 self.tooltipConfigHeight = tooltipConfig.dimension.height;
                 var ttPosition = $(".vis-network-tooltip").offset();
-                var cursorPosition = 
+                var cursorPosition =
                 self.network.canvasToDOM({
                     x:hoveredElement.x,
                     y:hoveredElement.y
@@ -420,9 +421,6 @@ define([
                             'btnName': 'Confirm',
                             'body': textTemplate(),
                             'onSave': function () {
-                                self.underlayPathIds.nodes = [];
-                                self.underlayPathIds.links = [];
-                                self.removeUnderlayEffects();
                                 self.expandNodes(params);
                                 $("#resetTopologyModal").modal('hide');
                             },
@@ -451,23 +449,161 @@ define([
                     showInfoWindow("Cannot find the underlay path for selected flow", "Info");
                     return false;
                 }
-                if(_.isEqual(graphModel.flowPath._previousAttributes.nodes, 
+                if(_.isEqual(graphModel.flowPath._previousAttributes.nodes,
                     graphModel.flowPath.attributes.nodes) &&
                     _.isEqual(graphModel.flowPath._previousAttributes.links,
                     graphModel.flowPath.attributes.links))
                     return false;
-
-                self.resetTopology({
-                    resetBelowTabs: true,
-                });
-
+                self.removeUnderlayPathIds();
                 var elementMap = graphModel['elementMap'];
-                var adjList = graphModel.prepareData("virtual-router");
+                var adjList = graphModel.prepareData();
+
                 var nodeNames = [];
+                var vRouters = {};
+                var pRouters = {};
+                var vms = {};
+                var flowPathLinks = {};
                 for(var i=0; i<nodes.length; i++) {
                     nodeNames.push(nodes[i].name);
-                    if(!adjList.hasOwnProperty(nodes[i].name)) {
-                        adjList[nodes[i].name] = [];
+                    if(nodes[i].node_type == "virtual-router") {
+                        vRouters[nodes[i].name] = {};
+                    } else if(nodes[i].node_type == "physical-router") {
+                        pRouters[nodes[i].name] = {};
+                    } else if(nodes[i].node_type == "virtual-machine") {
+                        vms[nodes[i].name] = {};
+                    }
+                }
+
+                if(JSON.stringify(pRouters) == "{}") {
+                    //no prouters, look for vrouters
+                    if(JSON.stringify(vRouters) == "{}") {
+                        //no vrouters, look for vms
+                        if(JSON.stringify(vms) == "{}") {
+                            //no vms, nothing to plot. return
+                            return;
+                        } else {
+                            //no prouters/vrouters, only vms.
+                            //deduce parents(vrouters) of vms,
+                            //then parents(tors) of vrouters
+                            var tors = graphModel['tors'];
+                            for(var i=0; i<tors.length; i++) {
+                                var tor = tors[i];
+                                var torName = tor.name;
+                                var vRouters = tor.children;
+                                for(var virtualRouterName in vRouters) {
+                                    var virtualMachines = vRouters[virtualRouterName].children;
+                                    for(var virtualMachineName in virtualMachines) {
+                                        if(vms.hasOwnProperty(virtualMachineName)) {
+                                            if(!vms[virtualMachineName].hasOwnProperty('parent')) {
+                                                vms[virtualMachineName].parent = virtualRouterName;
+                                                var link = virtualMachineName + "<->" +
+                                                    virtualRouterName;
+                                                var altLink = virtualRouterName + "<->" +
+                                                    virtualMachineName;
+                                                if(!flowPathLinks.hasOwnProperty(link))
+                                                    flowPathLinks[link] = {};
+                                                if(!flowPathLinks.hasOwnProperty(altLink))
+                                                    flowPathLinks[altLink] = {};
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        //no prouters, but vrouters exists
+                        //look for parents(tors) for vrouters
+                        var tors = graphModel['tors'];
+                        for(var i=0; i<tors.length; i++) {
+                            var tor = tors[i];
+                            var torName = tor.name;
+                            var virtualRouters = tor.children;
+                            for(var virtualRouterName in virtualRouters) {
+                                if(vRouters.hasOwnProperty(virtualRouterName)) {
+                                    if(!vRouters[virtualRouterName].hasOwnProperty('parent')) {
+                                        vRouters[virtualRouterName].parent = torName;
+                                        var link = torName + "<->" + virtualRouterName;
+                                        var altLink = virtualRouterName + "<->" + torName;
+                                        if(!flowPathLinks.hasOwnProperty(link))
+                                            flowPathLinks[link] = {};
+                                        if(!flowPathLinks.hasOwnProperty(altLink))
+                                            flowPathLinks[altLink] = {};
+                                        if(JSON.stringify(vms) !== "{}") {
+                                            for(var j=0; j<self.model.vRouters.length; j++) {
+                                                if(self.model.vRouters[j].name ==
+                                                    virtualRouterName) {
+                                                    var virtualMachines = self.model.vRouters[j].children;
+                                                    for(var virtualMachineName in virtualMachines) {
+                                                        if(vms.hasOwnProperty(virtualMachineName)) {
+                                                            if(!vms[virtualMachineName].hasOwnProperty('parent')) {
+                                                                vms[virtualMachineName].parent = virtualRouterName;
+                                                                var link = virtualMachineName + "<->" +
+                                                                    virtualRouterName;
+                                                                var altLink = virtualRouterName + "<->" +
+                                                                    virtualMachineName;
+                                                                if(!flowPathLinks.hasOwnProperty(link))
+                                                                    flowPathLinks[link] = {};
+                                                                if(!flowPathLinks.hasOwnProperty(altLink))
+                                                                    flowPathLinks[altLink] = {};
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    //prouters exists, plot
+                    //firstLevelNodes could be spines or cores
+                    var firstLevelNodes = graphModel['firstLevelNodes'];
+                    for(var k=0; k<firstLevelNodes.length; k++) {
+                        var tors = firstLevelNodes[k].children;
+                        for(var torName in tors) {
+                            var virtualRouters = tors[torName].children;
+                            for(var virtualRouterName in virtualRouters) {
+                                if(JSON.stringify(vRouters) !== "{}") {
+                                    if(vRouters.hasOwnProperty(virtualRouterName)) {
+                                        if(!vRouters[virtualRouterName].hasOwnProperty('parent') &&
+                                            pRouters.hasOwnProperty(torName)) {
+                                            vRouters[virtualRouterName].parent = torName;
+                                            var link = torName + "<->" + virtualRouterName;
+                                            var altLink = virtualRouterName + "<->" + torName;
+                                            if(!flowPathLinks.hasOwnProperty(link))
+                                                flowPathLinks[link] = {};
+                                            if(!flowPathLinks.hasOwnProperty(altLink))
+                                                flowPathLinks[altLink] = {};
+                                            if(JSON.stringify(vms) !== "{}") {
+                                                for(var j=0; j<self.model.vRouters.length; j++) {
+                                                    if(self.model.vRouters[j].name ==
+                                                        virtualRouterName) {
+                                                        var virtualMachines = self.model.vRouters[j].children;
+                                                        for(var virtualMachineName in virtualMachines) {
+                                                            if(vms.hasOwnProperty(virtualMachineName)) {
+                                                                if(!vms[virtualMachineName].hasOwnProperty('parent')) {
+                                                                    vms[virtualMachineName].parent = virtualRouterName;
+                                                                    var link = virtualMachineName + "<->" +
+                                                                        virtualRouterName;
+                                                                    var altLink = virtualRouterName + "<->" +
+                                                                        virtualMachineName;
+                                                                    if(!flowPathLinks.hasOwnProperty(link))
+                                                                        flowPathLinks[link] = {};
+                                                                    if(!flowPathLinks.hasOwnProperty(altLink))
+                                                                        flowPathLinks[altLink] = {};
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -475,63 +611,68 @@ define([
                     var endpoints = links[i].endpoints;
                     var endpoint0 = endpoints[0];
                     var endpoint1 = endpoints[1];
-                    if(adjList.hasOwnProperty(endpoint0)) {
-                        if(adjList[endpoint0].indexOf(endpoint1) == -1)
-                            adjList[endpoint0][adjList[endpoint0].length] = endpoint1;
-                    }
-                    if(adjList.hasOwnProperty(endpoint1)) {
-                        if(adjList[endpoint1].indexOf(endpoint0) == -1)
-                            adjList[endpoint1][adjList[endpoint1].length] = endpoint0;
-                    }
+                    var link = endpoint0 + "<->" + endpoint1;
+                    var altLink = endpoint1 + "<->" + endpoint0;
+                    if(!flowPathLinks.hasOwnProperty(link))
+                        flowPathLinks[link] = {};
+                    if(!flowPathLinks.hasOwnProperty(altLink))
+                        flowPathLinks[altLink] = {};
                 }
+
                 graphModel['adjacencyList'] = adjList;
                 var childElementsArray = self.createElementsFromAdjacencyList(graphModel);
+                childElementsArray = _.uniq(childElementsArray, function(x) { return x.id });
 
-                var tors = graphModel['tors'];
-                for(var i=0; i<tors.length; i++) {
-                    var tor = tors[i];
-                    var torName = tor.name;
-                    var virtualRouters = tor.children;
-                    for(var vrName in virtualRouters) {
-                        if(nodeNames.indexOf(vrName) === -1) {
-                            var vr_id = elementMap.node[vrName];
-                            for(var j=0; j<childElementsArray.length; j++) {
-                                var childEl = childElementsArray[j];
-                                if(null === childEl || typeof childEl === "undefined")
-                                    continue;
-                                if(childEl.id === vr_id) {
-                                    childElementsArray[j] = null;
-                                    break;
+                for(var i=0; i<childElementsArray.length; i++) {
+                    var childEl = childElementsArray[i];
+                    if(childEl.hasOwnProperty('nodeDetails')) {
+                        //node element
+                        var childName = childEl.nodeDetails.name;
+                        var node_type = childEl.nodeDetails.node_type;
+                        if(node_type == "physical-router")
+                            //all physical routers are part of topology
+                            continue;
+
+                        switch(node_type) {
+                            case 'virtual-router':
+                                if(!vRouters.hasOwnProperty(childName)) {
+                                    for(var virtualMachineName in vms) {
+                                        if(vms[virtualMachineName].parent != childName) {
+                                            childElementsArray[i] = null;
+                                            break;
+                                        }
+                                    }
                                 }
+                            break;
+                            case 'virtual-machine':
+                                if(!vms.hasOwnProperty(childName)) {
+                                    childElementsArray[i] = null;
+                                }
+                            break;
+                        }
+                    } else if(childEl.hasOwnProperty('linkDetails')){
+                        var link_type = childEl.linkDetails.link_type;
+                        if(link_type == "pr-pr")
+                            continue;
+                        var endpoints = childEl.linkDetails.endpoints;
+                        var endpoint0 = endpoints[0];
+                        var endpoint1 = endpoints[1];
+                        var link = endpoint0 + "<->" + endpoint1;
+                        var altLink = endpoint1 + "<->" + endpoint0;
+                        if(!(flowPathLinks.hasOwnProperty(link) &&
+                            flowPathLinks.hasOwnProperty(altLink))) {
+                            if(link_type == "pr-vr" || link_type == "vr-pr") {
+                                if(vRouters.hasOwnProperty(endpoint0) ||
+                                    vRouters.hasOwnProperty(endpoint1))
+                                    continue;
                             }
+                            childElementsArray[i] = null;
                         }
                     }
                 }
+
                 childElementsArray = childElementsArray.filter(function(n){ return n != undefined });
-                for(var i=0; i<tors.length; i++) {
-                    var tor = tors[i];
-                    var torName = tor.name;
-                    var virtualRouters = tor.children;
-                    for(var vrName in virtualRouters) {
-                        if(nodeNames.indexOf(vrName) === -1) {
-                            var link = torName + "<->" + vrName;
-                            var altLink = vrName + "<->" + torName;
-                            var link_id = elementMap.link[link];
-                            var alt_link_id = elementMap.link[altLink];
-                            for(var j=0; j<childElementsArray.length; j++) {
-                                var childEl = childElementsArray[j];
-                                if(null === childEl || typeof childEl === "undefined")
-                                    continue;
-                                if(childEl.id === link_id ||
-                                    childEl.id === alt_link_id) {
-                                    childElementsArray[j] = null;
-                                }
-                            }
-                        }
-                    }
-                }
-                childElementsArray = childElementsArray.filter(function(n){ return n != undefined });
-                self.addElementsToGraph(childElementsArray);
+                self.addElementsToGraph(childElementsArray, false);
                 self.markErrorNodes();
                 $(".popover").popover().hide();
                 if(links.length > 0)
@@ -584,8 +725,6 @@ define([
                 // reset the nodes and links to empty array once the path is plotted.
                 graphModel["elementMap"] = elementMap;
                 graphModel['adjacencyList'] = graphModel['underlayAdjacencyList'];
-                //graphModel.flowPath.set('nodes',[], {silent: true});
-                //graphModel.flowPath.set('links',[], {silent: true});
             });
             $(".vis-button.vis-zoomIn").attr('title', 'Zoom In');
             $(".vis-button.vis-zoomOut").attr('title', 'Zoom Out');
@@ -635,6 +774,8 @@ define([
                     var existingLink = self.edgesDataSet.get(link);
 
                     var parentNode = null, childNode = null;
+                    if(existingLink == null || typeof existingLink == "undefined")
+                        continue;
                     if(existingLink.from == elementMap.node[endpoint0]) {
                         parentNode = self.nodesDataSet.get(elementMap.node[endpoint0]);
                         childNode = self.nodesDataSet.get(elementMap.node[endpoint1]);
@@ -672,15 +813,6 @@ define([
                         newParentNode = self.createNode(parentNode.nodeDetails);
                         newParentNode.x = parentNodeElement.x-7;
                         newParentNode.y = parentNodeElement.y-7;
-                        /*if(parentNodeElement.x > childNodeElement.x &&
-                            childNodeElement.y > parentNodeElement.y) {
-                            newParentNode.x = parentNodeElement.x - 5;
-                            newParentNode.y = parentNodeElement.y + 5;
-                        } else if(parentNodeElement.x < childNodeElement.x &&
-                            parentNodeElement.y < childNodeElement.y) {
-                            newParentNode.x = parentNodeElement.x + 5;
-                            newParentNode.y = parentNodeElement.y + 5;
-                        }*/
                         newParentNode.hidden = true;
                         dupNodes[parentNode.nodeDetails.name] = {};
                         dupNodes[parentNode.nodeDetails.name]["id"]= newParentNode.id;
@@ -696,15 +828,6 @@ define([
                         newChildNode = self.createNode(childNode.nodeDetails);
                         newChildNode.x = childNodeElement.x-7;
                         newChildNode.y = childNodeElement.y-7;
-                        /*if(parentNodeElement.x > childNodeElement.x &&
-                            childNodeElement.y > parentNodeElement.y) {
-                            newChildNode.x = childNodeElement.x + 5;
-                            newChildNode.y = childNodeElement.y - 5;
-                        } else if(parentNodeElement.x < childNodeElement.x &&
-                            parentNodeElement.y < childNodeElement.y) {
-                            newChildNode.x = childNodeElement.x - 5;
-                            newChildNode.y = childNodeElement.y - 5;
-                        }*/
                         newChildNode.hidden = true;
                         dupNodes[childNode.nodeDetails.name] = {};
                         dupNodes[childNode.nodeDetails.name]["id"]= newChildNode.id;
@@ -734,8 +857,6 @@ define([
             var self = this;
             var _network = self.network;
             var graphModel = self.model;
-            self.clearFlowPath();
-            self.removeUnderlayPathIds();
             var dblClickedElement = (_network.findNode(params.nodes[0]))[0];
             var nodeDetails = dblClickedElement.options.nodeDetails;
             var elementType = dblClickedElement.options.type;
@@ -758,9 +879,11 @@ define([
                             }
                             adjList[nodeDetails['name']] = childrenName;
                             graphModel['adjacencyList'] = adjList;
+                            self.removeUnderlayEffects();
+                            self.removeUnderlayPathIds();
                             var childElementsArray = self
                                 .createElementsFromAdjacencyList(graphModel);
-                            self.addElementsToGraph(childElementsArray);
+                            self.addElementsToGraph(childElementsArray, null, dblClickedElement);
                             self.markErrorNodes();
                             self.addDimlightToConnectedElements();
                             var thisNode = [nodeDetails];
@@ -777,25 +900,32 @@ define([
                     'nodeType': ctwc.VROUTER,
                     'nodeDetail': nodeDetails});
                     var parentNode = null;
-                    if(self.underlayPathIds.nodes.length > 0 ||
-                        self.underlayPathIds.links.length > 0) {
-                        $.each(_network.getConnectedEdges(params.nodes[0]), function(idx, edge_id) {
-                            var connectedNodes = _network.getConnectedNodes(edge_id);
-                            var connectedNode0 = self.nodesDataSet.get(connectedNodes[0]);
-                            var connectedNode1 = self.nodesDataSet.get(connectedNodes[1]);
-                            if(connectedNode0 &&
-                              connectedNode0.nodeDetails.node_type == "physical-router") {
-                                parentNode = connectedNode0;
-                            } else if (connectedNode1 &&
-                              connectedNode1.nodeDetails.node_type == "physical-router") {
-                                parentNode = connectedNode1;
-                            }
-                        });
-                    }
+                    $.each(_network.getConnectedEdges(params.nodes[0]), function(idx, edge_id) {
+                        var connectedNodes = _network.getConnectedNodes(edge_id);
+                        var connectedNode0 = self.nodesDataSet.get(connectedNodes[0]);
+                        var connectedNode1 = self.nodesDataSet.get(connectedNodes[1]);
+                        if(connectedNode0 &&
+                          connectedNode0.nodeDetails.node_type == "physical-router") {
+                            parentNode = connectedNode0;
+                        } else if (connectedNode1 &&
+                          connectedNode1.nodeDetails.node_type == "physical-router") {
+                            parentNode = connectedNode1;
+                        }
+                    });
+
                     var siblings = []; //vrouter siblings
                     if(parentNode != null) {
                         siblings = graphModel.getChildren(parentNode.nodeDetails['name'],
                         "virtual-router");
+                    } else {
+
+                        var parentName = dblClickedElement.options.nodeDetails.parent[0];
+                        if(parentName) {
+                            siblings = graphModel.getChildren(parentName, "virtual-router");
+                            parentNode =
+                            self.nodesDataSet.get(self.model.elementMap.node[parentName]);
+                        }
+
                     }
                     var children = graphModel.getChildren(nodeDetails['name'],
                         "virtual-machine");
@@ -813,10 +943,8 @@ define([
                     if (siblings.length > 0) {
                         var siblingName = [];
                         for (var i = 0; i < siblings.length; i++) {
-                            if(siblings[i]["name"] !== dblClickedElement.options.nodeDetails.name) {
-                                siblingName.push(siblings[i]["name"]);
-                                newAdjList[siblings[i]["name"]] = [];
-                            }
+                            siblingName.push(siblings[i]["name"]);
+                            newAdjList[siblings[i]["name"]] = [];
                         }
                         newAdjList[parentNode.nodeDetails['name']] = siblingName;
                         oldAdjList = _.clone(newAdjList);
@@ -833,15 +961,15 @@ define([
                         newAdjList = oldAdjList;
                     }
                     graphModel['adjacencyList'] = newAdjList;
+                    self.removeUnderlayEffects();
+                    self.removeUnderlayPathIds();
                     var childElementsArray = self.createElementsFromAdjacencyList(graphModel);
-                    self.addElementsToGraph(childElementsArray);
+                    self.addElementsToGraph(childElementsArray, null, dblClickedElement);
                     self.addDimlightToConnectedElements();
                     var thisNode = [nodeDetails];
                     self.addHighlightToNodesAndLinks(thisNode, childElementsArray, graphModel);
                     self.markErrorNodes();
                     graphModel['adjacencyList'] = oldAdjList;
-                    self.clearFlowPath();
-                    self.removeUnderlayPathIds();
                     break;
             }
         },
@@ -917,17 +1045,7 @@ define([
             var node_type = node.node_type;
             var chassis_type = node.chassis_type;
             var nodeConfig = {};
-            /*nodeConfig.shape = 'icon';
-            nodeConfig.font = {};
-            nodeConfig.font.face = 'Arial, helvetica, sans-serif';
-            nodeConfig.font.size = 10;
-            nodeConfig.font.color = '#333'; //text color
-            nodeConfig.font.strokeColor = '#333'; //text color
-            nodeConfig.font.strokeWidth = 0.4; //text color*/
             nodeConfig.icon = {};
-            /*nodeConfig.icon.face = 'contrailFonts';
-            nodeConfig.icon.size = 40;
-            nodeConfig.icon.color = this.style.default.color; //icon color*/
             var labelNodeName = contrail.truncateText(nodeName, 20);
             switch (node_type) {
                 case 'physical-router':
@@ -1154,6 +1272,8 @@ define([
                     endpoint0NodeType.split("-")[1][0] + '-' +
                     endpoint1NodeType.split("-")[0][0] +
                     endpoint1NodeType.split("-")[1][0];
+                if(link_type !== "pr-pr")
+                    continue;
                 if(null != elMap["node"] && typeof elMap["node"] !== "undefined") {
                     if(null != elMap["node"][endpoint0] && typeof elMap["node"][endpoint0] !== "undefined" &&
                     null != elMap["node"][endpoint1] && typeof elMap["node"][endpoint1] !== "undefined" &&
@@ -1186,59 +1306,6 @@ define([
                     continue;
                 }
             }
-
-            /*for(var i=0; i<links.length; i++) {
-                var link = links[i];
-                var endpoints = link.endpoints;
-                var endpoint0 = endpoints[0];
-                var endpoint1 = endpoints[1];
-                var linkName = endpoint0 + "<->" + endpoint1;
-                var altLinkName = endpoint1 + "<->" + endpoint0;
-                var endpoint0Node = jsonPath(nodes, '$[?(@.name=="' + endpoint0 + '")]');
-                if(false !== endpoint0Node && endpoint0Node.length === 1) {
-                    endpoint0Node = endpoint0Node[0];
-                } else {
-                    continue;
-                }
-                var endpoint1Node = jsonPath(nodes, '$[?(@.name=="' + endpoint1 + '")]');
-                if(false !== endpoint1Node && endpoint1Node.length === 1) {
-                    endpoint1Node = endpoint1Node[0];
-                } else {
-                    continue;
-                }
-
-                var endpoint0NodeType = endpoint0Node.node_type;
-                var endpoint1NodeType = endpoint1Node.node_type;
-                if(endpoint0NodeType == "virtual-router" ||
-                    endpoint1NodeType == "virtual-router" ||
-                    endpoint0NodeType == "virtual-machine" ||
-                    endpoint1NodeType == "virtual-machine")
-                    continue;
-                var link_type = endpoint0NodeType.split("-")[0][0] +
-                    endpoint0NodeType.split("-")[1][0] + '-' +
-                    endpoint1NodeType.split("-")[0][0] +
-                    endpoint1NodeType.split("-")[1][0];
-                if(null == elMap["node"][endpoint0]) {
-                    var currentEl = self.createNode(endpoint0Node);
-                    elements.push(currentEl);
-                    var currentElId = currentEl.id;
-                    elMap.node[endpoint0] = currentElId;
-                }
-                if(null == elMap["node"][endpoint1]) {
-                    var currentEl = self.createNode(endpoint1Node);
-                    elements.push(currentEl);
-                    var currentElId = currentEl.id;
-                    elMap.node[endpoint1] = currentElId;
-                }
-                linkElements.push(
-                    self.createLink(link, link_type, elMap["node"][endpoint0], elMap["node"][endpoint1]));
-                var currentLink =
-                    linkElements[linkElements.length - 1];
-                var currentLinkId = currentLink.id;
-
-                elMap.link[linkName] = currentLinkId;
-                elMap.link[altLinkName] = currentLinkId;
-            }*/
             underlayGraphModel.elementMap = elMap;
             underlayGraphModel.connectedElements = conElements;
             // Links must be added after all the elements. This is because when the links
@@ -1300,33 +1367,49 @@ define([
                         }
                     }]
                 }
-                /*cacheConfig: {
-                    ucid: ctwc.UNDERLAY_TOPOLOGY_CACHE
-                },*/
             };
         },
 
-        addElementsToGraph: function(elements, restorePosition) {
+        addElementsToGraph: function(elements, restorePosition, dblClickedElement) {
+            var self = this;
             var network = this.network;
             var nodesDataSet = this.nodesDataSet;
             var edgesDataSet = this.edgesDataSet;
-            var nodeIds = nodesDataSet.getIds();
-            var edgeIds = edgesDataSet.getIds();
+            var nodeIds = nodesDataSet.getIds(); //all existing nodes
+            var edgeIds = edgesDataSet.getIds(); //all existing edges
             var mapPositions = {};
+            //all elements to be added/removed to/from graph.
             var newElementIds = jsonPath(elements, "$..id");
+            var dblClickedElementName = "";
+            if(dblClickedElement)
+                dblClickedElementName =
+                dblClickedElement.options.nodeDetails.name;
 
             _.each(nodeIds, function(id, idx) {
                 if(newElementIds.indexOf(id) == -1) {
+                    //node already existing in graph but has to be removed.
                     nodesDataSet.remove(id);
                 } else {
                     if(false !== restorePosition) {
+                        //by default all the nodes' (already existing in graph)
+                        //positions are restored, unless otherwise set to 'false'
+                        //explicitly.
                         var node = network.findNode(id);
                         if(node && node.length == 1) {
                             node = node[0];
-                            mapPositions[id] = {};
-                            mapPositions[id] = {
-                                x: node.x,
-                                y: node.y
+                            //dont remember old position in following cases.
+                            //when flowpath is drawn
+                            //when drawing children of multiple parents
+                            if(dblClickedElementName == "" ||
+                                node.options.nodeDetails.parent.indexOf(dblClickedElementName) == -1) {
+                                mapPositions[id] = {};
+                                mapPositions[id] = {
+                                    x: node.x,
+                                    y: node.y
+                                }
+                            } else {
+                                //remove node who have multiple parents.
+                                nodesDataSet.remove(id);
                             }
                         }
                     }
@@ -1334,6 +1417,7 @@ define([
             });
             _.each(edgeIds, function(id, idx) {
                 if(newElementIds.indexOf(id) == -1) {
+                    //edge already existing in graph but has to be removed.
                     edgesDataSet.remove(id);
                 }
             });
@@ -1341,9 +1425,10 @@ define([
                 if (elements[i].hasOwnProperty('from') &&
                     elements[i].hasOwnProperty('to')) {
                     //its an edge
-                    //check if already exists.
+                    //check if already exists
                     if (edgesDataSet.getIds().indexOf(elements[i].id) == -1) {
                         try {
+                            //add edge if not present in the graph already.
                             edgesDataSet.add(elements[i]);
                         } catch (e) {
 
@@ -1353,36 +1438,70 @@ define([
                     //its a node
                     //check if already exists.
                     if (nodesDataSet.getIds().indexOf(elements[i].id) == -1) {
+                        //Couldnt find the node in dataset.
+                        //trying to add it direcly under parent.
                         try {
                             var parent = elements[i].nodeDetails.parent;
                             if(parent) {
-                                var parentElId = 
+                                if(parent.length > 1 && null !== dblClickedElement &&
+                                    typeof dblClickedElement !== "undefined") {
+                                    //element has more than one parent.
+                                    //find which parent to add this under.
+                                    if(parent.indexOf(dblClickedElement.options.nodeDetails.name) !== -1) {
+                                        parent =
+                                        parent[parent.indexOf(dblClickedElement.options.nodeDetails.name)];
+                                    }
+                                } else if(parent.length == 1) {
+                                    //element has one parent.
+                                    parent = parent[0];
+                                } else {
+                                    parent = parent[0];
+                                }
+                                //find parent element id from model data.
+                                var parentElId =
                                     this.model.elementMap.node[parent];
-                                if(null !== parentElId) {
+                                if(null !== parentElId &&
+                                    typeof parentElId !== "undefined") {
+                                    //if parent element id from model data exists,
+                                    //find in nodeDataSet.
                                     var parentEl =
                                     nodesDataSet.get(parentElId);
                                     if(parentEl && !isNaN(parentEl.x) &&
                                         !isNaN(parentEl.y)) {
+                                        //if the parent element has valid x,y positions
+                                        //add this element diretly under the parent.
                                         elements[i].x = parentEl.x;
                                         elements[i].y = parentEl.y +
                                         (this.visOptions.layout
                                             .hierarchical.levelSeparation-20);
                                     } else {
+                                        //if nodeDataSet doesnt have parent element
+                                        //still it is possible to find it in graph.
+                                        //find it in graph.
                                         parentEl = this.network.findNode(parentElId);
                                         if(parentEl && parentEl.length == 1 &&
                                             JSON.stringify(mapPositions) !== "{}") {
+                                            //found in graph.
                                             parentEl = parentEl[0];
+                                            //check x, y positions are valid.
                                             if(parentEl && !isNaN(parentEl.x) &&
                                                 !isNaN(parentEl.y)) {
+                                                //if valid x, y, then add direclty
+                                                //under this parent.
                                                 elements[i].x = parentEl.x;
                                                 elements[i].y = parentEl.y +
                                                 (this.visOptions.layout.hierarchical
                                                     .levelSeparation-20);
                                             }
+                                            //if no, layout takes care the position
+                                            //which is usually 0,0
                                         }
                                     }
                                 }
                             }
+                            //add to nodedataset.
+                            //by this time, the new element is positioned mostly
+                            //directly under parent or it is set to 0,0 by layout
                             nodesDataSet.add(elements[i]);
                         } catch (e) {
 
@@ -1390,21 +1509,22 @@ define([
                     }
                 }
             }
-            //if(mapPositions === {})
-                network.setOptions(this.visOptions);
+            //Set hierarchical layout.
+            network.setOptions(this.visOptions);
             var updatedNodes = [];
             if(false !== restorePosition) {
-            _.each(mapPositions, function(position, id) {
-                for (var i = 0; i < elements.length; i++) {
-                    if (elements[i].id == id) {
-                        elements[i].x = position.x;
-                        elements[i].y = position.y;
-                        nodesDataSet.update(elements[i]);
-                        updatedNodes.push(id);
-                        continue;
+                //restore old positions, if found earlier.
+                _.each(mapPositions, function(position, id) {
+                    for (var i = 0; i < elements.length; i++) {
+                        if (elements[i].id == id) {
+                            elements[i].x = position.x;
+                            elements[i].y = position.y;
+                            nodesDataSet.update(elements[i]);
+                            updatedNodes.push(id);
+                            continue;
+                        }
                     }
-                }
-            });
+                });
             }
             var newElements = [];
             var newParentElement = null;
@@ -1415,11 +1535,19 @@ define([
                             var newlyAddedElement = elements[i];
                             if(elements[i].nodeDetails.parent != null &&
                                 elements[i].nodeDetails.parent.length > 0) {
-                                var parentEl =
-                                    nodesDataSet.get(this.model.elementMap.node[elements[i].nodeDetails.parent[0]]);
-                                if(parentEl) {
-                                    newParentElement = parentEl;
-                                    newElements.push(elements[i]);
+                                var parent = elements[i].nodeDetails.parent;
+                                if(parent.length == 1) {
+                                    parent = parent[0];
+                                } else {
+                                    parent = parent[parent.indexOf(dblClickedElementName)];
+                                }
+                                if(parent) {
+                                    var parentEl =
+                                        nodesDataSet.get(this.model.elementMap.node[parent]);
+                                    if(parentEl) {
+                                        newParentElement = parentEl;
+                                        newElements.push(elements[i]);
+                                    }
                                 }
                             }
                         }
@@ -1918,7 +2046,7 @@ define([
         resetTopology: function(options) {
             var self = this;
             var underlayGraphModel = self.model;
-            this.removeUnderlayPathIds();
+            //this.removeUnderlayPathIds();
             var restorePosition = options.restorePosition;
             this.resetConnectedElements(restorePosition);
             var adjList = _.clone(underlayGraphModel['underlayAdjacencyList']);
@@ -1941,37 +2069,6 @@ define([
         },
 
         clearHighlightedConnectedElements: function() {
-            /*$('div.font-element')
-                .removeClass('elementHighlighted')
-                .removeClass('dimHighlighted');
-            $('g.element')
-                .removeClassSVG('elementHighlighted')
-                .removeClassSVG('dimHighlighted');
-            $('div.font-element')
-                .css('fill', "")
-                .css('stroke', "");
-            $('div.font-element')
-                .find('i')
-                .css("color", "#555");
-            $('g.element').find('text').css('fill', "#393939");
-            $('g.element').find('rect').css('fill', "#393939");
-
-            $('g.link')
-                .removeClassSVG('elementHighlighted')
-                .removeClassSVG('dimHighlighted');
-            $("g.link").find('path.connection')
-                .css("stroke", "#393939")
-                .css("opacity", "0.6")
-            $("g.link").find('path.marker-source')
-                .css("fill", "#393939")
-                .css("stroke", "#393939");
-            $("g.link").find('path.marker-target')
-                .css("fill", "#393939")
-                .css("stroke", "#393939");
-            $("g.link").find('path.connection-wrap')
-                .css("opacity", "")
-                .css("fill", "")
-                .css("stroke", "");*/
             this.markErrorNodes();
         },
 
