@@ -4,9 +4,9 @@
 
 define([
     'underscore',
-    'contrail-model',
-    'config/services/bgpasaservice/ui/js/models/bgpAsAServiceFamilyAttrModel'
-], function (_, ContrailModel, BGPAsAServiceFamilyAttrModel) {
+    'contrail-model'/*,
+    'config/services/bgpasaservice/ui/js/models/bgpAsAServiceFamilyAttrModel'*/
+], function (_, ContrailModel/*, BGPAsAServiceFamilyAttrModel*/) {
     var self;
     var bgpAsAServiceModel = ContrailModel.extend({
         defaultConfig: {
@@ -24,8 +24,8 @@ define([
                 /*"loop_count": null,*/
                 "address_families": {
                     "family": []
-                },
-                "family_attributes": []
+                }/*,
+                "family_attributes": []*/
             },
             "virtual_machine_interface_refs": [],
             "user_created_virtual_machine_interface": null,
@@ -39,7 +39,7 @@ define([
                 "bgpaas_session_attributes", null);
             var vmiRefs = [], editVMIRefs = [];
             if(bgpaasSessionAttrs) {
-                var familyAttrs = getValueByJsonPath(bgpaasSessionAttrs,
+                /*var familyAttrs = getValueByJsonPath(bgpaasSessionAttrs,
                     "family_attributes", []);
                 if(!modelConfig.uuid) {
                     familyAttrArray.push(new BGPAsAServiceFamilyAttrModel({
@@ -61,7 +61,7 @@ define([
                                            });
                         familyAttrArray.push(familyAttr);
                     }
-                }
+                }*/
 
                 if(!modelConfig.uuid) {
                     modelConfig["bgpaas_session_attributes"]["address_families"]["family"] =
@@ -93,10 +93,10 @@ define([
                 modelConfig["user_created_virtual_machine_interface"] =
                     editVMIRefs;
             }
-            modelConfig["familyAttrs"] = new Backbone.Collection(familyAttrArray);
+            /*modelConfig["familyAttrs"] = new Backbone.Collection(familyAttrArray);*/
             return modelConfig;
         },
-        addFamilyAttr: function() {
+        /*addFamilyAttr: function() {
             var familyAttrs = this.model().attributes["familyAttrs"],
                 familyAttrsArry = familyAttrs.toJSON();
             var addressFamily = "";
@@ -131,7 +131,7 @@ define([
                 }
             }
             return actFamilyAttrs;
-        },
+        },*/
         prepareVMIRefs: function(attr) {
             var vmiStr = attr.user_created_virtual_machine_interface;
             var vmiRefs = [];
@@ -156,12 +156,12 @@ define([
                     key : null,
                     type : cowc.OBJECT_TYPE_MODEL,
                     getValidation : "configureValidation"
-                },
+                }/*,
                 {
                     key : "familyAttrs",
                     type : cowc.OBJECT_TYPE_COLLECTION,
                     getValidation : "familyAttrValidation"
-                }
+                }*/
             ];
 
             if (this.isDeepValid(validations)) {
@@ -194,8 +194,8 @@ define([
                      sessionAttrs.address_families.family.split(",");
 
                 //family attrs
-                newBGPAsAServiceData["bgpaas_session_attributes"]
-                    ["family_attributes"] = self.getFamilyAttrs(attr);
+                /*newBGPAsAServiceData["bgpaas_session_attributes"]
+                    ["family_attributes"] = self.getFamilyAttrs(attr);*/
 
                 //admin down
                 newBGPAsAServiceData["bgpaas_session_attributes"]["admin_down"] =
@@ -234,7 +234,7 @@ define([
                 delete newBGPAsAServiceData.user_created_virtual_machine_interface;
                 /*delete newBGPAsAServiceData.user_created_auth_key_type;
                 delete newBGPAsAServiceData.user_created_auth_key;*/
-                delete newBGPAsAServiceData.familyAttrs;
+                /*delete newBGPAsAServiceData.familyAttrs;*/
 
                 postBGPAsAServiceData['bgp-as-a-service'] = newBGPAsAServiceData;
 
