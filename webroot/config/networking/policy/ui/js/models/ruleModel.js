@@ -211,8 +211,19 @@ define([
                     }
                 },
                 'protocol' : function(val, attr, data) {
-                    if (val == "") {
+                    if (val.trim() == "") {
                         return "Select a valid Protocol.";
+                    }
+                    var protocolValue = val.trim().toUpperCase();
+                    var allProtocol = ['ANY', 'ICMP', 'TCP', 'UDP', 'ICMP6'];
+                    if (allProtocol.indexOf(protocolValue) < 0) {
+                        if (!isNumber(protocolValue)) {
+                            return "Rule with invalid protocol " + protocolValue;
+                        }
+                        protocolValue = Number(protocolValue);
+                        if (protocolValue % 1 != 0 || protocolValue < 0 || protocolValue > 255) {
+                            return "Rule with invalid protocol " + protocolValue;
+                        }
                     }
                 },
                 'simple_action' : function(val, attr, data) {
