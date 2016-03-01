@@ -146,7 +146,20 @@ define([
                     checkboxSelectable: false,
                     fixedRowHeight: 30,
                     sortable: false,
-                    detail: ctwu.getDetailTemplateConfigToDisplayRawJSON()
+                    detail: ctwu.getDetailTemplateConfigToDisplayRawJSON(),
+                    actionCell: [
+                                    {
+                                        title: "Start Packet Capture",
+                                        iconClass: "icon-list-alt",
+                                        onClick: function(rowIndex){
+                                            var rowData =
+                                                $('#' + ctwl.VROUTER_INTERFACES_GRID_ID).
+                                                data("contrailGrid")._dataView.getItem(rowIndex);
+                                            startPacketCapture4Interface(rowData['uuid'],
+                                                rowData['vn_name'],rowData['vm_name']);
+                                        }
+                                    }
+                                ]
                 },
                 dataSource: {
                 },
