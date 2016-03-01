@@ -2657,7 +2657,7 @@ function startPacketCapture4Interface(error, response, appData, options, isAnaly
             updateVMInterfaceProperties(response, appData, options)
         } else {
             createDefaultPCAPAnalyzer(response, appData, options, function (response) {
-                commonUtils.handleJSONResponse(null, response, {message: 'Default interface analyzer was not available. A new analyzer has been created. Please try again after few minutes.'});
+                commonUtils.handleJSONResponse(null, response, {message: 'Default interface analyzer was not available. A new analyzer has been created. Try after some time.'});
             });
         }
     }
@@ -2712,7 +2712,7 @@ function updateVMInterfaceProperties(response, appData, options) {
                 interfaceProperties['interface_mirror'] = getInterfaceMirrorProperty(defaultPCAPAnalyzerFQN, direction);
             }
             configApiServer.apiPut(interfaceUrl, interfaceJSON, appData, function (error, jsonData) {
-                var analyzerNotReadyMsg = 'Interface packet-capture analyzer is not ready. Please try again after few minutes.';
+                var analyzerNotReadyMsg = 'Interface packet-capture analyzer is not ready. Try after some time.';
                 if (error) {
                     logutils.logger.error(error.stack);
                     commonUtils.handleJSONResponse(error, response, null);
@@ -2772,7 +2772,7 @@ function configurePacketCapture4Flow(request, response, appData) {
     };
 
     check4DefaultAnalyzer(response, appData, options, function (error, response, appData, options, isAnalyzerPresent) {
-        var analyzerNotReadyMsg = 'Flow packet-capture analyzer is not ready. Please try again after few minutes.';
+        var analyzerNotReadyMsg = 'Flow packet-capture analyzer is not ready. Try after some time.';
         if (error) {
             commonUtils.handleJSONResponse(error, response, null);
         } else if (isAnalyzerPresent) {
@@ -2781,7 +2781,7 @@ function configurePacketCapture4Flow(request, response, appData) {
             });
         } else {
             createDefaultPCAPAnalyzer(response, appData, options, function (response) {
-                commonUtils.handleJSONResponse(null, response, {message: 'Default flow analyzer was not available. A new analyzer has been created. Please try again after few minutes.'});
+                commonUtils.handleJSONResponse(null, response, {message: 'Default flow analyzer was not available. A new analyzer has been created. Try after some time.'});
             });
         }
     });
@@ -2835,6 +2835,7 @@ function getDefaultPCAPAnalyzer(analyzerParams) {
     analyzerInstance["service-instance"]["service_instance_properties"]["right_virtual_network"] = "";
     analyzerInstance["service-instance"]["service_instance_properties"]["management_virtual_network"] = "";
     analyzerInstance["service-instance"]["service_instance_properties"]["left_virtual_network"] = "";
+    analyzerInstance["service-instance"]["service_instance_properties"]["interface_list"] = [{ virtual_network : ""}];
 
     return analyzerInstance;
 };

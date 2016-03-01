@@ -57,7 +57,7 @@ define([
                        {
                            field:"type",
                            name:"Type",
-                           minWidth:130
+                           minWidth:50
                        },
                        {
                            field:"disp_vn_name",
@@ -92,7 +92,7 @@ define([
                        {
                            field:"disp_fip_list",
                            name:"Floating IP",
-                           minWidth:100
+                           minWidth:80
                        },
                        {
                            field:"disp_vm_name",
@@ -110,7 +110,7 @@ define([
                                 }
                               }
                            },
-                           minWidth:200
+                           minWidth:300
                        }
                    ];
 
@@ -146,7 +146,20 @@ define([
                     checkboxSelectable: false,
                     fixedRowHeight: 30,
                     sortable: false,
-                    detail: ctwu.getDetailTemplateConfigToDisplayRawJSON()
+                    detail: ctwu.getDetailTemplateConfigToDisplayRawJSON(),
+                    actionCell: [
+                                    {
+                                        title: "Start Packet Capture",
+                                        iconClass: "icon-list-alt",
+                                        onClick: function(rowIndex){
+                                            var rowData =
+                                                $('#' + ctwl.VROUTER_INTERFACES_GRID_ID).
+                                                data("contrailGrid")._dataView.getItem(rowIndex);
+                                            startPacketCapture4Interface(rowData['uuid'],
+                                                rowData['vn_name'],rowData['vm_name']);
+                                        }
+                                    }
+                                ]
                 },
                 dataSource: {
                 },
