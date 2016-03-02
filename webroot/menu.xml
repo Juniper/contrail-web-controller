@@ -450,7 +450,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>openstack</model>
                         </orchModels>
                     </access>
-                    <iconClass>icon-globe</iconClass>
+                    <iconClass>icon-tasks</iconClass>
                     <resources>
                         <resource>
                             <rootDir>/common/ui</rootDir>
