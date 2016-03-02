@@ -29,8 +29,18 @@ define([
             'user_created_ipam_fqn': null, //fake ui
             'disable': false
         },
-
-
+        formatModelConfig: function(modelConfig) {
+            //populate user fake ui attributes
+            var dhcpOptName, dhcpOptValue,
+                dhcpOpt = getValueByJsonPath(modelConfig,
+                    "dhcp_option_list;dhcp_option;0", null);
+            dhcpOptName =  getValueByJsonPath(dhcpOpt, "dhcp_option_name", null);
+            dhcpOptValue = getValueByJsonPath(dhcpOpt, "dhcp_option_value", null);            
+            if(dhcpOptName === "6" && dhcpOptValue === "0.0.0.0") {
+                modelConfig["user_created_enable_dns"] = false;
+            }
+            return modelConfig;
+        },
         validateAttr: function (attributePath, validation, data) {
             var model = data.model().attributes.model(),
                 attr = cowu.getAttributeFromPath(attributePath),
