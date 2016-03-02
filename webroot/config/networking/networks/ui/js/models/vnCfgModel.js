@@ -510,7 +510,9 @@ define([
                 if (hostRoutes.length == 0) {
                     delete subnet['host_routes'];
                 }
-                if(dnsServers.length == 0) {
+                var dhcpOpt = getValueByJsonPath(subnet,
+                    "dhcp_option_list;dhcp_option", []);
+                if(dhcpOpt.length == 0) {
                     delete subnet['dhcp_option_list'];
                 }
 
