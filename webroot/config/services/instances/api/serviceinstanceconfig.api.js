@@ -914,14 +914,6 @@ function createServiceInstance(request, response, appData)
     /* Check if port_tuples is there (template v2), if yes, then create
      * port_tuple first and then create the service instance
      */
-    var svcTmpl = siPostData['service-instance']['svcTmplDetails'];
-    var version = 1;
-    if ((null != svcTmpl) && (null != svcTmpl[0]) &&
-        (null != svcTmpl[0]['service_template_properties']) &&
-        (null != svcTmpl[0]['service_template_properties']['version'])) {
-        version = svcTmpl[0]['service_template_properties']['version'];
-    }
-    delete siPostData['service-instance']['svcTmplDetails'];
     var dataObjArr = [];
     var vmisDataObjArr = [];
     var portTuples = [];
@@ -1822,15 +1814,6 @@ function updateServiceInstance(request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    var svcTmpl = siPostData['service-instance']['svcTmplDetails'];
-    var version = 1;
-    if ((null != svcTmpl) && (null != svcTmpl[0]) &&
-        (null != svcTmpl[0]['service_template_properties']) &&
-        (null != svcTmpl[0]['service_template_properties']['version'])) {
-        version = svcTmpl[0]['service_template_properties']['version'];
-    }
-    delete siPostData['service-instance']['svcTmplDetails'];
-
     getOldPortTuplesBySIid(siId, request, appData,
                            function(error, oldPortTuples) {
         if (null != error) {

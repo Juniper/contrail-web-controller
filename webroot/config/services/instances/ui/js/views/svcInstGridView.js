@@ -108,121 +108,42 @@ define([
             dataView.refreshData();
         }});
     }
+
     var rowActionConfig = [
         ctwgc.getEditConfig('Edit', function(rowIndex) {
             var dataItem =
                 $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
             var svcTmplDetails = dataItem['svcTmplDetails'];
-            if ((null == svcTmplDetails) || (null == svcTmplDetails[0])) {
-                editSvcInstPopUp(dataItem);
-                return;
-            }
             var svcTmplVer =
-                getValueByJsonPath(svcTmplDetails[0],
-                                   'service_template_properties;version',
-                                   1);
-            if (1 == svcTmplVer) {
-                editSvcInstPopUp(dataItem);
-                return;
+                getValueByJsonPath(svcTmplDetails,
+                                   '0;service_template_properties;version', 1);
+            var intfList =
+                getValueByJsonPath(dataItem,
+                                   'service_instance_properties;interface_list',
+                                   []);
+            var intfListLen = intfList.length;
+            var setVNList = [];
+            if (2 == svcTmplVer) {
+                for (var i = 0; i < intfListLen; i++) {
+                    setVNList[i] = intfList[i]['virtual_network'];
+                }
             }
-            var portTuples = dataItem['port_tuples'];
-            if (null == portTuples) {
-                editSvcInstPopUp(dataItem);
-                return;
-            }
-            var portTuplesCnt = portTuples.length;
-            var portTupleUUIDList = [];
-            for (var i = 0; i < portTuplesCnt; i++) {
-                portTupleUUIDList.push(portTuples[i]['uuid']);
-            }
-            var postData = {
-                'data': [{
-                    'type': 'virtual-machine-interfaces',
-                    'fields': ['port_tuple_refs'],
-                    'back_ref_id': portTupleUUIDList
-                }]
-            };
-            var ajaxConfig = {
-                url: ctwc.get('/api/tenants/config/get-config-details'),
-                type: "POST",
-                timeout: 60000,
-                data: JSON.stringify(postData)
-            }
-            contrail.ajaxHandler(ajaxConfig, null, function(result) {
-                if ((null == result) || (null == result[0])) {
-                    editSvcInstPopUp(dataItem);
-                    return;
-                }
-                var portTuples = dataItem['port_tuples'];
-                var newPortTuples = [];
-                var portTuplesCnt = portTuples.length;
-                var portTupleMap = {};
-                for (var i = 0; i < portTuplesCnt; i++) {
-                    portTupleMap[portTuples[i]['uuid']] = i;
-                }
-                var vmis = result[0]['virtual-machine-interfaces'];
-                var vmisCnt = vmis.length;
-                var tmpIdxToIndexMap = {};
-                for (var i = 0; i < vmisCnt; i++) {
-                    var vmi = vmis[i]['virtual-machine-interface'];
-                    var portTupleRefs =
-                        getValueByJsonPath(vmis[i],
-                                           'virtual-machine-interface;port_tuple_refs',
-                                           []);
-                    if (!portTupleRefs.length) {
-                        /* This is really strage */
-                        console.log('Port Tuple Refs null, wrong here');
-                        continue;
-                    }
-                    var refsCnt = portTupleRefs.length;
-                    for (var j = 0; j < refsCnt; j++) {
-                        var portTupleUUID = portTupleRefs[j]['uuid'];
-                        var idx = portTupleMap[portTupleUUID];
-                        if (null != idx) {
-                            if (null == newPortTuples[idx]) {
-                                newPortTuples[idx] = {};
-                                newPortTuples[idx] =
-                                    dataItem['port_tuples'][idx];
-                                newPortTuples[idx]['virtual-machine-interfaces']
-                                    = [];
-                            }
-                            newPortTuples[idx]
-                                ['virtual-machine-interfaces'].push(vmi);
-                        }
-                    }
-                }
-                /* If there is no VMI, then newPortTuples will have that idx as
-                 * null, so delete those entries
-                 */
-                var newPortTuplesCnt = newPortTuples.length;
-                for (i = 0; i < newPortTuplesCnt; i++) {
-                    if (null == newPortTuples[i]) {
-                        newPortTuples.splice(i, 1);
-                        i--;
-                        newPortTuplesCnt--;
-                    }
-                }
-                /* Now check if any port_tuple does not have any VMI associated
-                 */
-                if (newPortTuples.length == dataItem['port_tuples'].length) {
-                    dataItem['port_tuples'] = newPortTuples;
-                    editSvcInstPopUp(dataItem);
-                    return;
-                }
-                var newPortTuplesLen = newPortTuples.length;
-                for (var i = 0; i < newPortTuplesLen; i++) {
-                    if (null != portTupleMap[newPortTuples[i]['uuid']]) {
-                        delete portTupleMap[newPortTuples[i]['uuid']];
-                    }
-                }
-                for (key in portTupleMap) {
-                    var idx = portTupleMap[key];
-                    newPortTuples.push(dataItem['port_tuples'][idx]);
-                }
-                dataItem['port_tuples'] = newPortTuples;
-                editSvcInstPopUp(dataItem);
-                return;
-            });
+            var svcInstModel = new SvcInstModel(dataItem);
+            addModelAttr(svcInstModel);
+            svcInstEditView.model = svcInstModel;
+            svcInstModel.editView = svcInstEditView;
+            svcInstEditView.renderConfigureSvcInst({
+                              "title": ctwl.TITLE_EDIT_SERVICE_INSTANCE +
+                              ' (' + dataItem['display_name'] +
+                                 ')',
+                              dataItem: dataItem,
+                              'setVNList': setVNList,
+                              "isEdit": true,
+                              callback: function () {
+                var dataView =
+                    $(gridElId).data("contrailGrid")._dataView;
+                dataView.refreshData();
+            }});
         }),
         ctwgc.getDeleteConfig('Delete', function(rowIndex) {
             var svcInstModel = new SvcInstModel();
@@ -1025,6 +946,15 @@ define([
 
     function addModelAttr (model)
     {
+        model.staticRoutesAccordianVisible = ko.computed((function() {
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var statRts =
+                svcUtils.getStaticRtsInterfaceTypesBySvcTmpl(svcTmpl, true);
+            if (statRts.length > 0) {
+                return true;
+            }
+            return false;
+        }), model);
         model.isHAModeDropDownDisabled = ko.computed((function() {
             var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
             var tmplVersion =
@@ -1173,7 +1103,6 @@ define([
                     });
                 }
             }
-
         ];
         return headerActionConfig;
     }
