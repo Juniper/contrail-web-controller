@@ -472,9 +472,17 @@ define([
             }
             return;
         },
-        getVNListBySvcIntfType: function(svcTmpl, intf) {
+        getVNListBySvcIntfType: function(svcTmpl, intf, version) {
             var vnList = $.extend([], true, window.allVNList);
             if (null == intf) {
+                return vnList;
+            }
+            if (2 == version) {
+                if (vnList.length > 0) {
+                    if ('autoConfigured' == vnList[0]['id']) {
+                        vnList.splice(0, 1);
+                    }
+                }
                 return vnList;
             }
             var showAuto = true;
@@ -501,12 +509,13 @@ define([
             }
             return vnList;
         },
-        formatModelConfig: function(modelConfig) {
+        formatModelConfig: function(modelConfig, resolveConfig) {
             if (!window.svcTmplsFormatted.length) {
                 showInfoWindow("No Service Template found.",
                                "Add Service Template");
                 return null;
             }
+            modelConfig.host_list = [{'text': 'ANY', 'id': 'ANY'}];
             var self = this;
             var intfTypes = [];
             if ((null != modelConfig) &&
@@ -544,6 +553,9 @@ define([
             if (null != maxInst) {
                 modelConfig['no_of_instances'] = maxInst;
             }
+            if ((false == resolveConfig) || (null == resolveConfig)) {
+                return modelConfig;
+            }
             var intfList =
                 getValueByJsonPath(modelConfig,
                                    'service_instance_properties;interface_list',
@@ -572,9 +584,20 @@ define([
                 }
             }
             var len = intfList.length;
+            var configuredVNList = [];
             for (i = 0; i < len; i++) {
+                if (null == intfList[i]['virtual_network']) {
+                    continue;
+                }
                 if ("" == intfList[i]['virtual_network']) {
                     intfList[i]['virtual_network'] = 'autoConfigured';
+                    configuredVNList.push({'id': "autoConfigured",
+                                           'text': "Auto Configured"});
+                } else {
+                    var formattedVN =
+                        svcInstUtils.getVNNameFormatter(intfList[i]['virtual_network'].split(':'));
+                    configuredVNList.push({'id': intfList[i]['virtual_network'],
+                                           text: formattedVN});
                 }
             }
             var interfacesModels = [];
@@ -582,17 +605,12 @@ define([
             var cnt = intfTypes.length;
             for (var i = 0; i < cnt; i++) {
                 var intfType = intfTypes[i];
-                /*
-                intfType = intfType.replace(intfType[0], intfType[0].toUpperCase());
-                */
-                var vnList = window.allVNList;
-                if (2 == tmplVer) {
-                    vnList = window.vnList;
-                } else {
-                    vnList = this.getVNListBySvcIntfType(svcTmpls[svcTmplFqn],
-                                                         interfaeTypes[i]);
+                var vnList = this.getVNListBySvcIntfType(svcTmpls[svcTmplFqn],
+                                                         interfaeTypes[i],
+                                                         tmplVer);
+                if ((null == vnList) || (!vnList.length)) {
+                    vnList = configuredVNList;
                 }
-
                 var interfacesModel =
                     new InterfacesModel({interfaceType: intfType,
                                         virtualNetwork:
@@ -604,14 +622,13 @@ define([
                 interfacesModel.__kb.view_model.model().on('change:virtualNetwork',
                                                            function(model,
                                                                     newValue) {
-                    self.setVMIsByVN(self.model(),
+                    self.editView.setVMIsByVN(self.model(),
                                      newValue,
                                      model.get('interfaceType'));
                 });
             }
             interfacesCollectionModel = new Backbone.Collection(interfacesModels);
             modelConfig['interfaces'] = interfacesCollectionModel;
-            modelConfig.host_list = [{'text': 'ANY', 'id': 'ANY'}];
 
             var portTupleList = modelConfig['port_tuples'];
             var portTupleModels = [];
@@ -724,6 +741,80 @@ define([
             }
             return dispName;
         },
+        updateVMIToPortTuple: function(portTuples, vmiDetails) {
+            var newPortTuples = [];
+            if ((null == portTuples) || (!portTuples.length)) {
+                return;
+            }
+            var portTuplesCnt = portTuples.length;
+            var portTupleMap = {};
+            for (var i = 0; i < portTuplesCnt; i++) {
+                portTupleMap[portTuples[i]['uuid']] = i;
+            }
+            var vmis = vmiDetails['virtual-machine-interfaces'];
+            if (null == vmis) {
+                return;
+            }
+            var vmisCnt = vmis.length;
+            var tmpIdxToIndexMap = {};
+            for (var i = 0; i < vmisCnt; i++) {
+                var vmi = vmis[i]['virtual-machine-interface'];
+                var portTupleRefs =
+                    getValueByJsonPath(vmis[i],
+                                       'virtual-machine-interface;port_tuple_refs',
+                                       []);
+                if (!portTupleRefs.length) {
+                    /* This is really strage */
+                    console.log('Port Tuple Refs null, wrong here');
+                    continue;
+                }
+                var refsCnt = portTupleRefs.length;
+                for (var j = 0; j < refsCnt; j++) {
+                    var portTupleUUID = portTupleRefs[j]['uuid'];
+                    var idx = portTupleMap[portTupleUUID];
+                    if (null != idx) {
+                        if (null == newPortTuples[idx]) {
+                            newPortTuples[idx] = {};
+                            newPortTuples[idx] =
+                                portTuples[idx];
+                            newPortTuples[idx]['virtual-machine-interfaces']
+                                = [];
+                        }
+                        newPortTuples[idx]
+                            ['virtual-machine-interfaces'].push(vmi);
+                    }
+                }
+            }
+            /* If there is no VMI, then newPortTuples will have that idx as
+             * null, so delete those entries
+             */
+            var newPortTuplesCnt = newPortTuples.length;
+            for (i = 0; i < newPortTuplesCnt; i++) {
+                if (null == newPortTuples[i]) {
+                    newPortTuples.splice(i, 1);
+                    i--;
+                    newPortTuplesCnt--;
+                }
+            }
+            /* Now check if any port_tuple does not have any VMI associated
+             */
+            if (newPortTuples.length == portTuples.length) {
+                portTuples = newPortTuples;
+                return;
+            }
+            var newPortTuplesLen = newPortTuples.length;
+            for (var i = 0; i < newPortTuplesLen; i++) {
+                if (null != portTupleMap[newPortTuples[i]['uuid']]) {
+                    delete portTupleMap[newPortTuples[i]['uuid']];
+                }
+            }
+            for (key in portTupleMap) {
+                var idx = portTupleMap[key];
+                newPortTuples.push(portTuples[idx]);
+            }
+            portTuples = newPortTuples;
+            return;
+        },
         setPortTupleName: function(model, portTupleEntry) {
             var intfTypes = portTupleEntry.intfTypes();
             var ctIntfType = model.get('interfaceType');
@@ -806,13 +897,9 @@ define([
                     getValueByJsonPath(this.model().attributes,
                                        'service_instance_properties;interface_list',
                                        []);
-                var vnList = window.allVNList;
-                if (2 == tmplVer) {
-                    vnList = window.vnList;
-                } else {
-                    vnList = this.getVNListBySvcIntfType(svcTmpls[svcTmplFqn],
-                                                         interfaeTypes[i]);
-                }
+                var vnList = this.getVNListBySvcIntfType(svcTmpls[svcTmplFqn],
+                                                         interfaeTypes[i],
+                                                         tmplVer);
                 var newInterface =
                     new InterfacesModel({'interfaceType': intfType,
                                         'virtualNetwork': vn,
@@ -822,7 +909,7 @@ define([
                 newInterface.__kb.view_model.model().on('change:virtualNetwork',
                                                            function(model,
                                                                     newValue) {
-                    self.setVMIsByVN(self.model(),
+                    self.editView.setVMIsByVN(self.model(),
                                      newValue,
                                      model.get('interfaceType'));
                 });
@@ -1424,6 +1511,7 @@ define([
                 delete newSvcInst['rtPolicys'];
                 delete newSvcInst['rtAggregates'];
                 delete newSvcInst['allowedAddressPairCollection'];
+                delete newSvcInst['svcTmplDetails'];
 
                 if (null == newSvcInst['uuid']) {
                     delete newSvcInst['uuid'];
