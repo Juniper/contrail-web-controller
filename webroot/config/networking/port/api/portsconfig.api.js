@@ -2685,12 +2685,24 @@ function getVMIDetailsCB (vmiURL, appData, res, err)
     });
 }
 
+function getUUIDByFQNAsync (dataObj, callback)
+{
+    configUtil.getUUIDByFQN({'appData': dataObj.appData,
+                             'fqnReq' : {'fq_name': dataObj.fq_name,
+                                         'type': dataObj.type}
+                            }, function(error, data) {
+        callback(error, data);
+    });
+}
 
 function getVMIDetails  (req, res, appData)
 {
     var backRefID = req.param('vn_uuid');
     var parentID = req.param('proj_uuid');
     var projFQN   = req.param('proj_fqn');
+    var vnFqn = req.param('vn_fqn');
+    var vnFqns = req.param('vn_fqns');
+    var dataObjArr = [];
     var vmiURL =
         '/virtual-machine-interfaces?detail=true&fields=' +
         'virtual_machine_refs,instance_ip_back_refs';
@@ -2698,18 +2710,38 @@ function getVMIDetails  (req, res, appData)
         vmiURL += '&back_ref_id=' + backRefID;
     } else if (null != parentID) {
         vmiURL += '&parent_id=' + parentID;
-    } else if (null != projFQN) {
-        configUtil.getUUIDByFQN({'appData': appData,
-                                  'fqnReq' : {'fq_name': projFQN.split(':'),
-                                              'type': 'project'}},
-            function (error, data) {
-                if (error != null || data == null) {
+    } else if ((null != projFQN) || (null != vnFqn) ||
+               (null != vnFqns)) {
+        var fqns = [projFQN];
+        var type = 'project';
+        var urlId = 'parent_id';
+        if (null != vnFqn) {
+            fqns = [vnFqn];
+            type = 'virtual-network';
+            urlId = 'back_ref_id';
+        } else if (null != vnFqns) {
+            fqns = vnFqns.split('::');
+            type = 'virtual-network';
+            urlId = 'back_ref_id';
+        }
+        var len = fqns.length;
+        for (var i = 0; i < len; i++) {
+            dataObjArr.push({'appData': appData, 'type': type, 'fq_name':
+                             fqns[i].split(':')});
+        }
+        async.map(dataObjArr, getUUIDByFQNAsync, function(error, results) {
+                if (error != null || results == null) {
                     var error = new appErrors.RESTServerError(
                         'Invalid Project FQName');
-                    commonUtils.handleJSONResponse(error, res, data);
+                    commonUtils.handleJSONResponse(error, res, results);
                     return;
                 }
-                vmiURL += '&parent_id=' + data['uuid'];
+                var uuidList = [];
+                var len = results.length;
+                for (var i = 0; i < len; i++) {
+                    uuidList.push(results[i]['uuid']);
+                }
+                vmiURL += '&' + urlId + '=' + uuidList.join(',');
                 getVMIDetailsCB(vmiURL, appData, res);
             }
         );
