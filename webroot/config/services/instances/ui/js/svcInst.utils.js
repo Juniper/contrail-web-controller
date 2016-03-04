@@ -87,8 +87,9 @@ define([
             }
             var vmisCnt = vmis.length;
             var tmpVNIds = {};
-            window.allVMIList = [];
-            window.vmiToInstIpsMap = {};
+            if (null == window.vmiToInstIpsMap) {
+                window.vmiToInstIpsMap = {};
+            }
             for (var i = 0; i < vmisCnt; i++) {
                 var vmi =
                     getValueByJsonPath(vmis[i],
@@ -97,7 +98,6 @@ define([
                     continue;
                 }
                 var builtVMI = this.buildVMI(vmi);
-                window.allVMIList.push(builtVMI);
                 if (null != builtVMI.instIps) {
                     window.vmiToInstIpsMap[vmi.uuid] = builtVMI.instIps;
                 }
@@ -129,6 +129,50 @@ define([
                 }
             }
             return {vnList: vnList, vnVmiMaps: vnVmiMaps};
+        },
+        this.updateVnVmiMaps = function(vmiList) {
+            var vnObjs = this.vmiListFormatter(vmiList);
+            if (null == window.vnList) {
+                window.vnList = [];
+            }
+            window.vnList.concat(vnObjs.vnList);
+            if (null == window.vnVmiMaps) {
+                window.vnVmiMaps = {};
+            }
+            for (key in vnObjs.vnVmiMaps) {
+                window.vnVmiMaps[key] = vnObjs.vnVmiMaps[key];
+            }
+        },
+        this.buildTextValueByConfigList =function (configListObj, type) {
+            if ((null == configListObj[type]) || (!configListObj[type].length)) {
+                return [];
+            }
+            var domain = contrail.getCookie('domain');
+            var project = contrail.getCookie('project');
+            var results = [];
+
+            var configList = configListObj[type];
+            var cnt = configList.length;
+            for (var i = 0; i < cnt; i++) {
+                var fqn = JSON.parse(JSON.stringify(configList[i]['fq_name']));
+                var domProj = fqn.splice(0, 2);
+                if ((domain == domProj[0]) && (project == domProj[1])) {
+                    var text = fqn.join(':');
+                    results.push({text: text, value:
+                                 configList[i]['fq_name'].join(':') +
+                                 "~~" + configList[i]['uuid']});
+                } else {
+                    var tmpFqn =
+                        JSON.parse(JSON.stringify(configList[i]['fq_name']));
+                    var domProj = tmpFqn.splice(0, 2);
+                    var text = fqn[fqn.length - 1];
+                    results.push({text: text +" (" + domProj.join(':')
+                                 + ")",
+                                 value: configList[i]['fq_name'].join(':') +
+                                 "~~" + configList[i]['uuid']});
+                }
+            }
+            return results;
         },
         this.getRouteAggregateInterfaceTypes = function(svcTmplIntfTypes) {
             var rtAggIntfTypesList = [];
