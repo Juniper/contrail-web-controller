@@ -16,6 +16,8 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     nwMonUtils = require('../../../../common/api/nwMon.utils'),
     opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
+    discoveryClientApi = require(process.mainModule.exports["corePath"] +
+                                 '/src/serverroot/common/discoveryclient.api'),
     configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
 
 opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
@@ -408,16 +410,43 @@ function processAnalyticsQueryStats (collUVE, appData, details, callback)
     var urlLists = [];
     var dataObjArr = [];
     var url = '/analytics/queries';
+    var discEnabled =
+        commonUtils.getValueByJsonPath(config, 'discoveryService;enable', true);
+    var anaPort = '8081';
+    var opServers = [];
+    var opServersCnt = 0;
 
+    if (false == discEnabled) {
+        anaPort =
+            commonUtils.getValueByJsonPath(config, 'analytics;server_port',
+                                           '8081');
+    } else {
+        var discServList = discoveryClientApi.getServiceRespDataList();
+        opServers =
+            commonUtils.getValueByJsonPath(discServList,
+                                           'OpServer;data;OpServer',
+                                           []);
+        opServersCnt = opServers.length;
+    }
     if (ipList.length == 0) {
         callback(null, collUVE);
     } else {
         cnt = ipList.length;
         for (var i = 0; i < cnt; i++) {
+            var serverIP = commonUtils.getValueByJsonPath(ipList[i], '0', null);
+            if (true == discEnabled) {
+                for (var j = 0; j < opServersCnt; j++) {
+                    if ((serverIP == opServers[j]['@publisher-id']) ||
+                        (serverIP == opServers[j]['ip-address'])) {
+                        anaPort = opServers[j]['port'];
+                        break;
+                    }
+                }
+            }
             opServerAPI =
                 rest.getAPIServer({apiName:'Op-Server',
-                                   server:ipList[i][0],
-                                   port:config.analytics.server_port });
+                                   server: serverIP,
+                                   port: anaPort});
             commonUtils.createReqObj(dataObjArr, url, null, null,
                                      opServerAPI, null, appData);
         }
