@@ -54,6 +54,9 @@ define([
                 title: {
                     text: ctwl.TITLE_GLOBAL_CONFIG
                 },
+                defaultControls: {
+                    exportable: false
+                },
                 advanceControls: getHeaderActionConfig(),
             },
             body: {

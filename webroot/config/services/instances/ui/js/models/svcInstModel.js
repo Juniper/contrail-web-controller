@@ -64,6 +64,13 @@ define([
                     if ((null == val) || (isNaN(val))) {
                         return 'Instance count should be integer';
                     }
+                    if (typeof val == 'string') {
+                        val = val.trim();
+                        val = Number(val);
+                    }
+                    if (val < 1) {
+                        return 'Instance count must be greater than 0';
+                    }
                 },
                 'display_name': function(val, attr, data) {
                     if ((null == data) || (null == data['display_name'])) {
