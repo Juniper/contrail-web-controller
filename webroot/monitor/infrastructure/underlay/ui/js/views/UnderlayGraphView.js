@@ -893,7 +893,16 @@ define([
                                 edges: this.edgesDataSet
                             };
                         }
-                    }
+                    } else {
+                        if(self.underlayPathIds.nodes.length > 0 ||
+                                self.underlayPathIds.links.length > 0) {
+                                self.removeUnderlayPathIds();
+                                self.removeUnderlayEffects();
+                                self.resetTopology({
+                                    resetBelowTabs: true
+                                });
+                            }
+                        }
                     break;
                 case 'VirtualRouter':
                     graphModel.selectedElement.set({
@@ -957,8 +966,6 @@ define([
                             newAdjList[children[i]["name"]] = [];
                         }
                         newAdjList[nodeDetails['name']] = childrenName;
-                    } else {
-                        newAdjList = oldAdjList;
                     }
                     graphModel['adjacencyList'] = newAdjList;
                     self.removeUnderlayEffects();
