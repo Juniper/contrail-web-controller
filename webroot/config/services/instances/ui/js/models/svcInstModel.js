@@ -62,7 +62,14 @@ define([
                         return;
                     }
                     if ((null == val) || (isNaN(val))) {
-                        return 'Instance count should be integer';
+                        return 'Instance count must be between 1 and 64';
+                    }
+                    if (typeof val == 'string') {
+                        val = val.trim();
+                        val = Number(val);
+                    }
+                    if ((val < 1) || (val > 64)) {
+                        return 'Instance count must be between 1 and 64';
                     }
                 },
                 'display_name': function(val, attr, data) {

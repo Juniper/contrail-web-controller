@@ -164,13 +164,14 @@ define([
                 var newSecGrpData = $.extend({}, true, this.model().attributes);
 
                 var ruleList = this.getSecGrpRuleList(newSecGrpData);
+                ctwu.setNameFromDisplayName(newSecGrpData);
                 var fqnArr = [];
                 if (null != newSecGrpData['fq_name']) {
                     fqnArr = newSecGrpData['fq_name'];
                 } else {
                     fqnArr = projFqn;
                     newSecGrpData['fq_name'] =
-                        fqnArr.concat([newSecGrpData['display_name']]);
+                        fqnArr.concat([newSecGrpData['name']]);
                 }
                 var configRules =
                     sgUtils.buildUIToConfigSGList(fqnArr[0],
