@@ -311,14 +311,14 @@ function initActions() {
                 var divid = sGRuleTuples[i].id;
                 var id = getID(divid);
                 var direction = $("#sGRuleTuples_"+id+"_direction").data("contrailDropdown").value();
-                var protocal = $("#sGRuleTuples_"+id+"_protocol").data("contrailDropdown").value();
+                var protocal = $("#sGRuleTuples_"+id+"_protocol").data("contrailCombobox").value();
                 var etherType = $("#sGRuleTuples_"+id+"_ether").data("contrailDropdown").value();
                 var remoteAddr = $("#sGRuleTuples_"+id+"_remoteAddr").data("contrailDropdown").value();
                 var remotePorts = $("#sGRuleTuples_"+id+"_remotePorts").val();
                 var selectedRemoteAddrType = getSelectedGroupName($("#sGRuleTuples_"+id+"_remoteAddr"));
                 sgConfig["security-group"]["security_group_entries"]["policy_rule"][i] = {};
                 sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["direction"] = ">";
-                sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["protocol"] = protocal;
+                sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["protocol"] = protocal.toLowerCase();
 
                 sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_ports"] = [];
                 sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_ports"][0] = {};
@@ -654,14 +654,18 @@ function createSGRuleEntry(rule, id, element,SGData) {
     });
     $(selectDirection).data("contrailDropdown").setData([{"text":"Ingress","value":"Ingress"},{"text":"Egress","value":"Egress"}]);
 
-    $(selectProtocol).contrailDropdown({
+    $(selectProtocol).contrailCombobox({
         dataTextField:"text",
         dataValueField:"value",
         dataSource: {},
         placeholder: "ANY",
     });
-    $(selectProtocol).data("contrailDropdown").setData([{"text":"ANY","value":"any"},{"text":"TCP","value":"tcp"},{"text":"UDP","value":"udp"},{"text":"ICMP","value":"icmp"}]);
-    $(selectProtocol).data("contrailDropdown").text("ANY");
+    $(selectProtocol).data("contrailCombobox").setData(
+                     [{"text":"ANY","value":"any"},
+                      {"text":"TCP","value":"tcp"},
+                      {"text":"UDP","value":"udp"},
+                      {"text":"ICMP","value":"icmp"}]);
+    $(selectProtocol).data("contrailCombobox").text("ANY");
     $(selectEther).contrailDropdown({
         dataTextField:"text",
         dataValueField:"value",
@@ -724,7 +728,7 @@ function createSGRuleEntry(rule, id, element,SGData) {
     if (null !== rule && typeof rule !== "undefined") {//edit
         var formatedRuleData = formatedRule(rule);
         $(selectDirection).data("contrailDropdown").value(formatedRuleData.direction);
-        $(selectProtocol).data("contrailDropdown").value(formatedRuleData.protocol);
+        $(selectProtocol).data("contrailCombobox").value(formatedRuleData.protocol);
         $(selectEther).data("contrailDropdown").value(formatedRuleData.etherType);
         //if(formatedRuleData.remoteAddress == "::/0") {
         //    formatedRuleData.remoteAddress = "0.0.0.0/0";
@@ -736,7 +740,7 @@ function createSGRuleEntry(rule, id, element,SGData) {
 }
 
 function changePlaceHolder(id){
-    var protical = $("#sGRuleTuples_"+id+"_protocol").data("contrailDropdown").value();
+    var protical = $("#sGRuleTuples_"+id+"_protocol").data("contrailCombobox").value();
     if(protical == "icmp"){
         $("#sGRuleTuples_"+id+"_remotePorts")[0].setAttribute("placeholder", "type ANY - code ANY");
         $("#sGRuleTuples_"+id+"_remotePorts").val("");
@@ -1513,6 +1517,27 @@ function validate() {
                                 return false;
                             }
                         }
+                    }
+                }
+                var protocolCombobox = $("#sGRuleTuples_"+id+"_protocol").data("contrailCombobox");
+                var protocolComboboxValue = protocolCombobox.value();
+                if (protocolComboboxValue !== "") {
+                    var allProtocol = jsonPath(protocolCombobox.getAllData(), "$..text");
+                    if (allProtocol.indexOf(protocolComboboxValue.toUpperCase()) < 0) {
+                        if (!isNumber(protocolComboboxValue)) {
+                            showInfoWindow("Allowed values are 'any', 'icmp', 'tcp', 'udp' or 0 - 255.", "Invalid Protocol");
+                            return false;
+                        }
+                        protocolComboboxValue = Number(protocolComboboxValue);
+                        if (protocolComboboxValue % 1 != 0 || protocolComboboxValue < 0 || protocolComboboxValue > 255) {
+                            showInfoWindow("Allowed values are 'any', 'icmp', 'tcp', 'udp' or 0 - 255.", "Invalid Protocol");
+                            return false
+                        }
+                    }
+                } else {
+                    if (protocolComboboxValue % 1 != 0 || protocolComboboxValue < 0 || protocolComboboxValue > 255) {
+                        showInfoWindow("Allowed values are 'any', 'icmp', 'tcp', 'udp' or 0 - 255.", "Invalid Protocol");
+                        return false
                     }
                 }
             }
