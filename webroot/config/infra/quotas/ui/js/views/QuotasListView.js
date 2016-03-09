@@ -60,6 +60,15 @@ define([
         {key : "virtual_ip", name :"Virtual IPs"}
     ];
 
+    function getQuota (key, quota) {
+        if (!(key in quota)) {
+            if (null != quota['defaults']) {
+                return quota['defaults'];
+            }
+        }
+        return quota[key];
+    }
+
     var quotasDataParser = function (response) {
         var results = [];
         var quotaListCnt = quotaList.length;
@@ -68,7 +77,7 @@ define([
             results[i] = {};
             results[i]['name'] = quotaList[i]['name'];
             results[i]['used'] = response[1]['used'][key];
-            results[i]['limit'] = response[0]['quota'][key];
+            results[i]['limit'] = getQuota(key, response[0]['quota']);
         }
         return results;
     }

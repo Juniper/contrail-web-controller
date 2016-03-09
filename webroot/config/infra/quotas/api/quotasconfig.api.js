@@ -26,6 +26,8 @@ var util        = require('util');
 var url         = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
+var configUtilApi = require('../../../common/api/configUtil.api');
+
 /**
  * @parseProjectQuotas
  * private function
@@ -59,6 +61,49 @@ function getProjectQuotasCb (error, projectGetData, appData, callback)
     parseProjectQuotas(error, projectGetData, appData, callback);
 }
 
+function getDefaultProjectQuotas (projectData, appData, callback)
+{
+    var projUUID =
+        commonUtils.getValueByJsonPath(projectData,
+                                        'project;uuid', null);
+    var projFqn =
+        commonUtils.getValueByJsonPath(projectData,
+                                        'project;fq_name', null);
+    var defProjectFqn = ['default-domain', 'default-project'];
+    if (null != projFqn) {
+        defProjectFqn = projFqn;
+        defProjectFqn[1] = 'default-project';
+    }
+    var postData = {
+        'appData': appData,
+        'fqnReq' : {
+            'fq_name': defProjectFqn,
+            'type': 'project'
+        }
+    };
+    configUtilApi.getUUIDByFQN(postData, function(error, data) {
+        if ((null != error) || (null == data)) {
+            callback(error, data);
+            return;
+        }
+        var uuid = data.uuid;
+        var defProjGetUrl = '/project/' + uuid;
+        configApiServer.apiGet(defProjGetUrl, appData, function(error, data) {
+            if ((null != error) || (null == data)) {
+                callback(error, data);
+                return;
+            }
+            var quotas =
+                commonUtils.getValueByJsonPath(data, 'project;quota', null);
+            if (null != quotas) {
+                getProjectQuotasCb(null, data, appData, callback);
+            } else {
+                getDefaultQuotas(appData, data, callback);
+            }
+        });
+    });
+}
+
 /**
  * @readProjectQuotas
  * private function
@@ -84,46 +129,20 @@ function readProjectQuotas (userData, callback)
                              }
                              if(data["project"]["quota"] != undefined) {
                                  getProjectQuotasCb(error, data, appData, callback);
-                             } else     {
-                                 setProjectQuotas(projectIdStr, appData, data, callback);
+                             } else {
+                                 getDefaultProjectQuotas(data, appData, callback);
                              }
                          }
     );
 }
 
 /**
- * @setProjectQuotas
+ * @getDefaultQuotas
  * private function
- * 1. Needs project uuid in string format
+ * 1. Get default quotas
  */
-function setProjectQuotas(projectIdStr, appData, data, callback) {
-    var url = "/project/";
-    url += projectIdStr ;
-    data["project"]["quota"] = {
-                                   "subnet": -1,
-                                   "virtual_machine_interface": -1,
-                                   "bgp_router": null,
-                                   "instance_ip": null,
-                                   "service_instance": null,
-                                   "network_ipam": null,
-                                   "virtual_DNS_record": null,
-                                   "service_template": null,
-                                   "global_vrouter_config": null,
-                                   "floating_ip": -1,
-                                   "virtual_router": null,
-                                   "security_group_rule": -1,
-                                   "network_policy": null,
-                                   "defaults": null,
-                                   "security_group": -1,
-                                   "virtual_network": -1,
-                                   "virtual_DNS": null,
-                                   "floating_ip_pool": null,
-                                   "logical_router": -1,
-                                   "loadbalancer_pool":-1,
-                                   "loadbalancer_member":-1,
-                                   "loadbalancer_healthmonitor":-1,
-                                   "virtual_ip":-1
-                               };
+function getDefaultQuotas (appData, data, callback) {
+    data["project"]["quota"] = { defaults: -1 };
     getProjectQuotasCb(null, data, appData, callback);
 }
 
