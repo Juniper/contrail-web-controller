@@ -111,12 +111,15 @@ function getControlNodeDetails (req, res, appData)
             });
         } else {
             var postData = {};
+            console.log("Getting uve as ", data);
             postData['kfilt'] = [hostName + '*:contrail-control*'];
             infraCmn.addGeneratorInfoToUVE(postData, data, hostName,
                                   ['contrail-control'],
                                   function(err, data) {
+                console.log("Getting after gen added ", data);
                 infraCmn.getDataFromConfigNode('bgp-routers', hostName, appData,
                                                data, function(err, data) {
+                    console.log("Getting after config added ", data);
                     commonUtils.handleJSONResponse(err, res, data);
                 });
             });

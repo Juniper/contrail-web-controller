@@ -221,13 +221,16 @@ function fillAnalyticsConfigData (anaData, configData)
     } catch(e) {
         configCnt = 0;
     }
-    anaData['value']['ConfigData'] = {};
+    if(anaData['value']['derived-uve'] == null) {
+        anaData['value']['derived-uve'] = {};
+    }
+    anaData['value']['derived-uve']['ConfigData'] = {};
     for (var i = 0; i < configCnt; i++) {
         if ((null != configData[i]) &&
             (null != configData[i]['analytics-node']) &&
             (null != configData[i]['analytics-node']['fq_name']) &&
             (nodeName == configData[i]['analytics-node']['fq_name'][1])) {
-            anaData['value']['ConfigData'] =
+            anaData['value']['derived-uve']['ConfigData'] =
                 commonUtils.cloneObj(configData[i]);
             break;
         }
@@ -240,6 +243,10 @@ function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData,
 {
     var moduleNames = ['contrail-query-engine',
                        'contrail-analytics-api', 'contrail-collector'];
+    console.log('In postProcessAnalyticsNodeSummaryJSON');
+    console.log("UVE",JSON.stringify(collUVEData));
+    console.log("genUVE",JSON.stringify(genUVEData));
+    console.log("configData",JSON.stringify(configData));
     var modCnt = moduleNames.length;
     var modHost = null;
     var resultJSON = [];
@@ -266,12 +273,17 @@ function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData,
             resultJSON[lastIndex] = {};
             resultJSON[lastIndex]['name'] = collData[i]['name'];
             resultJSON[lastIndex]['value'] = {};
+            if(resultJSON[lastIndex]['value']['derived-uve']) {
+                resultJSON[lastIndex]['value']['derived-uve'] = {};
+            }
             resultJSON[lastIndex]['value'] =
                 commonUtils.copyObject(resultJSON[lastIndex]['value'],
                                        collData[i]['value']);
+            console.log('resultJSON after the anaCata is copied', JSON.stringify(resultJSON));
                 resultJSON[lastIndex] =
                     fillAnalyticsConfigData(resultJSON[lastIndex],
                                             configData);
+                console.log('resultJSON after the configData is copied', JSON.stringify(resultJSON));
             for (var j = 0; j < genDataLen; j++) {
                 try {
                     if (false ==
@@ -283,10 +295,11 @@ function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData,
                     var genName = genData[j]['name'];
                     var pos = genName.indexOf(':');
                     mod = genName.slice(pos + 1);
-                    resultJSON[lastIndex]['value'][mod] = {};
-                    resultJSON[lastIndex]['value'][mod] =
-                        commonUtils.copyObject(resultJSON[lastIndex]['value'][mod],
+                    resultJSON[lastIndex]['value']['derived-uve'][mod] = {};
+                    resultJSON[lastIndex]['value']['derived-uve'][mod] =
+                        commonUtils.copyObject(resultJSON[lastIndex]['value']['derived-uve'][mod],
                                                genData[j]['value']);
+                    console.log('resultJSON after the GenData is copied', JSON.stringify(resultJSON));
                 } catch (e) {
                     continue;
                 }
@@ -386,18 +399,25 @@ function fillHostDetailsToAnalyticsQueryStatsUVE (collUVE, qStats, ipList,
     var result = {};
     var ipCnt = ipList.length;
     var uveCnt = collUVE.length;
+    
     for (var i = 0; i < ipCnt; i++) {
         for (var j = 0; j < uveCnt; j++) {
             try {
                 ip = jsonPath(collUVE[j], "$..self_ip_list");
                 if (ip[0][0] == ipList[i][0]) {
                     if (details) {
-                        collUVE[j][0]['value']['QueryStats'] = {};
-                        collUVE[j][0]['value']['QueryStats'] =
+                        if(collUVE[j][0]['value']['derived-uve'] == null) {
+                            collUVE[j][0]['value']['derived-uve'] = {};
+                        }
+                        collUVE[j][0]['value']['derived-uve']['QueryStats'] = {};
+                        collUVE[j][0]['value']['derived-uve']['QueryStats'] =
                             commonUtils.cloneObj(qStats[i])
                     } else {
-                        collUVE[j]['value']['QueryStats'] = {};
-                        collUVE[j]['value']['QueryStats'] =
+                        if(collUVE[j]['value']['derived-uve'] == null) {
+                            collUVE[j]['value']['derived-uve'] = {};
+                        }
+                        collUVE[j]['value']['derived-uve']['QueryStats'] = {};
+                        collUVE[j]['value']['derived-uve']['QueryStats'] =
                             commonUtils.cloneObj(qStats[i]);
                     }
                     break;

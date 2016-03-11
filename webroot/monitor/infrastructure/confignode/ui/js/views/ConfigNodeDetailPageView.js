@@ -236,7 +236,7 @@ define([
         var ips = '';
            try{
                iplist = getValueByJsonPath(confNodeData,
-                       "configNode;ModuleCpuState;config_node_ip",[]);
+                       "ModuleCpuState;config_node_ip",[]);
                if(iplist instanceof Array){
                    nodeIp = iplist[0];//using the first ip in the list for status
                } else {
@@ -291,7 +291,8 @@ define([
 
     function getLastLogTime(aNodeData) {
         var lmsg;
-        lmsg = monitorInfraUtils.getLastLogTimestamp(aNodeData,"config");
+        lmsg = monitorInfraUtils.getLastLogTimestamp(aNodeData['derived-uve']
+                                                     ,"config");
         if(lmsg != null){
             try{
                 return new Date(parseInt(lmsg)/1000).toLocaleString();
