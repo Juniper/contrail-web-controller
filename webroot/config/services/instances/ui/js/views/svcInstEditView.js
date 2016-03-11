@@ -88,16 +88,12 @@ define([
                                   self.model.model().attributes.rtAggregates});
                 kbValidation.bind(self,
                                   {collection:
+                                  self.model.model().attributes.staticRoutes});
+                kbValidation.bind(self,
+                                  {collection:
                                   self.model.model().attributes.allowedAddressPairCollection});
-                var interfaces = self.model.model().attributes.interfaces;
-                kbValidation.bind(self, {collection: interfaces});
-                var intfCnt = interfaces.length;
-                var interfaceModels = interfaces.toJSON();
-                for (var i = 0; i < intfCnt; i++) {
-                    kbValidation.bind(self,
-                                      {collection:
-                                      interfaceModels[i].model().attributes.staticRoutes});
-                }
+                kbValidation.bind(self, {collection:
+                                  self.model.model().attributes.interfaces});
             });
         },
         fetchData: function(self, setVNList, callback) {

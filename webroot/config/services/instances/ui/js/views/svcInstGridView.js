@@ -946,6 +946,15 @@ define([
 
     function addModelAttr (model)
     {
+        model.staticRoutesAccordianVisible = ko.computed((function() {
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var statRts =
+                svcUtils.getStaticRtsInterfaceTypesBySvcTmpl(svcTmpl, true);
+            if (statRts.length > 0) {
+                return true;
+            }
+            return false;
+        }), model);
         model.isHAModeDropDownDisabled = ko.computed((function() {
             var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
             var tmplVersion =

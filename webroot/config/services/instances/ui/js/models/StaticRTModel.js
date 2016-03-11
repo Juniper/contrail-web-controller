@@ -9,6 +9,7 @@ define([
     var StaticRTModel = ContrailModel.extend({
 
         defaultConfig: {
+            interface_type: null,
             prefix: null,
             next_hop: null,
             community_attributes: ''
