@@ -17,10 +17,29 @@ define([
                     cowc.TMPL_2COLUMN_1ROW_2ROW_CONTENT_VIEW);
             var viewConfig = this.attributes.viewConfig;
             var leftContainerElement = $('#left-column-container');
+            var hostname = viewConfig['hostname'];
+
             this.$el.html(detailsTemplate);
 
-            self.renderView4Config($('#left-column-container'), null,
-                    getControlNodeDetailPageViewConfig(viewConfig));
+            monitorInfraUtils.doAjaxCallsForNodeDetails ({
+                ajaxConfigList:[
+                    {
+                        ajaxConfig: {
+                            url: contrail.format(
+                                    monitorInfraConstants.
+                                        monitorInfraUrls['CONTROLNODE_DETAILS'],
+                                    hostname),
+                            type: 'GET'
+                        },
+                        dataParser: dataParser,
+                        callBack:function(parsedData,viewConfig){
+                            self.renderView4Config($('#left-column-container'), null,
+                                    getControlNodeDetailPageViewConfig(viewConfig,parsedData));
+                        }
+                    }
+                ],
+                viewConfig:viewConfig
+            });
             self.renderView4Config($('#right-column-container'), null,
                     getControlNodeDetailChartViewConfig(viewConfig));
         }
@@ -36,84 +55,16 @@ define([
         }
     }
 
-    var getControlNodeDetailPageViewConfig = function (viewConfig) {
+    var getControlNodeDetailPageViewConfig = function (viewConfig,data) {
         var hostname = viewConfig['hostname'];
         return {
             elementId: ctwl.CONTROLNODE_DETAIL_PAGE_ID,
             title: ctwl.TITLE_DETAILS,
             view: "DetailsView",
             viewConfig: {
-                ajaxConfig: {
-                    url: contrail.format(
-                            monitorInfraConstants.
-                                monitorInfraUrls['CONTROLNODE_DETAILS'],
-                            hostname),
-                    type: 'GET'
-                },
+                data: data,
                 templateConfig: getDetailsViewTemplateConfig(),
                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                dataParser: function(result) {
-                    var ctrlNodeData = result;
-                    var obj = monitorInfraParsers.
-                        parseControlNodesDashboardData([{
-                            name: monitorInfraUtils.getIPOrHostName(viewConfig),
-                            value: result
-                        }])[0];
-                    //Further parsing required for Details page done below
-                    var overallStatus;
-                    try{
-                        overallStatus = monitorInfraUtils.
-                            getOverallNodeStatusForDetails(obj);
-                    }catch(e){overallStatus = "<span> "+statusTemplate({
-                            sevLevel:sevLevels['ERROR'],
-                            sevLevels:sevLevels})+" Down</span>";}
-
-                    try{
-                        //Add the process status list with uptime
-                        procStateList = jsonPath(ctrlNodeData,
-                                "$..NodeStatus.process_info")[0];
-                        var controlProcessStatusList =
-                            getStatusesForAllControlProcesses(procStateList);
-                        obj['controlProcessStatusList'] =
-                                controlProcessStatusList;
-                    }catch(e){}
-
-                    obj['name'] = hostname;
-
-                    obj['ips'] = monitorInfraUtils.getControlIpAddresses(
-                                        ctrlNodeData,'details');
-
-                    obj['overallNodeStatus'] = overallStatus;
-
-                    //dummy entry to show empty value in details
-                    obj['processes'] = '&nbsp;';
-
-                    obj['ifMapConnectionStatus'] =
-                            getIfMapConnectionStatus(ctrlNodeData);
-
-                    obj['analyticsNodeDetails'] =
-                            getAnalyticsNodeDetails(ctrlNodeData);
-
-                    obj['analyticsMessages'] =
-                            getAnalyticsNodeMessageInfo(ctrlNodeData);
-
-                    obj['peersDetails'] =
-                            getPeersDetails(obj);
-
-                    obj['vRouterPeerDetails'] =
-                            getVRouterPeersDetails(ctrlNodeData,obj);
-
-                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu'],'--');
-
-                    obj['lastLogTimestamp'] =
-                            getLastLogTime(ctrlNodeData);
-
-                    var ipList = getControlNodeIpAddressList(ctrlNodeData);
-                    monitorInfraUtils.createMonInfraDetailsFooterLinks (
-                            $('#left-column-container').parent(), ipList, '8083');
-
-                    return obj;
-                }
             }
         }
     }
@@ -346,7 +297,7 @@ define([
 
     function getAnalyticsNodeMessageInfo(ctrlNodeData) {
         var msgs = monitorInfraUtils.getAnalyticsMessagesCountAndSize(
-                ctrlNodeData,
+                ctrlNodeData['derived-uve'],
                 ['contrail-control']);
         return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
     }
@@ -395,12 +346,77 @@ define([
 
     function getLastLogTime(ctrlNodeData) {
         var lmsg;
-        lmsg = monitorInfraUtils.getLastLogTimestamp(ctrlNodeData,"control");
+        lmsg = monitorInfraUtils.getLastLogTimestamp(ctrlNodeData['derived-uve'],"control");
         if(lmsg != null){
            try{
               return new Date(parseInt(lmsg)/1000).toLocaleString();
            }catch(e){return noDataStr;}
         } else return noDataStr;
+    }
+
+    function dataParser (result,viewConfig) {
+        var hostname = viewConfig['hostname'];
+        var ctrlNodeData = result;
+        var obj = monitorInfraParsers.
+            parseControlNodesDashboardData([{
+                name: monitorInfraUtils.getIPOrHostName(viewConfig),
+                value: result
+            }])[0];
+        //Further parsing required for Details page done below
+        var overallStatus;
+        try{
+            overallStatus = monitorInfraUtils.
+                getOverallNodeStatusForDetails(obj);
+        }catch(e){overallStatus = "<span> "+statusTemplate({
+                sevLevel:sevLevels['ERROR'],
+                sevLevels:sevLevels})+" Down</span>";}
+
+        try{
+            //Add the process status list with uptime
+            procStateList = jsonPath(ctrlNodeData,
+                    "$..NodeStatus.process_info")[0];
+            var controlProcessStatusList =
+                getStatusesForAllControlProcesses(procStateList);
+            obj['controlProcessStatusList'] =
+                    controlProcessStatusList;
+        }catch(e){}
+
+        obj['name'] = hostname;
+
+        obj['ips'] = monitorInfraUtils.getControlIpAddresses(
+                            ctrlNodeData,'details');
+
+        obj['overallNodeStatus'] = overallStatus;
+
+        //dummy entry to show empty value in details
+        obj['processes'] = '&nbsp;';
+
+        obj['ifMapConnectionStatus'] =
+                getIfMapConnectionStatus(ctrlNodeData);
+
+        obj['analyticsNodeDetails'] =
+                getAnalyticsNodeDetails(ctrlNodeData);
+
+        obj['analyticsMessages'] =
+                getAnalyticsNodeMessageInfo(ctrlNodeData);
+
+        obj['peersDetails'] =
+                getPeersDetails(obj);
+
+        obj['vRouterPeerDetails'] =
+                getVRouterPeersDetails(ctrlNodeData,obj);
+
+        obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu'],'--');
+
+        obj['lastLogTimestamp'] =
+                getLastLogTime(ctrlNodeData);
+
+        var ipList = getControlNodeIpAddressList(ctrlNodeData);
+        monitorInfraUtils.createMonInfraDetailsFooterLinks (
+                $('#left-column-container').parent(), ipList, '8083');
+
+        return obj;
+
     }
 
     return ControlNodesDetailPageView;
