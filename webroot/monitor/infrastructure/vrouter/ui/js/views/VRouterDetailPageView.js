@@ -15,102 +15,55 @@ define([
                     cowc.TMPL_2COLUMN_1ROW_2ROW_CONTENT_VIEW);
             var viewConfig = this.attributes.viewConfig;
             var leftContainerElement = $('#left-column-container');
+            var hostname = viewConfig['hostname'];
             this.$el.html(detailsTemplate);
 
-            self.renderView4Config($('#left-column-container'), null,
-                    getVRouterDetailPageViewConfig(viewConfig));
+            monitorInfraUtils.doAjaxCallsForNodeDetails ({
+                ajaxConfigList:[
+                    {
+                        ajaxConfig: {
+                            url: contrail.format(monitorInfraConstants.
+                                    monitorInfraUrls['VROUTER_DETAILS'],
+                                    hostname,true),
+                            type: 'GET'
+                        },
+                        dataParser: dataParser,
+                        callBack:function(parsedData,viewConfig){
+                            self.renderView4Config($('#left-column-container'), null,
+                                    getVRouterDetailPageViewConfig(viewConfig,parsedData));
+                        }
+                    },
+                    {
+                        ajaxConfig: {
+                            url: contrail.format(monitorInfraConstants.
+                                    monitorInfraUrls['VROUTER_DETAILS'],
+                                    hostname,false),
+                            type: 'GET'
+                        },
+                        dataParser: dataParser,
+                        callBack:function(parsedData){
+                            self.renderView4Config($('#left-column-container'), null,
+                                    getVRouterDetailPageViewConfig(viewConfig,parsedData));
+                        }
+                    }
+                ],
+                viewConfig:viewConfig
+            });
             self.renderView4Config($('#right-column-container'), null,
                     getVRouterDetailChartViewConfig(viewConfig));
         }
     });
     var noDataStr = monitorInfraConstants.noDataStr;
-    var getVRouterDetailPageViewConfig = function (viewConfig) {
+    var getVRouterDetailPageViewConfig = function (viewConfig,data) {
         var hostname = viewConfig['hostname'];
         return {
             elementId: ctwl.VROUTER_DETAIL_PAGE_ID,
             title: ctwl.TITLE_DETAILS,
             view: "DetailsView",
             viewConfig: {
-                ajaxConfig: {
-                    url: contrail.format(monitorInfraConstants.
-                            monitorInfraUrls['VROUTER_DETAILS'],
-                            hostname,true),
-                    type: 'GET'
-                },
+                data:data,
                 templateConfig: getDetailsViewTemplateConfig(),
                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                dataParser: function(result) {
-                    var vrouterData = result;
-                    var obj = monitorInfraParsers.
-                                parsevRoutersDashboardData([{
-                                    name: monitorInfraUtils.getIPOrHostName(viewConfig),
-                                    value: result
-                                }])[0];
-                    //Further parsing required for Details page done below
-                    var overallStatus;
-                    try{
-                        overallStatus = monitorInfraUtils.
-                            getOverallNodeStatusForDetails(obj);
-                    }catch(e){
-                        overallStatus = "<span> "+statusTemplate({
-                        sevLevel:sevLevels['ERROR'],
-                        sevLevels:sevLevels})+" Down</span>";
-                    }
-
-                    try{
-                        //Add the process status list with uptime
-                        procStateList = getValueByJsonPath(vrouterData,
-                                "NodeStatus;process_info");
-                        obj['vrouterProcessStatusList'] =
-                            getStatusesForAllvRouterProcesses(procStateList);
-                    }catch(e){
-                        console.log(e);
-                    }
-
-                    obj['name'] = hostname;
-
-                    obj['ips'] = monitorInfraUtils.getVrouterIpAddresses(
-                                        vrouterData,'details');
-
-                    obj['overallNodeStatus'] = overallStatus;
-
-                    //dummy entry to show empty value in details
-                    obj['processes'] = '&nbsp;';
-
-                    obj['vrouterType'] = monitorInfraUtils.
-                                            getDisplayNameForVRouterType(
-                                                obj);
-
-                    obj['analyticsNodeDetails'] =
-                            getAnalyticsNodeDetails(vrouterData);
-
-                    obj['controlNodesDetails'] =
-                            getControlNodesDetails(vrouterData);
-
-                    obj['analyticsMessages'] =
-                            getAnalyticsMessages(vrouterData);
-
-                    obj['xmppMessages'] =
-                            getXmppMessages(vrouterData);
-
-                    obj['flowCount'] =
-                            getFlowCount(vrouterData);
-
-                    obj['interfaces'] = getInterfaces (obj);
-
-                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu'],'--');
-
-                    obj['lastLogTimestamp'] =
-                            getLastLogTime(vrouterData);
-
-                    var ipList = getVrouterIpAddressList(vrouterData);
-                    monitorInfraUtils.createMonInfraDetailsFooterLinks (
-                            $('#left-column-container').parent(),
-                            ipList,
-                            getValueByJsonPath(viewConfig,'introspectPort','8085'));
-
-                    return obj;
-                }
             }
         }
     }
@@ -357,7 +310,8 @@ define([
     }
 
     function getAnalyticsMessages (vrouterData) {
-        var msgs = monitorInfraUtils.getAnalyticsMessagesCountAndSize(vrouterData,
+        var msgs = monitorInfraUtils.getAnalyticsMessagesCountAndSize(
+                vrouterData['derived-uve'],
                 ['contrail-vrouter-agent']);
         return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
     }
@@ -394,7 +348,8 @@ define([
 
     function getLastLogTime(vrouterData) {
         var lmsg;
-        lmsg = monitorInfraUtils.getLastLogTimestamp(vrouterData,"compute");
+        lmsg = monitorInfraUtils.getLastLogTimestamp(vrouterData['derived-uve'],
+                "compute");
         if(lmsg != null){
             try{
                 return new Date(parseInt(lmsg)/1000).toLocaleString();
@@ -421,6 +376,80 @@ define([
             ipList.push(configip);
         }
         return ipList;
+    }
+
+    function dataParser (result,viewConfig) {
+        var hostname = viewConfig['hostname'];
+        var vrouterData = result;
+        var obj = monitorInfraParsers.
+                    parsevRoutersDashboardData([{
+                        name: monitorInfraUtils.getIPOrHostName(viewConfig),
+                        value: result
+                    }])[0];
+        //Further parsing required for Details page done below
+        var overallStatus;
+        try{
+            overallStatus = monitorInfraUtils.
+                getOverallNodeStatusForDetails(obj);
+        }catch(e){
+            overallStatus = "<span> "+statusTemplate({
+            sevLevel:sevLevels['ERROR'],
+            sevLevels:sevLevels})+" Down</span>";
+        }
+
+        try{
+            //Add the process status list with uptime
+            procStateList = getValueByJsonPath(vrouterData,
+                    "NodeStatus;process_info");
+            obj['vrouterProcessStatusList'] =
+                getStatusesForAllvRouterProcesses(procStateList);
+        }catch(e){
+            console.log(e);
+        }
+
+        obj['name'] = hostname;
+
+        obj['ips'] = monitorInfraUtils.getVrouterIpAddresses(
+                            vrouterData,'details');
+
+        obj['overallNodeStatus'] = overallStatus;
+
+        //dummy entry to show empty value in details
+        obj['processes'] = '&nbsp;';
+
+        obj['vrouterType'] = monitorInfraUtils.
+                                getDisplayNameForVRouterType(
+                                    obj);
+
+        obj['analyticsNodeDetails'] =
+                getAnalyticsNodeDetails(vrouterData);
+
+        obj['controlNodesDetails'] =
+                getControlNodesDetails(vrouterData);
+
+        obj['analyticsMessages'] =
+                getAnalyticsMessages(vrouterData);
+
+        obj['xmppMessages'] =
+                getXmppMessages(vrouterData);
+
+        obj['flowCount'] =
+                getFlowCount(vrouterData);
+
+        obj['interfaces'] = getInterfaces (obj);
+
+        obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu'],'--');
+
+        obj['lastLogTimestamp'] =
+                getLastLogTime(vrouterData);
+
+        var ipList = getVrouterIpAddressList(vrouterData);
+        monitorInfraUtils.createMonInfraDetailsFooterLinks (
+                $('#left-column-container').parent(),
+                ipList,
+                getValueByJsonPath(viewConfig,'introspectPort','8085'));
+
+        return obj;
     }
 
     return VRouterDetailPageView;
