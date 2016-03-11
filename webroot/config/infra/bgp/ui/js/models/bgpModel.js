@@ -14,7 +14,6 @@ define([
             'display_name' : null,
             'fq_name' : null,
             'parent_type' : 'routing-instance',
-            'parent_name' : '__default__',
             'bgp_router_parameters' : {
                 'router_type' : "router",
                 'vendor' : null,
@@ -47,8 +46,10 @@ define([
             'isAutoMeshEnabled' : null,
             'user_created_admin_state': true
         },
+
         formatModelConfig : function(modelConfig) {
             self = this;
+            modelConfig['display_name'] = ctwu.getDisplayNameOrName(modelConfig);
             // populate bgp router parameters
             var bgpParams = modelConfig['bgp_router_parameters'];
             if(bgpParams["router_type"]) {
@@ -149,6 +150,7 @@ define([
             modelConfig['peers'] = peerCollectionModel;
             return modelConfig;
         },
+
         subscribePeerModelChangeEvents: function(peerModel) {
             peerModel.__kb.view_model.model().on('change:user_created_auth_key_type',
                 function(model, newValue){
@@ -171,6 +173,7 @@ define([
                 }
             );
         },
+
         addPeer: function() {
             var peers = this.model().attributes['peers'],
                 peersArry = peers.toJSON();
@@ -191,9 +194,11 @@ define([
                 {collection: newPeer.model().attributes.family_attrs});
             peers.add([newPeer]);
         },
+
         deletePeer: function(data, kbInterface) {
             data.model().collection.remove(kbInterface.model());
         },
+
         getCurrentPeer: function(name){
             var model;
             var peers = this.model().attributes['peers'].toJSON();
@@ -205,6 +210,7 @@ define([
             }
             return model;
         },
+
         getPeers : function(attr) {
             var peerCollection = attr.peers.toJSON(),
                 peerArray = [];
@@ -232,12 +238,12 @@ define([
             }
             return peerArray;
         },
+
         configBGPRouter: function (callbackObj, ajaxMethod) {
-            var ajaxConfig = {}, returnFlag = false;
-            var postBGPData = {'bgp-router':{}};
-            var postData = { 'content' : {}};
-            var peers = [];
-            var self  = this;
+            var ajaxConfig = {}, returnFlag = false,
+                postBGPData = {'bgp-router':{}},
+                postData = { 'content' : {}},
+                peers = [];
             var validations = [
                 {
                     key : null,
@@ -260,6 +266,17 @@ define([
                 var attr = this.model().attributes;
                 var newBGPRouterCfgData = $.extend(true, {}, attr);
 
+                ctwu.setNameFromDisplayName(newBGPRouterCfgData);
+
+                if (newBGPRouterCfgData['fq_name'] == [] ||
+                    newBGPRouterCfgData['fq_name'] == null) {
+                    newBGPRouterCfgData['fq_name'] = [];
+                    newBGPRouterCfgData['fq_name'][0] = "default-domain";
+                    newBGPRouterCfgData['fq_name'][1] = "default-project";
+                    newBGPRouterCfgData['fq_name'][2] = "ip-fabric";
+                    newBGPRouterCfgData['fq_name'][3] = "__default__";
+                    newBGPRouterCfgData['fq_name'][4] = newBGPRouterCfgData["name"];
+                }
                 if(!newBGPRouterCfgData.isAutoMeshEnabled ||
                     newBGPRouterCfgData.user_created_router_type !==
                     ctwl.CONTROL_NODE_TYPE) {
@@ -344,9 +361,8 @@ define([
                    delete newBGPRouterCfgData.bgp_router_parameters.source_port;
                 }
 
-                delete newBGPRouterCfgData.errors;
-                delete newBGPRouterCfgData.locks;
-                delete newBGPRouterCfgData.cgrid;
+                ctwu.deleteCGridData(newBGPRouterCfgData);
+
                 delete newBGPRouterCfgData.id_perms;
                 delete newBGPRouterCfgData.bgp_router_refs;
                 delete newBGPRouterCfgData.physical_router_back_refs;
@@ -362,7 +378,6 @@ define([
                 delete newBGPRouterCfgData.addressFamilyData;
                 delete newBGPRouterCfgData.isAutoMeshEnabled;
                 delete newBGPRouterCfgData.peers;
-                delete newBGPRouterCfgData.elementConfigMap;
 
                 postBGPData['bgp-router'] = newBGPRouterCfgData;
                 if(peers.length > 0) {
@@ -403,6 +418,7 @@ define([
 
             return returnFlag;
         },
+
         deleteBGPRouters : function(checkedRows, callbackObj) {
             var ajaxConfig = {}, that = this;
             var uuidList = [];
@@ -430,9 +446,10 @@ define([
                 }
             });
         },
+
         validations: {
             configureValidation: {
-                'name': {
+                'display_name': {
                     required: true,
                     msg: 'Enter Host Name'
                 },
@@ -523,6 +540,55 @@ define([
                 }
             }
         },
+
+        setGlobalASNAttributes: function(mode, result) {
+            var globalSysConfig = getValueByJsonPath(result,
+                "global-system-config", null),
+                iBGPAutoMesh = getValueByJsonPath(globalSysConfig,
+                "ibgp_auto_mesh", true);
+            self.globalASN = getValueByJsonPath(globalSysConfig,
+                "autonomous_system", null);
+            self.isAutoMeshEnabled(iBGPAutoMesh);
+            if(mode === ctwl.CREATE_ACTION) {
+                self.user_created_autonomous_system(self.globalASN);
+            }
+        },
+        getAddressFamilyStringArray : function(addressFamilies) {
+            return _.map(addressFamilies,
+                function(addressFamily) { return addressFamily.value;});
+        },
+        onRouterTypeSelectionChanged: function(newValue) {
+            var addressFamilies, filterAddressFamilies;
+            self.bgp_router_parameters().router_type = newValue;
+            self.model().attributes['peers'].reset();
+            if(newValue === ctwl.CONTROL_NODE_TYPE) {
+                addressFamilies = ctwc.CN_ADDRESS_FAMILY_DATA;
+                self.user_created_vendor('contrail');
+                self.user_created_physical_router('none');
+                self.addressFamilyData(addressFamilies);
+                filterAddressFamilies =
+                    self.getAddressFamilyStringArray(addressFamilies);
+                self.user_created_address_family(filterAddressFamilies.join(","));
+                //set global asn as asn for control node type
+                self.user_created_autonomous_system(self.globalASN)
+
+            } else if(newValue === ctwl.EXTERNAL_CONTROL_NODE_TYPE) {
+                addressFamilies = ctwc.CN_ADDRESS_FAMILY_DATA;
+                self.user_created_vendor('');
+                self.user_created_physical_router('none');
+                self.addressFamilyData(addressFamilies);
+                filterAddressFamilies =
+                    self.getAddressFamilyStringArray(addressFamilies);
+                self.user_created_address_family(filterAddressFamilies.join(","));
+            } else if(newValue === ctwl.BGP_ROUTER_TYPE) {
+                addressFamilies = ctwc.BGP_ADDRESS_FAMILY_DATA;
+                self.user_created_vendor('');
+                self.addressFamilyData(addressFamilies);
+                filterAddressFamilies =
+                    self.getAddressFamilyStringArray(addressFamilies);
+                self.user_created_address_family(filterAddressFamilies.join(","));
+            }
+        }
     });
     return bgpCfgModel;
 });
