@@ -28,6 +28,7 @@ define([
             }});
             self.routeAggregateRenderView4Config(options);
         },
+
         configEditRouteAggregate : function(options) {
             self.model.configRouteAggregate({
                 init: function () {
@@ -45,6 +46,7 @@ define([
                 }
             }, options.mode === ctwl.CREATE_ACTION ? 'POST' : 'PUT');
         },
+
         routeAggregateRenderView4Config : function(options) {
             var disableFlag =
                 (options.mode === ctwl.CREATE_ACTION) ?  false : true;
@@ -61,6 +63,7 @@ define([
                 }
             );
         },
+
         renderDeleteRouteAggregate: function(options) {
             var delTemplate =
                 contrail.getTemplate4Id('core-generic-delete-form-template');
@@ -96,6 +99,7 @@ define([
             Knockback.applyBindings(self.model, document.getElementById(modalId));
             kbValidation.bind(self);
         },
+
         getRouteAggregateViewConfig : function(disableId) {
             var rtAggregateConfig = {
                 elementId: cowu.formatElementId([prefixId,
@@ -107,12 +111,12 @@ define([
                         {
                             columns : [
                                 {
-                                    elementId: "name",
+                                    elementId: "display_name",
                                     view: "FormInputView",
                                     viewConfig: {
                                         disabled: disableId,
-                                        path: "name",
-                                        dataBindValue: "name",
+                                        path: "display_name",
+                                        dataBindValue: "display_name",
                                         label: "Name",
                                         class: "span6"
                                     }
@@ -175,7 +179,6 @@ define([
                 }
             };
             return rtAggregateConfig;
-
         }
     });
 

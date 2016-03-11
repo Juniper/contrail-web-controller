@@ -12,6 +12,7 @@ define([
     var self;
     var bgpListView = ContrailView.extend({
         el: $(contentContainer),
+
         render: function () {
             self = this, viewConfig = this.attributes.viewConfig;
             var listModelConfig = {
@@ -28,6 +29,7 @@ define([
             this.renderView4Config(this.$el,
                     contrailListModel, getBGPGridViewConfig());
         },
+
         parseBGPData : function(result){
             var gridDS = [];
             if(result instanceof Array) {
