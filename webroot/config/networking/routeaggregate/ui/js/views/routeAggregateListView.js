@@ -11,6 +11,7 @@ define([
     var self;
     var routeAggregateListView = ContrailView.extend({
         el: $(contentContainer),
+
         render: function () {
             self = this;
             var viewConfig = this.attributes.viewConfig;
@@ -18,22 +19,23 @@ define([
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.get(ctwc.URL_GET_ROUTE_AGGREGATE_DATA)
-                            + currentProject.value,
-                        type: "GET"
+                        url: ctwc.URL_GET_CONFIG_DETAILS,
+                        type: "POST",
+                        data: JSON.stringify({data: [{type: "route-aggregates",
+                                parent_id: currentProject.value}]})
                     },
                     dataParser: self.parseRouteAggregateData,
-
                 }
             };
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
                     contrailListModel, getRouteAggregateGridViewConfig());
         },
+
         parseRouteAggregateData : function(result){
             var gridDS = [];
             var routeAggregates = getValueByJsonPath(result,
-                "route-aggregates", []);
+                "0;route-aggregates", []);
             _.each(routeAggregates, function(routeAggregate){
                 gridDS.push(routeAggregate["route-aggregate"]);
             });
