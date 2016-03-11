@@ -98,11 +98,14 @@ function getDatabaseNodesSummary (req, res, appData)
 function parseDatabaseNodeProcessUVEs (resultJSON, databaseProcessUVEs,
                                         configData, host)
 {
+    if(resultJSON['derived-uve'] == null) {
+        resultJSON['derived-uve'] = {};
+    }
     if ((null != configData) && (configData.length > 0)) {
         var confLen = configData.length;
         for (var i = 0; i < confLen; i++) {
             if (configData[i]['database-node']['fq_name'][1] == host) {
-                resultJSON['ConfigData'] = configData[i]['database-node'];
+                resultJSON['derived-uve']['ConfigData'] = configData[i]['database-node'];
                 break;
             }
         }
@@ -125,9 +128,9 @@ function parseDatabaseNodeProcessUVEs (resultJSON, databaseProcessUVEs,
             if (null == modInstName) {
                 continue;
             }
-            resultJSON[modInstName] = {};
-            resultJSON[modInstName] =
-                commonUtils.copyObject(resultJSON[modInstName],
+            resultJSON['derived-uve'][modInstName] = {};
+            resultJSON['derived-uve'][modInstName] =
+                commonUtils.copyObject(resultJSON['derived-uve'][modInstName],
                                        dbUVEData[i]['value']);
         } catch(e) {
             continue;
@@ -145,9 +148,8 @@ function postProcessDatabaseNodeDetails (uves, host)
         configData = configData['database-nodes'];
     }
     var resultJSON = {};
-    resultJSON['databaseNode'] = {};
-    resultJSON['databaseNode'] =
-        commonUtils.copyObject(resultJSON['databaseNode'], uves[0]);
+    resultJSON =
+        commonUtils.copyObject(resultJSON, uves[0]);
     resultJSON = parseDatabaseNodeProcessUVEs(resultJSON, uves[0], configData, host)
     return resultJSON;
 }
@@ -177,9 +179,8 @@ function postProcessDatabaseNodeSummary (dbUVEData)
         resultJSON[i] = {};
         resultJSON[i]['name'] = host;
         resultJSON[i]['value'] = {};
-        resultJSON[i]['value']['databaseNode'] = {};
-        resultJSON[i]['value']['databaseNode'] =
-            commonUtils.copyObject(resultJSON[i]['value']['databaseNode'],
+        resultJSON[i]['value'] =
+            commonUtils.copyObject(resultJSON[i]['value'],
                     uveData[i]['value']);
         resultJSON[i]['value'] =
             parseDatabaseNodeProcessUVEs(resultJSON[i]['value'], uveData,

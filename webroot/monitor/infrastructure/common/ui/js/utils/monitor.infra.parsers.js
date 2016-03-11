@@ -173,8 +173,9 @@ define(
                         obj['color'] = monitorInfraUtils.getControlNodeColor(d,obj);
                         obj['isGeneratorRetrieved'] = false;
 
-
-                        obj['rawData'] = d;
+                        var rawData = $.extend({},d.value,true);
+                        delete rawData['derived-uve'];
+                        obj['rawData'] = rawData;
                         obj['cores'] = self.getCores(d);
                         retArr.push(obj);
                     });
@@ -351,7 +352,9 @@ define(
                         //Decide color based on parameters
                         obj['color'] = monitorInfraUtils.getvRouterColor(d, obj);
                         obj['cores'] = self.getCores(d);
-                        obj['rawData'] = d;
+                        var rawData = $.extend({},d.value,true);
+                        delete rawData['derived-uve'];
+                        obj['rawData'] = rawData;
                         retArr.push(obj);
                     }
                     retArr.sort(dashboardUtils.sortNodesByColor);
@@ -465,7 +468,9 @@ define(
                         }
                         obj['color'] = monitorInfraUtils.getAnalyticsNodeColor(d, obj);
                         obj['cores'] = self.getCores(d);
-                        obj['rawData'] = d;
+                        var rawData = $.extend({},d.value,true);
+                        delete rawData['derived-uve'];
+                        obj['rawData'] = rawData;
                         retArr.push(obj);
                     });
                     retArr.sort(dashboardUtils.sortNodesByColor);
@@ -491,7 +496,7 @@ define(
                         //Re-visit once average response time added for config nodes
                         obj['size'] = 0;
                         obj['version'] = ifEmpty(self.getNodeVersion(jsonPath(d,
-                            '$.value.configNode.ModuleCpuState.build_info')[0]),'-');
+                            '$.value.ModuleCpuState.build_info')[0]),'-');
                         obj['shape'] = 'circle';
                         obj['type'] = 'configNode';
                         obj['display_type'] = 'Config Node';
@@ -565,7 +570,9 @@ define(
                         }
                         obj['color'] = monitorInfraUtils.getConfigNodeColor(d,obj);
                         obj['cores'] = self.getCores(d);
-                        obj['rawData'] = d;
+                        var rawData = $.extend({},d.value,true);
+                        delete rawData['derived-uve'];
+                        obj['rawData'] = rawData;
                         retArr.push(obj);
                     });
                     retArr.sort(dashboardUtils.sortNodesByColor);
@@ -581,13 +588,13 @@ define(
                         var obj = {};
                         var dbSpaceAvailable =
                             parseFloat(jsonPath(d,
-                            '$.value.databaseNode.DatabaseUsageInfo.'+
+                            '$.value.DatabaseUsageInfo.'+
                             'database_usage[0].disk_space_available_1k')[0]);
                         var dbSpaceUsed = parseFloat(jsonPath(d,
-                            '$.value.databaseNode.DatabaseUsageInfo.'+
+                            '$.value.DatabaseUsageInfo.'+
                             'database_usage[0].disk_space_used_1k')[0]);
                         var analyticsDbSize = parseFloat(jsonPath(d,
-                            '$.value.databaseNode.DatabaseUsageInfo.'+
+                            '$.value.DatabaseUsageInfo.'+
                             'database_usage[0].analytics_db_size_1k')[0]);
 
                         obj['x'] = $.isNumeric(dbSpaceAvailable)?
@@ -596,14 +603,14 @@ define(
                             dbSpaceUsed / 1024 / 1024 : 0;
 
                         obj['isConfigMissing'] = $.isEmptyObject(getValueByJsonPath(d,
-                            'value;ConfigData')) ? true : false;
+                            'value;derived-uve;ConfigData')) ? true : false;
                         obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(d,
                             'value;databaseNode'))) ? true : false;
                         obj['version'] = ifEmpty(self.getNodeVersion(getValueByJsonPath(d,
-                                            'value;databaseNode;NodeStatus;build_info')),'-');
+                                            'value;NodeStatus;build_info')),'-');
                         var configData;
                         if(!obj['isConfigMissing']){
-                            configData = getValueByJsonPath(d,'value;ConfigData');
+                            configData = getValueByJsonPath(d,'value;derived-uve;ConfigData');
                             obj['ip'] = configData.database_node_ip_address;
                         } else {
                             obj['ip'] = noDataStr;
@@ -669,7 +676,9 @@ define(
                         }
                         obj['color'] = monitorInfraUtils.getDatabaseNodeColor(d,obj);
                         obj['cores'] = self.getCores(d);
-                        obj['rawData'] = d;
+                        var rawData = $.extend({},d.value,true);
+                        delete rawData['derived-uve'];
+                        obj['rawData'] = rawData;
                         retArr.push(obj);
                     });
                     retArr.sort(dashboardUtils.sortNodesByColor);
