@@ -22,6 +22,7 @@ define([
             'loop_count' : null,
             'family_attributes': []
         },
+
         formatModelConfig: function(modelConfig){
             //populate auth data
             if(modelConfig['auth_data'] != null) {
@@ -59,6 +60,7 @@ define([
             modelConfig["family_attrs"] = new Backbone.Collection(familyAttrArray);
             return  modelConfig;
         },
+
         addFamilyAttrs: function(root, index) {
             var familyAttrs = root.model().attributes.peers.toJSON()[index()].
                 model().attributes.family_attrs;
@@ -81,9 +83,11 @@ define([
             );
             familyAttrs.add([newFamilyAttr]);
         },
+
         deleteFamilyAttrs: function(data, kbInterface) {
             data.model().collection.remove(kbInterface.model())
         },
+
         getFamilyAttrs: function(familyAttrs) {
             var actFamilyAttrs = [];
             if(familyAttrs instanceof Array) {
@@ -98,6 +102,7 @@ define([
             }
             return actFamilyAttrs;
         },
+
         validateAttr: function (attributePath, validation, data) {
             var model = data.model().attributes.model(),
                 attr = cowu.getAttributeFromPath(attributePath),
@@ -110,6 +115,7 @@ define([
                 false : isValid;
             errors.set(attrErrorObj);
         },
+
         validations: {
             peerValidation : {
                  "peerName" : {

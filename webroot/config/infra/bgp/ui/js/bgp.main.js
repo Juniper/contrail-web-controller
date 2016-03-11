@@ -20,7 +20,8 @@ function ConfigBGPLoader() {
                 loadingStartedDefObj.resolve();
             }
         });
-    }
+    };
+
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");
         switch (renderFn) {
