@@ -17,10 +17,11 @@ define([
                 "route" : []
             }
         },
+
         formatModelConfig : function(modelConfig) {
             //prepare routes collection
-            var routesModel, routesModelCol = [];
-            var routes = getValueByJsonPath(modelConfig,
+            var routesModel, routesModelCol = [],
+                routes = getValueByJsonPath(modelConfig,
                 "aggregate_route_entries;route", []);
             _.each(routes, function(route){
                 routesModel = new RouteAggregateRoutesModel({
@@ -28,17 +29,21 @@ define([
                 });
                 routesModelCol.push(routesModel);
             });
+            modelConfig['display_name'] = ctwu.getDisplayNameOrName(modelConfig);
             modelConfig["routes"] =
                 new Backbone.Collection(routesModelCol);
             return modelConfig;
         },
+
         addRoute: function() {
             var routes = this.model().attributes["routes"];
             routes.add([new RouteAggregateRoutesModel()]);
         },
+
         deleteRoute: function(data, kbInterface) {
             data.model().collection.remove(kbInterface.model())
         },
+
         getRoutes: function(attr) {
             var routes = attr.routes.toJSON();
             var actRoutes = [];
@@ -47,52 +52,61 @@ define([
             });
             return actRoutes;
         },
+
         configRouteAggregate: function (callbackObj, ajaxMethod) {
-            var ajaxConfig = {}, returnFlag = false;
-            var postRouteAggregateData = {};
-            var newRouteAggregateData, attr;
-            var self  = this;
-            var validations = [
-                {
-                    key : null,
-                    type : cowc.OBJECT_TYPE_MODEL,
-                    getValidation : "configureValidation"
-                }
-            ];
+            var ajaxConfig = {}, returnFlag = false,
+                postRouteAggregateData = {},
+                newRouteAggregateData, attr,
+                self  = this,
+                domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                project = contrail.getCookie(cowc.COOKIE_PROJECT),
+                validations = [
+                    {
+                        key : null,
+                        type : cowc.OBJECT_TYPE_MODEL,
+                        getValidation : "configureValidation"
+                    }
+                ];
 
             if (this.isDeepValid(validations)) {
                 attr = this.model().attributes;
                 newRouteAggregateData = $.extend(true, {}, attr);
 
-                newRouteAggregateData["display_name"] =
-                    newRouteAggregateData["name"];
-                newRouteAggregateData["fq_name"] =
-                    [
-                        getCookie("domain"),
-                        getCookie("project"),
-                        newRouteAggregateData["name"]
-                    ];
+                ctwu.setNameFromDisplayName(newRouteAggregateData);
 
+                if(newRouteAggregateData["fq_name"] === [] ||
+                    newRouteAggregateData["fq_name"] === null) {
+                    newRouteAggregateData["fq_name"] =
+                        [
+                            domain,
+                            project,
+                            newRouteAggregateData["name"]
+                        ];
+                }
                 //aggregate route entries
                 newRouteAggregateData["aggregate_route_entries"]["route"] =
                     self.getRoutes(attr);
 
-                delete newRouteAggregateData.errors;
-                delete newRouteAggregateData.locks;
-                delete newRouteAggregateData.cgrid;
+                ctwu.deleteCGridData(newRouteAggregateData);
+
                 delete newRouteAggregateData.id_perms;
-                delete newRouteAggregateData.elementConfigMap;
                 delete newRouteAggregateData.routes;
 
                 postRouteAggregateData['route-aggregate'] = newRouteAggregateData;
 
-                ajaxConfig.type  = ajaxMethod;
-                ajaxConfig.data  = JSON.stringify(postRouteAggregateData);
-                ajaxConfig.url   = ajaxMethod == 'PUT' ?
-                                   ctwc.URL_UPDATE_ROUTE_AGGREGATE +
-                                   newRouteAggregateData['uuid'] :
-                                   ctwc.URL_CREATE_ROUTE_AGGREGATE;
+                if(ajaxMethod === "POST") {
+                    postRouteAggregateData = {"data":[{"data":{"route-aggregate": newRouteAggregateData},
+                                "reqUrl": ctwc.URL_CREATE_ROUTE_AGGREGATE}]};
+                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
+                } else {
+                    postRouteAggregateData = {"data":[{"data":{"route-aggregate": newRouteAggregateData},
+                                "reqUrl": ctwc.URL_UPDATE_ROUTE_AGGREGATE +
+                                newRouteAggregateData['uuid']}]};
+                    ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
+                }
 
+                ajaxConfig.type  = "POST";
+                ajaxConfig.data  = JSON.stringify(postRouteAggregateData);
 
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
@@ -117,6 +131,7 @@ define([
 
             return returnFlag;
         },
+
         deleteRouteAggregates : function(checkedRows, callbackObj) {
             var ajaxConfig = {}, that = this;
             var uuidList = [];
@@ -144,9 +159,10 @@ define([
                 }
             });
         },
+
         validations: {
             configureValidation: {
-                'name': {
+                'display_name': {
                     required: true,
                     msg: 'Enter Route Aggregate Name'
                 }

@@ -7,17 +7,6 @@ define(['underscore'], function(_){
         var self = this;
 
         /*
-         * @displayNameFormatter
-         */
-        self.displayNameFormatter = function(r, c, v, cd, dc) {
-            var displayName = getValueByJsonPath(dc, "display_name", "");
-            if(!displayName){
-                displayName = getValueByJsonPath(dc, "name", "-");
-            }
-            return displayName;
-        };
-
-        /*
          * @routerTypeFormatter
          */
         self.routerTypeFormatter = function(r, c, v, cd, dc) {

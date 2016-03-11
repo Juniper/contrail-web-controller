@@ -51,6 +51,7 @@ define([
             }});
             self.getASN(options);
         },
+
         configEditBGPRouter : function(options) {
             self.model.configBGPRouter({
                 init: function () {
@@ -69,6 +70,7 @@ define([
                 }
             }, options.mode === ctwl.CREATE_ACTION ? 'POST' : 'PUT');
         },
+
         getASN : function(options){
             var ajaxConfig = {
                 url : ctwc.get(ctwc.URL_GET_ASN),
@@ -76,25 +78,14 @@ define([
             };
             contrail.ajaxHandler(ajaxConfig, null,
                 function(result) {
-                    if(result != null &&
-                        result['global-system-config'] != null) {
-                        var ggasn = result['global-system-config'];
-                        window.bgp = window.bgp || {};
-                        window.bgp.globalASN = ggasn['autonomous_system'];
-                        if(options.mode === ctwl.CREATE_ACTION) {
-                            self.model.user_created_autonomous_system(
-                                ggasn['autonomous_system']);
-                        }
-                        self.model.isAutoMeshEnabled(
-                            ggasn['ibgp_auto_mesh'] == null ? true :
-                            ggasn['ibgp_auto_mesh']);
-                    }
+                    self.model.setGlobalASNAttributes(options.mode, result);
                     self.bgpRenderView4Config(options);
                 },
                 function(error) {
                 }
             );
         },
+
         bgpRenderView4Config : function(options) {
             var disableFlag =
                 (options.mode === ctwl.CREATE_ACTION) ?  false : true;
@@ -119,6 +110,7 @@ define([
                 }
             );
         },
+
         renderDeleteBGPRouters: function(options) {
             var delTemplate =
                 //Fix the template to be common delete template
@@ -157,6 +149,7 @@ define([
             Knockback.applyBindings(self.model, document.getElementById(modalId));
             kbValidation.bind(self);
         },
+
         getBGPViewConfig : function(disableId) {
             var prefixId = ctwl.CFG_VROUTER_PREFIX_ID;
             var bgpViewConfig = {
@@ -209,12 +202,12 @@ define([
                         {
                             columns : [
                                 {
-                                    elementId: 'name',
+                                    elementId: 'display_name',
                                     view: 'FormInputView',
                                     viewConfig: {
                                         disabled: disableId,
-                                        path: 'name',
-                                        dataBindValue: 'name',
+                                        path: 'display_name',
+                                        dataBindValue: 'display_name',
                                         label : 'Host Name',
                                         class: 'span6'
                                     }

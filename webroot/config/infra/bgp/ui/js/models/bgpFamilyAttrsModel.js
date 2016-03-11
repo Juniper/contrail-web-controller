@@ -11,9 +11,7 @@
              "familyAttrDataSource": [],
              "disableFamilyAttr": false
          },
-         formatModelConfig: function(modelConfig){
-             return modelConfig
-         },
+
          validateAttr: function (attributePath, validation, data) {
              var model = data.model().attributes.model(),
                  attr = cowu.getAttributeFromPath(attributePath),
@@ -26,6 +24,7 @@
                  false : isValid;
              errors.set(attrErrorObj);
          },
+
          validations: {
              familyAttrValidation : {
                  "address_family" : {

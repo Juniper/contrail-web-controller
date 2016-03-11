@@ -222,59 +222,7 @@ define([
     function subscribeModelChangeEvents(bgpModel) {
         bgpModel.__kb.view_model.model().on('change:user_created_router_type',
             function(model, newValue){
-                bgpModel.bgp_router_parameters().router_type = newValue;
-                bgpModel.model().attributes['peers'].reset();
-                if(newValue === ctwl.CONTROL_NODE_TYPE) {
-                    bgpModel.user_created_vendor('contrail');
-                    bgpModel.user_created_physical_router('none');
-                    bgpModel.addressFamilyData(ctwc.CN_ADDRESS_FAMILY_DATA);
-                    bgpModel.user_created_address_family(
-                        'route-target,inet-vpn,inet6-vpn,e-vpn,erm-vpn');
-                    /*var peers = bgpModel.model().attributes['peers'].toJSON();
-                    (peers.forEach(function(peer){
-                        var bgpRouterASN =
-                            bgpModel.user_created_autonomous_system();
-                        if(peer.peerASN().toString() ===
-                            bgpRouterASN.toString()) {
-                            peer.isPeerSelected(true);
-                        }
-                    });*/
-                    //set global asn as asn for control node type
-                    if(window.bgp != null & window.bgp.globalASN != null) {
-                        bgpModel.user_created_autonomous_system(
-                            window.bgp.globalASN);
-                    }
-
-                } else if(newValue === ctwl.EXTERNAL_CONTROL_NODE_TYPE) {
-                    bgpModel.user_created_vendor('');
-                    bgpModel.user_created_physical_router('none');
-                    bgpModel.addressFamilyData(ctwc.CN_ADDRESS_FAMILY_DATA);
-                    bgpModel.user_created_address_family(
-                        'route-target,inet-vpn,inet6-vpn,e-vpn,erm-vpn');
-                } else if(newValue === ctwl.BGP_ROUTER_TYPE) {
-                    bgpModel.user_created_vendor('');
-                    bgpModel.addressFamilyData(ctwc.BGP_ADDRESS_FAMILY_DATA);
-                    bgpModel.user_created_address_family(
-                        'inet-vpn,route-target,inet6-vpn,e-vpn');
-                    /*var peers = bgpModel.model().attributes['peers'].toJSON();
-                    peers.forEach(function(peer){
-                        peer.isPeerSelected(false);
-                    });*/
-                }
-            }
-        );
-        bgpModel.__kb.view_model.model().on('change:name',
-            function(model, newValue){
-                bgpModel.display_name(newValue);
-                bgpModel.fq_name(
-                    [
-                         'default-domain',
-                         'default-project',
-                         'ip-fabric',
-                         '__default__',
-                         newValue
-                    ]
-               );
+                bgpModel.onRouterTypeSelectionChanged(newValue);
             }
         );
         bgpModel.__kb.view_model.model().on('change:user_created_address',
@@ -360,14 +308,16 @@ define([
                                                 'BlockListTemplateGenerator',
                                             templateGeneratorConfig : [
                                                 {
-                                                    key : 'display_name',
+                                                    key : 'name',
                                                     label : 'Name',
                                                     templateGenerator :
                                                         'TextGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter :
-                                                            "DisplayNameFormatter"
-                                                    }
+                                                },
+                                                {
+                                                    key : 'display_name',
+                                                    label : 'Display Name',
+                                                    templateGenerator :
+                                                        'TextGenerator',
                                                 },
                                                 {
                                                     key : 'uuid',
@@ -501,9 +451,6 @@ define([
         };
     };
 
-    this.DisplayNameFormatter = function(v, dc) {
-        return bgpFormatters.displayNameFormatter("", "", v, "", dc);
-    };
     this.PeersFormatter = function(v, dc) {
         return bgpFormatters.peersFormatter("", "", v, "", dc);
     }
