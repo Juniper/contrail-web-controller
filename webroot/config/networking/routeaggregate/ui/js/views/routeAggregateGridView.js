@@ -108,7 +108,7 @@ define([
                     formatter: routeAggregateFormatter.nextHopFormatter
                 },                {
                     field: "aggregate-route-entries.route",
-                    name: "Route Aggregate Prefixes",
+                    name: "Routes",
                     sortable: true,
                     formatter: routeAggregateFormatter.routesFormatter
                 }]
@@ -233,6 +233,10 @@ define([
                                     templateGenerator: 'TextGenerator',
                                     label: 'Name'
                                 },{
+                                    key: 'display_name',
+                                    templateGenerator: 'TextGenerator',
+                                    label: 'Display Name'
+                                },{
                                     key: "uuid",
                                     templateGenerator: "TextGenerator",
                                     label: "UUID"
@@ -246,7 +250,7 @@ define([
                                 },{
                                     key: "aggregate_route_entries.route",
                                     templateGenerator: "TextGenerator",
-                                    label: "Route Aggregate Prefixes",
+                                    label: "Routes",
                                     templateGeneratorConfig: {
                                         formatter: "RoutesFormatter"
                                     }
