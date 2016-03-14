@@ -987,19 +987,29 @@ define(
                                     }
                                 }
                             }
-                            if(new RegExp(/vport|logical-port|remote-physical-port/).test(obj['type'])) {
+                            // if(new RegExp(/vport|logical-port|remote-physical-port/).test(obj['type'])) {
                                 if(obj.fip_list != null) {
                                     var fipList = [];
                                     fipList = ifNull(jsonPath(obj,"$..FloatingIpSandeshList")[0],[]);
                                     obj['disp_fip_list'] = self.floatingIPCellTemplate(fipList);
                                 }
-                                retArray.push({uuid:obj['uuid'],name:obj['name'],label:obj['label'],active:obj['active'],
+                                retArray.push({
+                                    uuid: obj['uuid'],
+                                    name: obj['name'],
+                                    label: obj['label'],
+                                    active: obj['active'],
                                     dispName: obj['dispName'],
-                                    type:obj['type'],
-                                    vn_name:obj['vn_name'],disp_vn_name:dispVNName,vm_uuid:obj['vm_uuid'],
-                                    vm_name:obj['vm_name'],disp_vm_name:dispVMName,ip_addr:obj['ip_addr'],
-                                    disp_fip_list:obj['disp_fip_list'],raw_json:rawJson});
-                            }
+                                    type: obj['type'],
+                                    vn_name: obj['vn_name'],
+                                    disp_vn_name: dispVNName,
+                                    vm_uuid: obj['vm_uuid'],
+                                    vm_name: obj['vm_name'],
+                                    disp_vm_name: dispVMName,
+                                    ip_addr: obj['ip_addr'],
+                                    disp_fip_list: obj['disp_fip_list'],
+                                    raw_json: rawJson
+                                });
+                            // }
                         });
                     }
                     return {
