@@ -773,6 +773,15 @@ define([
         this.GLOBAL_CONFIG_PREFIX_ID = 'global_config';
         this.TITLE_EDIT_GLOBAL_CONFIG = 'Edit Global Config';
         this.TITLE_GLOBAL_CONFIG = 'Global Config';
+        this.TITLE_EDIT_GLOBAL_BGP_OPTIONS = "Edit BGP Config";
+        this.TITLE_BGP_OPTIONS = "BGP Options";
+        this.TITLE_EDIT_BGP_OPTIONS = "Edit BGP Options";
+
+        this.TITLE_FORWARDING_OPTIONS = "Forwarding Options";
+        this.TITLE_EDIT_FORWARDING_OPTIONS = "Edit Forwarding Options";
+
+        this.TITLE_FLOW_AGING = "Flow Aging";
+        this.TITLE_EDIT_FLOW_AGING = "Edit Flow Aging ";
 
         /* Security Group */
         this.CONFIG_SEC_GRP_PAGE_ID = 'config-sec—grppage';
