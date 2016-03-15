@@ -10,7 +10,7 @@ function GlobalConfigPageLoader ()
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathGlobalConfigView = rootDir + '/js/views/GlobalConfigView.js',
+            pathGlobalConfigView = rootDir + '/js/views/globalConfigView.js',
             renderFn = paramObject['function'];
 
 //        $(contentContainer).empty();
