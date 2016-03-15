@@ -112,6 +112,7 @@ define(
                     {
                         field:"vRouterType",
                         name:"Type",
+                        hide:true,
                         formatter: function(r,c,v,cd,dc) {
                             return monitorInfraUtils.getDisplayNameForVRouterType(dc);
                         },
@@ -174,6 +175,7 @@ define(
                         },
                         defaultControls: {
                            refreshable: false,
+                           columnPickable:true
                         },
                     },
                     columnHeader : {
