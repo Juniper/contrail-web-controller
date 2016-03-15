@@ -1,0 +1,195 @@
+/*
+ * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
+ */
+
+define([
+    'underscore',
+    'contrail-view',
+    'knockback'
+], function (_, ContrailView, Knockback) {
+    var gridElId = '#' + ctwc.GLOBAL_FORWARDING_OPTIONS_GRID_ID;
+        prefixId = ctwc.GLOBAL_FORWARDING_OPTIONS_PREFIX_ID,
+        modalId = 'configure-' + prefixId,
+        formId = '#' + modalId + '-form';
+
+    var forwardingOptionsEditView = ContrailView.extend({
+        renderEditForwardingOptions: function(options) {
+            var editTemplate =
+                contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT),
+                editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
+                self = this;
+            cowu.createModal({'modalId': modalId, 'className': 'modal-400',
+                             'title': options['title'], 'body': editLayout,
+                             'onSave': function () {
+                self.model.configureForwardingOptions({
+                    init: function () {
+                        cowu.enableModalLoading(modalId);
+                    },
+                    success: function () {
+                        options['callback']();
+                        $("#" + modalId).modal('hide');
+                    },
+                    error: function (error) {
+                        cowu.disableModalLoading(modalId, function () {
+                            self.model.showErrorAttr(prefixId +
+                                                     cowc.FORM_SUFFIX_ID,
+                                                     error.responseText);
+                        });
+                    }
+                });
+                // TODO: Release binding on successful configure
+            }, 'onCancel': function () {
+                Knockback.release(self.model, document.getElementById(modalId));
+                kbValidation.unbind(self);
+                $("#" + modalId).modal('hide');
+            }});
+
+            self.renderView4Config($("#" + modalId).find(formId),
+                                   this.model,
+                                   fwdOptionsViewConfig(),
+                                   "forwardingOptionsValidations",
+                                   null, null, function() {
+                self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
+                Knockback.applyBindings(self.model,
+                                        document.getElementById(modalId));
+                kbValidation.bind(self);
+            });
+        }
+    });
+
+    var fwdOptionsViewConfig = function () {
+        return {
+            elementId: cowu.formatElementId([prefixId, ctwl.TITLE_EDIT_FORWARDING_OPTIONS]),
+            title: ctwl.TITLE_EDIT_FORWARDING_OPTIONS,
+            view: 'SectionView',
+            active:false,
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: 'forwarding_mode',
+                                view: 'FormDropdownView',
+                                viewConfig: {
+                                    label: 'Forwarding Mode',
+                                    path: 'forwarding_mode',
+                                    dataBindValue:
+                                        'forwarding_mode',
+                                    class: 'span12',
+                                    elementConfig: {
+                                        dataTextField : "text",
+                                        dataValueField : "id",
+                                        data : [{id: 'Default', text: 'Default'},
+                                            {id: 'l2_l3', text: 'L2 and L3'},
+                                            {id: 'l2', text: 'L2 Only'},
+                                            {id: 'l3', text: 'L3 Only'}]
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'vxlan_network_identifier_mode',
+                                view: 'FormRadioButtonView',
+                                viewConfig: {
+                                    label: 'VxLAN Identifier Mode',
+                                    path: 'vxlan_network_identifier_mode',
+                                    dataBindValue:
+                                        'vxlan_network_identifier_mode',
+                                    class: 'span12',
+                                    elementConfig: {
+                                        dataObj: [
+                                            {'label': 'Auto Configured',
+                                             'value': 'automatic'},
+                                            {'label': 'User Configured',
+                                             'value': 'configured'}
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'encapPriorityOrders',
+                                view: 'FormEditableGridView',
+                                viewConfig: {
+                                    path: 'encapPriorityOrders',
+                                    collection: 'encapPriorityOrders',
+                                    validation: 'encapPriorityOrdersValidation',
+                                    class: "span12",
+                                    columns: [{
+                                        elementId: 'encapsulation_priorities',
+                                        name: 'Encapsulation Priority Order',
+                                        view: 'FormDropdownView',
+                                        viewConfig: {
+                                            templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                            width: 250,
+                                            path:
+                                            'encapsulation_priorities',
+                                            dataBindValue:
+                                                'encapsulation_priorities()',
+                                            elementConfig: {
+                                                dataTextField: 'text',
+                                                dataValueField: 'id',
+                                                data: [{id: 'MPLSoUDP',
+                                                        text: 'MPLS Over UDP'},
+                                                      {id: 'MPLSoGRE',
+                                                       text: 'MPLS Over GRE'},
+                                                      {id: 'VXLAN',
+                                                       text: 'VxLAN'}]
+                                            }
+                                        }
+                                    }],
+                                    rowActions: [
+                                        { onClick: "function() { $root.addEncapPriOrders($data, this); }",
+                                          iconClass: 'icon-plus'},
+                                        { onClick: "function() {$root.deleteEncapPriOrders($data, this); }",
+                                          iconClass: 'icon-minus'}
+                                    ],
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'ecmpHashingIncFields',
+                                view: 'FormMultiselectView',
+                                viewConfig: {
+                                    label: 'ECMP Hashing Fields',
+                                    path: 'ecmp_hashing_include_fields',
+                                    class: 'span12',
+                                    dataBindValue:
+                                            'ecmp_hashing_include_fields',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "id",
+                                            data: [
+                                                {text: 'source-ip',
+                                                 id: 'source_ip'},
+                                                {text: 'destination-ip',
+                                                 id: 'destination_ip'},
+                                                {text: 'ip-protocol',
+                                                 id: 'ip_protocol'},
+                                                {text: 'source-port',
+                                                 id: 'source_port'},
+                                                {text: 'destination-port',
+                                                 id: 'destination_port'}
+                                            ]
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    };
+
+    return forwardingOptionsEditView;
+});
+
