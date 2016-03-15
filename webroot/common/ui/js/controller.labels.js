@@ -767,12 +767,15 @@ define([
 
         /* Global Config */
         this.CONFIG_GLOBAL_CONFIG_PAGE_ID = 'config-global-config-page';
-        this.CONFIG_GLOBAL_CONFIG_SECTION_ID = 'config-global-config-section';
-        this.CONFIG_GLOBAL_CONFIG_ID = 'config-global-config';
-        this.GLOBAL_CONFIG_GRID_ID = 'global-config-grid';
-        this.GLOBAL_CONFIG_PREFIX_ID = 'global_config';
-        this.TITLE_EDIT_GLOBAL_CONFIG = 'Edit Global Config';
-        this.TITLE_GLOBAL_CONFIG = 'Global Config';
+        this.TITLE_EDIT_GLOBAL_BGP_OPTIONS = "Edit BGP Config";
+        this.TITLE_BGP_OPTIONS = "BGP Options";
+        this.TITLE_EDIT_BGP_OPTIONS = "Edit BGP Options";
+
+        this.TITLE_FORWARDING_OPTIONS = "Forwarding Options";
+        this.TITLE_EDIT_FORWARDING_OPTIONS = "Edit Forwarding Options";
+
+        this.TITLE_FLOW_AGING = "Flow Aging";
+        this.TITLE_EDIT_FLOW_AGING = "Edit Flow Aging ";
 
         /* Security Group */
         this.CONFIG_SEC_GRP_PAGE_ID = 'config-sec—grppage';
