@@ -10,7 +10,7 @@ define([
 
         defaultConfig: {
             "encapsulation_priorities" : {
-                'encapsulation': ['MPLS Over UDP', 'MPLS Over GRE', 'VxLAN']
+                'encapsulation': ['MPLSoUDP', 'MPLSoGRE', 'VXLAN']
             }
         },
 
