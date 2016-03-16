@@ -283,8 +283,8 @@ define([
                     subnetString += "<tr style='vertical-align:top'><td>";
                     subnetString += cidr + "</td><td>";
                     subnetString += gw + "</td><td>";
-                    subnetString += dhcp + "</td><td>";
                     subnetString += dns + "</td><td>";
+                    subnetString += dhcp + "</td><td>";
                     subnetString += allocPoolStr+ "</td>";
                     subnetString += "</tr>";
                 }
