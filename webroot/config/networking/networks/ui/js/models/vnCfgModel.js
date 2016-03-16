@@ -446,9 +446,18 @@ define([
             attr['route_table_refs'] = routeList;
         },
 
+        setDHCPOptionList: function(subnet, dhcpOption) {
+            if (typeof subnet.dhcp_option_list == "function") {
+                subnet.dhcp_option_list().dhcp_option = dhcpOption;
+            } else {
+                subnet['dhcp_option_list'] = {};
+                subnet['dhcp_option_list']['dhcp_option'] = dhcpOption;
+            }
+        },
+
         getSubnetList: function(attr) {
             var subnetCollection = attr.network_ipam_refs.toJSON(),
-                subnetArray = [], ipamAssocArr = {};
+                subnetArray = [], ipamAssocArr = {}, dhcpOption;
             var dnsServers = this.getSubnetDNS(attr);
             var hostRoutes = this.getHostRouteList(attr);
             var disabledDNS = [{'dhcp_option_name': '6', 'dhcp_option_value' : '0.0.0.0'}];
@@ -456,19 +465,11 @@ define([
                 var subnet = $.extend(true, {}, subnetCollection[i].model().attributes);
 
                 if (dnsServers.length && subnet.user_created_enable_dns) {
-                    if (typeof subnet.dhcp_option_list == "function") {
-                        subnet.dhcp_option_list().dhcp_option = dnsServers;
-                    } else {
-                        subnet['dhcp_option_list'] = {};
-                        subnet['dhcp_option_list']['dhcp_option'] = dnsServers;
-                    }
+                    this.setDHCPOptionList(subnet, dnsServers);
+                } else if(!dnsServers.length && subnet.user_created_enable_dns){
+                    this.setDHCPOptionList(subnet, []);
                 } else if (!(subnet.user_created_enable_dns)) {
-                    if (typeof subnet.dhcp_option_list == "function") {
-                        subnet.dhcp_option_list().dhcp_option = disabledDNS;
-                    } else {
-                        subnet['dhcp_option_list'] = {};
-                        subnet['dhcp_option_list']['dhcp_option'] = disabledDNS;
-                    }
+                    this.setDHCPOptionList(subnet, disabledDNS);
                 }
                 if (hostRoutes.length) {
                     if (typeof subnet.host_routes == "function") {
@@ -510,7 +511,9 @@ define([
                 if (hostRoutes.length == 0) {
                     delete subnet['host_routes'];
                 }
-                if(dnsServers.length == 0) {
+                dhcpOption = getValueByJsonPath(subnet,
+                    "dhcp_option_list;dhcp_option", []);
+                if(dhcpOption.length === 0) {
                     delete subnet['dhcp_option_list'];
                 }
 
@@ -967,6 +970,5 @@ define([
         },
 
     });
- 
     return vnCfgModel;
 });
