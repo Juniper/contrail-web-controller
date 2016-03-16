@@ -448,7 +448,7 @@ define([
 
         getSubnetList: function(attr) {
             var subnetCollection = attr.network_ipam_refs.toJSON(),
-                subnetArray = [], ipamAssocArr = {};
+                subnetArray = [], ipamAssocArr = {}, dhcpOption;
             var dnsServers = this.getSubnetDNS(attr);
             var hostRoutes = this.getHostRouteList(attr);
             var disabledDNS = [{'dhcp_option_name': '6', 'dhcp_option_value' : '0.0.0.0'}];
@@ -510,7 +510,9 @@ define([
                 if (hostRoutes.length == 0) {
                     delete subnet['host_routes'];
                 }
-                if(dnsServers.length == 0) {
+                dhcpOption = getValueByJsonPath(subnet,
+                    "dhcp_option_list;dhcp_option", []);
+                if(dhcpOption.length === 0) {
                     delete subnet['dhcp_option_list'];
                 }
 
