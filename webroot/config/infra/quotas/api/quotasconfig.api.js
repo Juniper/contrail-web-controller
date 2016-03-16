@@ -69,7 +69,7 @@ function getDefaultProjectQuotas (projectData, appData, callback)
     var projFqn =
         commonUtils.getValueByJsonPath(projectData,
                                         'project;fq_name', null);
-    var defProjectFqn = ['default-domain', 'default-domain'];
+    var defProjectFqn = ['default-domain', 'default-project'];
     if (null != projFqn) {
         defProjectFqn = projFqn;
         defProjectFqn[1] = 'default-project';
@@ -98,7 +98,7 @@ function getDefaultProjectQuotas (projectData, appData, callback)
             if (null != quotas) {
                 getProjectQuotasCb(null, data, appData, callback);
             } else {
-                getDefaultQuotas(projUUID, appData, data, callback);
+                getDefaultQuotas(appData, data, callback);
             }
         });
     });
@@ -139,7 +139,7 @@ function readProjectQuotas (userData, callback)
 /**
  * @getDefaultQuotas
  * private function
- * 1. Needs project uuid in string format
+ * 1. Get default quotas
  */
 function getDefaultQuotas (appData, data, callback) {
     data["project"]["quota"] = { defaults: -1 };
