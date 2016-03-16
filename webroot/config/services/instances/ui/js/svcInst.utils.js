@@ -23,7 +23,7 @@ define([
             }
             return vnFqn[2] + " (" + vnFqn[0] + ":" + vnFqn[1] + ")";
         },
-        this.virtNwListFormatter = function(response) {
+        this.virtNwListFormatter = function(response, isShared) {
             var vnListResp =
                 getValueByJsonPath(response, 'virtual-networks', []);
             if (!vnListResp.length) {
@@ -32,6 +32,16 @@ define([
             var vnList = [];
             var vnCnt = vnListResp.length;
             for (var i = 0; i < vnCnt; i++) {
+                if (true == isShared) {
+                    var domain = getValueByJsonPath(vnListResp[i],
+                                                    'fq_name;0', null);
+                    var project = getValueByJsonPath(vnListResp[i], 'fq_name;1',
+                                                     null);
+                    if ((domain == contrail.getCookie('domain')) &&
+                        (project == contrail.getCookie('project'))) {
+                        continue;
+                    }
+                }
                 var vnText = this.getVNNameFormatter(vnListResp[i]['fq_name']);
                 vnList.push({'text': vnText, id:
                             vnListResp[i]['fq_name'].join(':')});
