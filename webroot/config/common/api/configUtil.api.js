@@ -241,6 +241,15 @@ function getConfigDetailsAsync (dataObj, callback)
         url += 'obj_uuids=' + dataObj['obj_uuids'].join(',');
         startDone = true;
     }
+    if (null != dataObj['filters']) {
+        if (true == startDone) {
+            url += '&';
+        } else {
+            url += '?';
+        }
+        url += 'filters=' + dataObj['filters'];
+        startDone = true;
+    }
     if (null != dataObj['fq_name']) {
         var postData = {
             'appData': appData,
@@ -315,6 +324,9 @@ function getConfigAsync (postData, detail, appData, callback)
         }
         if (null != postData[i]['fq_name']) {
             dataObjArr[i]['fq_name'] = postData[i]['fq_name'];
+        }
+        if (null != postData[i]['filters']) {
+            dataObjArr[i]['filters'] = postData[i]['filters'];
         }
     }
     async.map(dataObjArr, getConfigDetailsAsync, function(err, results) {
