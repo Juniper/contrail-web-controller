@@ -838,6 +838,7 @@ define([
         },
         this.getRtPolicyAccordianView = function (isDisabled) {
             return {
+                visible: 'ifNotTransparentTmpl',
                 elementId: 'rtPolicySection',
                 title: 'Routing Policy',
                 active:false,
@@ -1001,6 +1002,7 @@ define([
         },
         this.getRtAggregateAccordianView = function (isDisabled) {
             return {
+                visible: 'ifNotTransparentTmpl',
                 elementId: 'rtAggregateSection',
                 title: 'Route Aggregate',
                 view: 'SectionView',

@@ -1008,6 +1008,17 @@ define([
             }
             return svcScaling;
         }), model);
+        model.ifNotTransparentTmpl = ko.computed((function() {
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcMode =
+                getValueByJsonPath(svcTmpl,
+                                   'service_template_properties;service_mode',
+                                   null);
+            if ('transparent' == svcMode) {
+                return false;
+            }
+            return true;
+        }), model);
         model.showPortTuplesView = ko.computed((function() {
             var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
             var tmplVer =
