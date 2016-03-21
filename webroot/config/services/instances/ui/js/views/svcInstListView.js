@@ -223,70 +223,6 @@ define([
         },
         {
             getAjaxConfig: function(response) {
-                var postData = {'data': [{
-                        'type': 'service-health-checks',
-                    },
-                    {
-                        'type': 'interface-route-tables',
-                    },
-                    {
-                        'type': 'routing-policys',
-                    },
-                    {
-                        'type': 'route-aggregates',
-                    },
-                    {
-                        'type': 'virtual-networks',
-                        'parent_fq_name_str': contrail.getCookie('domain') +
-                            ':' + contrail.getCookie('project'),
-                        'parent_type': 'project'
-                    }]
-                };
-                var lazyAjaxConfig = {
-                    url:
-                        '/api/tenants/config/get-config-list',
-                    type: 'POST',
-                    data: JSON.stringify(postData)
-                };
-                return lazyAjaxConfig;
-            },
-            successCallback: function(response, contrailListModel) {
-                window.healthCheckServiceList = [];
-                window.interfaceRouteTableList = [];
-                window.routingPolicyList = [];
-                window.routeAggregateList = [];
-                window.allVNList = [];
-                if (null == response) {
-                    return;
-                }
-                window.healthCheckServiceList =
-                    buildTextValueByConfigList(response[0],
-                                               'service-health-checks');
-                window.interfaceRouteTableList =
-                    buildTextValueByConfigList(response[1],
-                                               'interface-route-tables');
-                window.routingPolicyList =
-                    buildTextValueByConfigList(response[2],
-                                               'routing-policys');
-                window.routeAggregateList =
-                    buildTextValueByConfigList(response[3],
-                                               'route-aggregates');
-                window.allVNList = svcInstUtils.virtNwListFormatter(response[4]);
-                if (window.allVNList.length > 0) {
-                    window.allVNList.unshift({'text':"Auto Configured",
-                                             'id':"autoConfigured"});
-                }
-            },
-            failureCallback: function(error, contrailListModel) {
-                window.healthCheckServiceList = [];
-                window.interfaceRouteTableList = [];
-                window.routingPolicyList = [];
-                window.routeAggregateList = [];
-                window.allVNList = [];
-            }
-        },
-        {
-            getAjaxConfig: function(response) {
                 var lazyAjaxConfig = {
                     url:
                     '/api/tenants/config/service-template-images',
@@ -327,23 +263,6 @@ define([
                         }
                     }
                 }
-            }
-        },
-        {
-            getAjaxConfig: function(response) {
-                var lazyAjaxConfig = {
-                    url:
-                        '/api/tenants/config/get-virtual-machine-details?' +
-                        'proj_fqn=' + contrail.getCookie('domain') + ':' +
-                            contrail.getCookie('project'),
-                    type: 'GET'
-                };
-                return lazyAjaxConfig;
-            },
-            successCallback: function(response, contrailListModel) {
-                var vnObjs = svcInstUtils.vmiListFormatter(response);
-                window.vnList = vnObjs.vnList;
-                window.vnVmiMaps = vnObjs.vnVmiMaps;
             }
         },
         {
@@ -439,44 +358,6 @@ define([
         return vlRemoteGLConfig;
     }
     });
-
-    function buildTextValueByConfigList (configListObj, type) {
-        if ((null == configListObj[type]) || (!configListObj[type].length)) {
-            return [];
-        }
-        var domain = contrail.getCookie('domain');
-        var project = contrail.getCookie('project');
-        var results = [];
-
-        var configList = configListObj[type];
-        var cnt = configList.length;
-        for (var i = 0; i < cnt; i++) {
-            var fqn = JSON.parse(JSON.stringify(configList[i]['fq_name']));
-            var domProj = fqn.splice(0, 2);
-            if ((domain == domProj[0]) && (project == domProj[1])) {
-                var text = fqn.join(':');
-                if ('virtual-machine-interfaces' == type) {
-                    text = configList[i]['uuid'];
-                }
-                results.push({text: text, value:
-                             configList[i]['fq_name'].join(':') +
-                             "~~" + configList[i]['uuid']});
-            } else {
-                var tmpFqn =
-                    JSON.parse(JSON.stringify(configList[i]['fq_name']));
-                var domProj = tmpFqn.splice(0, 2);
-                var text = fqn[fqn.length - 1];
-                if ('virtual-machine-interfaces' == type) {
-                    text = configList[i]['uuid'];
-                }
-                results.push({text: text +" (" + domProj.join(':')
-                             + ")",
-                              value: configList[i]['fq_name'].join(':') +
-                              "~~" + configList[i]['uuid']});
-            }
-        }
-        return results;
-    }
 
     var svcInstDataParser = function (response) {
         var retArr = [];

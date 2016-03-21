@@ -46,6 +46,15 @@ define([
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
+            this.fetchData(self, options.setVNList, function(vmiDetails) {
+                self.model.updateVMIToPortTuple(self.model.model().attributes.port_tuples,
+                                                vmiDetails);
+                self.model.formatModelConfig(self.model.model().attributes,
+                                             true);
+                self.renderSIView(self, options);
+            })
+        },
+        renderSIView: function (self, options) {
             self.renderView4Config($("#" + modalId).find(formId),
                                self.model,
                                getEditSvcInstViewConfig(self,
@@ -79,16 +88,130 @@ define([
                                   self.model.model().attributes.rtAggregates});
                 kbValidation.bind(self,
                                   {collection:
+                                  self.model.model().attributes.staticRoutes});
+                kbValidation.bind(self,
+                                  {collection:
                                   self.model.model().attributes.allowedAddressPairCollection});
-                var interfaces = self.model.model().attributes.interfaces;
-                kbValidation.bind(self, {collection: interfaces});
-                var intfCnt = interfaces.length;
-                var interfaceModels = interfaces.toJSON();
-                for (var i = 0; i < intfCnt; i++) {
-                    kbValidation.bind(self,
-                                      {collection:
-                                      interfaceModels[i].model().attributes.staticRoutes});
+                kbValidation.bind(self, {collection:
+                                  self.model.model().attributes.interfaces});
+            });
+        },
+        fetchData: function(self, setVNList, callback) {
+            var ajaxConfigs = [];
+            var multArrFlag = false;
+            ajaxConfigs[0] =
+                $.ajax({
+                    url: ctwc.get('/api/tenants/config/get-config-list'),
+                    type: "POST",
+                    timeout: 60000,
+                    data: {'data': [{
+                        'type': 'virtual-networks',
+                        'parent_fq_name_str': contrail.getCookie('domain') +
+                            ':' + contrail.getCookie('project'),
+                        'parent_type': 'project'
+                    },
+                    {
+                        'type': 'service-health-checks'
+                    },
+                    {
+                        'type': 'interface-route-tables'
+                    },
+                    {
+                        'type': 'routing-policys'
+                    },
+                    {
+                        'type': 'route-aggregates'
+                    }]}
+                });
+            if ((null != setVNList) && (setVNList.length > 0)) {
+                multArrFlag = true;
+                ajaxConfigs[1] =
+                    $.ajax({
+                        url:
+                            '/api/tenants/config/get-virtual-machine-details?vn_fqns='
+                                + setVNList.join('::'),
+                        type: 'GET',
+                        timeout: 60000,
+                    });
+            }
+            $.when.apply($, ajaxConfigs).then(
+                function() {
+                var results = arguments;
+                var allVNList = null;
+                var vmiList = null;
+                var healthCheckServiceList = [];
+                var interfaceRouteTableList = [];
+                var routingPolicyList = [];
+                var routeAggregateList = [];
+                if ((null != setVNList) && (setVNList.length > 0)) {
+                    allVNList = getValueByJsonPath(arguments, '0;0;0', []);
+                    healthCheckServiceList = getValueByJsonPath(arguments,
+                                                                '0;0;1', []);
+                    interfaceRouteTableList = getValueByJsonPath(arguments,
+                                                                 '0;0;2', []);
+                    routingPolicyList = getValueByJsonPath(arguments, '0;0;3',
+                                                           []);
+                    routeAggregateList = getValueByJsonPath(arguments, '0;0;4',
+                                                            []);
+                    vmiList = getValueByJsonPath(arguments, '1;0', []);
+                } else {
+                    allVNList = getValueByJsonPath(arguments, '0;0', []);
+                    healthCheckServiceList = getValueByJsonPath(arguments,
+                                                                '0;1', []);
+                    interfaceRouteTableList = getValueByJsonPath(arguments,
+                                                                 '0;2', []);
+                    routingPolicyList = getValueByJsonPath(arguments, '0;3',
+                                                           []);
+                    routeAggregateList = getValueByJsonPath(arguments, '0;4',
+                                                            []);
+                    vmiList = getValueByJsonPath(arguments, '0;5', []);
                 }
+                window.allVNList = svcInstUtils.virtNwListFormatter(allVNList);
+                if (window.allVNList.length > 0) {
+                    window.allVNList.unshift({'text':"Auto Configured",
+                                             'id':"autoConfigured"});
+                }
+                window.healthCheckServiceList =
+                    svcInstUtils.buildTextValueByConfigList(healthCheckServiceList,
+                                                        'service-health-checks');
+                window.interfaceRouteTableList =
+                    svcInstUtils.buildTextValueByConfigList(interfaceRouteTableList,
+                                                        'interface-route-tables');
+                window.routingPolicyList =
+                    svcInstUtils.buildTextValueByConfigList(routingPolicyList,
+                                                        'routing-policys');
+                window.routeAggregateList =
+                    svcInstUtils.buildTextValueByConfigList(routeAggregateList,
+                                                        'route-aggregates');
+                svcInstUtils.updateVnVmiMaps(vmiList);
+                callback({'virtual-machine-interfaces': vmiList});
+            }
+        )},
+        setVMIsByVN: function(model, newValue, intfType) {
+            var self = this;
+            var svcTmpl = model.get('service_template');
+            var tmplVersionStr = null;
+            if (null != svcTmpl) {
+                var tmplVersionArr = svcTmpl.split(' - ');
+                if (tmplVersionArr.length > 2) {
+                    tmplVersionStr = tmplVersionArr[2];
+                }
+            }
+            if ('v1' == tmplVersionStr) {
+                return;
+            }
+            var ajaxConfig = {
+                url :
+                    '/api/tenants/config/get-virtual-machine-details?vn_fqn=' + newValue,
+                type : 'GET',
+                timeout : 30000
+            };
+            contrail.ajaxHandler(ajaxConfig, null,
+                function(result){
+                svcInstUtils.updateVnVmiMaps(result);
+                self.model.setVMIsByVN(model, newValue, intfType);
+            },
+            function(error){
             });
         },
         renderDeleteSvcInst: function(options) {
