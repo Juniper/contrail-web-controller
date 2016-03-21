@@ -114,7 +114,6 @@ define([
                                 view: 'FormInputView',
                                 viewConfig: {
                                     label: 'Name',
-                                    disabled: isDisable,
                                     path: 'display_name',
                                     class: 'span9',
                                     dataBindValue: 'display_name',
