@@ -71,7 +71,9 @@ define([
                                             cowc.FORM_SUFFIX_ID, false);
                             Knockback.applyBindings(self.model,
                                             document.getElementById(modalId));
-                            kbValidation.bind(self);
+                            kbValidation.bind(self,
+                             {collection:
+                               self.model.model().attributes.user_created_configured_route_target_list});
                    });
                    return;
                }
@@ -236,6 +238,86 @@ define([
                                        dataTextField: "text",
                                        dataValueField: "value",
                                        data : allNetworksDS}}
+                    }]
+                }, {
+                columns: [
+                    {
+                    elementId: 'route_target_accordian',
+                    view: "AccordianView",
+                    viewConfig: [
+                        {
+                        elementId: 'route_target_vcfg',
+                        title: 'Route Target(s)',
+                        view: "SectionView",
+                        active:false,
+                        viewConfig: {
+                                rows: [
+                                {
+                                    columns: [{
+                                        elementId: 'user_created_configured_route_target_list',
+                                        view: "FormEditableGridView",
+                                        viewConfig: {
+                                            path : 'user_created_configured_route_target_list',
+                                            validation:
+                                           'routeTargetModelConfigValidations',
+                                           templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                                            collection:
+                                                'user_created_configured_route_target_list',
+                                            columns: [
+                                                {
+                                                 elementId: 'asn',
+                                                 name:
+                                                   'ASN',
+                                                 view: "FormInputView",
+                                                 viewConfig:
+                                                   {
+                                                    class: "", width: 400,
+                                                    placeholder: 'ASN 1-65534 or IP',
+                                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                    path: "asn",
+                                                    dataBindValue:
+                                                        'asn()',
+                                                   }
+                                                },
+                                                {
+                                                 elementId: 'target',
+                                                 name:
+                                                   'Target',
+                                                 view: "FormInputView",
+                                                 viewConfig:
+                                                   {
+                                                    placeholder: 'Target 1-4294967295',
+                                                    class: "", width: 400,
+                                                    path: "target",
+                                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                    dataBindValue:
+                                                        'target()',
+                                                   }
+                                                },
+                                            ],
+                                            rowActions: [
+                                                {onClick: "function() {\
+                                                    $root.addRouteTarget('user_created_configured_route_target_list');\
+                                                    }",
+                                                 iconClass: 'icon-plus'},
+                                                {onClick: "function() {\
+                                                    $root.deleteRouteTarget($data, this);\
+                                                   }",
+                                                 iconClass: 'icon-minus'}
+                                            ],
+                                            gridActions: [
+                                                {onClick: "function() {\
+                                                    addRouteTarget('user_created_configured_route_target_list');\
+                                                    }",
+                                                 buttonTitle: ""}
+                                            ]
+                                        }
+                                    }
+                                    ]
+                                },
+                                ]
+                            }
+                        }]
                     }]
                 }
             ]
