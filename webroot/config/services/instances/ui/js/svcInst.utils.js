@@ -825,8 +825,9 @@ define([
                                     name: 'Interface Type',
                                     view: 'FormDropdownView',
                                     class: "",
+                                    width: 150,
                                     viewConfig: {
-                                        width: 100,
+                                        width: 150,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         path: 'interface_type',
@@ -843,9 +844,10 @@ define([
                                 {
                                     elementId: 'prefix',
                                     view: 'FormInputView',
-                                    class: "", width: 250,
+                                    class: "", width: 200,
                                     name: 'Prefix',
                                     viewConfig: {
+                                        width:200,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                         path: 'prefix',
@@ -856,10 +858,10 @@ define([
                                 {
                                     elementId: 'community_attributes',
                                     view: 'FormMultiselectView',
-                                    width:230,
+                                    width:200,
                                     name: 'Community',
                                     viewConfig: {
-                                        width: 230,
+                                        width: 200,
                                         templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                         path: 'community_attributes',
                                         dataBindValue: 'community_attributes()',
@@ -999,8 +1001,9 @@ define([
                                     name: 'Interface Type',
                                     view: 'FormDropdownView',
                                     class: "",
+                                    width: 230,
                                     viewConfig: {
-                                        width: 280,
+                                        width: 230,
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         path: 'interface_type',
