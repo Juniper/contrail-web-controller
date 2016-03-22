@@ -582,12 +582,11 @@ and need to add the iconClass tag wherever we need to show some icons
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
                                     <js>controller.app.js</js>
-                                    <class>renderLogicalRouter</class>
                                 </resource>
                                 <resource>
                                     <rootDir>/config/networking/logicalrouter/ui</rootDir>
                                     <js>logicalRouter.main.js</js>
-                                    <class>ConfigLogicalRouterLoader</class>
+                                    <class>configLogicalRouterLoader</class>
                                     <function>renderLogicalRouter</function>
                                 </resource>
                             </resources>
