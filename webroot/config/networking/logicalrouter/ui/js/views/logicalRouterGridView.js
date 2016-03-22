@@ -8,11 +8,13 @@ define([
     'config/networking/logicalrouter/ui/js/models/logicalRouterModel',
     'config/networking/logicalrouter/ui/js/views/logicalRouterEditView',
     'config/networking/logicalrouter/ui/js/views/logicalRouterFormatters',
+    'config/common/ui/js/routeTarget.utils',
     'contrail-view'
 ], function (_, Backbone, LogicalRouterModel, LogicalRouterCreateEditView,
-             logicalRouterFormatters, ContrailView) {
+             logicalRouterFormatters, RouteTargetUtils, ContrailView) {
     var logicalRouterCreateEditView = new LogicalRouterCreateEditView(),
         lRFormatters = new logicalRouterFormatters(),
+        routeTargetUtils = new RouteTargetUtils(),
         gridElId = "#" + ctwl.LOGICAL_ROUTER_GRID_ID;
 
     var logicalRouterGridView = ContrailView.extend({
@@ -136,14 +138,12 @@ define([
 
     this.logicalRouterColumns = [
         {
-            id:"name",
             field:"name",
             name:"Name",
             minWidth : 120,
             sortable: true
         },
         {
-            id:"virtual_network_refs",
             field:"virtual_network_refs",
             name:"External Gateway",
             minWidth : 300,
@@ -153,7 +153,6 @@ define([
             formatter: lRFormatters.extGatewayFormatter
         },
         {
-            id:"virtual_machine_interface_refs",
             field:"virtual_machine_interface_refs",
             name:"Connected Network",
             sortable: {
@@ -163,7 +162,6 @@ define([
             formatter: lRFormatters.conNetworkFormatter
         },
         {
-            field:"id_perms",
             name:"Admin State",
             minWidth : 120,
             formatter: lRFormatters.idPermsFormatter
@@ -273,6 +271,15 @@ define([
                                     templateGeneratorConfig:{
                                         formatter: "interfaceDetailFormatter"
                                     }
+                                }, {
+                                    key: 'id_perms',
+                                    keyClass:'span3',
+                                    name: 'id_perms',
+                                    label:"Route Target(s)",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "routeTargetFormatterCommon"
+                                    }
                                 }]
                             }]
                         }]
@@ -293,5 +300,10 @@ define([
     this.showSNAT = function(v, dc) {
         return lRFormatters.showSNAT("", "", v, "", dc);
     };
+    this.routeTargetFormatterCommon = function (v, dc) {
+        var retStr = routeTargetUtils.routeTargetFormatter(null,
+                                        null, 'configured_route_target_list', null, dc);
+        return retStr.length ? retStr : '-';
+    }
     return logicalRouterGridView;
 });
