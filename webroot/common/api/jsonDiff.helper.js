@@ -47,7 +47,8 @@ var configJsonModifyObj = {
         },
         'optFields': [
             'virtual_machine_interface_refs',
-            'virtual_network_refs'
+            'virtual_network_refs',
+            'configured_route_target_list'
         ],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },

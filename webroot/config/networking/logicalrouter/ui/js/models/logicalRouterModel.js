@@ -6,9 +6,11 @@
 define([
     'underscore',
     'contrail-model',
-    'config/networking/logicalrouter/ui/js/views/logicalRouterFormatters'
-], function (_, ContrailModel, logicalRouterFormatters) {
+    'config/networking/logicalrouter/ui/js/views/logicalRouterFormatters',
+    'config/common/ui/js/routeTarget.utils'
+], function (_, ContrailModel, logicalRouterFormatters, RouteTargetUtils) {
     var lRFormatters = new logicalRouterFormatters();
+    var routeTargetUtils = new RouteTargetUtils();
     var LogicalRouterModel = ContrailModel.extend({
         defaultConfig: {
             'name': '',
@@ -23,6 +25,10 @@ define([
             'SNAT':'Enabled',
             'vmi_ref': {"virtual_network_refs":[]},
             'templateGeneratorData': 'rawData',
+            'configured_route_target_list': {
+                'route_target': [], //collection
+            },
+            'user_created_configured_route_target_list': [] //fake created for rt_list.rt collection
         },
         formatModelConfig: function (config) {
             var modelConfig = $.extend({},true,config);
@@ -52,6 +58,7 @@ define([
                           }
                    }
             }
+            routeTargetUtils.readRouteTargetList(modelConfig, 'user_created_configured_route_target_list');
             return modelConfig;
         },
         validations: {
@@ -65,7 +72,19 @@ define([
         configureLogicalRouter: function (mode, allNetworksDS, callbackObj) {
             var ajaxConfig = {}, returnFlag = true;
             var network_subnet = allNetworksDS;
-            if (this.model().isValid(true, "logicalRouterValidations")) {
+            var validation = [{
+                  key: null,
+                  type: cowc.OBJECT_TYPE_MODEL,
+                  getValidation: 'logicalRouterValidations'
+                },
+                {
+                  key: 'user_created_configured_route_target_list',
+                  type: cowc.OBJECT_TYPE_COLLECTION,
+                  getValidation: 'routeTargetModelConfigValidations'
+                },
+
+            ];
+            if (this.isDeepValid(validation)) {
                 var newLRData = $.extend({},this.model().attributes),
                     selectedDomain = ctwu.getGlobalVariable('domain').name,
                     selectedProject = ctwu.getGlobalVariable('project').name;
@@ -138,6 +157,7 @@ define([
                         }
                     }
                 }
+                routeTargetUtils.getRouteTargets(newLRData);
 
                 delete(newLRData.errors);
                 delete(newLRData.cgrid);
@@ -146,6 +166,7 @@ define([
                 delete(newLRData.locks);
                 delete(newLRData.rawData);
                 delete(newLRData.vmi_ref);
+                delete newLRData.user_created_configured_route_target_list;
                 delete(newLRData.extNetworkUUID);
                 delete(newLRData.connectedNetwork);
                 delete(newLRData.SNAT);
@@ -211,7 +232,12 @@ define([
             }
             return returnFlag;
         },
-
+        addRouteTarget: function(type) {
+            routeTargetUtils.addRouteTarget(type, this.model());
+        },
+        deleteRouteTarget: function(data, kbRouteTarget) {
+            routeTargetUtils.deleteRouteTarget(data, kbRouteTarget);
+        },
         deleteLogicalRouter: function(selectedGridData, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
             var delDataID = [];
