@@ -289,6 +289,7 @@ function getvRouterSummaryConfigUVEData (configData, vrConf, nodeList, addGen,
     }
     reqUrl = '/analytics/uves/vrouter';
     var cfilt = ['VrouterStatsAgent:cpu_info',
+        'VrouterStatsAgent:phy_if_5min_usage',
         'VrouterAgent:virtual_machine_list',
         'VrouterAgent:self_ip_list',
         'VrouterAgent:vn_count',
