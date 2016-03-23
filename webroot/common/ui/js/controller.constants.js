@@ -663,13 +663,12 @@ define([
         /* Route Aggregate Constants */
         this.CONFIG_ROUTE_AGGREGATE_LIST_ID = "config-route-aggregate-list";
         this.ROUTE_AGGREGATE_GRID_ID = "route-aggregate-grid";
-        this.URL_GET_ROUTE_AGGREGATE_DATA = "/api/tenants/config/route-aggregates/";
         this.CONFIG_ROUTE_AGGREGATE_SECTION_ID = "config-route-aggregate-section";
         this.CONFIG_ROUTE_AGGREGATE_ID = "config-route-aggregate";
         this.CONFIG_ROUTE_AGGREGATE_LIST_VIEW_ID = "config-route-aggregate-list-view";
         this.ROUTE_AGGREGATE_PREFIX_ID = "route_aggregate";
-        this.URL_CREATE_ROUTE_AGGREGATE = "/api/tenants/config/route-aggregates";
-        this.URL_UPDATE_ROUTE_AGGREGATE = "/api/tenants/config/route-aggregate/";
+        this.URL_CREATE_ROUTE_AGGREGATE = "/route-aggregates";
+        this.URL_UPDATE_ROUTE_AGGREGATE = "/route-aggregate/";
 
         this.DEFAULT_COMMUNITIES = [
             {text:"no-export",id:"no-export"},
@@ -688,6 +687,11 @@ define([
         this.PACKET_CAPTURE_LIST_VIEW_ID = "packet-capture-list-view";
         this.PACKET_CAPTURE_PREFIX_ID = "packet_capture";
         this.URL_GET_SERVICE_TEMPLATE_IMAGES = "/api/tenants/config/service-template-images";
+
+        /* common config url constants */
+        this.URL_GET_CONFIG_DETAILS = "/api/tenants/config/get-config-details";
+        this.URL_CREATE_CONFIG_OBJECT = "/api/tenants/config/create-config-object";
+        this.URL_UPDATE_CONFIG_OBJECT = "/api/tenants/config/update-config-object";
     };
 
     //str will be [0-9]+(m|h|s|d)
