@@ -121,6 +121,10 @@ define([
                     },
                     {
                         'type': 'route-aggregates'
+                    },
+                    {
+                        'type': 'virtual-networks',
+                        'filters': 'is_shared==true'
                     }]}
                 });
             if ((null != setVNList) && (setVNList.length > 0)) {
@@ -143,6 +147,7 @@ define([
                 var interfaceRouteTableList = [];
                 var routingPolicyList = [];
                 var routeAggregateList = [];
+                var sharedVNList = [];
                 if ((null != setVNList) && (setVNList.length > 0)) {
                     allVNList = getValueByJsonPath(arguments, '0;0;0', []);
                     healthCheckServiceList = getValueByJsonPath(arguments,
@@ -154,6 +159,7 @@ define([
                     routeAggregateList = getValueByJsonPath(arguments, '0;0;4',
                                                             []);
                     vmiList = getValueByJsonPath(arguments, '1;0', []);
+                    sharedVNList = getValueByJsonPath(arguments, '0;0;5', []);
                 } else {
                     allVNList = getValueByJsonPath(arguments, '0;0', []);
                     healthCheckServiceList = getValueByJsonPath(arguments,
@@ -164,9 +170,14 @@ define([
                                                            []);
                     routeAggregateList = getValueByJsonPath(arguments, '0;4',
                                                             []);
-                    vmiList = getValueByJsonPath(arguments, '0;5', []);
+                    vmiList = getValueByJsonPath(arguments, '0;6', []);
+                    sharedVNList = getValueByJsonPath(arguments, '0;5', []);
                 }
-                window.allVNList = svcInstUtils.virtNwListFormatter(allVNList);
+                window.allVNList = svcInstUtils.virtNwListFormatter(allVNList,
+                                                                    false);
+                sharedVNList =
+                    svcInstUtils.virtNwListFormatter(sharedVNList, true);
+                window.allVNList = window.allVNList.concat(sharedVNList);
                 if (window.allVNList.length > 0) {
                     window.allVNList.unshift({'text':"Auto Configured",
                                              'id':"autoConfigured"});
