@@ -237,6 +237,39 @@ define([
                 svcTmplStr.split(' - [')[0];
             return svcTmpls[svcTmplFqn];
         },
+        this.getStaticRtsInterfaceTypesByStr = function(svcTmplStr, isRaw) {
+            var svcTmpl = this.getSvcTmplDetailsBySvcTmplStr(svcTmplStr);
+            return this.getStaticRtsInterfaceTypesBySvcTmpl(svcTmpl, isRaw);
+        },
+        this.getStaticRtsInterfaceTypesBySvcTmpl = function(svcTmpl, isRaw) {
+            var intfTypes = getValueByJsonPath(svcTmpl,
+                                               'service_template_properties;interface_type',
+                                               []);
+            var len = intfTypes.length;
+            var staticRtIntfList = [];
+            var rawIntfList = [];
+            for (var i = 0; i < len; i++) {
+                var staticRtEnabled = getValueByJsonPath(intfTypes[i],
+                                                         'static_route_enable',
+                                                         false);
+                var svcIntfType = getValueByJsonPath(intfTypes[i],
+                                                     'service_interface_type',
+                                                     null);
+                if (null == svcIntfType) {
+                    console.log('Weired! We got null interface type in ' +
+                                'template ' + svcTmplStr);
+                    continue;
+                }
+                if (true == staticRtEnabled) {
+                    rawIntfList.push(svcIntfType);
+                    staticRtIntfList.push({id: svcIntfType, text: svcIntfType});
+                }
+            }
+            if (true == isRaw) {
+                return rawIntfList;
+            }
+            return staticRtIntfList;
+        },
         this.getSvcTmplIntfTypes = function(svcTmpl) {
             var svcIntfTypes = [];
             var svcTempProp =
@@ -391,82 +424,6 @@ define([
                             minimumResultsForSearch: 1,
                             placeholder: 'Select Virtual Network'
                         }
-                    }
-                }]
-            }
-        },
-        this.getStaticRtsCollectionView = function(isDisabled) {
-            return {
-                columns: [{
-                    elementId: 'static_routes_collection',
-                    view: "FormCollectionView",
-                    viewConfig: {
-                        label:"Static Route(s)",
-                        colSpan:"3",
-                        visible:
-                            '$root.showHideStaticRTs(interfaceIndex())',
-                        path: 'staticRoutes',
-                        collection: 'staticRoutes()',
-                        validation: 'staticRoutesValidation',
-                        templateId: cowc.TMPL_COLLECTION_COMMON_HEADING_VIEW,
-                        collectionActions: {
-                            add: {onClick: "addStaticRt()",
-                                  iconClass: 'icon-plus',
-                                  buttonTitle: ''
-                            }
-                        },
-                        rows: [{
-                            rowActions: [
-                                {onClick: "addStaticRtByRow()",
-                                 iconClass: 'icon-plus'},
-                                {onClick: "deleteStaticRt()",
-                                 iconClass: 'icon-minus'}
-                            ],
-                            columns: [{
-                                elementId: 'prefix',
-                                view: 'FormInputView',
-                                class: "", width: 250,
-                                viewConfig: {
-                                    label: 'Prefix',
-                                    templateId:
-                                        cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                    path: 'prefix',
-                                    dataBindValue: 'prefix()'
-                                }
-                            },/*
-                            {
-                                elementId: 'next_hop',
-                                view: 'FormInputView',
-                                class: "", width: 167,
-                                viewConfig: {
-                                    disabled: true,
-                                    label: 'Next Hop',
-                                    templateId:
-                                        cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                    path: 'next_hop',
-                                    dataBindValue: 'next_hop()'
-                                }
-                            },*/
-                            {
-                                elementId: 'community_attributes',
-                                view: 'FormMultiselectView',
-                                width:230,
-                                viewConfig: {
-                                    label: 'Community',
-                                    width: 230,
-                                    templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
-                                    path: 'community_attributes',
-                                    dataBindValue: 'community_attributes()',
-                                    elementConfig: {
-                                        placeholder: 'Select or Enter Communities',
-                                        dataTextField: "text",
-                                        dataValueField: "id",
-                                        data : ctwc.DEFAULT_COMMUNITIES,
-                                        tags: true
-                                    }
-                                }
-                            }]
-                        }]
                     }
                 }]
             }
@@ -627,6 +584,16 @@ define([
                                 this.getRtAggregateAccordianView(isDisabled)
                             ]
                         }]
+                    },
+                    {
+                        columns: [{
+                            elementId: 'staticRtAccordian',
+                            view: 'AccordianView',
+                            viewConfig: [
+                                this.getStaticRouteAccordianView(isDisabled)
+                            ]
+                        }]
+
                     }]
                 }
             }
@@ -838,6 +805,98 @@ define([
                                 gridActions: [{
                                     onClick: "function() {\
                                         $root.addPropIntfRtTable();\
+                                    }"
+                                }]
+                            }
+                        }]
+                    }]
+                }
+            }
+        },
+        this.getStaticRouteAccordianView = function(isDisabled) {
+            return {
+                visible: 'staticRoutesAccordianVisible',
+                elementId: 'staticRouteSection',
+                title: 'Static Route',
+                view: 'SectionView',
+                active:false,
+                viewConfig: {
+                    rows: [{
+                        columns: [{
+                            elementId: 'staticRtTables',
+                            view: 'FormEditableGridView',
+                            viewConfig: {
+                                path: 'staticRoutes',
+                                collection: 'staticRoutes',
+                                validation: 'staticRoutesValidation',
+                                templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                                columns: [{
+                                    elementId: 'interface_type',
+                                    name: 'Interface Type',
+                                    view: 'FormDropdownView',
+                                    class: "",
+                                    viewConfig: {
+                                        width: 100,
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                        path: 'interface_type',
+                                        dataBindValue: 'interface_type()',
+                                        dataBindOptionList:
+                                            'interfaceTypesData()',
+                                        elementConfig: {
+                                            minimumResultsForSearch: 1,
+                                            placeholder: 'Select Interface ' +
+                                                         'Type',
+                                        }
+                                    }
+                                },
+                                {
+                                    elementId: 'prefix',
+                                    view: 'FormInputView',
+                                    class: "", width: 250,
+                                    name: 'Prefix',
+                                    viewConfig: {
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                        path: 'prefix',
+                                        dataBindValue: 'prefix()',
+                                        placeholder: 'Enter prefix'
+                                    }
+                                },
+                                {
+                                    elementId: 'community_attributes',
+                                    view: 'FormMultiselectView',
+                                    width:230,
+                                    name: 'Community',
+                                    viewConfig: {
+                                        width: 230,
+                                        templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
+                                        path: 'community_attributes',
+                                        dataBindValue: 'community_attributes()',
+                                        elementConfig: {
+                                            placeholder: 'Select or Enter Communities',
+                                            dataTextField: "text",
+                                            dataValueField: "id",
+                                            data : ctwc.DEFAULT_COMMUNITIES,
+                                            tags: true
+                                        }
+                                    }
+                                }],
+                                rowActions: [{
+                                    onClick: "function() {\
+                                        $root.addPropStaticRtTable();\
+                                    }",
+                                    iconClass: 'icon-plus'
+                                },
+                                {
+                                    onClick: "function() {\
+                                        $root.deleteSvcInstProperty($data, this);\
+                                    }",
+                                    iconClass: 'icon-minus'
+                                }],
+                                gridActions: [{
+                                    onClick: "function() {\
+                                        $root.addPropStaticRtTable();\
                                     }"
                                 }]
                             }
@@ -1111,7 +1170,6 @@ define([
                                     templateId: cowc.TMPL_COLLECTION_GRIDACTION_HEADING_VIEW,
                                     rows: [
                                         this.getIntfVNCollectionView(isDisabled),
-                                        this.getStaticRtsCollectionView(isDisabled)
                                     ]
                                 }
                             }]

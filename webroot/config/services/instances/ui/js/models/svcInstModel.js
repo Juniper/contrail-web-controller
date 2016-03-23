@@ -13,10 +13,11 @@ define([
     'config/services/instances/ui/js/models/IntfRtTableModel',
     'config/services/instances/ui/js/models/RtPolicyModel',
     'config/services/instances/ui/js/models/RtAggregateModel',
-    'config/services/instances/ui/js/models/AllowedAddressPairModel'
+    'config/services/instances/ui/js/models/AllowedAddressPairModel',
+    'config/services/instances/ui/js/models/StaticRTModel'
 ], function (_, ContrailModel, Knockout, InterfacesModel, SvcInstUtils,
              PortTupleModel, SvcHealthChkModel, IntfRtTableModel, RtPolicyModel,
-             RtAggregateModel, AllowedAddressPairModel) {
+             RtAggregateModel, AllowedAddressPairModel, StaticRTModel) {
     var gridElId = "#" + ctwl.SERVICE_INSTANCES_GRID_ID;
     var svcInstUtils = new SvcInstUtils();
     var SvcInstModel = ContrailModel.extend({
@@ -516,6 +517,36 @@ define([
             }
             return vnList;
         },
+        addStaticRoutesCollection: function(modelConfig, interfaceData,
+                                            intfType, staticRtsIntfList) {
+            var staticRTModel;
+            var staticRTModels = modelConfig.staticRoutes;
+            var staticRTCollectionModel;
+            if (null == staticRTModels) {
+                staticRTCollectionModel = new Backbone.Collection([]);
+                modelConfig['staticRoutes'] = staticRTCollectionModel;
+                staticRTModels = modelConfig.staticRoutes;
+            }
+            var intfData =
+                getValueByJsonPath(interfaceData, 'static_routes;route', []);
+            var cnt = intfData.length;
+            for (var i = 0; i < cnt; i++) {
+                var prefix = ((null != intfData[i]) &&
+                              (null != intfData[i]['prefix'])) ?
+                    intfData[i]['prefix'] : '';
+                var commAttr =
+                    getValueByJsonPath(intfData[i],
+                                       'community_attributes;community_attribute',
+                                       []);
+                staticRTModel =
+                    new StaticRTModel({prefix: prefix,
+                                      next_hop: null,
+                                      interface_type: intfType,
+                                      interfaceTypesData: staticRtsIntfList,
+                                      community_attributes: commAttr.join(',')});
+                staticRTModels.push(staticRTModel);
+            }
+        },
         formatModelConfig: function(modelConfig, resolveConfig) {
             if (!window.svcTmplsFormatted.length) {
                 showInfoWindow("No Service Template found.",
@@ -592,6 +623,9 @@ define([
             }
             var len = intfList.length;
             var configuredVNList = [];
+            var staticRtsIntfList =
+                svcInstUtils.getStaticRtsInterfaceTypesBySvcTmpl(svcTmpls[svcTmplFqn],
+                                                                 false);
             for (i = 0; i < len; i++) {
                 if (null == intfList[i]['virtual_network']) {
                     continue;
@@ -610,6 +644,9 @@ define([
             var interfacesModels = [];
             var interfacesCollectionModel;
             var cnt = intfTypes.length;
+            var staticRtsIntfList =
+                svcInstUtils.getStaticRtsInterfaceTypesByStr(modelConfig['service_template'],
+                                                        false);
             for (var i = 0; i < cnt; i++) {
                 var intfType = intfTypes[i];
                 var vnList = this.getVNListBySvcIntfType(svcTmpls[svcTmplFqn],
@@ -633,6 +670,8 @@ define([
                                      newValue,
                                      model.get('interfaceType'));
                 });
+                this.addStaticRoutesCollection(modelConfig, intfList[i],
+                                               intfType, staticRtsIntfList);
             }
             interfacesCollectionModel = new Backbone.Collection(interfacesModels);
             modelConfig['interfaces'] = interfacesCollectionModel;
@@ -887,6 +926,7 @@ define([
             this.deleteModelCollectionData(this.model(), 'intfRtTables');
             this.deleteModelCollectionData(this.model(), 'rtPolicys');
             this.deleteModelCollectionData(this.model(), 'rtAggregates');
+            this.deleteModelCollectionData(this.model(), 'staticRoutes');
             this.deleteModelCollectionData(this.model(),
                                            'allowedAddressPairCollection');
             var interfaces = this.model().attributes['interfaces'];
@@ -897,13 +937,13 @@ define([
                                        'service_template_properties;interface_type',
                                        []);
             }
+            var intfList =
+                getValueByJsonPath(this.model().attributes,
+                                   'service_instance_properties;interface_list',
+                                   []);
             for (var i = 0; i < cnt; i++) {
                 var intfType = intfTypes[i];
                 var vn = null;
-                var intfList =
-                    getValueByJsonPath(this.model().attributes,
-                                       'service_instance_properties;interface_list',
-                                       []);
                 var vnList = this.getVNListBySvcIntfType(svcTmpls[svcTmplFqn],
                                                          interfaeTypes[i],
                                                          tmplVer);
@@ -920,10 +960,6 @@ define([
                                      newValue,
                                      model.get('interfaceType'));
                 });
-
-                kbValidation.bind(this.editView,
-                                  {collection:
-                                  newInterface.model().attributes.staticRoutes});
                 interfaces.add([newInterface]);
             }
             return;
@@ -1070,6 +1106,18 @@ define([
                                       interfaceTypesData: types});
             intfRtTables.add([newEntry]);
         },
+        addPropStaticRtTable: function() {
+            var staticRtTables = this.model().get('staticRoutes');
+            var svcTmplStr = this.model().get('service_template');
+            var types = svcInstUtils.getStaticRtsInterfaceTypesByStr(svcTmplStr, false);
+            var newEntry =
+                new StaticRTModel({prefix: null,
+                                   next_hop: null,
+                                   interface_type: null,
+                                   interfaceTypesData: types,
+                                   community_attributes: ''});
+            staticRtTables.add([newEntry]);
+        },
         addPropRtPolicy: function() {
             var rtPolicys = this.model().get('rtPolicys');
             var types = [{text: 'left', id: 'left'},
@@ -1146,6 +1194,49 @@ define([
             }
             return vn;
         },
+        getStaticRoutesByIntfType: function(staticRtsCollection) {
+            var intfTypeToStaticRtsMapList = {};
+            if (null == staticRtsCollection) {
+                return intfTypeToStaticRtsMapList;
+            }
+            var staticRtsCollectionLen = staticRtsCollection.length;
+            for (var i = 0; i < staticRtsCollectionLen; i++) {
+                var intfType = staticRtsCollection[i]['interface_type']();
+                if (null == intfTypeToStaticRtsMapList[intfType]) {
+                    intfTypeToStaticRtsMapList[intfType] = [];
+                }
+                var staticRtObj = {};
+                staticRtObj.prefix = staticRtsCollection[i]['prefix']();
+                staticRtObj.next_hop = null;
+                staticRtObj.next_hop_type = null;
+                var commAttrs =
+                    staticRtsCollection[i]['community_attributes']();
+                var arr = commAttrs.split('\n');
+
+                var arrLen = arr.length;
+                var commAttrArr = [];
+                for (var k = 0; k < arrLen; k++) {
+                    if (null == arr[k]) {
+                        continue;
+                    }
+                    var tmpArr = arr[k].split(',');
+                    if (tmpArr.length > 0) {
+                        var arrLen = tmpArr.length;
+                        for (var l = 0; l < arrLen; l++) {
+                            if (tmpArr[l].length > 0) {
+                                commAttrArr.push(tmpArr[l].trim());
+                            }
+                        }
+                    }
+                }
+                staticRtObj.community_attributes = {
+                    'community_attribute': commAttrArr
+                };
+                intfTypeToStaticRtsMapList[intfType].push($.extend({}, true,
+                                                                   staticRtObj));
+            }
+            return intfTypeToStaticRtsMapList;
+        },
         getAllowedAddressPairsByIntfType: function(aapCollection) {
             var intfTypeToAapMapList = {};
             if (null == aapCollection) {
@@ -1191,12 +1282,16 @@ define([
                 "service_template", "");
             stVersion = sTemplate.split('] - ')[1];
             var coll = this.model().attributes.interfaces;
+            var staticRtsCollection =
+                this.model().attributes.staticRoutes.toJSON();
             var len = coll.length;
             var models = coll['models'];
             var aapCollection =
                 this.model().attributes.allowedAddressPairCollection.toJSON();
             var intfTypeToAapMapList =
                 this.getAllowedAddressPairsByIntfType(aapCollection);
+            var intfTypeToStaticRtsMapList =
+                this.getStaticRoutesByIntfType(staticRtsCollection);
             for (var i = 0; i < len; i++) {
                 var attr = models[i]['attributes'];
                 intfList[i] = {};
@@ -1209,7 +1304,11 @@ define([
                     intfList[i]['allowed_address_pairs'] =
                         {'allowed_address_pair': aapList};
                 }
-
+                var staticRtsList = intfTypeToStaticRtsMapList[intfType];
+                if (null != staticRtsList) {
+                    intfList[i]['static_routes'] = {};
+                    intfList[i]['static_routes']['route'] = staticRtsList;
+                }
                 /* Now check if we have Static RTs */
                 if ('right' == intfType) {
                     siProp['right_virtual_network'] = vn;
@@ -1219,43 +1318,6 @@ define([
                 }
                 if ('management' == intfType) {
                     siProp['management_virtual_network'] = vn;
-                }
-                if ('v2' == stVersion) {
-                    continue;
-                }
-                var staticRTs = attr.staticRoutes();
-                var staticRTsCnt = staticRTs.length;
-                for (var j = 0; j < staticRTsCnt; j++) {
-                    if (0 == j) {
-                        intfList[i]['static_routes'] = {'route': []};
-                    }
-                    var staticRTAttr = staticRTs[j].model().attributes;
-                    var commAttrs = staticRTAttr['community_attributes']();
-                    var arr = commAttrs.split('\n');
-                    var arrLen = arr.length;
-                    var commAttrArr = [];
-                    for (var k = 0; k < arrLen; k++) {
-                        if (null == arr[k]) {
-                            continue;
-                        }
-                        var tmpArr = arr[k].split(',');
-                        if (tmpArr.length > 0) {
-                            var arrLen = tmpArr.length;
-                            for (var l = 0; l < arrLen; l++) {
-                                if (tmpArr[l].length > 0) {
-                                    commAttrArr.push(tmpArr[l].trim());
-                                }
-                            }
-                        }
-                    }
-                    var routeObj = {'prefix': staticRTAttr['prefix'](),
-                        'next_hop': null, 'next_hop_type': null,
-                        'community_attributes': {
-                            'community_attribute': commAttrArr
-                        }
-                    };
-                    intfList[i]['static_routes']
-                        ['route'].push($.extend({}, true, routeObj));
                 }
             }
             var siP = this.model().get('service_instance_properties');
@@ -1435,8 +1497,8 @@ define([
                 getValidation: 'portTupleInterfacesValidation'
             },
             {
-                key: ['interfaces', 'staticRoutes'],
-                type: cowc.OBJECT_TYPE_COLLECTION_OF_COLLECTION,
+                key: ['staticRoutes'],
+                type: cowc.OBJECT_TYPE_COLLECTION,
                 getValidation: 'staticRoutesValidation'
             }];
             return validationList;
@@ -1519,6 +1581,7 @@ define([
                 delete newSvcInst['rtAggregates'];
                 delete newSvcInst['allowedAddressPairCollection'];
                 delete newSvcInst['svcTmplDetails'];
+                delete newSvcInst['staticRoutes'];
 
                 if (null == newSvcInst['uuid']) {
                     delete newSvcInst['uuid'];
