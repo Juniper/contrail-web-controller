@@ -20,7 +20,8 @@ function ConfigRouteAggregatePageLoader() {
                 loadingStartedDefObj.resolve();
             }
         });
-    }
+    };
+
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");
         switch (renderFn) {
