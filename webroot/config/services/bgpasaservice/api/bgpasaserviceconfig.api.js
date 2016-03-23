@@ -80,8 +80,12 @@ function getBGPAsAServices (request, response, appData)
             }
             if(vmiList.length) {
                 getInstanceIPs(appData, vmiList, function(instIPerr, instIPData) {
-                    if(instIPerr || !instIPData || !instIPData.length) {
+                    if(instIPerr) {
                         commonUtils.handleJSONResponse(instIPerr, response, null);
+                        return;
+                    } else if(!instIPData || !instIPData.length) {
+                        commonUtils.handleJSONResponse(null, response,
+                            {"bgp-as-a-services" : bgpaasData});
                         return;
                     }
                     for(i = 0; i < bgpaasDataCnt; i++) {
