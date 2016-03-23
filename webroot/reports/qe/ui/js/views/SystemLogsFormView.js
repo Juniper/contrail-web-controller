@@ -17,19 +17,17 @@ define([
                 hashParams = layoutHandler.getURLHashParams(),
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
                 queryType = contrail.checkIfExist(hashParams.queryType) ? hashParams.queryType : null,
-                queryFormAttributes = contrail.checkIfExist(hashParams.queryFormAttributes) ? hashParams.queryFormAttributes : {},
-                systemLogsQueryFormModel = new SystemLogsFormModel(queryFormAttributes),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
                 queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.SYSTEM_LOGS_PREFIX + cowc.QE_FORM_SUFFIX,
-                systemLogsId = cowl.QE_SYSTEM_LOGS_ID;
-
-            self.model = systemLogsQueryFormModel;
-            self.$el.append(queryPageTmpl({queryPrefix: cowc.SYSTEM_LOGS_PREFIX }));
+                systemLogsId = cowl.QE_SYSTEM_LOGS_ID,
+                queryFormAttributes = contrail.checkIfExist(hashParams.queryFormAttributes) ? hashParams.queryFormAttributes : {};
 
             if (queryType === cowc.QUERY_TYPE_MODIFY) {
-                self.model.from_time(parseInt(queryFormAttributes.from_time));
-                self.model.to_time(parseInt(queryFormAttributes.to_time));
+                queryFormAttributes.from_time = parseInt(queryFormAttributes.from_time_utc);
+                queryFormAttributes.to_time = parseInt(queryFormAttributes.to_time_utc);
             }
+            self.model = new SystemLogsFormModel(queryFormAttributes);
+            self.$el.append(queryPageTmpl({queryPrefix: cowc.SYSTEM_LOGS_PREFIX }));
 
             self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), cowc.KEY_RUN_QUERY_VALIDATION, null, modelMap, function () {
                 self.model.showErrorAttr(systemLogsId, false);
@@ -70,14 +68,8 @@ define([
             queryFormModel.is_request_in_progress(true);
             qewu.fetchServerCurrentTime(function(serverCurrentTime) {
                 var timeRange = parseInt(queryFormModel.time_range()),
-                    queryRequestPostData;
+                    queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
 
-                if (timeRange !== -1) {
-                    queryFormModel.to_time(serverCurrentTime);
-                    queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
-                }
-
-                queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
                 queryRequestPostData.chunkSize = cowc.QE_RESULT_CHUNK_SIZE_10K;
                 self.renderView4Config($(queryResultId), self.model,
                     getQueryResultTabViewConfig(queryRequestPostData, queryResultTabId), null, null, modelMap,
