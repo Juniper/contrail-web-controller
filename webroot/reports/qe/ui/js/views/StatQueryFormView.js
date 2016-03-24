@@ -17,19 +17,19 @@ define([
                 hashParams = layoutHandler.getURLHashParams(),
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
                 queryType = contrail.checkIfExist(hashParams.queryType) ? hashParams.queryType : null,
-                queryFormAttributes = contrail.checkIfExist(hashParams.queryFormAttributes) ? hashParams.queryFormAttributes : {},
-                statQueryFormModel = new StatQueryFormModel(queryFormAttributes),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
                 queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
-                statQueryId = cowl.QE_STAT_QUERY_ID;
-
-            self.model = statQueryFormModel;
-            self.$el.append(queryPageTmpl({queryPrefix: cowc.STAT_QUERY_PREFIX }));
+                statQueryId = cowl.QE_STAT_QUERY_ID,
+                queryFormAttributes = contrail.checkIfExist(hashParams.queryFormAttributes) ? hashParams.queryFormAttributes : {};
 
             if (queryType === cowc.QUERY_TYPE_MODIFY) {
-                self.model.from_time(parseInt(queryFormAttributes.from_time));
-                self.model.to_time(parseInt(queryFormAttributes.to_time));
+                queryFormAttributes.from_time = parseInt(queryFormAttributes.from_time_utc);
+                queryFormAttributes.to_time = parseInt(queryFormAttributes.to_time_utc);
             }
+
+            self.model = new StatQueryFormModel(queryFormAttributes);
+            self.$el.append(queryPageTmpl({queryPrefix: cowc.STAT_QUERY_PREFIX }));
+
 
             self.renderView4Config($(queryFormId), self.model, self.getViewConfig(), cowc.KEY_RUN_QUERY_VALIDATION, null, modelMap, function () {
                 self.model.showErrorAttr(statQueryId, false);
@@ -69,62 +69,7 @@ define([
 
             queryFormModel.is_request_in_progress(true);
             qewu.fetchServerCurrentTime(function(serverCurrentTime) {
-                var timeRange = parseInt(queryFormModel.time_range()),
-                    queryRequestPostData;
-
-                if (timeRange !== -1) {
-                    queryFormModel.to_time(serverCurrentTime);
-                    queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
-                }
-
-                queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
-
-                self.renderView4Config($(queryResultId), self.model,
-                    getQueryResultTabViewConfig(queryRequestPostData, queryResultTabId), null, null, modelMap,
-                    function() {
-                        var queryResultTabView = self.childViewMap[queryResultTabId],
-                            queryResultListModel = modelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL];
-
-                        if (!(queryResultListModel.isRequestInProgress()) && queryResultListModel.getItems().length > 0) {
-                            self.renderQueryResultChartTab(queryResultTabView, queryResultTabId, queryFormModel, queryRequestPostData)
-                            queryFormModel.is_request_in_progress(false);
-                        } else {
-                            queryResultListModel.onAllRequestsComplete.subscribe(function () {
-                                if (queryResultListModel.getItems().length > 0) {
-                                    self.renderQueryResultChartTab(queryResultTabView, queryResultTabId, queryFormModel, queryRequestPostData)
-                                }
-                                queryFormModel.is_request_in_progress(false);
-                            });
-                        }
-                    });
-            });
-        },
-
-        renderQueryResult: function() {
-            var self = this,
-                viewConfig = self.attributes.viewConfig,
-                widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
-                modelMap = contrail.handleIfNull(self.modelMap, {}),
-                queryFormModel = self.model,
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
-                queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
-                queryResultTabId = cowl.QE_STAT_QUERY_TAB_ID;
-
-            if (widgetConfig !== null) {
-                $(queryFormId).parents('.widget-box').data('widget-action').collapse();
-            }
-
-            queryFormModel.is_request_in_progress(true);
-            qewu.fetchServerCurrentTime(function(serverCurrentTime) {
-                var timeRange = parseInt(queryFormModel.time_range()),
-                    queryRequestPostData;
-
-                if (timeRange !== -1) {
-                    queryFormModel.to_time(serverCurrentTime);
-                    queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
-                }
-
-                queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+                var queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
 
                 self.renderView4Config($(queryResultId), self.model,
                     getQueryResultTabViewConfig(queryRequestPostData, queryResultTabId), null, null, modelMap,
@@ -171,33 +116,6 @@ define([
                         {
                             columns: [
                                 {
-                                    elementId: 'table_name', view: "FormComboboxView",
-                                    viewConfig: {
-                                        path: 'table_name',
-                                        dataBindValue: 'table_name',
-                                        class: "span6",
-                                        elementConfig: {
-                                            defaultValueId: 0, allowClear: false, placeholder: cowl.QE_SELECT_STAT_TABLE,
-                                            dataTextField: "name", dataValueField: "name",
-                                            dataSource: {
-                                                type: 'remote', url: cowc.URL_TABLES, parse: function (response) {
-                                                    var parsedOptionList = [];
-                                                    for(var i = 0; i < response.length; i++) {
-                                                        if(response[i].type == 'STAT') {
-                                                            parsedOptionList.push(response[i]);
-                                                        }
-                                                    }
-                                                    return parsedOptionList;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            columns: [
-                                {
                                     elementId: 'time_range', view: "FormDropdownView",
                                     viewConfig: {
                                         path: 'time_range', dataBindValue: 'time_range', class: "span3",
@@ -219,6 +137,24 @@ define([
                                         path: 'to_time', dataBindValue: 'to_time', class: "span3",
                                         elementConfig: qewu.getToTimeElementConfig('from_time', 'to_time'),
                                         visible: "time_range() == -1"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'table_name', view: "FormComboboxView",
+                                    viewConfig: {
+                                        label: 'Active Table',
+                                        path: 'table_name',
+                                        dataBindValue: 'table_name',
+                                        dataBindOptionList: 'table_name_data_object',
+                                        class: "span6",
+                                        elementConfig: {
+                                            defaultValueId: 0, allowClear: false, placeholder: cowl.QE_SELECT_STAT_TABLE,
+                                            dataTextField: "name", dataValueField: "name",
+                                        }
                                     }
                                 }
                             ]

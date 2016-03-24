@@ -17,19 +17,18 @@ define([
                 hashParams = layoutHandler.getURLHashParams(),
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
                 queryType = contrail.checkIfExist(hashParams.queryType) ? hashParams.queryType : null,
-                queryFormAttributes = contrail.checkIfExist(hashParams.queryFormAttributes) ? hashParams.queryFormAttributes : {},
-                flowRecordQueryModel = new FlowRecordFormModel(queryFormAttributes),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
                 queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FR_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
-                flowRecordId = cowl.QE_FLOW_RECORD_ID;
-
-            self.model = flowRecordQueryModel;
-            self.$el.append(queryPageTmpl({queryPrefix: cowc.FR_QUERY_PREFIX }));
+                flowRecordId = cowl.QE_FLOW_RECORD_ID,
+                queryFormAttributes = contrail.checkIfExist(hashParams.queryFormAttributes) ? hashParams.queryFormAttributes : {};
 
             if (queryType === cowc.QUERY_TYPE_MODIFY) {
-                self.model.from_time(parseInt(queryFormAttributes.from_time));
-                self.model.to_time(parseInt(queryFormAttributes.to_time));
+                queryFormAttributes.from_time = parseInt(queryFormAttributes.from_time_utc);
+                queryFormAttributes.to_time = parseInt(queryFormAttributes.to_time_utc);
             }
+
+            self.model = new FlowRecordFormModel(queryFormAttributes);
+            self.$el.append(queryPageTmpl({queryPrefix: cowc.FR_QUERY_PREFIX }));
 
             self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), cowc.KEY_RUN_QUERY_VALIDATION, null, modelMap, function () {
                 self.model.showErrorAttr(flowRecordId, false);
@@ -70,14 +69,7 @@ define([
             queryFormModel.is_request_in_progress(true);
             qewu.fetchServerCurrentTime(function(serverCurrentTime) {
                 var timeRange = parseInt(queryFormModel.time_range()),
-                    queryRequestPostData;
-
-                if (timeRange !== -1) {
-                    queryFormModel.to_time(serverCurrentTime);
-                    queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
-                }
-
-                queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+                    queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
 
                 self.renderView4Config($(queryResultId), self.model,
                     getQueryResultTabViewConfig(self, queryRequestPostData, queryResultTabId), null, null, modelMap,
