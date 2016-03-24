@@ -77,7 +77,8 @@ define([
                     exportable: true,
                     refreshable: false,
                     searchable: true
-                }
+                },
+                advanceControls: getHeaderActionConfig()
             },
             body: {
                 options: {
@@ -147,5 +148,93 @@ define([
         return gridElementConfig;
     };
 
+    function getHeaderActionConfig() {
+        var headerActionConfig = [
+            {
+                type: 'checked-multiselect',
+                iconClass: 'icon-filter',
+                placeholder: 'Filter Flows',
+                elementConfig: {
+                    elementId: 'flowsFilterMultiselect',
+                    dataTextField: 'text',
+                    dataValueField: 'id',
+                    selectedList: 1,
+                    noneSelectedText: 'Filter Flows',
+                    filterConfig: {
+                        placeholder: 'Search Filter'
+                    },
+                    minWidth: 150,
+                    height: 205,
+                    data: [
+                             {
+                                 id: "filterFlows",
+                                 text:"Filter Flows",
+                                 children: [
+                                     {
+                                         id:"mappable",
+                                         text:"Mappable",
+                                         iconClass:'icon-download-alt'
+                                     },{
+                                         id:"unmappable",
+                                         text:"Unmappable",
+                                         iconClass:'icon-download-alt'
+                                     },
+                                 ]
+                             }
+                    ],
+                    click: applyFlowsFilter,
+                    optgrouptoggle: applyFlowsFilter,
+                    control: false
+                }
+            }
+        ];
+        return headerActionConfig;
+    }
+
+    function applyFlowsFilter(event, ui) {
+        var checkedRows = $('#flowsFilterMultiselect').data('contrailCheckedMultiselect').getChecked();
+        var gridElId = '#' + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-results";
+        $(gridElId).data('contrailGrid')._dataView.setFilterArgs({
+            checkedRows: checkedRows
+        });
+        $(gridElId).data('contrailGrid')._dataView.setFilter(flowsGridFilter);
+    };
+
+    function flowsGridFilter(item, args) {
+        var excludeNetworks =
+            ['__UNKNOWN__', 'default-domain:default-project:ip-fabric'],
+            mappable = false,
+            unmappable = false;
+        var checkedRows = args.checkedRows;
+        $.each(checkedRows, function (checkedRowKey, checkedRowValue) {
+            var checkedRowValueObj = $.parseJSON(unescape($(checkedRowValue).val()));
+            if (checkedRowValueObj['value'] == 'mappable') {
+                mappable = true;
+            } else if (checkedRowValueObj['value'] == 'unmappable') {
+                unmappable = true;
+            }
+        });
+        if ((checkedRows.length == 0) || 
+             (mappable == true && unmappable == true)) {
+            return true;
+        } else {
+            var keysToCheck = ['sourceip', 'destip',
+                'vrouter_ip', 'other_vrouter_ip', 'sourcevn', 'destvn'],
+                keysToCheckLen = keysToCheck.length,
+                allKeysExists = true;
+            for (var i = 0; i < keysToCheckLen; i++) {
+                if (_.result(item, keysToCheck[i]) == null) {
+                    allKeysExists = false;
+                    break;
+                }
+            }
+            if (allKeysExists && excludeNetworks.indexOf(item['sourcevn']) == -1
+                && excludeNetworks.indexOf(item['destvn']) == -1) {
+                return (mappable && true);
+            } else {
+                return (unmappable || false);
+            }
+        }
+    };
     return SearchFlowResultView;
 });
