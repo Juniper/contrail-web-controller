@@ -77,7 +77,8 @@ define([
                     exportable: true,
                     refreshable: false,
                     searchable: true
-                }
+                },
+                advanceControls: getHeaderActionConfig()
             },
             body: {
                 options: {
@@ -146,6 +147,67 @@ define([
         };
         return gridElementConfig;
     };
-
+    
+    function getHeaderActionConfig() {
+        var headerActionConfig = [
+            {
+                type: 'checked-multiselect',
+                iconClass: 'icon-filter',
+                placeholder: 'Filter Flows',
+                elementConfig: {
+                    elementId: 'flowsFilterMultiselect',
+                    dataTextField: 'text',
+                    dataValueField: 'id',
+                    selectedList: 1,
+                    noneSelectedText: 'Filter Flows',
+                    filterConfig: {
+                        placeholder: 'Search Filter'
+                    },
+                    minWidth: 150,
+                    height: 205,
+                    data: [
+                             {
+                                 id: "filterFlows",
+                                 text:"Filter Flows",
+                                 children: [
+                                     {
+                                         id:"validIP",
+                                         text:"Flows with Valid IP's",
+                                         iconClass:'icon-download-alt'
+                                     },
+                                 ]
+                             }
+                    ],
+                    click: applyFlowsFilter,
+                    optgrouptoggle: applyFlowsFilter,
+                    control: false
+                }
+            }
+        ];
+        return headerActionConfig;
+    }
+    
+    function applyFlowsFilter(event, ui) {
+        var checkedRows = $('#flowsFilterMultiselect').data('contrailCheckedMultiselect').getChecked();
+        var gridElId = '#' + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-results";
+        $(gridElId).data('contrailGrid')._dataView.setFilterArgs({
+            checkedRows: checkedRows
+        });
+        $(gridElId).data('contrailGrid')._dataView.setFilter(flowsGridFilter);
+    };
+    
+    function flowsGridFilter(item, args) {
+        if (args.checkedRows.length == 0) {
+            return true;
+        } else {
+            if (contrail.checkIfKeyExistInObject(false, item, ['sourceip', 'destip',
+                'vrouter_ip', 'other_vrouter_ip', 'sourcevn', 'destvn']) &&
+                item['sourcevn'] != '__UNKNOWN__' && item['destvn'] != '__UNKNOWN__') {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
     return SearchFlowResultView;
 });
