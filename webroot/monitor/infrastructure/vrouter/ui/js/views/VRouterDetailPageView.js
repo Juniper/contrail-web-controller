@@ -37,7 +37,15 @@ define([
                             hostname,true),
                     type: 'GET'
                 },
-                templateConfig: getDetailsViewTemplateConfig(),
+                advancedViewConfig : {
+                    ajaxConfig: {
+                        url: contrail.format(monitorInfraConstants.
+                                monitorInfraUrls['VROUTER_DETAILS'],
+                                hostname,false,true),
+                        type: 'GET'
+                    }
+                },
+                templateConfig: getDetailsViewTemplateConfig(hostname),
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 dataParser: function(result) {
                     var vrouterData = result;

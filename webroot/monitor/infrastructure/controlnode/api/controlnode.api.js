@@ -98,6 +98,7 @@ function getControlNodesSummary (req, res, appData)
 function getControlNodeDetails (req, res, appData)
 {
     var hostName = req.param('hostname');
+    var rawUVE   = req.param('rawUVE');
     var url = '/analytics/uves/control-node/' + hostName + '?flat';
     var resultJSON = {};
 
@@ -110,16 +111,20 @@ function getControlNodeDetails (req, res, appData)
                 commonUtils.handleJSONResponse(err, res, resultJSON);
             });
         } else {
-            var postData = {};
-            postData['kfilt'] = [hostName + '*:contrail-control*'];
-            infraCmn.addGeneratorInfoToUVE(postData, data, hostName,
-                                  ['contrail-control'],
-                                  function(err, data) {
-                infraCmn.getDataFromConfigNode('bgp-routers', hostName, appData,
-                                               data, function(err, data) {
-                    commonUtils.handleJSONResponse(err, res, data);
+            if(rawUVE == null || rawUVE == 'undefined' || rawUVE == 'false') {
+                var postData = {};
+                postData['kfilt'] = [hostName + '*:contrail-control*'];
+                infraCmn.addGeneratorInfoToUVE(postData, data, hostName,
+                                      ['contrail-control'],
+                                      function(err, data) {
+                    infraCmn.getDataFromConfigNode('bgp-routers', hostName, appData,
+                                                   data, function(err, data) {
+                        commonUtils.handleJSONResponse(err, res, data);
+                    });
                 });
-            });
+            } else {
+                commonUtils.handleJSONResponse(err, res, data);
+            }
         }
     }, global.DEFAULT_CB_TIMEOUT));
 }

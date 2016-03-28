@@ -37,6 +37,7 @@ function getConfigNodesList (req, res, appData)
 function getConfigNodeDetails (req, res, appData)
 {
     var hostName = req.param('hostname');
+    var rawUVE   = req.param('rawUVE');
     var errResponse = {};
     var urlLists = [];
     var resultJSON = {};
@@ -46,24 +47,30 @@ function getConfigNodeDetails (req, res, appData)
     reqUrl = '/analytics/uves/config-node/' + hostName + '?flat';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
                              null, opApiServer, null, appData);
-    genPostData['kfilt'] = ['*:contrail-api*',
-                            '*:contrail-discovery*',
-                            '*:contrail-svc-monitor*',
-                            '*:contrail-schema*'];
-    reqUrl = '/analytics/uves/generator';
-    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
-                             genPostData, opApiServer, null, appData);
-    reqUrl = '/config-nodes?detail=true';
-    commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
-                             configApiServer, null, appData);
+    if(rawUVE == null || rawUVE == 'undefined' || rawUVE == 'false') {
+        genPostData['kfilt'] = ['*:contrail-api*',
+                                '*:contrail-discovery*',
+                                '*:contrail-svc-monitor*',
+                                '*:contrail-schema*'];
+        reqUrl = '/analytics/uves/generator';
+        commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
+                                 genPostData, opApiServer, null, appData);
+        reqUrl = '/config-nodes?detail=true';
+        commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
+                                 configApiServer, null, appData);
+    }
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(configApiServer, true),
               function(err, results) {
-        resultJSON = postProcessConfigNodeDetails(results, hostName);
-        resultJSON =
-            infraCmn.filterOutGeneratorInfoFromGenerators(excludeProcessList,
-                                                          resultJSON);
-        commonUtils.handleJSONResponse(err, res, resultJSON);
+        if(rawUVE == null || rawUVE == 'undefined' || rawUVE == 'false') {
+            resultJSON = postProcessConfigNodeDetails(results, hostName);
+            resultJSON =
+                infraCmn.filterOutGeneratorInfoFromGenerators(excludeProcessList,
+                                                              resultJSON);
+            commonUtils.handleJSONResponse(err, res, resultJSON);
+        } else {
+            commonUtils.handleJSONResponse(err, res, results[0]);
+        }
     });
 }
 

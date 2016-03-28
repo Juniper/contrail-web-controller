@@ -37,6 +37,14 @@ define([
                             monitorInfraUrls['CONFIG_DETAILS'], hostname),
                     type: 'GET'
                 },
+                advancedViewConfig : {
+                    ajaxConfig: {
+                        url: contrail.format(monitorInfraConstants.
+                                monitorInfraUrls['CONFIG_DETAILS'],
+                                hostname,true),
+                        type: 'GET'
+                    }
+                },
                 templateConfig: getDetailsViewTemplateConfig(),
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 dataParser: function(result) {

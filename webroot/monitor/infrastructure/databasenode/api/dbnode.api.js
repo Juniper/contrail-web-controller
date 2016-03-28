@@ -40,6 +40,7 @@ function getDatabaseNodesList (req, res, appData)
 function getDatabaseNodeDetails (req, res, appData)
 {
     var hostName = req.param('hostname');
+    var rawUVE   = req.param('rawUVE');
     var errResponse = {};
     var urlLists = [];
     var resultJSON = {};
@@ -48,9 +49,11 @@ function getDatabaseNodeDetails (req, res, appData)
     reqUrl = '/analytics/uves/database-node/' + hostName + '?flat';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
                              null, opApiServer, null, appData);
-    reqUrl = '/database-nodes?detail=true';
-    commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
-                             configApiServer, null, appData);
+    if(rawUVE == null || rawUVE == 'undefined' || rawUVE == 'false') {
+        reqUrl = '/database-nodes?detail=true';
+        commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
+                                 configApiServer, null, appData);
+    }
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(opApiServer, true),
               function(err, results) {
@@ -58,8 +61,12 @@ function getDatabaseNodeDetails (req, res, appData)
             commonUtils.handleJSONResponse(err, res, resultJSON);
             return;
         }
-        resultJSON = postProcessDatabaseNodeDetails(results, hostName);
-        commonUtils.handleJSONResponse(err, res, resultJSON);
+        if(rawUVE == null || rawUVE == 'undefined' || rawUVE == 'false') {
+            resultJSON = postProcessDatabaseNodeDetails(results, hostName);
+            commonUtils.handleJSONResponse(err, res, resultJSON);
+        } else {
+            commonUtils.handleJSONResponse(err, res, results[0]);
+        }
     });
 }
 

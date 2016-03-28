@@ -159,7 +159,7 @@ function getAnalyticsNodeGenerators (req, res, appData)
     getAnalyticsGenPagedSummary(req, res, appData);
 }
 
-function processAnalyticsNodeDetailJSON (hostName, genUVEData, appData, callback)
+function processAnalyticsNodeDetailJSON (hostName, genUVEData, appData, callback, rawUVE)
 {
     var data = null;
     var resultJSON = [];
@@ -168,30 +168,36 @@ function processAnalyticsNodeDetailJSON (hostName, genUVEData, appData, callback
     var dataObjArr = [];
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
                              null, opApiServer, null, appData);
-    reqUrl = '/analytics-nodes';
-    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
-                             null, configApiServer, null, appData);
+    if(rawUVE == null || rawUVE == 'undefined' || rawUVE == 'false') {
+        reqUrl = '/analytics-nodes';
+        commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
+                                 null, configApiServer, null, appData);
+    }
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(opApiServer, true),
               function(err, results) {
-    var collUVEData = results[0];
-    var configData = results[1];
-        var collData = {};
-        collData['value'] = [];
-        collData['value'][0] = {};
-        collData['value'][0]['name'] = hostName;
-        collData['value'][0]['value'] = collUVEData;
-        processConfigDetailsAndAddQueryStats(collData, genUVEData, configData,
-                                             appData, false,
-                                             function(err, resultJSON) {
-            var result;
-            try {
-                result = resultJSON[0][0]['value'];
-            } catch(e) {
-                result = {};
-            }
-            callback(result);
-        });
+        if(rawUVE != null && rawUVE == 'true') {
+            callback (results[0]);
+        } else {
+            var collUVEData = results[0];
+            var configData = results[1];
+                var collData = {};
+                collData['value'] = [];
+                collData['value'][0] = {};
+                collData['value'][0]['name'] = hostName;
+                collData['value'][0]['value'] = collUVEData;
+                processConfigDetailsAndAddQueryStats(collData, genUVEData, configData,
+                                                     appData, false,
+                                                     function(err, resultJSON) {
+                    var result;
+                    try {
+                        result = resultJSON[0][0]['value'];
+                    } catch(e) {
+                        result = {};
+                    }
+                    callback(result);
+                });
+        }
     });
 }
 
@@ -328,27 +334,35 @@ function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData,
 function getAnalyticsNodeDetails (req, res, appData)
 {
     var hostName = req.param('hostname');
+    var rawUVE   = req.param('rawUVE');
+    console.log('rawUVE',rawUVE);
     var resultJSON = {};
     var url = '/analytics/uves/generator';
     var excludeProcessList = ['contrail-query-engine'];
-
-    var postData = {};
-    postData['kfilt'] = [hostName + ':*contrail-collector*',
-                         hostName + ':*contrail-analytics-api*',
-                         hostName + ':*contrail-query-engine*'];
-    opServer.api.post(url, postData, function(err, genData) {
-        if (err || (null == genData)) {
-            commonUtils.handleJSONResponse(err, res, resultJSON);
-        } else {
-            processAnalyticsNodeDetailJSON(hostName, genData, appData,
-                                           function(resultJSON) {
-                resultJSON =
-                    infraCmn.filterOutGeneratorInfoFromGenerators(excludeProcessList,
-                                                                  resultJSON);
-                commonUtils.handleJSONResponse(null, res, resultJSON);
-            });
-        }
-    });
+    if(rawUVE == null || rawUVE == 'undefined' || rawUVE == 'false') {
+        var postData = {};
+        postData['kfilt'] = [hostName + ':*contrail-collector*',
+                             hostName + ':*contrail-analytics-api*',
+                             hostName + ':*contrail-query-engine*'];
+        opServer.api.post(url, postData, function(err, genData) {
+            if (err || (null == genData)) {
+                commonUtils.handleJSONResponse(err, res, resultJSON);
+            } else {
+                processAnalyticsNodeDetailJSON(hostName, genData, appData,
+                                               function(resultJSON) {
+                    resultJSON =
+                        infraCmn.filterOutGeneratorInfoFromGenerators(excludeProcessList,
+                                                                      resultJSON);
+                    commonUtils.handleJSONResponse(null, res, resultJSON);
+                });
+            }
+        });
+    } else {
+        processAnalyticsNodeDetailJSON(hostName, null, appData,
+                function(resultJSON) {
+                    commonUtils.handleJSONResponse(null, res, resultJSON);
+                }, rawUVE);
+    }
 }
 
 function getAnalyticsNodeList (req, res)

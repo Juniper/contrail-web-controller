@@ -256,6 +256,7 @@ function getvRouterDetails (req, res, appData)
     var host        = req.param('hostname');
     var flatParse   = req.param('flat');
     var basic       = req.param('basic');
+    var rawUVE      = req.param('rawUVE');
     var url         = '/analytics/uves/vrouter';
     var resultJSON = {};
     var postData = {};
@@ -290,16 +291,20 @@ function getvRouterDetails (req, res, appData)
             } else {
                 data = {};
             }
-            var postData = {};
-            postData['kfilt'] = [host + ':*contrail-vrouter-agent*',host + ':*TorAgent*'];
-            infraCmn.addGeneratorInfoToUVE(postData, data, host,
-                                  ['contrail-vrouter-agent', 'TorAgent'],
-                                  function(err, data) {
-                infraCmn.getDataFromConfigNode('virtual-routers', host, appData,
-                                               data, function(err, data) {
-                    commonUtils.handleJSONResponse(null, res, data);
+            if(rawUVE == null || rawUVE == 'undefined' || rawUVE == 'false') {
+                var postData = {};
+                postData['kfilt'] = [host + ':*contrail-vrouter-agent*',host + ':*TorAgent*'];
+                infraCmn.addGeneratorInfoToUVE(postData, data, host,
+                                      ['contrail-vrouter-agent', 'TorAgent'],
+                                      function(err, data) {
+                    infraCmn.getDataFromConfigNode('virtual-routers', host, appData,
+                                                   data, function(err, data) {
+                        commonUtils.handleJSONResponse(null, res, data);
+                    });
                 });
-            });
+            } else {
+                commonUtils.handleJSONResponse(null, res, data);
+            }
         }
     }, global.DEFAULT_CB_TIMEOUT));
 }
