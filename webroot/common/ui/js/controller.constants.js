@@ -691,8 +691,23 @@ define([
 
         // Virtual Network Config Constants
         this.URL_CFG_VN_DETAILS = '/api/tenants/config/virtual-network-details';
-        //Dns constants
+
+        /* DNS Server constants */
         this.ACTIVE_DNS_DATA = "/api/tenants/config/sandesh/virtual-DNS/";
+        this.DNS_SERVER_GRID_ID = "dns-server-grid";
+        this.CONFIG_DNS_SERVER_PAGE_ID = 'config-dns-server-page';
+        this.CONFIG_DNS_SERVER_SECTION_ID = 'config-dns-server-section';
+        this.CONFIG_DNS_SERVER_LIST_VIEW_ID = 'config-dns-server-list';
+        this.CONFIG_DNS_SERVER_ID = 'config-dns-server';
+        this.DNS_SERVER_PREFIX_ID = 'dns_server';
+
+        /* DNS Record constants */
+        this.CONFIG_DNS_RECORDS_PAGE_ID = 'config-dns-records-page';
+        this.CONFIG_DNS_RECORDS_LIST_VIEW_ID = 'config-dns-records-list';
+        this.CONFIG_DNS_RECORDS_SECTION_ID = 'config-dns-records-section';
+        this.CONFIG_DNS_RECORDS_ID = 'config-dns-records';
+        this.DNS_RECORDS_GRID_ID = 'dns-records-grid';
+        this.DNS_RECORDS_PREFIX_ID = 'dns_record';
 
         /* Route Aggregate Constants */
         this.CONFIG_ROUTE_AGGREGATE_LIST_ID = "config-route-aggregate-list";

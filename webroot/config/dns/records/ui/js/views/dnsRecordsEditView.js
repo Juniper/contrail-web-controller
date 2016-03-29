@@ -6,11 +6,10 @@ define([
     'knockback',
     'contrail-view'
 ], function(_, Knockback, ContrailView) {
-    var gridElId = "#DnsRecordsGrid";
-    var prefixId = "DnsRecordsPrefix";
+    var prefixId = ctwc.DNS_RECORDS_PREFIX_ID;
     var modalId = 'configure-' + prefixId;
     var formId = '#' + modalId + '-form';
-    var DnsRecordsEditView = ContrailView.extend({
+    var dnsRecordsEditView = ContrailView.extend({
         renderAddEditDnsRecords: function(options) {
             var editTemplate =
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
@@ -20,8 +19,6 @@ define([
                 }),
                 self = this;
 
-            var gridData = options['gridData'];
-            var configData = options['configData'];
             var mode = options['mode'];
             var disabled = false;
             cowu.createModal({
@@ -101,15 +98,11 @@ define([
         },
         renderDeleteDnsRecords: function(options) {
             var delTemplate =
-                contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_DEL),
+                contrail.getTemplate4Id("core-generic-delete-form-template"),
                 self = this;
             var items = "";
 
-            var delLayout = delTemplate({
-                prefixId: prefixId,
-                item: ctwl.TITLE_DNS_RECORDS,
-                itemId: items
-            });
+            var delLayout = delTemplate({prefixId: prefixId});
             cowu.createModal({
                 'modalId': modalId,
                 'className': 'modal-680',
@@ -181,7 +174,6 @@ define([
         }
         var vdnsList = response['virtual_DNSs'];
         var vdnsCnt = vdnsList.length;
-        window.ipams = {};
         for (var i = 0; i < vdnsCnt; i++) {
             var fqn = getValueByJsonPath(vdnsList[i],
                 'virtual-DNS;fq_name', []);
@@ -193,27 +185,7 @@ define([
             }
         }
         return dnss;
-    }
-
-    function formatNetworkIpams(response) {
-        var ipams = [];
-        if (null == response) {
-            return ipams;
-        }
-        var ipamsList = response['network-ipams'];
-        var ipamsCnt = ipamsList.length;
-        for (var i = 0; i < ipamsCnt; i++) {
-            var fqn = ipamsList[i].fq_name;
-            var fqnString = fqn[0] + ':' + fqn[1] + ':' + fqn[2];
-            ipams.push({
-                'id': fqnString + '**' + ipamsList[i].uuid +
-                    '**',
-                'text': fqn.join(':')
-            });
-            window.ipams[fqn.join(':')] = ipamsList[i]['uuid'];
-        }
-        return ipams;
-    }
+    };
 
     function getAddDnsRecordsViewConfig(isDisable) {
         var prefixId = ctwl.TEST_DNS_RECORDS_PREFIX_ID;
@@ -357,7 +329,7 @@ define([
             }
         }
         return dnsViewConfig;
-    }
+    };
 
-    return DnsRecordsEditView;
+    return dnsRecordsEditView;
 });
