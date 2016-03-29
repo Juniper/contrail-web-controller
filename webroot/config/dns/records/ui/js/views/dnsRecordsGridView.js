@@ -9,11 +9,11 @@ define([
     'config/dns/records/ui/js/dnsRecordsFormatter'
 ], function(_, ContrailView, DnsRecordsModel, DnsRecordsEditView,
     dnsRecordFormatters) {
-    var DnsRecordsEditView = new DnsRecordsEditView(),
-        gridElId = "#DnsRecordsGrid";
+    var dnsRecordsEditView = new DnsRecordsEditView(),
+        gridElId = "#" + ctwc.DNS_RECORDS_GRID_ID;
     var dnsRecordFormatters = new dnsRecordFormatters();
 
-    var DnsRecordsGridView = ContrailView.extend({
+    var dnsRecordsGridView = ContrailView.extend({
         el: $(contentContainer),
         render: function() {
             var self = this,
@@ -21,89 +21,93 @@ define([
                 pagerOptions = viewConfig['pagerOptions'];
             this.renderView4Config(self.$el, self.model,
                 getDnsRecordsGridViewConfig(
-                    pagerOptions));
+                    viewConfig));
         }
     });
 
-    var getDnsRecordsGridViewConfig = function(pagerOptions) {
+    var getDnsRecordsGridViewConfig = function(viewConfig) {
         return {
-            elementId: "DnsRecordsListView",
+            elementId: ctwc.CONFIG_DNS_RECORDS_ID,
             view: "SectionView",
             viewConfig: {
                 rows: [{
                     columns: [{
-                        elementId: 'DnsRecordsGrid',
-                        title: 'DNS Records',
+                        elementId: ctwc.DNS_RECORDS_GRID_ID,
+                        title: ctwl.TITLE_DNS_RECORDS,
                         view: "GridView",
                         viewConfig: {
                             elementConfig: getConfiguration(
-                                pagerOptions)
+                                viewConfig)
                         }
                     }]
                 }]
             }
         }
     };
-    var rowActionConfig = [
-        ctwgc.getEditConfig('Edit', function(rowIndex) {
-            var dataItem =
-                $(gridElId).data('contrailGrid')._dataView.getItem(
-                    rowIndex);
 
-            dnsRecordsModel = new DnsRecordsModel(dataItem);
-            subscribeModelAttrChanges(dnsRecordsModel);
-            DnsRecordsEditView.model = dnsRecordsModel;
-            DnsRecordsEditView.renderAddEditDnsRecords({
-                "title": ctwl.TITLE_EDIT_DNS_RECORD +
-                    ' (' + dataItem[
-                        'virtual_DNS_record_data'][
-                        'record_name'
-                    ] +
-                    ')',
-                callback: function() {
-                    var dataView =
-                        $(gridElId).data(
-                            "contrailGrid")._dataView;
-                    dataView.refreshData();
-                },
-                mode : ctwl.EDIT_ACTION
-            });
-        }),
-        ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-            var dnsRecordsModel = new DnsRecordsModel();
-            var dataItem =
-                $(gridElId).data('contrailGrid')._dataView.getItem(
-                    rowIndex);
-            var checkedRows = [dataItem];
-            DnsRecordsEditView.model = dnsRecordsModel;
-            DnsRecordsEditView.renderDeleteDnsRecords({
-                "title": ctwl.TITLE_DEL_DNS_RECORD +
-                    ' (' + dataItem[
-                        'virtual_DNS_record_data'][
-                        'record_name'
-                    ] + ')',
-                checkedRows: checkedRows,
-                callback: function() {
-                    var dataView =
-                        $(gridElId).data(
-                            "contrailGrid")._dataView;
-                    dataView.refreshData();
-                }
-            });
-        })
-    ];
+    function rowActionConfig(viewConfig) {
+        var rowActConfig = [
+            ctwgc.getEditConfig('Edit', function(rowIndex) {
+                var dataItem =
+                    $(gridElId).data('contrailGrid')._dataView.getItem(
+                        rowIndex);
 
-    var getConfiguration = function() {
+                dnsRecordsModel = new DnsRecordsModel(dataItem);
+                dnsRecordsModel.dnsServerData = viewConfig.dnsServerData;
+                subscribeModelAttrChanges(dnsRecordsModel);
+                dnsRecordsEditView.model = dnsRecordsModel;
+                dnsRecordsEditView.renderAddEditDnsRecords({
+                    "title": ctwl.TITLE_EDIT_DNS_RECORD +
+                        ' (' + dataItem[
+                            'virtual_DNS_record_data'][
+                            'record_name'
+                        ] +
+                        ')',
+                    callback: function() {
+                        var dataView =
+                            $(gridElId).data(
+                                "contrailGrid")._dataView;
+                        dataView.refreshData();
+                    },
+                    mode : ctwl.EDIT_ACTION
+                });
+            }),
+            ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+                var dnsRecordsModel = new DnsRecordsModel();
+                var dataItem =
+                    $(gridElId).data('contrailGrid')._dataView.getItem(
+                        rowIndex);
+                var checkedRows = [dataItem];
+                dnsRecordsEditView.model = dnsRecordsModel;
+                dnsRecordsEditView.renderDeleteDnsRecords({
+                    "title": ctwl.TITLE_DEL_DNS_RECORD +
+                        ' (' + dataItem[
+                            'virtual_DNS_record_data'][
+                            'record_name'
+                        ] + ')',
+                    checkedRows: checkedRows,
+                    callback: function() {
+                        var dataView =
+                            $(gridElId).data(
+                                "contrailGrid")._dataView;
+                        dataView.refreshData();
+                    }
+                });
+            })
+        ];
+        return rowActConfig;
+    };
+    var getConfiguration = function(viewConfig) {
         var gridElementConfig = {
             header: {
                 title: {
-                    text: "DNS Records"
+                    text: ctwl.TITLE_DNS_RECORDS
                 },
-                advanceControls: getHeaderActionConfig(gridElId)
+                advanceControls: getHeaderActionConfig(viewConfig)
             },
             body: {
                 options: {
-                    actionCell: rowActionConfig,
+                    actionCell: rowActionConfig(viewConfig),
                     detail: {
                         template: cowu.generateDetailTemplateHTML(
                             getDNSRecordsDetailsTemplateConfig(),
@@ -120,7 +124,20 @@ define([
                         }
                     },
                 },
-                dataSource: {}
+                dataSource: {},
+                statusMessages: {
+                    loading: {
+                        text: 'Loading DNS Records..'
+                    },
+                    empty: {
+                        text: 'No DNS Records Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting DNS Records.'
+                    }
+                }
             },
             columnHeader: {
                 columns: DnsRecordsColumns
@@ -129,7 +146,7 @@ define([
         return gridElementConfig;
     };
 
-    DnsRecordsColumns = [
+    var DnsRecordsColumns = [
 
         {
             name: 'DNS Record Name',
@@ -252,12 +269,12 @@ define([
                 };
             }
         );
-    }
+    };
 
-    function getHeaderActionConfig(gridElId) {
+    function getHeaderActionConfig(viewConfig) {
         var headerActionConfig = [{
             "type": "link",
-            "title": ctwl.TITLE_DEL_DNS_RECORD,
+            "title": ctwl.TITLE_DNS_RECORD_MULTI_DELETE,
             "iconClass": 'icon-trash',
             "linkElementId": 'btnActionDelDNS',
             "onClick": function() {
@@ -266,9 +283,9 @@ define([
                     'contrailGrid').getCheckedRows();
                 if(checkedRows && checkedRows.length > 0) {
                     dnsRecordsModel = new DnsRecordsModel();
-                    DnsRecordsEditView.model = dnsRecordsModel;
-                    DnsRecordsEditView.renderDeleteDnsRecords({
-                        "title": ctwl.TITLE_DEL_DNS_RECORD,
+                    dnsRecordsEditView.model = dnsRecordsModel;
+                    dnsRecordsEditView.renderDeleteDnsRecords({
+                        "title": ctwl.TITLE_DNS_RECORD_MULTI_DELETE,
                         checkedRows: checkedRows,
                         callback: function() {
                             var dataView =
@@ -282,22 +299,15 @@ define([
             }
         }, {
             "type": "link",
-            "title": ctwl.TITLE_CREATE_DNS_SERVER,
+            "title": ctwl.TITLE_CREATE_DNS_RECORD,
             "iconClass": "icon-plus",
             "onClick": function() {
-                var gridData =
-                    $(gridElId).data('contrailGrid')._dataView
-                    .getItems();
-                var configData = $(gridElId).data(
-                    'configObj');
-
                 var dnsRecordsModel = new DnsRecordsModel();
+                dnsRecordsModel.dnsServerData = viewConfig.dnsServerData;
                 subscribeModelAttrChanges(dnsRecordsModel);
-                DnsRecordsEditView.model = dnsRecordsModel;
-                DnsRecordsEditView.renderAddEditDnsRecords({
+                dnsRecordsEditView.model = dnsRecordsModel;
+                dnsRecordsEditView.renderAddEditDnsRecords({
                     "title": ctwl.TITLE_CREATE_DNS_RECORD,
-                    gridData: gridData,
-                    configData: configData,
                     callback: function() {
                         var dataView = $(
                                 gridElId).data(
@@ -310,13 +320,16 @@ define([
             }
         }, ];
         return headerActionConfig;
-    }
+    };
+
     this.RecordTypeFormatter = function(v, dc) {
         return dnsRecordFormatters.recordTypeFormatter("", "", v,
             "", dc);
-    }
+    };
+
     this.TTLFormatter = function(v, dc) {
-        return dnsRecordFormatters.TTLFormatter("", "", v, "", dc);
-    }
-    return DnsRecordsGridView;
+        return dnsRecordFormatters.ttlFormatter("", "", v, "", dc);
+    };
+
+    return dnsRecordsGridView;
 });

@@ -26,7 +26,8 @@ function ConfigDNSRecordsLoader() {
         } else {
             self.renderView(renderFn, hashParams);
         }
-    }
+    };
+
     this.renderView = function(renderFn, hashParams) {
         $(contentContainer).html("");
         switch (renderFn) {

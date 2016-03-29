@@ -6,23 +6,22 @@ define([
     'contrail-view',
     'knockback'
 ], function(_, ContrailView, Knockback) {
-    var gridElId = "#DnsServerGrid";
-    var prefixId = "DnsServerPrefix";
+    var gridElId = "#" + ctwc.DNS_SERVER_GRID_ID;
+    var prefixId = ctwc.DNS_SERVER_PREFIX_ID;
     var modalId = 'configure-' + prefixId;
     var formId = '#' + modalId + '-form';
     var self;
-    var DnsServerEditView = ContrailView.extend({
-        renderAddDnsServer: function(options) {
+    var dnsServersEditView = ContrailView.extend({
+        renderAddEditDNSServer: function(options) {
             var editTemplate =
-                contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
-            var editLayout = editTemplate({
-                prefixId: prefixId,
-                modalId: modalId
-            });
+                contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT),
+                editLayout = editTemplate({
+                    prefixId: prefixId,
+                    modalId: modalId
+                }),
+                disableInput;
             self = this;
             self.mode = options.mode;
-            var gridData = options['gridData'];
-            var configData = options['configData'];
             cowu.createModal({
                 'modalId': modalId,
                 'className': 'modal-680',
@@ -30,36 +29,26 @@ define([
                 'body': editLayout,
                 'onSave': function() {
                     self.model.addEditDnsServer(
-                        'create', {
+                        self.mode, {
                             init: function() {
                                 cowu.enableModalLoading(
                                     modalId
                                 );
                             },
                             success: function() {
-                                options
-                                    [
-                                        'callback'
-                                    ]();
-                                $("#" +
-                                    modalId
-                                ).modal(
-                                    'hide'
-                                );
+                                options['callback']();
+                                $("#" + modalId).modal('hide');
                             },
                             error: function(
                                 error) {
                                 cowu.disableModalLoading(
                                     modalId,
                                     function() {
-                                        self
-                                            .model
+                                        self.model
                                             .showErrorAttr(
                                                 prefixId +
-                                                cowc
-                                                .FORM_SUFFIX_ID,
-                                                error
-                                                .responseText
+                                                cowc.FORM_SUFFIX_ID,
+                                                error.responseText
                                             );
                                     }
                                 );
@@ -75,9 +64,14 @@ define([
                         'hide');
                 }
             });
+            if(self.mode === ctwl.CREATE_ACTION) {
+                disableInput = false;
+            } else {
+                disableInput = true;
+            }
             self.renderView4Config($("#" + modalId).find(
                     formId), this.model,
-                getAddDnsServerViewConfig(false),
+                getAddDnsServerViewConfig(disableInput),
                 "dnsConfigValidations", null, null,
                 function() {
                     self.model.showErrorAttr(prefixId +
@@ -88,93 +82,14 @@ define([
                     kbValidation.bind(self);
                 });
         },
-        renderEditDnsServer: function(options) {
-            var editTemplate =
-                contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
-            var editLayout = editTemplate({
-                prefixId: prefixId,
-                modalId: modalId
-            });
-            self = this;
-            self.mode = options.mode;
-            cowu.createModal({
-                'modalId': modalId,
-                'className': 'modal-680',
-                'title': options['title'],
-                'body': editLayout,
-                'onSave': function() {
-                    self.model.addEditDnsServer(
-                        'edit', {
-                            init: function() {
-                                cowu.enableModalLoading(
-                                    modalId
-                                );
-                            },
-                            success: function() {
-                                options
-                                    [
-                                        'callback'
-                                    ]();
-                                $("#" +
-                                    modalId
-                                ).modal(
-                                    'hide'
-                                );
-                            },
-                            error: function(
-                                error) {
-                                cowu.disableModalLoading(
-                                    modalId,
-                                    function() {
-                                        self
-                                            .model
-                                            .showErrorAttr(
-                                                prefixId +
-                                                cowc
-                                                .FORM_SUFFIX_ID,
-                                                error
-                                                .responseText
-                                            );
-                                    }
-                                );
-                            }
-                        });
-                    // TODO: Release binding on successful configure
-                },
-                'onCancel': function() {
-                    Knockback.release(self.model,
-                        document.getElementById(
-                            modalId));
-                    kbValidation.unbind(self);
-                    $("#" + modalId).modal(
-                        'hide');
-                }
-            });
 
-            self.renderView4Config($("#" + modalId).find(
-                    formId), this.model,
-                getAddDnsServerViewConfig(true),
-                "dnsConfigValidations", null, null,
-                function() {
-                    self.model.showErrorAttr(prefixId +
-                        cowc.FORM_SUFFIX_ID, false);
-                    Knockback.applyBindings(self.model,
-                        document.getElementById(
-                            modalId));
-                    kbValidation.bind(self);
-                });
-        },
         renderDeleteDnsServer: function(options) {
             var delTemplate =
-                contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_DEL);
+                contrail.getTemplate4Id("core-generic-delete-form-template");
             self = this;
             var items = "";
 
-            var delLayout = delTemplate({
-                prefixId: prefixId,
-                item: ctwl.TITLE_DNS_SERVER,
-                itemId: items
-            });
+            var delLayout = delTemplate({prefixId: prefixId});
             cowu.createModal({
                 'modalId': modalId,
                 'className': 'modal-680',
@@ -231,11 +146,11 @@ define([
                 }
             });
 
-            this.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+            self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
                 false);
-            Knockback.applyBindings(this.model, document.getElementById(
+            Knockback.applyBindings(self.model, document.getElementById(
                 modalId));
-            kbValidation.bind(this);
+            kbValidation.bind(self);
         }
     });
 
@@ -246,23 +161,18 @@ define([
         }
         var vdnsList = response['virtual_DNSs'];
         var vdnsCnt = vdnsList.length;
-        window.ipams = {};
         for (var i = 0; i < vdnsCnt; i++) {
             var fqn = getValueByJsonPath(vdnsList[i],
                 'virtual-DNS;fq_name', []);
             if (fqn.length > 0) {
-                if (self.mode == 'Create') {
-                    dnss.push({
-                        'id': fqn.join(':'),
-                        'text': fqn.join(':')
-                    });
-                } else if (self.mode == 'Edit' && self.model.name() !=
+                if(self.mode == ctwl.EDIT_ACTION && self.model.name() ===
                     fqn[1]) {
-                    dnss.push({
-                        'id': fqn.join(':'),
-                        'text': fqn.join(':')
-                    });
+                    continue;
                 }
+                dnss.push({
+                    'id': fqn.join(':'),
+                    'text': fqn.join(':')
+                });
             }
         }
         return dnss;
@@ -278,14 +188,10 @@ define([
         for (var i = 0; i < ipamsCnt; i++) {
             var fqn = ipamsList[i].fq_name;
             var fqnString = fqn[0] + ':' + fqn[1] + ':' + fqn[2];
-            //  ipams.push({'id':ipamsList[i].uuid,'data': JSON.stringify(ipamsList[i]), 'text': fqn.join(':')});
             ipams.push({
                 id: getIpamId(fqnString, ipamsList[i].uuid),
                 text: fqn[1] + ':' + fqn[2]
             });
-
-
-            window.ipams[fqn.join(':')] = ipamsList[i]['uuid'];
         }
 
         return ipams;
@@ -296,7 +202,6 @@ define([
     }
 
     function getAddDnsServerViewConfig(isDisable) {
-        var prefixId = ctwl.TEST_DNS_SERVER_PREFIX_ID;
         var dnsViewConfig = {
             elementId: cowu.formatElementId([prefixId, ctwl.TITLE_CREATE_DNS_SERVER]),
             title: ctwl.TITLE_CREATE_DNS_SERVER,
@@ -304,14 +209,14 @@ define([
             viewConfig: {
                 rows: [{
                     columns: [{
-                        elementId: 'name',
+                        elementId: 'display_name',
                         view: 'FormInputView',
                         viewConfig: {
                             label: 'Name',
                             disabled: isDisable,
-                            path: 'name',
+                            path: 'display_name',
                             class: 'span6',
-                            dataBindValue: 'name'
+                            dataBindValue: 'display_name'
                         }
                     },{
                         elementId: 'domain_name',
@@ -452,5 +357,5 @@ define([
         return dnsViewConfig;
     }
 
-    return DnsServerEditView;
+    return dnsServersEditView;
 });

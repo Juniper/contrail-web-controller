@@ -4,7 +4,7 @@
 define([
     'underscore',
     'contrail-view',
-    'config/dns/servers/ui/js/activeDNSFormatter'],function(_, ContrailView, activeDNSFormatter) {
+    'config/dns/servers/ui/js/activeDnsFormatter'],function(_, ContrailView, activeDNSFormatter) {
     var gridElId = "#ActiveDnsGrid";
     var ActiveDnsGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -110,7 +110,20 @@ define([
                     },
                     checkboxSelectable: false,
                 },
-                dataSource: {}
+                dataSource: {},
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Active DNS Records..'
+                    },
+                    empty: {
+                        text: 'No Active DNS Records Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Active DNS Records.'
+                    }
+                }
             },
             columnHeader: {
                 columns: ActiveDnsColumns

@@ -925,32 +925,19 @@ define([
         this.TXT_ROUTING_POLICY = 'routing policy';
         this.TITLE_REMOVE_GRID = "Remove Routing Policy";
 
-        this.CONFIG_DNS_SERVER_PAGE_ID = 'config-dns-server-page';
-        this.CONFIG_DNS_SERVER_LIST_VIEW_ID = 'config-dns-server-list';
-        this.CONFIG_DNS_SERVER_SECTION_ID = 'dnsServer';
-        this.CONFIG_DNS_SERVER_ID = 'config-dns-server';
+        /* DNS Server labels */
         this.TITLE_DNS_SERVER = 'DNS Servers';
-        this.DNS_SERVER_GRID_ID = 'dns-server-grid';
-        this.DNS_SERVER_PREFIX_ID = 'DNS_server';
         this.TITLE_CREATE_DNS_SERVER = 'Create DNS Server';
         this.TITLE_DEL_DNS_SERVER = 'Delete DNS Server';
+        this.TITLE_DNS_SERVER_MULTI_DELETE = "Delete DNS Server(s)";
         this.TITLE_EDIT_DNS_SERVER = 'Edit DNS Server';
-        this.DNS_SERVER_DETAILS = 'DNS Server Details';
 
-
-        this.CONFIG_DNS_RECORDS_PAGE_ID = 'config-dns-records-page';
-        this.CONFIG_DNS_RECORDS_LIST_VIEW_ID = 'config-dns-records-list';
-        this.CONFIG_DNS_RECORDS_SECTION_ID = 'dnsRecords';
-        this.CONFIG_DNS_RECORDS_ID = 'config-dns-records';
+        /* DNS Record labels */
         this.TITLE_DNS_RECORDS = 'DNS Records';
-        this.DNS_RECORDS_GRID_ID = 'dns-records-grid';
-        this.DNS_RECORDS_PREFIX_ID = 'DNS_records';
         this.TITLE_CREATE_DNS_RECORD = 'Create DNS Record';
         this.TITLE_DEL_DNS_RECORD = 'Delete DNS Record';
+        this.TITLE_DNS_RECORD_MULTI_DELETE = "Delete DNS Record(s)";
         this.TITLE_EDIT_DNS_RECORD = 'Edit DNS Record';
-        this.DNS_RECORD_DETAILS = 'DNS Record Details';
-        this.DNS_BREADCRUMB_DROPDOWN = "dns-breadcrumb-dropdown";
-
 
         //Config DB Labels - Start
         this.CDB_FQ_TABLE_NAMES_GRID_ID = "cdb-fq-table-names-grid";

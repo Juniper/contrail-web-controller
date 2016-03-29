@@ -24,7 +24,8 @@ function ActiveDnsLoader() {
         } else {
             self.renderView(renderFn, hashParams);
         }
-    }
+    };
+
     this.renderView = function(renderFn, hashParams) {
         $(contentContainer).html("");
         if (hashParams.view == "config_dns_activeDatabase") {
