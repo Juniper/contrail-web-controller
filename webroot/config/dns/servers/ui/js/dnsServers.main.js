@@ -9,7 +9,7 @@ function ConfigDNSServerLoader() {
             currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathDNSServersView = ctBaseDir + '/config/dns/servers/ui/js/views/dnsServerView.js',
+            pathDNSServersView = ctBaseDir + '/config/dns/servers/ui/js/views/dnsServersView.js',
             renderFn = paramObject['function'],
             loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
@@ -24,7 +24,8 @@ function ConfigDNSServerLoader() {
         } else {
             self.renderView(renderFn, hashParams);
         }
-    }
+    };
+
     this.renderView = function(renderFn, hashParams) {
         $(contentContainer).html("");
         if (hashParams.view == "config_dns_activeDatabase") {

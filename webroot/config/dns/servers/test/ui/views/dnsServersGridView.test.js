@@ -44,7 +44,7 @@ define([
             rootView: configDNSServerLoader.dnsServersView,
             tests: [
                 {
-                    viewId: 'DnsServerGrid',
+                    viewId: ctwc.DNS_SERVER_GRID_ID,
                     suites: [
                         {
                             class: GridViewTestSuite,

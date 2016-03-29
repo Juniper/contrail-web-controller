@@ -50,7 +50,7 @@ define([
             rootView: configDNSRecordsLoader.dnsRecordsView,
             tests: [
                 {
-                    viewId: 'DnsRecordsGrid',
+                    viewId: ctwl.DNS_RECORDS_GRID_ID,
                     suites: [
                         {
                             class: GridViewTestSuite,

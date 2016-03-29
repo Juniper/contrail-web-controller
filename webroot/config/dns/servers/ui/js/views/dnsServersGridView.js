@@ -4,13 +4,15 @@
 define([
     'underscore',
     'contrail-view',
-    'config/dns/servers/ui/js/models/dnsServerModel',
-    'config/dns/servers/ui/js/views/dnsServerEditView'
-], function(_, ContrailView, DnsServerModel, DnsServerEditView) {
-    var DnsServerEditView = new DnsServerEditView(),
-        gridElId = "#DnsServerGrid";
+    'config/dns/servers/ui/js/models/dnsServersModel',
+    'config/dns/servers/ui/js/views/dnsServersEditView',
+    'config/dns/servers/ui/js/dnsServersFormatter'
+], function(_, ContrailView, DnsServerModel, DnsServerEditView, DnsServersFormatter) {
+    var dnsServerEditView = new DnsServerEditView(),
+        dnsServersFormatters = new DnsServersFormatter(),
+        gridElId = '#' + ctwc.DNS_SERVER_GRID_ID;
 
-    var DnsServerGridView = ContrailView.extend({
+    var dnsServerGridView = ContrailView.extend({
         el: $(contentContainer),
         render: function() {
             var self = this,
@@ -24,13 +26,13 @@ define([
 
     var getDnsServerGridViewConfig = function(pagerOptions) {
         return {
-            elementId: "DnsServerListView",
+            elementId: ctwc.CONFIG_DNS_SERVER_ID,
             view: "SectionView",
             viewConfig: {
                 rows: [{
                     columns: [{
-                        elementId: 'DnsServerGrid',
-                        title: 'DNS Servers',
+                        elementId: ctwc.DNS_SERVER_GRID_ID,
+                        title: ctwl.TITLE_DNS_SERVER,
                         view: "GridView",
                         viewConfig: {
                             elementConfig: getConfiguration(
@@ -41,14 +43,15 @@ define([
             }
         }
     };
+
     var rowActionConfig = [
         ctwgc.getEditConfig('Edit', function(rowIndex) {
             var dataItem =
                 $(gridElId).data('contrailGrid')._dataView.getItem(
                     rowIndex);
             dnsServerModel = new DnsServerModel(dataItem);
-            DnsServerEditView.model = dnsServerModel;
-            DnsServerEditView.renderEditDnsServer({
+            dnsServerEditView.model = dnsServerModel;
+            dnsServerEditView.renderAddEditDNSServer({
                 "title": ctwl.TITLE_EDIT_DNS_SERVER +
                     ' (' + dataItem['display_name'] +
                     ')',
@@ -58,7 +61,7 @@ define([
                             "contrailGrid")._dataView;
                     dataView.refreshData();
                 },
-                'mode': 'Edit'
+                'mode': ctwl.EDIT_ACTION
             });
         }),
         ctwgc.getDeleteConfig('Delete', function(rowIndex) {
@@ -67,8 +70,8 @@ define([
                 $(gridElId).data('contrailGrid')._dataView.getItem(
                     rowIndex);
             var checkedRows = [dataItem];
-            DnsServerEditView.model = dnsServerModel;
-            DnsServerEditView.renderDeleteDnsServer({
+            dnsServerEditView.model = dnsServerModel;
+            dnsServerEditView.renderDeleteDnsServer({
                 "title": ctwl.TITLE_DEL_DNS_SERVER +
                     '(' + dataItem['display_name'] +
                     ')',
@@ -143,7 +146,20 @@ define([
                         }
                     },
                 },
-                dataSource: {}
+                dataSource: {},
+                statusMessages: {
+                    loading: {
+                        text: 'Loading DNS Servers..'
+                    },
+                    empty: {
+                        text: 'No DNS Servers Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting DNS Servers.'
+                    }
+                }
             },
             columnHeader: {
                 columns: DnsServerColumns
@@ -152,7 +168,7 @@ define([
         return gridElementConfig;
     };
 
-    DnsServerColumns = [{
+    var DnsServerColumns = [{
             id: 'display_name',
             field: 'display_name',
             name: 'DNS Server',
@@ -173,21 +189,11 @@ define([
 
         }, {
             name: 'Domain Name',
-            formatter: function(row, col, val, d, rowData) {
-                var domain = getValueByJsonPath(rowData,
-                    'virtual_DNS_data;domain_name', "-");
-                return domain;
-            }
+            formatter: dnsServersFormatters.domainNameFormatter
         }, {
             name: 'Forwarders',
-            formatter: function(row, col, val, d, rowData) {
-                var fwer = getValueByJsonPath(rowData,
-                    'virtual_DNS_data;next_virtual_DNS',
-                    "-");
-                return fwer;
-            }
+            formatter: dnsServersFormatters.forwardersFormatter
         }
-
     ];
 
     function getNetworkIpamStrings(nwIpamBackRefs) {
@@ -200,7 +206,7 @@ define([
             }
         }
         return ipams;
-    }
+    };
 
     function getDNSDetailsTemplateConfig() {
         return {
@@ -212,7 +218,7 @@ define([
                         columns: [{
                             class: 'span6',
                             rows: [{
-                                title: "DNS Servers",
+                                title: ctwl.TITLE_DNS_SERVER,
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [{
                                         key: 'fq_name[1]',
@@ -292,54 +298,29 @@ define([
     };
 
     this.DnsDomIpamsFormatter = function(val, obj) {
-        var nwIpams = getValueByJsonPath(obj,
-            'network_ipam_back_refs', null);
-        if (null == nwIpams) {
-            return "-";
-        }
-        var dispStr = "";
-        var cnt = nwIpams.length;
-        var domain = getCookie('domain');
-        for (var i = 0; i < cnt; i++) {
-            if (domain == nwIpams[i]['to'][0]) {
-                dispStr += nwIpams[i]['to'][1] + ":" + nwIpams[i][
-                    'to'
-                ][2];
-                if (i < cnt - 1) {
-                    dispStr += ", ";
-                }
-            }
-        }
-        return dispStr;
+        return dnsServersFormatters.dnsDomainIpamsFormatter("", "", val, "", obj);
     };
+
     this.DnsTtlFormatter = function(val, obj) {
-        return val + " (seconds)";
+        return dnsServersFormatters.ttlFormatter("", "", val, "", obj);
     };
+
     this.RecordResolutionFormatter = function(val, obj) {
-       var retValue = '-';
-       switch(val) {
-           case 'random' :
-               retValue = 'Random';
-               break;
-           case 'fixed' :
-               retValue = 'Fixed';
-               break;
-           case 'round-robin' :
-               retValue = 'Round-Robin';
-               break;
-       }
-       return retValue;
+       return dnsServersFormatters.recordResolutionFormatter("", "", val, "", obj);
     };
+
     this.ExternalVisibleFormatter = function(val, obj) {
-        return val === 'true' ? 'Enabled' : 'Disabled';
+        return dnsServersFormatters.externalVisibleFormatter("", "", val, "", obj);
     };
+
     this.ReverseResolutionFormatter = function(val, obj) {
-        return val === 'true' ? 'Enabled' : 'Disabled';
+        return dnsServersFormatters.reverseResolutionFormatter("", "", val, "", obj);
     };
+
     function getHeaderActionConfig(gridElId) {
         var headerActionConfig = [{
             "type": "link",
-            "title": ctwl.TITLE_DEL_DNS_SERVER,
+            "title": ctwl.TITLE_DNS_SERVER_MULTI_DELETE,
             "iconClass": 'icon-trash',
             "linkElementId": 'btnActionDelDNS',
             "onClick": function() {
@@ -348,9 +329,9 @@ define([
                     'contrailGrid').getCheckedRows();
                 if(checkedRows && checkedRows.length > 0) {
                     dnsServerModel = new DnsServerModel();
-                    DnsServerEditView.model = dnsServerModel;
-                    DnsServerEditView.renderDeleteDnsServer({
-                        "title": ctwl.TITLE_DEL_DNS_SERVER,
+                    dnsServerEditView.model = dnsServerModel;
+                    dnsServerEditView.renderDeleteDnsServer({
+                        "title": ctwl.TITLE_DNS_SERVER_MULTI_DELETE,
                         checkedRows: checkedRows,
                         callback: function() {
                             var dataView =
@@ -374,24 +355,21 @@ define([
                     'configObj');
 
                 var dnsServerModel = new DnsServerModel();
-                DnsServerEditView.model = dnsServerModel;
-                DnsServerEditView.renderAddDnsServer({
+                dnsServerEditView.model = dnsServerModel;
+                dnsServerEditView.renderAddEditDNSServer({
                     "title": ctwl.TITLE_CREATE_DNS_SERVER,
                     gridData: gridData,
                     configData: configData,
                     callback: function() {
-                        var dataView = $(
-                                gridElId).data(
-                                "contrailGrid")
+                        var dataView = $(gridElId).data("contrailGrid")
                             ._dataView;
                         dataView.refreshData();
                     },
-                    'mode': 'Create'
+                    'mode': ctwl.CREATE_ACTION
                 });
             }
-        }, ];
+        }];
         return headerActionConfig;
     }
-
-    return DnsServerGridView;
+    return dnsServerGridView;
 });
