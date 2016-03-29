@@ -25,7 +25,8 @@ define([
             body: JSON.stringify(TestMockdata.dnsServerDomainsMockData)
         }));
         responses.push(cotr.createFakeServerResponse({
-            url : /\/api\/admin\/config\/get-data\?type=virtual-DNS&count=4&fqnUUID=07fbaa4b-c7b8-4f3d-996e-9d8b1830b288.*$/,
+            url : /\/api\/tenants\/config\/get-config-details.*$/,
+            method: "POST",
             body: JSON.stringify(TestMockdata.dnsServersMockData)
         }));
 
@@ -44,7 +45,7 @@ define([
             rootView: configDNSServerLoader.dnsServersView,
             tests: [
                 {
-                    viewId: 'DnsServerGrid',
+                    viewId: ctwc.DNS_SERVER_GRID_ID,
                     suites: [
                         {
                             class: GridViewTestSuite,

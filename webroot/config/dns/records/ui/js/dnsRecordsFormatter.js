@@ -30,6 +30,9 @@ define(['underscore'], function(_) {
                 case ("NS"):
                     formattedRecType = recordType + " (Delegation Record)";
                     break;
+                case ("MX"):
+                    formattedRecType = recordType + " (Mail Exchanger Record)";
+                    break;
                 default:
                     formattedRecType = "-";
             }
@@ -38,10 +41,10 @@ define(['underscore'], function(_) {
 
         };
         /*
-         * @TTLFormatter
+         * @ttlFormatter
          */
 
-        self.TTLFormatter = function(row, col, val, d, rowData) {
+        self.ttlFormatter = function(row, col, val, d, rowData) {
             var TTL = getValueByJsonPath(rowData,
                 'virtual_DNS_record_data;record_ttl_seconds',
                 "-");

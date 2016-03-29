@@ -5,7 +5,7 @@ define([
     'underscore',
     'contrail-model'
 ], function(_, ContrailModel) {
-    var DnsServerModel = ContrailModel.extend({
+    var dnsServersModel = ContrailModel.extend({
         defaultConfig: {
             "name": null,
             "display_name": null,
@@ -24,6 +24,9 @@ define([
             "user_created_network_ipams" : null
         },
         formatModelConfig: function(modelConfig) {
+             modelConfig['display_name'] =
+                 ctwu.getDisplayNameOrName(modelConfig);
+
              //populate user_created_network_ipams for edit case
              var ipamBackRefs = modelConfig['network_ipam_back_refs'];
              if(ipamBackRefs instanceof Array) {
@@ -58,13 +61,9 @@ define([
 
                 var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
                 var project = contrail.getCookie(cowc.COOKIE_PROJECT);
-                delete newdnsServerData['errors'];
-                delete newdnsServerData['locks'];
 
-                if (newdnsServerData['name'] == '') {
-                    newdnsServerData['display_name'] =
-                        newdnsServerData['name'];
-                }
+                ctwu.setNameFromDisplayName(newdnsServerData);
+
                 if (newdnsServerData['fq_name'] == null ||
                     newdnsServerData['fq_name'].length == 0
                 ) {
@@ -73,9 +72,8 @@ define([
                     newdnsServerData['fq_name'][1] =
                         newdnsServerData['name'];
                 }
-                if (newdnsServerData['virtual_DNS_data'][
-                        'default_ttl_seconds'
-                    ] == null) {
+                if (!newdnsServerData['virtual_DNS_data']
+                    ['default_ttl_seconds']) {
                     newdnsServerData['virtual_DNS_data'][
                         'default_ttl_seconds'
                     ] = 86400;
@@ -107,13 +105,14 @@ define([
                     var nwIpamBackRefsCnt = nwIpams.length;
                     for (var i = 0; i < nwIpamBackRefsCnt; i++) {
                         var nwIpam = nwIpams[i];
-                        var parts = nwIpam.split('**');
-                        var nwIpamBackRef = {};
-                        var fqn = parts[0].split(':');
-                        nwIpamBackRef['to'] = fqn;
-                        nwIpamBackRef['uuid'] = window.ipams[
-                            fqn.join(':')];
-                        nwIpamBackRefs.push(nwIpamBackRef);
+                        var parts = nwIpam ? nwIpam.split('**') : [];
+                        if(parts.length === 2) {
+                            var nwIpamBackRef = {};
+                            var fqn = parts[0].split(':');
+                            nwIpamBackRef['to'] = fqn;
+                            nwIpamBackRef['uuid'] = parts[1];
+                            nwIpamBackRefs.push(nwIpamBackRef);
+                        }
                     }
 
                     newdnsServerData[
@@ -122,18 +121,16 @@ define([
                 } else {
                     delete newdnsServerData['network_ipam_back_refs'];
                 }
-                delete newdnsServerData['elementConfigMap'];
 
                 var dnsMethod = getValueByJsonPath(
                     newdnsServerData,
                     'user_created_dns_method',
                     'default');
 
+                ctwu.deleteCGridData(newdnsServerData);
+
                 delete newdnsServerData[
                     'user_created_dns_method'];
-                delete newdnsServerData.errors;
-                delete newdnsServerData.locks;
-                delete newdnsServerData.cgrid;
                 delete newdnsServerData.id_perms;
                 delete newdnsServerData.user_created;
                 delete newdnsServerData.tenant_dns_server;
@@ -141,25 +138,24 @@ define([
                 delete newdnsServerData.href;
                 delete newdnsServerData.parent_href;
                 delete newdnsServerData.parent_uuid;
+                delete newdnsServerData.user_created_network_ipams;
 
                 var url, type;
-                if (mode === "create") {
+                if (mode === ctwl.CREATE_ACTION) {
                     postData['virtual-DNS'] =
                         newdnsServerData;
                     var ajaxType = contrail.checkIfExist(
                             ajaxMethod) ? ajaxMethod :
                         "POST";
-                    ajaxConfig.async = false;
                     ajaxConfig.type = ajaxType;
                     ajaxConfig.data = JSON.stringify(
                         postData);
                     ajaxConfig.url =
                         '/api/tenants/config/virtual-DNSs';
 
-                } else if (mode === "edit") {
+                } else if (mode === ctwl.EDIT_ACTION) {
                     postData['virtual-DNS'] =
                         newdnsServerData;
-                    ajaxConfig.async = false;
                     ajaxConfig.type = 'PUT';
                     ajaxConfig.data = JSON.stringify(
                         postData);
@@ -189,7 +185,7 @@ define([
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
                     callbackObj.error(this.getFormErrorText(
-                        'DNS_Server'));
+                        ctwc.DNS_SERVER_PREFIX_ID));
                 }
             }
 
@@ -235,7 +231,7 @@ define([
         },
         validations: {
             dnsConfigValidations: {
-                'name': {
+                'display_name': {
                     required: true,
                     msg: 'DNS Server Name is required'
                 },
@@ -254,7 +250,7 @@ define([
                 },
                 'virtual_DNS_data.next_virtual_DNS' : function(value, attr, finalObj){
                     if(value != null && value != '') {
-                        var virtualDNSs = $('#DnsServerGrid').
+                        var virtualDNSs = $('#' + ctwc.DNS_SERVER_GRID_ID).
                             data('contrailGrid')._dataView.getItems();
                         var isSel_fwd = false;
                         for(var i = 0;i < virtualDNSs.length;i++){
@@ -274,5 +270,5 @@ define([
             }
         }
     });
-    return DnsServerModel;
+    return dnsServersModel;
 });
