@@ -6,7 +6,7 @@ define([
     'contrail-model'
 ], function(_, ContrailModel) {
     var self;
-    var DnsRecordsModel = ContrailModel.extend({
+    var dnsRecordsModel = ContrailModel.extend({
         defaultConfig: {
             "uuid": null,
             "virtual_DNS_record_data": {
@@ -40,8 +40,6 @@ define([
 
                 var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
                 var project = contrail.getCookie(cowc.COOKIE_PROJECT);
-                delete newdnsRecordsData['errors'];
-                delete newdnsRecordsData['locks'];
 
                 if (newdnsRecordsData['uuid'] == '') {
                     newdnsRecordsData['display_name'] =
@@ -51,8 +49,8 @@ define([
                     newdnsRecordsData['fq_name'].length ==
                     0) {
                     newdnsRecordsData['fq_name'] = [];
-                    newdnsRecordsData['fq_name'] = window.dnsSelectedValueData
-                        .fq_name.split(':');
+                    newdnsRecordsData['fq_name'].push(domain);
+                    newdnsRecordsData['fq_name'].push(self.dnsServerData.name);
                 }
                 var nwIpams = newdnsRecordsData[
                     'network_ipam_back_refs'];
@@ -88,7 +86,7 @@ define([
                     ['record_type'] = newdnsRecordsData[
                         'user_created_record_type'];
                 newdnsRecordsData['parent_type'] = 'domain';
-                newdnsRecordsData['parent_uuid'] = window.dnsSelectedValueData
+                newdnsRecordsData['parent_uuid'] = self.dnsServerData
                     .parentSelectedValueData.value;
                 var virtDNSRecData = newdnsRecordsData[
                     'virtual_DNS_record_data'];
@@ -104,12 +102,10 @@ define([
                 newdnsRecordsData['virtual_DNS_records'][0]
                     ['to'] =
                     newdnsRecordsData['fq_name'];
-                delete newdnsRecordsData['elementConfigMap'];
+                ctwu.deleteCGridData(newdnsRecordsData);
+
                 delete newdnsRecordsData[
                     'user_created_dns_method'];
-                delete newdnsRecordsData.errors;
-                delete newdnsRecordsData.locks;
-                delete newdnsRecordsData.cgrid;
                 delete newdnsRecordsData.id_perms;
                 delete newdnsRecordsData.user_created;
                 delete newdnsRecordsData.tenant_dns_records;
@@ -135,7 +131,7 @@ define([
                         postData);
                     ajaxConfig.url =
                         '/api/tenants/config/virtual-DNS/' +
-                        window.dnsSelectedValueData.value +
+                        self.dnsServerData.value +
                         '/virtual-DNS-records';
 
                 } else if (mode === ctwl.EDIT_ACTION) {
@@ -147,7 +143,7 @@ define([
                         postData);
                     ajaxConfig.url =
                         '/api/tenants/config/virtual-DNS/' +
-                        window.dnsSelectedValueData.value +
+                        self.dnsServerData.value +
                         '/virtual-DNS-record/' +
                         newdnsRecordsData['uuid'];
                 }
@@ -173,7 +169,7 @@ define([
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
                     callbackObj.error(this.getFormErrorText(
-                        'DNS_Record'));
+                        ctwc.DNS_RECORDS_PREFIX_ID));
                 }
             }
 
@@ -281,5 +277,5 @@ define([
             }
         }
     });
-    return DnsRecordsModel;
+    return dnsRecordsModel;
 });

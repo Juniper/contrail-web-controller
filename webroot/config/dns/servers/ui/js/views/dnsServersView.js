@@ -5,7 +5,7 @@ define([
     'underscore',
     'contrail-view'
 ], function(_, ContrailView) {
-    var DnsServerView = ContrailView.extend({
+    var dnsServerView = ContrailView.extend({
         el: $(contentContainer),
         renderDnsServer: function(viewConfig) {
             this.renderView4Config(this.$el, null,
@@ -34,8 +34,8 @@ define([
     function getDnsServer(viewConfig) {
         return function(domainSelectedValueData) {
             return {
-                elementId: 'DnsServerPageId',
-                view: "dnsServerListView",
+                elementId: ctwc.CONFIG_DNS_SERVER_PAGE_ID,
+                view: "dnsServersListView",
                 viewPathPrefix: "config/dns/servers/ui/js/views/",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewConfig: $.extend(true, {}, viewConfig, {
@@ -76,8 +76,6 @@ define([
                 dropdownOptions: dropdownOptions
             }
         }
-    }
-
-
-    return DnsServerView;
+    };
+    return dnsServerView;
 });

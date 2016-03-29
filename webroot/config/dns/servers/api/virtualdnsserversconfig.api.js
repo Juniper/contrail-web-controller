@@ -283,7 +283,7 @@ function deleteVirtualDNSCallback(vdnsObj, callback) {
             appData,
             function(err, data) {
                 if (err) {
-                    callback(err, null);
+                    callback(null, {error: err, data: data});
                     return;
                 }
 
