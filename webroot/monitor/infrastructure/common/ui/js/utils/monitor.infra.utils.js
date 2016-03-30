@@ -1281,8 +1281,7 @@ define([
             var obj = getNodeStatusForSummaryPages(data);
             if(obj['alerts'].length > 0) {
                 if(type == 'html')
-                    return '<span title="'+obj['messages'].join(',&#10 ')+
-                        '" class=\"infra-nodesatus-text-ellipsis\">'+
+                    return '<span title="'+obj['messages'].join(',&#10 ') + '" >'+
                         obj['messages'].join(',')+'</span>';
                 else if(type == 'text')
                     return obj['messages'].join(',');

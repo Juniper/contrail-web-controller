@@ -140,7 +140,8 @@ define(
                     body : {
                         options : {
                           detail : false,
-                          checkboxSelectable : false
+                          checkboxSelectable : false,
+                          fixedRowHeight: 30
                         },
                         dataSource : {
                             remote : {
