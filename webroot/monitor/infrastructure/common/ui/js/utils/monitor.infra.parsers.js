@@ -745,9 +745,6 @@ define(
                             var securityGroup = "--";
                             //Multiple paths can be there for a given prefix
                             $.each(paths, function (idx,obj) {
-                              if(isRtTableDisplayed){
-                                 rtTable = '';
-                                }
                               var rtable= routeTables[i];
                               var origVn = obj['origin_vn'];
                               var addfamily = '-';
@@ -1378,6 +1375,14 @@ define(
                     // aclGrid.refreshView();
                 }
 
+                this.formatMinMax = function (min, max) {
+                    if (min == max) {
+                        return min;
+                    } else {
+                        return min + ' - ' + max;
+                    } 
+                }
+
                 this.parseVRouterACLData = function(response) {
 
                     var retArr = [];
@@ -1410,15 +1415,16 @@ define(
                                         actionVal = srcVn = destVn = aceid =
                                         srcType = dstType = srcSgId = dstSgId =
                                         noDataStr;
-                                    protoRange = getValueByJsonPath(currACE,
-                                        "proto_l;list;SandeshRange;min") + " - " +
-                                        getValueByJsonPath(currACE,"proto_l;list;SandeshRange;max");
-                                    srcPortRange = getValueByJsonPath(currACE,
-                                        "src_port_l;list;SandeshRange;min") + " - " +
-                                        getValueByJsonPath(currACE,"src_port_l;list;SandeshRange;max");
-                                    dstPortRange = getValueByJsonPath(currACE,
-                                        "dst_port_l;list;SandeshRange;min") + " - " +
-                                        getValueByJsonPath(currACE,"dst_port_l;list;SandeshRange;max");
+                                    protoRange = this.formatMinMax (getValueByJsonPath(currACE,
+                                        "proto_l;list;SandeshRange;min"),
+                                            getValueByJsonPath(currACE,
+                                        "proto_l;list;SandeshRange;max"));
+                                    srcPortRange = this.formatMinMax(getValueByJsonPath(currACE,
+                                        "src_port_l;list;SandeshRange;min"),
+                                        getValueByJsonPath(currACE,"src_port_l;list;SandeshRange;max"));
+                                    dstPortRange = this.formatMinMax(getValueByJsonPath(currACE,
+                                        "dst_port_l;list;SandeshRange;min"),
+                                        getValueByJsonPath(currACE,"dst_port_l;list;SandeshRange;max"));
                                     var actionList = jsonPath(currACE,'$.action_l.list.ActionStr..action');
                                     if(!(actionList instanceof Array)){
                                         actionList = [actionList];

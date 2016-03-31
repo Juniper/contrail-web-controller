@@ -12,7 +12,15 @@ define([
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig;
 
-            self.renderView4Config(self.$el, self.model, self.getViewConfig(self.attributes));
+            self.renderView4Config(self.$el, self.model, 
+                    self.getViewConfig(self.attributes),null,null,null,
+                    function(){
+                        cowu.addGridGrouping ('vrouter_acl-results',{
+                            groupingField :"uuid",
+                            groupHeadingPrefix : 'ACL UUID: ',
+                            rowCountSuffix : ['ACE','ACE']
+                        });
+                    });
         },
 
         getViewConfig: function (attributes) {
@@ -40,21 +48,13 @@ define([
                            searchFn:function(d){
                                return d['uuid'];
                            },
+                           hide:true,
                            minWidth:200,
                        },
                        {
-                           field:"flow_count",
-                           name:"Flows",
-                           minWidth:50,
-                           cssClass:'cell-hyperlink-blue',
-                           events: {
-                               onClick: function(e,dc){
-                                   var tabIdx = $.inArray("flows", computeNodeTabs);
-                                   var data = {tab:"flows",filters:[{aclUUID:dc['uuid']}]};
-                                   $('#' + computeNodeTabStrip).data('tabFilter',data);
-                                    $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:ctwl.VROUTER_FLOWS_TAB_IDX});
-                               }
-                            }
+                           field:"aceId",
+                           name:"ACE Id",
+                           minWidth:50
                        },
                        {
                            field:"ace_action",
@@ -62,7 +62,7 @@ define([
                            formatter:function(r,c,v,cd,dc){
                                return getAclActions(dc);
                            },
-                           minWidth:200
+                           minWidth:70
                        },
                        {
                            field:"proto",
@@ -74,8 +74,8 @@ define([
                        },
                        {
                            field:"src_vn",
-                           name:"Source Network or Prefix",
-                           minWidth:175,
+                           name:"Source",
+                           minWidth:250,
                            cssClass:'cell-hyperlink-blue',
                            events: {
                                onClick: function(e,dc){
@@ -95,7 +95,7 @@ define([
                        },
                        {
                            field:"dst_vn",
-                           name:"Destination Network or Prefix",
+                           name:"Destination",
                            cssClass:'cell-hyperlink-blue',
                            events: {
                                onClick: function(e,dc){
@@ -103,7 +103,7 @@ define([
                                    $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:ctwl.VROUTER_NETWORKS_TAB_IDX});
                                }
                             },
-                           minWidth:200
+                           minWidth:250
                        },
                        //{field:"dst_ip",       name:"Destination IP",minWidth:110},
                        {
@@ -112,18 +112,28 @@ define([
                            formatter:function(r,c,v,cd,dc){
                                return monitorInfraParsers.formatPortRange(dc['dst_port']);
                            },
-                           minWidth:120
+                           minWidth:95
                        },
+                       {
+                           field:"flow_count",
+                           name:"Flows",
+                           minWidth:50,
+                           cssClass:'cell-hyperlink-blue',
+                           events: {
+                               onClick: function(e,dc){
+                                   var tabIdx = $.inArray("flows", computeNodeTabs);
+                                   var data = {tab:"flows",filters:[{aclUUID:dc['uuid']}]};
+                                   $('#' + computeNodeTabStrip).data('tabFilter',data);
+                                    $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:ctwl.VROUTER_FLOWS_TAB_IDX});
+                               }
+                            }
+                       }
                        /*{
                            field:"proto_range",
                            name:"Source Policy Rule",
                            minWidth:125
                        },*/
-                       {
-                           field:"aceId",
-                           name:"ACE Id",
-                           minWidth:60
-                       }
+                       
                    ];
 
             return {
