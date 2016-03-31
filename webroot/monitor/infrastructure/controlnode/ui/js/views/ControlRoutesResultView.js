@@ -12,7 +12,14 @@ define([
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig;
 
-            self.renderView4Config(self.$el, self.model, self.getViewConfig());
+            self.renderView4Config(self.$el, self.model, self.getViewConfig(),null,null,null,
+                    function(){
+                        cowu.addGridGrouping ('controlroutes-results',{
+                            groupingField :"table",
+                            groupHeadingPrefix : 'Routing Table: ',
+                            rowCountSuffix : ['Route','Routes']
+                        });
+                    });
         },
 
         getViewConfig: function () {
@@ -23,6 +30,8 @@ define([
                                      {
                                         field:"table",
                                         name:"Routing Table",
+                                        sortField:'table',
+                                        hide:true,
                                         minWidth:200
                                      },
                                      {
@@ -92,7 +101,6 @@ define([
                     autoRefresh: false,
                     checkboxSelectable: false,
                     fixedRowHeight: 30,
-                    sortable: false,
                     detail: ctwu.getDetailTemplateConfigToDisplayRawJSON()
                 },
                 dataSource: {
