@@ -1283,12 +1283,7 @@ function aggConfigVNList(fqn, appData, callback) {
             getVNCB(appData, callback);
             return;
         }
-        if (req.session.userRole.indexOf(global.STR_ROLE_ADMIN) == -1) {
-            getVirtualNetworksForUser(appData, callback)
-        } else {
-            configURL = '/virtual-networks';
-            getVNConfigList(configURL, appData, callback);
-        }
+        getVirtualNetworksForUser(appData, callback)
     }
 }
 /*
@@ -1420,17 +1415,10 @@ function getInstanceDetails(req, res, appData) {
         });
         return;
     }
-    if (req.session.userRole.indexOf(global.STR_ROLE_ADMIN) > -1) {
-        getInstanceDetailsForAdmin(req, appData, function (err, instDetails) {
-            commonUtils.handleJSONResponse(err, res, instDetails);
-            return;
-        })
-    } else {
-        getInstancesDetailsForUser(req, appData, function (err, instDetails) {
-            commonUtils.handleJSONResponse(err, res, instDetails);
-            return;
-        });
-    }
+    getInstancesDetailsForUser(req, appData, function (err, instDetails) {
+        commonUtils.handleJSONResponse(err, res, instDetails);
+        return;
+    });
 }
 /*
  * This function is to get the Virtual Machines
