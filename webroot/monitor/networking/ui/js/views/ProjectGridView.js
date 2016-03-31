@@ -15,7 +15,7 @@ define([
                 pagerOptions = viewConfig['pagerOptions'];
 
             var projectsRemoteConfig = {
-                url: ctwc.getProjectsURL({name: ctwc.DEFAULT_DOMAIN}),
+                url: ctwc.getProjectsURL({name: ctwc.DEFAULT_DOMAIN}, {getProjectsFromIdentity: true}),
                 type: 'GET'
             };
 
