@@ -756,7 +756,9 @@ function initActions() {
                     var ip = $("#"+aapElement+"_"+id+"_txtAddAllowPairIP").val();
                     var prefix = 32;
                     portConfig["virtual-machine-interface"]["virtual_machine_interface_allowed_address_pairs"]["allowed_address_pair"][i] = {};
-                    portConfig["virtual-machine-interface"]["virtual_machine_interface_allowed_address_pairs"]["allowed_address_pair"][i]["mac"] = mac;
+                    if (mac.trim() != "") {
+                        portConfig["virtual-machine-interface"]["virtual_machine_interface_allowed_address_pairs"]["allowed_address_pair"][i]["mac"] = mac;
+                    }
                     if(ip != ""){
                         portConfig["virtual-machine-interface"]["virtual_machine_interface_allowed_address_pairs"]["allowed_address_pair"][i]["ip"] = {};
                         if(ip.split("/").length == 2) {
