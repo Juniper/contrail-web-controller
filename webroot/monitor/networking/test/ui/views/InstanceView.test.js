@@ -179,7 +179,7 @@ define([
 
     };
 
-    var testInitFn = function(defObj) {
+    var testInitFn = function(defObj, onAllViewsRenderComplete) {
         //simulate click on all the tabs
         var instanceTabsViewObj = mnPageLoader.mnView.viewMap[ctwl.INSTANCE_TABS_ID],
             instanceTabs = instanceTabsViewObj.attributes.viewConfig.tabs;
@@ -189,10 +189,15 @@ define([
         });
 
         setTimeout(function() {
+                /**
+                 * Tabs are already rendered so by default the event will not get fired.
+                 * call the notify once tabs are activated.
+                 */
+                onAllViewsRenderComplete.notify(); 
                 defObj.resolve();
             },
             // Add necessary timeout for the tab elements to load properly and resolve the promise
-            cotc.PAGE_INIT_TIMEOUT - 50
+            cotc.PAGE_INIT_TIMEOUT * 2
         );
 
         return;
