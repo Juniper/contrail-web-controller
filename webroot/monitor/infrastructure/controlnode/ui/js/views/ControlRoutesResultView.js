@@ -12,7 +12,20 @@ define([
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig;
 
-            self.renderView4Config(self.$el, self.model, self.getViewConfig());
+            self.renderView4Config(self.$el, self.model, self.getViewConfig(),null,null,null,
+                    function(){
+                        var dv = $('#controlroutes-results').data('contrailGrid')._dataView;
+                        dv.setGrouping({
+                            getter: "table",
+                            formatter: function (g) {
+                                var headingTemplate = contrail.getTemplate4Id('grid-grouping-heading-template'),
+                                headingHTML = headingTemplate({mainText:'Routing Table: ' + g.value, 
+                                                       rowsCount: g.rows.length, 
+                                                       rowsCountSuffix: (g.rows.length > 1)? 'Routes' : 'Route'});
+                                return headingHTML;
+                            },
+                          });
+                    });
         },
 
         getViewConfig: function () {
@@ -23,6 +36,8 @@ define([
                                      {
                                         field:"table",
                                         name:"Routing Table",
+                                        sortField:'table',
+                                        hide:true,
                                         minWidth:200
                                      },
                                      {
@@ -92,7 +107,6 @@ define([
                     autoRefresh: false,
                     checkboxSelectable: false,
                     fixedRowHeight: 30,
-                    sortable: false,
                     detail: ctwu.getDetailTemplateConfigToDisplayRawJSON()
                 },
                 dataSource: {

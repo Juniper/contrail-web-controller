@@ -12,7 +12,21 @@ define([
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig;
 
-            self.renderView4Config(self.$el, self.model, self.getViewConfig(self.attributes));
+            self.renderView4Config(self.$el, self.model, 
+                    self.getViewConfig(self.attributes),null,null,null,
+                    function(){
+                        var dv = $('#vrouter_routes-results').data('contrailGrid')._dataView;
+                        dv.setGrouping({
+                            getter: "prefix",
+                            formatter: function (g) {
+                                var headingTemplate = contrail.getTemplate4Id('grid-grouping-heading-template'),
+                                headingHTML = headingTemplate({mainText:'Prefix: ' + g.value, 
+                                                       rowsCount: g.rows.length, 
+                                                       rowsCountSuffix: (g.rows.length > 1)? 'Routes' : 'Route'});
+                                return headingHTML;
+                            },
+                          });
+                    });
         },
 
         getViewConfig: function (attributes) {
@@ -24,6 +38,7 @@ define([
                                     field:"dispPrefix",
                                     id:"Prefix",
                                     name:"Prefix",
+                                    hide:true,
                                     minWidth:50,
                                     searchFn:function(d){
                                         return d['prefix'];
