@@ -14,9 +14,6 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
     opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
     async = require('async');
 
-var opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
-                                  server:config.analytics.server_ip,
-                                  port:config.analytics.server_port });
 function getTimeGranByTimeSlice (timeObj, sampleCnt)
 {
     var startTime = timeObj['start_time'];
@@ -73,23 +70,27 @@ function createTimeObj (appData)
     return timeObj;
 }
 
-function getStatDataByQueryJSON (srcQueryJSON, destQueryJSON, callback)
+function getStatDataByQueryJSON (srcQueryJSON, destQueryJSON, jobData, callback)
 {
     var dataObjArr = [];
     if (srcQueryJSON != null) {
         commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
                                 global.HTTP_REQUEST_POST,
-                                commonUtils.cloneObj(srcQueryJSON));
+                                commonUtils.cloneObj(srcQueryJSON), null, null,
+                                jobData);
     }
     if (destQueryJSON != null) {
         commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
                                 global.HTTP_REQUEST_POST,
-                                commonUtils.cloneObj(destQueryJSON));
+                                commonUtils.cloneObj(destQueryJSON), null, null,
+                                jobData);
     }
     //logutils.logger.debug("Query1 executing:" + JSON.stringify((dataObjArr[0] != null) ? dataObjArr[0]['data'] : ""));
     //logutils.logger.debug("Query2 executing:" + JSON.stringify((dataObjArr[1] != null) ? dataObjArr[1]['data'] : ""));
 
-    async.map(dataObjArr, commonUtils.getServerRespByRestApi(opServer, true), function(err, data) {
+    async.map(dataObjArr,
+              commonUtils.getAPIServerResponse(opApiServer.apiPost, true),
+              function(err, data) {
         callback(err, data);
     });
 }

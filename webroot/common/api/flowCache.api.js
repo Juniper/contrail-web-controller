@@ -27,22 +27,18 @@ if (!module.parent) {
 }
 var FLOW_SERIES_CACHE_EXPIRY_TIME = 10 * 60; /* 10 Minutes */
 
-// Instantiate config and ops server access objects.
-opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
-	server:config.analytics.server_ip,
-	port:config.analytics.server_port });
-
 flowCache = module.exports;
 
 function getFlowSeriesDataByAPIServer (context, appData, timeObj, srcQueryJSON,
-                                       destQueryJSON, callback,type)
+                                       destQueryJSON, jobData, callback, type)
 {
     var resultJSON = {};
     var timeGran = timeObj['timeGran'];
     /* No Need to change the time granularity params (T=X), directly send this
      * query 
      */
-    nwMonUtils.getStatDataByQueryJSON(srcQueryJSON, destQueryJSON, function(err, data) {
+    nwMonUtils.getStatDataByQueryJSON(srcQueryJSON, destQueryJSON, jobData,
+                                      function(err, data) {
         if ((data != null) && data.length) {
             //logutils.logger.debug("Getting Query Response as:" +
              //                     JSON.stringify(data));
@@ -353,7 +349,7 @@ function getFlowSeriesDataByCache (context, appData, cachedData, srcQueryJSON,
     /* Now check how delayed our cache is */
     if (cachedEndTime < reqStartTime) {
         getFlowSeriesDataByTimeObj(context, appData, timeObj, srcQueryJSON,
-                                   destQueryJSON, function(err, reqData) {
+                                   destQueryJSON, jobData, function(err, reqData) {
             callback(err, reqData);
             saveFlowSeriesDataInCache(context, appData, reqData,
                                       function(err, resultJSON) {
@@ -375,7 +371,8 @@ function getFlowSeriesDataByCache (context, appData, cachedData, srcQueryJSON,
             timeObj['start_time'] = cachedEndTime;
             timeObj['end_time'] = reqEndTime;//parseInt(appData['relEndTime']) * 1000;
             getFlowSeriesDataByTimeObj(context, appData, timeObj, srcQueryJSON,
-                                       destQueryJSON, function(err, resultJSON) {
+                                       destQueryJSON, jobData,
+                                       function(err, resultJSON) {
                 /* Again update with requested data */
                 timeObj['start_time'] = reqStartTime;
                 timeObj['end_time'] = reqEndTime;
@@ -405,7 +402,7 @@ function getFlowSeriesDataByCache (context, appData, cachedData, srcQueryJSON,
                         global.MICROSECS_IN_MILL) {
                         getFlowSeriesDataByTimeObj(context, appData, timeObj,
                                                    srcQueryJSON, destQueryJSON, 
-                                                   function(err, resultJSON) {
+                                                   jobData, function(err, resultJSON) {
                             timeObj['start_time'] = relStartTime;
                             timeObj['end_time'] = relEndTime;
                             var fsData = updateFlowSeriesDataByCache(fsData,
@@ -481,7 +478,7 @@ function saveFlowSeriesDataInCache (context, appData, flowData, callback)
 }
 
 function getFlowSeriesDataByTimeObj (context, appData, timeObj, srcQueryJSON,
-                                     destQueryJSON, callback)
+                                     destQueryJSON, jobData, callback)
 {
     updateFlowSeriesQueryStartEndTime(srcQueryJSON, timeObj['start_time'],
                                       timeObj['end_time']);
@@ -489,13 +486,14 @@ function getFlowSeriesDataByTimeObj (context, appData, timeObj, srcQueryJSON,
                                       timeObj['end_time']);
     /* Update timeObj with delta time */
     getFlowSeriesDataByAPIServer(context, appData, timeObj, srcQueryJSON,
-                                 destQueryJSON, function(err, resultJSON) {
+                                 destQueryJSON, jobData,
+                                 function(err, resultJSON) {
         callback(err, resultJSON);
     }); 
 }
 
 function sendFlowSeriesDataByStartEndTime (context, appData, srcQueryJSON,
-                                           destQueryJSON, callback)
+                                           destQueryJSON, jobData, callback)
 {
     var timeObj = nwMonUtils.createTimeObjByAppData(appData);
     var relTimeObj = {};
@@ -507,13 +505,13 @@ function sendFlowSeriesDataByStartEndTime (context, appData, srcQueryJSON,
     relTimeObj['timeGran'] = parseInt(appData['timeGran']);
 
     getFlowSeriesDataByAPIServer(context, appData, timeObj, srcQueryJSON,
-                                 destQueryJSON, function(err, data) {
+                                 destQueryJSON, jobData, function(err, data) {
         callback(err, data);
         /* We are done sending the data, now retrieve the entire data and save
          * cache
          */
         getFlowSeriesDataByTimeObj(context, appData, relTimeObj, srcQueryJSON,
-                                   destQueryJSON, function(err, data) {
+                                   destQueryJSON, jobData, function(err, data) {
             saveFlowSeriesDataInCache(context, appData, data, 
                                       function(err, data) {
                 printFlowSeriesData(data);
@@ -555,7 +553,7 @@ function sendFlowSeriesDataByCache (appData, cacheData, callback)
 }
 
 function getFlowSeriesDataByStartEndTime (context, appData, srcQueryJSON,
-                                          destQueryJSON, callback)
+                                          destQueryJSON, jobData, callback)
 {
     var timeObj = nwMonUtils.createTimeObjByAppData(appData);
     var redisKey = getFlowSeriesRedisKey(context, appData);
@@ -569,7 +567,7 @@ function getFlowSeriesDataByStartEndTime (context, appData, srcQueryJSON,
              * created the entry when we will get the request with minsSince
              */
             sendFlowSeriesDataByStartEndTime(context, appData, srcQueryJSON,
-                                             destQueryJSON, callback);
+                                             destQueryJSON, jobData, callback);
             return;
         }
         //sendFlowSeriesDataByCache(appData, JSON.parse(data), callback);
@@ -579,7 +577,7 @@ function getFlowSeriesDataByStartEndTime (context, appData, srcQueryJSON,
 }
 
 function getFlowSeriesData (context, appData, srcQueryJSON, destQueryJSON,
-                            callback,type) 
+                            jobData, callback,type)
 {
     var timeObj = nwMonUtils.createTimeObjByAppData(appData);
     var redisKey = getFlowSeriesRedisKey(context, appData);
@@ -595,7 +593,7 @@ function getFlowSeriesData (context, appData, srcQueryJSON, destQueryJSON,
     /* Check if the request consists of startTime and endTime */
     if (appData['relStartTime'] != null) {
         getFlowSeriesDataByStartEndTime(context, appData, srcQueryJSON,
-                                        destQueryJSON, callback,type);
+                                        destQueryJSON, jobData, callback,type);
         return;
     }
     /* First check if we have entry for this */
@@ -604,7 +602,8 @@ function getFlowSeriesData (context, appData, srcQueryJSON, destQueryJSON,
         if (err || (null == jsonData)) {
             /* No Cache, so create fresh entry */
             getFlowSeriesDataByAPIServer(context, appData, timeObj, srcQueryJSON,
-                                         destQueryJSON, function (err, data) {
+                                         destQueryJSON, jobData,
+                                         function (err, data) {
                 /* Save the data in Cache */
                 saveFlowSeriesDataInCache(context, appData, data, 
                                           function(err, flowData) {
