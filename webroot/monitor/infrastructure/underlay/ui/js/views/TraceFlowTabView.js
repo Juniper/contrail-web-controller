@@ -178,8 +178,9 @@ define([
                     if(nodes[i]['node_type'] == ctwc.VROUTER) {
                         var vRouterData = nodes[i];
                         vRoutersCombobox.push({
-                            text:contrail.format('{0} ({1})',vRouterData['name'],
-                                getValueByJsonPath(vRouterData,'more_attributes;VrouterAgent;self_ip_list;0','-')),
+                            text:contrail.format('{0} ({1}) (Active Flows: {2})',vRouterData['name'],
+                                getValueByJsonPath(vRouterData,'more_attributes;VrouterAgent;self_ip_list;0','-'),
+                                getValueByJsonPath(vRouterData,'more_attributes;VrouterStatsAgent;flow_rate;active_flows',0)),
                             id:vRouterData['name']
                         });
                     } else if (nodes[i]['node_type'] == ctwc.VIRTUALMACHINE) {
