@@ -362,8 +362,8 @@ define([
             showInfoWindow("Cannot Trace route for the selected flow", "Info");
             return;
         }
-        constructVRFName (dataItem, postData, nwFqName);
         postData['action'] = 'Trace Flow';
+        updateTraceFlowParams (dataItem, postData, nwFqName);
         if (postData['vrfId'] != null || postData['vrfName'] != null) {
             doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
@@ -437,8 +437,8 @@ define([
             showInfoWindow("Cannot Trace route for the selected flow", "Info");
             return;
         }
-        constructVRFName (dataItem, postData, nwFqName);
         postData['action'] = 'Reverse Trace Flow';
+        updateTraceFlowParams (dataItem, postData, nwFqName);
         if(postData['vrfId'] != null || postData['vrfName'] != null) {
             doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
@@ -449,7 +449,7 @@ define([
     // and Dest VN are different then based on the direction either source or dest vn
     // is used to construct the VRF name which is hack because of bug in vrouter
     // https://bugs.launchpad.net/juniperopenstack/+bug/1541794
-    function constructVRFName (dataItem, postData, nwFqName) {
+    function updateTraceFlowParams (dataItem, postData, nwFqName) {
         var vrfName = null;
         if (dataItem['raw_json'] != null && dataItem['raw_json']['vrf'] != null &&
            dataItem['raw_json']['dest_vrf'] != null &&
@@ -459,6 +459,31 @@ define([
             vrfName = nwFqName + ':' + nwFqName.split(":")[2]
             postData['vrfName'] = vrfName;
             delete postData['vrfId'];
+        } else if (dataItem['raw_json'] != null && dataItem['raw_json']['vrf'] != null &&
+                dataItem['raw_json']['dest_vrf'] != null &&
+                dataItem['src_vn'] != null && dataItem['dst_vn'] != null &&
+                dataItem['raw_json']['vrf'] != dataItem['raw_json']['dest_vrf'] &&
+                dataItem['src_vn'] == dataItem['dst_vn'] && nwFqName != null) {
+            vrfName = nwFqName + ':' + nwFqName.split(":")[2]
+            postData['vrfName'] = vrfName;
+            delete postData['vrfId'];
+        }
+        // When we associate floating IP of VN2 to VM1(belongs to VN1) and do a ping from
+        // VM1 to a VM in VN2 we see the src and dest n/w's are VN2 and srcIP will be
+        // original(interface IP of VM) which belongs to VN1 for which trace flow fails.
+        // Hence we are updating the src/dest IP with floating IP based on direction. 
+        if (dataItem['raw_json'] != null && dataItem['src_vn'] != null &&
+            dataItem['dst_vn'] != null && dataItem['src_vn'] == dataItem['dst_vn']
+            && dataItem['raw_json']['fip'] != null &&
+            dataItem['raw_json']['fip'] != '0.0.0.0' &&
+            dataItem['peer_vrouter'] != postData['resolveVrfId']) {
+            if ((dataItem['direction'] == 'ingress' && postData['action'] == 'Trace Flow') ||
+                 (dataItem['direction'] == 'egress' && postData['action'] == 'Reverse Trace Flow')) {
+                postData['srcIP'] = dataItem['raw_json']['fip'];
+            } else if ((dataItem['direction'] == 'ingress' && postData['action'] == 'Reverse Trace Flow') ||
+                    (dataItem['direction'] == 'egress' && postData['action'] == 'Trace Flow')) {
+                postData['destIP'] = dataItem['raw_json']['fip'];
+            }
         }
         return postData;
     }
