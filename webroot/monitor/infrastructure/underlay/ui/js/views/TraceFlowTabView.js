@@ -177,9 +177,15 @@ define([
                 for(var i = 0; i < nodes.length; i++) {
                     if(nodes[i]['node_type'] == ctwc.VROUTER) {
                         var vRouterData = nodes[i];
+                        var flowCount = getValueByJsonPath(vRouterData,'more_attributes;VrouterStatsAgent;flow_rate;active_flows','No');
+                        // If flows are 0, need to display 'No Flows' instead of 0 flows.
+                        if (parseInt(flowCount) == 0) {
+                            flowCount = 'No'
+                        }
                         vRoutersCombobox.push({
-                            text:contrail.format('{0} ({1})',vRouterData['name'],
-                                getValueByJsonPath(vRouterData,'more_attributes;VrouterAgent;self_ip_list;0','-')),
+                            text:contrail.format('{0} ({1}, {2} Flows)',vRouterData['name'],
+                                getValueByJsonPath(vRouterData,'more_attributes;VrouterAgent;self_ip_list;0','-'),
+                                flowCount),
                             id:vRouterData['name']
                         });
                     } else if (nodes[i]['node_type'] == ctwc.VIRTUALMACHINE) {
