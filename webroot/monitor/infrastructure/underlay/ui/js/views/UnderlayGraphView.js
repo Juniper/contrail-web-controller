@@ -2030,15 +2030,15 @@ define([
                             linkDetails.more_attributes.length > 0) {
                             var moreAttrs = linkDetails.more_attributes;
                             for (var i = 0; i < moreAttrs.length; i++) {
-                                local_interfaces.push(moreAttrs[i].local_interface_name + " (" + moreAttrs[i].local_interface_index + ")");
-                                remote_interfaces.push(moreAttrs[i].remote_interface_name + " (" + moreAttrs[i].remote_interface_index + ")");
+                                local_interfaces.push(" "+moreAttrs[i].local_interface_name + " (" + moreAttrs[i].local_interface_index + ")");
+                                remote_interfaces.push(" "+moreAttrs[i].remote_interface_name + " (" + moreAttrs[i].remote_interface_index + ")");
                             }
                         }
                         data = [{
-                            lbl: linkDetails.endpoints[0],
+                            label: linkDetails.endpoints[0],
                             value: local_interfaces
                         }, {
-                            lbl: linkDetails.endpoints[1],
+                            label: linkDetails.endpoints[1],
                             value: remote_interfaces
                         }];
                         return tooltipContentTmpl({
