@@ -25,7 +25,7 @@ define([
                         Knockback.applyBindings(self.model,
                             document.getElementById(ctwc.UNDERLAY_SEARCHFLOW_TAB_ID));
                         $("#run_query").on('click', function() {
-                            $("#" + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-widget").find('.widget-body').hide();
+                            $("#" + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-widget").data('widget-action').collapse();
                             self.renderQueryResult();
                         });
             });
