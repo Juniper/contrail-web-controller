@@ -170,7 +170,8 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                         options : {
                           detail : false,
                           enableAsyncPostRender:true,
-                          checkboxSelectable : false
+                          checkboxSelectable : false,
+                          fixedRowHeight: 30
                         },
                         dataSource : {
                             remote : {
