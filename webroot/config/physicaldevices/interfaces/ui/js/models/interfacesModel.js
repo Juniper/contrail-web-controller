@@ -32,8 +32,7 @@ define([
             },
             'parent_type' : null,
             'physical_interface_refs' : [],
-            'user_created_physical_interface' : null,
-            'physicalInfRefsDataSrc' : []
+            'user_created_physical_interface' : null
         },
         formatModelConfig: function (modelConfig) {
             self = this;
@@ -84,20 +83,18 @@ define([
 
             //populate physical interface refs data source
             if(modelConfig["type"] ===  ctwl.PHYSICAL_INF) {
-                modelConfig["physicalInfRefsDataSrc"] =
-                   self.getPhysicalInterfaceData("refs", modelConfig["name"]);
                 var physicalInf = getValueByJsonPath(modelConfig,
-                    "physical_interface_refs;0;to;2", null);
-                if(physicalInf) {
-                    modelConfig["user_created_physical_interface"] = physicalInf;
+                    "physical_interface_refs;0;to", []);
+                if(physicalInf.length === 3) {
+                    modelConfig["user_created_physical_interface"] =
+                    physicalInf[0] + ctwc.PHYSICAL_INF_LINK_PATTERN +
+                    physicalInf[1] + ctwc.PHYSICAL_INF_LINK_PATTERN + physicalInf[2];
                 } else {
-                    modelConfig["user_created_physical_interface"] =  "None";
+                    modelConfig["user_created_physical_interface"] =  "none";
                 }
 
             } else {
-                modelConfig["physicalInfRefsDataSrc"] =
-                   self.getPhysicalInterfaceData("refs");
-                modelConfig["user_created_physical_interface"] =  "None";
+                modelConfig["user_created_physical_interface"] =  "none";
             }
             return modelConfig;
         },
@@ -513,7 +510,8 @@ define([
             attr, ajaxOpt) {
             var postObject = {};
             var ajaxConfig = {};
-            var piRef = attr.user_created_physical_interface;
+            var piRef = attr.user_created_physical_interface,
+            actPIRef = [];
             ajaxConfig.url = ajaxOpt.url + '/' + ctwl.PHYSICAL_INF;
             postObject["physical-interface"] = {};
             postObject["physical-interface"]["fq_name"] =
@@ -524,9 +522,17 @@ define([
             postObject["physical-interface"]["name"] = piName;
             postObject["physical-interface"]["display_name"] =
                 piDispName;
-            if(piRef && piRef != "None") {
-                postObject["physical-interface"]["physical_interface_refs"] =
-                    [{ "to" : ["default-global-system-config", prName, piRef]}];
+            if(piRef && piRef !== "none") {
+                if(piRef.indexOf(ctwc.PHYSICAL_INF_LINK_PATTERN) !== -1) {
+                   piRef = piRef.split(ctwc.PHYSICAL_INF_LINK_PATTERN);
+                   if(piRef.length === 3) {
+                       _.each(piRef, function(pi) {
+                           actPIRef.push(pi);
+                       });
+                       postObject["physical-interface"]
+                           ["physical_interface_refs"] = [{ "to" : actPIRef}];
+                   }
+                }
             } else {
                 postObject["physical-interface"]["physical_interface_refs"] = [];
             }
