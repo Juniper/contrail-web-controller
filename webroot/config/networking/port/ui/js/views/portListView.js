@@ -20,13 +20,11 @@ define([
             self.portGetChunkCnt = 50,
             self.portAjaxRef = 0,
             self.ajaxTimeout = 300000;
-            self.portData = viewConfig.portData;
-            var selectedProjectValue = ctwu.getGlobalVariable('project').uuid;
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
                         url: ctwc.get(ctwc.URL_GET_PORT_UUID,
-                                      selectedProjectValue),
+                                      viewConfig.selectedProjectId),
                         type: "GET"
                     },
                     dataParser: self.fetchPortData
@@ -35,13 +33,12 @@ define([
 
             self.contrailListModel = new ContrailListModel(listModelConfig);
             self.renderView4Config(this.$el, self.contrailListModel,
-                                   getportListViewConfig());
+                                   getportListViewConfig(viewConfig));
         },
 
     fetchPortData : function (result) {
         if(result.length > 0) {
             self.fetchPortWithUUID(result, function() {
-                //$("#"+ctwl.PORT_GRID_ID).data("contrailGrid").showGridMessage("loading");
                 return [];
             });
         }
@@ -73,11 +70,9 @@ define([
                                           cbparam.allUUID.length);
                     self.portGetChunkCnt = 200;
                     if(cbparam.allUUID.length > 0) {
-                        //$("#"+ctwl.PORT_GRID_ID).data("contrailGrid").showGridMessage("loading");
                         self.fetchPortChunk(cbparam.allUUID, cbparam.cbparam);
                     } else {
-                        //$("#"+ctwl.PORT_GRID_ID).data("contrailGrid").removeGridMessage();
-                        callback;
+                        callback();
                     }
                 },
                 function(error){
@@ -102,10 +97,10 @@ define([
 
     });
 
-    var getportListViewConfig = function () {
+    var getportListViewConfig = function (viewConfig) {
         return {
             elementId:
-              cowu.formatElementId([ctwl.CONFIG_PORT_FORMAT_ID]),
+              cowu.formatElementId([ctwc.CONFIG_PORT_FORMAT_ID]),
             view: "SectionView",
             viewConfig: {
                 rows: [
@@ -113,19 +108,21 @@ define([
                         columns: [
                             {
                                 elementId:
-                                    ctwl.CONFIG_PORT_LIST_VIEW_ID,
+                                    ctwc.CONFIG_PORT_LIST_VIEW_ID,
                                 title: ctwl.CONFIG_PORT_TITLE,
                                 view: "portGridView",
                                 viewPathPrefix : ctwc.URL_PORT_VIEW_PATH_PREFIX,
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
-                                             parentType: 'project',
-                                             pagerOptions: {
-                                               options: {
-                                                  pageSize: 50,
-                                                  pageSizeSelect: [10, 50, 100, 500]
-                                                  }}
-                                            }
+                                    parentType: 'project',
+                                    pagerOptions: {
+                                      options: {
+                                         pageSize: 50,
+                                         pageSizeSelect: [10, 50, 100, 500]
+                                         }
+                                    },
+                                    selectedProjectId : viewConfig.selectedProjectId
+                                }
                             }
                         ]
                     }

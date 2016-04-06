@@ -31,6 +31,27 @@ var configJsonModifyObj = {
         'optFields': ['network_ipam_mgmt', 'virtual_DNS_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
+    'virtual-machine-interface': {
+        'isConfig': true,
+        'preProcessCB': {
+            'applyOnOldJSON': modifyConfigDataByAttrHref,
+            'applyOnNewJSON': modifyConfigDataByHref
+        },
+        'optFields': ['ecmp_hashing_include_fields', 'virtual_machine_interface_bindings',
+            'virtual_machine_interface_allowed_address_pairs',
+            'service_health_check_refs', 'virtual_machine_interface_dhcp_option_list',
+            'virtual_machine_interface_fat_flow_protocols',
+            'id_perms:enable',
+            'virtual_machine_interface_refs',
+            'interface_route_table_refs',
+            'virtual_machine_interface_properties:local_preference',
+            'virtual_machine_interface_properties:interface_mirror',
+            'virtual_machine_interface_properties:sub_interface_vlan_tag',
+            'virtual_machine_interface_mac_addresses', 'security_group_refs',
+            'virtual_network_refs', 'virtual_machine_interface_device_owner'
+        ],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
     'security-group': {
         'isConfig': true,
         'preProcessCB': {
@@ -154,10 +175,17 @@ function modifyPhyTopoData (type, jsonData, optFields, mandateFields)
 
 var configArrSkipObjsUUID = ['href', 'uuid'];
 var configArrSkipObjsAttr = ['href', 'attr'];
+var configArrSkipObjsHref = ['href'];
 function modifyConfigDataByAttrHref (type, configData, optFields, mandateFields)
 {
     return modifyConfigData(type, configData, optFields, mandateFields,
                             configArrSkipObjsAttr);
+}
+
+function modifyConfigDataByHref (type, configData, optFields, mandateFields)
+{
+    return modifyConfigData(type, configData, optFields, mandateFields,
+                            configArrSkipObjsHref);
 }
 
 function configArrAttrFound (configObj, skipArr)

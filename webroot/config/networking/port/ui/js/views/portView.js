@@ -36,23 +36,15 @@ define([
         },
         getPort: function (viewConfig) {
             return function (projectSelectedValueData) {
-                var domain = {
-                    'name':projectSelectedValueData.parentSelectedValueData.name,
-                    'uuid':projectSelectedValueData.parentSelectedValueData.value,
-                }
-                var project = {
-                    'name':projectSelectedValueData.name,
-                    'uuid':projectSelectedValueData.value,
-                }
-                ctwu.setGlobalVariable("domain", domain);
-                ctwu.setGlobalVariable("project", project);
                 return {
                     elementId: cowu.formatElementId(
-                                    [ctwl.CONFIG_PORT_PAGE_ID]),
+                                    [ctwc.CONFIG_PORT_PAGE_ID]),
                     view: "portListView",
                     viewPathPrefix : ctwc.URL_PORT_VIEW_PATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: viewConfig
+                    viewConfig: $.extend(true, {}, viewConfig,
+                                     {selectedProjectId:
+                                     projectSelectedValueData.value})
                 }
             }
         }
