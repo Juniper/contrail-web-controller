@@ -2,24 +2,22 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-var ConfigPortLoader = new ConfigPortLoader();
+var configPortLoader = new ConfigPortLoader();
 
 function ConfigPortLoader() {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
-            rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathMNView = rootDir + '/js/views/portView.js',
+            rootDir = currMenuObj['resources']['resource'][0]['rootDir'],
+            pathPortView = ctBaseDir + '/config/networking/port/ui/js/views/portView.js',
             renderFn = paramObject['function'];
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
-        check4CTInit(function () {
-            if (self.portView == null) {
-                requirejs([pathMNView], function (PortViewParam) {
-                    self.portView = new PortViewParam();
-                    self.renderView(renderFn, hashParams);
-                });
-            } else {
-                self.renderView(renderFn, hashParams);
+        require([pathPortView], function (portView) {
+            self.portView = new portView();
+            self.renderView(renderFn, hashParams);
+            if(contrail.checkIfExist(loadingStartedDefObj)) {
+                loadingStartedDefObj.resolve();
             }
         });
     }
@@ -35,14 +33,4 @@ function ConfigPortLoader() {
 
     this.destroy = function () {
     };
-}
-function check4CTInit(callback) {
-    if (!ctInitComplete) {
-        requirejs(['controller-init'], function () {
-            ctInitComplete = true;
-            callback()
-        });
-    } else {
-        callback();
-    }
 }
