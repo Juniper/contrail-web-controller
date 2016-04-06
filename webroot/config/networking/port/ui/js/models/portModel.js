@@ -17,11 +17,10 @@ define([
              PortBindingModel) {
     var portFormatters = new PortFormatters();
     var self;
-    var subnetDataSource = [];
-    var allNetworks = [];
     var PortModel = ContrailModel.extend({
         defaultConfig: {
             'name': '',
+            'display_name': null,
             'fq_name': null,
             'parent_type': 'project',
             'id_perms':{'enable':true},
@@ -30,7 +29,7 @@ define([
             'is_sec_grp':true,
             //'is_sec_grp_disabled':false,
             'security_group_refs':[],
-            'securityGroupValue':'',
+            'securityGroupValue':[],
             'floating_ip_back_refs':[],
             'floatingIpValue':'',
             'virtual_machine_interface_allowed_address_pairs':{
@@ -101,6 +100,21 @@ define([
                 'destination_port': true*/
             }
         },
+        onVNSelectionChanged: function(portFormatters, newValue, mode) {
+            if(mode === ctwl.CREATE_ACTION) {
+                self.model().attributes.fixedIPCollection.reset();
+                var subnetDS = portFormatters.fixedIpSubnetDDFormatter(
+                                         self.getVNData(),
+                                         newValue);
+                if(subnetDS.length > 0) {
+                    self.setSubnetDataSource(subnetDS);
+                    self.addFixedIP();
+                    self.subnetGroupVisible(true);
+                } else {
+                    self.subnetGroupVisible(false);
+                }
+            }
+        },
         setVNData: function(allNetworks) {
             self.allNetworks = allNetworks;
         },
@@ -120,7 +134,7 @@ define([
             if(virtualNetwork.length > 0) {
                 modelConfig['virtualNetworkName'] = virtualNetwork.join(":");
             }
-
+            modelConfig['display_name'] = ctwu.getDisplayNameOrName(modelConfig);
             //Modal config default Fqname formatting
             if(modelConfig['fq_name'] != null &&
                modelConfig['fq_name'].length >= 3) {
@@ -474,7 +488,7 @@ define([
                     }
                 },
                 'is_sub_interface': function(value, attr, finalObj) {
-                    if(value == true && finalObj.deviceOwnerValue == "compute") { 
+                    if(value == true && finalObj.deviceOwnerValue == "compute") {
                         return "Subinterface cannot be assigned along with Compute Device Owner."
                     }
                 },
@@ -595,6 +609,13 @@ define([
                         if (String(value).trim() == "") {
                             return "Enter UDP port";
                         }
+                        if (!isNumber(String(value).trim())){
+                            return "UDP port has to be a number.";
+                        }
+                        var vlanVal = Number(String(value).trim());
+                        if (vlanVal < 1 || vlanVal > 65535) {
+                            return "Enter UDP port between 1 to 65535";
+                        }
                     }
                 },
                 'mirrorToRoutingInstance': function(value, attr, finalObj) {
@@ -695,7 +716,7 @@ define([
                     this.port("0");
                     return true;
                 } else {
-                    if(this.port() == "0") { 
+                    if(this.port() == "0") {
                         this.port("");
                     }
                     return false;
@@ -722,7 +743,7 @@ define([
         //Binding value disable
         enableDisablePortBindingValue: function(portBindingModel, mode) {
             portBindingModel.disablePortBindValue = ko.computed((function() {
-                if(mode == "edit") {
+                if(mode == ctwl.EDIT_ACTION) {
                     if((this.key() == "vnic_type" ||
                        this.key() == "vif_type" ||
                        this.key() == "vif_details") && this.disablePortBindKey()) {
@@ -731,7 +752,7 @@ define([
                         this.value("direct");
                         return true
                     }
-                } else if(mode == "add") {
+                } else if(mode == ctwl.CREATE_ACTION) {
                     if(this.key() == "SR-IOV (vnic_type:direct)") {
                        this.value("direct");
                        return true;
@@ -758,9 +779,8 @@ define([
               return groups[group];
             })
         },
-        configurePorts: function (mode, allNetworksDS, callbackObj) {
+        configurePorts: function (mode, callbackObj) {
             var ajaxConfig = {}, returnFlag = true;
-            var network_subnet = allNetworksDS;
             var temp_val;
             var validations = [
                 {
@@ -796,17 +816,20 @@ define([
             ];
             if(this.isDeepValid(validations)) {
                 var newPortData = $.extend(true, {}, this.model().attributes),
-                    selectedDomain = ctwu.getGlobalVariable('domain').name,
-                    selectedProject = ctwu.getGlobalVariable('project').name;
+                    selectedDomain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                    selectedProject = contrail.getCookie(cowc.COOKIE_PROJECT);
+
+                ctwu.setNameFromDisplayName(newPortData);
+
                 newPortData.fq_name = [selectedDomain,
                                      selectedProject];
-                if(newPortData["name"].trim() != ""){
+                if(newPortData["name"] && newPortData["name"].trim() != "") {
                     newPortData["fq_name"][2] = newPortData["name"].trim();
-                    newPortData["display_name"] = newPortData["name"].trim();
                 } else {
                     delete(newPortData["name"]);
                     delete(newPortData["display_name"]);
                 }
+
                 var id_perms = JSON.parse(newPortData.id_perms.enable);
                 newPortData.id_perms = {};
                 newPortData.id_perms.enable = id_perms;
@@ -1069,7 +1092,7 @@ define([
                 fixedIPArr[i]["instance_ip_address"][0] = instanceIp;
                 fixedIPArr[i]["subnet_uuid"] = subnet_uuid;
                 fixedIPArr[i]["instance_ip_family"] = family;
-                
+
                 if(allFixedIPCollectionValue[i].disableFIP() == true) {
                     fixedIPArr[i]["uuid"] =
                                  allFixedIPCollectionValue[i]["uuid"]();
@@ -1142,8 +1165,8 @@ define([
                     var uuid = subIntrface[0];
                     var to = subIntrface[1].split(":");
                     newPortData.virtual_machine_interface_refs[0] = {};
-                    newPortData.virtual_machine_interface_refs[0].uuid = uuid;
                     newPortData.virtual_machine_interface_refs[0].to = to;
+                    newPortData.virtual_machine_interface_refs[0].uuid = uuid;
                 } else {
                     newPortData.virtual_machine_interface_properties.sub_interface_vlan_tag = null;
                     if (newPortData.isParent != true) {
@@ -1202,6 +1225,9 @@ define([
                 if(temp_val !=  ""){
                     delete(newPortData.routing_instance_refs);
                 }
+
+                ctwu.deleteCGridData(newPortData);
+
                 delete(newPortData.virtualNetworkName);
                 delete(newPortData.macAddress);
                 delete(newPortData.is_sec_grp);
@@ -1219,11 +1245,7 @@ define([
                 delete(newPortData.dhcpOptionCollection);
                 delete(newPortData.fixedIPCollection);
                 delete(newPortData.subInterfaceVMIValue);
-                delete(newPortData.errors);
-                delete(newPortData.cgrid);
                 delete(newPortData.templateGeneratorData);
-                delete(newPortData.elementConfigMap);
-                delete(newPortData.locks);
                 delete(newPortData.rawData);
                 delete(newPortData.vmi_ref);
                 delete(newPortData.perms2);
@@ -1253,7 +1275,7 @@ define([
 
                 var type = "";
                 var url = "";
-                if(mode == "add" || mode == "subInterface") {
+                if(mode == ctwl.CREATE_ACTION) {
                 //create//
                     type = "POST";
                     delete(newPortData["uuid"]);
@@ -1268,7 +1290,6 @@ define([
                 vmiData["virtual-machine-interface"] = newPortData;
 
                 ajaxConfig = {};
-                ajaxConfig.async = false;
                 ajaxConfig.type = type;
                 ajaxConfig.data = JSON.stringify(vmiData);
                 ajaxConfig.url = url;
@@ -1292,7 +1313,7 @@ define([
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
                     callbackObj.error(this.getFormErrorText
-                                     (ctwl.PORT_PREFIX_ID));
+                                     (ctwc.PORT_PREFIX_ID));
                 }
             }
             return returnFlag;
@@ -1370,12 +1391,12 @@ define([
             }
             return returnFlag;
         },
-        deleteAllPort: function(callbackObj) {
+        deleteAllPort: function(selectedProjectId, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
-            var uuid = ctwu.getGlobalVariable('project').uuid;
             ajaxConfig.async = false;
             ajaxConfig.type = "DELETE";
-            ajaxConfig.url = "/api/tenants/config/delete-all-ports?uuid="+uuid;
+            ajaxConfig.url = "/api/tenants/config/delete-all-ports?uuid=" +
+                selectedProjectId;
             contrail.ajaxHandler(ajaxConfig, function () {
                 if (contrail.checkIfFunction(callbackObj.init)) {
                     callbackObj.init();

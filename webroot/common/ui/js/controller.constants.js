@@ -669,6 +669,14 @@ define([
         ];
         this.PHYSICAL_INF_LINK_PATTERN = ";";
 
+        /* Port */
+        this.CONFIG_PORT_PAGE_ID = "config-port-page";
+        this.CONFIG_PORT_LIST_VIEW_ID = "config-port-list-view";
+        this.CONFIG_PORT_FORMAT_ID = "config-port-format-id";
+        this.PORT_GRID_ID = "port-grid-id";
+        this.PORT_PREFIX_ID = "Ports";
+        this.TEXT_PORT = 'port';
+
         /* BGP as a Service */
         this.CONFIG_BGP_AS_A_SERVICE_LIST_ID = "config-bgp-as-a-service-list";
         this.BGP_AS_A_SERVICE_GRID_ID = "bgp-as-a-service-grid";

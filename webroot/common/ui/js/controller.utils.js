@@ -513,23 +513,24 @@ define([
         // currentDomainProject as string format domain:project
         // if currentDomainProject is empty it will try taking utilVariable
         // Output will be in the format "element(domain:project)"
-        this.formatCurrentFQName = function(fqname, currentDomainProject){
+        this.formatCurrentFQName = function(argFqname, currentDomainProject){
             var domain = "", project = "";
+            var fqname = _.clone(argFqname);
             if(currentDomainProject != null && currentDomainProject != ""){
                 var domainProjectArr = currentDomainProject.split(":");
-                if(domainProjectArr == 2) {
+                if(domainProjectArr.length === 2) {
                     domain = domainProjectArr[0];
                     project = domainProjectArr[1];
                 }
             } else if(utilVariable["domain"] != null &&
                       utilVariable["project"] != null){
-                domain = utilVariable["domain"];
-                project = utilVariable["project"];
+                domain = utilVariable["domain"].name;
+                project = utilVariable["project"].name;
             } else {
                 return false;
             }
             if(fqname.length >= 3) {
-                if(fqname[0] == domain.name && fqname[1] == project.name) {
+                if(fqname[0] == domain && fqname[1] == project) {
                     return fqname[fqname.length-1];
                 } else {
                     var element = fqname[fqname.length-1];
