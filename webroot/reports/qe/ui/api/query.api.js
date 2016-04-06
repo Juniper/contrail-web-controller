@@ -790,28 +790,32 @@ function parseSelect(query, formModelAttrs) {
 };
 
 function parseSLWhere (query, where, keywords) {
-    var keywordsArray = keywords.split(',');
+    var keywordsArray = keywords.split(','), keywordAndClause = [];
     if (keywords != null && keywords.trim() != '') {
         for (var i = 0; i < keywordsArray.length; i++){
             keywordsArray[i] = keywordsArray[i].trim();
         }
+        keywordAndClause = parseKeywordsObj(keywordsArray);
     }
     if (where != null && where.trim() != '') {
+        // where clause is not empty case
         var whereORArray = where.split(' OR '),
             whereORLength = whereORArray.length, i,
-            newWhereOR, newWhereORArray = [];
-        var keywordsStr = getKeywordsStrFromArray(keywordsArray), where = [];
+            newWhereOR, newWhereORArray = [], where = [];
         for (i = 0; i < whereORLength; i += 1) {
             whereORArray[i] = whereORArray[i].trim();
             newWhereOR = whereORArray[i].substr(0, whereORArray[i].length - 1);
-            where[i] = newWhereOR.concat(" AND " + keywordsStr + " )");
-            where[i] = parseWhereANDClause(where[i]);
+            where[i] = parseWhereANDClause(newWhereOR);
+            // append keyword array to individual where OR clause
+            where[i] = where[i].concat(keywordAndClause);
         }
         query['where'] = where;
     } else{
+        // where clause is empty but keywords are non empty case
         if (keywords != null && keywords.trim() != '') {
             var where = [];
-            query['where'] = parseKeywordsObj(keywordsArray);
+            where.push(keywordAndClause);
+            query['where'] = where;
         }
     }
 }
@@ -827,16 +831,22 @@ function getKeywordsStrFromArray (keywords) {
 
 function parseKeywordsObj(keywordsArray)
 {
-    var keywordObj = [], keywordArray = [], finalkeywordArray = [];
+    var keywordObj = [], keywordArray = [];
     for(var i=0; i<keywordsArray.length; i++){
         keywordObj[i] = {"name":"", value:"", op:""};
         keywordObj[i].name = "Keyword";
-        keywordObj[i].value = keywordsArray[i];
-        keywordObj[i].op = 1;
+        var keywordStrLen = keywordsArray[i].length;
+        //check if the keyword has a star in the end: if yes change op to 7 and delete trailing star; else let it be 1
+        if(keywordsArray[i].charAt(keywordStrLen - 1) === '*'){
+            keywordObj[i].value = keywordsArray[i].slice(0, -1);
+            keywordObj[i].op = 7;
+        } else {
+            keywordObj[i].value = keywordsArray[i];
+            keywordObj[i].op = 1;
+        }
         keywordArray.push(keywordObj[i]);
     }
-    finalkeywordArray.push(keywordArray);
-    return finalkeywordArray;
+    return keywordArray;
 };
 
 function parseWhere(query, where) {
@@ -1062,7 +1072,7 @@ function getOperatorCode(operator) {
         return 6;
     } else if (operator == 'RegEx=') {
         return 8;
-    } else if (operator == 'Starts with') {
+    } else if ((operator == 'Starts with') || (operator == '*')) {
         return 7;
     } else {
         return -1
