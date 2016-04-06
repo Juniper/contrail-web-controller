@@ -6,7 +6,8 @@ define([
 ], function (_) {
     var infConfigTemplates = function() {
         var self = this;
-        self.infFixedSection = function(disableId, parentData){
+        self.piPostData = {data: [{type: "physical-interfaces"}]};
+        self.infFixedSection = function(disableId, infModel){
             return {
                 columns: [
                     {
@@ -43,11 +44,19 @@ define([
                             dataBindValue: "user_created_physical_interface",
                             visible : "showPhysicalInterfaceRefs",
                             class: "span6",
-                            dataBindOptionList: "physicalInfRefsDataSrc",
                             elementConfig:{
                                 dataTextField: "text",
-                                dataValueField: "text",
+                                dataValueField: "value",
                                 placeholder : "Select Physical Interface",
+                                dataSource: {
+                                    type: "remote",
+                                    requestType: 'POST',
+                                    postData: JSON.stringify(self.piPostData),
+                                    url: '/api/tenants/config/get-config-list',
+                                    parse: function(result) {
+                                        return self.parsePhysicalInfLinkData(result, infModel);
+                                    }
+                                }
                             }
                         }
                     },
@@ -83,7 +92,7 @@ define([
                                 placeholder : "Enter or Select a Interface",
                                 dataSource : {
                                     type : 'local',
-                                    data : parentData
+                                    data : infModel.getPhysicalInterfaceData()
                                 }
                             }
                         }
@@ -91,6 +100,33 @@ define([
                 ]
             };
         };
+
+        self.parsePhysicalInfLinkData = function(result, infModel) {
+            var piDS = [{text: "None", value: "none"}], piValue, piText, piFqName,
+                currentPRName = contrail.getCookie(ctwl.PROUTER_KEY);
+                physicalInfs =
+                getValueByJsonPath(result, "0;physical-interfaces", []);
+            _.each(physicalInfs, function(pi) {
+                piFqName = getValueByJsonPath(pi,
+                    "fq_name", [], false);
+                if(piFqName.length === 3) {
+                    if(currentPRName === piFqName[1] &&
+                        infModel.name() === piFqName[2]) {
+                        return;
+                    }
+                    piValue = piFqName[0] + ctwc.PHYSICAL_INF_LINK_PATTERN +
+                        piFqName[1] + ctwc.PHYSICAL_INF_LINK_PATTERN + piFqName[2];
+                    if(currentPRName !== piFqName[1]) {
+                        piText = piFqName[2] + " (" + piFqName[1] + ")";
+                    } else {
+                        piText = piFqName[2];
+                    }
+                    piDS.push({text: piText, value: piValue});
+                }
+            });
+            return piDS;
+        };
+
         self.infVariableSection =  function(disableId, infEditView) {
             return {
                 columns : [

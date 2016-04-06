@@ -143,10 +143,21 @@ define([
          * @physicalInfRefsFormatter
          */
         self.physicalInfRefsFormatter = function(r, c, v, cd, dc) {
-            var physicalInfStr = "";
+            var toArray, physicalInfStr = "",
+                currentPRName;
             if(dc.type === ctwl.PHYSICAL_INF) {
-                physicalInfStr = getValueByJsonPath(dc,
-                    "physical_interface_refs;0;to;2", "-");
+                currentPRName = contrail.getCookie(ctwl.PROUTER_KEY);
+                toArray = getValueByJsonPath(dc,
+                    "physical_interface_refs;0;to", []);
+                if(toArray.length === 3) {
+                    if(toArray[1] !== currentPRName) {
+                        physicalInfStr = toArray[2] + " (" + toArray[1] + ")";
+                    } else {
+                        physicalInfStr = toArray[2];
+                    }
+                } else {
+                    physicalInfStr = "-";
+                }
             } else {
                 physicalInfStr = "-";
             }
