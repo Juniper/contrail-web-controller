@@ -39,7 +39,7 @@ define([
                         elementId: 'user_created_physical_interface',
                         view: "FormDropdownView",
                         viewConfig: {
-                            label: "Parent Physical Interface",
+                            label: "Connected Physical Interface",
                             path: "user_created_physical_interface",
                             dataBindValue: "user_created_physical_interface",
                             visible : "showPhysicalInterfaceRefs",

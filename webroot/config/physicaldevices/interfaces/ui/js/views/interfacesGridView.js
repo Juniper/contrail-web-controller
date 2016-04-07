@@ -342,7 +342,7 @@ define([
                                                 },
                                                 {
                                                    key : "physical_interface_refs",
-                                                   label : "Physical Interface(s)",
+                                                   label : "Connected Physical Interface(s)",
                                                    templateGenerator:ctwl.INF_TG,
                                                    templateGeneratorConfig : {
                                                        formatter : "PhysicalInfRefsFormatter"
