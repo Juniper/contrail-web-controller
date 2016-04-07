@@ -81,7 +81,7 @@ define([
                     pageSize: 50,
                     timeRange: 300,
                     select: 'agg-bytes,agg-packets,vrouter_ip,other_vrouter_ip',
-                    fromTimeUTC: 'now-300s',
+                    fromTimeUTC: 'now-600s',
                     toTimeUTC: 'now',
                     startAt: new Date().getTime(),
                     async: false,
@@ -196,7 +196,8 @@ define([
                     exportable: true,
                     refreshable: false,
                     searchable: true
-                }
+                },
+                advanceControls: getHeaderActionConfig(formModel.traceflow_radiobtn_name())
             },
             body: {
                 options: {
@@ -273,6 +274,103 @@ define([
             footer: footer
         };
         return gridElementConfig;
+    };
+
+    function getHeaderActionConfig(selectedElement) {
+        var headerActionConfig = [
+              {
+                  type: 'checked-multiselect',
+                  iconClass: 'icon-filter',
+                  placeholder: 'Filter Flows',
+                  elementConfig: {
+                      elementId: 'traceflowsFilterMultiselect',
+                      dataTextField: 'text',
+                      dataValueField: 'id',
+                      selectedList: 1,
+                      noneSelectedText: 'Filter Flows',
+                      filterConfig: {
+                          placeholder: 'Search Filter'
+                      },
+                      minWidth: 150,
+                      height: 205,
+                      data: [
+                               {
+                                   id: "filterFlows",
+                                   text:"Filter Flows",
+                                   children: [
+                                       {
+                                           id:"traceable",
+                                           text:"Traceable",
+                                           iconClass:'icon-download-alt'
+                                       },{
+                                           id:"untraceable",
+                                           text:"Untraceable",
+                                           iconClass:'icon-download-alt'
+                                       }
+                                   ]
+                               }
+                      ],
+                      click: function () {
+                          applyFlowsFilter(selectedElement);
+                      },
+                      optgrouptoggle: applyFlowsFilter,
+                      control: false
+                  }
+              }
+        ];
+        return headerActionConfig;
+    }
+
+    function applyFlowsFilter(selectedElement) {
+        var checkedRows = $('#traceflowsFilterMultiselect').data('contrailCheckedMultiselect').getChecked();
+        var gridElId = '#'+ctwc.TRACEFLOW_RESULTS_GRID_ID;
+        $(gridElId).data('contrailGrid')._dataView.setFilterArgs({
+            checkedRows: checkedRows,
+            selectedEntity: selectedElement
+        });
+        $(gridElId).data('contrailGrid')._dataView.setFilter(
+                function (item, args) {
+                    var checkedRows = args.checkedRows,
+                        traceable = false,
+                        untraceable = false,
+                        allKeysExists = true;
+                    $.each(checkedRows, function (checkedRowKey, checkedRowValue) {
+                        var checkedRowValueObj = $.parseJSON(unescape($(checkedRowValue).val()));
+                        if (checkedRowValueObj['value'] == 'traceable') {
+                            traceable = true;
+                        } else if (checkedRowValueObj['value'] == 'untraceable') {
+                            untraceable = true;
+                        }
+                    });
+                    var selectedEntity = args.selectedEntity;
+                    var keysToCheck = ['sourceip', 'destip',
+                           'vrouter_ip', 'other_vrouter_ip', 'sourcevn', 'destvn'];
+                       var excludeNetworks =
+                           ['__UNKNOWN__', 'default-domain:default-project:ip-fabric'];
+                       var srcVN = 'sourcevn', dstVN = 'destvn';
+                       if (selectedEntity == 'vRouter') {
+                           keysToCheck =
+                               ['sip', 'dip','peer_vrouter', 'src_vn', 'dst_vn'];
+                           srcVN = 'src_vn', dstVN = 'dst_vn';
+                       }
+                       var keysToCheckLen = keysToCheck.length;
+                       if ((checkedRows.length == 0) || (traceable == true && untraceable == true)) {
+                           return true;
+                       } else {
+                           for (var i = 0; i < keysToCheckLen; i++) {
+                               if (_.result(item, keysToCheck[i]) == null) {
+                                   allKeysExists = false;
+                               }
+                           }
+                           if (allKeysExists &&
+                               excludeNetworks.indexOf(item[srcVN]) == -1 &&
+                               excludeNetworks.indexOf(item[dstVN]) == -1) {
+                               return (traceable && true);
+                           } else {
+                               return (untraceable || false);
+                           }
+                       }
+                });
     };
 
     function getSelectedVrouterDetails (traceFlowFormModel) {
@@ -535,7 +633,7 @@ define([
                 }
                 return;
             }
-                
+
             if (typeof response == 'string') {
                 showInfoWindow(response,'Error');
                 return;

@@ -21,19 +21,6 @@ define([
                         return (this.traceflow_radiobtn_name() == 'instance') ? true : false;
                     }), traceFlowModel);
 
-                    // Setting the first vRouter in the dropdown to model
-                    // as workaround once the defaultValueId is setting to model
-                    // can be removed
-
-                    var vRouters = getValueByJsonPath(self,'model;vRouters',[]);
-                    var virtualMachines = getValueByJsonPath(self,'model;VMs',[]);
-                    if(vRouters.length > 0) {
-                        traceFlowModel.vrouter_dropdown_name(vRouters[0]['name']);
-                    }
-
-                    if(virtualMachines.length > 0) {
-                        traceFlowModel.instance_dropdown_name(virtualMachines[0]['name']);
-                    }
                     self.model = traceFlowModel;
                     this.renderView4Config(self.$el, traceFlowModel,
                         self.getTraceFlowTabViewConfig(),null, null, null,
@@ -115,12 +102,7 @@ define([
                                                 dataValueField:'value',
                                                 parse: function(response) {
                                                     if(response != null) {
-                                                        var data = getTraceFlowDropdown(response, ctwc.VROUTER);
-                                                        //Set the firstValue in model
-                                                        if(data.length > 0) {
-                                                            self.model.vrouter_dropdown_name(data[0]['id']);
-                                                        }
-                                                        return data;
+                                                        return getTraceFlowDropdown(response, ctwc.VROUTER);
                                                     }
                                                 }
                                             },
@@ -149,12 +131,7 @@ define([
                                                dataValueField:'value',
                                                parse: function(response) {
                                                    if(response != null) {
-                                                       var data = getTraceFlowDropdown(response, ctwc.VIRTUALMACHINE);
-                                                       //Set the firstValue in model
-                                                       if(data.length > 0) {
-                                                           self.model.instance_dropdown_name(data[0]['id']);
-                                                       }
-                                                       return data;
+                                                       return getTraceFlowDropdown(response, ctwc.VIRTUALMACHINE);
                                                    }
                                                }
                                            },
