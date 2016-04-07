@@ -438,7 +438,7 @@ define([
                 viewConfig: {
                     rows: [
                         infConfigTemplates.infFixedSection(disableId,
-                            self.model.getPhysicalInterfaceData()),
+                            self.model),
                         infConfigTemplates.infVariableSection(disableId, self)
                     ]
                 }

@@ -667,6 +667,7 @@ define([
             {'value' : 'physical-router', "text" : 'Physical Router'},
             {'value' : 'physical-interface', "text" : 'Physical Interface'}
         ];
+        this.PHYSICAL_INF_LINK_PATTERN = ";";
 
         /* BGP as a Service */
         this.CONFIG_BGP_AS_A_SERVICE_LIST_ID = "config-bgp-as-a-service-list";
