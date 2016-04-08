@@ -5,15 +5,13 @@ define([
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
-    'monitor/networking/test/ui/views/NetworkListView.mock.data',
+    'monitor/networking/test/ui/views/InterfaceListView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite',
-    'co-chart-view-zoom-scatter-test-suite',
-    'network-list-view-custom-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, ZoomScatterChartTestSuite,
-             CustomTestSuite) {
+    'co-chart-view-zoom-scatter-test-suite'
+], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, ZoomScatterChartTestSuite) {
 
-    var moduleId = cttm.NETWORKS_LIST_VIEW_COMMON_TEST_MODULE;
+    var moduleId = cttm.INTERFACES_LIST_VIEW_COMMON_TEST_MODULE;
 
     var testType = cotc.VIEW_TEST;
 
@@ -22,23 +20,35 @@ define([
     var fakeServerResponsesConfig = function() {
         var responses = [];
 
+        /*
+            /api/tenants/config/domains
+            /api/tenants/config/projects
+            /api/tenants/networks/default-domain:admin
+            /api/tenant/networking/stats
+            /api/tenant/networking/virtual-machine-interfaces/summary
+        */
+
         responses.push(cotr.createFakeServerResponse( {
             url: cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
             body: JSON.stringify(TestMockdata.domainsMockData)
         }));
         responses.push(cotr.createFakeServerResponse( {
-            url: /\/api\/tenants\/projects\/default-domain.*$/,
-            body: JSON.stringify(TestMockdata.projectMockData)
+            url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS),
+            body: JSON.stringify(TestMockdata.projectsMockData)
         }));
-        responses.push(cotr.createFakeServerResponse({
-            method:"POST",
-            url: cttu.getRegExForUrl(ctwc.URL_ALL_NETWORKS_DETAILS),
-            body: JSON.stringify(TestMockdata.networksMockData)
+        responses.push(cotr.createFakeServerResponse( {
+            url: /\/api\/tenants\/projects\/default\-domain\:admin.*$/,
+            body: JSON.stringify(TestMockdata.adminProjectMockData)
         }));
         responses.push(cotr.createFakeServerResponse({
             method: "POST",
             url: cttu.getRegExForUrl(ctwc.URL_VM_VN_STATS),
-            body: JSON.stringify(TestMockdata.networksMockStatData)
+            body: JSON.stringify(TestMockdata.interfacesMockStatData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl(ctwc.URL_VM_INTERFACES),
+            body: JSON.stringify(TestMockdata.virtualMachinesInterfacesMockData)
         }));
 
         return responses;
@@ -47,10 +57,10 @@ define([
 
     var pageConfig = cotr.getDefaultPageConfig();
     pageConfig.hashParams = {
-        p: 'mon_networking_networks',
+        p: 'mon_networking_interfaces',
         q: {
             view: 'list',
-            type: 'network'
+            type: 'interface'
         }
     };
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 5;
@@ -60,7 +70,7 @@ define([
             rootView: mnPageLoader.mnView,
             tests: [
                 {
-                    viewId: ctwl.NETWORKS_PORTS_SCATTER_CHART_ID,
+                    viewId: 'interfaces-traffic-throughput-chart',
                     suites: [
                         {
                             class: ZoomScatterChartTestSuite,
@@ -69,31 +79,16 @@ define([
                     ]
                 },
                 {
-                    viewId: 'project-network-grid',
+                    viewId: 'interface-grid',
                     suites: [
                         {
                             class: GridViewTestSuite,
                             groups: ['all']
-                        },
-                        {
-                            class: GridListModelTestSuite,
-                            groups: ['all'],
-                            modelConfig: {
-                                dataGenerator: cttu.commonGridDataGenerator,
-                                dataParsers: {
-                                    mockDataParseFn: cttu.deleteFieldsForNetworkListViewScatterChart,
-                                    gridDataParseFn: cttu.deleteFieldsForNetworkListViewScatterChart
-                                }
-                            }
-                        },
-                        {
-                            class: CustomTestSuite,
-                            groups: ['all']
-                        },
+                        }
                     ]
                 }
             ]
-        } ;
+        };
 
     };
 

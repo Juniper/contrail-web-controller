@@ -1,13 +1,14 @@
 /*
- * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 define([
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'monitor/networking/test/ui/views/NetworkView.mock.data',
-    'co-tabs-view-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, TabsViewTestSuite) {
+    'co-grid-contrail-list-model-test-suite',
+    'co-grid-view-test-suite'
+], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
     var moduleId = cttm.PROJECTS_VIEW_COMMON_TEST_MODULE;
 
@@ -17,21 +18,6 @@ define([
 
     var fakeServerResponsesConfig = function () {
         var responses = [];
-
-        /*
-         /api/tenants/config/domains                                                                                                     done
-         /api/tenants/config/projects                                                                                                    done
-         /api/tenants/networks/default-domain:admin                                                                                      done
-         /api/tenant/networking/virtual-network/summary?fqNameRegExp=default-domain:admin:frontend                                       done
-         /api/tenant/networking/flow-series/vn?minsSince=120&fqName=default-domain:admin:frontend&sampleCnt=120                          done
-         /api/tenant/networking/network/stats/top?minsSince=10&fqName=default-domain:admin:frontend                                      done
-         /api/tenant/monitoring/network-connected-graph?fqName=default-domain:admin:frontend                                             done
-         /api/tenant/monitoring/network-config-graph?fqName=default-domain:admin:frontend                                                done
-         /api/tenant/networking/virtual-machines/details?fqnUUID=ad8a9efc-9b7e-4425-9735-03bda0d2726e&count=10&type=vn                   done
-         /api/tenant/networking/virtual-machines/summary                                                                                 done
-         /api/tenant/networking/virtual-machine-interfaces/summary                                                                       done
-         /api/tenant/networking/stats                                                                                                    done
-         */
 
         responses.push(cotr.createFakeServerResponse({
             url: cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
@@ -121,24 +107,35 @@ define([
             "focusedElement": {
                 "fqName": "default-domain:admin:frontend",
                 "type": "virtual-network"
+            },
+            tab: {
+                "network-tabs": "network-instances"
             }
         }
     };
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 5;
 
-    /**
-     * Test cases for components in each project tab will be tested in their respective tab pages.
-     */
     var getTestConfig = function () {
         return {
             rootView: mnPageLoader.mnView,
             tests: [
                 {
-                    viewId: ctwl.NETWORK_TABS_ID,
+                    viewId: ctwl.PROJECT_INSTANCE_GRID_ID,
                     suites: [
                         {
-                            class: TabsViewTestSuite,
+                            class: GridViewTestSuite,
                             groups: ['all']
+                        },
+                        {
+                            class: GridListModelTestSuite,
+                            groups: ['all'],
+                            modelConfig: {
+                                dataGenerator: cttu.commonGridDataGenerator,
+                                dataParsers: {
+                                    mockDataParseFn: cttu.deleteSizeField,
+                                    gridDataParseFn: cttu.deleteSizeField
+                                }
+                            }
                         }
                     ]
                 }

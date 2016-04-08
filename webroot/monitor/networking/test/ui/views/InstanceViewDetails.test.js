@@ -6,8 +6,8 @@ define([
     'ct-test-utils',
     'ct-test-messages',
     'monitor/networking/test/ui/views/InstanceView.mock.data',
-    'co-tabs-view-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, TabsViewTestSuite) {
+    'co-details-view-test-suite',
+], function (cotr, cttu, cttm, TestMockdata, TabsViewTestSuite, DetailsViewTestSuite) {
 
     var moduleId = cttm.INSTANCE_VIEW_COMMON_TEST_MODULE;
 
@@ -16,19 +16,6 @@ define([
     var fakeServerConfig = cotr.getDefaultFakeServerConfig();
 
     var fakeServerResponsesConfig = function() {
-        /**
-         URIs
-         /api/tenants/config/domains [done]
-         /api/tenants/config/projects [done
-         /api/tenants/projects/default-domain [done]
-         /api/tenants/networks/default-domain:demo [done]
-         /api/tenant/networking/virtual-machine [done]
-         /api/tenant/monitoring/instance-connected-graph [done]
-         /api/tenant/networking/virtual-machine-interfaces/summary [done]
-         /api/tenant/networking/flow-series/vm [done]
-         /api/tenant/networking/network/stats/top [done]
-         /api/tenant/networking/stats [done]
-         */
         var responses = [];
         responses.push(cotr.createFakeServerResponse( {
             url: cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
@@ -96,24 +83,29 @@ define([
                 "type": "virtual-machine",
                 "uuid": "0275be58-4e5f-440e-81fa-07aac3fb1623",
                 "vmName": "st_vn101_vm21"
+            },
+            "reload": "false",
+            "tab": {
+                "instance-tabs": "instance-details"
             }
         }
     };
+
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 5;
 
-    /**
-     * Test cases for components in each project tab will be tested in their respective tab pages.
-     */
     var getTestConfig = function() {
         return {
             rootView: mnPageLoader.mnView,
             tests: [
-                 {
-                    viewId: ctwl.INSTANCE_TABS_ID,
+                {
+                    viewId: ctwl.INSTANCE_DETAILS_ID,
                     suites: [
                         {
-                            class: TabsViewTestSuite,
-                            groups: ['all']
+                            class: DetailsViewTestSuite,
+                            groups: ['all'],
+                            modelConfig: {
+                                dataGenerator: cttu.commonDetailsDataGenerator
+                            }
                         }
                     ]
                 }
@@ -123,12 +115,13 @@ define([
     };
 
     var testInitFn = function(defObj, onAllViewsRenderComplete) {
+        
         setTimeout(function() {
                 /**
                  * Tabs are already rendered so by default the event will not get fired.
                  * call the notify once tabs are activated.
                  */
-                onAllViewsRenderComplete.notify(); 
+                onAllViewsRenderComplete.notify();
                 defObj.resolve();
             },
             // Add necessary timeout for the tab elements to load properly and resolve the promise
