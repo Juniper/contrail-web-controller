@@ -12,7 +12,15 @@ define([
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig;
 
-            self.renderView4Config(self.$el, self.model, self.getViewConfig(self.attributes));
+            self.renderView4Config(self.$el, self.model, 
+                    self.getViewConfig(self.attributes),null,null,null,
+                    function(){
+                        cowu.addGridGrouping ('vrouter_routes-results',{
+                            groupingField :"prefix",
+                            groupHeadingPrefix : 'Prefix: ',
+                            rowCountSuffix : ['Route','Routes']
+                        });
+                    });
         },
 
         getViewConfig: function (attributes) {
@@ -24,6 +32,7 @@ define([
                                     field:"dispPrefix",
                                     id:"Prefix",
                                     name:"Prefix",
+                                    hide:true,
                                     minWidth:50,
                                     searchFn:function(d){
                                         return d['prefix'];

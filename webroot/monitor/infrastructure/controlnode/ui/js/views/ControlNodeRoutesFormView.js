@@ -107,7 +107,7 @@ define([
         getViewConfig: function (options,viewConfig) {
             var self = this;
             var hostname = viewConfig['hostname'];
-            var addressFamilyList = ["All","enet","erm-vpn","evpn",
+            var addressFamilyList = ["All","enet","ermvpn","evpn",
                                      "inet","inetvpn","inet6","l3vpn","rtarget"];
             var routeLimits = [10, 50, 100, 200];
             $.each(routeLimits,function(idx,obj){
