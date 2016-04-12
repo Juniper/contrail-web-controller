@@ -13,7 +13,7 @@ define([
         render: function () {
             var self = this,
                 graphTemplate = contrail.getTemplate4Id(cowc.TMPL_NETWORKING_GRAPH_VIEW),
-                viewConfig = this.attributes.viewConfig,
+                viewConfig = self.attributes.viewConfig,
                 connectedGraph = viewConfig['connectedGraph'],
                 configGraph = viewConfig['configGraph'],
                 selectorId = '#' + ctwl.NETWORKING_GRAPH_ID,
@@ -26,10 +26,10 @@ define([
             self.$el.html(graphTemplate());
 
             setTimeout(function () {
-                connectedGraphView = self.renderConnectedGraph(connectedGraph, selectorId, connectedSelectorId, configSelectorId);
+                connectedGraphView = self.renderConnectedGraph(configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId);
                 connectedGraphModel = connectedGraphView.model;
                 if (contrail.checkIfExist(configGraph)) {
-                    configGraphView = self.renderConfigGraph(configGraph, configSelectorId, connectedGraphView);
+                    configGraphView = self.renderConfigGraph(configGraph, connectedGraph, selectorId, configSelectorId, connectedSelectorId, connectedGraphView);
                     configGraphModel = configGraphView.model;
 
                     if ((!configGraphModel.isRequestInProgress()
@@ -65,14 +65,15 @@ define([
             }, 10);
         },
 
-        renderConnectedGraph: function (graphConfig, selectorId, connectedSelectorId, configSelectorId) {
-            var connectedGraphView = new GraphView(getConnectedGraphViewConfig(graphConfig, selectorId, connectedSelectorId, configSelectorId, this));
+        renderConnectedGraph: function (configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId) {
+            var connectedGraphView = new GraphView(getConnectedGraphViewConfig(configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId, this));
             connectedGraphView.render();
             return connectedGraphView;
         },
 
-        renderConfigGraph: function (graphConfig, configSelectorId, connectedGraphView) {
-            var confGraphModelConfig = $.extend(true, {}, graphConfig, {
+        renderConfigGraph: function (configGraph, connectedGraph, selectorId, configSelectorId, connectedSelectorId, connectedGraphView) {
+            var self = this,
+                confGraphModelConfig = $.extend(true, {}, configGraph, {
                 forceFit: false,
                 generateElementsFn: getElements4ConfigGraph
             });
@@ -86,7 +87,13 @@ define([
                     'cell:pointerclick': getConfgPointerClickFn(connectedGraphView)
                 },
                 successCallback: function (graphView) {
-                    $(configSelectorId).panzoom();
+                    var configGraphModel = graphView.model;
+
+                    $(configSelectorId).data('graph-size', {height: configGraphModel.elementsDataObj.configSVGHeight});
+
+                    if (adjustConnectedGraphDimension(configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId, true)) {
+                        postAdjustGraph(configGraph, selectorId, connectedSelectorId, self);
+                    }
                 }
             };
 
@@ -117,18 +124,18 @@ define([
         });
     }
 
-    function getConnectedGraphViewConfig(graphConfig, selectorId, connectedSelectorId, configSelectorId, self) {
+    function getConnectedGraphViewConfig(configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId, self) {
         return {
             el: $(connectedSelectorId),
             linkView: joint.shapes.contrail.LinkView,
-            graphModelConfig: getConnectedGraphModelConfig(graphConfig),
+            graphModelConfig: getConnectedGraphModelConfig(connectedGraph),
             tooltipConfig: nmwgrc.getConnectedGraphTooltipConfig(),
             clickEvents: {
                 'cell:pointerclick': getCgPointerClick(self, connectedSelectorId),
                 'cell:pointerdblclick': cgPointerDblClick,
-                'blank:pointerdblclick': getCgBlankDblClick(self, connectedSelectorId, graphConfig)
+                'blank:pointerdblclick': getCgBlankDblClick(self, connectedSelectorId, connectedGraph)
             },
-            controlPanel: getControlPanelConfig(self, graphConfig, selectorId, connectedSelectorId, configSelectorId),
+            controlPanel: getControlPanelConfig(self, configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId),
             emptyCallback: function (contrailGraphModel) {
                 var notFoundTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
                     notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {
@@ -136,7 +143,7 @@ define([
                         defaultErrorMessage: false,
                         defaultNavLinks: false
                     }),
-                    blankDblClickFn = getCgBlankDblClick(self, connectedSelectorId, graphConfig);
+                    blankDblClickFn = getCgBlankDblClick(self, connectedSelectorId, connectedGraph);
 
                 if (!contrail.checkIfExist(contrailGraphModel.elementsDataObj)) {
                     notFoundConfig.title = ctwm.NO_DATA_FOUND;
@@ -155,7 +162,7 @@ define([
                 var xhr = contrailGraphModel.errorList[0],
                     notFoundTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
                     notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_ERROR_PAGE, {errorMessage: xhr.responseText}),
-                    blankDblClickFn = getCgBlankDblClick(self, connectedSelectorId, graphConfig);
+                    blankDblClickFn = getCgBlankDblClick(self, connectedSelectorId, connectedGraph);
 
                 if (!(xhr.status === 0 && xhr.statusText === 'abort')) {
                     $(selectorId).html(notFoundTemplate(notFoundConfig));
@@ -167,39 +174,48 @@ define([
             },
             successCallback: function (graphView) {
                 var connectedGraphModel = graphView.model,
-                    directedGraphSize = connectedGraphModel.directedGraphSize,
-                    currentHashParams = layoutHandler.getURLHashParams(),
-                    focusedElement = graphConfig.focusedElement,
-                    elementMap = connectedGraphModel.elementMap,
-                    elementObj;
+                    directedGraphSize = connectedGraphModel.directedGraphSize;
+
 
                 $(connectedSelectorId).data('graph-size', directedGraphSize);
                 $(connectedSelectorId).data('graphView', graphView);
 
-                adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, true);
-                panConnectedGraph2Center(focusedElement, connectedSelectorId);
-
-                highlightElement4ZoomedElement(connectedSelectorId, graphConfig);
-
-                if (contrail.checkIfExist(currentHashParams.clickedElement)) {
-                    elementObj = connectedGraphModel.getCell(elementMap.node[currentHashParams.clickedElement.fqName]);
-                    panConnectedGraph2Element(elementObj, connectedSelectorId);
-                    showClickedElement(self, elementObj, connectedSelectorId);
-                } else if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT) {
-                    removeFaint4AllElements();
-                    removeHighlight4AllElements();
-                }
-
-                if (!$(selectorId).find('.refresh i').hasClass('icon-repeat')) {
-                    setTimeout(function () {
-                        $(selectorId).find('.refresh i').removeClass('icon-spin icon-spinner').addClass('icon-repeat');
-                    }, 200);
+                if (adjustConnectedGraphDimension(configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId, true)) {
+                    postAdjustGraph(connectedGraph, selectorId, connectedSelectorId, self);
                 }
             }
         }
     }
 
-    function getControlPanelConfig(connectedGraphSelf, graphConfig, selectorId, connectedSelectorId, configSelectorId) {
+    function postAdjustGraph(graphConfig, selectorId, connectedSelectorId, self) {
+        var connectedGraphView = $(connectedSelectorId).data('graphView'),
+            connectedGraphModel = connectedGraphView.model,
+            currentHashParams = layoutHandler.getURLHashParams(),
+            focusedElement = graphConfig.focusedElement,
+            elementMap = connectedGraphModel.elementMap,
+            elementObj;
+
+        panConnectedGraph2Center(focusedElement, connectedSelectorId);
+
+        highlightElement4ZoomedElement(connectedSelectorId, graphConfig);
+
+        if (contrail.checkIfExist(currentHashParams.clickedElement)) {
+            elementObj = connectedGraphModel.getCell(elementMap.node[currentHashParams.clickedElement.fqName]);
+            panConnectedGraph2Element(elementObj, connectedSelectorId);
+            showClickedElement(self, elementObj, connectedSelectorId);
+        } else if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT) {
+            removeFaint4AllElements();
+            removeHighlight4AllElements();
+        }
+
+        if (!$(selectorId).find('.refresh i').hasClass('icon-repeat')) {
+            setTimeout(function () {
+                $(selectorId).find('.refresh i').removeClass('icon-spin icon-spinner').addClass('icon-repeat');
+            }, 200);
+        }
+    }
+
+    function getControlPanelConfig(connectedGraphSelf, configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId) {
         return {
             default: {
                 zoom: {
@@ -208,7 +224,7 @@ define([
                     config: {
                         focalZoom: true,
                         onReset: function () {
-                            var focusedElement = graphConfig.focusedElement;
+                            var focusedElement = connectedGraph.focusedElement;
                             panConnectedGraph2Center(focusedElement, connectedSelectorId);
                             $(configSelectorId).panzoom('resetPan');
                         }
@@ -225,7 +241,7 @@ define([
                             setTimeout(function () {
                                 $(self).find('i').removeClass('icon-spin icon-spinner');
                                 $(self).find('i').toggleClass('icon-resize-full').toggleClass('icon-resize-small');
-                                adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, false);
+                                adjustConnectedGraphDimension(configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId, false);
                                 $(connectedSelectorId).panzoom('reset');
                                 $(controlPanelSelector).find('.control-panel-item').removeClass('disabled');
                                 $(self).removeClass('refreshing');
@@ -356,7 +372,7 @@ define([
 
     function getElements4ConnectedGraphFn(graphconfig) {
         var focusedElementType = graphconfig.focusedElement.type,
-            fqName = graphconfig.focusedElement.name.fqName;
+            fqName = decodeURIComponent(graphconfig.focusedElement.name.fqName);
 
         return function (response, elementMap, rankDir) {
             var elements4ConnectedGraph = [],
@@ -369,7 +385,7 @@ define([
                 createLinkElements(links, elements4ConnectedGraph, elementMap);
 
                 var linkedElements = elementMap['linkedElements'],
-                    nodeSeparation = 90, groupedElements = [],
+                    nodeSeparation = 100, groupedElements = [],
                     groupedElementsCount, maxRowCount,
                     groupedParentWidth, groupedParentHeight;
 
@@ -398,10 +414,7 @@ define([
 
                     if (groupedElements.length > 0) {
                         var groupParentElement = new joint.shapes.contrail.GroupParentElement({
-                            size: {width: groupedParentWidth, height: groupedParentHeight},
-                            attrs: {
-                                rect: {width: groupedParentWidth, height: groupedParentHeight}
-                            }
+                            size: {width: groupedParentWidth, height: groupedParentHeight}
                         });
 
                         linkedElements.push(groupParentElement);
@@ -481,62 +494,72 @@ define([
         };
     };
 
-    function adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, initResizeFlag) {
-        var resizeFlag = ($(selectorId).parents('.visualization-container').find('.icon-resize-small').is(':visible')),
-            tabHeight = resizeFlag ? 155 : 510, //TODO - move to constants
-            minHeight = 275,
-            availableHeight = window.innerHeight - tabHeight,
-            directedGraphSize = $(connectedSelectorId).data('graph-size'),
-            connectedGraphView = $(connectedSelectorId).data('graphView');
+    function adjustConnectedGraphDimension(configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId, initResizeFlag) {
+        /*
+         * Condition to check if config and connected graph exists and if exists, are loaded
+         */
+        if ((!contrail.checkIfExist(configGraph) || contrail.checkIfExist($(configSelectorId).data('graph-size'))) &&
+            (!contrail.checkIfExist(connectedGraph) || contrail.checkIfExist($(connectedSelectorId).data('graph-size')))) {
+            var resizeFlag = ($(selectorId).parents('.visualization-container').find('.icon-resize-small').is(':visible')),
+                tabHeight = resizeFlag ? 140 : 510, //TODO - move to constants
+                minHeight = 275,
+                availableHeight = window.innerHeight - tabHeight,
+                connectedGraphSize = $(connectedSelectorId).data('graph-size'),
+                configGraphSize = $(configSelectorId).data('graph-size'),
+                connectedGraphView = $(connectedSelectorId).data('graphView');
 
-        if (!contrail.checkIfExist(connectedGraphView)) {
-            return;
-        }
+            if (!contrail.checkIfExist(connectedGraphView)) {
+                return;
+            }
 
-        var connectedGraphWidth = contrail.checkIfKeyExistInObject(true, directedGraphSize, 'width') ? directedGraphSize.width : 0,
-            connectedGraphHeight = contrail.checkIfKeyExistInObject(true, directedGraphSize, 'height') ? directedGraphSize.height : 0,
-            configGraphHeight = $(configSelectorId + ' svg').attr('height'),
-            graphHeight = Math.max(connectedGraphHeight, configGraphHeight),
-            adjustedHeight = availableHeight;
+            var connectedGraphWidth = contrail.checkIfKeyExistInObject(true, connectedGraphSize, 'width') ? connectedGraphSize.width : 0,
+                connectedGraphHeight = contrail.checkIfKeyExistInObject(true, connectedGraphSize, 'height') ? connectedGraphSize.height : 0,
+                configGraphHeight = contrail.checkIfKeyExistInObject(true, configGraphSize, 'height') ? configGraphSize.height : 0,
+                actualGraphHeight = Math.max(configGraphHeight, (connectedGraphHeight - cowc.GRAPH_MARGIN_BOTTOM - cowc.GRAPH_MARGIN_TOP)),
+                adjustedHeight = availableHeight;
 
-        if (!resizeFlag) {
-            if (availableHeight < minHeight) {
-                adjustedHeight = minHeight;
-            } else {
-                if (graphHeight < minHeight) {
+            if (!resizeFlag) {
+                if (availableHeight < minHeight) {
                     adjustedHeight = minHeight;
                 } else {
-                    if (graphHeight < availableHeight) {
-                        adjustedHeight = graphHeight;
+                    if (actualGraphHeight < minHeight) {
+                        adjustedHeight = minHeight;
+                    } else {
+                        if (actualGraphHeight < availableHeight) {
+                            adjustedHeight = actualGraphHeight;
+                        }
                     }
                 }
             }
+
+            if (initResizeFlag && ((actualGraphHeight - adjustedHeight) > 20)) {
+                $(selectorId).parents('.visualization-container').find('.icon-resize-full')
+                    .removeClass('icon-resize-full').addClass('icon-resize-small');
+
+                adjustedHeight = window.innerHeight - 140;
+            }
+
+            connectedGraphView.setDimensions(connectedGraphWidth, connectedGraphHeight, 1);
+
+            $(connectedSelectorId).width(connectedGraphWidth);
+
+            $(selectorId).parent().height(adjustedHeight);
+            $(selectorId).parent().css('width', '100%');
+
+            $(connectedSelectorId).parents('.col1').height(adjustedHeight);
+            $(configSelectorId).parents('.col2').height(adjustedHeight + 5);
+
+            if (connectedGraphHeight < adjustedHeight) {
+                $(connectedSelectorId + ' svg').attr('height', adjustedHeight);
+            }
+
+            if (configGraphHeight < adjustedHeight) {
+                $(configSelectorId + ' svg').attr('height', configGraphHeight);
+            }
+
+            return true;
         }
-
-        if (initResizeFlag && ((connectedGraphHeight - cowc.GRAPH_MARGIN_BOTTOM - cowc.GRAPH_MARGIN_TOP - adjustedHeight) > 20)) {
-            $(selectorId).parents('.visualization-container').find('.icon-resize-full')
-                .removeClass('icon-resize-full').addClass('icon-resize-small');
-
-            adjustedHeight = window.innerHeight - 155;
-        }
-
-        connectedGraphView.setDimensions(connectedGraphWidth, connectedGraphHeight, 1);
-
-        $(connectedSelectorId).width(connectedGraphWidth);
-
-        $(selectorId).parent().height(adjustedHeight);
-        $(selectorId).parent().css('width', '100%');
-
-        $(connectedSelectorId).parents('.col1').height(adjustedHeight);
-        $(configSelectorId).parents('.col3').height(adjustedHeight);
-
-        if (connectedGraphHeight < adjustedHeight) {
-            $(connectedSelectorId + ' svg').attr('height', adjustedHeight);
-        }
-
-        if (configGraphHeight < adjustedHeight) { //TODO - Needs to be tested with multiple config elements
-            $(configSelectorId + ' svg').attr('height', adjustedHeight);
-        }
+        return false;
     };
 
     function panConnectedGraph2Center(focusedElement, connectedSelectorId) {
@@ -943,7 +966,7 @@ define([
                     break;
 
                 case ctwc.GRAPH_ELEMENT_NETWORK:
-                    var networkFQN = graphConfig.focusedElement.name.fqName;
+                    var networkFQN = decodeURIComponent(graphConfig.focusedElement.name.fqName);
 
                     if (contrail.checkIfExist(currentHashParams.clickedElement)) {
                         var networkUUID = nmwu.getUUIDByName(networkFQN);
@@ -964,7 +987,7 @@ define([
                     break;
 
                 case ctwc.GRAPH_ELEMENT_INSTANCE:
-                    var networkFQN = graphConfig.focusedElement.name.fqName;
+                    var networkFQN = decodeURIComponent(graphConfig.focusedElement.name.fqName);
 
                     if (contrail.checkIfExist(currentHashParams.clickedElement)) {
                         var instanceUUID = graphConfig.focusedElement.name.instanceUUID;

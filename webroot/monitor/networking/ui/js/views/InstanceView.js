@@ -13,7 +13,7 @@ define([
             var self = this,
                 graphTabsTemplate = contrail.getTemplate4Id(cowc.TMPL_2ROW_CONTENT_VIEW),
                 viewConfig = this.attributes.viewConfig,
-                networkFQN = viewConfig['networkFQN'],
+                networkFQN = encodeURIComponent(viewConfig['networkFQN']),
                 networkUUID = viewConfig['networkUUID'],
                 instanceUUID = viewConfig['instanceUUID'];
 

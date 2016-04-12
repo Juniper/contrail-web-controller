@@ -191,44 +191,6 @@ define([
                                 }
                             ]
                         }
-                    },
-                    {
-                        templateGenerator: 'ColumnSectionTemplateGenerator',
-                        templateGeneratorConfig: {
-                            columns: [
-                                {
-                                    class: 'span12',
-                                    rows: [
-                                        {
-                                            title: ctwl.TITLE_VRF_STATS,
-                                            key: 'value.UveVirtualNetworkAgent.vrf_stats_list',
-                                            templateGenerator: 'BlockGridTemplateGenerator',
-                                            templateGeneratorConfig: {
-                                                titleColumn: {
-                                                    key: 'name',
-                                                    templateGenerator: 'TextGenerator'
-                                                },
-                                                dataColumn: [
-                                                    {
-                                                        key: 'name',
-                                                        templateGenerator: 'TextGenerator'
-                                                    },
-                                                    {
-                                                        key: 'encaps',
-                                                        templateGenerator: 'TextGenerator'
-                                                    },
-                                                    {
-                                                        key: 'l2_encaps',
-                                                        templateGenerator: 'TextGenerator'
-                                                    }
-
-                                                ]
-                                            }
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
                     }
                 ]
             }

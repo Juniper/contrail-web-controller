@@ -75,7 +75,7 @@ define([
 
         return function(e) {
             var selectedInterface = instanceTrafficStatsDropdown.data('contrailDropdown').getSelectedData()[0].interface_data,
-                networkFQN = selectedInterface.virtual_network,
+                networkFQN = encodeURIComponent(selectedInterface.virtual_network),
                 interfaceIpAddress = selectedInterface.ip_address,
                 interfaceName = selectedInterface.name,
                 lineChartConfig = {
