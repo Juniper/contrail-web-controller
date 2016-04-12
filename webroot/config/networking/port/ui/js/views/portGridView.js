@@ -516,8 +516,15 @@ define([
                                     templateGeneratorConfig:{
                                         formatter: "parentUUIDFormatter"
                                     }
-                                }
-                                ]
+                                }, {
+                                    key: 'virtual_machine_interface_disable_policy',
+                                    name:"virtual_machine_interface_disable_policy",
+                                    label:"Disable Policy",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "disablePolicyFormatter"
+                                    }
+                                }]
                             }]
                         }]
                     }
@@ -624,6 +631,9 @@ define([
     };
     this.localPrefFormater = function(v, dc) {
         return portFormatters.localPrefFormater("", "", v, "", dc);
+    };
+    this.disablePolicyFormatter = function(v, dc) {
+        return portFormatters.disablePolicyFormatter("", "", v, "", dc);
     };
     return portGridView;
 });

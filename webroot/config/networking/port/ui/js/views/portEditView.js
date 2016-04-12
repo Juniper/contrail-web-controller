@@ -777,6 +777,18 @@ define([
                         }]
                     }, {
                         columns: [{
+                            elementId: 'virtual_machine_interface_disable_policy',
+                            view: "FormCheckboxView",
+                            viewConfig: {
+                                path: 'virtual_machine_interface_disable_policy',
+                                label: "Disable Policy",
+                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                dataBindValue: 'virtual_machine_interface_disable_policy',
+                                class: "span6"
+                            }
+                        }]
+                    }, {
+                        columns: [{
                             elementId: 'is_sub_interface',
                             name: "Sub Interface",
                             view: "FormCheckboxView",
