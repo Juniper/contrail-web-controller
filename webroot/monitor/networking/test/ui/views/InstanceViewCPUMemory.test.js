@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 define([
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'monitor/networking/test/ui/views/InstanceView.mock.data',
-    'co-tabs-view-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, TabsViewTestSuite) {
+    'co-chart-view-line-bar-test-suite',
+], function (cotr, cttu, cttm, TestMockdata, LineBarChartViewTestSuite) {
 
     var moduleId = cttm.INSTANCE_VIEW_COMMON_TEST_MODULE;
 
@@ -16,19 +16,6 @@ define([
     var fakeServerConfig = cotr.getDefaultFakeServerConfig();
 
     var fakeServerResponsesConfig = function() {
-        /**
-         URIs
-         /api/tenants/config/domains [done]
-         /api/tenants/config/projects [done
-         /api/tenants/projects/default-domain [done]
-         /api/tenants/networks/default-domain:demo [done]
-         /api/tenant/networking/virtual-machine [done]
-         /api/tenant/monitoring/instance-connected-graph [done]
-         /api/tenant/networking/virtual-machine-interfaces/summary [done]
-         /api/tenant/networking/flow-series/vm [done]
-         /api/tenant/networking/network/stats/top [done]
-         /api/tenant/networking/stats [done]
-         */
         var responses = [];
         responses.push(cotr.createFakeServerResponse( {
             url: cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
@@ -86,6 +73,7 @@ define([
     fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;
 
     var pageConfig = cotr.getDefaultPageConfig();
+
     pageConfig.hashParams = {
         p: 'mon_networking_instances',
         q: {
@@ -96,23 +84,25 @@ define([
                 "type": "virtual-machine",
                 "uuid": "0275be58-4e5f-440e-81fa-07aac3fb1623",
                 "vmName": "st_vn101_vm21"
+            },
+            "reload": "false",
+            "tab": {
+                "instance-tabs": "instance-cpu-mem-stats"
             }
         }
     };
+
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 5;
 
-    /**
-     * Test cases for components in each project tab will be tested in their respective tab pages.
-     */
     var getTestConfig = function() {
         return {
             rootView: mnPageLoader.mnView,
             tests: [
-                 {
-                    viewId: ctwl.INSTANCE_TABS_ID,
+                {
+                    viewId: ctwl.INSTANCE_CPU_MEM_STATS_ID,
                     suites: [
                         {
-                            class: TabsViewTestSuite,
+                            class: LineBarChartViewTestSuite,
                             groups: ['all']
                         }
                     ]
@@ -123,16 +113,17 @@ define([
     };
 
     var testInitFn = function(defObj, onAllViewsRenderComplete) {
+
         setTimeout(function() {
                 /**
                  * Tabs are already rendered so by default the event will not get fired.
                  * call the notify once tabs are activated.
                  */
-                onAllViewsRenderComplete.notify(); 
+                onAllViewsRenderComplete.notify();
                 defObj.resolve();
             },
             // Add necessary timeout for the tab elements to load properly and resolve the promise
-            cotc.PAGE_INIT_TIMEOUT * 10
+            cotc.PAGE_INIT_TIMEOUT * 20
         );
 
         return;

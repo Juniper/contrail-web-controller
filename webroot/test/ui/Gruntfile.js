@@ -106,6 +106,26 @@ module.exports = function (grunt) {
                     {
                         pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/NetworkView.test.js',
                         included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/NetworkViewDetails.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/NetworkViewInstances.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/NetworkViewInterfaces.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/NetworkViewTrafficStatistics.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/NetworkViewPortDistribution.test.js',
+                        included: false
                     }
                 ],
                 preprocessors: {
@@ -162,6 +182,22 @@ module.exports = function (grunt) {
                     {
                         pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/ProjectView.test.js',
                         included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/ProjectViewNetworks.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/ProjectViewInstances.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/ProjectViewInterfaces.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/ProjectViewPortDistribution.test.js',
+                        included: false
                     }
                 ],
                 preprocessors: {
@@ -189,6 +225,22 @@ module.exports = function (grunt) {
                 files: [
                     {
                         pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/DashboardView.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/DashboardViewNetworks.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/DashboardViewInstances.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/DashboardViewInterfaces.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/DashboardViewPortDistribution.test.js',
                         included: false
                     }
                 ],
@@ -245,6 +297,22 @@ module.exports = function (grunt) {
                 files: [
                     {
                         pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/InstanceView.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/InstanceViewDetails.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/InstanceViewInterfaces.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/InstanceViewTrafficStatistics.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/InstanceViewCPUMemory.test.js',
                         included: false
                     }
                 ],
