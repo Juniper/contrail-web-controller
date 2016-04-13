@@ -455,6 +455,8 @@ define(
                         obj['nodeAlerts'] = infraMonitorAlertUtils
                                                 .processAnalyticsNodeAlerts(obj);
                         var alarms = getValueByJsonPath(d,'value;UVEAlarms;alarms',[]);
+                        alarms = coreAlarmUtils.
+                            checkAndAddAnalyticsDownOrAlarmProcessDownAlarms(d,alarms);
                         if(cowu.getAlarmsFromAnalytics) {
                             obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
                                                             {
