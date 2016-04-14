@@ -87,12 +87,7 @@ define([
                         text: 'Loading Analyzers..'
                     },
                     empty: {
-                        text: 'No Analyzers.'
-                    },
-                    errorGettingData: {
-                        type: 'error',
-                        iconClasses: 'icon-warning',
-                        text: 'Error in getting Analyzers.'
+                        text: 'No Analyzers Found.'
                     }
                 }
             },

@@ -91,6 +91,14 @@ define([
                     cacheConfig : {
                         ucid: hostname
                     }
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Instances..',
+                    },
+                    empty: {
+                        text: 'No Instances Found.'
+                    }
                 }
             },
             columnHeader: {

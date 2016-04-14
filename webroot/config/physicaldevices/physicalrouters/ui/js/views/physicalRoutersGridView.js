@@ -87,12 +87,7 @@ define([
                         text: 'Loading Physical Routers..'
                     },
                     empty: {
-                        text: 'No Physical Routers.'
-                    },
-                    errorGettingData: {
-                        type: 'error',
-                        iconClasses: 'icon-warning',
-                        text: 'Error in getting Physical Routers.'
+                        text: 'No Physical Routers Found.'
                     }
                 }
             },

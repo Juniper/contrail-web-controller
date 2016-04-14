@@ -76,6 +76,14 @@ define([
                     }
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading BGP Routers..'
+                    },
+                    empty: {
+                        text: 'No BGP Routers Found.'
+                    }
                 }
             },
             columnHeader: {

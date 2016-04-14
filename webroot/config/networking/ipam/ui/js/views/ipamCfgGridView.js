@@ -81,9 +81,10 @@ define([
                 },
                 dataSource: {data: []},
                 statusMessages: {
+                    loading: {
+                        text: 'Loading IPAMs.',
+                    },
                     empty: {
-                        type: 'status',
-                        iconClasses: '',
                         text: 'No IPAMs Found.'
                     }
                 }

@@ -63,6 +63,14 @@ define([
                     checkboxSelectable: false,
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Project Quotas..'
+                    },
+                    empty: {
+                        text: 'No Project Quotas Found.'
+                    }
                 }
             },
             columnHeader: {

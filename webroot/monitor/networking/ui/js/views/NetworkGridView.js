@@ -90,6 +90,14 @@ define([
                     cacheConfig: {
                         ucid: ucid
                     }
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Networks..'
+                    },
+                    empty: {
+                        text: 'No Networks Found.'
+                    }
                 }
             },
             columnHeader: {

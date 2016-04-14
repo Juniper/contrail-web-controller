@@ -83,15 +83,10 @@ define([
                 },
                 statusMessages: {
                     loading: {
-                        text: 'Loading..'
+                        text: 'Loading Flows..'
                     },
                     empty: {
-                        text: 'No Flows for the given criteria'
-                    },
-                    errorGettingData: {
-                        type: 'error',
-                        iconClasses: 'icon-warning',
-                        text: 'Error in fetching the details'
+                        text: 'No Flows Found.'
                     }
                 }
             },

@@ -167,11 +167,6 @@ define([
                     },
                     empty: {
                         text: 'No Ports Found.'
-                    },
-                    errorGettingData: {
-                        type: 'error',
-                        iconClasses: 'icon-warning',
-                        text: 'Error in getting Ports.'
                     }
                 }
             },
