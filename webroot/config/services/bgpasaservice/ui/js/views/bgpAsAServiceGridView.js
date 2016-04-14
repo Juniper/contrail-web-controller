@@ -106,7 +106,7 @@ define([
                         text: 'Loading BGP as a Service..'
                     },
                     empty: {
-                        text: 'No BGP as a Service.'
+                        text: 'No BGP as a Service Found.'
                     },
                     errorGettingData: {
                         type: 'error',

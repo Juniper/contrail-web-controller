@@ -77,6 +77,19 @@ define([
                     cacheConfig: {
                         ucid: ctwc.UCID_DEFAULT_DOMAIN_PROJECT_LIST // TODO: Handle multi-tenancy
                     }
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Projects..'
+                    },
+                    empty: {
+                        text: 'No Projects Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Projects.'
+                    }
                 }
             },
             columnHeader: {

@@ -86,11 +86,17 @@ define([
                 },
                 dataSource: {data: []},
                 statusMessages: {
+                    loading: {
+                        text: 'Loading Service Templates..'
+                    },
                     empty: {
-                        type: 'status',
-                        iconClasses: '',
                         text: 'No Service Templates Found.'
                     },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Service Templates.'
+                    }
                 }
             },
             columnHeader: {

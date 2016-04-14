@@ -182,6 +182,19 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                             cacheConfig : {
                                 ucid: ctwl.CACHE_ANALYTICSNODE
                             }
+                        },
+                        statusMessages: {
+                            loading: {
+                                text: 'Loading Analytics Nodes..',
+                            },
+                            empty: {
+                                text: 'No Analytics Nodes Found.'
+                            },
+                            errorGettingData: {
+                                type: 'error',
+                                iconClasses: 'icon-warning',
+                                text: 'Error in getting Analytics Nodes.'
+                            }
                         }
                     }
 

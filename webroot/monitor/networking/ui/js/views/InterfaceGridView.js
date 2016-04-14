@@ -121,6 +121,19 @@ define([
                     cacheConfig : {
                         ucid: ucid
                     }
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Interfaces..'
+                    },
+                    empty: {
+                        text: 'No Interfaces Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Interfaces.'
+                    }
                 }
             },
             columnHeader: {

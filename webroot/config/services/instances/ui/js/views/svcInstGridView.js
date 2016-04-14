@@ -73,6 +73,19 @@ define([
                     },
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Service Instances..'
+                    },
+                    empty: {
+                        text: 'No Service Instances Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Service Instances.'
+                    }
                 }
             },
             columnHeader: {

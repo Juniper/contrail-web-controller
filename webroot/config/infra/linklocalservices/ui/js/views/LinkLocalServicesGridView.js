@@ -181,6 +181,19 @@ define([
                     },
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Link Local Services..'
+                    },
+                    empty: {
+                        text: 'No Link Local Services Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Link Local Services.'
+                    }
                 }
             },
             columnHeader: {

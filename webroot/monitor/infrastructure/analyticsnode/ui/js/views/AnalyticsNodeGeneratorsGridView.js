@@ -100,19 +100,19 @@ define([
                 },
                 dataSource : {
                     data : []
-                }
-            },
-            statusMessages: {
-                loading: {
-                    text: 'Loading Generators..',
                 },
-                empty: {
-                    text: 'No Generators to display'
-                },
-                errorGettingData: {
-                    type: 'error',
-                    iconClasses: 'icon-warning',
-                    text: 'Error in getting Data.'
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Generators..',
+                    },
+                    empty: {
+                        text: 'No Generators Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Generators.'
+                    }
                 }
             }
         };

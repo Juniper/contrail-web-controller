@@ -115,6 +115,19 @@ define([
                     }
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Routers.',
+                    },
+                    empty: {
+                        text: 'No Routers Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Routers.'
+                    }
                 }
             },
             columnHeader: {

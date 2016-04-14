@@ -76,6 +76,19 @@ define([
                     }
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading BGP Routers..'
+                    },
+                    empty: {
+                        text: 'No BGP Routers Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting BGP Routers.'
+                    }
                 }
             },
             columnHeader: {

@@ -95,12 +95,12 @@ define([
                         text: 'Loading Networks..',
                     },
                     empty: {
-                        text: 'No Networks to display'
+                        text: 'No Networks Found.'
                     },
                     errorGettingData: {
                         type: 'error',
                         iconClasses: 'icon-warning',
-                        text: 'Error in getting Data.'
+                        text: 'Error in getting Networks.'
                     }
                 }
             },

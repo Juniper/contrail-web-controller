@@ -177,12 +177,12 @@ define([
                         text: 'Loading ACLs..',
                     },
                     empty: {
-                        text: 'No ACLs to display'
+                        text: 'No ACLs Found.'
                     },
                     errorGettingData: {
                         type: 'error',
                         iconClasses: 'icon-warning',
-                        text: 'Error in getting Data.'
+                        text: 'Error in getting ACLs.'
                     }
                 }
             },

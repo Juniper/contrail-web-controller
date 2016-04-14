@@ -163,6 +163,19 @@ define(
                           fixedRowHeight: 30
                         },
                         dataSource : {
+                        },
+                        statusMessages: {
+                            loading: {
+                                text: 'Loading Config Nodes..',
+                            },
+                            empty: {
+                                text: 'No Config Nodes Found.'
+                            },
+                            errorGettingData: {
+                                type: 'error',
+                                iconClasses: 'icon-warning',
+                                text: 'Error in getting Config Nodes.'
+                            }
                         }
                     }
                 };

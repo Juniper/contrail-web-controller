@@ -214,12 +214,12 @@ define([
                         text: 'Loading Flows..',
                     },
                     empty: {
-                        text: 'No Flows to display'
+                        text: 'No Flows Found.'
                     },
                     errorGettingData: {
                         type: 'error',
                         iconClasses: 'icon-warning',
-                        text: 'Error in getting Data.'
+                        text: 'Error in getting Flows.'
                     }
                 }
             },

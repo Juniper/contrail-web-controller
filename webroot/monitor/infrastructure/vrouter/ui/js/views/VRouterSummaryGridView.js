@@ -204,12 +204,12 @@ define(
                                 text: 'Loading Virtual Routers..',
                             },
                             empty: {
-                                text: 'No Virtual Routers to display'
+                                text: 'No Virtual Routers Found.'
                             },
                             errorGettingData: {
                                 type: 'error',
                                 iconClasses: 'icon-warning',
-                                text: 'Error in getting Data.'
+                                text: 'Error in getting Virtual Routers.'
                             }
                         }
                     }

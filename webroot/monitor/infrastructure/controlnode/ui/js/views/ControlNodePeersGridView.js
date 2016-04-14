@@ -130,12 +130,12 @@ define([
                    text: 'Loading Peers..',
                 },
                 empty: {
-                   text: 'No Peers to display'
+                   text: 'No Peers Found.'
                 },
                 errorGettingData: {
                    type: 'error',
                    iconClasses: 'icon-warning',
-                   text: 'Error in getting Data.'
+                   text: 'Error in getting Peers.'
                 }
              }
         }

@@ -96,10 +96,16 @@ define([
                 },
                 dataSource: {data: []},
                 statusMessages: {
+                    loading: {
+                        text: 'Loading Networks..'
+                    },
                     empty: {
-                        type: 'status',
-                        iconClasses: '',
                         text: 'No Networks Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Networks.'
                     }
                 }
             },

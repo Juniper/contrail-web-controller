@@ -87,7 +87,7 @@ define([
                         text: 'Loading Physical Routers..'
                     },
                     empty: {
-                        text: 'No Physical Routers.'
+                        text: 'No Physical Routers Found.'
                     },
                     errorGettingData: {
                         type: 'error',

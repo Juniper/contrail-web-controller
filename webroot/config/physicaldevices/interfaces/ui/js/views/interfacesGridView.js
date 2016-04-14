@@ -85,7 +85,7 @@ define([
                         text: 'Loading Interfaces..'
                     },
                     empty: {
-                        text: 'No Interfaces.'
+                        text: 'No Interfaces Found.'
                     },
                     errorGettingData: {
                         type: 'error',

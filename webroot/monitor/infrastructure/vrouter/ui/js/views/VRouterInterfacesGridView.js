@@ -168,12 +168,12 @@ define([
                         text: 'Loading Interfaces..',
                     },
                     empty: {
-                        text: 'No Interfaces to display'
+                        text: 'No Interfaces Found.'
                     },
                     errorGettingData: {
                         type: 'error',
                         iconClasses: 'icon-warning',
-                        text: 'Error in getting Data.'
+                        text: 'Error in getting Interfaces.'
                     }
                 }
             },

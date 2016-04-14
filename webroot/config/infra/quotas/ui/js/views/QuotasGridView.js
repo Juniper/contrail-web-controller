@@ -63,6 +63,19 @@ define([
                     checkboxSelectable: false,
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Project Quotas..'
+                    },
+                    empty: {
+                        text: 'No Project Quotas Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Project Quotas.'
+                    }
                 }
             },
             columnHeader: {

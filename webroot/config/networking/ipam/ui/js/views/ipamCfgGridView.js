@@ -81,10 +81,16 @@ define([
                 },
                 dataSource: {data: []},
                 statusMessages: {
+                    loading: {
+                        text: 'Loading IPAMs.',
+                    },
                     empty: {
-                        type: 'status',
-                        iconClasses: '',
                         text: 'No IPAMs Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting IPAMs.'
                     }
                 }
             },

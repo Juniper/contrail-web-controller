@@ -99,19 +99,19 @@ define([
                 },
                 dataSource : {
                     data : []
-                }
-            },
-            statusMessages: {
-                loading: {
-                    text: 'Loading QE Queries..',
                 },
-                empty: {
-                    text: 'No Queries to display'
-                },
-                errorGettingData: {
-                    type: 'error',
-                    iconClasses: 'icon-warning',
-                    text: 'Error in getting Data.'
+                statusMessages: {
+                    loading: {
+                        text: 'Loading QE Queries..',
+                    },
+                    empty: {
+                        text: 'No Queries Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Queries.'
+                    }
                 }
             }
         };

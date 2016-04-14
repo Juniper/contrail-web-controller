@@ -111,6 +111,19 @@ define([
                     },
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Service Appliance Sets..'
+                    },
+                    empty: {
+                        text: 'No Service Appliance Sets Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Service Appliance Sets.'
+                    }
                 }
             },
             columnHeader: {

@@ -87,7 +87,7 @@ define([
                         text: 'Loading Analyzers..'
                     },
                     empty: {
-                        text: 'No Analyzers.'
+                        text: 'No Analyzers Found.'
                     },
                     errorGettingData: {
                         type: 'error',

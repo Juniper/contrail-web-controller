@@ -80,11 +80,17 @@ define([
                 },
                 dataSource: {data: []},
                 statusMessages: {
+                    loading: {
+                        text: 'Loading Floating IPs.',
+                    },
                     empty: {
-                        type: 'status',
-                        iconClasses: '',
                         text: 'No Floating IPs Found.'
                     },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Floating IPs.'
+                    }
                 }
             },
             columnHeader: {

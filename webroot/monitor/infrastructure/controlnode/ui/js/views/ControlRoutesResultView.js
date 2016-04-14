@@ -110,12 +110,12 @@ define([
                         text: 'Loading Routes..',
                     },
                     empty: {
-                        text: 'No Routes to display for the given search criteria'
+                        text: 'No Routes Found.'
                     }, 
                     errorGettingData: {
                         type: 'error',
                         iconClasses: 'icon-warning',
-                        text: 'Error in getting Data.'
+                        text: 'Error in getting Routes.'
                     }
                 }
             },

@@ -74,6 +74,19 @@ define([
                     },
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Security Groups.',
+                    },
+                    empty: {
+                        text: 'No Security Groups Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Security Groups.'
+                    }
                 }
             },
             columnHeader: {

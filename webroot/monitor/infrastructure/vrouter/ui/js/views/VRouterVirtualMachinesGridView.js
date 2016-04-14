@@ -91,6 +91,19 @@ define([
                     cacheConfig : {
                         ucid: hostname
                     }
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Instances..',
+                    },
+                    empty: {
+                        text: 'No Instances Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Instances.'
+                    }
                 }
             },
             columnHeader: {
