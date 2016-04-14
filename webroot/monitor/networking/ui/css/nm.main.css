@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2016 Juniper Networks, Inc.
+ * All rights reserved.
+ */
+
+.font-element i.icon-contrail-virtual-network {
+    color: #498AB9;
+}
+.font-element i.icon-contrail-service-instance, .font-element i.icn-service-instance {
+    color: #ff7f0e;
+}
+/*.font-element i.icon-contrail-router {
+	color: #ff7f0e;
+}*/
+.font-element i.icon-contrail-security-group {
+    color: #875d8d;
+}
+.font-element i.icon-contrail-network-policy {
+    color: #637939;
+}
+.font-element i.icon-contrail-network-ipam {
+    color: #f47671;
+}
+.font-element i.icon-contrail-virtual-machine,
+.font-element i.icon-contrail-virtual-machine-top, .font-element i.icon-contrail-virtual-machine-interface-top,
+.font-element i.icon-contrail-virtual-machine-bottom, .font-element i.icon-contrail-virtual-machine-interface-bottom,
+.font-element i.icon-contrail-virtual-machine-left, .font-element i.icon-contrail-virtual-machine-interface-left,
+.font-element i.icon-contrail-virtual-machine-right, .font-element i.icon-contrail-virtual-machine-interface-right {
+    font-size: 30px;
+    color: #498AB9;
+}

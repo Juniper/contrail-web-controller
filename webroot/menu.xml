@@ -17,6 +17,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 <resource>
                     <rootDir>/common/ui</rootDir>
                     <template>controller.tmpl</template>
+                    <css>contrail.controller.css</css>
                 </resource>
             </resources>
             <iconClass>icon-bar-chart</iconClass>
@@ -158,6 +159,12 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>Networking</label>
                     <iconClass>icon-sitemap</iconClass>
+                    <resources>
+                        <resource>
+                            <rootDir>/monitor/networking/ui</rootDir>
+                            <css>nm.main.css</css>
+                        </resource>
+                    </resources>
                     <init>/monitor/networking/ui/js/nm.init.js</init>
                     <items>
                         <item>
@@ -920,6 +927,12 @@ and need to add the iconClass tag wherever we need to show some icons
             <label>Query</label>
             <name>query</name>
             <iconClass>icon-search</iconClass>
+            <resources>
+                <resource>
+                    <rootDir>/reports/qe/ui</rootDir>
+                    <css>qe.main.css</css>
+                </resource>
+            </resources>
             <access>
                 <roles>
                     <role>superAdmin</role>
