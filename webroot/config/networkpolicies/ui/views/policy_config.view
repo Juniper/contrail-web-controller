@@ -85,10 +85,10 @@
                                 <div class="span2" style="width:5%">
                                     <h6>Action</h6>
                                 </div>
-                                <div class="span2" style="width:5%">
+                                <div class="span2" style="width:7%">
                                     <h6>Protocol</h6>
                                 </div>
-                                <div class="span2" style="width:20%">
+                                <div class="span2" style="width:19%">
                                     <h6>Source</h6>
                                 </div>
                                 <div class="span1" style="width:4%">
@@ -97,7 +97,7 @@
                                 <div class="span1">
                                     <h6>Direction</h6>
                                 </div>
-                                <div class="span2" style="width:20%">
+                                <div class="span2" style="width:19%">
                                     <h6>Destination</h6>
                                 </div>
                                 <div class="span1" style="width:4%">

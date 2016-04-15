@@ -307,11 +307,15 @@ function initActions() {
                     action = null;
                 }
                 
-                var protoDropDown = $($(ruleTuple[1]).find("div")[1]).data("contrailDropdown") ?
-                    $($(ruleTuple[1]).find("div")[1]).data("contrailDropdown") : $($(ruleTuple[1]).find("div")[3]).data("contrailDropdown")
-                var protocol = protoDropDown.text();
-                protocol = getProtocol(protocol);
-                
+                var protoCombobox = $($(ruleTuple[1]).find("div")[0]).data("contrailCombobox") ?
+                    $($(ruleTuple[1]).find("div")[0]).data("contrailCombobox") : $($(ruleTuple[1]).find("div")[1]).data("contrailCombobox")
+                var protocol = protoCombobox.text();
+                if (protocol == "") {
+                    protocol = "any";
+                }
+                if (isNumber(protocol)) {
+                    protocol = String(Number(protocol));
+                }
                 var srcDropdown = $($(ruleTuple).find('div[id*="selectSrcNetwork_"]')[1]).data('contrailDropdown');
                 var srcVN = srcDropdown.value();
                 srcVN = checkValidSourceNetwork(srcVN);
@@ -917,15 +921,15 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
 
     var selectDivProtocol = document.createElement("div");
     selectDivProtocol.className = "span2 pull-left";
-    selectDivProtocol.setAttribute("style","width:5%");        
+    selectDivProtocol.setAttribute("style","width:7%");
     var selectProtocol = document.createElement("div");
     selectProtocol.className = "span12";
-    selectProtocol.setAttribute("id" , "selectProtocol_"+dynamicID);        
+    selectProtocol.setAttribute("id" , "selectProtocol_"+dynamicID);
     selectDivProtocol.appendChild(selectProtocol);
 
     var selectDivSrcNetwork = document.createElement("div");
     selectDivSrcNetwork.className = "span2 pull-left";
-    selectDivSrcNetwork.setAttribute("style","width:20%");            
+    selectDivSrcNetwork.setAttribute("style","width:19%");
     var selectSrcNetwork = document.createElement("div");
     selectSrcNetwork.className = "span12";
     selectSrcNetwork.setAttribute("id" , "selectSrcNetwork_"+dynamicID);
@@ -949,7 +953,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
     
     var selectDivDestNetwork = document.createElement("div");
     selectDivDestNetwork.className = "span2 pull-left";
-    selectDivDestNetwork.setAttribute("style","width:20%");                
+    selectDivDestNetwork.setAttribute("style","width:19%");
     var selectDestNetwork = document.createElement("div");
     selectDestNetwork.className = "span12";
     selectDestNetwork.setAttribute("id", "selectDestNetwork_"+dynamicID);
@@ -1053,15 +1057,19 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
     $(selectAction).data("contrailDropdown").text("PASS");
     
     
-    $(selectProtocol).contrailDropdown({
+    $(selectProtocol).contrailCombobox({
         dataTextField:"text",
         dataValueField:"value",
         dataSource: {
         },
         placeholder: "ANY"
     });
-    $(selectProtocol).data("contrailDropdown").setData([{"text":"ANY","value":0},{"text":"TCP","value":1},{"text":"UDP","value":2},{"text":"ICMP","value":3}]);
-    $(selectProtocol).data("contrailDropdown").text("ANY");
+    $(selectProtocol).data("contrailCombobox").setData(
+                     [{"text":"ANY","value":"any"},
+                      {"text":"TCP","value":"tcp"},
+                      {"text":"UDP","value":"udp"},
+                      {"text":"ICMP","value":"icmp"}]);
+    $(selectProtocol).data("contrailCombobox").text("ANY");
     
     $(selectDirection).contrailDropdown({
         dataTextField:"text",
@@ -1224,7 +1232,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
                 }
             }
         } else {
-            $(selectAction).data("contrailCombobox").enable(false);
+            $(selectAction).data("contrailDropdown").enable(false);
         }
         if(actionUnderActionList === false) {
             //If simple_action is not under "action_list", look directly under "policy_rule"
@@ -1241,7 +1249,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
         var protocol = rule["protocol"];
         if (null !== protocol && typeof protocol !== "undefined") {
             protocol = protocol.toUpperCase();
-            $(selectProtocol).data("contrailDropdown").text(protocol);
+            $(selectProtocol).data("contrailCombobox").text(protocol);
         }
         var direction = rule["direction"];
         if (null !== direction && typeof direction !== "undefined") {
@@ -2007,17 +2015,22 @@ function validate() {
     if (ruleTuples && ruleTuples.length > 0) {
         for (var i = 0; i < ruleTuples.length; i++) {
             var ruleTuple = $($(ruleTuples[i]).find("div")[0]).children();
-            var protoDropDown = $($(ruleTuple).find('div[id*="selectProtocol_"]')[1]).data('contrailDropdown'); 
-            var protocol = protoDropDown.text();
-            if(protocol.trim() !== "") {
-                var protocols = jsonPath(protoDropDown.getAllData(), "$..text");
-                if(protocols.indexOf(protocol) === -1) {
-                    showInfoWindow("Select a valid Protocol.", "Invalid Rule");
-                    return false;
+            var protocolCombobox = $($(ruleTuple).find('div[id*="selectProtocol_"]')[0]).data('contrailCombobox');
+            var protocolComboboxValue = protocolCombobox.value();
+            if (protocolComboboxValue !== "") {
+                var allProtocol = jsonPath(protocolCombobox.getAllData(), "$..text");
+                if (allProtocol.indexOf(protocolComboboxValue.toUpperCase()) < 0) {
+                    if (!isNumber(protocolComboboxValue)) {
+                        showInfoWindow("Allowed values are 'any', 'icmp', 'tcp', 'udp' or 0 - 255.", "Invalid Protocol");
+                        return false;
+                    }
+                    protocolComboboxValue = Number(protocolComboboxValue);
+                    if (protocolComboboxValue % 1 != 0 ||  protocolComboboxValue < 0 || protocolComboboxValue > 255) {
+                        showInfoWindow("Allowed values are 'any', 'icmp', 'tcp', 'udp' or 0 - 255.", "Invalid Protocol");
+                        return false
+                    }
                 }
             }
-            protocol = getProtocol(protocol);
-
             var actDropDown = $($(ruleTuple).find('div[id*="selectAction_"]')[1]).data('contrailDropdown'); 
             var action_value = actDropDown.text();
             if(action_value.trim() !== "") {
@@ -2239,7 +2252,7 @@ function validate() {
                     return false;
                 }
 
-                if(allowOnlyProtocolAnyIfServiceEnabled(mirrorServicesEnabled, protocol, true) === false) {
+                if(allowOnlyProtocolAnyIfServiceEnabled(mirrorServicesEnabled, protocolComboboxValue, true) === false) {
                     return false;
                 }
             }
