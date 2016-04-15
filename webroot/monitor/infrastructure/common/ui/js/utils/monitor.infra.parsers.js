@@ -243,8 +243,20 @@ define(
                         }
                         obj['histCpuArr'] = monitorInfraUtils.parseUveHistoricalValues(d,
                             '$.cpuStats.history-10');
-
                         obj['status'] = getOverallNodeStatus(d, 'compute');
+                        var serverIP = [];
+                        var processStatus = getValueByJsonPath(dValue,
+                                'NodeStatus;process_status', []);
+                        $.each(processStatus, function(idx, parentPeer) {
+                            $.each(parentPeer['connection_infos'],function(idx, currPeer){
+                                if(currPeer['name'] !== null){
+                                    if(currPeer['name'].indexOf(ctwc.DNS_SERVER) === 0){
+                                        serverIP.push(currPeer['name'].substring(ctwc.DNS_SERVER.length));
+                                    }
+                                }
+                            });
+                        });
+                        obj['dnsServerIP'] = serverIP.join(',');
                         var processes = ['contrail-vrouter-agent',
                             'contrail-vrouter-nodemgr', 'supervisor-vrouter'
                         ];

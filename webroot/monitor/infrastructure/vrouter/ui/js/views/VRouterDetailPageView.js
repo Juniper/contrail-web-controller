@@ -203,6 +203,11 @@ define([
                 templateGenerator: 'TextGenerator'
             },
             {
+                key: 'dnsServerIP',
+                label: 'DNS Server IP',
+                templateGenerator: 'TextGenerator'
+            },
+            {
                 key: 'controlNodesDetails',
                 label: 'Control Nodes',
                 templateGenerator: 'TextGenerator'
