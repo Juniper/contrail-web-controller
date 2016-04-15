@@ -26,9 +26,6 @@ define([
         this.virtNwListFormatter = function(response, isShared) {
             var vnListResp =
                 getValueByJsonPath(response, 'virtual-networks', []);
-            if (!vnListResp.length) {
-                return ([{id: null, text: "No Virtual Networks found"}]);
-            }
             var vnList = [];
             var vnCnt = vnListResp.length;
             for (var i = 0; i < vnCnt; i++) {
