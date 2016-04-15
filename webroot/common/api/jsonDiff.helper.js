@@ -61,6 +61,18 @@ var configJsonModifyObj = {
         'optFields': ['security_group_entries', 'configured_security_group_id'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
+    'logical-router': {
+        'isConfig': true,
+        'preProcessCB': {
+            'applyOnOldJSON': modifyConfigDataByAttrHref,
+            'applyOnNewJSON': modifyConfigDataByHref
+        },
+        'optFields': [
+            'virtual_machine_interface_refs',
+            'virtual_network_refs'
+        ],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
     'virtual-DNS': {
         'isConfig': true,
         'mandateFields': ['fq_name', 'uuid', 'display_name', 'virtual_DNS_data']
