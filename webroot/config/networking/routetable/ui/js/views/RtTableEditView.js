@@ -119,7 +119,7 @@ define([
                                 name: 'Next Hop Type',
                                 viewConfig: {
                                     placeholder: 'Next Hop Type',
-                                    width: 200,
+                                    width: 150,
                                     templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                     path: 'next_hop_type',
                                     dataBindValue: 'next_hop_type()',
@@ -133,39 +133,41 @@ define([
                                     }
                                 }
                             };
-   viewConfigNextHop = {
+    viewConfigNextHop = {
                                 elementId: 'next_hop',
                                 view: 'FormInputView',
                                 class: "",
                                 name: 'Next Hop',
                                 viewConfig: {
                                     placeholder: 'Enter IP Address',
-                                    width: 200,
+                                    width: 250,
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     path: 'next_hop',
                                     dataBindValue: 'next_hop()'
                                 }
                         };
 
-   viewConfigCommunityAttr = {
-                                elementId: 'community_attr',
-                                view: 'FormMultiselectView',
-                                class: "",
-                                name: 'Communities',
-                                viewConfig: {
-                                    width: 400,
-                                    templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
-                                    path: 'community_attr',
-                                    dataBindValue: 'community_attr()',
-                                    elementConfig: {
-                                        placeholder: 'Select or Enter Communities',
-                                        dataTextField: "text",
-                                        dataValueField: "id",
-                                        data : ctwc.DEFAULT_COMMUNITIES,
-                                        tags: true
-                                    }
-                                }
-                            };
+    viewConfigCommunityAttr = function(width) {
+        return {
+            elementId: 'community_attr',
+            view: 'FormMultiselectView',
+            class: "",
+            name: 'Communities',
+            viewConfig: {
+                width: width,
+                templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
+                path: 'community_attr',
+                dataBindValue: 'community_attr()',
+                elementConfig: {
+                    placeholder: 'Select or Enter Communities',
+                    dataTextField: "text",
+                    dataValueField: "id",
+                    data : ctwc.DEFAULT_COMMUNITIES,
+                    tags: true
+                }
+            }
+        };
+    };
 
     function getRouteTableColViewConfigs() {
         var columns = [];
@@ -173,8 +175,9 @@ define([
         if(rtTableType === "route-table") {
             columns.push(viewConfigNextHopType);
             columns.push(viewConfigNextHop);
+            columns.push(viewConfigCommunityAttr(200));
         } else {
-            columns.push(viewConfigCommunityAttr);
+            columns.push(viewConfigCommunityAttr(400));
         }
         return columns;
     }
