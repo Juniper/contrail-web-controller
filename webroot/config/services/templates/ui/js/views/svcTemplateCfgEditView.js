@@ -255,9 +255,10 @@ define([
                     },
                     {
                         columns: [{
-                             elementId : 'interfacesSection',
+                             elementId : 'interfacesSection_v1',
                              view: "SectionView",
                              viewConfig : {
+                                 visible: "$root.showIntfTypeParams($root)",
                                  rows : [
                                      {
                                          columns : [
@@ -302,8 +303,6 @@ define([
                                                             {
                                                              disabled:
                                                                 '$root.disableSharedIP($root, $data)',
-                                                             visible:
-                                                                '$root.showIntfTypeParams($root)',
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
                                                              width: 140,
                                                              path: "shared_ip",
@@ -317,8 +316,6 @@ define([
                                                           class: "text-center",
                                                           viewConfig:
                                                             {
-                                                             visible:
-                                                                '$root.showIntfTypeParams($root)',
                                                              disabled:
                                                                  '$root.disableStaticRoute($root, $data)',
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
@@ -326,6 +323,70 @@ define([
                                                              path: "static_route_enable",
                                                              dataBindValue:
                                                                  'static_route_enable()'
+                                                            }
+                                                        }
+                                                      ],
+                                                     rowActions: [
+                                                         {onClick: "function() {\
+                                                             $root.addSvcTemplateInterface();\
+                                                             }",
+                                                             iconClass: 'icon-plus'},
+                                                         {onClick: "function() {\
+                                                             $root.deleteSvcTemplateInterface($root, $data, this);\
+                                                            }",
+                                                          iconClass: 'icon-minus'}
+                                                     ],
+                                                     gridActions: [
+                                                         {onClick: "function() {\
+                                                             $root.addSvcTemplateInterface();\
+                                                             }",
+                                                          buttonTitle:
+                                                            ""}
+                                                     ]
+                                                 }
+                                             }
+                                         ]
+                                     }
+                                 ]
+                             }
+                        },{
+                             elementId : 'interfacesSection_v2',
+                             view: "SectionView",
+                             viewConfig : {
+                                 visible: "!$root.showIntfTypeParams($root)",
+                                 rows : [
+                                     {
+                                         columns : [
+                                             {
+                                                 elementId: 'interfaces',
+                                                 view: "FormEditableGridView",
+                                                 viewConfig: {
+                                                     path : 'interfaces',
+                                                     validation:
+                                                         'svcTemplateInterfaceConfigValidations',
+                                                     templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                                                     collection: 'interfaces',
+                                                     columns: [
+                                                        {
+                                                          elementId: 'service_interface_type',
+                                                          name: 'Interface (s)',
+                                                          view:
+                                                              "FormComboboxView",
+                                                          class: "",
+                                                          viewConfig:
+                                                            {
+                                                             templateId:
+                                                                cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
+                                                             width: 580,
+                                                             path: "service_interface_type",
+                                                             dataBindValue: 'service_interface_type()',
+                                                             dataBindOptionList:
+                                                                 "interfaceTypesData()",
+                                                             elementConfig : {
+                                                                dataTextField: 'text',
+                                                                dataValueField:
+                                                                    'id'
+                                                             }
                                                             }
                                                         }
                                                       ],

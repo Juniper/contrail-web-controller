@@ -181,6 +181,9 @@ define([
                 if (window.allVNList.length > 0) {
                     window.allVNList.unshift({'text':"Auto Configured",
                                              'id':"autoConfigured"});
+                } else {
+                    window.allVNList.push({id: null,
+                        text: "No Virtual Networks found"});
                 }
                 window.healthCheckServiceList =
                     svcInstUtils.buildTextValueByConfigList(healthCheckServiceList,
