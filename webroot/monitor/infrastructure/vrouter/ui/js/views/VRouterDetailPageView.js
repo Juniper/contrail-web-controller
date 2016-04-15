@@ -198,23 +198,28 @@ define([
         );
         templateGeneratorConfig = templateGeneratorConfig.concat([
             {
-                key: 'analyticsNodeDetails',
-                label: 'Analytics Node',
-                templateGenerator: 'TextGenerator'
-            },
-            {
                 key: 'controlNodesDetails',
                 label: 'Control Nodes',
                 templateGenerator: 'TextGenerator'
             },
             {
-                key: 'analyticsMessages',
-                label: 'Analytics Messages',
+                key: 'xmppMessages',
+                label: 'XMPP Messages',
                 templateGenerator: 'TextGenerator'
             },
             {
-                key: 'xmppMessages',
-                label: 'XMPP Messages',
+                key: 'dnsServerIP',
+                label: 'DNS Server IPs',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'analyticsNodeDetails',
+                label: 'Analytics Node',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'analyticsMessages',
+                label: 'Analytics Messages',
                 templateGenerator: 'TextGenerator'
             },
             {

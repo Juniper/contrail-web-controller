@@ -105,6 +105,9 @@ define([
         this.TYPE_NETWORK = "network";
         this.TYPE_INSTANCE = "instance";
         this.TYPE_VN = 'vn';
+        this.DNS_SERVER = 'dns-server:';
+        this.VROUTER_AGENT = 'contrail-vrouter-agent';
+        this.CONEINFO_TYPE = 'XMPP';
         this.TYPE_VIRTUAL_NETWORK = "virtual-network";
         this.TYPE_VIRTUAL_MACHINE = "virtual-machine";
 
