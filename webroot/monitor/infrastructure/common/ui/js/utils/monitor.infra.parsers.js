@@ -243,8 +243,24 @@ define(
                         }
                         obj['histCpuArr'] = monitorInfraUtils.parseUveHistoricalValues(d,
                             '$.cpuStats.history-10');
-
                         obj['status'] = getOverallNodeStatus(d, 'compute');
+                        var dnsServerIP = [];
+                        var processStatus = getValueByJsonPath(dValue,
+                                'NodeStatus;process_status', []);
+                        $.each(processStatus, function(idx, proStatusChild) {
+                            if(proStatusChild['module_id'] === monitorInfraConstants.UVEModuleIds.VROUTER_AGENT){
+                                $.each(proStatusChild['connection_infos'],function(idx, connInfoChild){
+                                    if(connInfoChild['name'] !== null && connInfoChild['type'] === 'XMPP'){
+                                        if(connInfoChild['name'].indexOf(monitorInfraConstants.DNS_SERVER) === 0){
+                                            var dnsIP = connInfoChild['name'].substring(monitorInfraConstants.DNS_SERVER.length) +
+                                            ' (' + connInfoChild['status'] + ') ';
+                                            dnsServerIP.push(dnsIP);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                        obj['dnsServerIP'] = dnsServerIP.join(',');
                         var processes = ['contrail-vrouter-agent',
                             'contrail-vrouter-nodemgr', 'supervisor-vrouter'
                         ];

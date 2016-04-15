@@ -19,6 +19,7 @@ define([
         this.ANALYTICS_NODE = 'analyticsNode';
         this.CONFIG_NODE = 'configNode';
         this.DATABASE_NODE = 'databaseNode';
+        this.DNS_SERVER = 'dns-server:';
 
         this.excludeProcessList = ['contrail-config-nodemgr','contrail-analytics-nodemgr','contrail-control-nodemgr','contrail-snmp-collector','contrail-topology',
             'contrail-vrouter-nodemgr','openstack-nova-compute','contrail-svc-monitor','contrail-schema','contrail-discovery','contrail-zookeeper','redis-sentinel','contrail-device-manager'];
