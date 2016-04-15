@@ -60,6 +60,21 @@ var configJsonModifyObj = {
         'optFields': ['security_group_entries', 'configured_security_group_id'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
+    'logical-router': {
+        'isConfig': true,
+        'preProcessCB': {
+            'applyOnOldJSON': modifyConfigDataByAttrHref,
+            'applyOnNewJSON': modifyConfigDataByHref
+        },
+        'optFields': [
+            'id_perms:enable',
+            'virtual_machine_interface_refs',
+            'route_target_refs',
+            'virtual_network_refs',
+            'service_instance_refs'
+        ],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
     'virtual-DNS': {
         'isConfig': true,
         'mandateFields': ['fq_name', 'uuid', 'display_name', 'virtual_DNS_data']
