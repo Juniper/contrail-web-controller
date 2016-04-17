@@ -271,16 +271,7 @@ define([
                                         data: window.svcApplData.piList
                                     }
                                 }
-                            }],
-                            rowActions: [
-                                 {onClick: "function() { $root.addInterface(); }",
-                                 iconClass: 'icon-plus'},
-                                {onClick: "function() { $root.deleteInterface($data, this); }",
-                                 iconClass: 'icon-minus'}
-                            ],
-                            gridActions: [
-                                {onClick: "function() { addInterface(); }", buttonTitle: ""}
-                            ]
+                            }]
                         }
                     }]
                 }]
