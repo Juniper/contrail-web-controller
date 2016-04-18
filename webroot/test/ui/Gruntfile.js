@@ -819,9 +819,23 @@ module.exports = function (grunt) {
                 outputFile: __dirname + '/reports/tests/web-controller-test-results.html'
             },
             coverageReporter: {
-                type: 'html',
-                dir: __dirname + '/reports/coverage/webController/',
-                subdir: browserSubdirFn
+                 reporters: [
+                    {
+                        type: 'html',
+                        dir: __dirname + '/reports/coverage/webController/',
+                        subdir: browserSubdirFn
+                    },
+                    {
+                        type: 'json',
+                        dir: __dirname + '/reports/coverage/webController/',
+                        subdir: browserSubdirFn
+                    },
+                    {
+                        type: 'cobertura',
+                        dir: __dirname + '/reports/coverage/webController/',
+                        subdir: browserSubdirFn
+                    }
+                ]
             }
         }
     };
