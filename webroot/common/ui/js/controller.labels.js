@@ -103,6 +103,8 @@ define([
             active: 'Active',
             l2_active: 'L2 Active',
             floatingIP: 'Floating IPs',
+            health_check_instance_list: 'Health Check Instance List',
+            is_health_check_active: 'Health Check Active',
 
             /*Connected Network Details */
             src: 'Source Network',
