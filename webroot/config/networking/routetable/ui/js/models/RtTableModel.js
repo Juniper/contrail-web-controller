@@ -87,25 +87,24 @@ define([
                 if(type === "route-table") {
                     obj["next_hop"] = nextHop;
                     obj["next_hop_type"] = nextHopType
-                } else {
-                    var commAttrs = routesCollection[i].community_attr();
-                    var arr = commAttrs.split('\n');
-                    var len = arr.length;
-                    commAttrArr = [];
-                    for (var j = 0; j < len; j++) {
-                        var tmpArr = arr[j].split(',');
-                        if (tmpArr.length > 0) {
-                            var arrLen = tmpArr.length;
-                            for (var k = 0; k < arrLen; k++) {
-                                if (tmpArr[k].length > 0) {
-                                    commAttrArr.push(tmpArr[k].trim());
-                                }
+                }
+                var commAttrs = routesCollection[i].community_attr();
+                var arr = commAttrs.split('\n');
+                var len = arr.length;
+                commAttrArr = [];
+                for (var j = 0; j < len; j++) {
+                    var tmpArr = arr[j].split(',');
+                    if (tmpArr.length > 0) {
+                        var arrLen = tmpArr.length;
+                        for (var k = 0; k < arrLen; k++) {
+                            if (tmpArr[k].length > 0) {
+                                commAttrArr.push(tmpArr[k].trim());
                             }
                         }
                     }
-                    obj['community_attributes'] = {};
-                    obj['community_attributes']['community_attribute'] = commAttrArr;
                 }
+                obj['community_attributes'] = {};
+                obj['community_attributes']['community_attribute'] = commAttrArr;
                 routesArr.push(obj);
             }
             return routesArr;
