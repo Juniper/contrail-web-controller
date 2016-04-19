@@ -902,6 +902,13 @@ define([
             }
             return "vmi";
         };
+
+        /*
+         * disablePolicyFormatter
+         */
+        this.disablePolicyFormatter = function(d, c, v, cd, dc) {
+            return v && v.toString() === "true" ? "True" : "False";
+        };
     }
     return PortFormatters;
 });
