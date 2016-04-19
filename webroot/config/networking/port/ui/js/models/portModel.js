@@ -99,7 +99,8 @@ define([
                 'ip_protocol': true,
                 'source_port': true,
                 'destination_port': true*/
-            }
+            },
+            'virtual_machine_interface_disable_policy': false
         },
         setVNData: function(allNetworks) {
             self.allNetworks = allNetworks;
