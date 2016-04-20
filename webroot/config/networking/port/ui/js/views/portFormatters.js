@@ -8,9 +8,12 @@ define([
 ], function (_) {
     var PortFormatters = function() {
         var self = this;
+        self.domainName = contrail.getCookie(cowc.COOKIE_DOMAIN);
+        self.projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
+        self.currentDomainProject = self.domainName + ":" + self.projectName;
         ////Data formating with the result from API////
         //Getting all the data Inside virtual-machine-interface//
-        this.formatVMIGridData = function(response){
+        self.formatVMIGridData = function(response){
             var vmiData = [];
             var vmiConfig = response;
             if(vmiConfig != null &&
@@ -23,7 +26,7 @@ define([
             }
             return vmiData;
         }
-        this.uuidWithName = function(d, c, v, cd, dc) {
+        self.uuidWithName = function(d, c, v, cd, dc) {
             var uuidName = "-";
             var uuid = getValueByJsonPath(dc, "uuid", "")
             var name = getValueByJsonPath(dc, "fq_name;2", "")
@@ -37,16 +40,17 @@ define([
         //Start of grid data formating//
         //Grid column label: Network//
         //Grid column expand label : Network//
-        this.networkFormater = function(d, c, v, cd, dc) {
+        self.networkFormater = function(d, c, v, cd, dc) {
             var network = "-";
             var vn_ref = getValueByJsonPath(dc, "virtual_network_refs", "")
             if(vn_ref != ""){
-                network = ctwu.formatCurrentFQName(vn_ref[0]["to"])
+                network = ctwu.formatCurrentFQName(vn_ref[0]["to"],
+                    self.currentDomainProject);
             }
             return network;
         };
         //Grid column label: Fixed IP//
-        this.fixedIPFormater = function(d, c, v, cd, dc) {
+        self.fixedIPFormater = function(d, c, v, cd, dc) {
             var instanceIP = "";
             var instIP = getValueByJsonPath(dc, "instance_ip_back_refs", []);
             if(instIP.length > 0) {
@@ -67,28 +71,34 @@ define([
             return instanceIP;
         };
         //Grid column label: Floating IP//
-        this.floatingIPFormatter = function(d, c, v, cd, dc) {
-            var floatingIP = "";
+        self.floatingIPFormatter = function(d, c, v, cd, dc) {
+            var fipStr = "", floatingIP = "";
             var fipData = getValueByJsonPath(dc, "floating_ip_back_refs", []);
             if(fipData.length > 0) {
                 var fip_length = fipData.length;
                 for(var i = 0; i < fip_length && i < 2 ;i++) {
-                    floatingIP += fipData[i]["floatingip"]["ip"];
-                    if(floatingIP != "") {
-                        floatingIP += "<br>";
+                    floatingIP = getValueByJsonPath(fipData[i],
+                        "floatingip;ip", "", false);
+                    toStr = getValueByJsonPath(fipData[i], "to", [], false);
+                    if(floatingIP && toStr.length === 5) {
+                        fipStr +=
+                            floatingIP + " (" + toStr[2] + ":" + toStr[3] + ")";
+                    }
+                    if(fipStr != "") {
+                        fipStr += "<br>";
                     }
                 }
                 if(fip_length > 2) {
-                    floatingIP += "(" + Number(Number(fip_length)-2)+" more)";
+                    fipStr += "(" + Number(Number(fip_length)-2)+" more)";
                 }
             } else {
-                floatingIP = "-";
+                fipStr = "-";
             }
-            return floatingIP;
+            return fipStr;
         };
         //Grid column label: Device//
         //Grid column expand label: Device//
-        this.deviceOwnerFormatter = function(d, c, v, cd, dc) {
+        self.deviceOwnerFormatter = function(d, c, v, cd, dc) {
             var deviceOwner = getValueByJsonPath(dc,
                                "virtual_machine_interface_device_owner", "");
             var subInterface = self.isSubInterface(dc);
@@ -99,7 +109,7 @@ define([
             return deviceOwner;
         }
         //Grid column expand label : Name//
-        this.fqNameFormater = function(d, c, v, cd, dc) {
+        self.fqNameFormater = function(d, c, v, cd, dc) {
             var fqname = "-";
             var fqNameData = getValueByJsonPath(dc, "fq_name", []);
             if(fqNameData.length >= 3){
@@ -108,7 +118,7 @@ define([
             return fqname;
         };
         //Grid column expand label: Admin State//
-        this.AdminStateFormatter = function(d, c, v, cd, dc) {
+        self.AdminStateFormatter = function(d, c, v, cd, dc) {
             var adminState = "Down";
             var idPermState = getValueByJsonPath(dc, "id_perms;enable","");
             if(idPermState != ""){
@@ -119,7 +129,7 @@ define([
             return adminState;
         };
         //Grid column expand label: MAC Address//
-        this.MACAddressFormatter = function(d, c, v, cd, dc) {
+        self.MACAddressFormatter = function(d, c, v, cd, dc) {
             var MACAddress = "-";
             var MACAddressvalue = getValueByJsonPath(dc,
                                 "virtual_machine_interface_mac_addresses;mac_address;0",
@@ -130,7 +140,7 @@ define([
             return MACAddress;
         };
         //Grid column expand label: Local Preference//
-        this.localPrefFormater = function(d, c, v, cd, dc) {
+        self.localPrefFormater = function(d, c, v, cd, dc) {
             var localPref = "-";
             var localPrefValue = getValueByJsonPath(dc,
                                 "virtual_machine_interface_properties;local_preference",
@@ -141,7 +151,7 @@ define([
             return localPref;
         };
         //Grid column expand label: Fixed IPs//
-        this.fixedIPFormaterExpand = function(d, c, v, cd, dc) {
+        self.fixedIPFormaterExpand = function(d, c, v, cd, dc) {
             var instanceIP = "";
             var instIP = getValueByJsonPath(dc, "instance_ip_back_refs", []);
             if(instIP.length > 0) {
@@ -159,39 +169,39 @@ define([
             return instanceIP;
         };
         //Grid column expand label: Floating IPs//
-        this.floatingIPFormatterExpand = function(d, c, v, cd, dc) {
-            var floatingIP = "";
-            var fipData = getValueByJsonPath(dc, "floating_ip_back_refs", []);
+        self.floatingIPFormatterExpand = function(d, c, v, cd, dc) {
+            var fipStr = "", floatingIP = "", toStr, fip_length, i,
+                fipData = getValueByJsonPath(dc, "floating_ip_back_refs", []);
+            toStr = getValueByJsonPath(fipData, "to", []);
             if(fipData.length > 0) {
-                var fip_length = fipData.length;
-                for(var i = 0; i < fip_length;i++) {
-                    floatingIP += fipData[i]["floatingip"]["ip"];
-                    if(floatingIP != "") {
-                        floatingIP += "<br>";
+                fip_length = fipData.length;
+                for(i = 0; i < fip_length;i++) {
+                    floatingIP = getValueByJsonPath(fipData[i],
+                        "floatingip;ip", "", false);
+                    toStr = getValueByJsonPath(fipData[i], "to", [], false);
+                    if(floatingIP && toStr.length === 5) {
+                        fipStr +=
+                            floatingIP + " (" + toStr[2] + ":" + toStr[3] + ")";
+                    }
+                    if(fipStr != "") {
+                        fipStr += "<br>";
                     }
                 }
             } else {
-                floatingIP = "-";
+                fipStr = "-";
             }
-            return floatingIP;
+            return fipStr;
         };
         //Grid column expand label: Security Groups//
-        this.sgFormater = function(d, c, v, cd, dc) {
-            var sg = "";
-            var domainName = ctwu.getGlobalVariable('domain').name;
-            var projectName = ctwu.getGlobalVariable('project').name;
-            var sgData = getValueByJsonPath(dc, "security_group_refs", []);
+        self.sgFormater = function(d, c, v, cd, dc) {
+            var sg = "",
+                sgData = getValueByJsonPath(dc, "security_group_refs", []);
             if(sgData.length > 0) {
                 var sg_length = sgData.length;
                 for(var i = 0; i < sg_length;i++) {
                     if(sg != "") sg += ", ";
-                    sg += ctwu.formatCurrentFQName(sgData[i]["to"]);
-                    /*if(sgVal[0] == domainName &&
-                       sgVal[1] == projectName){
-                       sg += sgVal[2];
-                    } else {
-                       sg += sgVal.joint(":")
-                    }*/
+                    sg += ctwu.formatCurrentFQName(sgData[i]["to"],
+                        self.currentDomainProject);
                 }
             } else {
                 sg = "-";
@@ -199,14 +209,14 @@ define([
             return sg;
         };
         //Grid column expand label: DHCP Options//
-        this.DHCPFormatter = function(d, c, v, cd, dc) {
+        self.DHCPFormatter = function(d, c, v, cd, dc) {
             var dhcp = "";
             var dhcpVals = getValueByJsonPath(dc,
                            "virtual_machine_interface_dhcp_option_list;dhcp_option",
                            "");
             if(dhcpVals != "" && dhcpVals.length > 0){
                 var dhcp_length = dhcpVals.length;
-                dhcp = "<table><tr><td>Code</td><td>Value</td></tr>"
+                dhcp = "<table><tbody><tr><td>Code</td><td>Value</td></tr>"
                 for(var i = 0; i < dhcp_length;i++) {
                     var dhcpVal = dhcpVals[i];
                     dhcp += "<tr><td>";
@@ -215,14 +225,14 @@ define([
                     dhcp += dhcpVal["dhcp_option_value"]
                     dhcp += "</td></tr>";
                 }
-                dhcp += "</table>";
+                dhcp += "</tbody></table>";
             } else {
                 dhcp = "-";
             }
             return dhcp;
         };
         //Grid column expand label: Static Routes//
-        this.staticRoutFormatter = function(d, c, v, cd, dc) {
+        self.staticRoutFormatter = function(d, c, v, cd, dc) {
             var staticRout = "";
             var staticRoutValues = getValueByJsonPath(dc,
                                    "interface_route_table_refs",
@@ -260,7 +270,7 @@ define([
         };
 
         //Grid column expand label: Service Health Check//
-        this.serviceHealthCheckFormatter = function(d, c, v, cd, dc) {
+        self.serviceHealthCheckFormatter = function(d, c, v, cd, dc) {
             var serviceHealthCheck = "";
             var serviceHealthCheckValues = getValueByJsonPath(dc,
                                    "service_health_check_refs",
@@ -270,7 +280,8 @@ define([
                 for(var i = 0; i < serviceHealthChecklength;i++) {
                     var serviceHealthCheckTo =
                         getValueByJsonPath(serviceHealthCheckValues[i], "to", []);
-                    temp = ctwu.formatCurrentFQName(serviceHealthCheckTo);
+                    temp = ctwu.formatCurrentFQName(serviceHealthCheckTo,
+                        self.currentDomainProject);
                     serviceHealthCheck += temp;
                 }
             } else {
@@ -279,7 +290,7 @@ define([
             return serviceHealthCheck;
         };
         //Grid column expand label: Static Routes//
-        this.ECMPHashingFormatter = function(d, c, v, cd, dc) {
+        self.ECMPHashingFormatter = function(d, c, v, cd, dc) {
             var ecmp = getValueByJsonPath(dc, "ecmp_hashing_include_fields", ""),
                 dispStr = '-';
                 fields = [];
@@ -300,14 +311,14 @@ define([
             return dispStr;
         };
         //Grid column expand label: Fat Flow//
-        this.FatFlowFormatter = function(d, c, v, cd, dc) {
+        self.FatFlowFormatter = function(d, c, v, cd, dc) {
             var fatFlow = "";
             var fatFlowData = getValueByJsonPath(dc,
                           "virtual_machine_interface_fat_flow_protocols;fat_flow_protocol",
                           []);
             if(fatFlowData.length > 0) {
                 var fatFlow_length = fatFlowData.length;
-                fatFlow = "<table><tr><td>Protocol</td><td>Port</td></tr>"
+                fatFlow = "<table><tbody><tr><td>Protocol</td><td>Port</td></tr>"
                 for(var i = 0; i < fatFlow_length;i++) {
                     var fatFlowVal = fatFlowData[i];
                     fatFlow += "<tr><td>";
@@ -316,21 +327,21 @@ define([
                     fatFlow += fatFlowVal["port"];
                     fatFlow += "</td></tr>";
                 }
-                fatFlow += "</table>";
+                fatFlow += "</tbody></table>";
             } else {
                 fatFlow = "-";
             }
             return fatFlow;
         };
         //Grid column expand label: Port Binding//
-        this.PortBindingFormatter = function(d, c, v, cd, dc) {
+        self.PortBindingFormatter = function(d, c, v, cd, dc) {
             var portBinding = "";
             var portBindingData = getValueByJsonPath(dc,
                           "virtual_machine_interface_bindings;key_value_pair",
                           []);
             if(portBindingData.length > 0) {
                 var portBinding_length = portBindingData.length;
-                portBinding = "<table><tr><td>Key</td><td>Value</td></tr>"
+                portBinding = "<table><tbody><tr><td>Key</td><td>Value</td></tr>"
                 for(var i = 0; i < portBinding_length;i++) {
                     var portBindingVal = portBindingData[i];
                     portBinding += "<tr><td>";
@@ -344,21 +355,21 @@ define([
                     portBinding += portBindingVal["value"];
                     portBinding += "</td></tr>";
                 }
-                portBinding += "</table>";
+                portBinding += "</tbody></table>";
             } else {
                 portBinding = "-";
             }
             return portBinding;
         };
         //Grid column expand label: Allowed address pairs//
-        this.AAPFormatter = function(d, c, v, cd, dc) {
+        self.AAPFormatter = function(d, c, v, cd, dc) {
             var AAP = "";
             var AAPData = getValueByJsonPath(dc,
                           "virtual_machine_interface_allowed_address_pairs;allowed_address_pair",
                           []);
             if(AAPData.length > 0) {
                 var AAP_length = AAPData.length;
-                AAP = "Enabled<br><table><tr><td>IP</td><td>MAC</td></tr>"
+                AAP = "Enabled<br><table><tbody><tr><td>IP</td><td>MAC</td></tr>"
                 for(var i = 0; i < AAP_length;i++) {
                     var AAPVal = AAPData[i];
                     AAP += "<tr><td>";
@@ -368,61 +379,64 @@ define([
                     AAP += AAPVal["mac"];
                     AAP += "</td></tr>";
                 }
-                AAP += "</table>";
+                AAP += "</tbody></table>";
             } else {
                 AAP = "Disabled";
             }
             return AAP;
         };
         //Grid column expand label: Mirror//
-        this.mirrorFormatter = function(d, c, v, cd, dc) {
+        self.mirrorFormatter = function(d, c, v, cd, dc) {
             var mirror = "";
             var mirrorDirection = getValueByJsonPath(dc,
                           "virtual_machine_interface_properties;interface_mirror;traffic_direction",
                           "");
             if (mirrorDirection != "") {
-                mirror += this.addTableRow(["Mirror Direction", " : ", mirrorDirection]);
+                mirror += self.addTableRow(["Mirror Direction", " : ", mirrorDirection]);
             }
             var mirrorObj = getValueByJsonPath(dc,
                           "virtual_machine_interface_properties;interface_mirror;mirror_to",
                           "");
             if (mirrorObj != "") {
                 var temp = getValueByJsonPath(mirrorObj, "analyzer_name", "");
-                mirror += this.addTableRow(["Analyzer Name", " : ", temp]);
+                mirror += self.addTableRow(["Analyzer Name", " : ", temp]);
 
                 temp = getValueByJsonPath(mirrorObj, "analyzer_ip_address", "-");
                 var temp1 = getValueByJsonPath(mirrorObj, "udp_port", "-");
 
-                mirror += this.addTableRow(["Analyzer IP Address", " : ",
+                mirror += self.addTableRow(["Analyzer IP Address", " : ",
                                             temp + ", UDP port : " + temp1]);
 
                 temp = getValueByJsonPath(mirrorObj, "routing_instance", "");
                 if (temp != "") {
                     var routingInst = temp.split(":");
-                    temp = ctwu.formatCurrentFQName(routingInst);
+                    temp = ctwu.formatCurrentFQName(routingInst,
+                        self.currentDomainProject);
                 } else {
                     temp = "-";
                 }
-                mirror += this.addTableRow(["Routing Instance", " : ", temp]);
+                mirror += self.addTableRow(["Routing Instance", " : ", temp]);
             }
             if (mirror == "") {
                 mirror = "-";
             } else {
-                mirror = "<table>" + mirror + "</table>";
+                mirror = "<table><tbody>" + mirror + "</tbody></table>";
             }
             return mirror;
         };
-        this.addTableRow = function(arr) {
-            var str = "<tr>";
+        self.addTableRow = function(arr) {
             var arrLen = arr.length;
-            for (var i = 0; i < arr.length; i++) {
-                str += "<td>"+arr[i]+"</td>";
+            if (arrLen > 0) {
+                var str = "<tr>";
+                for (var i = 0; i < arr.length; i++) {
+                    str += "<td>"+arr[i]+"</td>";
+                }
+                str += "</tr>";
             }
-            str += "<tr>";
             return str;
         }
         //Grid column expand label: Device ID//
-        this.deviceUUIDFormatter = function(d, c, v, cd, dc) {
+        self.deviceUUIDFormatter = function(d, c, v, cd, dc) {
             var deviceUUID = "";
             var devOwner = dc["virtual_machine_interface_device_owner"] ?
                            dc["virtual_machine_interface_device_owner"] : "";
@@ -444,7 +458,7 @@ define([
             return deviceUUID;
         };
         //Grid column expand label: Sub Interfaces//
-        this.childrensUUID = function(d, c, v, cd, dc) {
+        self.childrensUUID = function(d, c, v, cd, dc) {
             var childrensUUID = "";
             if("virtual_machine_interface_refs" in dc &&
                (!("virtual_machine_interface_properties" in dc) ||
@@ -463,7 +477,7 @@ define([
             return childrensUUID;
         };
         //Grid column expand label: Sub Interface VXLAN//
-        this.subInterfaceVXLANUUID = function(d, c, v, cd, dc) {
+        self.subInterfaceVXLANUUID = function(d, c, v, cd, dc) {
             var subInterfaceVXLANUUID = "";
             var vmiRef = getValueByJsonPath(dc,
                          "virtual_machine_interface_refs","");
@@ -478,7 +492,7 @@ define([
             return subInterfaceVXLANUUID;
         };
         //Grid column expand label: Sub Interface Parent Port//
-        this.parentUUIDFormatter = function(d, c, v, cd, dc) {
+        self.parentUUIDFormatter = function(d, c, v, cd, dc) {
             var parentUUIDFormatter = "";
             var subInterface =
                    getValueByJsonPath(dc,
@@ -500,7 +514,7 @@ define([
 
         //Function to check if the current port is a subInterface//
         //Return true or false //
-        this.isSubInterface = function(dc) {
+        self.isSubInterface = function(dc) {
             var vlan = getValueByJsonPath(dc,
                  "virtual_machine_interface_properties;sub_interface_vlan_tag",
                  "");
@@ -515,11 +529,9 @@ define([
         /*
             Create / Edit Network drop down data formatter
         */
-        this.networkDDFormatter = function(response) {
-            var domainName = ctwu.getGlobalVariable('domain').name;
-            var projectName = ctwu.getGlobalVariable('project').name;
-            var networkList = [];
-            var responseLen = response.length;
+        self.networkDDFormatter = function(response) {
+            var networkList = [],
+                responseLen = response.length;
             for(var i = 0; i < responseLen; i++) {
                 var networkResponse =
                         getValueByJsonPath(response[i]["virtual-network"],
@@ -527,14 +539,15 @@ define([
                 if(networkResponse != '') {
                     var objArr = networkResponse;
                     var text = "";
-                    text = ctwu.formatCurrentFQName(networkResponse)
+                    text = ctwu.formatCurrentFQName(networkResponse,
+                        self.currentDomainProject);
                     var networkResponseVal = networkResponse.join(":");
                     networkList.push({value: networkResponseVal, text: text});
                 }
             }
             return networkList;
         };
-        this.vnDDFormatter = function(response, edit, portModel) {
+        self.vnDDFormatter = function(response, edit, portModel) {
             if(!edit && response.length > 0) {
                 portModel.model.virtualNetworkName(response[0].value);
             }
@@ -543,7 +556,7 @@ define([
         /*
             Create / Edit Security Group drop down data formatter
         */
-        this.sgDDFormatter = function(response, edit, portEditView) {
+        self.sgDDFormatter = function(response, edit, portEditView) {
             var sgList = [];
             var sg = response["security-groups"];
             var responseLen = sg.length;
@@ -554,7 +567,8 @@ define([
                     sgResponseVal = sgResponse.join(":");
                     var objArr = sgResponse;
                     var text = "";
-                    text = ctwu.formatCurrentFQName(sgResponse)
+                    text = ctwu.formatCurrentFQName(sgResponse,
+                        self.currentDomainProject);
                     sgList.push({value: sgResponseVal, text: text});
                 }
             }
@@ -563,7 +577,7 @@ define([
         /*
             Create / Edit StaticRout drop down data formatter
         */
-        this.srDDFormatter = function(response, edit, portModel) {
+        self.srDDFormatter = function(response, edit, portModel) {
             var rtList = [];
             var rt = response[0]["interface-route-tables"];
             var responseLen = rt.length;
@@ -574,7 +588,8 @@ define([
                     rtResponseVal = rtResponse.join(":");
                     var objArr = rtResponse;
                     var text = "";
-                    text = ctwu.formatCurrentFQName(rtResponse)
+                    text = ctwu.formatCurrentFQName(rtResponse,
+                        self.currentDomainProject);
                     rtList.push({value: rtResponseVal, text: text});
                 }
             }
@@ -583,7 +598,7 @@ define([
         /*
             Create / Edit Routing Instance drop down data formatter
         */
-        this.routingInstDDFormatter = function(response, edit, portModel) {
+        self.routingInstDDFormatter = function(response, edit, portModel) {
             var routingInstList = [];
             var routingInst = response[0]["routing-instances"];
             var responseLen = routingInst.length;
@@ -594,7 +609,8 @@ define([
                     routingInstResponseVal = routingInstResponse.join(":");
                     var objArr = routingInstResponse;
                     var text = "";
-                    text = ctwu.formatCurrentFQName(routingInstResponse)
+                    text = ctwu.formatCurrentFQName(routingInstResponse,
+                        self.currentDomainProject);
                     routingInstList.push({value: routingInstResponseVal, text: text});
                 }
             }
@@ -603,35 +619,25 @@ define([
         /*
             Create / Edit Floating IP drop down data formatter
         */
-        this.floatingIPDDFormatter = function(response) {
-            var domainName = ctwu.getGlobalVariable('domain').name;
-            var projectName = ctwu.getGlobalVariable('project').name;
-            var floatingIPList = [];
-            var floatingIP = response["floating_ip_back_refs"];
-            var responseLen = floatingIP.length;
-            var fip = {};
-            var uuid = "";
-            var to = [];
-            var toStr = "";
-            for(var i = 0; i < responseLen; i++) {
+        self.floatingIPDDFormatter = function(response) {
+            var floatingIPList = [],
+                floatingIP = response["floating_ip_back_refs"],
+                responseLen = floatingIP.length,
+                fip = {},
+                uuid = "",
+                to = [],
+                toStr = "", i, val, fipText;
+            for(i = 0; i < responseLen; i++) {
                 fip = floatingIP[i]["floating-ip"];
-                uuid = getValueByJsonPath(fip, 'uuid', '');
-                fq_name = getValueByJsonPath(fip, 'fq_name', '');
-                toStr = fq_name.join(":");
-                var val = uuid + " " + toStr;
-                if(fip != '') {
-                    var fipText = "";
-                    if(projectName != fip.fq_name[1]) {
-                        fipText = fip.floating_ip_address +" ["+
-                                      fip.fq_name[2] +":"+
-                                      fip.fq_name[3] +" ("+
-                                      fip.fq_name[0] +":"+
-                                      fip.fq_name[1] + ")]";
-                    } else {
-                        fipText = fip.floating_ip_address +" ["+
-                                  fip.fq_name[2] +":"+
-                                  fip.fq_name[3]+"]";
-                    }
+                uuid = getValueByJsonPath(fip, 'uuid', '', false);
+                fq_name = getValueByJsonPath(fip, 'fq_name', [], false);
+
+                if(fip && fip.floating_ip_address && fq_name.length === 5) {
+                    toStr = fq_name.join(":");
+                    val = uuid + " " + toStr;
+                    fipText = fip.floating_ip_address + " (" +
+                                  fip.fq_name[2] + ":" +
+                                  fip.fq_name[3] + ")";
                     floatingIPList.push({value: val, text: fipText});
                 }
             }
@@ -640,7 +646,7 @@ define([
         /*
             Create / Edit Compute UUID drop down data formatter
         */
-        this.subnetDDFormatter = function(response, edit, portModel) {
+        self.subnetDDFormatter = function(response, edit, portModel) {
             if(!edit && response.length > 0) {
                 portModel.model.subnet_uuid(response[0].value);
             }
@@ -649,7 +655,7 @@ define([
         /*
             Create / Edit Compute UUID drop down data formatter
         */
-        this.computeUUIDFormatter = function(response, edit, portModel) {
+        self.computeUUIDFormatter = function(response, edit, portModel) {
             var vmArray = [];
             var returnComputeUUID = [];
             if(response != null && response != "" &&
@@ -677,7 +683,7 @@ define([
         /*
             Create / Edit Logical router drop down data formatter
         */
-        this.routerFormater = function(response, edit, portModel) {
+        self.routerFormater = function(response, edit, portModel) {
             var lrReturn = [];
             if(response != null && response != "" &&
                response["logical-routers"] &&
@@ -707,7 +713,7 @@ define([
         /*
             Create / Edit Health check drop down data formatter
         */
-        this.healthCheckDDFormatter = function(response, edit, portModel) {
+        self.healthCheckDDFormatter = function(response, edit, portModel) {
             var healthCheckDataReturn = [];
             var healthCheckData = response[0]["service-health-checks"];
             var healthCheckLen = healthCheckData.length;
@@ -717,24 +723,22 @@ define([
                 var healthCheckUUID = getValueByJsonPath(healthCheckData[i], 'uuid', '');
                 if(healthCheckFQName.length > 0) {
                     healthCheckVal = healthCheckFQName.join(":") + " " + healthCheckUUID;
-                    var text = ctwu.formatCurrentFQName(healthCheckFQName);
+                    var text = ctwu.formatCurrentFQName(healthCheckFQName, self.currentDomainProject);
                     healthCheckDataReturn.push({value: healthCheckVal, text: text});
                 }
             }
             return healthCheckDataReturn;
         }
-        
+
         /*
             Create / Edit Sub Interface drop down data formatter
         */
-        this.subInterfaceFormatter = function(response, edit, portModel) {
-            var subInterfaceParentDatas = [];
-            var selectedPortUUID = "";
-            var selectedProject = ctwu.getGlobalVariable('project').name;
-
-            var vmiArray = getValueByJsonPath(response, 'data', '');
-            var vmiArrayLen = vmiArray.length;
-            var subInterfaceParentDatas = [];
+        self.subInterfaceFormatter = function(response, edit, portModel) {
+            var subInterfaceParentDatas = [],
+                selectedPortUUID = "",
+                vmiArray = getValueByJsonPath(response, 'data', ''),
+                vmiArrayLen = vmiArray.length,
+                subInterfaceParentDatas = [];
             for(var j=0;j < vmiArrayLen;j++){
                 var val="";
                 var mac_text = "";
@@ -748,7 +752,7 @@ define([
                     var subInterfaceProject = getValueByJsonPath(ip,
                                   "virtual_network_refs;0;to;1", null);
                     if((vlanTag == null) &&
-                       (subInterfaceProject == selectedProject)){
+                       (subInterfaceProject == self.projectName)){
                         subInterfaceParentText += ip["uuid"] + "\xa0\xa0";
                         var fixedIp = getValueByJsonPath(ip,
                                       "instance_ip_back_refs;0;fixedip;ip", "");
@@ -767,7 +771,7 @@ define([
                         var uuid = ip["uuid"];
                         var to = ip["fq_name"].join(":");
                         var subInterfaceVMI = uuid + " " + to;
-                        if(!(true == edit && ip["uuid"] == portModel.model.uuid())){ 
+                        if(!(true == edit && ip["uuid"] == portModel.model.uuid())){
                             subInterfaceParentDatas.push(
                                                 {"text":subInterfaceParentText,
                                                 "value":subInterfaceVMI});
@@ -783,7 +787,7 @@ define([
             return subInterfaceParentDatas;
         }
 
-        this.fixedIpSubnetDDFormatter = function(allNetworkData, selectedNetwork) {
+        self.fixedIpSubnetDDFormatter = function(allNetworkData, selectedNetwork) {
             var selectedFqname = selectedNetwork;
             var fqname;
             var currentVNSubnetDetail = [];
@@ -822,9 +826,7 @@ define([
             return currentVNSubnetDetail;
         }
 
-        this.interfaceDetailFormater = function(d, c, v, cd, dc) {
-            var domainName = ctwu.getGlobalVariable('domain').name;
-            var projectName = ctwu.getGlobalVariable('project').name;
+        self.interfaceDetailFormater = function(d, c, v, cd, dc) {
             if("virtual_machine_interface_refs" in dc &&
                dc["virtual_machine_interface_refs"] != null &&
                dc["virtual_machine_interface_refs"].length > 0) {
@@ -843,8 +845,8 @@ define([
                            "ip" in vmi[inc]["instance_ip_back_refs"][0]){
                             ip = vmi[inc]["instance_ip_back_refs"][0]["ip"];
                         }
-                        if(connectedNetwork[0] == domainName &&
-                           connectedNetwork[1] == projectName){
+                        if(connectedNetwork[0] == self.domainName &&
+                           connectedNetwork[1] == self.projectName){
                            network = connectedNetwork[2];
                         } else {
                            network = connectedNetwork[2]
@@ -859,7 +861,7 @@ define([
             }
             return InterfaceDetailStr;
         };
-        this.LogicalRouterDataParser = function(response) {
+        self.LogicalRouterDataParser = function(response) {
             var LogicalRouterData = [];
             var LogicalRouterConfig = response.data;
             if(LogicalRouterConfig != null &&
@@ -872,14 +874,14 @@ define([
             }
             return LogicalRouterData;
         };
-        this.getProjectFqn = function(fqn) {
+        self.getProjectFqn = function(fqn) {
             if (null == fqn) {
                 return getCookie('domain') + ':' +
                     getCookie('project');
             }
             return fqn;
         };
-        this.isParentPort = function(selectedGridData) {
+        self.isParentPort = function(selectedGridData) {
             var vlanTag = getValueByJsonPath(selectedGridData,
                        "virtual_machine_interface_properties;sub_interface_vlan_tag","");
             var vmiRefTo = getValueByJsonPath(selectedGridData,
@@ -889,7 +891,7 @@ define([
             }
             return false;
         };
-        this.getVMIRelation = function(selectedGridData) {
+        self.getVMIRelation = function(selectedGridData) {
             var vlanTag = getValueByJsonPath(selectedGridData,
                        "virtual_machine_interface_properties;sub_interface_vlan_tag","");
             var vmiRefTo = getValueByJsonPath(selectedGridData,
@@ -906,8 +908,35 @@ define([
         /*
          * disablePolicyFormatter
          */
-        this.disablePolicyFormatter = function(d, c, v, cd, dc) {
+        self.disablePolicyFormatter = function(d, c, v, cd, dc) {
             return v && v.toString() === "true" ? "True" : "False";
+        };
+        
+        self.formatNetworksData = function(portEditView, result, mode) {
+            var formattedNetworks =
+                self.networkDDFormatter(result),
+                selectedVN, subnetDS;
+            portEditView.model.setVNData(result);
+            if(!formattedNetworks || !formattedNetworks.length){
+                return formattedNetworks;
+            }
+            selectedVN = formattedNetworks[0].value;
+            subnetDS = self.fixedIpSubnetDDFormatter(
+                                     result, selectedVN);
+            portEditView.model.setSubnetDataSource(subnetDS);
+            if(mode == ctwl.CREATE_ACTION) {
+                if(subnetDS.length > 0) {
+                    portEditView.model.addFixedIP();
+                    portEditView.model.subnetGroupVisible(true);
+                } else {
+                    portEditView.model.subnetGroupVisible(false);
+                }
+            } else if(mode == ctwl.EDIT_ACTION) {
+                if(portEditView.model.security_group_refs().length <= 0) {
+                    portEditView.model.is_sec_grp(false);
+                }
+            }
+            return formattedNetworks;
         };
     }
     return PortFormatters;

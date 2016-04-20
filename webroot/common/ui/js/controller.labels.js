@@ -875,23 +875,15 @@ define([
         this.TITLE_LOGICAL_ROUTER = 'Logical Router';
 
         //Port Labels
-        this.CONFIG_PORT_PAGE_ID = "config-port-page";
         this.CONFIG_PORT_TITLE = "Ports";
         this.TITLE_ADD_PORT = "Create Port";
         this.TITLE_ADD_SUBINTERFACE = "Add SubInterface";
-        this.CONFIG_PORT_LIST_VIEW_ID = "config-port-list-view";
-        this.CONFIG_PORT_GRID_ID = "config-port-grid-id";
-        this.CONFIG_PORT_FORMAT_ID = "config-port-format-id";
-        this.CONFIG_PORT_LIST = "config-port-list";
-        this.PORT_GRID_ID = "port-grid-id";
         this.TITLE_PORT_DETAILS = "Port Detail";
         this.TITLE_PORT_EDIT = "Edit";
         this.TITLE_PORT_DETETE = "Delete";
         this.TITLE_PORT_DETETE_ALL = "Delete All";
-        this.PORT_PREFIX_ID = "Ports";
         this.TITLE_EDIT_PORT = "Edit Port";
         this.TITLE_PORT = 'Port';
-        this.TEXT_PORT = 'port';
 
         //Policy Labels
         this.CONFIG_POLICIES_PAGE_ID = "config-policies-page";

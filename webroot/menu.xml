@@ -531,18 +531,12 @@ and need to add the iconClass tag wherever we need to show some icons
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
                                     <js>controller.app.js</js>
-                                    <class>renderPort</class>
                                 </resource>
                                 <resource>
                                     <rootDir>/config/networking/port/ui</rootDir>
                                     <js>port.main.js</js>
-                                    <class>ConfigPortLoader</class>
+                                    <class>configPortLoader</class>
                                     <function>renderPort</function>
-                                    <!--                                <resource>
-                                                                        <rootDir>/config/ports/ui</rootDir>
-                                                                        <js>ports_config.js</js>
-                                                                        <view>ports_config.view</view>
-                                                                        <class>portsConfigObj</class>-->
                                 </resource>
                             </resources>
                             <searchStrings>Ports</searchStrings>

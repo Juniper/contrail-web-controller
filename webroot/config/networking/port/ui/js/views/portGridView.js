@@ -13,7 +13,7 @@ define([
              PortFormatters, ContrailView) {
     var portEditView = new PortEditView(),
         portFormatters = new PortFormatters(),
-        gridElId = "#" + ctwl.PORT_GRID_ID;
+        gridElId = "#" + ctwc.PORT_GRID_ID;
 
     var portGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -22,26 +22,27 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+            portEditView.selectedProjectId = viewConfig.selectedProjectId;
             self.renderView4Config(self.$el, self.model,
-                                  getPortGridViewConfig(pagerOptions));
+                                  getPortGridViewConfig(viewConfig));
         }
     });
 
-    var getPortGridViewConfig = function (pagerOptions) {
+    var getPortGridViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId
-                            ([ctwl.CONFIG_PORT_LIST_VIEW_ID]),
+                            ([ctwc.CONFIG_PORT_LIST_VIEW_ID]),
             view: "SectionView",
             viewConfig: {
                 rows: [
                     {
                         columns: [
                             {
-                                elementId: ctwl.PORT_GRID_ID,
+                                elementId: ctwc.PORT_GRID_ID,
                                 title: ctwl.CONFIG_PORT_TITLE,
                                 view: "GridView",
                                 viewConfig: {
-                                   elementConfig: getConfiguration(pagerOptions)
+                                   elementConfig: getConfiguration(viewConfig)
                                 }
                             }
                         ]
@@ -60,7 +61,7 @@ define([
             portEditView.model = portModel;
             //portModel.editViewObj = portEditView;
             showHideModelAttrs(portModel);
-            subscribeModelChangeEvents(portModel);
+            subscribeModelChangeEvents(portModel, ctwl.EDIT_ACTION);
             if (portModel.mirrorToRoutingInstance() == "") {
                 portModel.updateMirrorRoutingInterface(portModel,
                                    portModel.virtualNetworkName());
@@ -68,7 +69,7 @@ define([
             portEditView.renderPortPopup({
                                   "title": ctwl.TITLE_EDIT_PORT +
                                   ' (' + dataItem.name + ')',
-                                  mode: "edit",
+                                  mode: ctwl.EDIT_ACTION,
                                   callback: function () {
                 var dataView =
                     $(gridElId).data("contrailGrid")._dataView;
@@ -98,12 +99,12 @@ define([
             var portModel = new PortModel(dataItem);
             portEditView.model = portModel;
             showHideModelAttrs(portModel);
-            subscribeModelChangeEvents(portModel);
+            subscribeModelChangeEvents(portModel, ctwl.CREATE_ACTION);
             portModel.updateMirrorRoutingInterface(portModel, portModel.virtualNetworkName());
             portEditView.renderPortPopup({
                                   "title": ctwl.TITLE_ADD_SUBINTERFACE +
                                   '  to port (' + gridDataItem.name + ')',
-                                  mode: "subInterface",
+                                  mode: ctwl.CREATE_ACTION,
                                   callback: function () {
                 var dataView =
                     $(gridElId).data("contrailGrid")._dataView;
@@ -122,6 +123,7 @@ define([
             portEditView.renderDeletePort({
                                   "title": ctwl.TITLE_PORT_DETETE,
                                   selectedGridData: [dataItem],
+                                  selectedProjectId: viewConfig.selectedProjectId,
                                   callback: function() {
                 var dataView =
                     $(gridElId).data("contrailGrid")._dataView;
@@ -130,14 +132,14 @@ define([
         }));
         return rowActionConfig;
     }
-    var getConfiguration = function (pagerOptions) {
+    var getConfiguration = function (viewConfig) {
         var gridElementConfig = {
             header: {
                 title: {
                     text: ctwl.CONFIG_PORT_TITLE
                 },
                 advanceControls : getHeaderActionConfig(
-                                     "#"+ctwl.PORT_GRID_ID)
+                                     "#" + ctwc.PORT_GRID_ID, viewConfig)
             },
             body: {
                 options: {
@@ -152,7 +154,7 @@ define([
                                                          'disabled-link');
                         }
                     },
-                    actionCell:getRowActionConfig,
+                    actionCell: getRowActionConfig,
                     detail: {
                         template: cowu.generateDetailTemplateHTML(
                                             getPortDetailsTemplateConfig(),
@@ -175,7 +177,7 @@ define([
             },
             footer: {
                 pager: contrail.handleIfNull
-                                    (pagerOptions,
+                                    (viewConfig.pagerOptions,
                                         { options:
                                           { pageSize: 5,
                                             pageSizeSelect: [5, 10, 50, 100]
@@ -238,7 +240,7 @@ define([
         }
     ];
 
-    function getHeaderActionConfig(gridElId) {
+    function getHeaderActionConfig(gridElId, viewConfig) {
         var dropdownActions;
         dropdownActions = [
             {
@@ -255,6 +257,7 @@ define([
                         portEditView.renderDeletePort(
                             {"title": ctwl.TITLE_DELETE_CONFIG,
                                 selectedGridData: checkedRows,
+                                selectedProjectId: viewConfig.selectedProjectId,
                                 callback: function () {
                                     var dataView =
                                         $(gridElId).data("contrailGrid")._dataView;
@@ -273,6 +276,7 @@ define([
                     portEditView.model = portModel;
                     portEditView.renderDeleteAllPort(
                         {"title": ctwl.TITLE_PORT_DETETE,
+                            selectedProjectId: viewConfig.selectedProjectId,
                             callback: function () {
                                 var dataView =
                                     $(gridElId).
@@ -305,10 +309,10 @@ define([
                     var portModel = new PortModel(dataItem);
                     portEditView.model = portModel;
                     showHideModelAttrs(portModel);
-                    subscribeModelChangeEvents(portModel);
+                    subscribeModelChangeEvents(portModel, ctwl.CREATE_ACTION);
                     portEditView.renderPortPopup({
                                      "title": ctwl.TITLE_ADD_PORT,
-                                     mode : "add",
+                                     mode : ctwl.CREATE_ACTION,
                                      callback: function () {
                         var dataView =
                             $(gridElId).data("contrailGrid")._dataView;
@@ -366,13 +370,15 @@ define([
                                     name: 'uuid',
                                     templateGenerator: 'TextGenerator'
                                 }, {
-                                    key: 'fq_name',
-                                    name:"fq_name",
+                                    key: 'name',
+                                    name:"name",
                                     label:"Name",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "fqNameFormater"
-                                    }
+                                    templateGenerator: 'TextGenerator'
+                                }, {
+                                    key: 'display_name',
+                                    name:"display_name",
+                                    label:"Display Name",
+                                    templateGenerator: 'TextGenerator'
                                 }, {
                                     key: 'id_perms',
                                     name:"id_perms",
@@ -420,7 +426,7 @@ define([
                                     templateGeneratorConfig:{
                                         formatter: "DHCPFormatter"
                                     }
-                                }, 
+                                },
                                     this.deviceOwner(),
                                     this.deviceOwnerUUID()
                                 ,{
@@ -557,9 +563,10 @@ define([
             return({});
         }
     }
-    function subscribeModelChangeEvents(portModel) {
+    function subscribeModelChangeEvents(portModel, mode) {
         portModel.__kb.view_model.model().on('change:virtualNetworkName',
             function(model, newValue){
+                portModel.onVNSelectionChanged(portFormatters, newValue, mode);
                 portModel.updateMirrorRoutingInterface(portModel, newValue);
             }
         );
