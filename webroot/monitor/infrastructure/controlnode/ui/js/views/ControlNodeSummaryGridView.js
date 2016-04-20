@@ -176,6 +176,14 @@ define(
                             cacheConfig : {
                                 ucid: ctwl.CACHE_CONTROLNODE
                             }
+                        },
+                        statusMessages: {
+                            loading: {
+                                text: 'Loading Control Nodes..'
+                            },
+                            empty: {
+                                text: 'No Control Nodes Found.'
+                            }
                         }
                     }
                 };

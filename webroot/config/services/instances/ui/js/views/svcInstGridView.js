@@ -73,6 +73,14 @@ define([
                     },
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Service Instances..'
+                    },
+                    empty: {
+                        text: 'No Service Instances Found.'
+                    }
                 }
             },
             columnHeader: {

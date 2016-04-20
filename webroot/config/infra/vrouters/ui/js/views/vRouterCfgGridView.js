@@ -81,11 +81,12 @@ define([
                 },
                 dataSource: {data: []},
                 statusMessages: {
-                    empty: {
-                        type: 'status',
-                        iconClasses: '',
-                        text: 'No Virtual Routers Found.'
+                    loading: {
+                        text: 'Loading Virtual Routers..'
                     },
+                    empty: {
+                        text: 'No Virtual Routers Found.'
+                    }
                 }
             },
             columnHeader: {

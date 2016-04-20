@@ -91,15 +91,10 @@ define([
                 },
                 statusMessages: {
                     loading: {
-                        text: 'Loading '+ text +'..',
+                        text: 'Loading ' + text + '..',
                     },
                     empty: {
-                        text: 'No '+ text +' to display'
-                    },
-                    errorGettingData: {
-                        type: 'error',
-                        iconClasses: 'icon-warning',
-                        text: 'Error in getting Data.'
+                        text: 'No ' + text + ' Found.'
                     }
                 }
             },

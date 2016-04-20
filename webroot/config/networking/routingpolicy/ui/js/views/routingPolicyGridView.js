@@ -113,9 +113,10 @@ define([
                 },
                 dataSource: {},
                 statusMessages: {
+                    loading: {
+                        text: 'Loading Routing Policies.',
+                    },
                     empty: {
-                        type: 'status',
-                        iconClasses: '',
                         text: 'No Routing Policies Found.'
                     }
                 }

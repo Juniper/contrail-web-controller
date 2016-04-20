@@ -84,12 +84,7 @@ define([
                         text: 'Loading Route Aggregates..'
                     },
                     empty: {
-                        text: 'No Route Aggregates.'
-                    },
-                    errorGettingData: {
-                        type: 'error',
-                        iconClasses: 'icon-warning',
-                        text: 'Error in getting Route Aggregates.'
+                        text: 'No Route Aggregates Found.'
                     }
                 }
             },

@@ -181,6 +181,14 @@ define([
                     },
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Link Local Services..'
+                    },
+                    empty: {
+                        text: 'No Link Local Services Found.'
+                    }
                 }
             },
             columnHeader: {

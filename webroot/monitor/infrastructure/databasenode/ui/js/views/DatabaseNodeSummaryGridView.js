@@ -152,6 +152,14 @@ define(
                             cacheConfig : {
                                 ucid: ctwl.CACHE_DATABASENODE
                             }
+                        },
+                        statusMessages: {
+                            loading: {
+                                text: 'Loading Database Nodes..',
+                            },
+                            empty: {
+                                text: 'No Database Nodes Found.'
+                            }
                         }
                     }
                 };

@@ -78,9 +78,10 @@ define([
                 },
                 dataSource: {data: []},
                 statusMessages: {
+                    loading: {
+                        text: 'Loading Health Checks..'
+                    },
                     empty: {
-                        type: 'status',
-                        iconClasses: '',
                         text: 'No Health Checks Found.'
                     }
                 }

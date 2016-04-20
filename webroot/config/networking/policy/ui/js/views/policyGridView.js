@@ -111,7 +111,15 @@ define([
                                             cowc.APP_CONTRAIL_CONTROLLER)
                     }
                 },
-                dataSource: {}
+                dataSource: {},
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Policies.',
+                    },
+                    empty: {
+                        text: 'No Policies Found.'
+                    }
+                }
             },
             columnHeader: {
                 columns: policyColumns
