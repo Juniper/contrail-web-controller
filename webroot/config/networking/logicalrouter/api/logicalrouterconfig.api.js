@@ -31,6 +31,8 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var networkManager = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/networkmanager.api');
+var jsonDiff = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/common/jsondiff');
 
 
 
@@ -455,8 +457,8 @@ function removeVMI(error, logicalRouterURL, logicalRouterPostData, deleteVMIArra
 }
 
 function updateLogicalRouterWithVMI(logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, response, appData){
-    configApiServer.apiPut(logicalRouterPutURL, logicalRouterPostData, appData,
-    function (error, data) {
+    jsonDiff.getConfigDiffAndMakeCall(logicalRouterPutURL, appData, logicalRouterPostData,
+                                          function(error, data) {
         removeVMI(error, logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, response, appData, data);
     });
 }
