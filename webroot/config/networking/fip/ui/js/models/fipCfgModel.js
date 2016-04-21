@@ -20,16 +20,30 @@ define([
             'virtual_machine_interface_refs': null, //[]
             'user_created_alloc_type': 'dynamic', //dynamic/specific
             'user_created_alloc_count': 1,
-            'user_created_floating_ip_pool': null
+            'user_created_floating_ip_pool': null,
+            'is_specific_ip': false, //flag to map selected fixed ip to fip
+            'floating_ip_fixed_ip_address': null
         },
 
         formatModelConfig: function (modelConfig) {
-            var fixedIP = getValueByJsonPath(modelConfig,
-                      'virtual_machine_interface_refs', []);
+            var vmiRef = getValueByJsonPath(modelConfig,
+                      'virtual_machine_interface_refs;0', null),
+                floatingIPFixedIP = getValueByJsonPath(modelConfig,
+                    'floating_ip_fixed_ip_address', null),
+                fixedIP;
+            if(floatingIPFixedIP) {
+                modelConfig["is_specific_ip"] = true;
+                fixedIP = floatingIPFixedIP;
+            } else {
+                modelConfig["is_specific_ip"] = false;
+                fixedIP = getValueByJsonPath(vmiRef,
+                    "instance_ip_back_refs;0;fixedip;ip", "");
+            }
 
-            if (fixedIP.length) {
-                var fqName = getValueByJsonPath(fixedIP[0],'to', []);
+            if (vmiRef) {
+                var fqName = getValueByJsonPath(vmiRef,'to', []);
                 fqName = fqName.join(":");
+                fqName = fqName + ctwc.FLOATING_IP_PORT_DELIMITER + fixedIP;
                 modelConfig['virtual_machine_interface_refs'] = fqName;
             } else {
                 modelConfig['virtual_machine_interface_refs'] = null;
@@ -85,7 +99,8 @@ define([
                 delete newFipCfgData['user_created_alloc_type'];
                 delete newFipCfgData['user_created_floating_ip_pool'];
                 delete newFipCfgData['virtual_machine_interface_refs'];
-
+                delete newFipCfgData["is_specific_ip"];
+                delete newFipCfgData["floating_ip_fixed_ip_address"];
 
                 newFipCfgData['project_refs'] =
                      [{to: [domain, project]}];
@@ -99,7 +114,6 @@ define([
 
                 postData['floating-ip'] = newFipCfgData;
 
-                ajaxConfig.async = false;
                 ajaxConfig.type  = 'POST';
                 ajaxConfig.data  = JSON.stringify(postData);
                 ajaxConfig.url   = '/api/tenants/config/floating-ips';
@@ -172,30 +186,25 @@ define([
                     newFipCfgData['virtual_machine_interface_refs'] = [];
                 } else {
                     var fqName = newFipCfgData['virtual_machine_interface_refs'];
-                    newFipCfgData['virtual_machine_interface_refs'] = [];
-                    newFipCfgData['virtual_machine_interface_refs'][0] =
-                                            {to: fqName.split(":")};
+                    fqName = fqName.split(ctwc.FLOATING_IP_PORT_DELIMITER);
+                    if(fqName.length === 2) {
+                        newFipCfgData['virtual_machine_interface_refs'] = [];
+                        newFipCfgData['virtual_machine_interface_refs'][0] =
+                                                {to: fqName[0].split(":")};
+                        if(newFipCfgData["is_specific_ip"]) {
+                            newFipCfgData['floating_ip_fixed_ip_address'] =
+                                fqName[1];
+                        } else {
+                            newFipCfgData['floating_ip_fixed_ip_address'] =
+                                null;
+                        }
+                    }
                 }
 
-                delete newFipCfgData['display_name'];
-                delete newFipCfgData['name'];
-                delete newFipCfgData['project_refs'];
-                delete newFipCfgData['id_perms'];
-                delete newFipCfgData['parent_href'];
-                delete newFipCfgData['parent_uuid'];
-                delete newFipCfgData['parent_type'];
-                delete newFipCfgData['href'];
-                delete newFipCfgData['floating_ip_address'];
-                delete newFipCfgData['user_created_alloc_type'];
-                delete newFipCfgData['user_created_alloc_count'];
-                delete newFipCfgData['user_created_floating_ip_pool'];
-                delete newFipCfgData.errors;
-                delete newFipCfgData.locks;
-                delete newFipCfgData.cgrid;
+                self.deleteAttributes(newFipCfgData);
 
                 postData['floating-ip'] = newFipCfgData;
 
-                ajaxConfig.async = false;
                 ajaxConfig.type  = 'PUT';
                 ajaxConfig.data  = JSON.stringify(postData);
                 ajaxConfig.url   = '/api/tenants/config/floating-ip/' + newFipCfgData['uuid'];
@@ -233,26 +242,12 @@ define([
             var newFipCfgData = $.extend(true, {}, self.model().attributes);
 
             newFipCfgData['virtual_machine_interface_refs'] = [];
+            newFipCfgData['floating_ip_fixed_ip_address'] = null;
 
-            delete newFipCfgData['display_name'];
-            delete newFipCfgData['name'];
-            delete newFipCfgData['project_refs'];
-            delete newFipCfgData['id_perms'];
-            delete newFipCfgData['parent_href'];
-            delete newFipCfgData['parent_uuid'];
-            delete newFipCfgData['parent_type'];
-            delete newFipCfgData['href'];
-            delete newFipCfgData['floating_ip_address'];
-            delete newFipCfgData['user_created_alloc_type'];
-            delete newFipCfgData['user_created_alloc_count'];
-            delete newFipCfgData['user_created_floating_ip_pool'];
-            delete newFipCfgData.errors;
-            delete newFipCfgData.locks;
-            delete newFipCfgData.cgrid;
+            self.deleteAttributes(newFipCfgData);
 
             postData['floating-ip'] = newFipCfgData;
 
-            ajaxConfig.async = false;
             ajaxConfig.type  = 'PUT';
             ajaxConfig.data  = JSON.stringify(postData);
             ajaxConfig.url   = '/api/tenants/config/floating-ip/' + newFipCfgData['uuid'];
@@ -274,6 +269,24 @@ define([
             });
          return returnFlag;
         },
+
+        deleteAttributes: function (newFipCfgData) {
+            ctwu.deleteCGridData(newFipCfgData);
+            delete newFipCfgData['display_name'];
+            delete newFipCfgData['name'];
+            delete newFipCfgData['project_refs'];
+            delete newFipCfgData['id_perms'];
+            delete newFipCfgData['parent_href'];
+            delete newFipCfgData['parent_uuid'];
+            delete newFipCfgData['parent_type'];
+            delete newFipCfgData['href'];
+            delete newFipCfgData['floating_ip_address'];
+            delete newFipCfgData['user_created_alloc_type'];
+            delete newFipCfgData['user_created_alloc_count'];
+            delete newFipCfgData['user_created_floating_ip_pool'];
+            delete newFipCfgData['perms2'];
+            delete newFipCfgData["is_specific_ip"];
+        }
     });
 
     return fipCfgModel;

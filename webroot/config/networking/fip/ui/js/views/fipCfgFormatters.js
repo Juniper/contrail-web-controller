@@ -50,9 +50,18 @@ define([
          * @fixedIPFormatter
          */
         this.fixedIPFormatter = function(d, c, v, cd, dc) {
-
-            return fixedIPFormatterHelper(dc);
-
+            var floatingIPFixedIP = getValueByJsonPath(dc,
+                    "floating_ip_fixed_ip_address", null),
+                fixedIP, portId;
+            if(floatingIPFixedIP) {
+                portId = getValueByJsonPath(dc,
+                    "virtual_machine_interface_refs;0;to;2", null);
+                fixedIP = portId ? floatingIPFixedIP +
+                    " (" + portId + ")" : floatingIPFixedIP;
+            } else {
+                fixedIP = fixedIPFormatterHelper(dc);
+            }
+            return fixedIP;
         };
 
         /*
@@ -109,17 +118,19 @@ define([
 
             $.each(response, function (i, obj) {
                 var ips  = getValueByJsonPath(obj,
-                    'virtual-machine-interface;instance_ip_address', []);
-                ips = ips.join(", ");
-                var fqName = getValueByJsonPath(obj,
-                    'virtual-machine-interface;fq_name', '');
+                    'virtual-machine-interface;instance_ip_address', []),
+                    fqName = getValueByJsonPath(obj,
+                    'virtual-machine-interface;fq_name', ''),
+                    actId;
                 fqName = fqName.join(":");
 
                 var uuid = getValueByJsonPath(obj,
                     'virtual-machine-interface;uuid', '');
-
-                fipPortList.push({id: fqName,
-                                  text: ips + ' (' + uuid + ')'});
+                $.each(ips, function(j, ip) {
+                    actId = fqName + ctwc.FLOATING_IP_PORT_DELIMITER + ip;
+                    fipPortList.push({id: actId,
+                        text: ip + ' (' + uuid + ')'});
+                });
             });
 
             return fipPortList;

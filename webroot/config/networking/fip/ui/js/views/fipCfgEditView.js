@@ -280,6 +280,20 @@ define([
             viewConfig: {
                 rows: [
                     {
+                        columns: [{
+                                elementId: 'is_specific_ip',
+                                view: 'FormCheckboxView',
+                                name: 'is_specific_ip',
+                                viewConfig: {
+                                    label: 'Map Specific Fixed IP',
+                                    templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                    path: 'is_specific_ip',
+                                    class: 'span6',
+                                    dataBindValue: 'is_specific_ip'
+                                }
+                            }
+                        ],
+                    }, {
                         columns: [
                             {
                                 elementId: 'virtual_machine_interface_refs',
