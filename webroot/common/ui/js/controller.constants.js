@@ -640,6 +640,7 @@ define([
         // FIP Config Constants
         this.URL_CFG_FIP_DETAILS =
             '/api/tenants/config/floating-ips';
+        this.FLOATING_IP_PORT_DELIMITER = ";";
 
         // Service Template Config Constants
         this.URL_CFG_SVC_TEMPLATE_DETAILS =
