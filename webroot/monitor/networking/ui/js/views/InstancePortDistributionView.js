@@ -68,7 +68,7 @@ define([
     function getInstancePortDistChangeCB(instancePortDistDropdown, instancePortDistChart) {
         return function() {
             var selectedInterface = instancePortDistDropdown.data('contrailDropdown').getSelectedData()[0].interface_data,
-                networkFQN = selectedInterface.virtual_network,
+                networkFQN = encodeURIComponent(selectedInterface.virtual_network),
                 interfaceIP = selectedInterface.ip_address,
                 interfaceName = selectedInterface.name,
                 chartViewConfig = {

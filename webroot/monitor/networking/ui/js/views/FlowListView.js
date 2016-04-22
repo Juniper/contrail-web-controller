@@ -63,7 +63,7 @@ define([
                                         forceX: [startPort, endPort],
                                         dataParser: function (response) {
                                             var portData = constructDataForPortDist(response, nmwgc.getURLConfigForFlowGrid(hashParams)),
-                                                portDistributionParams = $.deparamURLArgs(url),
+                                                portDistributionParams = cowu.deparamURLArgs(url),
                                                 portType = 'port', flowCntField = 'flowCnt',
                                                 chartData = [];
 

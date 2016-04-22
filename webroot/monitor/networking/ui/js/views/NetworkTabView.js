@@ -184,7 +184,6 @@ define([
                                                     key: 'value.UveVirtualNetworkConfig.connected_networks',
                                                     templateGenerator: 'LinkGenerator',
                                                     templateGeneratorConfig: {
-                                                        formatter: 'link',
                                                         template: ctwc.URL_NETWORK,
                                                         params: {}
                                                     }
