@@ -81,6 +81,11 @@ define([
                 minWidth: 80
             },
             {
+                field: 'fipCnt',
+                name: 'Floating IPs',
+                minWidth: 80
+            },
+            {
                 field: 'vRouter',
                 name: 'Virtual Router',
                 formatter: function (r, c, v, cd, dc) {
@@ -172,7 +177,7 @@ define([
              },
              {
                  field: 'floatingIP',
-                 name: 'Floating IPs In/Out',
+                 name: 'Floating IPs ( Agg Stats In/Out)',
                  formatter: function (r, c, v, cd, dc) {
                      if (!contrail.checkIfExist(dc['floatingIP']) || dc['floatingIP'].length == 0) {
                          return '-';
@@ -428,9 +433,10 @@ define([
                             if(interfaceDetailsList.length > 0) {
                                 throughput = inThroughput + outThroughput;
                                 dataItem['throughput'] = throughput;
+                                dataItem['fipCnt'] = 0;
                                 dataItem['size'] = throughput;
                                 uveVirtualMachineAgent['interface_details'] = interfaceDetailsList;
-                                dataItem['vn'] = ifNull(jsonPath(interfaceDetailsList, '$...virtual_network'), []);
+                                dataItem['vn'] = ifNull(jsonPath(interfaceDetailsList, '$...virtual_network'), [])
 
                                 if (dataItem['vn'] != false) {
                                     if (dataItem['vn'].length != 0) {
@@ -451,6 +457,7 @@ define([
                                         if (interfaceDetailsList[k]['ip_address'] != '0.0.0.0')
                                             dataItem['ip'].push(interfaceDetailsList[k]['ip_address']);
                                     }
+                                    dataItem['fipCnt'] += interfaceDetailsList[k]['count_floating_ips'];
                                 }
                                 /*
                                  if (interfaceDetailsList.length > 0) {

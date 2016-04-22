@@ -184,6 +184,39 @@ define([
                                                 {
                                                     key: 'active',
                                                     templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'is_health_check_active',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'health_check_instance_list',
+                                                    templateGenerator: 'BlockGridTemplateGenerator',
+                                                    templateGeneratorConfig: {
+                                                        dataColumn: [
+                                                            {
+                                                                key: 'status',
+                                                                templateGenerator: 'TextGenerator',
+                                                                templateGeneratorConfig: {
+                                                                    width: 35
+                                                                }
+                                                            },
+                                                            {
+                                                                key: 'name',
+                                                                templateGenerator: 'TextGenerator',
+                                                                templateGeneratorConfig: {
+                                                                    width: 90
+                                                                }
+                                                            },
+                                                            {
+                                                                key: 'uuid',
+                                                                templateGenerator: 'TextGenerator',
+                                                                templateGeneratorConfig: {
+                                                                    width: 90
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
                                                 }
                                             ]
                                         }
@@ -202,18 +235,32 @@ define([
                                                     templateGeneratorConfig: {
                                                         formatter: 'throughput'
                                                     }
-                                                }
+                                                },
+
                                             ]
                                         },
                                         {
                                             title: ctwl.TITLE_FLOATING_IPS,
-                                            templateGenerator: 'BlockListTemplateGenerator',
-                                            templateGeneratorConfig: [
-                                                {
-                                                    key: 'floatingIP',
-                                                    templateGenerator: 'TextGenerator'
-                                                }
-                                            ]
+                                            key: 'floating_ips',
+                                            templateGenerator: 'BlockGridTemplateGenerator',
+                                            templateGeneratorConfig: {
+                                                dataColumn: [
+                                                    {
+                                                        key: 'ip_address',
+                                                        templateGenerator: 'TextGenerator',
+                                                        templateGeneratorConfig: {
+                                                            width: 80
+                                                        }
+                                                    },
+                                                    {
+                                                        key: 'virtual_network',
+                                                        templateGenerator: 'TextGenerator',
+                                                        templateGeneratorConfig: {
+                                                            width: 350
+                                                        }
+                                                    }
+                                                ]
+                                            }
                                         }
                                     ]
                                 }
