@@ -48,6 +48,7 @@ define([
                 for(var i = 0; i < rawInterfaces.length; i++) {
                     interface = {};
                     uveVMInterfaceAgent = rawInterfaces[i]['value']['UveVMInterfaceAgent'];
+                    interface['floating_ips'] = [];
                     interface = $.extend(true, interface, uveVMInterfaceAgent);
                     interface['name'] = rawInterfaces[i]['name'];
 
@@ -58,9 +59,10 @@ define([
                         interface['ip'] = interface['ip_address'];
                     }
 
-                    var fipStatsList = getValueByJsonPath(uveVMInterfaceAgent, 'fip_diff_stats'),
+                    var fipStatsList = getValueByJsonPath(uveVMInterfaceAgent, 'fip_agg_stats'),
                         floatingIPs = (fipStatsList == null) ? [] : fipStatsList;
 
+                    interface['count_floating_ips'] = interface['floating_ips'].length;
                     interface['floatingIP'] = [];
                     $.each(floatingIPs, function (idx, fipObj) {
                         interface['floatingIP'].push(contrail.format('{0} ({1} / {2})', fipObj['ip_address'], cowu.addUnits2Bytes(ifNull(fipObj['in_bytes'], '-')), cowu.addUnits2Bytes(ifNull(fipObj['out_bytes'], '-'))));
