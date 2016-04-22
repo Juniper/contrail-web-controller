@@ -6,10 +6,8 @@ define([
     'ct-test-utils',
     'ct-test-messages',
     'monitor/networking/test/ui/views/ProjectView.mock.data',
-    'co-grid-contrail-list-model-test-suite',
-    'co-grid-view-test-suite',
-    'co-chart-view-zoom-scatter-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, ZoomScatterChartViewTestSuite) {
+    'co-tabs-view-test-suite'
+], function (cotr, cttu, cttm, TestMockdata, TabsViewTestSuite) {
 
     var moduleId = cttm.PROJECTS_VIEW_COMMON_TEST_MODULE;
 
@@ -31,6 +29,7 @@ define([
          /api/tenant/networking/virtual-machines/details?fqnUUID=ba710bf3-922d-4cda-bbb4-a2e2e76533bf&count=10&type=project              [done]
          /api/tenant/networking/virtual-machine-interfaces/summary                                                                       [done]
          /api/tenant/networking/stats                                                                                                    [done]
+         /api/tenants/get-project-role                                                                                                   [done]
          */
 
         responses.push(cotr.createFakeServerResponse( {
@@ -46,6 +45,11 @@ define([
         responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/tenants\/projects\/default-domain.*$/,
             body: JSON.stringify(TestMockdata.projectMockData)
+        }));
+
+        responses.push(cotr.createFakeServerResponse( {
+            url: /\/api\/tenants\/get-project-role.*$/,
+            body: JSON.stringify(null)
         }));
 
         responses.push(cotr.createFakeServerResponse({
@@ -65,28 +69,25 @@ define([
             url: cttu.getRegExForUrl('/api/tenant/monitoring/project-config-graph'),
             body: JSON.stringify(TestMockdata.projectConfigGraph)
         }));
+        
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
             url: cttu.getRegExForUrl('/api/tenant/networking/virtual-networks/details'),
             body: JSON.stringify(TestMockdata.networksMockData)
         }));
+        
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
             url: cttu.getRegExForUrl('/api/tenant/networking/virtual-machines/details'),
             body: JSON.stringify(TestMockdata.virtualMachinesDetailsMockData)
         }));
+        
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
             url: cttu.getRegExForUrl('/api/tenant/networking/stats'),
             body: JSON.stringify(TestMockdata.networksMockStatData)
         }));
-        // how to differentiate between this POST request and the one for networks above
-
-        //responses.push(cotr.createFakeServerResponse({
-        //    method:"POST",
-        //    url: cttu.getRegExForUrl('/api/tenant/networking/stats'),
-        //    body: JSON.stringify(TestMockdata.virtualMachinesStatsMockData)
-        //}));
+        
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
             url: cttu.getRegExForUrl('/api/tenant/networking/virtual-machine-interfaces/summary'),
@@ -111,67 +112,19 @@ define([
     };
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 5;
 
+    /**
+     * Test cases for components in each project tab will be tested in their respective tab pages. 
+     */
     var getTestConfig = function() {
         return {
             rootView: mnPageLoader.mnView,
             tests: [
                 {
-                    viewId: ctwl.PROJECT_PORTS_SCATTER_CHART_ID,
+                    viewId: ctwl.PROJECT_TABS_ID,
                     suites: [
                         {
-                            class: ZoomScatterChartViewTestSuite,
+                            class: TabsViewTestSuite,
                             groups: ['all']
-                        }
-                    ]
-                },
-                {
-                    viewId: ctwl.PROJECT_NETWORK_GRID_ID,
-                    suites: [
-                        {
-                            class: GridViewTestSuite,
-                            groups: ['all']
-                        },
-                        {
-                            class: GridListModelTestSuite,
-                            groups: ['all'],
-                            modelConfig: {
-                                dataGenerator: cttu.commonGridDataGenerator,
-                                dataParsers: {}
-                            }
-                        }
-                    ]
-                },
-                {
-                    viewId: ctwl.PROJECT_INSTANCE_GRID_ID,
-                    suites: [
-                        {
-                            class: GridViewTestSuite,
-                            groups: ['all']
-                        },
-                        {
-                            class: GridListModelTestSuite,
-                            groups: ['all'],
-                            modelConfig: {
-                                dataGenerator: cttu.commonGridDataGenerator,
-                                dataParsers: {}
-                            }
-                        }
-                    ]
-                },
-                {
-                    viewId: ctwl.PROJECT_INTERFACE_GRID_ID,
-                    suites: [
-                        {
-                            class: GridViewTestSuite,
-                            groups: ['all']
-                        },
-                        {
-                            class: GridListModelTestSuite,
-                            groups: ['all'],
-                            modelConfig: {
-                                dataGenerator: cttu.commonGridDataGenerator,
-                                dataParsers: {}
-                            }
                         }
                     ]
                 }
@@ -180,22 +133,7 @@ define([
 
     };
 
-    var testInitFn = function(defObj) {
-        //simulate click on all the tabs
-        var projectTabsViewObj = mnPageLoader.mnView.viewMap[ctwl.PROJECT_TABS_ID],
-            projectTabs = projectTabsViewObj.attributes.viewConfig.tabs;
-
-        _.each(projectTabs, function(tab) {
-            $("#" + tab.elementId + "-tab-link").trigger("click");
-        });
-
-        setTimeout(function() {
-            defObj.resolve();
-        }, cotc.PAGE_INIT_TIMEOUT * 10);
-        return;
-    };
-
-    var pageTestConfig = cotr.createPageTestConfig(moduleId, testType, fakeServerConfig, pageConfig, getTestConfig, testInitFn);
+    var pageTestConfig = cotr.createPageTestConfig(moduleId, testType, fakeServerConfig, pageConfig, getTestConfig);
 
     cotr.startTestRunner(pageTestConfig);
 

@@ -97,17 +97,7 @@ define([
 
     };
 
-    var testInitFn = function(defObj) {
-        setTimeout(function() {
-                defObj.resolve();
-            },
-            // Add necessary timeout for the tab elements to load properly and resolve the promise
-            cotc.PAGE_INIT_TIMEOUT * 20
-        );
-        return;
-    };
-
-    var pageTestConfig = cotr.createPageTestConfig(moduleId, testType, fakeServerConfig, pageConfig, getTestConfig, testInitFn);
+    var pageTestConfig = cotr.createPageTestConfig(moduleId, testType, fakeServerConfig, pageConfig, getTestConfig);
 
     cotr.startTestRunner(pageTestConfig);
 

@@ -1,13 +1,14 @@
 /*
- * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 define([
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'monitor/networking/test/ui/views/DashboardView.mock.data',
-    'co-tabs-view-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, TabsViewTestSuite) {
+    'co-grid-contrail-list-model-test-suite',
+    'co-grid-view-test-suite',
+], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
     var moduleId = cttm.PROJECTS_LIST_VIEW_COMMON_TEST_MODULE;
 
@@ -15,33 +16,20 @@ define([
 
     var fakeServerConfig = cotr.getDefaultFakeServerConfig();
 
-    var fakeServerResponsesConfig = function() {
+    var fakeServerResponsesConfig = function () {
         var responses = [];
 
-        /*
-         /api/tenants/config/domains                      done
-         /api/tenants/config/projects                     done
-         /api/tenant/networking/virtual-networks/details  done
-         /api/tenant/networking/network/stats/top?minsSince=10&fqName=default-domain:admin&useServerTime=true&type=port&_=1442526971361  done
-         /api/tenant/monitoring/project-connected-graph?fqName=default-domain:admin&_=1442526971867 done
-         /api/tenant/monitoring/project-config-graph?fqName=default-domain:admin&_=1442869670788 done
-         /api/tenant/networking/virtual-networks/details?count=25&fqn=default-domain:admin&startAt=1442869670641 done
-         /api/tenant/networking/virtual-machines/details?fqnUUID=ba710bf3-922d-4cda-bbb4-a2e2e76533bf&count=10&type=project  done
-         /api/tenant/networking/virtual-machine-interfaces/summary  done
-         /api/tenant/networking/stats done
-         */
-
-        responses.push(cotr.createFakeServerResponse( {
+        responses.push(cotr.createFakeServerResponse({
             url: cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
             body: JSON.stringify(TestMockdata.domainsMockData)
         }));
 
-        responses.push(cotr.createFakeServerResponse( {
+        responses.push(cotr.createFakeServerResponse({
             url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS),
             body: JSON.stringify(TestMockdata.projectMockData)
         }));
 
-        responses.push(cotr.createFakeServerResponse( {
+        responses.push(cotr.createFakeServerResponse({
             url: /\/api\/tenants\/projects\/default-domain.*$/,
             body: JSON.stringify(TestMockdata.projectMockData)
         }));
@@ -63,30 +51,27 @@ define([
             url: cttu.getRegExForUrl('/api/tenant/monitoring/project-config-graph'),
             body: JSON.stringify(TestMockdata.projectConfigGraph)
         }));
+
         responses.push(cotr.createFakeServerResponse({
-            method:"POST",
+            method: "POST",
             url: cttu.getRegExForUrl('/api/tenant/networking/virtual-networks/details'),
             body: JSON.stringify(TestMockdata.networksMockData)
         }));
+
         responses.push(cotr.createFakeServerResponse({
-            method:"POST",
+            method: "POST",
             url: cttu.getRegExForUrl('/api/tenant/networking/virtual-machines/details'),
             body: JSON.stringify(TestMockdata.virtualMachinesDetailsMockData)
         }));
+
         responses.push(cotr.createFakeServerResponse({
-            method:"POST",
+            method: "POST",
             url: cttu.getRegExForUrl('/api/tenant/networking/stats'),
             body: JSON.stringify(TestMockdata.networksMockStatData)
         }));
-        // how to differentiate between this POST request and the one for networks above
 
-        //responses.push(cotr.createFakeServerResponse({
-        //    method:"POST",
-        //    url: cttu.getRegExForUrl('/api/tenant/networking/stats'),
-        //    body: JSON.stringify(TestMockdata.virtualMachinesStatsMockData)
-        //}));
         responses.push(cotr.createFakeServerResponse({
-            method:"POST",
+            method: "POST",
             url: cttu.getRegExForUrl('/api/tenant/networking/virtual-machine-interfaces/summary'),
             body: JSON.stringify(TestMockdata.virtualMachinesSummaryMockData)
         }));
@@ -100,32 +85,41 @@ define([
         p: 'mon_networking_dashboard',
         q: {
             view: 'details',
-            type: 'project'
+            type: 'project',
+            "reload": "false",
+            "tab": {
+                "project-tabs": "project-networks"
+            }
         }
     };
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 5;
 
-    /**
-     * Test cases for components in each project tab will be tested in their respective tab pages.
-     */
-    var getTestConfig = function() {
+    var getTestConfig = function () {
         return {
             rootView: mnPageLoader.mnView,
             tests: [
                 {
-                    viewId: ctwl.PROJECT_TABS_ID,
+                    viewId: ctwl.PROJECT_NETWORK_GRID_ID,
                     suites: [
                         {
-                            class: TabsViewTestSuite,
+                            class: GridViewTestSuite,
                             groups: ['all']
+                        },
+                        {
+                            class: GridListModelTestSuite,
+                            groups: ['all'],
+                            modelConfig: {
+                                dataGenerator: cttu.commonGridDataGenerator,
+                                dataParsers: {}
+                            }
                         }
                     ]
                 }
             ]
-        } ;
+        };
 
     };
-
+    
     var testInitFn = function (defObj, onAllViewsRenderComplete) {
         setTimeout(function () {
                 onAllViewsRenderComplete.notify();
@@ -137,9 +131,8 @@ define([
 
         return;
     };
-    
+
     var pageTestConfig = cotr.createPageTestConfig(moduleId, testType, fakeServerConfig, pageConfig, getTestConfig, testInitFn);
 
     cotr.startTestRunner(pageTestConfig);
-
 });
