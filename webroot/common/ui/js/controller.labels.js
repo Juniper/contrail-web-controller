@@ -302,6 +302,8 @@ define([
         this.TITLE_CPU = "CPU Share (%)";
         this.TITLE_CPU_LOAD = "CPU Load";
         this.TITLE_MEMORY = "Memory";
+        this.RESPONSE_SIZE = 'Response size';
+        this.RESPONSE_TIME = 'Response time';
 
         /** Titles used in node details chart widget **/
         this.TITLE_CONTROLNODE_CPU_MEM_UTILIZATION = 'Control Node CPU/Memory Utilization';
@@ -363,17 +365,22 @@ define([
         this.CONFIGNODE_SUMMARY_URL = '/api/admin/monitor/infrastructure/confignodes/summary';
         this.CONFIGNODE_SUMMARY_TITLE = 'Config Nodes';
         this.CONFIGNODE_SUMMARY_GRID_ID = 'config-nodes-grid';
-        this.CONFIGNODE_SUMMARY_SCATTERCHART_ID = 'config-nodes-scatterchart';
+        this.CONFIGNODE_SUMMARY_STACKEDCHART_ID = 'config-nodes-stackedchart';
+        this.CONFIGNODE_SUMMARY_DONUTCHART_SECTION_ID = 'config-nodes-donutchart-section';
+        this.CONFIGNODE_SUMMARY_DONUTCHART_ONE_ID = 'config-nodes-donutchart-one';
+        this.CONFIGNODE_SUMMARY_DONUTCHART_TWO_ID = 'config-nodes-donutchart-two';
+        this.CONFIGNODE_SUMMARY_LINEBARCHART_ID = 'config-nodes-linebarchart';
         this.CONFIGNODE_SUMMARY_GRID_SECTION_ID = "config-nodes-grid-section";
         this.CONFIGNODE_SUMMARY_CHART_ID = 'config-nodes-chart';
         this.CONFIGNODE_SUMMARY_LIST_SECTION_ID = 'config-nodes-list-section';
-        this.CONFIGNODE_SUMMARY_SCATTERCHART_SECTION_ID = 'config-nodes-scatterchart-section';
+        this.CONFIGNODE_SUMMARY_CHART_SECTION_ID = 'config-nodes-chart-section';
         this.CONFIGNODE_DETAILS_PAGE_ID = 'config_nodes_details_pages';
         this.CONFIGNODE_TAB_SECTION_ID = 'config_node_tab_section';
         this.CONFIGNODE_TAB_VIEW_ID = 'config_node_tab';
         this.CONFIGNODE_DETAILS_SECTION_ID = 'config_node_details_section';
         this.CONFIGNODE_TABS_ID = 'config_node_tab'
         this.CACHE_CONFIGNODE = 'cache-config-nodes';
+        this.CACHE_CONFIGNODE_CHARTS = 'cache-config-nodes-charts';
         this.CONFIGNODE_DETAILS_APISERVER_CHART_SECTION_ID = 'config_node_details_apiserver_agent_chart_section';
         this.CONFIGNODE_DETAILS_APISERVER_LINE_CHART_ID = 'config_node_details_apiserver_line_chart';
         this.CONFIGNODE_DETAILS_SERVICE_MONITOR_CHART_SECTION_ID = 'config_node_details_service_monitor_chart_section';

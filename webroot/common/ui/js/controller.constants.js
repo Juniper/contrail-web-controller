@@ -229,6 +229,12 @@ define([
         this.TRACEFLOW_INTERVAL = 5;
         this.UNDERLAY_FLOW_INFO_TEMPLATE = "flow-info-template";
 
+        //Config Summary page Constants
+        this.CONFIGNODESTATS_BUCKET_DURATION = 240000000;
+        this.CONFIGNODE_COLORS = ['#b0c8c3', '#bf94e0', '#5d6e7e', '#b2a198', '#eccc9b'];
+        this.CONFIGNODE_FAILEDREQUESTS_TITLE = 'Failed Requests';
+        this.CONFIGNODE_FAILEDREQUESTS_COLOR = '#d95436';
+
         this.getProjectsURL = function (domainObj, dropdownOptions) {
             /* Default: get projects from keystone or API Server as specified in
              * config.global.js, getDomainProjectsFromApiServer is true, then

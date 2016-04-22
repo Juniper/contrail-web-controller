@@ -3,15 +3,16 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view' ],
+        [ 'underscore', 'contrail-view','monitor-infra-confignode-model' ],
         function(
-                _, ContrailView) {
+                _, ContrailView, ConfigNodeListModel) {
             var ConfigNodeGridView = ContrailView
                     .extend({
                         render : function() {
                             var self = this,
                                 viewConfig = this.attributes.viewConfig,
                                 pagerOptions = viewConfig['pagerOptions'];
+                                self.model = new ConfigNodeListModel();
                             this.renderView4Config(self.$el,
                             self.model,
                             getConfigNodeSummaryGridViewConfig(pagerOptions),
