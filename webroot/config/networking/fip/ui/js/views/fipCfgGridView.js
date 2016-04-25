@@ -94,18 +94,18 @@ define([
                          name:   'Floating IP'
                      },
                      {
-                         field:  'virtual_machine_back_refs',
+                         field:  'virtual_machine_interface_refs',
                          name:   'Mapped Fixed IP Address',
                          formatter: formatFipCfg.fixedIPFormatter,
-                             sortable: {
+                         sortable: {
                              sortBy: 'formattedValue'
-                         },
+                         }
                      },
                      {
                          field:  'fq_name',
                          name:   'Floating IP Pool',
                          formatter: formatFipCfg.fipPoolFormatter,
-                             sortable: {
+                         sortable: {
                              sortBy: 'formattedValue'
                          },
                      }
