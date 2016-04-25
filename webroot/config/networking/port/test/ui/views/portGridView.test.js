@@ -53,7 +53,7 @@ define([
             rootView: configPortLoader.portView,
             tests: [
                 {
-                    viewId: ctwl.PORT_GRID_ID,
+                    viewId: ctwc.PORT_GRID_ID,
                     suites: [
                         {
                             class: GridViewTestSuite,
