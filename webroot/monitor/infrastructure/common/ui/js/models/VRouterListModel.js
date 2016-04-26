@@ -52,7 +52,8 @@ define(['contrail-list-model'], function(ContrailListModel) {
             vlRemoteConfig: vlRemoteConfig,
             cacheConfig : {
                 ucid : ctwl.CACHE_VROUTER,
-                cacheTimeout:0
+                cacheTimeout: getValueByJsonPath(globalObj,
+                                'webServerInfo;sessionTimeout', 3600000)
             }
         };
         return ContrailListModel(listModelConfig);
