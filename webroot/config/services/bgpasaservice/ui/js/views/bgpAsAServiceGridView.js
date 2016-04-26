@@ -265,6 +265,10 @@ define([
                                     templateGenerator: 'TextGenerator',
                                     label: 'Name'
                                 },{
+                                    key: 'display_name',
+                                    templateGenerator: 'TextGenerator',
+                                    label: 'Display Name'
+                                },{
                                     key: "uuid",
                                     templateGenerator: "TextGenerator",
                                     label: "UUID"
