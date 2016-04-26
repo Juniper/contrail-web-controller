@@ -25,9 +25,7 @@ define([
                                       50, selectedProjectValue),
                         type: "GET"
                     },
-                    dataParser: function(response){
-                        return lRFormatters.LogicalRouterDataParser(response);
-                    }
+                    dataParser: lRFormatters.LogicalRouterDataParser
                 }
             };
 

@@ -22,7 +22,7 @@ define([
                     config: true,
                     childView: {
                         init: this.getLogicalRouter(viewConfig),
-                    },
+                    }
                 },
                 customDomainDropdownOptions = {
                     childView: {
@@ -46,14 +46,14 @@ define([
                 }
                 ctwu.setGlobalVariable("domain", domain);
                 ctwu.setGlobalVariable("project", project);
-            return {
-                elementId: cowu.formatElementId(
-                                [ctwl.CONFIG_LOGICAL_ROUTER_PAGE_ID]),
-                view: "logicalRouterListView",
-                viewPathPrefix : ctwc.URL_LOGICAL_ROUTER_VIEW_PATH_PREFIX,
-                app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewConfig: viewConfig
-            }
+                return {
+                    elementId: cowu.formatElementId(
+                                    [ctwl.CONFIG_LOGICAL_ROUTER_PAGE_ID]),
+                    view: "logicalRouterListView",
+                    viewPathPrefix : ctwc.URL_LOGICAL_ROUTER_VIEW_PATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig
+                }
             }
         }
     });
