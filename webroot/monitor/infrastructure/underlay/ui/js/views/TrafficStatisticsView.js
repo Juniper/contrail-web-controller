@@ -2,15 +2,15 @@ define([
     'underscore',
     'contrail-view',
     'contrail-list-model',
-    'knockback'
-], function (_, ContrailView, ContrailListModel, Knockback) {
-
+    'knockback',
+    'monitor/infrastructure/underlay/ui/js/underlay.utils'
+], function (_, ContrailView, ContrailListModel, Knockback, underlayUtils) {
     var TrafficStatisticsView = ContrailView.extend({
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig;
             if(viewConfig != null && viewConfig.linkAttributes != null) {
                 var linkAttributes = viewConfig.linkAttributes;
-                var trafficStatsConfig = monitorInfraUtils.
+                var trafficStatsConfig = underlayUtils.
                     getTrafficStatisticsTabViewConfig(linkAttributes);
                 var trafficStatsViewConfig = trafficStatsConfig.viewConfig;
                 $("#"+ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID).append($('<div/>',{
@@ -47,7 +47,7 @@ define([
                             if(trafficStatsViewConfig.link == ctwc.PROUTER) {
                                 // Prouter prouter link
                                 var rawTrafficStats = contrailListModel.getItems();
-                                var trafficStats = monitorInfraUtils.
+                                var trafficStats = underlayUtils.
                                     parsePRouterLinkStats(rawTrafficStats);
                                 for (var i = 0; i < ifNull(trafficStats, []).length; i++) {
                                     var pRouterIntfStatsObj = trafficStats[i];

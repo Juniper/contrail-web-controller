@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
+ */
+
 define([
     'underscore',
     'query-form-view',
@@ -37,16 +41,12 @@ define([
         },
         listenToGraphModel : function (searchFlowFormView) {
             var _this = this;
-            if($('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphModel') != null) {
-                var graphModel = monitorInfraUtils.getUnderlayGraphModel();
-                searchFlowFormView.listenTo(graphModel.selectedElement,
+            var graphModel = searchFlowFormView.attributes.viewConfig.viewConfig.model;
+            if(graphModel != null) {
+                searchFlowFormView.listenTo(graphModel.selectedElement().model(),
                     'change', function (selectedElement) {
                     updateWhereClause(selectedElement, searchFlowFormView);
                 });
-            } else {
-                setTimeout(function(searchFlowFormView) {
-                    _this.listenToGraphModel(_this)
-                }, 1000);
             }
         },
         renderQueryResult: function() {
