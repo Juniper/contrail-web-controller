@@ -8,9 +8,9 @@ function UnderlayPageLoader() {
             pathUnderlayView = rootDir + '/js/views/UnderlayView.js',
             renderFn = paramObject['function'];
 
-            if (self.monitorInfraView == null) {
+            if (self.underlayView == null) {
                 requirejs([pathUnderlayView], function (UnderlayView){
-                    self.monitorInfraView = new UnderlayView();
+                    self.underlayView = new UnderlayView();
                     self.renderView(renderFn, hashParams);
                 });
             } else {
@@ -19,11 +19,11 @@ function UnderlayPageLoader() {
     };
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");
-        this.monitorInfraView[renderFn]({hashParams: hashParams});
+        this.underlayView[renderFn]({hashParams: hashParams});
     };
 
     this.updateViewByHash = function (hashObj, lastHashObj) {
-        this.load({hashParams: hashObj});
+        //this.load({hashParams: hashObj});
     };
 
     this.destroy = function () {
