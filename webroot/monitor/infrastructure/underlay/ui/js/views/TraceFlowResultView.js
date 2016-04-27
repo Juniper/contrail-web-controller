@@ -5,9 +5,10 @@
 define([
     'underscore',
     'contrail-view',
-    'knockback'
-], function (_, ContrailView, Knockback) {
-
+    'knockback',
+    'monitor/infrastructure/underlay/ui/js/underlay.utils',
+    'monitor/infrastructure/underlay/ui/js/underlay.parsers'
+], function (_, ContrailView, Knockback, underlayUtils, underlayParsers) {
     var TraceFlowResultView = ContrailView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig;
@@ -72,11 +73,11 @@ define([
                     dataParser: monitorInfraParsers.parseVRouterFlowsData
                 };
                 traceFlowGridColumns =
-                    monitorInfraUtils.getTraceFlowVrouterGridColumns();
+                    underlayUtils.getTraceFlowVrouterGridColumns();
             } else if (self.model.traceflow_radiobtn_name() == 'instance') {
                 var vmUUID = self.model.instance_dropdown_name();
-                var vmData = underlayGraphModel.vmMap[vmUUID];
-                var vRouters = underlayGraphModel.vRouters;
+                var vmData = underlayGraphModel.vmMap()[vmUUID];
+                var vRouters = underlayGraphModel.getVirtualRouters();
                 var ajaxData = {
                     pageSize: 50,
                     timeRange: 300,
@@ -113,12 +114,12 @@ define([
                     url: '/api/admin/reports/query',
                     data: ajaxData,
                     dataParser: function (response) {
-                        return monitorInfraParsers.parseUnderlayFlowRecords(
+                        return underlayParsers.parseUnderlayFlowRecords(
                             response, vRouters);
                     }
                 };
                 traceFlowGridColumns =
-                    monitorInfraUtils.getTraceFlowVMGridColumns();
+                    underlayUtils.getTraceFlowVMGridColumns();
             }
             return {
                 elementId: ctwc.TRACEFLOW_RESULTS_GRID_ID,
@@ -156,21 +157,30 @@ define([
         var gridId = ctwc.TRACEFLOW_RESULTS_GRID_ID;
         var customControls = [], footer = false;
         var gridTitle = '',
-            underlayGraphModel = monitorInfraUtils.getUnderlayGraphModel();
+            underlayGraphModel = underlayUtils.getUnderlayGraphModel();
         if (formModel.traceflow_radiobtn_name() == 'vRouter') {
             customControls = [
                 '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
                 '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
             ];
+            var selectedVrouter = formModel.vrouter_dropdown_name();
+            if(selectedVrouter == "") {
+                selectedVrouter = 
+                underlayGraphModel.getVirtualRouters()[0].attributes.name();
+            }
             gridTitle = contrail.format("{0} ({1})",'Active flows of Virtual Router',
-                formModel.vrouter_dropdown_name());
+                selectedVrouter);
         } else {
+            var selectedVM = formModel.instance_dropdown_name();
+            if(selectedVM == "") {
+              selectedVM = underlayGraphModel.getVirtualMachines()[0].attributes.name();
+            }
             var vmDetails =
-                underlayGraphModel.vmMap[formModel.instance_dropdown_name()];
+                underlayGraphModel.vmMap()[selectedVM];
             var name =
                 getValueByJsonPath(vmDetails, 'more_attributes;vm_name', '-');
             if(name == '-')
-                name = getValueByJsonPath(vmDetails, 'name', '-');
+                name = underlayGraphModel.getVirtualMachines()[0].attributes.name();
             footer = {
                 pager: {
                     options: {
@@ -210,8 +220,8 @@ define([
                         title:'TraceFlow',
                         iconClass: 'icon-contrail-trace-flow',
                         onClick: function(rowId,targetElement){
-                            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
-                            graphModel.lastInteracted = new Date().getTime();
+                            var graphModel = underlayUtils.getUnderlayGraphModel();
+                            graphModel.lastInteracted(new Date().getTime());
                             resetLoadingIcon();
                             $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
                             $("#"+gridId + " div.selected-slick-row").each(
@@ -234,8 +244,8 @@ define([
                         title:'Reverse TraceFlow',
                         iconClass: 'icon-contrail-reverse-flow',
                         onClick: function(rowId,targetElement){
-                            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
-                            graphModel.lastInteracted = new Date().getTime();
+                            var graphModel = underlayUtils.getUnderlayGraphModel();
+                            graphModel.lastInteracted(new Date().getTime());
                             resetLoadingIcon();
                             $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
                             $("#"+gridId + " div.selected-slick-row").each(
@@ -375,9 +385,13 @@ define([
 
     function getSelectedVrouterDetails (traceFlowFormModel) {
         var graphModel = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
-        var vRouterMap = graphModel.vRouterMap;
+        var vRouterMap = graphModel.vRouterMap();
         var vRouterData =
             ifNull(vRouterMap[traceFlowFormModel.vrouter_dropdown_name()], {});
+        if(JSON.stringify(vRouterData) == "{}" && 
+            JSON.stringify(vRouterMap) != "{}" ) {
+            vRouterData = vRouterMap[Object.keys(vRouterMap)[0]];
+        }
         var ip = getValueByJsonPath(vRouterData,
             'more_attributes;VrouterAgent;self_ip_list;0',
             getValueByJsonPath(vRouterData,
@@ -393,7 +407,7 @@ define([
     function doTraceFlow (rowId, formModel, deferredObj) {
         var flowGrid =
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
-        var graphModel = monitorInfraUtils.getUnderlayGraphModel();
+        var graphModel = underlayUtils.getUnderlayGraphModel();
         var contextVrouterIp;
         if(formModel != null && formModel.showvRouter())
             contextVrouterIp =
@@ -472,7 +486,7 @@ define([
     function doReverseTraceFlow (rowId, formModel, deferredObj) {
         var flowGrid =
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
-        var graphModel = monitorInfraUtils.getUnderlayGraphModel();
+        var graphModel = underlayUtils.getUnderlayGraphModel();
         var dataItem = ifNull(flowGrid._grid.getDataItem(rowId),{});
         var contextVrouterIp = '';
         if(formModel != null && formModel.showvRouter())
@@ -627,7 +641,7 @@ define([
             }
         }).done(function(response) {
             if(postData['startAt'] != null &&
-                graphModel.lastInteracted > postData['startAt']) {
+                graphModel.lastInteracted() > postData['startAt']) {
                 if (deferredObj != null) {
                     deferredObj.resolve(false);
                 }
@@ -672,16 +686,16 @@ define([
                 }
             }
             if (graphModel != null) {
-                graphModel.underlayPathReqObj = postData;
-                graphModel.flowPath.set({
+                graphModel.underlayPathReqObj(postData);
+                graphModel.flowPath().model().set({
                     'nodes': ifNull(response['nodes'], []),
                     'links': ifNull(response['links'], [])
                 },{silent: true});
-                graphModel.flowPath.trigger('change:nodes');
+                graphModel.flowPath().model().trigger('change:nodes');
                 if (ifNull(response['nodes'], []).length == 0 ||
                     ifNull(response['links'], []).length == 0) {
                 } else {
-                    monitorInfraUtils.addUnderlayFlowInfoToBreadCrumb({
+                    underlayUtils.addUnderlayFlowInfoToBreadCrumb({
                         action: postData['action'],
                         sourceip: postData['srcIP'],
                         destip: postData['destIP'],
@@ -694,7 +708,7 @@ define([
                 $('html,body').animate({scrollTop:0}, 500);
         }).fail(function(error,status) {
             if(postData['startAt'] != null &&
-                graphModel.lastInteracted > postData['startAt']) {
+                graphModel.lastInteracted() > postData['startAt']) {
                 if (deferredObj != null) {
                     deferreObj.resolve(false);
                 }

@@ -4,30 +4,33 @@
 
 define([
     'underscore',
-    'contrail-view'
-], function (_, ContrailView) {
+    'contrail-view',
+    'monitor/infrastructure/underlay/ui/js/underlay.utils'
+], function (_, ContrailView, underlayUtils) {
     var UnderlayTabView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
             var self = this,
-                viewConfig = this.attributes.viewConfig;
-            var callBackExecuted = false;
+                viewConfig = this.attributes.viewConfig,
+                callbackExecuted = false;
             this.renderView4Config(self.$el, self.model,
                  getUnderlayTabConfig(viewConfig), null, null, null,
                  function (underlayTabView) {
-                    if(!callBackExecuted) {
-                        self.listenToGraphModel(underlayTabView);
-                        callBackExecuted = true;
+                    if(!callbackExecuted) {
+                        self.listenToGraphModel(underlayTabView, viewConfig);
+                        callbackExecuted = true;    
                     }
+                    
                  }
             );
         },
-        listenToGraphModel : function (underlayTabView) {
+        listenToGraphModel : function (underlayTabView, viewConfig) {
             var _this = this;
-            if($('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphModel') != null) {
-                var graphModel = $('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
-                underlayTabView.listenTo(graphModel.selectedElement, 'change', function (selectedElement) {
+            graphModel = viewConfig.model;
+            if(graphModel != null) {
+                underlayTabView.listenTo(viewConfig.model.selectedElement().model(), 
+                    'change', function (selectedElement) {
                    var nodeType = selectedElement['attributes']['nodeType'];
                    var nodeDetails = selectedElement['attributes']['nodeDetail'];
                    if(nodeType == ctwc.PROUTER) {
@@ -40,10 +43,6 @@ define([
                        showLinkTrafficStatistics(nodeDetails, underlayTabView);
                    }
                 });
-            } else {
-                setTimeout(function(underlayTabView) {
-                    _this.listenToGraphModel(_this)
-                }, 1000);
             }
         }
     });
@@ -115,7 +114,7 @@ define([
 
     function showPRouterTabs (nodeDetails, underlayTabView) {
         var interfaceDetails = [];
-        monitorInfraUtils.removeUnderlayTabs(underlayTabView);
+        underlayUtils.removeUnderlayTabs(underlayTabView);
         var data = {
             hostName : ifNull(nodeDetails['name'],'-'),
             description: getValueByJsonPath(nodeDetails,
@@ -128,7 +127,7 @@ define([
         // Rendering the details tab
         underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
             ctwc.UNDERLAY_TAB_ID,
-            [monitorInfraUtils.getUnderlayDetailsTabViewConfig({data:data})]);
+            [underlayUtils.getUnderlayDetailsTabViewConfig({data:data})]);
         for(var i = 0; i < getValueByJsonPath(nodeDetails,
             'more_attributes;ifTable',[]).length; i++ ) {
             var intfObj =
@@ -147,7 +146,7 @@ define([
         // Rendering the interfaces tab
         underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
             ctwc.UNDERLAY_TAB_ID,
-            [monitorInfraUtils.getUnderlayPRouterInterfaceTabViewConfig({
+            [underlayUtils.getUnderlayPRouterInterfaceTabViewConfig({
                     hostName:data.hostName,
                     data: interfaceDetails
                 })], null, null, function () {
@@ -163,7 +162,7 @@ define([
     }
 
     function showVRouterTabs (nodeDetails, underlayTabView) {
-        monitorInfraUtils.removeUnderlayTabs(underlayTabView);
+        underlayUtils.removeUnderlayTabs(underlayTabView);
         var vRouterParams =
             monitorInfraParsers.parseVRouterDetails(nodeDetails['more_attributes']);
         vRouterParams['hostname'] = nodeDetails['name'];
@@ -205,7 +204,7 @@ define([
             instanceUUID: instanceUUID,
             networkFQN: vnList[0],
         };
-        monitorInfraUtils.removeUnderlayTabs(underlayTabView);
+        underlayUtils.removeUnderlayTabs(underlayTabView);
         var instanceTabConfig =
             ctwvc.getInstanceDetailPageTabConfig(
                 instanceObj);
@@ -224,7 +223,7 @@ define([
     }
 
     function showLinkTrafficStatistics (linkDetails, underlayTabView) {
-        monitorInfraUtils.removeUnderlayTabs(underlayTabView);
+        underlayUtils.removeUnderlayTabs(underlayTabView);
         var viewConfig = {
             elementId:
                 ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID,

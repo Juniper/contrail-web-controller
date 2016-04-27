@@ -1838,54 +1838,6 @@ define(
                             return x;
                     }
                 };
-                this.parseUnderlayFlowRecords = function (response, vRouters) {
-                    vRouters = ifNull(vRouters,[]);
-                    $.each(ifNull(response['data'],[]),function (idx,obj) {
-                        var formattedVrouter,formattedOtherVrouter,
-                            formattedSrcVN,formattedDestVN;
-                        var vRouterIp =
-                            validateIPAddress(cowu.handleNull4Grid(obj['vrouter_ip'])) == true ?
-                            cowu.handleNull4Grid(obj['vrouter_ip']) : noDataStr,
-                                formattedVrouter = vRouterIp;
-                        var vrouter = ifNull(obj['vrouter'],noDataStr);
-                        if(vRouterIp != noDataStr || vrouter != noDataStr)
-                            formattedVrouter =
-                                contrail.format('{0} ({1})',vrouter, vRouterIp);
-                        var othervRouterIp =
-                            validateIPAddress(cowu.handleNull4Grid(obj['other_vrouter_ip'])) == true ?
-                                cowu.handleNull4Grid(obj['other_vrouter_ip']) : noDataStr,
-                                formattedOtherVrouter = othervRouterIp;
-                            if(othervRouterIp != noDataStr) {
-                                $.each(vRouters,function(idx,obj){
-                                    var ipList = getValueByJsonPath(obj,
-                                        'more_attributes;VrouterAgent;self_ip_list',[]);
-                                    if(ipList.indexOf(othervRouterIp) > -1)
-                                        formattedOtherVrouter = contrail.format('{0} ({1})',
-                                            ifNull(obj['name'],noDataStr), othervRouterIp);
-                                });
-                            }
-                       var formattedSrcVN = cowu.handleNull4Grid(obj['sourcevn']);
-                       formattedSrcVN = formatVN(formattedSrcVN);
-                       var formattedDestVN = cowu.handleNull4Grid(obj['destvn']);
-                       formattedDestVN = formatVN(formattedSrcVN);
-                       obj['formattedVrouter'] = formattedVrouter;
-                       obj['formattedOtherVrouter'] = formattedOtherVrouter;
-                       obj['formattedSrcVN'] = formattedSrcVN[0];
-                       obj['formattedDestVN'] = formattedDestVN[0];
-                    });
-                    response['data'].sort(function(dataItem1,dataItem2){
-                        if((dataItem1['vrouter_ip'] != null  && dataItem1['other_vrouter_ip']!= null)
-                            && (dataItem2['vrouter_ip'] == null || dataItem2['other_vrouter_ip'] == null)) {
-                            return -1;
-                        } else if ((dataItem2['vrouter_ip'] != null  && dataItem2['other_vrouter_ip']!= null)
-                            && (dataItem1['vrouter_ip'] == null || dataItem1['other_vrouter_ip'] == null)) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                    });
-                    return response['data'];
-                }
 
                 self.getCores = function (data) {
                     var fileList=[];
