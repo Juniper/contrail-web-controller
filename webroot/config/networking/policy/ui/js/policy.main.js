@@ -34,6 +34,7 @@ function ConfigPoliciesLoader() {
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.POLICY_PREFIX_ID);
     };
 }
 function check4CTInit(callback) {

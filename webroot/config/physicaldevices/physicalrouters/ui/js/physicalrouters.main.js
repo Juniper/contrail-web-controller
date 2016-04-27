@@ -35,5 +35,6 @@ function ConfigPhysicalRoutersLoader() {
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.PHYSICAL_ROUTER_PREFIX_ID);
     };
 }

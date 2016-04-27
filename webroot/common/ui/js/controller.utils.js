@@ -764,6 +764,13 @@ define([
             }
         };
 
+        /**
+         * Used to Clean traces of DOM when navigate away from the page
+         */
+        this.destroyDOMResources = function(prefixId) {
+            $("#configure-" + prefixId).remove();
+        };
+
     };
     return CTUtils;
 });

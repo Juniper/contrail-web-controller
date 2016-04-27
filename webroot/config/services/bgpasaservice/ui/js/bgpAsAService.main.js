@@ -36,5 +36,6 @@ function ConfigBGPAsAServicePageLoader() {
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwc.BGP_AS_A_SERVICE_PREFIX_ID);
     };
 }

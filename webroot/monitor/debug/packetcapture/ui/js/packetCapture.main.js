@@ -36,5 +36,6 @@ function PacketCapturePageLoader() {
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwc.PACKET_CAPTURE_PREFIX_ID);
     };
 }

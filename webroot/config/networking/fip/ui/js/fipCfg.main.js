@@ -30,4 +30,8 @@ function fipCfgLoader() {
         var renderFn;
         this.load({hashParams: hashObj});
     };
+
+    this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.CFG_FIP_PREFIX_ID);
+    };
 }

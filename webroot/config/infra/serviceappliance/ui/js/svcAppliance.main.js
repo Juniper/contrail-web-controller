@@ -41,6 +41,7 @@ function SvcAppliancePageLoader ()
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.SVC_APPLIANCE_PREFIX_ID);
     };
 }
 

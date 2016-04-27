@@ -29,4 +29,8 @@ function ipamCfgLoader() {
     this.updateViewByHash = function (hashObj, lastHashObj) {
         this.load({hashParams: hashObj});
     };
+
+    this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.CFG_IPAM_PREFIX_ID);
+    };
 }

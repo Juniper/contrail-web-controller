@@ -30,4 +30,8 @@ function svcTemplateCfgLoader() {
         var renderFn;
         this.load({hashParams: hashObj});
     };
+
+    this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.CFG_SVC_TEMPLATE_PREFIX_ID);
+    };
 }

@@ -30,4 +30,8 @@ function ConfigLogicalRouterLoader() {
         var renderFn;
         this.load({hashParams: hashObj, 'function': renderFn});
     };
+
+    this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.LOGICAL_ROUTER_PREFIX_ID);
+    };
 }
