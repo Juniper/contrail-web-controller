@@ -40,5 +40,6 @@ function RoutingPolicyPageLoader ()
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.ROUTING_POLICY_PREFIX_ID);
     };
 }

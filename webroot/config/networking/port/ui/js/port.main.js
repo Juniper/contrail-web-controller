@@ -32,5 +32,6 @@ function ConfigPortLoader() {
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwc.PORT_PREFIX_ID);
     };
 }

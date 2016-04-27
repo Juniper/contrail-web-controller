@@ -37,5 +37,6 @@ function ConfigRouteAggregatePageLoader() {
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwc.ROUTE_AGGREGATE_PREFIX_ID);
     };
 }
