@@ -45,7 +45,8 @@ define([
                                         },
                                         y2AxisLabel:'Bandwidth In/Out',
                                         y2Formatter: function (y2Value) {
-                                            return formatBytes(y2Value * 1024, true);
+                                            return formatBytes(y2Value / 8, true, null, null,
+                                                    ['B/s', 'KB/s', 'MB/s', 'GB/s', 'TB/s', 'PB/s', 'EB/s', 'ZB/s']);
                                         },
                                         forceY1: [0, 1]
                                     },
