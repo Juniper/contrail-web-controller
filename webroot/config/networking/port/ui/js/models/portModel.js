@@ -855,7 +855,7 @@ define([
                 var sgData = getValueByJsonPath(newPortData,
                            "securityGroupValue","");
                 if(newPortData.is_sec_grp == true && sgData != "") {
-                    var msSGselectedData = sgData.split(",");
+                    var msSGselectedData = sgData.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     if (msSGselectedData && msSGselectedData.length > 0) {
                         newPortData.security_group_refs = []
                         for (var i = 0; i < msSGselectedData.length; i++) {

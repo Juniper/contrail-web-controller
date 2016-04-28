@@ -23,7 +23,7 @@ define([
         renderPolicyPopup: function (options) {
             var editLayout = editTemplate({modalId: modalId, prefixId: prefixId});
             self = this;
-
+            self.separator = cowc.DROPDOWN_VALUE_SEPARATOR;
             cowu.createModal({'modalId': modalId,
                               'className': 'modal-980',
                               'title': options['title'],
@@ -159,20 +159,20 @@ define([
                     var vns = results[0][0]["virtual-networks"];
                     returnArr["virtual-networks"] = [];
                     var allVns = [{text:'Enter or Select a Network',
-                                   value:"dummy~virtual_network",
-                                   id:"dummy~virtual_network",
+                                   value:"dummy" + self.separator + "virtual_network",
+                                   id:"dummy" + self.separator + "virtual_network",
                                    //value:"dummy",
                                    //id:"dummy",
                                    disabled : true },
                                  {text:"ANY (All Networks in Current Project)",
-                                   value:"any~virtual_network",
-                                   id:"any~virtual_network",
+                                   value:"any" + self.separator + "virtual_network",
+                                   id:"any" + self.separator + "virtual_network",
                                    //"value":"any",
                                    //"id":"any",
                                    "parent": "virtual_network"},
                                  {text:"LOCAL (All Networks to which this policy is associated)",
-                                 value:"local~virtual_network",
-                                 id:"local~virtual_network",
+                                 value:"local" + self.separator + "virtual_network",
+                                 id:"local" + self.separator + "virtual_network",
                                  //"value":"local",
                                  //"id":"local",
                                  "parent": "virtual_network"}];
@@ -193,17 +193,17 @@ define([
                                                     project +')';
                                     var fqNameValue = vn["fq_name"].join(":");
                                     allVns.push({text : fqNameTxt,
-                                         value : fqNameValue+"~virtual_network",
-                                         id : fqNameValue+"~virtual_network",
+                                         value : fqNameValue + self.separator + "virtual_network",
+                                         id : fqNameValue + self.separator + "virtual_network",
                                          //value : fqNameValue,
                                          //id : fqNameValue,
                                          parent : "virtual_network" });
                                 } else {
                                     allVns.push({text : vn["fq_name"][2],
                                                  value:(vn["fq_name"]).join(":")
-                                                       +"~virtual_network",
+                                                       + self.separator + "virtual_network",
                                                  id : (vn["fq_name"]).join(":")
-                                                       +"~virtual_network",
+                                                       + self.separator + "virtual_network",
                                                  //value:(vn["fq_name"]).join(":"),
                                                  //id : (vn["fq_name"]).join(":"),
                                                        parent : "virtual_network" });
@@ -214,8 +214,8 @@ define([
                                                 project +')';
                                 var fqNameValue = vn["fq_name"].join(":");
                                 allVns.push({text : fqNameTxt,
-                                     value : fqNameValue+"~virtual_network",
-                                     id : fqNameValue+"~virtual_network",
+                                     value : fqNameValue + self.separator + "virtual_network",
+                                     id : fqNameValue + self.separator + "virtual_network",
                                      //value : fqNameValue,
                                      //id : fqNameValue,
                                      parent : "virtual_network" });
@@ -232,7 +232,7 @@ define([
                     }
                     //prepare policies sub array
                     var allPolicies = [{text:'Enter or Select a Policy',
-                                        value:"dummy"+"~network_policy",
+                                        value:"dummy" + self.separator + "network_policy",
                                         //value:"dummy",
                                         disabled : true }];
                     for(var i = 0; i < policies.length; i++) {
@@ -245,9 +245,9 @@ define([
                             allPolicies.push(
                                 {text : policy["fq_name"][2],
                                  value : (policy["fq_name"]).join(":")
-                                         +"~network_policy",
+                                         + self.separator + "network_policy",
                                  id : (policy["fq_name"]).join(":")
-                                         +"~network_policy",
+                                         + self.separator + "network_policy",
                                  //value : (policy["fq_name"]).join(":"),
                                  //id : (policy["fq_name"]).join(":"),
                                  parent : "network_policy"});
@@ -313,8 +313,8 @@ define([
                                             project +')';
                             var fqNameValue = policy["fq_name"].join(":");
                             allPolicies.push({text : fqNameTxt,
-                                              value : fqNameValue+"~network_policy",
-                                              id : fqNameValue+"~network_policy",
+                                              value : fqNameValue + self.separator + "network_policy",
+                                              id : fqNameValue + self.separator + "network_policy",
                                               parent : 'network_policy'});
                         }
                     }

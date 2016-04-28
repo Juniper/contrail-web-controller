@@ -548,12 +548,11 @@ and need to add the iconClass tag wherever we need to show some icons
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
                                     <js>controller.app.js</js>
-                                    <class>renderPolicies</class>
                                 </resource>
                                 <resource>
                                     <rootDir>/config/networking/policy/ui</rootDir>
                                     <js>policy.main.js</js>
-                                    <class>ConfigPoliciesLoader</class>
+                                    <class>configPoliciesLoader</class>
                                     <function>renderPolicies</function>
                                 </resource>
                             </resources>

@@ -234,6 +234,7 @@ define([
                                         placeholder: 'Select Network Policies',
                                         dataTextField: "text",
                                         dataValueField: "id",
+                                        separator: cowc.DROPDOWN_VALUE_SEPARATOR,
                                         dataSource : {
                                             type: 'remote',
                                             url:

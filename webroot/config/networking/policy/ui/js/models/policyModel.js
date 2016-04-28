@@ -23,6 +23,7 @@ define([
         },
         formatModelConfig: function (config) {
             self = this;
+            self.separator = cowc.DROPDOWN_VALUE_SEPARATOR;
             var modelConfig = $.extend({},true,config);
             modelConfig['rawData'] = config;
             var ruleModels = [];
@@ -162,13 +163,13 @@ define([
                     newPoliceyRule[i].dst_addresses[0]["virtual_network"] = null;
                     newPoliceyRule[i].dst_addresses[0]["subnet"] = null;
                     newPoliceyRule[i].dst_addresses[0]["network_policy"] = null;
-                    var desArr = policeyRule[i].dst_address().split("~");
-                    //var desArr = policeyRule[i].dst_customValue().value.split("~");
+                    var desArr = policeyRule[i].dst_address().split(self.separator);
+                    //var desArr = policeyRule[i].dst_customValue().value.split(self.separator);
                     if (desArr.length == 2 && desArr[1] !== 'subnet') {
                         newPoliceyRule[i].dst_addresses[0][desArr[1]] = 
                             self.getPostAddressFormat(desArr[0], selectedDomain,
                                                  selectedProject);
-                    } else {
+                    } else if(desArr.length == 2) {
                         newPoliceyRule[i].dst_addresses[0]["subnet"] = {};
                         var subnet = desArr[0].split("/");
                         newPoliceyRule[i].dst_addresses[0]["subnet"]["ip_prefix"]
@@ -182,13 +183,13 @@ define([
                     newPoliceyRule[i].src_addresses[0]["virtual_network"] = null;
                     newPoliceyRule[i].src_addresses[0]["subnet"] = null;
                     newPoliceyRule[i].src_addresses[0]["network_policy"] = null;
-                    var srcArr = policeyRule[i].src_address().split("~");
-                    //var srcArr = policeyRule[i].src_customValue().value.split("~");
+                    var srcArr = policeyRule[i].src_address().split(self.separator);
+                    //var srcArr = policeyRule[i].src_customValue().value.split(self.separator);
                     if (srcArr.length == 2 && srcArr[1] != 'subnet') {
                         newPoliceyRule[i].src_addresses[0][srcArr[1]] = 
                             self.getPostAddressFormat(srcArr[0], selectedDomain,
                                                  selectedProject);
-                    } else {
+                    } else if(srcArr.length == 2) {
                         newPoliceyRule[i].src_addresses[0]["subnet"] = {};
                         var subnet = srcArr[0].split("/");
                         newPoliceyRule[i].src_addresses[0]["subnet"]["ip_prefix"]

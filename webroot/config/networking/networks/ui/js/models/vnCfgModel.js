@@ -421,7 +421,8 @@ define([
             var policies = [], policyList = [];
 
             if (attr.network_policy_refs.length) {
-                policies = attr.network_policy_refs.split(',');
+                policies = attr.network_policy_refs.split(
+                    cowc.DROPDOWN_VALUE_SEPARATOR);
             }
             policies.every(function(policy) {
                 policyList.push({'to': policy.split(':'),

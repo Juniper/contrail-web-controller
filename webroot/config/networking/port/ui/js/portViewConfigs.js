@@ -903,6 +903,7 @@
                                  placeholder: 'Select Security Group(s)',
                                  dataTextField: "text",
                                  dataValueField: "value",
+                                 separator: cowc.DROPDOWN_VALUE_SEPARATOR,
                                  dataSource : {
                                      type: 'remote',
                                      url:'/api/tenants/config/securitygroup',
