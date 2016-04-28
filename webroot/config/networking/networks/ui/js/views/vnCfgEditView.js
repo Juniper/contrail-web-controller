@@ -234,6 +234,7 @@ define([
                                         placeholder: 'Select Network Policies',
                                         dataTextField: "text",
                                         dataValueField: "id",
+                                        separator: cowc.DROPDOWN_VALUE_SEPARATOR,
                                         dataSource : {
                                             type: 'remote',
                                             url:
@@ -708,6 +709,7 @@ define([
                                                         placeholder: 'Select Physical Router(s)',
                                                         dataTextField: "text",
                                                         dataValueField: "id",
+                                                        separator: cowc.DROPDOWN_VALUE_SEPARATOR,
                                                         dataSource : {
                                                             type: 'remote',
                                                             url:
@@ -730,6 +732,7 @@ define([
                                                         placeholder: 'Select Static Route(s)',
                                                         dataTextField: "text",
                                                         dataValueField: "id",
+                                                        separator: cowc.DROPDOWN_VALUE_SEPARATOR,
                                                         dataSource : {
                                                             type: 'remote',
                                                             requestType: 'POST',
@@ -951,6 +954,7 @@ define([
                                                             elementConfig: {
                                                                 dataTextField: "text",
                                                                 dataValueField: "id",
+                                                                separator: cowc.DROPDOWN_VALUE_SEPARATOR,
                                                                 dataSource : {
                                                                     type: 'remote',
                                                                     url:

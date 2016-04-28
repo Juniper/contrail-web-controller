@@ -181,7 +181,8 @@ define([
                          modelConfig['floating_ip_back_refs'][i], 'to', '');
                     var toStr = to.join(":");
                     if(uuid != '') {
-                        modelConfig['floatingIpValue'].push(uuid + " " + toStr);
+                        modelConfig['floatingIpValue'].
+                            push(uuid + cowc.DROPDOWN_VALUE_SEPARATOR + toStr);
                     }
                 }
             }
@@ -279,7 +280,8 @@ define([
                 var healthCheckuuid = getValueByJsonPath(healthCheck[0],
                                          'uuid', '');
                 if (healthCheckTo != "" && healthCheckuuid != "") {
-                    healthCheckVal = healthCheckTo.join(":") + " " + healthCheckuuid;
+                    healthCheckVal = healthCheckTo.join(":") +
+                        cowc.DROPDOWN_VALUE_SEPARATOR + healthCheckuuid;
                     modelConfig['service_health_check_refs'] = healthCheckVal;
                 }
             }
@@ -398,7 +400,8 @@ define([
                                           "logical_router_back_refs;0;uuid", "");
                     if(logicalRouterTo.length > 0 && logicalRouterUUID != "") {
                         deviceLRValue = logicalRouterTo.join(":") +
-                                        " " + logicalRouterUUID;
+                                        cowc.DROPDOWN_VALUE_SEPARATOR +
+                                        logicalRouterUUID;
                         modelConfig["logicalRouterValue"] = deviceLRValue;
                         modelConfig["deviceRouterShow"] = true;
                     }
@@ -414,7 +417,8 @@ define([
                     var vmUUID = getValueByJsonPath(modelConfig,
                                "virtual_machine_refs;0;uuid", "");
                     if(vmRefTo.length > 0 && vmUUID != "") {
-                        deviceVMIValue = vmUUID +" "+vmRefTo.join(":");
+                        deviceVMIValue = vmUUID + cowc.DROPDOWN_VALUE_SEPARATOR
+                            + vmRefTo.join(":");
                         modelConfig["virtualMachineValue"] = deviceVMIValue;
                         modelConfig["deviceComputeShow"] = true;
                     }
@@ -439,7 +443,8 @@ define([
                 var vmiRefTo = getValueByJsonPath(modelConfig,
                               "virtual_machine_interface_refs;0;to",[]);
                 if(vmiRefUUID != "" && vmiRefTo.length > 0) {
-                    var subInterfaceVMI = vmiRefUUID + " " + vmiRefTo.join(":");
+                    var subInterfaceVMI = vmiRefUUID +
+                        cowc.DROPDOWN_VALUE_SEPARATOR + vmiRefTo.join(":");
                     modelConfig["subInterfaceVMIValue"] = subInterfaceVMI;
                     modelConfig["disable_sub_interface"] = true;
                 }
@@ -855,7 +860,7 @@ define([
                 var sgData = getValueByJsonPath(newPortData,
                            "securityGroupValue","");
                 if(newPortData.is_sec_grp == true && sgData != "") {
-                    var msSGselectedData = sgData.split(",");
+                    var msSGselectedData = sgData.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     if (msSGselectedData && msSGselectedData.length > 0) {
                         newPortData.security_group_refs = []
                         for (var i = 0; i < msSGselectedData.length; i++) {
@@ -992,7 +997,7 @@ define([
                 var staticRoute = getValueByJsonPath(newPortData,
                            "staticRoute","");
                 if(staticRoute != "") {
-                    var msSRselectedData = staticRoute.split(",");
+                    var msSRselectedData = staticRoute.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     if (msSRselectedData && msSRselectedData.length > 0) {
                         newPortData.interface_route_table_refs = []
                         for (var i = 0; i < msSRselectedData.length; i++) {
@@ -1011,7 +1016,8 @@ define([
                 var healthCheck = getValueByJsonPath(newPortData,
                            "service_health_check_refs","");
                 if(healthCheck != "") {
-                    var healthCheckArr = healthCheck.split(" ");
+                    var healthCheckArr =
+                        healthCheck.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     newPortData.service_health_check_refs = [];
                     newPortData.service_health_check_refs[0] = {};
                     newPortData.service_health_check_refs[0].to = healthCheckArr[0].split(":");
@@ -1113,7 +1119,7 @@ define([
                     newPortData.logical_router_back_refs = [];
                     newPortData.virtual_machine_refs = [];
                     var deviceUUIDArr =
-                        newPortData.logicalRouterValue.split(" ");
+                        newPortData.logicalRouterValue.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     var to = deviceUUIDArr[0].split(":");
                     var uuid = deviceUUIDArr[1];
                     newPortData.logical_router_back_refs[0] = {};
@@ -1129,7 +1135,8 @@ define([
                     newPortData.virtual_machine_refs = [];
                     var deviceuuidval = newPortData.virtualMachineValue;
 
-                    var deviceUUIDArr = deviceuuidval.split(" ");
+                    var deviceUUIDArr =
+                        deviceuuidval.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     var uuid = deviceUUIDArr[0];
                     newPortData.virtual_machine_refs[0] = {};
                     newPortData.virtual_machine_refs[0].uuid = uuid;
@@ -1150,7 +1157,8 @@ define([
                     var uuid = "";
                     var floatingipLen = allfloatingIP.length;
                     for (var i = 0; i < floatingipLen; i++) {
-                        floatingip = allfloatingIP[i].split(" ");
+                        floatingip =
+                            allfloatingIP[i].split(cowc.DROPDOWN_VALUE_SEPARATOR);
                         uuid = floatingip[0];
                         to = floatingip[1].split(":");
                         newPortData.floating_ip_back_refs[i] = {};
@@ -1162,7 +1170,7 @@ define([
                 if (newPortData.is_sub_interface) {
                     newPortData.virtual_machine_interface_properties.sub_interface_vlan_tag =
                     parseInt(newPortData.virtual_machine_interface_properties.sub_interface_vlan_tag);
-                    var subIntrface = newPortData.subInterfaceVMIValue.split(" ");
+                    var subIntrface = newPortData.subInterfaceVMIValue.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     var uuid = subIntrface[0];
                     var to = subIntrface[1].split(":");
                     newPortData.virtual_machine_interface_refs[0] = {};

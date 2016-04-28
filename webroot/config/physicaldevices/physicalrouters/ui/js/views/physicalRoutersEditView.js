@@ -506,7 +506,7 @@ define([
                             var val = vn.uuid;
                             self.vnDS.push({text : fqname[2] + ' (' + fqname[0] +
                                 ':' + fqname[1] + ')',
-                                value : data[0]+" "+data[1]+" "+data[2]});
+                                value : data[0] + ":" + data[1] + ":" + data[2]});
                         }
                     } else {
                         self.vnDS.push({text : 'No VN found', value: 'Message'});
@@ -642,6 +642,7 @@ define([
                                         elementConfig: {
                                              dataTextField: "text",
                                              dataValueField: "value",
+                                             separator: cowc.DROPDOWN_VALUE_SEPARATOR,
                                              data : self.vnDS
                                         }
                                     }

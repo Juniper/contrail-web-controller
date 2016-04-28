@@ -618,7 +618,6 @@ function compareCreateRefObject (dataObject, callback)
     }
 
     //call to processDataObjects
-    console.log("DataObjectArr" + DataObjectArr);
     callback(null, error, DataObjectArr, DataObjectDelArr, vmiData, portPutData,
              request, appData)
 }

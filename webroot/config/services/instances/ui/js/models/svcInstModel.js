@@ -383,7 +383,7 @@ define([
             if ((null != backRefs) && (backRefsLen > 0)) {
                 for (var i = 0; i < backRefsLen; i++) {
                     var value = backRefs[i]['to'].join(':') +
-                        '~~' + backRefs[i]['uuid'];
+                        cowc.DROPDOWN_VALUE_SEPARATOR + backRefs[i]['uuid'];
                     var intfType =
                         getValueByJsonPath(backRefs[i],
                                            'attr;interface_type', null);
@@ -1399,12 +1399,12 @@ define([
                 if (null == propValue) {
                     propValue = "";
                 }
-                var values = propValue.split(',');
+                var values = propValue.split(ctwc.MULTISELECT_VALUE_SEPARATOR);
                 var valCnt = values.length;
                 for (var j = 0; j < valCnt; j++) {
                     var attr = {};
                     if ((null != values[j]) && ("" != values[j])) {
-                        var data = values[j].split('~~');
+                        var data = values[j].split(cowc.DROPDOWN_VALUE_SEPARATOR);
                         if ((null != data[0]) && (null != data[1]) &&
                             ("" != data[0]) && ("" != data[1])) {
                             if ('routing_policy_back_refs' == backRefKey) {

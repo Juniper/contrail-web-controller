@@ -31,8 +31,10 @@
                                  "instance_ip_address", []);
                              if(vmiDetail.fq_name &&
                                  vmiDetail.fq_name.length === 3) {
-                                 actValue = vmiDetail.uuid + " " + vmiDetail.fq_name[0]
-                                     + " " + vmiDetail.fq_name[1] + " " + vmiDetail.fq_name[2];
+                                 actValue = vmiDetail.uuid +
+                                     cowc.DROPDOWN_VALUE_SEPARATOR + vmiDetail.fq_name[0] +
+                                     ":" + vmiDetail.fq_name[1] +
+                                     ":" + vmiDetail.fq_name[2];
                              } else {
                                  actValue = vmiDetail.uuid;
                              }
