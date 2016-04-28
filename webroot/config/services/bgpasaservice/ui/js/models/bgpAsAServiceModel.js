@@ -7,7 +7,6 @@ define([
     'contrail-model'/*,
     'config/services/bgpasaservice/ui/js/models/bgpAsAServiceFamilyAttrModel'*/
 ], function (_, ContrailModel/*, BGPAsAServiceFamilyAttrModel*/) {
-    var self;
     var bgpAsAServiceModel = ContrailModel.extend({
         defaultConfig: {
             "name": null,
@@ -32,7 +31,9 @@ define([
             /*"user_created_auth_key_type": "none",
             "user_created_auth_key": null*/
         },
+
         formatModelConfig : function(modelConfig) {
+            modelConfig['display_name'] = ctwu.getDisplayNameOrName(modelConfig);
             //prepare family attributes collection
             var familyAttrArray = [];
             var bgpaasSessionAttrs = getValueByJsonPath(modelConfig,
@@ -96,6 +97,7 @@ define([
             /*modelConfig["familyAttrs"] = new Backbone.Collection(familyAttrArray);*/
             return modelConfig;
         },
+
         /*addFamilyAttr: function() {
             var familyAttrs = this.model().attributes["familyAttrs"],
                 familyAttrsArry = familyAttrs.toJSON();
@@ -147,11 +149,11 @@ define([
             }
             return vmiRefs;
         },
+
         configBGPAsAService: function (callbackObj, ajaxMethod) {
-            var ajaxConfig = {}, returnFlag = false;
-            var postBGPAsAServiceData = {};
-            var self  = this;
-            var validations = [
+            var self = this, ajaxConfig = {}, returnFlag = false,
+                postBGPAsAServiceData = {}, sessionAttrs,
+                validations = [
                 {
                     key : null,
                     type : cowc.OBJECT_TYPE_MODEL,
@@ -164,19 +166,21 @@ define([
                 }*/
             ];
 
-            if (this.isDeepValid(validations)) {
-                var attr = this.model().attributes;
+            if (self.isDeepValid(validations)) {
+                var attr = self.model().attributes;
                 var newBGPAsAServiceData = $.extend(true, {}, attr);
 
-                newBGPAsAServiceData["display_name"] =
-                    newBGPAsAServiceData["name"];
-                newBGPAsAServiceData["fq_name"] =
-                    [
-                        getCookie("domain"),
-                        getCookie("project"),
-                        newBGPAsAServiceData["name"]
-                    ];
-                var sessionAttrs =
+                ctwu.setNameFromDisplayName(newBGPAsAServiceData);
+                if(newBGPAsAServiceData["fq_name"] == [] ||
+                    newBGPAsAServiceData["fq_name"] == null) {
+                    newBGPAsAServiceData["fq_name"] =
+                        [
+                            contrail.getCookie(cowc.COOKIE_DOMAIN),
+                            contrail.getCookie(cowc.COOKIE_PROJECT),
+                            newBGPAsAServiceData["name"]
+                        ];
+                }
+                sessionAttrs =
                     newBGPAsAServiceData["bgpaas_session_attributes"];
 
                 //ip address
@@ -226,11 +230,8 @@ define([
                  newBGPAsAServiceData["virtual_machine_interface_refs"] =
                      self.prepareVMIRefs(attr);
 
-                delete newBGPAsAServiceData.errors;
-                delete newBGPAsAServiceData.locks;
-                delete newBGPAsAServiceData.cgrid;
+                ctwu.deleteCGridData(newBGPAsAServiceData);
                 delete newBGPAsAServiceData.id_perms;
-                delete newBGPAsAServiceData.elementConfigMap;
                 delete newBGPAsAServiceData.user_created_virtual_machine_interface;
                 /*delete newBGPAsAServiceData.user_created_auth_key_type;
                 delete newBGPAsAServiceData.user_created_auth_key;*/
@@ -263,12 +264,13 @@ define([
                 });
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
-                    callbackObj.error(this.getFormErrorText(ctwl.BGP_PREFIX_ID));
+                    callbackObj.error(self.getFormErrorText(ctwl.BGP_PREFIX_ID));
                 }
             }
 
             return returnFlag;
         },
+
         deleteBGPAsAServices : function(checkedRows, callbackObj) {
             var ajaxConfig = {}, that = this;
             var uuidList = [];
@@ -296,16 +298,14 @@ define([
                 }
             });
         },
+
         validations: {
             configureValidation: {
-                'name': {
+                'display_name': {
                     required: true,
                     msg: 'Enter BGP as a Service Name'
                 },
                 'bgpaas_ip_address' : function(value, attr, finalObj){
-                    if (value == null || value == '') {
-                        return "Enter an IP Address";
-                    }
                     if (value && (!isValidIP(value) || value.trim().indexOf("/") != -1)) {
                         return "Enter an IP Address in the format xxx.xxx.xxx.xxx";
                     }
@@ -343,7 +343,7 @@ define([
                     }
                 }
             }
-        },
+        }
     });
     return bgpAsAServiceModel;
 });
