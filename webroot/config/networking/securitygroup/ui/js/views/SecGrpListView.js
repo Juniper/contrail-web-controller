@@ -67,7 +67,9 @@ define([
                     for (var i = 0; i < cnt; i++) {
                         var sg = sgData[i];
                         var fqname = sg["fq_name"];
-                        var fqNameValue = fqname.join(':') + '~' + 'security_group';
+                        var fqNameValue = fqname.join(':') +
+                                          cowc.DROPDOWN_VALUE_SEPARATOR +
+                                          'security_group';
                         if ((fqname[0] === projFqn[0]) &&
                             (fqname[1] === projFqn[1])) {
                             allSecGrpList.push({text : fqname[2], value :
