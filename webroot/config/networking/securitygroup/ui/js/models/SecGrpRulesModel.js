@@ -80,7 +80,7 @@ define([
                         return "Enter valid address";
                     }
                     var remoteAddr = val.trim();
-                    var splitArr = remoteAddr.split('~');
+                    var splitArr = remoteAddr.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     var remoteAddrType = splitArr[1];
                     remoteAddr = splitArr[0];
                     if ('subnet' == remoteAddrType) {

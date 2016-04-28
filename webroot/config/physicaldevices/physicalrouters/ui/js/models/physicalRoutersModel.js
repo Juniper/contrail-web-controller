@@ -134,7 +134,7 @@ define([
                 var vnData = [];
                 $.each(modelConfig['virtual_network_refs'], function(i,d){
                     vnData.push(
-                        d.to[0] + ' ' + d.to[1] + ' ' + d.to[2]);
+                        d.to[0] + ':' + d.to[1] + ':' + d.to[2]);
                 });
                 modelConfig['user_created_virtual_network'] = vnData;
             }
@@ -283,7 +283,8 @@ define([
                         ["physical_router_vnc_managed"] =
                         attr["physical_router_vnc_managed"];
                     if(attr.user_created_virtual_network){
-                        var arr = attr.user_created_virtual_network.split(',');
+                        var arr = attr.user_created_virtual_network.
+                            split(cowc.DROPDOWN_VALUE_SEPARATOR);
                         var vnRefs = [];
                         for(var i = 0; i < arr.length; i++) {
                             var fqName = arr[i].split(' ');

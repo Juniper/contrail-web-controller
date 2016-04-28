@@ -634,7 +634,7 @@ define([
 
                 if(fip && fip.floating_ip_address && fq_name.length === 5) {
                     toStr = fq_name.join(":");
-                    val = uuid + " " + toStr;
+                    val = uuid + cowc.DROPDOWN_VALUE_SEPARATOR + toStr;
                     fipText = fip.floating_ip_address + " (" +
                                   fip.fq_name[2] + ":" +
                                   fip.fq_name[3] + ")";
@@ -671,7 +671,7 @@ define([
                 var to = vm["fq_name"].join(":");
                 var uuid = vm["uuid"];
                 var uuid = vm["uuid"];
-                deviceVMIValue = uuid +" "+to;
+                deviceVMIValue = uuid + cowc.DROPDOWN_VALUE_SEPARATOR + to;
                 returnComputeUUID.push({"text":text,"value":deviceVMIValue});
             }
             if((returnComputeUUID.length > 0) &&
@@ -698,7 +698,7 @@ define([
                     var deviceLRArr = [];
                     var to = localLogicalRout["fq_name"].join(":");
                     var uuid = localLogicalRout["uuid"];
-                    deviceLRArr = to +" "+ uuid;
+                    deviceLRArr = to + cowc.DROPDOWN_VALUE_SEPARATOR + uuid;
                     lrReturn.push({"text":text,"value":deviceLRArr});
                 }
             }
@@ -722,7 +722,8 @@ define([
                 var healthCheckFQName = getValueByJsonPath(healthCheckData[i], 'fq_name', []);
                 var healthCheckUUID = getValueByJsonPath(healthCheckData[i], 'uuid', '');
                 if(healthCheckFQName.length > 0) {
-                    healthCheckVal = healthCheckFQName.join(":") + " " + healthCheckUUID;
+                    healthCheckVal = healthCheckFQName.join(":") +
+                        cowc.DROPDOWN_VALUE_SEPARATOR + healthCheckUUID;
                     var text = ctwu.formatCurrentFQName(healthCheckFQName, self.currentDomainProject);
                     healthCheckDataReturn.push({value: healthCheckVal, text: text});
                 }
@@ -770,7 +771,8 @@ define([
                             ip["virtual_network_refs"][0]["to"][2];
                         var uuid = ip["uuid"];
                         var to = ip["fq_name"].join(":");
-                        var subInterfaceVMI = uuid + " " + to;
+                        var subInterfaceVMI = uuid +
+                            cowc.DROPDOWN_VALUE_SEPARATOR + to;
                         if(!(true == edit && ip["uuid"] == portModel.model.uuid())){
                             subInterfaceParentDatas.push(
                                                 {"text":subInterfaceParentText,

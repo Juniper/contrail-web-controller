@@ -23,6 +23,7 @@ define([
         },
         formatModelConfig: function (config) {
             self = this;
+            self.separator = cowc.DROPDOWN_VALUE_SEPARATOR;
             var modelConfig = $.extend({},true,config);
             modelConfig['rawData'] = config;
             var ruleModels = [];
@@ -60,7 +61,7 @@ define([
             for (var i = 0; i < policeyRuleLen; i++){
                 var SI = policeyRule[i].service_instance();
                 if (SI != null) {
-                    var SIArr = SI.split(",");
+                    var SIArr = SI.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     SIArr = this.getApplyService(SIArr, SIDataSource);
                     policeyRule[i].service_instance(SIArr);
                 }
@@ -162,13 +163,13 @@ define([
                     newPoliceyRule[i].dst_addresses[0]["virtual_network"] = null;
                     newPoliceyRule[i].dst_addresses[0]["subnet"] = null;
                     newPoliceyRule[i].dst_addresses[0]["network_policy"] = null;
-                    var desArr = policeyRule[i].dst_address().split("~");
-                    //var desArr = policeyRule[i].dst_customValue().value.split("~");
+                    var desArr = policeyRule[i].dst_address().split(self.separator);
+                    //var desArr = policeyRule[i].dst_customValue().value.split(self.separator);
                     if (desArr.length == 2 && desArr[1] !== 'subnet') {
                         newPoliceyRule[i].dst_addresses[0][desArr[1]] = 
                             self.getPostAddressFormat(desArr[0], selectedDomain,
                                                  selectedProject);
-                    } else {
+                    } else if(desArr.length == 2) {
                         newPoliceyRule[i].dst_addresses[0]["subnet"] = {};
                         var subnet = desArr[0].split("/");
                         newPoliceyRule[i].dst_addresses[0]["subnet"]["ip_prefix"]
@@ -182,13 +183,13 @@ define([
                     newPoliceyRule[i].src_addresses[0]["virtual_network"] = null;
                     newPoliceyRule[i].src_addresses[0]["subnet"] = null;
                     newPoliceyRule[i].src_addresses[0]["network_policy"] = null;
-                    var srcArr = policeyRule[i].src_address().split("~");
-                    //var srcArr = policeyRule[i].src_customValue().value.split("~");
+                    var srcArr = policeyRule[i].src_address().split(self.separator);
+                    //var srcArr = policeyRule[i].src_customValue().value.split(self.separator);
                     if (srcArr.length == 2 && srcArr[1] != 'subnet') {
                         newPoliceyRule[i].src_addresses[0][srcArr[1]] = 
                             self.getPostAddressFormat(srcArr[0], selectedDomain,
                                                  selectedProject);
-                    } else {
+                    } else if(srcArr.length == 2) {
                         newPoliceyRule[i].src_addresses[0]["subnet"] = {};
                         var subnet = srcArr[0].split("/");
                         newPoliceyRule[i].src_addresses[0]["subnet"]["ip_prefix"]
@@ -215,18 +216,16 @@ define([
                         }
                     }
                     if (policeyRule[i].apply_service_check() != true) {
-                        newPoliceyRule[i].action_list.apply_service = null;
+                        newPoliceyRule[i].action_list.apply_service = [];
                     } else {
                         if (policeyRule[i].service_instance() == "" ||
+                           policeyRule[i].service_instance().trim() == "" ||
                            policeyRule[i].service_instance() == null) {
-                            newPoliceyRule[i].action_list.apply_service = null;
+                            newPoliceyRule[i].action_list.apply_service = [];
                         } else {
                             newPoliceyRule[i].action_list.apply_service = [];
-                            var SIVal = policeyRule[i].service_instance().split(",");
-                            var SIValLen = SIVal.length;
-                            for (var m = 0; m < SIValLen; m++) {
-                                SIVal[m] = SIVal[m].split(" ")[0];
-                            }
+                            var SIVal = policeyRule[i].service_instance().
+                                split(cowc.DROPDOWN_VALUE_SEPARATOR);
                             newPoliceyRule[i].action_list.apply_service = SIVal;
                         }
                     }

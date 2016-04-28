@@ -272,14 +272,12 @@ define([
                 var fipPoolObj = fipPoolCollection[i];
                 var fipFQN = vnFQN.concat(fipPoolObj.name());
                 if (fipPoolObj.projects()) {
-                    var projList = fipPoolObj.projects().split(',');
+                    var projList = fipPoolObj.projects().
+                        split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     var projects = []
                     _.each(projList, function (proj) {
-                        var projData = proj.trim().split('~');
-                        if (projData.length != 2) {
-                            return;
-                        }
-                        projects.push({'uuid': projData[1]});
+                        var projData = proj ? proj.trim() : proj;
+                        projects.push({'uuid': projData});
                     });
                     fipPoolArray.push({'to': fipFQN, 'projects': projects});
                 } else {
@@ -421,7 +419,8 @@ define([
             var policies = [], policyList = [];
 
             if (attr.network_policy_refs.length) {
-                policies = attr.network_policy_refs.split(',');
+                policies = attr.network_policy_refs.split(
+                    cowc.DROPDOWN_VALUE_SEPARATOR);
             }
             policies.every(function(policy) {
                 policyList.push({'to': policy.split(':'),
@@ -436,7 +435,8 @@ define([
             var routes = [], routeList = [];
 
             if (attr.route_table_refs.length) {
-                routes = attr.route_table_refs.split(',');
+                routes =
+                    attr.route_table_refs.split(cowc.DROPDOWN_VALUE_SEPARATOR);
             }
             routes.every(function(route) {
                 routeList.push({'to': route.split(':')});
@@ -531,7 +531,7 @@ define([
                 ipamAssocArr[ipam_fqn].push(subnet);
             }
             for (var ipam in ipamAssocArr) {
-                subnetArray.push({'to': ipam.split(':'),
+                subnetArray.push({'to': ipam.split(cowc.DROPDOWN_VALUE_SEPARATOR),
                                   'attr' :
                                   {'ipam_subnets': ipamAssocArr[ipam]}
                                   });
@@ -626,7 +626,8 @@ define([
             var phyRouters = getValueByJsonPath(attr,
                         'physical_router_back_refs', '');
 
-            attr['physical-routers'] = phyRouters.length ? phyRouters.split(',') : [];
+            attr['physical-routers'] = phyRouters.length ?
+                phyRouters.split(cowc.DROPDOWN_VALUE_SEPARATOR) : [];
             delete attr['physical_router_back_refs'];
         },
 

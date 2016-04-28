@@ -137,7 +137,8 @@ define([
             var len = intfCollection.length;
             for (var i = 0; i < len; i++) {
                 var intfName = intfCollection[i]['interface_name']();
-                var piRefsEntryArr = intfName.split(';');
+                var piRefsEntryArr =
+                    intfName.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                 var intfType =
                     intfCollection[i]['interface_type']().toLowerCase();
                 intfType = intfType.replace(/ /g, '');
@@ -207,7 +208,8 @@ define([
                 svcApplIntfModel =
                     new SvcAppliInterfaceModel({
                         interface_type: intfType,
-                        interface_name: intfs[i]['to'].join(':') + ';' +
+                        interface_name: intfs[i]['to'].join(':') +
+                            cowc.DROPDOWN_VALUE_SEPARATOR +
                             intfs[i]['uuid']
                     });
                 if (null == tmpLoadedIntfTypeObjs[intfType]) {

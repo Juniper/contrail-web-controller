@@ -33,11 +33,13 @@ define([
                  var ipamStr = '';
                  for(var i = 0; i < ipamBackRefs.length; i++) {
                      var ipam = ipamBackRefs[i];
-                     var formattedString = ipam.to[0] + ':' + ipam.to[1] + ':' + ipam.to[2] + '**' + ipam.uuid;
+                     var formattedString = ipam.to[0] + ':' + ipam.to[1] + ':' +
+                         ipam.to[2] + cowc.DROPDOWN_VALUE_SEPARATOR + ipam.uuid;
                      if(i === 0) {
                          ipamStr = formattedString;
                      } else {
-                         ipamStr += ',' + formattedString;
+                         ipamStr += ctwc.MULTISELECT_VALUE_SEPARATOR +
+                             formattedString;
                      }
                  }
                  modelConfig['user_created_network_ipams'] = ipamStr;
@@ -101,11 +103,12 @@ define([
                     var nwIpamBackRefs = [];
                     var nwIpams = newdnsServerData[
                         'user_created_network_ipams'].split(
-                        ',');
+                        ctwc.MULTISELECT_VALUE_SEPARATOR);
                     var nwIpamBackRefsCnt = nwIpams.length;
                     for (var i = 0; i < nwIpamBackRefsCnt; i++) {
                         var nwIpam = nwIpams[i];
-                        var parts = nwIpam ? nwIpam.split('**') : [];
+                        var parts = nwIpam ?
+                            nwIpam.split(cowc.DROPDOWN_VALUE_SEPARATOR) : [];
                         if(parts.length === 2) {
                             var nwIpamBackRef = {};
                             var fqn = parts[0].split(':');

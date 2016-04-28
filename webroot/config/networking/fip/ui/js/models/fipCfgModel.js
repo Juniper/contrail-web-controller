@@ -43,7 +43,7 @@ define([
             if (vmiRef) {
                 var fqName = getValueByJsonPath(vmiRef,'to', []);
                 fqName = fqName.join(":");
-                fqName = fqName + ctwc.FLOATING_IP_PORT_DELIMITER + fixedIP;
+                fqName = fqName + cowc.DROPDOWN_VALUE_SEPARATOR + fixedIP;
                 modelConfig['virtual_machine_interface_refs'] = fqName;
             } else {
                 modelConfig['virtual_machine_interface_refs'] = null;
@@ -186,7 +186,7 @@ define([
                     newFipCfgData['virtual_machine_interface_refs'] = [];
                 } else {
                     var fqName = newFipCfgData['virtual_machine_interface_refs'];
-                    fqName = fqName.split(ctwc.FLOATING_IP_PORT_DELIMITER);
+                    fqName = fqName.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     if(fqName.length === 2) {
                         newFipCfgData['virtual_machine_interface_refs'] = [];
                         newFipCfgData['virtual_machine_interface_refs'][0] =
