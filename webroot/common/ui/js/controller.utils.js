@@ -513,8 +513,9 @@ define([
         // currentDomainProject as string format domain:project
         // if currentDomainProject is empty it will try taking utilVariable
         // Output will be in the format "element(domain:project)"
-        this.formatCurrentFQName = function(fqname, currentDomainProject){
+        this.formatCurrentFQName = function(argFqname, currentDomainProject){
             var domain = "", project = "";
+            var fqname = _.clone(argFqname)
             if(currentDomainProject != null && currentDomainProject != ""){
                 var domainProjectArr = currentDomainProject.split(":");
                 if(domainProjectArr == 2) {
