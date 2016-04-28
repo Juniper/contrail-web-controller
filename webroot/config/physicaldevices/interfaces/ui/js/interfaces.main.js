@@ -36,5 +36,6 @@ function ConfigInterfacesLoader() {
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.INTERFACE_PREFIX_ID);
     };
 }

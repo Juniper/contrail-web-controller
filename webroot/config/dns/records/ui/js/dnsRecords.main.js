@@ -47,5 +47,7 @@ function ConfigDNSRecordsLoader() {
         });
     };
 
-    this.destroy = function() {};
+    this.destroy = function() {
+        ctwu.destroyDOMResources(ctwc.DNS_RECORDS_PREFIX_ID);
+    };
 }

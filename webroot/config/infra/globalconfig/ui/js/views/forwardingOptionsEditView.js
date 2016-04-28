@@ -7,7 +7,7 @@ define([
     'contrail-view',
     'knockback'
 ], function (_, ContrailView, Knockback) {
-    var gridElId = '#' + ctwc.GLOBAL_FORWARDING_OPTIONS_GRID_ID;
+    var gridElId = '#' + ctwc.GLOBAL_FORWARDING_OPTIONS_GRID_ID,
         prefixId = ctwc.GLOBAL_FORWARDING_OPTIONS_PREFIX_ID,
         modalId = 'configure-' + prefixId,
         formId = '#' + modalId + '-form';

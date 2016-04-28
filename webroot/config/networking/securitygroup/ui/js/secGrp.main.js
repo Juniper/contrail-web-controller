@@ -41,6 +41,7 @@ function SecGrpPageLoader ()
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.SEC_GRP_PREFIX_ID);
     };
 }
 

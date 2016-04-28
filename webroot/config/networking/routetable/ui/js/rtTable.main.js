@@ -41,6 +41,7 @@ function RtTablePageLoader ()
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.RT_TABLE_PREFIX_ID);
     };
 }
 

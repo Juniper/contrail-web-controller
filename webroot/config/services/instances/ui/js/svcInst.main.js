@@ -39,6 +39,7 @@ function SvcInstPageLoader ()
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.SERVICE_INSTANCES_PREFIX_ID);
     };
 }
 
