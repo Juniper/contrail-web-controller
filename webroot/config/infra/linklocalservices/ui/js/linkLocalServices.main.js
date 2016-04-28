@@ -41,6 +41,7 @@ function LinkLocalServicesPageLoader ()
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.LINK_LOCAL_SERVICES_PREFIX_ID);
     };
 }
 

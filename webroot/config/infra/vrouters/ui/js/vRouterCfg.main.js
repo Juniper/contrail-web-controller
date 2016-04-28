@@ -29,4 +29,8 @@ function vRouterCfgLoader() {
     this.updateViewByHash = function (hashObj, lastHashObj) {
         this.load({hashParams: hashObj});
     };
+
+    this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.CFG_VROUTER_PREFIX_ID);
+    };
 }

@@ -41,6 +41,7 @@ function QuotasPageLoader ()
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.QUOTAS_PREFIX_ID);
     };
 }
 

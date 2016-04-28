@@ -32,5 +32,6 @@ function vnCfgLoader() {
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.CFG_VN_PREFIX_ID);
     };
 }

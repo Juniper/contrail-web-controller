@@ -37,5 +37,6 @@ function ConfigBGPLoader() {
     };
 
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwl.BGP_PREFIX_ID);
     };
 }
