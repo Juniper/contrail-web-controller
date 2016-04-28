@@ -88,8 +88,10 @@ define([
             if(vmiRefs.length > 0) {
                 _.each(vmiRefs, function(vmiRef){
                     var fqName = vmiRef.to;
-                    editVMIRefs.push(vmiRef.uuid + " " + fqName[0] +
-                        " " + fqName[1] + " " + fqName[2]);
+                    editVMIRefs.push(vmiRef.uuid +
+                        cowc.DROPDOWN_VALUE_SEPARATOR + fqName[0] +
+                        ":" + fqName[1] +
+                        ":" + fqName[2]);
                 });
                 modelConfig["user_created_virtual_machine_interface"] =
                     editVMIRefs;
@@ -138,13 +140,15 @@ define([
             var vmiStr = attr.user_created_virtual_machine_interface;
             var vmiRefs = [];
             if(vmiStr) {
-                var vmiArr = vmiStr.split(",");
+                var vmiArr = vmiStr.split(ctwc.MULTISELECT_VALUE_SEPARATOR);
                 for(var i = 0; i < vmiArr.length; i++) {
-                    var vmiDetailsArr  = vmiArr[i].split(" ");
-                    vmiRefs.push({
-                        to: [vmiDetailsArr[1], vmiDetailsArr[2], vmiDetailsArr[3]],
-                        uuid: vmiDetailsArr[0]
-                    });
+                    var vmiDetailsArr  = vmiArr[i].split(cowc.DROPDOWN_VALUE_SEPARATOR);
+                    if(vmiDetailsArr.length === 2) {
+                        vmiRefs.push({
+                            to: vmiDetailsArr[1].split(":"),
+                            uuid: vmiDetailsArr[0]
+                        });
+                    }
                 }
             }
             return vmiRefs;

@@ -74,7 +74,7 @@ define([
                     var fomattedAddr = sgUtils.formatSGAddrDropDownEntry(addr.split(':'));
                     addr = fomattedAddr.value;
                 } else {
-                    addr = remoteAddr.text + '~' + 'subnet';
+                    addr = remoteAddr.text + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet';
                 }
                 var remotePorts =
                     polRules[i]['dst_ports'][0]['start_port'] + " - " +
@@ -109,7 +109,7 @@ define([
             var newRule = new SecGrpRulesModel(
                 {direction: 'Ingress', ethertype: 'IPv4', protocol: 'TCP',
                  remotePorts: '0 - 65535',
-                 remoteAddr: '0.0.0.0/0~subnet'});
+                 remoteAddr: '0.0.0.0/0'+cowc.DROPDOWN_VALUE_SEPARATOR+'subnet'});
             rules.add([newRule]);
         },
         createDefaultRules: function(model) {
@@ -117,12 +117,12 @@ define([
             var newRule = new SecGrpRulesModel(
                 {direction: 'Egress', ethertype: 'IPv4', protocol: 'ANY',
                  remotePorts: '0 - 65535',
-                 remoteAddr: '0.0.0.0/0~subnet'});
+                 remoteAddr: '0.0.0.0/0' + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet'});
             rules.add([newRule]);
             newRule = new SecGrpRulesModel(
                 {direction: 'Egress', ethertype: 'IPv6', protocol: 'ANY',
                  remotePorts: '0 - 65535',
-                 remoteAddr: '::/0~subnet'});
+                 remoteAddr: '::/0' + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet'});
             rules.add([newRule]);
             return model;
         },

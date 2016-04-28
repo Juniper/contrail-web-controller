@@ -641,7 +641,6 @@ define([
         // FIP Config Constants
         this.URL_CFG_FIP_DETAILS =
             '/api/tenants/config/floating-ips';
-        this.FLOATING_IP_PORT_DELIMITER = ";";
 
         // Service Template Config Constants
         this.URL_CFG_SVC_TEMPLATE_DETAILS =
@@ -752,6 +751,8 @@ define([
         this.URL_GET_CONFIG_DETAILS = "/api/tenants/config/get-config-details";
         this.URL_CREATE_CONFIG_OBJECT = "/api/tenants/config/create-config-object";
         this.URL_UPDATE_CONFIG_OBJECT = "/api/tenants/config/update-config-object";
+
+        this.MULTISELECT_VALUE_SEPARATOR = ";;";
     };
 
     //str will be [0-9]+(m|h|s|d)

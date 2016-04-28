@@ -167,7 +167,7 @@ define([
                     var text = fqn.join(':');
                     results.push({text: text, value:
                                  configList[i]['fq_name'].join(':') +
-                                 "~~" + configList[i]['uuid']});
+                                 cowc.DROPDOWN_VALUE_SEPARATOR + configList[i]['uuid']});
                 } else {
                     var tmpFqn =
                         JSON.parse(JSON.stringify(configList[i]['fq_name']));
@@ -176,7 +176,7 @@ define([
                     results.push({text: text +" (" + domProj.join(':')
                                  + ")",
                                  value: configList[i]['fq_name'].join(':') +
-                                 "~~" + configList[i]['uuid']});
+                                 cowc.DROPDOWN_VALUE_SEPARATOR + configList[i]['uuid']});
                 }
             }
             return results;
@@ -783,6 +783,7 @@ define([
                                                          'Interface Route Table',
                                             dataTextField: 'text',
                                             dataValueField: 'value',
+                                            separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
                                             data: window.interfaceRouteTableList
                                         }
                                     }
@@ -957,6 +958,7 @@ define([
                                                          'Policy',
                                             dataTextField: 'text',
                                             dataValueField: 'value',
+                                            separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
                                             data: window.routingPolicyList
                                         }
                                     }
@@ -1120,6 +1122,7 @@ define([
                                                          ' Aggregate',
                                             dataTextField: 'text',
                                             dataValueField: 'value',
+                                            separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
                                             data: window.routeAggregateList
                                         }
                                     }
