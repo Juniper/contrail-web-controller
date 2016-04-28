@@ -12,7 +12,8 @@ function ControllerInfraDashboardLoader() {
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
             renderFn = paramObject['function'];
 
-        if (self.monInfraDashboardView == null) {
+        if(monInfraDashboardLoader.loadedControllerInfoboxes != true) {
+            monInfraDashboardLoader.loadedControllerInfoboxes = true;
             require(['mon-infra-dashboard-view'],function() {
                 require(['mon-infra-controller-dashboard'], function (ControllerDashboardView) {
                     self.monInfraDashboardView = new ControllerDashboardView({
@@ -21,9 +22,7 @@ function ControllerInfraDashboardLoader() {
                     self.monInfraDashboardView.render();
                 });
             });
-        } else {
-            self.renderView(renderFn, hashParams);
-        }
+        } 
     };
 
     this.destroy = function()  {
