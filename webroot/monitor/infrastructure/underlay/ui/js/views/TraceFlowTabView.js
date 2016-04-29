@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 
 define([
@@ -12,6 +12,7 @@ define([
                 render : function() {
                     var self = this,
                         viewConfig = this.attributes.viewConfig;
+                        underlayGraphModel = viewConfig.viewConfig.model;
                     var traceFlowModel = new TraceFlowTabModel();
                     traceFlowModel.showvRouter = ko.computed((function() {
                         return (this.traceflow_radiobtn_name() == 'vRouter') ? true : false;
@@ -23,18 +24,30 @@ define([
 
                     self.model = traceFlowModel;
                     this.renderView4Config(self.$el, traceFlowModel,
-                        self.getTraceFlowTabViewConfig(),null, null, null,
-                            function () {
+                        self.getTraceFlowTabViewConfig(underlayGraphModel),
+                            null, null, null, function () {
+                                var vRouterLen = 
+                                underlayGraphModel.getVirtualRouters().length;
+                                var vMachinesLen =
+                                underlayGraphModel.getVirtualMachines().length;
+
                                 $("#" + ctwc.UNDERLAY_TRACEFLOW_TAB_ID + "-tab")
                                     .append("<div id='"+ctwc.TRACEFLOW_RESULTS_GRID_ID+"'></div>");
-                                self.renderTraceFlowResult();
                                 $('input[type=radio][name=traceflow_radiobtn_name]')
-                                    .on('change',function () {
-                                        self.renderTraceFlowResult();
+                                    .on('change',function (e) {
+                                        if(e.srcElement.value == "instance" &&
+                                            vMachinesLen > 0) {
+                                            self.renderTraceFlowResult();
+                                        } else if(e.srcElement.value == "vRouter" &&
+                                            vRouterLen > 0) {
+                                            self.renderTraceFlowResult();
+                                        }
                                     });
                                 Knockback.applyBindings(self.model,
                                     document.getElementById(
                                     ctwc.UNDERLAY_TRACEFLOW_TAB_ID));
+                                if(vRouterLen > 0)
+                                    self.renderTraceFlowResult();
                     });
                     var widgetConfig = viewConfig['widgetConfig'];
                     if (widgetConfig !== null) {
@@ -58,8 +71,71 @@ define([
                         self.model, responseViewConfig);
                 },
 
-                getTraceFlowTabViewConfig: function () {
+                getTraceFlowTabViewConfig: function (graphModel) {
                     var self = this;
+                    var vRoutersCombobox = [], instComboboxData = [];
+                    var vmModels = graphModel.getVirtualMachines();
+                    var vrModels = graphModel.getVirtualRouters();
+                    if(vrModels.length > 0) {
+                        _.each(vrModels, function(vrModel) {
+                            var vRouterData = vrModel.attributes.model().attributes;
+                            var flowCount = getValueByJsonPath(vRouterData,
+                                'more_attributes;VrouterStatsAgent;flow_rate;active_flows',
+                                'No');
+                            // If flows are 0, need to display 'No Flows' instead of 0 flows.
+                            if (parseInt(flowCount) == 0) {
+                                flowCount = 'No'
+                            }
+                            vRoutersCombobox.push({
+                                text:contrail.format('{0} ({1}, {2} Flows)',
+                                    vRouterData['name'],
+                                    getValueByJsonPath(vRouterData,
+                                        'more_attributes;VrouterAgent;self_ip_list;0','-'),
+                                    flowCount),
+                                id:vRouterData['name']
+                            });
+                        });
+                    } else {
+                        vRoutersCombobox.push({
+                            text: "No virtual routers found",
+                            id: "no_vrouter_found"
+                        });
+                    }
+                    if(vmModels.length > 0) {
+                        _.each(vmModels, function(vmModel) {
+                            var instObj = vmModel.attributes.model().attributes;
+                            var instAttributes = ifNull(instObj['more_attributes'],{});
+                            var interfaceList = ifNull(instAttributes['interface_list'],[])
+                            var vmIp = '-',vmIpArr = [];
+                            for(var j = 0; j < interfaceList.length; j++) {
+                                var intfObj = interfaceList[j];
+                                if(intfObj['ip6_active']) {
+                                    vmIpArr.push(isValidIP(intfObj['ip6_address']) ?
+                                        intfObj['ip6_address'] : '-');
+                                } else {
+                                    vmIpArr.push(isValidIP(intfObj['ip_address']) ?
+                                        intfObj['ip_address'] : '-');
+                                }
+                                for(var k = 0; k < ifNull(intfObj['floating_ips'],[]).length; k++) {
+                                    var floatingIpObj = intfObj['floating_ips'][k];
+                                    vmIpArr.push(isValidIP(floatingIpObj['ip_address']) ?
+                                        floatingIpObj['ip_address'] : '-');
+                                }
+                            }
+                            if(vmIpArr.length > 0)
+                                vmIp = vmIpArr.join(',');
+                            instComboboxData.push({
+                                text: instAttributes['vm_name']+' ('+vmIp+')',
+                                id: instObj['name']
+                            });
+                        });
+                    } else {
+                        instComboboxData.push({
+                            text: "No virtual machines found",
+                            id: "no_vm_found"
+                        });
+                    }
+
                     return {
                         elementId : ctwl.CONTROLNODE_SUMMARY_GRID_SECTION_ID,
                         view : "SectionView",
@@ -95,17 +171,7 @@ define([
                                             dataTextField : "text",
                                             dataValueField : "id",
                                             defaultValueId : 0,
-                                            dataSource : {
-                                                type:'remote',
-                                                url: ctwl.URL_UNDERLAY_TOPOLOGY,
-                                                dataTextField:'text',
-                                                dataValueField:'value',
-                                                parse: function(response) {
-                                                    if(response != null) {
-                                                        return getTraceFlowDropdown(response, ctwc.VROUTER);
-                                                    }
-                                                }
-                                            },
+                                            data: vRoutersCombobox,
                                             change: function () {
                                                 self.renderTraceFlowResult();
                                             }
@@ -124,17 +190,7 @@ define([
                                            dataTextField : "text",
                                            dataValueField : "id",
                                            defaultValueId : 0,
-                                           dataSource : {
-                                               type:'remote',
-                                               url: ctwl.URL_UNDERLAY_TOPOLOGY,
-                                               dataTextField:'text',
-                                               dataValueField:'value',
-                                               parse: function(response) {
-                                                   if(response != null) {
-                                                       return getTraceFlowDropdown(response, ctwc.VIRTUALMACHINE);
-                                                   }
-                                               }
-                                           },
+                                           data: instComboboxData,
                                            change: function () {
                                                self.renderTraceFlowResult();
                                            }
@@ -147,54 +203,5 @@ define([
                 }
 
             });
-
-            function getTraceFlowDropdown(response, type) {
-                var nodes = ifNull(response['nodes'], []);
-                var vRoutersCombobox = [], instComboboxData = [];
-                for(var i = 0; i < nodes.length; i++) {
-                    if(nodes[i]['node_type'] == ctwc.VROUTER) {
-                        var vRouterData = nodes[i];
-                        var flowCount = getValueByJsonPath(vRouterData,'more_attributes;VrouterStatsAgent;flow_rate;active_flows','No');
-                        // If flows are 0, need to display 'No Flows' instead of 0 flows.
-                        if (parseInt(flowCount) == 0) {
-                            flowCount = 'No'
-                        }
-                        vRoutersCombobox.push({
-                            text:contrail.format('{0} ({1}, {2} Flows)',vRouterData['name'],
-                                getValueByJsonPath(vRouterData,'more_attributes;VrouterAgent;self_ip_list;0','-'),
-                                flowCount),
-                            id:vRouterData['name']
-                        });
-                    } else if (nodes[i]['node_type'] == ctwc.VIRTUALMACHINE) {
-                        var instObj = nodes[i];
-                        var instAttributes = ifNull(instObj['more_attributes'],{});
-                        var interfaceList = ifNull(instAttributes['interface_list'],[])
-                        var vmIp = '-',vmIpArr = [];
-                        for(var j = 0; j < interfaceList.length; j++) {
-                            var intfObj = interfaceList[j];
-                            if(intfObj['ip6_active']) {
-                                vmIpArr.push(isValidIP(intfObj['ip6_address']) ? intfObj['ip6_address'] : '-');
-                            } else {
-                                vmIpArr.push(isValidIP(intfObj['ip_address']) ? intfObj['ip_address'] : '-');
-                            }
-                            for(var k = 0; k < ifNull(intfObj['floating_ips'],[]).length; k++) {
-                                var floatingIpObj = intfObj['floating_ips'][k];
-                                vmIpArr.push(isValidIP(floatingIpObj['ip_address']) ? floatingIpObj['ip_address'] : '-');
-                            }
-                        }
-                        if(vmIpArr.length > 0)
-                            vmIp = vmIpArr.join(',');
-                        instComboboxData.push({
-                            text: instAttributes['vm_name']+' ('+vmIp+')',
-                            id: instObj['name']
-                        });
-                    }
-                }
-                if (type == ctwc.VROUTER) {
-                    return vRoutersCombobox;
-                } else if (type == ctwc.VIRTUALMACHINE) {
-                    return instComboboxData;
-                }
-            }
             return TraceFlowTabView;
         });

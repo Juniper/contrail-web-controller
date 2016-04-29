@@ -4,9 +4,10 @@
 
 define([
     'underscore',
-    'contrail-view'
-], function (_, ContrailView) {
-
+    'contrail-view',
+    'monitor/infrastructure/underlay/ui/js/underlay.utils',
+    'monitor/infrastructure/underlay/ui/js/underlay.parsers'
+], function (_, ContrailView, underlayUtils, underlayParsers) {
     var SearchFlowResultView = ContrailView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
@@ -36,7 +37,7 @@ define([
                 postDataObj =
                     queryFormModel.getQueryRequestPostData(serverCurrentTime, reqObj),
                 searchFlowGridColumns =
-                    monitorInfraUtils.getSearchFlowGridColumns(),
+                    underlayUtils.getSearchFlowGridColumns(),
                 gridId = '#' + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-results";
             var endTime = postDataObj['formModelAttrs'].to_time_utc;
             var startTime = postDataObj['formModelAttrs'].from_time_utc;
@@ -91,7 +92,7 @@ define([
                         title: 'Show Underlay Path(s)',
                         iconClass: 'icon-contrail-trace-flow',
                         onClick: function(rowIndex,targetElement){
-                            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
+                            var graphModel = underlayUtils.getUnderlayGraphModel();
                             graphModel.lastInteracted = new Date().getTime();
                             $("#" +ctwc.UNDERLAY_SEARCHFLOW_TAB_ID
                                 + "-results  div.grid-canvas div.slick-cell i.icon-spinner")
@@ -113,7 +114,7 @@ define([
                             $(targetElement).parent().parent()
                                 .addClass('selected-slick-row');
                             var deferredObj = $.Deferred();
-                            monitorInfraUtils.showUnderlayPaths(dataItem, graphModel, deferredObj);
+                            underlayUtils.showUnderlayPaths(dataItem, graphModel, deferredObj);
                             deferredObj.always(function (resetLoading) {
                                 if(resetLoading) {
                                     $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
@@ -126,10 +127,10 @@ define([
                     remote: {
                         ajaxConfig: searchFlowRemoteConfig,
                         dataParser: function(response) {
-                            var graphModel = monitorInfraUtils
+                            var graphModel = underlayUtils
                                 .getUnderlayGraphModel();
-                            return monitorInfraParsers
-                                .parseUnderlayFlowRecords(response, graphModel.vRouters);
+                            return underlayParsers
+                                .parseUnderlayFlowRecords(response, graphModel.getVirtualRouters());
                         }
                     }
                 }
@@ -147,7 +148,6 @@ define([
         };
         return gridElementConfig;
     };
-
     function getHeaderActionConfig() {
         var headerActionConfig = [
             {
