@@ -692,18 +692,15 @@ define([
                         graphModel.selectedElement().model().set({
                         'nodeType': ctwc.PROUTER,
                         'nodeDetail': nodeDetails});
-                        var children = graphModel.getChildren(
-                            nodeDetails['name'], ctwc.VROUTER,
-                            graphModel.nodesCollection,
-                            graphModel.edgesCollection);
+                        var children = dblClickedElement.options.model.attributes.children;
                         var adjList = _.clone(
                             graphModel.underlayAdjacencyList());
-                        if (children.length > 0) {
-                            var childrenName = [];
-                            for (var i = 0; i < children.length; i++) {
-                                childrenName.push(children[i].attributes.name());
-                                adjList[children[i].attributes.name()] = [];
-                            }
+                        var childrenName = [];
+                        _.each(children, function(child) {
+                            childrenName.push(child.name());
+                            adjList[child.name()] = [];
+                        });
+                        if (childrenName.length > 0) {
                             adjList[nodeDetails['name']] = childrenName;
                             graphModel.adjacencyList(adjList);
                             self.removeUnderlayEffects();
@@ -756,13 +753,14 @@ define([
                             siblings = graphModel.getChildren(parentName, ctwc.VROUTER,
                             graphModel.nodesCollection, graphModel.edgesCollection);
                             parentNode =
-                            self.network.getNode(self.model.elementMap.node[parentName]);
+                            self.network.getNode(self.model.elementMap().node[parentName]);
                         }
 
                     }
-                    var children = graphModel.getChildren(nodeDetails.name,
+                    /*var children = graphModel.getChildren(nodeDetails.name,
                         ctwc.VIRTUALMACHINE, graphModel.nodesCollection,
-                        graphModel.edgesCollection);
+                        graphModel.edgesCollection);*/
+                    var children = dblClickedElement.options.model.attributes.children;
                     var newAdjList = {};
                     var oldAdjList = {};
                     if(self.underlayPathIds.nodes.length > 0 ||
@@ -784,14 +782,13 @@ define([
                         oldAdjList = _.clone(newAdjList);
                         oldAdjList[parentNode['name']] = [];
                     }
-                    if (children.length > 0) {
-                        var childrenName = [];
-                        for (var i = 0; i < children.length; i++) {
-                            childrenName.push(children[i].attributes.name());
-                            newAdjList[children[i].attributes.name()] = [];
-                        }
+                    var childrenName = [];
+                    _.each(children, function(child) {
+                        childrenName.push(child.name());
+                        newAdjList[child.name()] = [];
+                    });
+                    if(childrenName.length > 0)
                         newAdjList[nodeDetails['name']] = childrenName;
-                    }
                     graphModel.adjacencyList(newAdjList);
                     self.removeUnderlayEffects();
                     self.removeUnderlayPathIds();

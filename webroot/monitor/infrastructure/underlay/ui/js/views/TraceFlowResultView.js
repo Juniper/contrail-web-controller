@@ -221,7 +221,7 @@ define([
                         iconClass: 'icon-contrail-trace-flow',
                         onClick: function(rowId,targetElement){
                             var graphModel = underlayUtils.getUnderlayGraphModel();
-                            graphModel.lastInteracted(new Date().getTime());
+                            graphModel.lastInteracted = new Date().getTime();
                             resetLoadingIcon();
                             $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
                             $("#"+gridId + " div.selected-slick-row").each(
@@ -245,7 +245,7 @@ define([
                         iconClass: 'icon-contrail-reverse-flow',
                         onClick: function(rowId,targetElement){
                             var graphModel = underlayUtils.getUnderlayGraphModel();
-                            graphModel.lastInteracted(new Date().getTime());
+                            graphModel.lastInteracted = new Date().getTime();
                             resetLoadingIcon();
                             $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
                             $("#"+gridId + " div.selected-slick-row").each(
@@ -641,7 +641,7 @@ define([
             }
         }).done(function(response) {
             if(postData['startAt'] != null &&
-                graphModel.lastInteracted() > postData['startAt']) {
+                graphModel.lastInteracted > postData['startAt']) {
                 if (deferredObj != null) {
                     deferredObj.resolve(false);
                 }
@@ -708,7 +708,7 @@ define([
                 $('html,body').animate({scrollTop:0}, 500);
         }).fail(function(error,status) {
             if(postData['startAt'] != null &&
-                graphModel.lastInteracted() > postData['startAt']) {
+                graphModel.lastInteracted > postData['startAt']) {
                 if (deferredObj != null) {
                     deferreObj.resolve(false);
                 }
