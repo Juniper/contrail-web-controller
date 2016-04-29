@@ -45,7 +45,12 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model', 'vis-edge-
             modelConfig.nodesCollection = bbCollectionNodes;
             self.nodesCollection = bbCollectionNodes;
             _.each(modelConfigEdges, function(modelConfigEdge, idx) {
-                edgeModels.push(new VisEdgeModel(modelConfigEdge, bbCollectionNodes));
+                var existingEdge = _.filter(edgeModels, function(edge) {
+                    return (edge.endpoints().sort().join(",") ==
+                        modelConfigEdge.endpoints.sort().join(","));
+                });
+                if(existingEdge.length == 0)
+                    edgeModels.push(new VisEdgeModel(modelConfigEdge, bbCollectionNodes));
             });
             bbCollectionEdges = new Backbone.Collection(edgeModels);
             self.edgesCollection = bbCollectionEdges;

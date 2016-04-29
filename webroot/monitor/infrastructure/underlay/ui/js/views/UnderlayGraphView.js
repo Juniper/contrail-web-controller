@@ -692,18 +692,15 @@ define([
                         graphModel.selectedElement().model().set({
                         'nodeType': ctwc.PROUTER,
                         'nodeDetail': nodeDetails});
-                        var children = graphModel.getChildren(
-                            nodeDetails['name'], ctwc.VROUTER,
-                            graphModel.nodesCollection,
-                            graphModel.edgesCollection);
+                        var children = dblClickedElement.options.model.attributes.children;
                         var adjList = _.clone(
                             graphModel.underlayAdjacencyList());
-                        if (children.length > 0) {
-                            var childrenName = [];
-                            for (var i = 0; i < children.length; i++) {
-                                childrenName.push(children[i].attributes.name());
-                                adjList[children[i].attributes.name()] = [];
-                            }
+                        var childrenName = [];
+                        _.each(children, function(child) {
+                            childrenName.push(child.name());
+                            adjList[child.name()] = [];
+                        });
+                        if (childrenName.length > 0) {
                             adjList[nodeDetails['name']] = childrenName;
                             graphModel.adjacencyList(adjList);
                             self.removeUnderlayEffects();
@@ -756,13 +753,14 @@ define([
                             siblings = graphModel.getChildren(parentName, ctwc.VROUTER,
                             graphModel.nodesCollection, graphModel.edgesCollection);
                             parentNode =
-                            self.network.getNode(self.model.elementMap.node[parentName]);
+                            self.network.getNode(self.model.elementMap().node[parentName]);
                         }
 
                     }
-                    var children = graphModel.getChildren(nodeDetails.name,
+                    /*var children = graphModel.getChildren(nodeDetails.name,
                         ctwc.VIRTUALMACHINE, graphModel.nodesCollection,
-                        graphModel.edgesCollection);
+                        graphModel.edgesCollection);*/
+                    var children = dblClickedElement.options.model.attributes.children;
                     var newAdjList = {};
                     var oldAdjList = {};
                     if(self.underlayPathIds.nodes.length > 0 ||
@@ -784,14 +782,13 @@ define([
                         oldAdjList = _.clone(newAdjList);
                         oldAdjList[parentNode['name']] = [];
                     }
-                    if (children.length > 0) {
-                        var childrenName = [];
-                        for (var i = 0; i < children.length; i++) {
-                            childrenName.push(children[i].attributes.name());
-                            newAdjList[children[i].attributes.name()] = [];
-                        }
+                    var childrenName = [];
+                    _.each(children, function(child) {
+                        childrenName.push(child.name());
+                        newAdjList[child.name()] = [];
+                    });
+                    if(childrenName.length > 0)
                         newAdjList[nodeDetails['name']] = childrenName;
-                    }
                     graphModel.adjacencyList(newAdjList);
                     self.removeUnderlayEffects();
                     self.removeUnderlayPathIds();
@@ -930,7 +927,8 @@ define([
                     }
                 }
                 var parentNode = _.filter(nodesCollection.models, function(node) { 
-                    return (node.attributes.name() == parentElementLabel);
+                    return (node.attributes.name() == parentElementLabel &&
+                        !(node.attributes.model().attributes.hasOwnProperty("hidden")));
                     });
                 if (false !== parentNode && parentNode.length === 1) {
                     parentNode = parentNode[0];
@@ -946,7 +944,8 @@ define([
 
             _.each(adjacencyList, function(edges, parentElementLabel) {
                 var parentNode = _.filter(nodesCollection.models, function(node) { 
-                    return (node.attributes.name() == parentElementLabel);
+                    return (node.attributes.name() == parentElementLabel &&
+                        !(node.attributes.model().attributes.hasOwnProperty("hidden")));
                     });
                 if (false !== parentNode && parentNode.length === 1) {
                     parentNode = parentNode[0];
@@ -981,7 +980,8 @@ define([
                             }
                         }
                         var childNode = _.filter(nodesCollection.models, function(node) { 
-                            return (node.attributes.name() == childElementLabel);
+                            return (node.attributes.name() == childElementLabel &&
+                                !(node.attributes.model().attributes.hasOwnProperty("hidden")));
                         });
                         if (false !== childNode && childNode.length === 1) {
                             childNode = childNode[0];
@@ -1078,12 +1078,7 @@ define([
                             } else {
                                 continue;
                             }
-                            var newLinkModel = self.model.addEdge({
-                                link_type: linkModel.attributes.link_type(),
-                                endpoints: linkModel.attributes.endpoints(),
-                                more_attributes: linkModel.attributes.more_attributes
-                            });
-                            var newLink = self.createLink(self.model.edgesCollection.last(),
+                            var newLink = self.createLink(linkModel,
                                 link_type, endpoint0NodeId, endpoint1NodeId);
                             var currentLinkId = newLink.attributes.element_id();
                             linkElements.push(newLink);
@@ -1367,17 +1362,21 @@ define([
         removeUnderlayPathIds: function() {
             var network = this.network;
             var graphModel = this.model;
-            var elementMap = this.model.elementMap();
+            var elementMap = graphModel.elementMap();
             var pathIds = this.underlayPathIds;
             var edgeIds = network.getEdgeIds();
             var edges = [];
             if(pathIds && pathIds.hasOwnProperty('links')) {
                 for (var i = 0; i < pathIds.links.length; i++) {
+                    graphModel.edgesCollection.remove(
+                        graphModel.getEdge(pathIds.links[i])[0]);
                     network.removeEdge(pathIds.links[i]);
                 }
             }
             if(pathIds && pathIds.hasOwnProperty('nodes')) {
                 for (var i = 0; i < pathIds.nodes.length; i++) {
+                    graphModel.nodesCollection.remove(
+                        graphModel.getNode(pathIds.nodes[i])[0]);
                     network.removeNode(pathIds.nodes[i]);
                 }
             }
