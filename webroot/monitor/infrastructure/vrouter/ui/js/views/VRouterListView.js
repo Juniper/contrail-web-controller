@@ -21,19 +21,19 @@ define(
                 //crossFilter -> vRouterListModel
                 //Update cfDataSource on vRouterListModel update
 
+                if(cfDataSource.getDimension('gridFilter') == null) {
+                    cfDataSource.addDimension('gridFilter',function(d) {
+                        return d['name'];
+                    });
+                }
+                if(cfDataSource.getDimension('colorFilter') == null) {
+                    cfDataSource.addDimension('colorFilter',function(d) {
+                        return d['color'];
+                    });
+                }
                 function onUpdatevRouterListModel() {
                     cfDataSource.updateData(vRouterListModel.getItems());
 
-                    if(cfDataSource.getDimension('gridFilter') == null) {
-                        cfDataSource.addDimension('gridFilter',function(d) {
-                            return d['name'];
-                        });
-                    }
-                    if(cfDataSource.getDimension('colorFilter') == null) {
-                        cfDataSource.addDimension('colorFilter',function(d) {
-                            return d['color'];
-                        });
-                    }
                     cfDataSource.fireCallBacks({source:'fetch'});
                 }
 
