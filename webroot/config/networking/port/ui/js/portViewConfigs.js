@@ -720,22 +720,55 @@
                                                  templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                  dataBindValue: 'dhcp_option_name()',
                                                  placeholder: 'Option code',
-                                                 class: "span6",
-                                                 width:275,
-                                                 label: 'Code'
+                                                 width: 200,
+                                             }
+                                         }, {
+                                             elementId: 'dhcp_option_value_type',
+                                             name: "Value Type",
+                                             view: "FormDropdownView",
+                                             viewConfig: {
+                                                 path: 'dhcp_option_value_type',
+                                                 templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                                 dataBindValue: 'dhcp_option_value_type()',
+                                                 width: 150,
+                                                 elementConfig: {
+                                                     dataTextField: "text",
+                                                     dataValueField: "value",
+                                                     data : [
+                                                         {
+                                                            text: "Normal",
+                                                            value: "normal"
+                                                         },
+                                                         {
+                                                            text: "Encoded",
+                                                            value: "encoded"
+                                                         }
+                                                     ]
+                                                 }
                                              }
                                          }, {
                                              elementId: 'dhcp_option_value',
                                              name: "Value",
                                              view: "FormInputView",
                                              viewConfig: {
+                                                 disabled: "disableNormalValue()",
                                                  path: 'dhcp_option_value',
-                                                 placeholder: 'Option value',
+                                                 //placeholder: 'Normal value',
                                                  templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                  dataBindValue: 'dhcp_option_value()',
-                                                 class: "span6",
-                                                 width:275,
-                                                 label: 'Value'
+                                                 width: 300,
+                                             }
+                                         }, {
+                                             elementId: 'dhcp_option_value_bytes',
+                                             name: "Value in Bytes",
+                                             view: "FormInputView",
+                                             viewConfig: {
+                                                 disabled: "disableEncodedValue()",
+                                                 path: 'dhcp_option_value_bytes',
+                                                 //placeholder: 'Encoded value',
+                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                 dataBindValue: 'dhcp_option_value_bytes()',
+                                                 width: 300,
                                              }
                                          }],
                                          rowActions: [{

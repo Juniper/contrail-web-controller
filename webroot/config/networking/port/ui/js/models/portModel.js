@@ -236,20 +236,37 @@ define([
             if(dhcpList != null && dhcpList.length > 0) {
                 var dhcpLen = dhcpList.length;
                 for(var i = 0; i < dhcpLen; i++) {
-                    var dhcp_obj = dhcpList[i];
-                    var dhcpVal = dhcpList[i].dhcp_option_value.split(" ");
-                    if(dhcpVal.length > 1) {
+                    var dhcp_obj = dhcpList[i],
+                        dhcpVal = getValueByJsonPath(dhcpList[i],
+                            "dhcp_option_value", null, false),
+                        dhcpValBytes = getValueByJsonPath(dhcpList[i],
+                            "dhcp_option_value_bytes", null, false);
+                    if(dhcpVal) {
+                        dhcpVal = dhcpVal.split(" ");
                         var dhcpValLen = dhcpVal.length;
                         for(var j = 0; j < dhcpValLen; j++) {
                             var dhcp = {};
+                            dhcp.dhcp_option_value_type = "normal";
                             dhcp.dhcp_option_name = dhcpList[i].dhcp_option_name;
                             dhcp.dhcp_option_value = dhcpVal[j];
                             var dhcpOptionModel = new DHCPOptionModel(dhcp);
+                            self.addBindingAttrstoDHCPModel(dhcpOptionModel);
                             DHCP.push(dhcpOptionModel);
                         }
-                    } else {
-                        var dhcpOptionModel = new DHCPOptionModel(dhcp_obj);
-                        DHCP.push(dhcpOptionModel);
+                    }
+
+                    if(dhcpValBytes) {
+                        dhcpValBytes = dhcpValBytes.split(" ");
+                        var dhcpValBytesLen = dhcpValBytes.length;
+                        for(var j = 0; j < dhcpValBytesLen; j++) {
+                            var dhcp = {};
+                            dhcp.dhcp_option_value_type = "encoded";
+                            dhcp.dhcp_option_name = dhcpList[i].dhcp_option_name;
+                            dhcp.dhcp_option_value_bytes = dhcpValBytes[j];
+                            var dhcpOptionModel = new DHCPOptionModel(dhcp);
+                            self.addBindingAttrstoDHCPModel(dhcpOptionModel);
+                            DHCP.push(dhcpOptionModel);
+                        }
                     }
                 }
             }
@@ -688,8 +705,31 @@ define([
         addDHCP: function() {
             var dhcpList = this.model().attributes['dhcpOptionCollection'],
                 dhcpOptionModel = new DHCPOptionModel();
+            this.addBindingAttrstoDHCPModel(dhcpOptionModel);
             dhcpList.add([dhcpOptionModel]);
         },
+
+        //add disable binding attrs to dhcp option model
+        addBindingAttrstoDHCPModel: function(dhcpModel) {
+            dhcpModel.disableNormalValue = ko.computed(function(){
+                var disable = false;
+                if(this.dhcp_option_value_type() !== "normal") {
+                    this.dhcp_option_value("");
+                    disable = true;
+                }
+                return disable;
+            }, dhcpModel);
+
+            dhcpModel.disableEncodedValue = ko.computed(function(){
+                var disable = false;
+                if(this.dhcp_option_value_type() !== "encoded") {
+                    this.dhcp_option_value_bytes("");
+                    disable = true;
+                }
+                return disable;
+            }, dhcpModel);
+        },
+
         //DHCP Delete
         deleteDHCP: function(data, dhcp) {
             var dhcpCollection = data.model().collection,
@@ -942,13 +982,17 @@ define([
                     var unGroupedDHCPOptionsList = [];
                     var dhcpLen = allDHCPValues.length;
                     for(i = 0; i < dhcpLen; i++){
-                        var dhcpCode = allDHCPValues[i].dhcp_option_name();
-                        var dhcpValue = allDHCPValues[i].dhcp_option_value();
+                        var dhcpCode = allDHCPValues[i].dhcp_option_name(),
+                            dhcpValue = allDHCPValues[i].dhcp_option_value(),
+                            dhcpValueBytes =
+                                allDHCPValues[i].dhcp_option_value_bytes();
                         unGroupedDHCPOptionsList[i] = {};
                         unGroupedDHCPOptionsList[i]["dhcp_option_name"] =
                                                    dhcpCode.trim();
                         unGroupedDHCPOptionsList[i]["dhcp_option_value"] =
                                                    dhcpValue.trim();
+                        unGroupedDHCPOptionsList[i]["dhcp_option_value_bytes"] =
+                                                   dhcpValueBytes.trim();
                     }
                     if(unGroupedDHCPOptionsList.length > 0) {
                         var groupedDHCPOptionsList =
@@ -957,31 +1001,32 @@ define([
                         if (groupedDHCPOptionsList &&
                             groupedDHCPOptionsList != "" &&
                             groupedDHCPOptionsList.length > 0) {
-                            returnDHCPOptionsList = [];
+                            var returnDHCPOptionsList = [];
                             for (var i = 0; i < groupedDHCPOptionsList.length;
                                 i++) {
                                 var dhcpOptionsOfSameValue =
                                     jsonPath(groupedDHCPOptionsList[i],
-                                    "$.*.dhcp_option_value");
-                                if(dhcpOptionsOfSameValue === false)
-                                    dhcpOptionsOfSameValue = "";
-                                else {
-                                    dhcpOptionsOfSameValue =
-                                               dhcpOptionsOfSameValue.join(" ");
+                                    "$.*.dhcp_option_value"),
+                                    dhcpOptionsOfSameEncodedValue =
+                                    jsonPath(groupedDHCPOptionsList[i],
+                                    "$.*.dhcp_option_value_bytes"),
+                                    actDHCPOptionObj = {};
+                                actDHCPOptionObj["dhcp_option_name"]=
+                                    groupedDHCPOptionsList[i][0]['dhcp_option_name'];
+                                if(dhcpOptionsOfSameValue) {
+                                   actDHCPOptionObj["dhcp_option_value"] =
+                                       dhcpOptionsOfSameValue.join(" ").trim();
                                 }
-                                if(typeof dhcpOptionsOfSameValue === "string" &&
-                                   dhcpOptionsOfSameValue.trim() !== "") {
-                                        returnDHCPOptionsList.push({
-                                        "dhcp_option_name":
-                                            groupedDHCPOptionsList[i][0]['dhcp_option_name'],
-                                        "dhcp_option_value":
-                                            dhcpOptionsOfSameValue
-                                        });
+                                if(dhcpOptionsOfSameEncodedValue) {
+                                   actDHCPOptionObj["dhcp_option_value_bytes"] =
+                                       dhcpOptionsOfSameEncodedValue.join(" ").trim();
                                 }
+                                returnDHCPOptionsList.push(actDHCPOptionObj);
                             }
-                            if(returnDHCPOptionsList.length > 0)
+                            if(returnDHCPOptionsList.length > 0) {
                                 newPortData.virtual_machine_interface_dhcp_option_list.dhcp_option
                                     = returnDHCPOptionsList;
+                            }
                         }
                     }
                 } else {
