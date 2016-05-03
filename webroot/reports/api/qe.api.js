@@ -13,21 +13,21 @@ var qeapi = module.exports,
     commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
     messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
     global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
+    redisUtils = require(process.mainModule.exports["corePath"] +
+                         '/src/serverroot/utils/redis.utils'),
     qs = require('querystring'),
     underscore = require('underscore'),
     redisReadStream = require('redis-rstream'),
     opServer;
 
-var redis = require("redis"),
-    redisServerPort = (config.redis_server_port) ? config.redis_server_port : global.DFLT_REDIS_SERVER_PORT,
-    redisServerIP = (config.redis_server_ip) ? config.redis_server_ip : global.DFLT_REDIS_SERVER_IP,
-    redisClient = redis.createClient(redisServerPort, redisServerIP);
+var redisServerPort = (config.redis_server_port) ? config.redis_server_port :
+        global.DFLT_REDIS_SERVER_PORT,
+    redisServerIP = (config.redis_server_ip) ? config.redis_server_ip :
+        global.DFLT_REDIS_SERVER_IP;
 
-redisClient.select(global.QE_DFLT_REDIS_DB, function (error) {
-    if (error) {
-        logutils.logger.error('Redis DB ' + global.QE_DFLT_REDIS_DB + ' Select Error:' + error);
-    }
-});
+var redisClient =
+    redisUtils.createRedisClient(redisServerPort, redisServerIP,
+                                    global.QE_DFLT_REDIS_DB);
 
 opServer = rest.getAPIServer({apiName: global.label.OPS_API_SERVER, server: config.analytics.server_ip, port: config.analytics.server_port});
 
