@@ -10,7 +10,8 @@ define([
 
         defaultConfig: {
             'dhcp_option_name': '',
-            'dhcp_option_value':''
+            'dhcp_option_value': '',
+            'dhcp_option_value_bytes': ''
         },
 
         validateAttr: function (attributePath, validation, data) {
@@ -32,10 +33,6 @@ define([
                 'dhcp_option_name': {
                     required: true,
                     msg: 'Enter DHCP Code.'
-                },
-                'dhcp_option_value': {
-                    required: true,
-                    msg: 'Enter DHCP Value.'
                 }
             }
         }
