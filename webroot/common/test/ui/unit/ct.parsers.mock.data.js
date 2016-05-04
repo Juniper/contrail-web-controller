@@ -240,7 +240,10 @@ define(['underscore'], function (_) {
                             "ip": [],
                             "x": 0,
                             "y": 704416,
-                            "size": 0
+                            "size": 0,
+                            "ui_added_parameters": {
+                                "instance_health_check_status": null
+                            }
                         },
                         {
                             "name": "d53cea4c-44df-4ada-81d7-24c5930684f1",
@@ -296,7 +299,10 @@ define(['underscore'], function (_) {
                             "ip": [],
                             "x": 0,
                             "y": 575568,
-                            "size": 0
+                            "size": 0,
+                            "ui_added_parameters": {
+                                "instance_health_check_status": null
+                            }
                         }
                     ]
                 }

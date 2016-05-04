@@ -126,12 +126,16 @@ define([
                 minWidth: 30,
                 maxWidth: 30,
                 formatter: function (r, c, v, cd, dc) {
-                    if(contrail.checkIfExist(dc.raw_json) && !contrail.checkIfKeyExistInObject(false, dc.raw_json.value, 'UveVirtualMachineAgent')) {
-                        return '<i class="icon-warning-sign red" title="Instance data is available in config but not available in analytics."></i>';
-                    } else {
-                        return '';
+                    var errorMessage = '', instanceHealthCheckStatus = null;
+
+                    if (contrail.checkIfExist(dc.raw_json) && !contrail.checkIfKeyExistInObject(false, dc.raw_json.value, 'UveVirtualMachineAgent')) {
+                        errorMessage = ctwm.INSTANCE_DATA_NOT_AVAILABLE;
+                    } else if (contrail.checkIfKeyExistInObject(true, dc, 'ui_added_parameters.instance_health_check_status') && dc['ui_added_parameters']['instance_health_check_status'] === false) {
+                        errorMessage = ctwm.HEALTH_CHECK_STATUS_INACTIVE;
                     }
-                }
+
+                    return (errorMessage !== '') ? '<i class="icon-warning-sign red" title="' + errorMessage + '"></i>' : '';
+                 }
             }
         ];
         this.getVMInterfacesLazyRemoteConfig = function () {
@@ -163,58 +167,71 @@ define([
         };
 
         this.instanceInterfaceColumns = [
-             {
-                 field: 'ip',
-                 name: 'IP Address',
-                 minWidth: 100,
-                 searchable: true
-             },
-             {
-                 field: 'vm_name',
-                 name: 'Instance Name',
-                 minWidth: 250,
-                 searchable: true
-             },
-             {
-                 field: 'floatingIP',
-                 name: 'Floating IPs ( Agg Stats In/Out)',
-                 formatter: function (r, c, v, cd, dc) {
-                     if (!contrail.checkIfExist(dc['floatingIP']) || dc['floatingIP'].length == 0) {
-                         return '-';
-                     } else {
-                         return dc['floatingIP'].join(', ');
-                     }
-                 },
-                 minWidth: 200
-             },
-             {
-                 field: '',
-                 name: 'Traffic In/Out (Last 1 Hr)',
-                 minWidth: 150,
-                 formatter: function (r, c, v, cd, dc) {
-                     return contrail.format("{0} / {1}", cowu.addUnits2Bytes(dc['inBytes60'], true), cowu.addUnits2Bytes(dc['outBytes60'], true));
-                 }
-             },
-             {
-                 field: '',
-                 name: 'Throughput In/Out',
-                 minWidth: 150,
-                 formatter: function (r, c, v, cd, dc) {
-                     return contrail.format("{0} / {1}", formatThroughput(dc['in_bw_usage'], true), formatThroughput(dc['out_bw_usage'], true));
-                 }
-             },
-             {
-                 name: 'Status',
-                 minWidth: 100,
-                 searchable: true,
-                 formatter: function (r, c, v, cd, dc) {
-                     if (dc.active) {
-                         return ('<div class="status-badge-rounded status-active"></div>&nbsp;Active');
-                     } else {
-                         return ('<div class="status-badge-rounded status-inactive"></div>&nbsp;Inactive');
-                     }
-                 }
-             }
+            {
+                field: 'ip',
+                name: 'IP Address',
+                minWidth: 100,
+                searchable: true
+            },
+            {
+                field: 'vm_name',
+                name: 'Instance Name',
+                minWidth: 250,
+                searchable: true
+            },
+            {
+                field: 'floatingIP',
+                name: 'Floating IPs ( Agg Stats In/Out)',
+                formatter: function (r, c, v, cd, dc) {
+                    if (!contrail.checkIfExist(dc['floatingIP']) || dc['floatingIP'].length == 0) {
+                        return '-';
+                    } else {
+                        return dc['floatingIP'].join(', ');
+                    }
+                },
+                minWidth: 200
+            },
+            {
+                field: '',
+                name: 'Traffic In/Out (Last 1 Hr)',
+                minWidth: 150,
+                formatter: function (r, c, v, cd, dc) {
+                    return contrail.format("{0} / {1}", cowu.addUnits2Bytes(dc['inBytes60'], true), cowu.addUnits2Bytes(dc['outBytes60'], true));
+                }
+            },
+            {
+                field: '',
+                name: 'Throughput In/Out',
+                minWidth: 150,
+                formatter: function (r, c, v, cd, dc) {
+                    return contrail.format("{0} / {1}", formatThroughput(dc['in_bw_usage'], true), formatThroughput(dc['out_bw_usage'], true));
+                }
+            },
+            {
+                name: 'Status',
+                minWidth: 100,
+                searchable: true,
+                formatter: function (r, c, v, cd, dc) {
+                    if (dc.active) {
+                        return ('<div class="status-badge-rounded status-active"></div>&nbsp;Active');
+                    } else {
+                        return ('<div class="status-badge-rounded status-inactive"></div>&nbsp;Inactive');
+                    }
+                }
+            },
+            {
+                field: '',
+                name: '',
+                minWidth: 30,
+                maxWidth: 30,
+                formatter: function (r, c, v, cd, dc) {
+                    if (dc['is_health_check_active'] === false) {
+                        return '<i class="icon-warning-sign red" title="' + ctwm.HEALTH_CHECK_STATUS_INACTIVE + '"></i>';
+                    }
+
+                    return '';
+                }
+            }
         ];
 
         this.getInterfaceStatsLazyRemoteConfig = function () {
@@ -238,7 +255,7 @@ define([
                                     useServerTime: true
                                 }
                             })
-                        }
+                        };
                         return lazyAjaxConfig;
                     },
                     successCallback: function (response, contrailListModel) {
@@ -448,6 +465,11 @@ define([
                                 }
 
                                 for (var k = 0; k < interfaceDetailsList.length; k++) {
+
+                                    if (interfaceDetailsList[k]['is_health_check_active'] === false) {
+                                        dataItem['ui_added_parameters']['instance_health_check_status'] = false;
+                                    }
+
                                     if (interfaceDetailsList[k]['ip6_active'] == true) {
                                         if (interfaceDetailsList[k]['ip_address'] != '0.0.0.0')
                                             dataItem['ip'].push(interfaceDetailsList[k]['ip_address']);

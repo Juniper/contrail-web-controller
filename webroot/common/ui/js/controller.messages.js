@@ -24,6 +24,8 @@ define([
         this.NO_DATA_FOUND = 'No data found.';
         this.NO_NETWORK_FOUND = 'No virtual network present in this project.';
         this.NO_VM_FOUND = 'No virtual machine present in this network.';
+        this.HEALTH_CHECK_STATUS_INACTIVE = 'Health check status is inactive for 1 or more interfaces.';
+        this.INSTANCE_DATA_NOT_AVAILABLE = 'Instance data is available in config but not available in analytics.';
         this.NO_PHYSICALDEVICES = 'No physical device found.';
 
         this.CASSANDRA_ERROR = 'Error: Cassandra client could not fetch data from server. Please check cassandra config parameters.';

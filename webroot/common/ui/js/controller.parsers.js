@@ -36,6 +36,10 @@ define([
 
                 currObject['size'] = 0;
 
+                currObject['ui_added_parameters'] = {
+                    'instance_health_check_status': null
+                };
+
                 return currObject;
             });
             return retArr;
