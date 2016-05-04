@@ -1726,6 +1726,8 @@ define([
                             label, instanceName = "";
                         var instanceUUID = node.attributes.name();
                         var instances = graphModel.getVirtualMachines();
+                        var fip_addr = "";
+                        var fip_addr_arr = [];
                         for (var i = 0; i < instances.length; i++) {
                             if (instances[i].attributes.name() === instanceUUID) {
                                 var attributes = ifNull(instances[i].attributes.more_attributes(), {}),
@@ -1741,6 +1743,9 @@ define([
                                         ipArr.push(interfaceList[j]['ip6_address']);
                                     else if (interfaceList[j]['ip_address'] != '0.0.0.0')
                                         ipArr.push(interfaceList[j]['ip_address']);
+                                    fip_addr_arr = getValueByJsonPath(interfaceList[j], "floating_ips", []);
+                                    if (fip_addr != "") fip_addr += ", ";
+                                    fip_addr += _.pluck(fip_addr_arr, 'ip_address').join(', ');
                                 }
                                 if (ipArr.length > 0)
                                     vmIp = ipArr.join();
@@ -1773,6 +1778,13 @@ define([
                             tooltipLblValues.push({
                                 label: "Network(s)",
                                 value: vn
+                            });
+                        }
+
+                        if (fip_addr != "") {
+                            tooltipLblValues.push({
+                                label: "Floating IP(s)",
+                                value: fip_addr
                             });
                         }
                         tooltipContent['info'] = tooltipLblValues;

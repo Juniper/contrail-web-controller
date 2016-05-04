@@ -206,7 +206,8 @@ define(['underscore'], function (_) {
                         viewConfig: {
                             header: {
                                 title:
-                                    contrail.format('Traffic Statistics of {0}',vrouter),
+                                    contrail.format('Traffic Statistics of {0} -- {1}',
+                                        data['sourceElement']['name'], vrouter)
                             },
                             controls: {
                                 top: {
@@ -328,7 +329,7 @@ define(['underscore'], function (_) {
             return [
                 {
                     field:'peer_vrouter',
-                    name:"Other Virtual Router",
+                    name:"Encapsulation Endpoint",
                     minWidth:170,
                     formatter: function(r,c,v,cd,dc){
                         var name = $.grep(computeNodes,function(value,idx){
@@ -366,27 +367,12 @@ define(['underscore'], function (_) {
                     name:"Source IP",
                     minWidth:60,
                     formatter:function(r,c,v,cd,dc) {
-                        if(validateIPAddress(dc['sip']))
-                            return dc['sip']
-                        else
-                            noDataStr;
+                        return self.parseDestination(dc['sip']);
                     }
                 },{
                     field:"src_port",
                     name:"Source Port",
                     minWidth:50
-                },{
-                    field:"direction",
-                    name:"Direction",
-                    minWidth:40,
-                    formatter: function(r,c,v,cd,dc) {
-                        if (dc['direction'] == 'ingress')
-                            return 'INGRESS'
-                        else if (dc['direction'] == 'egress')
-                            return 'EGRESS'
-                        else
-                            return '-';
-                    }
                 },{
                     field:"dst_vn",
                     name:"Destination Network",
@@ -401,10 +387,7 @@ define(['underscore'], function (_) {
                     name:"Destination IP",
                     minWidth:60,
                     formatter:function(r,c,v,cd,dc) {
-                        if(validateIPAddress(dc['dip']))
-                            return dc['dip']
-                        else
-                            noDataStr;
+                        return self.parseDestination(dc['dip']);
                     }
                 },{
                     field:"dst_port",
@@ -428,14 +411,14 @@ define(['underscore'], function (_) {
         self.getTraceFlowVMGridColumns = function () {
             return [
                     {
-                        field: 'formattedOtherVrouter',
-                        name: "Other Virtual Router",
-                        minWidth:170,
-                    },{
                         field: 'formattedVrouter',
                         name: "Virtual Router",
                         minWidth:170,
-                    },{
+                    }, {
+                        field: 'formattedOtherVrouter',
+                        name: "Encapsulation Endpoint",
+                        minWidth:170,
+                    }, {
                         field:"protocol",
                         name:"Protocol",
                         minWidth:40,
@@ -449,29 +432,14 @@ define(['underscore'], function (_) {
                     },{
                         field:"sourceip",
                         name:"Source IP",
-                        minWidth:60,
+                        minWidth:100,
                         formatter:function(r,c,v,cd,dc) {
-                            if(validateIPAddress(dc['sourceip']))
-                                return dc['sourceip']
-                            else
-                                noDataStr;
+                            return self.parseDestination(dc['sourceip']);
                         }
                     },{
                         field:"sport",
                         name:"Source Port",
                         minWidth:50
-                    },{
-                        field:"direction_ing",
-                        name:"Direction",
-                        minWidth:40,
-                        formatter: function(r,c,v,cd,dc) {
-                            if (dc['direction_ing'] == 1)
-                                return 'INGRESS'
-                            else if (dc['direction_ing'] == 0)
-                                return 'EGRESS'
-                            else
-                                return '-';
-                        }
                     },{
                         field:"formattedDestVN",
                         name:"Destination Network",
@@ -486,10 +454,7 @@ define(['underscore'], function (_) {
                         name:"Destination IP",
                         minWidth:60,
                         formatter:function(r,c,v,cd,dc) {
-                            if(validateIPAddress(dc['destip']))
-                                return dc['destip']
-                            else
-                                noDataStr;
+                            return self.parseDestination(dc['destip']);
                         }
                     },{
                         field:"dport",
@@ -513,13 +478,13 @@ define(['underscore'], function (_) {
         self.getSearchFlowGridColumns = function () {
             return [
                 {
-                    field: 'formattedOtherVrouter',
-                    name: "Other Virtual Router",
-                    minWidth:170,
-                },{
                     field: 'formattedVrouter',
                     name: "Virtual Router",
-                    minWidth:170,
+                    minWidth:160,
+                },{
+                    field: 'formattedOtherVrouter',
+                    name: "Encapsulation Endpoint",
+                    minWidth:160,
                 },{
                     field:"protocol",
                     name:"Protocol",
@@ -534,29 +499,14 @@ define(['underscore'], function (_) {
                 },{
                     field:"sourceip",
                     name:"Source IP",
-                    minWidth:60,
+                    minWidth:100,
                     formatter:function(r,c,v,cd,dc) {
-                        if(validateIPAddress(dc['sourceip']))
-                            return dc['sourceip']
-                        else
-                            noDataStr;
+                        return self.parseDestination(dc['sourceip']);
                     }
                 },{
                     field:"sport",
                     name:"Source Port",
                     minWidth:50
-                },{
-                    field:"direction_ing",
-                    name:"Direction",
-                    minWidth:40,
-                    formatter: function(r,c,v,cd,dc) {
-                        if (dc['direction_ing'] == 1)
-                            return 'INGRESS'
-                        else if (dc['direction_ing'] == 0)
-                            return 'EGRESS'
-                        else
-                            return '-';
-                    }
                 },{
                     field:"formattedDestVN",
                     name:"Destination Network",
@@ -569,12 +519,9 @@ define(['underscore'], function (_) {
                 },{
                     field:"destip",
                     name:"Destination IP",
-                    minWidth:60,
+                    minWidth:100,
                     formatter:function(r,c,v,cd,dc) {
-                        if(validateIPAddress(dc['destip']))
-                            return dc['destip']
-                        else
-                            noDataStr;
+                        return self.parseDestination(dc['destip']);
                     }
                 },{
                     field:"dport",
@@ -598,7 +545,32 @@ define(['underscore'], function (_) {
         self.getUnderlayGraphModel = function () {
             return $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
         };
-
+        self.parseDestination = function(ip) {
+            if (validateIPAddress(ip)) {
+                var vmName = self.getVMForIP(ip);
+                if (vmName != "") {
+                    return ip + " (" + vmName + ")";
+                } else {
+                    return ip;
+                }
+            } else {
+                noDataStr;
+            }
+        };
+        self.getVMForIP = function (ip) {
+            var nodeModels =
+            $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel').
+                nodesCollection.models;
+            var nm = _.filter(nodeModels, function(node) {
+                return (_.pluck(node.attributes.more_attributes().interface_list,
+                    'ip_address').indexOf(ip) != -1);
+                });
+            if(nm && nm.length == 1) {
+                nm = nm[0];
+                return nm.attributes.label()
+            }
+            return "";
+        };
         /*self.showFlowPath = function (connectionWrapIds, offsetWidth, graphView) {
             if(offsetWidth == null)
                 offsetWidth = 5;
