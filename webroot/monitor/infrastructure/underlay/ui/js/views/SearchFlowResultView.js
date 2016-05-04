@@ -89,7 +89,7 @@ define([
                     detail: false,
                     actionCellPosition: 'start',
                     actionCell:[{
-                        title: 'Show Underlay Path(s)',
+                        title: 'Show Underlay Path',
                         iconClass: 'icon-contrail-trace-flow',
                         onClick: function(rowIndex,targetElement){
                             var graphModel = underlayUtils.getUnderlayGraphModel();
