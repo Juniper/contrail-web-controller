@@ -848,6 +848,7 @@ define([
             link.attributes.tooltipConfig({
                 title       : title,
                 content     : content,
+                data        : link,
                 dimension   : {
                     width   : $(dummydiv).find('.popover').width(),
                     height  : $(dummydiv).find('.popover').height()
@@ -881,6 +882,7 @@ define([
             node.attributes.tooltipConfig({
                 title           : title,
                 content         : content,
+                data            : node,
                 actionsCallback : tooltipConfig.actionsCallback,
                 dimension: {
                     width: $(dummydiv).find('.popover').width(),
@@ -1568,6 +1570,9 @@ define([
                 contrail.getTemplate4Id(cowc.TMPL_ELEMENT_TOOLTIP_CONTENT);
             return {
                 "physical-router": {
+                    data: function(node) {
+                        return node;
+                    },
                     title: function(node) {
                         return tooltipTitleTmpl({
                             name: node.attributes.name(),
@@ -1637,6 +1642,9 @@ define([
                     }
                 },
                 "virtual-router": {
+                    data: function(node) {
+                        return node;
+                    },
                     title: function(node) {
                         return tooltipTitleTmpl({
                             name: node.attributes.name(),
@@ -1666,7 +1674,14 @@ define([
                             text: 'Configure',
                             iconClass: 'icon-cog'
                         });
-
+                        actions.push({
+                            text: 'Map Flow',
+                            iconClass: 'icon-exchange'
+                        });
+                        actions.push({
+                            text: 'Trace Flow',
+                            iconClass: 'icon-exchange'
+                        });
                         var tooltipContent = [{
                             label: 'Name',
                             value: name
@@ -1694,10 +1709,38 @@ define([
                         });
 
                         actions.push({
-                            callback: function() {
+                            callback: function(underlayGraphView) {
                                 graphModel.selectedElement().model().set({
                                     'nodeType': ctwc.VROUTER,
-                                    'nodeDetail': node});
+                                    'nodeDetail':
+                                    node.data().popover.
+                                    options.data.attributes.
+                                    model().attributes});
+                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:0});
+                                $("#run_query").find("button").click();
+                                graphModel.selectedElement().model().set({
+                                    'nodeType': '',
+                                    'nodeDetail': {}},{silent:true});
+                            }
+                        });
+                        actions.push({
+                            callback: function(underlayGraphView) {
+                                graphModel.selectedElement().model().set({
+                                    'nodeType': ctwc.VROUTER,
+                                    'nodeDetail':
+                                    node.data().popover.
+                                    options.data.attributes.
+                                    model().attributes});
+                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:1});
+                                underlayGraphView.rootView.viewMap.
+                                    traceflow_radiobtn_name.model.
+                                    traceflow_radiobtn_name('vRouter');
+                                underlayGraphView.rootView.viewMap.
+                                    vrouter_dropdown_name.model.
+                                    vrouter_dropdown_name(
+                                        node.data().popover.
+                                        options.data.attributes.
+                                        model().attributes.name);
                                 graphModel.selectedElement().model().set({
                                     'nodeType': '',
                                     'nodeDetail': {}},{silent:true});
@@ -1707,6 +1750,9 @@ define([
                     }
                 },
                 "virtual-machine": {
+                    data: function(node) {
+                        return node;
+                    },
                     title: function(node) {
                         var virtualMachineName =
                         getValueByJsonPath(node.attributes.more_attributes(),
@@ -1751,6 +1797,10 @@ define([
                         }
                         if ("" == instanceName)
                             instanceName = node.attributes.name();
+                        actions.push({
+                            text: 'Trace Flow',
+                            iconClass: 'icon-exchange'
+                        });
                         tooltipContent = {
                             iconClass: 'icon-contrail-virtual-machine font-size-30',
                             actions: actions
@@ -1777,6 +1827,33 @@ define([
                         }
                         tooltipContent['info'] = tooltipLblValues;
                         return tooltipContentTmpl(tooltipContent);
+                    },
+                    actionsCallback: function(node) {
+                        var actions = [];
+                        actions.push({
+                            callback: function(underlayGraphView) {
+                                graphModel.selectedElement().model().set({
+                                    'nodeType': ctwc.VIRTUALMACHINE,
+                                    'nodeDetail':
+                                    node.data().popover.
+                                    options.data.attributes.
+                                    model().attributes});
+                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:1});
+                                underlayGraphView.rootView.viewMap.
+                                    traceflow_radiobtn_name.model.
+                                    traceflow_radiobtn_name('instance');
+                                underlayGraphView.rootView.viewMap.
+                                    instance_dropdown_name.model.
+                                    instance_dropdown_name(
+                                        node.data().popover.
+                                        options.data.attributes.
+                                        model().attributes.name);
+                                graphModel.selectedElement().model().set({
+                                    'nodeType': '',
+                                    'nodeDetail': {}},{silent:true});
+                            }
+                        });
+                        return actions;
                     }
                 },
                 link: {
@@ -2061,6 +2138,7 @@ define([
                 trigger: 'hover',
                 html: true,
                 animation: false,
+                data: tooltipConfig.data,
                 placement: function (context, src) {
                     //src is div.vis-network-tooltip
                     //context is div.popover
@@ -2087,7 +2165,6 @@ define([
                         return 'bottom';
                     }
                 },
-
                 title: function () {
                     return tooltipConfig.title;
                 },
@@ -2100,7 +2177,7 @@ define([
             $('.popover').find('.btn').on('click', function() {
                 var actionKey = $(this).data('action'),
                   actionsCallback = tooltipConfig.actionsCallback(tt);
-                  actionsCallback[actionKey].callback();
+                  actionsCallback[actionKey].callback(self);
                   $(".vis-network-tooltip").popover("hide");
             });
             $('.popover').find('i.icon-remove').on('click', function() {
