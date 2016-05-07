@@ -6,7 +6,6 @@ define([
 ], function (_) {
     var secGrpUtils = function() {
         var self = this;
-
         self.getSGDirection = function(rule) {
             var dispStr = "";
             if (null == rule) {
@@ -113,7 +112,7 @@ define([
                 var etherType = uiRules[i]['ethertype'];
                 var remoteAddr = uiRules[i]['remoteAddr'];
                 var remotePorts = uiRules[i]['remotePorts'];
-                var remoteAddrArray = remoteAddr.split('~');
+                var remoteAddrArray = remoteAddr.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                 var group, groupValue;
                 sgConfig[i] = {};
                 sgConfig[i]["direction"] = ">";
@@ -523,7 +522,7 @@ define([
             if ((null != secGrpName) && ("" != secGrpName.trim())) {
                 var remoteAddValue = window.sg.secGrpList;
                 var allSecurietyGroup = remoteAddValue[1].children;
-                secGrpName = secGrpName + '~' + 'security_group';
+                secGrpName = secGrpName + cowc.DROPDOWN_VALUE_SEPARATOR + 'security_group';
                 if ((null != allSecurietyGroup[0]) &&
                     ('Current Security Group' !=
                      allSecurietyGroup[0]['text'])) {
@@ -571,13 +570,13 @@ define([
             }
             var fqNameValue = sgFqn.join(':');
             if ((sgFqn[0] == domain) && (sgFqn[1] == project)) {
-                return {text: sgFqn[2], value: fqNameValue + '~' + 'security_group',
+                return {text: sgFqn[2], value: fqNameValue + cowc.DROPDOWN_VALUE_SEPARATOR + 'security_group',
                     groupName: "Security Group", id: fqNameValue};
             }
             var fqNameTxt = sgFqn[2] +' (' +
 
                 sgFqn[0] + ':' + sgFqn[1] + ')';
-            return {text : fqNameTxt, value : fqNameValue + '~' + 'security_group',
+            return {text : fqNameTxt, value : fqNameValue + cowc.DROPDOWN_VALUE_SEPARATOR + 'security_group',
                     groupName: "Security Group", id: fqNameValue};
         }
     };

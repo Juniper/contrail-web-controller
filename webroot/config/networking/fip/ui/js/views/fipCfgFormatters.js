@@ -127,7 +127,7 @@ define([
                 var uuid = getValueByJsonPath(obj,
                     'virtual-machine-interface;uuid', '');
                 $.each(ips, function(j, ip) {
-                    actId = fqName + ctwc.FLOATING_IP_PORT_DELIMITER + ip;
+                    actId = fqName + cowc.DROPDOWN_VALUE_SEPARATOR + ip;
                     fipPortList.push({id: actId,
                         text: ip + ' (' + uuid + ')'});
                 });

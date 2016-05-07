@@ -23,11 +23,11 @@ define([
             'direction': '<>',
             'protocol': 'any',
             'dst_addresses': [],
-            'dst_address' : 'any~virtual_network',
+            'dst_address' : 'any' + cowc.DROPDOWN_VALUE_SEPARATOR + 'virtual_network',
             'dst_ports':[],
             'dst_ports_text':"ANY",
             'src_addresses':[],
-            'src_address' : 'any~virtual_network',
+            'src_address' : 'any' + cowc.DROPDOWN_VALUE_SEPARATOR + 'virtual_network',
             'src_ports':[],
             'src_ports_text': 'ANY',
             'simple_action': 'pass',
@@ -35,12 +35,6 @@ define([
             'mirror':'',
             'rule_uuid':'',
             'analyzer_name':'',
-            'src_customValue':{
-                'text': 'ANY (All Networks in Current Project)',
-                'value':'any~virtual_network', 'groupName': 'Networks'},
-            'dst_customValue':{
-                'text': 'ANY (All Networks in Current Project)',
-                'value':'any~virtual_network', 'groupName': 'Networks'},
             'rule_sequence':{
                 'major': -1,
                 'minor': -1
@@ -76,7 +70,8 @@ define([
             var applyService = getValueByJsonPath(modelConfig,
                            "action_list;apply_service", []);
             if (applyService.length > 0) {
-                modelConfig["service_instance"] = applyService.join(",");
+                modelConfig["service_instance"] =
+                    applyService.join(cowc.DROPDOWN_VALUE_SEPARATOR);
                 modelConfig["apply_service_check"] = true;
             } else {
                 modelConfig["service_instance"] = null;
@@ -106,7 +101,6 @@ define([
             if (srcAddress != "") {
                 var addressObj = self.getAddress(srcAddress, domain, project);
                 modelConfig["src_address"] =  addressObj.addres;
-                modelConfig["src_customValue"] =  addressObj.customValue;
                 modelConfig["src_addresses"] = addressObj.address;
             }
 
@@ -119,7 +113,6 @@ define([
             if (dstAddress != "") {
                 var addressObj = self.getAddress(dstAddress, domain, project);
                 modelConfig["dst_address"] =  addressObj.addres;
-                modelConfig["dst_customValue"] =  addressObj.customValue;
                 modelConfig["dst_addresses"] = addressObj.address;
             }
 
@@ -296,8 +289,8 @@ define([
             }
             var sourceAddress = getValueByJsonPath(data, "src_address", "");
             var destAddress = getValueByJsonPath(data, "dst_address", "");
-            var sourceAddressArr = sourceAddress.split("~");
-            var destAddressArr = destAddress.split("~");
+            var sourceAddressArr = sourceAddress.split(cowc.DROPDOWN_VALUE_SEPARATOR);
+            var destAddressArr = destAddress.split(cowc.DROPDOWN_VALUE_SEPARATOR);
             if (sourceAddressArr[1] == "subnet" && destAddressArr[1] == "subnet") {
                 msg =  "Both Source and Destination cannot be CIDRs\
                                 while applying/mirroring services.";
@@ -309,7 +302,7 @@ define([
                 return false;
             }
             var address = getValueByJsonPath(data, path, "");
-            var addressArr = address.split("~");
+            var addressArr = address.split(cowc.DROPDOWN_VALUE_SEPARATOR);
             if (addressArr.length >= 2 &&
                 addressArr[1] == "virtual_network" &&
                 (addressArr[0] == "any" ||
@@ -328,7 +321,7 @@ define([
                 } else if (vnText == "local") {
                     vnText = "LOCAL (All Networks to which this policy is associated)";
                 }
-                var value = virtualNetwork + "~virtual_network";
+                var value = virtualNetwork + cowc.DROPDOWN_VALUE_SEPARATOR + "virtual_network";
                 var netText = policyFormatters.formatCurrentFQNameValue(domain,
                              project,
                              vnText);
@@ -345,7 +338,7 @@ define([
             }
             var networkPolicy = getValueByJsonPath(address, "network_policy", "");
             if (networkPolicy != "") {
-                var value = networkPolicy + "~network_policy",
+                var value = networkPolicy + cowc.DROPDOWN_VALUE_SEPARATOR + "network_policy",
                     text = policyFormatters.formatCurrentFQNameValue(domain,
                            project, networkPolicy),
                     customValue = {
@@ -363,7 +356,7 @@ define([
                 prefixLen = getValueByJsonPath(address, "subnet;ip_prefix_len", "");
             if (prefix != "") {
                 var subnet = prefix + "/" + prefixLen;
-                returnObject.addres = subnet + '~' + 'subnet';
+                returnObject.addres = subnet + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet';
                 returnObject.address = subnet;
                 returnObject.customValue = {'text':subnet, 'groupName': 'CIDR'};
                 return returnObject;
@@ -373,7 +366,7 @@ define([
             if (val == "") {
                 return "Enter a valid "+srcOrDesString+" Address";
             }
-            var address = val.split("~");
+            var address = val.split(cowc.DROPDOWN_VALUE_SEPARATOR);
             if (address.length == 2) {
                 var value = address[0].trim();
                 var group = address[1];

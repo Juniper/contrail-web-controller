@@ -8,7 +8,7 @@ define([
     'contrail-view'
 ], function (_, Backbone, ContrailView) {
         var self;
-    var policiesView = ContrailView.extend({
+    var policyView = ContrailView.extend({
         el: $(contentContainer),
         renderPolicies: function (viewConfig) {
             self = this,
@@ -57,5 +57,5 @@ define([
             }
         }
     });
-    return policiesView;
+    return policyView;
 });

@@ -166,11 +166,13 @@ define([
                                             placeholder: "Select Interface(s)",
                                             dataTextField: "text",
                                             dataValueField: "value",
+                                            separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
                                             dataSource: {
                                                 type: "remote",
                                                 requestType: "GET",
                                                 url: "/api/tenants/config/get-virtual-machine-details?proj_fqn=" +
-                                                    getCookie("domain") + ":" + getCookie("project"),
+                                                    contrail.getCookie(cowc.COOKIE_DOMAIN) + ":"
+                                                    + contrail.getCookie(cowc.COOKIE_PROJECT),
                                                 parse : bgpAsAServiceFomatter.parseVMIDetails
                                             }
                                         }

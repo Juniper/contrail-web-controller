@@ -138,7 +138,8 @@ define([
             for (var i = 0; i < len; i++) {
                 results.push({'text': piData[i]['fq_name'][2] + " (" +
                                 piData[i]['fq_name'][1] + ")",
-                             'id': piData[i]['fq_name'].join(':') + ';' +
+                             'id': piData[i]['fq_name'].join(':') +
+                             cowc.DROPDOWN_VALUE_SEPARATOR +
                              piData[i]['uuid']});
             }
             window.svcApplData.piList = results;

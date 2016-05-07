@@ -198,7 +198,7 @@ define([
     }
 
     function getIpamId(fqnString, ipamUUID) {
-        return fqnString + '**' + ipamUUID;
+        return fqnString + cowc.DROPDOWN_VALUE_SEPARATOR + ipamUUID;
     }
 
     function getAddDnsServerViewConfig(isDisable) {
@@ -343,6 +343,7 @@ define([
                             elementConfig: {
                                 dataTextField: "text",
                                 dataValueField: "id",
+                                separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
                                 dataSource: {
                                     type: 'remote',
                                     parse: formatNetworkIpams,

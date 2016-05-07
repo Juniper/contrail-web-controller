@@ -217,12 +217,13 @@ define([
                 var poolProjects = getValueByJsonPath(obj, 'projects', []);
                 var projects = [], projectsStr = [];
                 $.each(poolProjects, function (projIdx, proj) {
-                    projects.push(proj.to.join(':') + '~' + proj.uuid);
+                    projects.push(proj.uuid);
                     projectsStr.push(proj.to.join(':'));
                 });
 
                 poolArr.push({'name': poolName,
-                    'projects': projects.join(','), 'disable': disable});
+                    'projects': projects.join(cowc.DROPDOWN_VALUE_SEPARATOR),
+                    'disable': disable});
 
                 poolStr.push(poolName + (projectsStr.length ?
                     ' (' + projectsStr.join(', ') + ')' : ''));
@@ -325,7 +326,7 @@ define([
 
             for(var i = 0; i < len; i++) {
                 var ipam = ipamObjs[i];
-                var ipamFQN = ipamObjs[i].to.join(":");
+                var ipamFQN = ipamObjs[i].to.join(cowc.DROPDOWN_VALUE_SEPARATOR);
                 var field = 'ipam_subnets';
                 var subnetLen = ipam['attr'][field].length;
 
@@ -669,7 +670,10 @@ define([
             $.each(projResponse, function (i, obj) {
                 var flatName = obj.fq_name[0] + ':' +
                                 obj.fq_name[1];
-                projList.push({id: flatName + '~' + obj.uuid, text: flatName});
+                projList.push({
+                    id: obj.uuid,
+                    text: flatName
+                });
             });
 
             return projList;
@@ -730,10 +734,16 @@ define([
                 if (vCenter) {
                     if (domain == obj.fq_name[0] &&
                         project == obj.fq_name[1]) {
-                        ipamList.push({id: obj.fq_name.join(':'), text: flatName});
+                        ipamList.push({
+                            id: obj.fq_name.join(cowc.DROPDOWN_VALUE_SEPARATOR),
+                            text: flatName
+                        });
                     }
                 } else {
-                    ipamList.push({id: obj.fq_name.join(':'), text: flatName});
+                    ipamList.push({
+                        id: obj.fq_name.join(cowc.DROPDOWN_VALUE_SEPARATOR),
+                        text: flatName
+                    });
                 }
             });
 
