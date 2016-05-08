@@ -3,7 +3,9 @@
  */
 
 var ctwu, ctwc, cowch, ctwgc, ctwgrc, ctwl, ctwm, ctwp, ctwvc,
-    nmwu, nmwgc, nmwgrc, nmwp, nmwvc, ctBuildDir, ctWebDir;
+    nmwu, nmwgc, nmwgrc, nmwp, nmwvc, ctBuildDir, ctWebDir,
+    monitorInfraConstants, monitorInfraUtils, monitorInfraParsers,
+    mnPageLoader,qePageLoader;
 
 /**
  * ctBaseDir: Apps Root directory.
@@ -44,6 +46,10 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir) {
         'controller-parsers': ctWebDir + '/common/ui/js/controller.parsers',
         'controller-view-config': ctWebDir + '/common/ui/js/controller.view.config',
         'controller-init': ctWebDir + '/common/ui/js/controller.init',
+
+        'monitor-infra-module': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
+        'nm-module': ctWebDir + '/monitor/networking/ui/js/nm.module',
+        'qe-module': ctWebDir + '/reports/qe/ui/js/qe.module',
 
         //TODO: Only commons controller level definations should be created in this file.
         /**

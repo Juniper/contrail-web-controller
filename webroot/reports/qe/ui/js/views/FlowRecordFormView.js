@@ -6,7 +6,7 @@ define([
     'underscore',
     'query-form-view',
     'knockback',
-    'reports/qe/ui/js/models/FlowRecordFormModel'
+    'controller-basedir/reports/qe/ui/js/models/FlowRecordFormModel'
 ], function (_, QueryFormView, Knockback, FlowRecordFormModel) {
 
     var FlowRecordQueryView = QueryFormView.extend({
