@@ -29,6 +29,8 @@ var policyConfigApi = require('../../../networking/policy/api/policyconfig.api')
 var jsonPath = require('JSONPath').eval;
 var jsonDiff = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/common/jsondiff');
+var opApiServer = require(process.mainModule.exports["corePath"] +
+                          '/src/serverroot/common/opServer.api');
 var ctrlGlobal = require('../../../../common/api/global');
 var _ = require('underscore');
 
@@ -271,6 +273,217 @@ function siListAggCb(error, results, response, appData, template)
     }
 }
 
+function getVMIUVEHealthCheckStatusV1 (svcInstUUIDList, appData, callback)
+{
+    if ((null == svcInstUUIDList) || (!svcInstUUIDList.length)) {
+        callback(null, []);
+        return;
+    }
+    var vmiUUIDList = [];
+    var instTupleVMIMaps = {};
+    var reqUrl =
+        '/service-instances?fields=virtual_machine_back_refs&obj_uuids=' +
+        svcInstUUIDList.join(',');
+    configApiServer.apiGet(reqUrl, appData, function(error, svcInstData) {
+        if ((null != error) || (null == svcInstData) ||
+            (null == svcInstData['service-instances']) ||
+            (!svcInstData['service-instances'].length)) {
+            callback(error, null);
+            return;
+        }
+        var svcInstList =
+            commonUtils.getValueByJsonPath(svcInstData,
+                                           'service-instances', []);
+        var svcInstListLen = svcInstList.length;
+        var vmToSvcInstMaps = {};
+        var vmUUIDList = [];
+        for (var i = 0; i < svcInstListLen; i++) {
+            var svcInstUUID =
+                commonUtils.getValueByJsonPath(svcInstList[i], 'uuid', null);
+            var vmBackRefs =
+                commonUtils.getValueByJsonPath(svcInstList[i],
+                                               'virtual_machine_back_refs',
+                                               []);
+            var vmBackRefsCnt = vmBackRefs.length;
+            if (!vmBackRefsCnt) {
+                continue;
+            }
+            for (var j = 0; j < vmBackRefsCnt; j++) {
+                var vmID =
+                    commonUtils.getValueByJsonPath(vmBackRefs[j], 'uuid', null);
+                vmToSvcInstMaps[vmID] = svcInstUUID;
+                vmUUIDList.push(vmID);
+            }
+        }
+        if (!vmUUIDList.length) {
+            callback(null, []);
+            return;
+        }
+        var vmiURL =
+            '/virtual-machine-interfaces?' +
+            'fields=virtual_machine_refs&back_ref_id=' + vmUUIDList.join(',');
+        configApiServer.apiGet(vmiURL, appData, function(error, vmiData) {
+            if ((null != error) || (null == vmiData) ||
+                (null == vmiData['virtual-machine-interfaces']) ||
+                (!vmiData['virtual-machine-interfaces'].length)) {
+                callback(error, null);
+                return;
+            }
+            var vmis = vmiData['virtual-machine-interfaces'];
+            var vmisCnt = vmis.length;
+            var vmiToSvcInstMaps = {};
+            for (var i = 0; i < vmisCnt; i++) {
+                var vmiUUID = commonUtils.getValueByJsonPath(vmis[i], 'uuid',
+                                                            null);
+                var vmiFqn = commonUtils.getValueByJsonPath(vmis[i], 'fq_name',
+                                                            []);
+                vmiFqn = vmiFqn.join(':');
+                var vmUUID =
+                    commonUtils.getValueByJsonPath(vmis[i],
+                                                   'virtual_machine_refs;0;uuid',
+                                                   null);
+                if (null == vmUUID) {
+                    continue;
+                }
+                vmiUUIDList.push(vmiFqn);
+                var svcInstID = vmToSvcInstMaps[vmUUID];
+                if (null != svcInstID) {
+                    if (null == instTupleVMIMaps[svcInstID]) {
+                        instTupleVMIMaps[svcInstID] = {};
+                        instTupleVMIMaps[svcInstID][vmUUID] = {};
+                        instTupleVMIMaps[svcInstID][vmUUID]['vmis'] = [];
+                    }
+                    if (null == instTupleVMIMaps[svcInstID][vmUUID]) {
+                        instTupleVMIMaps[svcInstID][vmUUID] = {};
+                        instTupleVMIMaps[svcInstID][vmUUID]['vmis'] = [];
+                    }
+                    instTupleVMIMaps[svcInstID][vmUUID]['vmis'].push(vmiFqn);
+                    vmiToSvcInstMaps[vmiUUID] = vmToSvcInstMaps[vmUUID];
+                }
+            }
+            var vmiPostData = {
+                'cfilt': ['UveVMInterfaceAgent:health_check_instance_list',
+                          'UveVMInterfaceAgent:ip_address',
+                          'UveVMInterfaceAgent:active'],
+                'kfilt': vmiUUIDList
+            };
+            var reqUrl = '/analytics/uves/virtual-machine-interface';
+            opApiServer.apiPost(reqUrl, vmiPostData, appData, function(error, data) {
+                var dataObj = {'vmiData': data,
+                    'instTupleVMIMaps': instTupleVMIMaps};
+                callback(error, dataObj);
+            });
+        });
+    });
+}
+
+function getVMIUVEHealthCheckStatus (request, appData, callback)
+{
+    var UUIDList = [];
+    var vmiUUIDList = [];
+    var filteredResults = request.body;
+    var instCnt = filteredResults.length;
+
+    if (!instCnt) {
+        callback(null, []);
+        return;
+    }
+    var instTupleVMIMaps = {};
+    var noPortTupleInsts = [];
+    for (var i = 0; i < instCnt; i++) {
+        var svcInstUUID =
+            commonUtils.getValueByJsonPath(filteredResults[i],
+                                           'service-instance;uuid', null);
+        if (null == svcInstUUID) {
+            continue;
+        }
+        UUIDList.push(svcInstUUID);
+        var portTuples =
+            commonUtils.getValueByJsonPath(filteredResults[i],
+                                           'service-instance;port_tuples',
+                                           []);
+        var portTuplesCnt = portTuples.length;
+        if (!portTuplesCnt) {
+            noPortTupleInsts.push(svcInstUUID);
+        }
+        for (var j = 0; j < portTuplesCnt; j++) {
+            var portTupleID =
+                commonUtils.getValueByJsonPath(portTuples[j], 'uuid', null);
+            if (null == portTupleID) {
+                continue;
+            }
+            var vmis = commonUtils.getValueByJsonPath(portTuples[j], 'vmis', []);
+            var vmisCnt = vmis.length;
+            for (var k = 0; k < vmisCnt; k++) {
+                var vmiFqn =
+                    commonUtils.getValueByJsonPath(vmis[k],
+                                                   'virtual-machine-interface;fq_name',
+                                                   []);
+                vmiFqn = vmiFqn.join(':');
+                if (vmiFqn.length > 0) {
+                    vmiUUIDList.push(vmiFqn);
+                }
+                if (null == instTupleVMIMaps[svcInstUUID]) {
+                    instTupleVMIMaps[svcInstUUID] = {};
+                    instTupleVMIMaps[svcInstUUID][portTupleID] = {};
+                    instTupleVMIMaps[svcInstUUID][portTupleID]['vmis'] = [];
+                }
+                if (null == instTupleVMIMaps[svcInstUUID][portTupleID]) {
+                    instTupleVMIMaps[svcInstUUID][portTupleID] = {};
+                    instTupleVMIMaps[svcInstUUID][portTupleID]['vmis'] = [];
+                }
+                instTupleVMIMaps[svcInstUUID][portTupleID]['vmis'].push(vmiFqn);
+            }
+        }
+    }
+    if (vmiUUIDList.length > 1) {
+        vmiUUIDList = _.uniq(vmiUUIDList);
+    }
+
+    var vmiPostData = {
+        'cfilt': ['UveVMInterfaceAgent:health_check_instance_list',
+                  'UveVMInterfaceAgent:ip_address',
+                  'UveVMInterfaceAgent:active'],
+        'kfilt': vmiUUIDList
+    };
+    var reqUrl = '/analytics/uves/virtual-machine-interface';
+    async.parallel([
+        function(CB) {
+            opApiServer.apiPost(reqUrl, vmiPostData, appData,
+                                function(error, data) {
+                var dataObj = {'vmiData': data,
+                    'instTupleVMIMaps': instTupleVMIMaps};
+                CB(error, dataObj);
+                return;
+            });
+        },
+        function(CB) {
+            getVMIUVEHealthCheckStatusV1(noPortTupleInsts, appData,
+                                         function(error, data) {
+                CB(error, data);
+                return;
+            });
+        }
+    ],
+    function(err, results) {
+        var finalResult = {};
+        var v2InstTupleVMIMaps =
+            commonUtils.getValueByJsonPath(results,
+                                           '0;instTupleVMIMaps', {});
+        var v1InstTupleVMIMaps =
+            commonUtils.getValueByJsonPath(results,
+                                           '1;instTupleVMIMaps', {});
+        finalResult['instTupleVMIMaps'] =
+            _.extend(v2InstTupleVMIMaps, v1InstTupleVMIMaps);
+        var v2VmiData = commonUtils.getValueByJsonPath(results,
+                                                       '0;vmiData;value', []);
+        var v1VmiData = commonUtils.getValueByJsonPath(results,
+                                                       '1;vmiData;value', []);
+        finalResult['vmiData'] = v2VmiData.concat(v1VmiData);
+        callback(null, finalResult);
+    });
+}
+
 /**
  * @getServiceInstanceStatusByProject
  * public function
@@ -288,12 +501,36 @@ function getServiceInstanceStatusByProject (request, response, appData)
     var instCnt = filteredResults.length;
     var serviceInstances = {};
     serviceInstances['service_instances'] = filteredResults;
-    var svcInstIdToTmplUUIDMapArr = {};
-    var uuidList = [];
     if (!instCnt) {
         commonUtils.handleJSONResponse(null, response, []);
         return;
     }
+    async.parallel([
+        function(CB) {
+            getVMIUVEHealthCheckStatus(request, appData, function(error, data) {
+                CB(null, data);
+            });
+        },
+        function(CB) {
+            getNovaVMIStatus(request, appData, function(error, data) {
+                CB(error, data);
+            });
+        }
+    ],
+    function(err, results) {
+        commonUtils.handleJSONResponse(err, response, results);
+    });
+}
+
+function getNovaVMIStatus (request, appData, callback)
+{
+    var svcInstIdToTmplUUIDMapArr = {};
+    var uuidList = [];
+    var UUIDList = [];
+    var siObjArr = [];
+    var filteredResults = request.body;
+    var instCnt = filteredResults.length;
+
     for (var i = 0; i < instCnt; i++) {
         var tmplUUID =
             commonUtils.getValueByJsonPath(filteredResults[i],
@@ -305,6 +542,7 @@ function getServiceInstanceStatusByProject (request, response, appData)
         if ((null != tmplUUID) && (null != svcInstUUID)) {
             uuidList.push(tmplUUID);
             svcInstIdToTmplUUIDMapArr[svcInstUUID] = tmplUUID;
+            UUIDList.push(svcInstUUID);
         } else {
             svcInstIdToTmplUUIDMapArr[svcInstUUID] = null;
         }
@@ -313,7 +551,7 @@ function getServiceInstanceStatusByProject (request, response, appData)
     if (!uuidList.length) {
         var error = new appErrors.RESTServerError('Service Template reference' +
                                                   ' not found');
-        commonUtils.handleJSONResponse(error, response, null);
+        callback(error, null);
         return;
     }
     var svcTmplUrl = '/service-templates?detail=true&obj_uuids=' +
@@ -321,7 +559,7 @@ function getServiceInstanceStatusByProject (request, response, appData)
     configApiServer.apiGet(svcTmplUrl, appData,
                            function(error, svcTmplDetails) {
         if ((null != error) || (null == svcTmplDetails['service-templates'])) {
-            commonUtils.handleJSONResponse(error, response, null);
+            callback(error, null);
             return;
         }
         var svcTmplDetails = svcTmplDetails['service-templates'];
@@ -336,17 +574,7 @@ function getServiceInstanceStatusByProject (request, response, appData)
             }
         }
         var svcTmpl = null;
-        var UUIDList = [];
-        for (var i = 0; i < instCnt; i++) {
-            var svcInstUUID =
-                commonUtils.getValueByJsonPath(filteredResults[i],
-                                               'service-instance;uuid', null);
-            if (null == svcInstUUID) {
-                continue;
-            }
-            UUIDList.push(svcInstUUID);
-        }
-
+        var vmiUUIDList = [];
         var svcInstGetUrl =
             '/service-instances?detail=true&fields=virtual_machine_back_refs,port_tuples' +
             '&obj_uuids=' + UUIDList.join(',');
@@ -354,7 +582,7 @@ function getServiceInstanceStatusByProject (request, response, appData)
                                function(error, svcInstData) {
             if ((null != error) || (null == svcInstData) ||
                 (null == svcInstData['service-instances'])) {
-                commonUtils.handleJSONResponse(null, response, []);
+                callback(error, []);
                 return;
             }
             instCnt = svcInstData['service-instances'].length;
@@ -377,7 +605,7 @@ function getServiceInstanceStatusByProject (request, response, appData)
                     continue;
                 }
                 siObjArr[i] = {};
-                siObjArr[i]['req'] = response.req;
+                siObjArr[i]['req'] = request;
                 siObjArr[i]['appData'] = appData;
                 siObjArr[i]['servInstId'] = svcInstUUID;
                 siObjArr[i]['servInstData'] = svcInstData['service-instances'][i];
@@ -387,7 +615,7 @@ function getServiceInstanceStatusByProject (request, response, appData)
             async.map(siObjArr, getServiceInstDetails, function(err, data) {
                 logutils.logger.debug("VM Status Nova Response processed at:" + new
                                       Date());
-                commonUtils.handleJSONResponse(null, response, data);
+                callback(null, data);
             });
         });
     });

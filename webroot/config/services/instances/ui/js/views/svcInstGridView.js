@@ -248,7 +248,7 @@ define([
                                             formatter: 'portTuplesFormatter'
                                         }
                                     },
-                                                                        {
+                                    {
                                         key: 'service_health_check_back_refs',
                                         label: 'Service Health Checks',
                                         templateGenerator: 'TextGenerator',
@@ -304,6 +304,15 @@ define([
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
                                             formatter: 'svcInstStatusFormatter'
+                                        }
+                                    },
+                                    {
+                                        key: 'statusDetails',
+                                        valueClass: 'span11',
+                                        label: 'Interface Status',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'svcInstIntfStatusFormatter'
                                         }
                                     }
                                 ]
@@ -651,6 +660,124 @@ define([
         return "ANY:ANY";
     }
 
+    function svcInstIntfStatusFormatter (row, col, val, d, rowData) {
+        var svcTmplVer =
+            getValueByJsonPath(rowData,
+                               'svcTmplDetails;0;service_template_properties;version',
+                               1);
+        var parentIDToNameMaps = {};
+        if (1 == svcTmplVer) {
+            var vms = getValueByJsonPath(rowData, 'virtual_machine_back_refs',
+                                         []);
+            var vmsCnt = vms.length;
+            for (var i = 0; i < vmsCnt; i++) {
+                var vmID = vms[i]['uuid'];
+                parentIDToNameMaps[vmID] = vms[i]['to'][0];
+            }
+        } else {
+            var portTuples = getValueByJsonPath(rowData, 'port_tuples', []);
+            var portTuplesCnt = portTuples.length;
+            for (var i = 0; i < portTuplesCnt; i++) {
+                var portTupleID = portTuples[i]['uuid'];
+                parentIDToNameMaps[portTupleID] = portTuples[i]['to'][3];
+            }
+        }
+        var hlthChkStatusData =
+            getValueByJsonPath(rowData, 'statusDetails;healthCheckStatus',
+                               null);
+        if (null == hlthChkStatusData) {
+            return "-";
+        }
+        var statusObjList = [];
+        for (var key in hlthChkStatusData) {
+            var parName = key;
+            if (null != parentIDToNameMaps[key]) {
+                parName = parentIDToNameMaps[key];
+            }
+            for (var vmi in hlthChkStatusData[key]) {
+                if ('vmis' == vmi) {
+                    continue;
+                }
+                var hlthCheckInstList = getValueByJsonPath(hlthChkStatusData,
+                                                           key + ';' + vmi +
+                                                           ';health_check_instance_list',
+                                                           []);
+                var vmiIP = getValueByJsonPath(hlthChkStatusData, key + ';' +
+                                               vmi + ';ip_address', "-");
+                var isActive = getValueByJsonPath(hlthChkStatusData, key + ';'
+                                                    + vmi + ';active', "-");
+                var intfStatus =
+                    '<span class="status-badge-rounded status-active"></span>' + "InActive";
+                if (true == isActive) {
+                    intfStatus =
+                        '<span class="status-badge-rounded status-active"></span>' + "Active";
+                }
+                var hlthCheckInstListLen = hlthCheckInstList.length;
+                var hlthChkStr = "";
+                if (!hlthCheckInstListLen) {
+                    hlthChkStr = "-";
+                }
+                for (var i = 0; i < hlthCheckInstListLen; i++) {
+                    var hlthChkName =
+                        svcUtils.getVNNameFormatter(hlthCheckInstList[i]['name'].split(":"));
+                    var hlthChkStatus = hlthCheckInstList[i]['status'];
+                    if ('Active' != hlthChkStatus) {
+                        hlthChkStr +=
+                            '<span class="status-badge-rounded status-partially-active"></span>';
+                    } else {
+                        hlthChkStr +=
+                            '<span class="status-badge-rounded status-active"></span>';
+                    }
+                    hlthChkStr += hlthChkName + " - " + hlthCheckInstList[i]['status'];
+                    if (i < hlthCheckInstListLen - 1) {
+                        hlthChkStr += ", <br>";
+                    }
+                }
+                var vmiFqn = vmi.split(':');
+                var curProject = contrail.getCookie('project');
+                var curDomain = contrail.getCookie('domain');
+                if ((vmiFqn[0] == curDomain) && (vmiFqn[1] == curProject)) {
+                    vmi = vmiFqn[2];
+                } else {
+                    vmi = vmiFqn[2] + " (" + vmiFqn[0] + ":" + vmiFqn[1] + ")";
+                }
+                statusObjList.push({'vmi': vmi, 'parent': parName,
+                                    'hlthChkStr': hlthChkStr,
+                                    'vmiIP': vmiIP,
+                                    'intfStatus': intfStatus});
+            }
+        }
+        var returnHtml = "";
+        var statusHeader =
+            '<thead>' +
+                '<th class="span4">Interface</th>' +
+                '<th class="span2">Status</th>' +
+                '<th class="span4">Health Status</th>' +
+                '<th class="span2">IP Address</th>' +
+              '</thead>'
+        returnHtml += statusHeader;
+        var len = statusObjList.length;
+        if (!len) {
+            return "No Virtual Machine Interface found.";
+        }
+        for (var i = 0; i < len; i++) {
+            returnHtml += '<tr>';
+            returnHtml += '<td class="span4" style="vertical-align:top;">' + statusObjList[i]['vmi'] +
+                '</td>';
+            returnHtml += '<td class="span2" style="vertical-align:top;">' +
+                statusObjList[i]['intfStatus'] + '</td>';
+            returnHtml += '<td class="span4" style="vertical-align:top;">';
+            returnHtml += statusObjList[i]['hlthChkStr'];
+            returnHtml += ' </td>';
+            returnHtml += '<td class="span2" style="vertical-align:top;">' + statusObjList[i]['vmiIP'] +
+                '</td>';
+            returnHtml += '</tr>';
+        }
+        returnHtml = "<table class='row-fluid' >" + returnHtml +
+            "</table>";
+        return returnHtml;
+    }
+
     function svcInstStatusFormatter (row, col, val, d, rowData) {
         var vmDetails =
             getValueByJsonPath(rowData,
@@ -786,26 +913,45 @@ define([
         var vmStatus =
             getValueByJsonPath(rowData, 'statusDetails;vmStatus',
                                'Updating');
+        var vmStatusStr = "";
         if ("Spawning" == vmStatus) {
-            return ('<img src="/img/loading.gif">&nbsp;&nbsp;' +
-                    vmStatus);
-        }
-        if ("Inactive" == vmStatus) {
-            return ('<div class="status-badge-rounded status-inactive"></div>&nbsp;&nbsp;' +
-                    vmStatus);
-        }
-        if ("Partially Active" == vmStatus) {
-            return ('<img src="/img/loading.gif">&nbsp;&nbsp;' +
-                    vmStatus);
-        }
-        if ("Active" == vmStatus) {
-            return ('<div class="status-badge-rounded status-active"></div>&nbsp;&nbsp;' +
-                    vmStatus);
-        }
-        if ("Error" == vmStatus) {
+            vmStatusStr ='<img src="/img/loading.gif">&nbsp;&nbsp;' + vmStatus;
+        } else if ("Inactive" == vmStatus) {
+            vmStatusStr = '<div class="status-badge-rounded status-inactive"></div>&nbsp;&nbsp;' +
+                vmStatus
+        } else if ("Partially Active" == vmStatus) {
+            vmStatusStr = '<img src="/img/loading.gif">&nbsp;&nbsp;' + vmStatus;
+        } else if ("Active" == vmStatus) {
+            vmStatusStr = '<div class="status-badge-rounded status-active"></div>&nbsp;&nbsp;' +
+                vmStatus;
+        } else if ("Error" == vmStatus) {
             return ('Request Failed.');
         }
-        return vmStatus;
+        /* Now check if health check is configured */
+        var healthCheckStatusObjs =
+            getValueByJsonPath(rowData, 'statusDetails;healthCheckStatus',
+                               null);
+        if ("Active" != vmStatus) {
+            return vmStatusStr;
+        }
+        for (var key in healthCheckStatusObjs) {
+            for (var vmi in healthCheckStatusObjs[key]) {
+                var hlthChkInstList =
+                    getValueByJsonPath(healthCheckStatusObjs,
+                                       key + ';' + vmi + ';' +
+                                       'health_check_instance_list', []);
+                var hlthChkInstListLen = hlthChkInstList.length;
+                for (var i = 0; i < hlthChkInstListLen; i++) {
+                    var hlthChkStatus = getValueByJsonPath(hlthChkInstList[i],
+                                                    'status', null);
+                    if ("InActive" == hlthChkStatus) {
+                        return '<div class="status-badge-rounded status-partially-active"></div>&nbsp;&nbsp;' +
+                            vmStatus
+                    }
+                }
+            }
+        }
+        return vmStatusStr;
     }
 
     this.svcTmplFormatter = function(val, rowData) {
@@ -850,6 +996,10 @@ define([
 
     this.svcInstStatusFormatter = function(val, rowData) {
         return svcInstStatusFormatter(null, null, val, null, rowData);
+    }
+
+    this.svcInstIntfStatusFormatter = function(val, rowData) {
+        return svcInstIntfStatusFormatter(null, null, val, null, rowData);
     }
 
     this.instCountFormatter = function(val, rowData) {

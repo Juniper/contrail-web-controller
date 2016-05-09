@@ -146,31 +146,64 @@ define([
             }
         },
         parseSIStatusToListModel: function(response, isRefetch) {
+            var uveHlthCheckData =
+                getValueByJsonPath(response, '0;vmiData', []);
+            var instTupleVMIMaps =
+                getValueByJsonPath(response, '0;instTupleVMIMaps', {});
+            var novaStatusData = getValueByJsonPath(response, '1', []);
             self.clearSITimer();
             window.doFetchSvcInst = false;
             var dataItems = self.contrailListModel.getItems();
             var dataCnt = dataItems.length;
             var tmpSvcInstObjs = {};
+            var uveHlthCheckDataCnt = uveHlthCheckData.length;
+            var vmiToHlthCheckMap = {};
+            for (var i = 0; i < uveHlthCheckDataCnt; i++) {
+                var vmiName = uveHlthCheckData[i]['name'];
+                var hlthCheckInstList =
+                    getValueByJsonPath(uveHlthCheckData[i],
+                                       'value;UveVMInterfaceAgent', []);
+                vmiToHlthCheckMap[vmiName] = hlthCheckInstList;
+            }
+            for (var instID in instTupleVMIMaps) {
+                for (var portTupleID in instTupleVMIMaps[instID]) {
+                    var vmis = instTupleVMIMaps[instID][portTupleID]['vmis'];;
+                    if (null == vmis) {
+                        continue;
+                    }
+                    var vmisCnt = vmis.length;
+                    for (var i = 0; i < vmisCnt; i++) {
+                        if (null == vmiToHlthCheckMap[vmis[i]]) {
+                            continue;
+                        }
+                        instTupleVMIMaps[instID][portTupleID][vmis[i]] =
+                            vmiToHlthCheckMap[vmis[i]];
+                    }
+                }
+            }
             for (var i = 0; i < dataCnt; i++) {
                 if (null == dataItems[i]['statusDetails']) {
                     dataItems[i]['statusDetails'] = {};
                 }
                 tmpSvcInstObjs[dataItems[i]['uuid']] = i;
             }
-            var respCnt = response.length;
+            var respCnt = novaStatusData.length;
             for (var i = 0; i < respCnt; i++) {
                 var uuid =
-                    response[i]['ConfigData']['service-instance']['uuid'];
+                    novaStatusData[i]['ConfigData']['service-instance']['uuid'];
+                var instTupleVMIObj = instTupleVMIMaps[uuid];
                 var idx = tmpSvcInstObjs[uuid];
                 if (null != idx) {
                     dataItems[idx]['statusDetails']['vmStatus'] =
-                        response[i]['vmStatus'];
+                        novaStatusData[i]['vmStatus'];
                     dataItems[idx]['statusDetails']['VMDetails'] =
-                        response[i]['VMDetails'];
-                    if (('Inactive' != response[i]['vmStatus']) &&
-                        ('Active' != response[i]['vmStatus'])) {
+                        novaStatusData[i]['VMDetails'];
+                    if (('Inactive' != novaStatusData[i]['vmStatus']) &&
+                        ('Active' != novaStatusData[i]['vmStatus'])) {
                         window.doFetchSvcInst = true;
                     }
+                    dataItems[idx]['statusDetails']['healthCheckStatus'] =
+                        instTupleVMIMaps[uuid];
                 }
             }
             self.contrailListModel.updateData(dataItems);
