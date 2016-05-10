@@ -3,15 +3,8 @@
  */
 
 define([
-    'underscore',
-    'text!controller-basedir/monitor/infrastructure/common/ui/templates/monitor.infra.tmpl',
-    'monitor-infra-utils',
-    'monitor-infra-constants',
-    'monitor-infra-parsers'
-], function (_, MonitorInfraTmpls, MonitorInfraUtils, MonitorInfraConstants, MonitorInfraParsers) {
-    monitorInfraConstants = new MonitorInfraConstants;
-    monitorInfraUtils = new MonitorInfraUtils;
-    monitorInfraParsers = new MonitorInfraParsers;
+    'monitor-infra-module'
+], function () {
     var initJSpath = pkgBaseDir +
         '/monitor/infrastructure/common/ui/js/monitor.infra.init.js',
         initStatus = contentHandler.initFeatureModuleMap[initJSpath],
@@ -21,8 +14,7 @@ define([
     initStatus['isComplete'] = true;
 
     if(contrail.checkIfExist(deferredObj)) {
-        deferredObj.resolve()
+        deferredObj.resolve();
     }
-
-    $("body").append(MonitorInfraTmpls);
+    
 });
