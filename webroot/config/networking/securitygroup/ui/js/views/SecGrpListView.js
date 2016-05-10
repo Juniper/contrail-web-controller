@@ -13,14 +13,14 @@ define([
     var gridElId = '#' + ctwl.SEC_GRP_GRID_ID;
     var selectedProject = null;
     var sgUtils = new SecGrpUtils();
-    var secGrpList = [];
     var SecGrpListView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig;
             selectedProject =
                 viewConfig['projectSelectedValueData'];
-
+            self.sgDataObj = {};
+            self.sgDataObj.secGrpList = [];
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
@@ -31,14 +31,11 @@ define([
                     dataParser: secGrpParser
                 },
                 vlRemoteConfig: {
-                    vlRemoteList : vlRemoteSecGrpConfig,
+                    vlRemoteList : vlRemoteSecGrpConfig(self.sgDataObj),
                     completeCallback: function(response) {
                         self.renderView4Config(self.$el,
-                                               contrailListModel,
-                                               getSecGrpViewConfig(), null,
-                                               null, null, function() {
-                            $(gridElId).data('secGrpList', secGrpList);
-                        });
+                            contrailListModel,
+                            getSecGrpViewConfig(self.sgDataObj));
                     }
                 }
             };
@@ -46,8 +43,8 @@ define([
         }
     });
 
-    var vlRemoteSecGrpConfig = [
-        {
+    function vlRemoteSecGrpConfig(sgDataObj) {
+        return [{
             getAjaxConfig: function (responseJSON) {
                 var lazyAjaxConfig = {
                     url: ctwc.get(ctwc.URL_GET_SEC_GRP_LIST),
@@ -92,12 +89,10 @@ define([
                             true, parent :"subnet", id: "-1/0"}]}, {text : 'Security Group',
                             value : 'security_group', id : 'security_group',
                             children : allSecGrpList});
-                secGrpList = addrFields;
-                window.sg = {};
-                window.sg.secGrpList = secGrpList;
+                sgDataObj.secGrpList = addrFields;
             }
-        }
-    ];
+        }];
+    }
 
     function secGrpParser (response) {
         var secGrpList = [];
@@ -132,7 +127,7 @@ define([
         return secGrpList;
     };
 
-    var getSecGrpViewConfig = function () {
+    var getSecGrpViewConfig = function (sgDataObj) {
         return {
             elementId: cowu.formatElementId([ctwl.CONFIG_SEC_GRP_SECTION_ID]),
             view: "SectionView",
@@ -147,6 +142,7 @@ define([
                                 viewPathPrefix: "config/networking/securitygroup/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
+                                    sgDataObj: sgDataObj
                                 }
                             }
                         ]

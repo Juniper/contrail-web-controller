@@ -20,6 +20,7 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+            secGrpEditView.sgDataObj = viewConfig.sgDataObj;
             self.renderView4Config(self.$el, self.model,
                                    getSecGrpGridViewConfig(pagerOptions));
         }
@@ -167,7 +168,6 @@ define([
 
     var rowActionConfig = [
         ctwgc.getEditConfig('Edit', function(rowIndex) {
-            sgUtils.deleteCurrentSG();
             var dataItem =
                 $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
             var secGrpModel = new SecGrpModel(dataItem);
@@ -252,7 +252,6 @@ define([
                 "title": ctwl.TITLE_CREATE_SEC_GRP,
                 "iconClass": 'icon-plus',
                 "onClick": function() {
-                    sgUtils.addCurrentSG();
                     var projFqn = [getCookie('domain'),
                         getCookie('project')];
                     secGrpModel = new SecGrpModel();

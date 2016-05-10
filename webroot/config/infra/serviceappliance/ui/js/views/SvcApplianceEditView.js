@@ -46,7 +46,7 @@ define([
 
             self.renderView4Config($("#" + modalId).find(formId),
                                    self.model,
-                                   getEditSvcApplianceViewConfig(options['isEdit']),
+                                   getEditSvcApplianceViewConfig(options['isEdit'], self.model),
                                    "svcApplianceConfigValidations",
                                    null, null, function() {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
@@ -214,7 +214,7 @@ define([
         return result;
     }
 
-    function getSAInterfaceViewConfig () {
+    function getSAInterfaceViewConfig (svcApplModel) {
         return {
             elementId: 'saInterface',
             view: 'SectionView',
@@ -241,16 +241,6 @@ define([
                                     width: 150,
                                     path: 'interface_type',
                                     dataBindValue: 'interface_type()',
-                                    /*
-                                    elementConfig: {
-                                        dataTextField: 'text',
-                                        dataValueField: 'id',
-                                        dataSource: {
-                                            type: 'local',
-                                            data: window.svcApplData.intfTypes
-                                        }
-                                    }
-                                    */
                                 }
                             },
                             {
@@ -268,7 +258,7 @@ define([
                                         placeholder: 'Select Physical Interface',
                                         dataTextField: 'text',
                                         dataValueField: 'id',
-                                        data: window.svcApplData.piList
+                                        data: svcApplModel.svcApplData.piList
                                     }
                                 }
                             }],
@@ -288,7 +278,7 @@ define([
         }
     }
 
-    function getEditSvcApplianceViewConfig (isDisabled) {
+    function getEditSvcApplianceViewConfig (isDisabled, svcApplModel) {
         var prefixId = ctwl.SVC_APPLIANCE_PREFIX_ID;
         var svcApplianceViewConfig = {
             elementId: cowu.formatElementId([prefixId, ctwl.TITLE_EDIT_SVC_APPLIANCE]),
@@ -356,7 +346,7 @@ define([
                     },
                     {
                         columns: [
-                            getSAInterfaceViewConfig()
+                            getSAInterfaceViewConfig(svcApplModel)
                         ]
                     },
                     {

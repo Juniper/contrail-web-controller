@@ -19,12 +19,14 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+            svcInstEditView.svcInstanceDataObj = viewConfig.svcInstanceDataObj;
             self.renderView4Config(self.$el, self.model,
-                                   getSvcInstGridViewConfig(pagerOptions));
+                                   getSvcInstGridViewConfig(pagerOptions,
+                                   viewConfig.svcInstanceDataObj));
         }
     });
 
-    var getSvcInstGridViewConfig = function (pagerOptions) {
+    var getSvcInstGridViewConfig = function (pagerOptions, svcInstanceDataObj) {
         return {
             elementId: cowu.formatElementId([ctwl.CONFIG_SERVICE_INSTANCES_LIST_VIEW_ID]),
             view: "SectionView",
@@ -37,7 +39,8 @@ define([
                                 title: ctwl.TITLE_SERVICE_INSTANCES,
                                 view: "GridView",
                                 viewConfig: {
-                                    elementConfig: getConfiguration(pagerOptions)
+                                    elementConfig: getConfiguration(
+                                        pagerOptions, svcInstanceDataObj)
                                 }
                             }
                         ]
@@ -47,17 +50,17 @@ define([
         }
     };
 
-    var getConfiguration = function (pagerOptions) {
+    var getConfiguration = function (pagerOptions, svcInstanceDataObj) {
         var gridElementConfig = {
             header: {
                 title: {
                     text: ctwl.TITLE_SERVICE_INSTANCES
                 },
-                advanceControls: getHeaderActionConfig(),
+                advanceControls: getHeaderActionConfig(svcInstanceDataObj),
             },
             body: {
                 options: {
-                    actionCell: rowActionConfig,
+                    actionCell: rowActionConfig(svcInstanceDataObj),
                     detail: {
                         template:
                             cowu.generateDetailTemplateHTML(getSvcInstDetailsTemplateConfig(),
@@ -99,79 +102,66 @@ define([
         });
     }
 
-    function editSvcInstPopUp (dataItem) {
-        var svcInstModel = new SvcInstModel(dataItem);
-        addModelAttr(svcInstModel);
-        svcInstEditView.model = svcInstModel;
-        svcInstModel.editView = svcInstEditView;
-        svcInstEditView.renderConfigureSvcInst({
-                              "title": ctwl.TITLE_EDIT_SERVICE_INSTANCE +
-                              ' (' + dataItem['display_name'] +
-                                 ')',
-                              dataItem: dataItem,
-                              "isEdit": true,
-                              callback: function () {
-            var dataView =
-                $(gridElId).data("contrailGrid")._dataView;
-            dataView.refreshData();
-        }});
-    }
-
-    var rowActionConfig = [
-        ctwgc.getEditConfig('Edit', function(rowIndex) {
-            var dataItem =
-                $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
-            var svcTmplDetails = dataItem['svcTmplDetails'];
-            var svcTmplVer =
-                getValueByJsonPath(svcTmplDetails,
-                                   '0;service_template_properties;version', 1);
-            var intfList =
-                getValueByJsonPath(dataItem,
-                                   'service_instance_properties;interface_list',
-                                   []);
-            var intfListLen = intfList.length;
-            var setVNList = [];
-            if (2 == svcTmplVer) {
-                for (var i = 0; i < intfListLen; i++) {
-                    setVNList[i] = intfList[i]['virtual_network'];
+    function rowActionConfig(svcInstanceDataObj) {
+        return [
+            ctwgc.getEditConfig('Edit', function(rowIndex) {
+                var dataItem =
+                    $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
+                var svcTmplDetails = dataItem['svcTmplDetails'];
+                var svcTmplVer =
+                    getValueByJsonPath(svcTmplDetails,
+                                       '0;service_template_properties;version', 1);
+                var intfList =
+                    getValueByJsonPath(dataItem,
+                                       'service_instance_properties;interface_list',
+                                       []);
+                var intfListLen = intfList.length;
+                var setVNList = [];
+                if (2 == svcTmplVer) {
+                    for (var i = 0; i < intfListLen; i++) {
+                        setVNList[i] = intfList[i]['virtual_network'];
+                    }
                 }
-            }
-            var svcInstModel = new SvcInstModel(dataItem);
-            addModelAttr(svcInstModel);
-            svcInstEditView.model = svcInstModel;
-            svcInstModel.editView = svcInstEditView;
-            svcInstEditView.renderConfigureSvcInst({
-                              "title": ctwl.TITLE_EDIT_SERVICE_INSTANCE +
-                              ' (' + dataItem['display_name'] +
-                                 ')',
-                              dataItem: dataItem,
-                              'setVNList': setVNList,
-                              "isEdit": true,
-                              callback: function () {
-                var dataView =
-                    $(gridElId).data("contrailGrid")._dataView;
-                dataView.refreshData();
-            }});
-        }),
-        ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-            var svcInstModel = new SvcInstModel();
-            var dataItem =
-                $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
-
-            var checkedRows = [dataItem];
-            svcInstEditView.model = svcInstModel;
-            svcInstEditView.renderDeleteSvcInst({
-                                  "title": ctwl.TITLE_DEL_SERVICE_INSTANCES +
+                dataItem.svcTmplsFormatted =
+                    svcInstanceDataObj.svcTmplsFormatted;
+                var svcInstModel = new SvcInstModel(dataItem);
+                svcInstModel.svcInstanceDataObj = svcInstanceDataObj;
+                addModelAttr(svcInstModel, svcInstanceDataObj);
+                svcInstEditView.model = svcInstModel;
+                svcInstModel.editView = svcInstEditView;
+                svcInstEditView.renderConfigureSvcInst({
+                                  "title": ctwl.TITLE_EDIT_SERVICE_INSTANCE +
                                   ' (' + dataItem['display_name'] +
                                      ')',
-                                  checkedRows: checkedRows,
+                                  dataItem: dataItem,
+                                  'setVNList': setVNList,
+                                  "isEdit": true,
                                   callback: function () {
-                var dataView =
-                    $(gridElId).data("contrailGrid")._dataView;
-                dataView.refreshData();
-            }});
-        })
-    ];
+                    var dataView =
+                        $(gridElId).data("contrailGrid")._dataView;
+                    dataView.refreshData();
+                }});
+            }),
+            ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+                var svcInstModel = new SvcInstModel();
+                var dataItem =
+                    $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
+            
+                var checkedRows = [dataItem];
+                svcInstEditView.model = svcInstModel;
+                svcInstEditView.renderDeleteSvcInst({
+                                      "title": ctwl.TITLE_DEL_SERVICE_INSTANCES +
+                                      ' (' + dataItem['display_name'] +
+                                         ')',
+                                      checkedRows: checkedRows,
+                                      callback: function () {
+                    var dataView =
+                        $(gridElId).data("contrailGrid")._dataView;
+                    dataView.refreshData();
+                }});
+            })
+        ];
+    }
 
     function getSvcInstDetailsTemplateConfig () {
         return {
@@ -872,7 +862,7 @@ define([
     }
 
     this.showViewConsoleWindow = function(vmUUID, name) {
-        var selectedProject = window.projectDomainData.name;
+        var selectedProject = contrail.getCookie(cowc.COOKIE_PROJECT);
         var ajaxConfig = {
             url: '/api/tenants/config/service-instance-vm?project_id=' +
                      selectedProject + "&vm_id=" + vmUUID,
@@ -1079,8 +1069,8 @@ define([
         }
     ];
 
-    function getSvcTmplDetailsByUIStr (uiSvcTmplStr) {
-        var svcInstTmplts = $(gridElId).data('svcInstTmplts');
+    function getSvcTmplDetailsByUIStr (uiSvcTmplStr, svcInstanceDataObj) {
+        var svcInstTmplts = svcInstanceDataObj.svcInstTmplts;
         var retFlag = false;
         if (null == uiSvcTmplStr) {
             return null;
@@ -1089,23 +1079,14 @@ define([
         if (null == svcInstTmplts[tmpl]) {
             return null;
         }
-        if (null == window.intfToBeTaken) {
-            var intfTypeStrStart = uiSvcTmplStr.indexOf('(');
-            var intfTypeStrEnd = uiSvcTmplStr.indexOf(')');
-            var itfTypes =
-                uiSvcTmplStr.substr(intfTypeStrStart + 1,
-                               intfTypeStrEnd -
-                               intfTypeStrStart - 1);
-            window.intfTypes = itfTypes.split(', ');
-            window.intfToBeTaken = window.intfTypes[0];
-        }
         return svcInstTmplts[tmpl];
     }
 
-    function addModelAttr (model)
+    function addModelAttr (model, svcInstanceDataObj)
     {
         model.staticRoutesAccordianVisible = ko.computed((function() {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template(),
+                svcInstanceDataObj);
             var statRts =
                 svcUtils.getStaticRtsInterfaceTypesBySvcTmpl(svcTmpl, true);
             if (statRts.length > 0) {
@@ -1114,7 +1095,8 @@ define([
             return false;
         }), model);
         model.isHAModeDropDownDisabled = ko.computed((function() {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template(),
+                svcInstanceDataObj);
             var tmplVersion =
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;version', 1);
@@ -1128,7 +1110,8 @@ define([
             return true;
         }), model);
         model.showHAMode = ko.computed((function() {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template(),
+                svcInstanceDataObj);
             var svcScaling =
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;service_scaling',
@@ -1142,7 +1125,8 @@ define([
             return svcScaling;
         }), model);
         model.showIfV1Template = ko.computed((function(version) {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template(),
+                svcInstanceDataObj);
             var tmplVersion =
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;version', 1);
@@ -1152,7 +1136,8 @@ define([
             return false;
         }), model);
         model.showIfV2Template = ko.computed((function(version) {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template(),
+                svcInstanceDataObj);
             var tmplVersion =
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;version', 1);
@@ -1162,7 +1147,8 @@ define([
             return false;
         }), model);
         model.showInstCnt = ko.computed((function() {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template(),
+                svcInstanceDataObj);
             var svcScaling =
             getValueByJsonPath(svcTmpl,
                                'service_template_properties;service_scaling',
@@ -1176,7 +1162,8 @@ define([
             return svcScaling;
         }), model);
         model.ifNotTransparentTmpl = ko.computed((function() {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template(),
+                svcInstanceDataObj);
             var svcMode =
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;service_mode',
@@ -1187,7 +1174,8 @@ define([
             return true;
         }), model);
         model.showPortTuplesView = ko.computed((function() {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template(),
+                svcInstanceDataObj);
             var tmplVer =
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;version', 1);
@@ -1199,7 +1187,8 @@ define([
             return false;
         }), model);
         model.showAvailibilityZone = ko.computed((function() {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template(),
+                svcInstanceDataObj);
             var availZoneEnable =
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;availability_zone_enable',
@@ -1213,7 +1202,8 @@ define([
             return false;
         }), model);
         model.showInterfaceCollectionView = ko.computed((function() {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template(),
+                svcInstanceDataObj);
             var tmplVer =
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;version', 1);
@@ -1224,7 +1214,7 @@ define([
         }), model);
     }
 
-    function getHeaderActionConfig() {
+    function getHeaderActionConfig(svcInstanceDataObj) {
         var headerActionConfig = [
             {
                 "type": "link",
@@ -1251,13 +1241,14 @@ define([
                 "title": ctwl.TITLE_CREATE_SERVICE_INSTANCE,
                 "iconClass": "icon-plus",
                 "onClick": function() {
-                    window.intfToBeTaken = null;
-                    window.intfTypes = [];
-                    svcInstModel = new SvcInstModel();
-                    if (!window.svcTmplsFormatted.length) {
+                    svcInstModel = new SvcInstModel({
+                        svcTmplsFormatted: svcInstanceDataObj.svcTmplsFormatted
+                    });
+                    svcInstModel.svcInstanceDataObj = svcInstanceDataObj;
+                    if (!svcInstanceDataObj.svcTmplsFormatted.length) {
                         return;
                     }
-                    addModelAttr(svcInstModel);
+                    addModelAttr(svcInstModel, svcInstanceDataObj);
                     subscribeModelChangeEvents(svcInstModel);
                     svcInstEditView.model = svcInstModel;
                     svcInstModel.editView = svcInstEditView;

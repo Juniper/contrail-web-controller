@@ -8,19 +8,19 @@ define([
     'knockback',
     'config/services/instances/ui/js/svcInst.utils'
 ], function (_, ContrailView, Knockback, SvcInstUtils) {
-    var gridElId = '#' + ctwl.SERVICE_INSTANCES_GRID_ID;
-    var prefixId = ctwl.SERVICE_INSTANCES_PREFIX_ID;
-    var modalId = 'configure-' + prefixId;
-    var formId = '#' + modalId + '-form';
-    var svcInstUtils = new SvcInstUtils();
-    var done = 0;
+    var gridElId = '#' + ctwl.SERVICE_INSTANCES_GRID_ID,
+        prefixId = ctwl.SERVICE_INSTANCES_PREFIX_ID,
+        modalId = 'configure-' + prefixId,
+        formId = '#' + modalId + '-form',
+        svcInstUtils = new SvcInstUtils(),
+        done = 0, self;
 
     var SvcInstEditView = ContrailView.extend({
         renderConfigureSvcInst: function(options) {
             var editTemplate =
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
-            var editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
-                self = this;
+            var editLayout = editTemplate({prefixId: prefixId, modalId: modalId});
+            self = this;
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
@@ -46,19 +46,20 @@ define([
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
-            this.fetchData(self, options.setVNList, function(vmiDetails) {
+            this.fetchData(self, options.setVNList, function(configDetails) {
                 self.model.updateVMIToPortTuple(self.model.model().attributes.port_tuples,
-                                                vmiDetails);
+                                                configDetails);
+                configDetails.svcInstanceDataObj = self.svcInstanceDataObj;
                 self.model.formatModelConfig(self.model.model().attributes,
-                                             true);
-                self.renderSIView(self, options);
+                                                configDetails);
+                self.renderSIView(self, options, configDetails);
             })
         },
-        renderSIView: function (self, options) {
+        renderSIView: function (self, options, configDetails) {
             self.renderView4Config($("#" + modalId).find(formId),
                                self.model,
                                getEditSvcInstViewConfig(self,
-                                                        options['isEdit']),
+                                   options['isEdit'], configDetails),
                                "svcInstValidations",
                                null, null, function() {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
@@ -173,32 +174,38 @@ define([
                     vmiList = getValueByJsonPath(arguments, '0;6', []);
                     sharedVNList = getValueByJsonPath(arguments, '0;5', []);
                 }
-                window.allVNList = svcInstUtils.virtNwListFormatter(allVNList,
+                allVNList = svcInstUtils.virtNwListFormatter(allVNList,
                                                                     false);
                 sharedVNList =
                     svcInstUtils.virtNwListFormatter(sharedVNList, true);
-                window.allVNList = window.allVNList.concat(sharedVNList);
-                if (window.allVNList.length > 0) {
-                    window.allVNList.unshift({'text':"Auto Configured",
+                allVNList = allVNList.concat(sharedVNList);
+                if (allVNList.length > 0) {
+                    allVNList.unshift({'text':"Auto Configured",
                                              'id':"autoConfigured"});
                 } else {
-                    window.allVNList.push({id: null,
+                    allVNList.push({id: null,
                         text: "No Virtual Networks found"});
                 }
-                window.healthCheckServiceList =
+                healthCheckServiceList =
                     svcInstUtils.buildTextValueByConfigList(healthCheckServiceList,
                                                         'service-health-checks');
-                window.interfaceRouteTableList =
+                interfaceRouteTableList =
                     svcInstUtils.buildTextValueByConfigList(interfaceRouteTableList,
                                                         'interface-route-tables');
-                window.routingPolicyList =
+                routingPolicyList =
                     svcInstUtils.buildTextValueByConfigList(routingPolicyList,
                                                         'routing-policys');
-                window.routeAggregateList =
+                routeAggregateList =
                     svcInstUtils.buildTextValueByConfigList(routeAggregateList,
                                                         'route-aggregates');
-                svcInstUtils.updateVnVmiMaps(vmiList);
-                callback({'virtual-machine-interfaces': vmiList});
+                var vnDetails = svcInstUtils.vmiListFormatter(vmiList);
+                callback({'virtual-machine-interfaces': vmiList,
+                    'allVNList' : allVNList,
+                    'healthCheckServiceList' : healthCheckServiceList,
+                    'interfaceRouteTableList' : interfaceRouteTableList,
+                    'routingPolicyList' : routingPolicyList,
+                    'routeAggregateList' : routeAggregateList,
+                    'vnDetails' : vnDetails});
             }
         )},
         setVMIsByVN: function(model, newValue, intfType) {
@@ -222,8 +229,8 @@ define([
             };
             contrail.ajaxHandler(ajaxConfig, null,
                 function(result){
-                svcInstUtils.updateVnVmiMaps(result);
-                self.model.setVMIsByVN(model, newValue, intfType);
+                var vnDetails = svcInstUtils.vmiListFormatter(result);
+                self.model.setVMIsByVN(model, newValue, intfType, vnDetails);
             },
             function(error){
             });
@@ -267,23 +274,7 @@ define([
         }
     });
 
-    function svcTmpListFormatter (response) {
-        var svcTmpResp = getValueByJsonPath(response, 'service_templates', []);
-        var svcTmpList = [];
-        if (!svcTmpResp.length) {
-            return ([{id: null, text: "No Service template available"}]);
-        }
-        var cnt = svcTmpResp.length;
-        window.svcTmplFormatted = [];
-        for (var i = 0; i < cnt; i++) {
-            var dispStr = svcInstUtils.svcTemplateFormatter(svcTmpResp[i]);
-            svcTmpList.push({id: dispStr, text: dispStr});
-            window.svcTmplFormatted.push(dispStr);
-        }
-        return svcTmpList;
-    }
-
-    function getEditSvcInstViewConfig (self, isDisabled) {
+    function getEditSvcInstViewConfig (self, isDisabled, configDetails) {
         var prefixId = ctwl.SERVICE_INSTANCES_PREFIX_ID;
         var svcInstViewConfig = {
             elementId: cowu.formatElementId([prefixId,
@@ -321,52 +312,18 @@ define([
                                         tmpl.substr(intfTypeStrStart + 1,
                                                     intfTypeStrEnd -
                                                     intfTypeStrStart - 1);
-                                    window.intfTypes = itfTypes.split(', ');
-                                    self.model.formatModelConfigColl(window.intfTypes, isDisabled);
-                                    var cnt = window.intfTypes.length;
+                                    self.model.formatModelConfigColl(
+                                        itfTypes.split(', '), isDisabled,
+                                        self.svcInstanceDataObj.svcInstTmplts);
                                 },
                                 placeholder: 'Select template',
                                 dataTextField: "text",
                                 dataValueField: "id",
-                                data: window.svcTmplsFormatted
+                                data: configDetails.svcInstanceDataObj.svcTmplsFormatted
                             }
                         }
                     }]
                 },
-                /*
-                {
-                    columns: [{
-                        elementId: 'service_template',
-                        view: 'FormDropdownView',
-                        viewConfig: {
-                            disabled: isDisabled,
-                            label: 'Service Template',
-                            path: 'service_template',
-                            class: 'span12',
-                            dataBindValue: 'service_template',
-                            elementConfig: {
-                                change: function(data) {
-                                    var tmpl = data['val'];
-                                    var intfTypeStrStart = tmpl.indexOf('(');
-                                    var intfTypeStrEnd = tmpl.indexOf(')');
-                                    var itfTypes =
-                                        tmpl.substr(intfTypeStrStart + 1,
-                                                    intfTypeStrEnd -
-                                                    intfTypeStrStart - 1);
-                                    window.intfTypes = itfTypes.split(', ');
-                                    self.model.formatModelConfigColl(window.intfTypes);
-                                    var cnt = window.intfTypes.length;
-                                    //self.model.setInterfaceTypesData();
-                                },
-                                placeholder: 'Select template',
-                                dataTextField: "text",
-                                dataValueField: "id",
-                                data: window.svcTmplsFormatted
-                            }
-                        }
-                    }]
-                },
-                */
                 {
                     columns: [{
                         elementId: 'no_of_instances',
@@ -417,7 +374,7 @@ define([
                                 dataTextField : "text",
                                 dataValueField : "value",
                                 defaultValueId: 0,
-                                data: window.availabilityZoneList,
+                                data: configDetails.svcInstanceDataObj.availabilityZoneList,
                                 change: function(data) {
                                     var hostListByZone = [];
                                     hostListByZone.push({'text': 'ANY',
@@ -426,7 +383,8 @@ define([
                                         self.model.host_list(hostListByZone);
                                         return;
                                     }
-                                    var hostList = window.hostList;
+                                    var hostList =
+                                        configDetails.svcInstanceDataObj.hostList;
                                     if ('host' in hostList) {
                                         var len = hostList['host'].length;
                                         for (var i = 0; i < len; i++) {
@@ -481,7 +439,8 @@ define([
                 },
                 {
                     columns: [
-                        svcInstUtils.getSvcInstV2PropView(isDisabled)
+                        svcInstUtils.getSvcInstV2PropView(isDisabled,
+                            configDetails)
                     ]
                 }]
             }

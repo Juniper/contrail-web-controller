@@ -94,9 +94,6 @@ define([
             }
             var vmisCnt = vmis.length;
             var tmpVNIds = {};
-            if (null == window.vmiToInstIpsMap) {
-                window.vmiToInstIpsMap = {};
-            }
             for (var i = 0; i < vmisCnt; i++) {
                 var vmi =
                     getValueByJsonPath(vmis[i],
@@ -106,7 +103,7 @@ define([
                 }
                 var builtVMI = this.buildVMI(vmi);
                 if (null != builtVMI.instIps) {
-                    window.vmiToInstIpsMap[vmi.uuid] = builtVMI.instIps;
+                    vmiToInstIpsMap[vmi.uuid] = builtVMI.instIps;
                 }
                 var vmRefs = getValueByJsonPath(vmi,
                                                 'virtual_machine_refs',
@@ -135,22 +132,11 @@ define([
                     vnVmiMaps[vnFqn].push(builtVMI);
                 }
             }
-            return {vnList: vnList, vnVmiMaps: vnVmiMaps};
+            return {vnList: vnList, vnVmiMaps: vnVmiMaps,
+                vmiToInstIpsMap: vmiToInstIpsMap};
         },
-        this.updateVnVmiMaps = function(vmiList) {
-            var vnObjs = this.vmiListFormatter(vmiList);
-            if (null == window.vnList) {
-                window.vnList = [];
-            }
-            window.vnList.concat(vnObjs.vnList);
-            if (null == window.vnVmiMaps) {
-                window.vnVmiMaps = {};
-            }
-            for (key in vnObjs.vnVmiMaps) {
-                window.vnVmiMaps[key] = vnObjs.vnVmiMaps[key];
-            }
-        },
-        this.buildTextValueByConfigList =function (configListObj, type) {
+
+        this.buildTextValueByConfigList = function (configListObj, type) {
             if ((null == configListObj[type]) || (!configListObj[type].length)) {
                 return [];
             }
@@ -219,23 +205,17 @@ define([
                 svcIntfTypes.join(', ') + ")]";
             return dispStr + ' - v' + svcTempVersion;
         },
-        this.getSvcTmplDetailsBySvcTmplStr = function(svcTmplStr) {
+        this.getSvcTmplDetailsBySvcTmplStr = function(svcTmplStr, svcInstTmplts) {
             /* This function must be called after grid is initialized */
             if (null == svcTmplStr) {
                 return null;
             }
-            var gridElId = "#" + ctwl.SERVICE_INSTANCES_GRID_ID;
-            try {
-                var svcTmpls = $(gridElId).data('svcInstTmplts');
-            } catch(e) {
-                return null;
-            }
             var svcTmplFqn = getCookie('domain') + ":" +
                 svcTmplStr.split(' - [')[0];
-            return svcTmpls[svcTmplFqn];
+            return svcInstTmplts ? svcInstTmplts[svcTmplFqn] : null;
         },
-        this.getStaticRtsInterfaceTypesByStr = function(svcTmplStr, isRaw) {
-            var svcTmpl = this.getSvcTmplDetailsBySvcTmplStr(svcTmplStr);
+        this.getStaticRtsInterfaceTypesByStr = function(svcTmplStr, isRaw, svcInstTmplts) {
+            var svcTmpl = this.getSvcTmplDetailsBySvcTmplStr(svcTmplStr, svcInstTmplts);
             return this.getStaticRtsInterfaceTypesBySvcTmpl(svcTmpl, isRaw);
         },
         this.getStaticRtsInterfaceTypesBySvcTmpl = function(svcTmpl, isRaw) {
@@ -281,14 +261,7 @@ define([
             }
             return svcIntfTypes;
         },
-        this.getVNListByVNValue = function(vnVal) {
-            var vnList = window.vnVmiList;
-            var splitArr = vnVal.split('~~');
-            if (null != vnList(splitArr[1])) {
-                return vnList(splitArr[1]);
-            }
-            return [];
-        }
+
         this.getPortTuples = function(svcInstName, portTupleCollection) {
             var nameList = [];
             if (null == portTupleCollection) {
@@ -326,42 +299,7 @@ define([
             }
             return nameList;
         },
-        this.getVNByTmplType = function(intfType, svcTmpl) {
-            if ((null == window.vnList) ||
-                (!window.vnList.length)) {
-                return null;
-            }
-            var intfTypes =
-                getValueByJsonPath(svcTmpl,
-                                   'service-template;service_template_properties;interface_type',
-                                   []);
-            var svcMode =
-                getValueByJsonPath(svcTmpl,
-                                   'service-template;service_template_properties;service_mode',
-                                   null);
-            var intfTypesCnt = intfTypes.length;
-            for (var i = 0; i < intfTypesCnt; i++) {
-                if (intfTypes[i]['service_interface_type'] == intfType) {
-                    break;
-                }
-            }
-            if (i == intfTypesCnt) {
-                return null;
-            }
-            if (true == intfTypes[i]['static_route_enable']) {
-                return window.vnList[1];
-            }
-            if ('management' != intfTypes[i]['service_interface_type']) {
-                if (('in-network' == svcMode) ||
-                    ('in-network-nat' == svcMode)) {
-                    return window.vnList[1];
-                }
-                if ('other' == intfTypes[i]['service_interface_type']) {
-                    return window.vnList[1];
-                }
-            }
-            return window.vnList[0];
-        },
+
         this.getPowerState = function(val) {
             var powerString="";
             switch(val){
@@ -595,7 +533,7 @@ define([
                 }
             }
         },
-        this.getSvcInstV2PropView = function(isDisabled) {
+        this.getSvcInstV2PropView = function(isDisabled, configDetails) {
             return {
                 elementId: 'svcInstV2PropSection',
                 title: 'Advanced Options',
@@ -607,7 +545,8 @@ define([
                             elementId: 'svcHealthChkAccordian',
                             view: 'AccordianView',
                             viewConfig: [
-                                this.getSvcHealthCheckAccordianView(isDisabled),
+                                this.getSvcHealthCheckAccordianView(isDisabled,
+                                    configDetails.healthCheckServiceList)
                             ]
                         }]
                     },
@@ -616,7 +555,8 @@ define([
                             elementId: 'rtPolicyAccordian',
                             view: 'AccordianView',
                             viewConfig: [
-                                this.getRtPolicyAccordianView(isDisabled)
+                                this.getRtPolicyAccordianView(isDisabled,
+                                    configDetails.routingPolicyList)
                             ]
                         }]
                     },
@@ -625,7 +565,8 @@ define([
                             elementId: 'rtAggAccordian',
                             view: 'AccordianView',
                             viewConfig: [
-                                this.getRtAggregateAccordianView(isDisabled)
+                                this.getRtAggregateAccordianView(isDisabled,
+                                    configDetails.routeAggregateList)
                             ]
                         }]
                     },
@@ -643,14 +584,16 @@ define([
                             elementId: 'intfRtTableAccordian',
                             view: 'AccordianView',
                             viewConfig: [
-                                this.getIntfRtTableAccordianView(isDisabled)
+                                this.getIntfRtTableAccordianView(isDisabled,
+                                    configDetails.interfaceRouteTableList)
                             ]
                         }]
                     }]
                 }
             }
         },
-        this.getSvcHealthCheckAccordianView = function (isDisabled) {
+        this.getSvcHealthCheckAccordianView = function (isDisabled,
+            healthCheckServiceList) {
             return {
                 elementId: 'healthChkSection',
                 title: 'Service Health Check',
@@ -703,7 +646,7 @@ define([
                                                          ' Check Service',
                                             dataTextField: 'text',
                                             dataValueField: 'value',
-                                            data: window.healthCheckServiceList
+                                            data: healthCheckServiceList
                                         }
                                     }
                                 }],
@@ -730,7 +673,8 @@ define([
                 }
             }
         },
-        this.getIntfRtTableAccordianView = function (isDisabled) {
+        this.getIntfRtTableAccordianView = function (isDisabled,
+            interfaceRouteTableList) {
             return {
                 elementId: 'intfRtTableSection',
                 title: 'Static Route',
@@ -784,7 +728,7 @@ define([
                                             dataTextField: 'text',
                                             dataValueField: 'value',
                                             separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
-                                            data: window.interfaceRouteTableList
+                                            data: interfaceRouteTableList
                                         }
                                     }
                                 }],
@@ -903,7 +847,7 @@ define([
                 }
             }
         },
-        this.getRtPolicyAccordianView = function (isDisabled) {
+        this.getRtPolicyAccordianView = function (isDisabled, routingPolicyList) {
             return {
                 visible: 'ifNotTransparentTmpl',
                 elementId: 'rtPolicySection',
@@ -959,7 +903,7 @@ define([
                                             dataTextField: 'text',
                                             dataValueField: 'value',
                                             separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
-                                            data: window.routingPolicyList
+                                            data: routingPolicyList
                                         }
                                     }
                                 }],
@@ -1068,7 +1012,8 @@ define([
                 }
             }
         },
-        this.getRtAggregateAccordianView = function (isDisabled) {
+        this.getRtAggregateAccordianView = function (isDisabled,
+            routeAggregateList) {
             return {
                 visible: 'ifNotTransparentTmpl',
                 elementId: 'rtAggregateSection',
@@ -1123,7 +1068,7 @@ define([
                                             dataTextField: 'text',
                                             dataValueField: 'value',
                                             separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
-                                            data: window.routeAggregateList
+                                            data: routeAggregateList
                                         }
                                     }
                                 }],
