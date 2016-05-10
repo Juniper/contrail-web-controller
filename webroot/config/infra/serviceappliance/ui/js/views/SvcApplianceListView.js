@@ -9,13 +9,16 @@ define([
     'config/infra/serviceappliance/ui/js/models/SvcApplianceModel'
 ], function (_, ContrailView, ContrailListModel, SvcApplianceModel) {
     var configSvcAppliance = null;
-    var gridElId = '#' + ctwl.QUOTAS_GRID_ID;
     var saSetID = null;
     var SvcApplianceListView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig;
             saSetID = viewConfig.saSetValueData.value;
+            self.svcApplData = {};
+            self.svcApplData.svcApplSetSvcTmpl = "";
+            self.svcApplData.intfTypes = [];
+            self.svcApplData.piList = [];
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
@@ -30,19 +33,11 @@ define([
                     },
                     completeCallback: function(resp) {
                         self.renderView4Config(self.$el, contrailListModel,
-                                   getSvcApplianceViewConfig(),
-                                   null, null, null, function() {
-                            if ((null != resp) && (null != resp[0])) {
-                                $(gridElId).data('configObj', configSvcAppliance);
-                            }
-                        });
+                                   getSvcApplianceViewConfig(self.svcApplData));
                     }
                 },
                 vlRemoteConfig: {
-                    vlRemoteList : vlRemoteServiceApplConfig,
-                    completeCallback: function(response) {
-                        console.log("vlRemoteConfig Done:");
-                    }
+                    vlRemoteList : vlRemoteServiceApplConfig(self.svcApplData)
                 }
             };
 
@@ -52,8 +47,8 @@ define([
 
     var intfTypes = ['management', 'left', 'right'];
 
-    var vlRemoteServiceApplConfig = [
-        {
+    function vlRemoteServiceApplConfig(svcApplData) {
+        return [{
             getAjaxConfig: function(responseJSON) {
                 var lazyAjaxConfig = {
                     url: '/api/tenants/config/get-config-details',
@@ -96,55 +91,49 @@ define([
                     }
                 }
                 contrailListModel.updateData(dataItems);
-                if (null == window.svcApplSetSvcTmplMap) {
-                    window.svcApplSetSvcTmplMap = {};
-                }
                 if ((svcTmpls.length > 0) && (null != svcTmpls[0]) &&
                     (null != svcTmpls[0]['service-template'])) {
-                    window.svcApplSetSvcTmplMap[contrail.getCookie('serviceApplSet')]
+                    svcApplData.svcApplSetSvcTmpl
                         = svcTmpls[0]['service-template'];
                 }
             }
         },
         {
-        getAjaxConfig: function(responseJSON) {
-            var lazyAjaxConfig = {
-                url: '/api/tenants/config/list-physical-interfaces',
-                type: 'GET'
-            };
-            return lazyAjaxConfig;
-        },
-        successCallback: function(response, contrailListModel) {
-            var piData = [];
-            var results = [];
-            if (null == window.svcApplData) {
-                window.svcApplData = {};
+            getAjaxConfig: function(responseJSON) {
+                var lazyAjaxConfig = {
+                    url: '/api/tenants/config/list-physical-interfaces',
+                    type: 'GET'
+                };
+                return lazyAjaxConfig;
+            },
+            successCallback: function(response, contrailListModel) {
+                var piData = [];
+                var results = [];
+                var intfCnt = intfTypes.length;
+                for (var i = 0; i < intfCnt; i++) {
+                    var id = intfTypes[i].replace(intfTypes[i][0],
+                                                  intfTypes[i][0].toLowerCase());
+                    svcApplData.intfTypes.push({text: intfTypes[i],
+                                                       id: id});
+                }
+                if ((null == response) ||
+                    (null == response['physical-interfaces'])) {
+                    svcApplData.piList = [];
+                    return
+                }
+                var piData = response['physical-interfaces'];
+                var len = piData.length;
+                for (var i = 0; i < len; i++) {
+                    results.push({'text': piData[i]['fq_name'][2] + " (" +
+                                    piData[i]['fq_name'][1] + ")",
+                                 'id': piData[i]['fq_name'].join(':') +
+                                 cowc.DROPDOWN_VALUE_SEPARATOR +
+                                 piData[i]['uuid']});
+                }
+                svcApplData.piList = results;
             }
-            var intfCnt = intfTypes.length;
-            window.svcApplData.intfTypes = [];
-            for (var i = 0; i < intfCnt; i++) {
-                var id = intfTypes[i].replace(intfTypes[i][0],
-                                              intfTypes[i][0].toLowerCase());
-                window.svcApplData.intfTypes.push({text: intfTypes[i],
-                                                   id: id});
-            }
-            if ((null == response) ||
-                (null == response['physical-interfaces'])) {
-                window.svcApplData.piList = [];
-                return
-            }
-            var piData = response['physical-interfaces'];
-            var len = piData.length;
-            for (var i = 0; i < len; i++) {
-                results.push({'text': piData[i]['fq_name'][2] + " (" +
-                                piData[i]['fq_name'][1] + ")",
-                             'id': piData[i]['fq_name'].join(':') +
-                             cowc.DROPDOWN_VALUE_SEPARATOR +
-                             piData[i]['uuid']});
-            }
-            window.svcApplData.piList = results;
-        }
-    }];
+        }];
+    };
 
     var svcApplianceDataParser = function (response) {
         var results = [];
@@ -155,21 +144,21 @@ define([
         return results;
     }
 
-    var getSvcApplianceViewConfig = function () {
+    var getSvcApplianceViewConfig = function (svcApplData) {
         return {
-            elementId: cowu.formatElementId([ctwl.CONFIG_QUOTAS_SECTION_ID]),
+            elementId: cowu.formatElementId([ctwl.CONFIG_SVC_APPLIANCE_SECTION_ID]),
             view: "SectionView",
             viewConfig: {
                 rows: [
                     {
                         columns: [
                             {
-                                elementId: ctwl.CONFIG_QUOTAS_ID,
-                                title: ctwl.TITLE_QUOTAS,
+                                elementId: ctwl.CONFIG_SVC_APPLIANCE_ID,
                                 view: "SvcApplianceGridView",
                                 viewPathPrefix: "config/infra/serviceappliance/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
+                                    svcApplData: svcApplData
                                 }
                             }
                         ]

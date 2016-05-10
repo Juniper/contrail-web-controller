@@ -20,9 +20,7 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig;
             self.renderView4Config(self.$el, self.model,
-                                   getSvcApplianceSetGridViewConfig(viewConfig), null,
-                                   null, null, function() {
-            });
+                getSvcApplianceSetGridViewConfig(viewConfig));
         }
     });
 
