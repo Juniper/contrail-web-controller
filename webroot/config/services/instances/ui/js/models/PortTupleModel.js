@@ -61,8 +61,8 @@ define([
                 }
                 var vnName = vnVmis[intfType];
                 var vmiList = [];
-                if (window.vnVmiMaps[vnName]) {
-                    vmiList = window.vnVmiMaps[vnName];
+                if (modelConfig.vnVmiMaps[vnName]) {
+                    vmiList = modelConfig.vnVmiMaps[vnName];
                 }
                 var vmi = vmiObj['fq_name'].join(':') + "~~" + vmiObj['uuid'];
                 var propModel =
@@ -78,8 +78,8 @@ define([
                 for (var i = 0; i < intfCnt; i++) {
                     var vnName = vnVmis[intfTypes[i]];
                     var vmiList = [];
-                    if (window.vnVmiMaps[vnName]) {
-                        vmiList = window.vnVmiMaps[vnName];
+                    if (modelConfig.vnVmiMaps[vnName]) {
+                        vmiList = modelConfig.vnVmiMaps[vnName];
                     }
                     var propModel =
                         new InterfaceTypesModel({interfaceType: intfTypes[i],

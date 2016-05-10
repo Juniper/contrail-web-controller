@@ -95,9 +95,6 @@ define([
             }
             return modelConfig;
         },
-        getRemoteAddresses: function() {
-            return window.sg.secGrpList;
-        },
         deleteSecGrpRules: function(data, rules) {
             var rulesCollection = data.model().collection,
                 delRule = rules.model();

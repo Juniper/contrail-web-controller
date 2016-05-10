@@ -18,8 +18,7 @@ define([
 ], function (_, ContrailModel, Knockout, InterfacesModel, SvcInstUtils,
              PortTupleModel, SvcHealthChkModel, IntfRtTableModel, RtPolicyModel,
              RtAggregateModel, AllowedAddressPairModel, StaticRTModel) {
-    var gridElId = "#" + ctwl.SERVICE_INSTANCES_GRID_ID;
-    var svcInstUtils = new SvcInstUtils();
+    var svcInstUtils = new SvcInstUtils(), self;
     var SvcInstModel = ContrailModel.extend({
         defaultConfig: {
             service_template: null,
@@ -49,7 +48,7 @@ define([
             svcInstValidations: {
                 'no_of_instances': function(val, attr, data) {
                     var svcTmpl = data.service_template;
-                    var svcTmpls = $(gridElId).data('svcInstTmplts');
+                    var svcTmpls = self.svcInstanceDataObj.svcInstTmplts;
                     var svcTmplFqn = getCookie('domain') + ":" +
                         svcTmpl.split(' - [')[0];
                     var svcTmplObj = svcTmpls[svcTmplFqn];
@@ -86,7 +85,8 @@ define([
                 'service_health_check': function(val, attr, data) {
                     var svcTmpl = data.service_template;
                     var svcTmplObj =
-                        svcInstUtils.getSvcTmplDetailsBySvcTmplStr(svcTmpl);
+                        svcInstUtils.getSvcTmplDetailsBySvcTmplStr(svcTmpl,
+                            self.svcInstanceDataObj.svcInstTmplts);
                     var tmplVer =
                         getValueByJsonPath(svcTmplObj,'service_template_properties;version',
                                            1);
@@ -159,7 +159,8 @@ define([
                 'virtualNetwork': function(val, attr, data) {
                     var svcTmpl = data.service_template;
                     var svcTmplObj =
-                        svcInstUtils.getSvcTmplDetailsBySvcTmplStr(svcTmpl);
+                        svcInstUtils.getSvcTmplDetailsBySvcTmplStr(svcTmpl,
+                            self.svcInstanceDataObj.svcInstTmplts);
                     var svcTmplIntfs =
                         getValueByJsonPath(svcTmplObj,
                                            'service_template_properties;interface_type',
@@ -245,7 +246,7 @@ define([
                     }
                     var svcTmpl = getCookie('domain') + ":" +
                         val.split(' - [')[0];
-                    var svcTmpls = $(gridElId).data('svcInstTmplts');
+                    var svcTmpls = self.svcInstanceDataObj.svcInstTmplts;
                     if (null == svcTmpls[svcTmpl]) {
                         return 'Service Template is not valid';
                     }
@@ -271,7 +272,7 @@ define([
                     if (null == imgName) {
                         return 'Image name not found for this template';
                     }
-                    var imgList = window.imageList;
+                    var imgList = self.svcInstanceDataObj.imageList;
                     var imgCnt = imgList.length;
                     for (var i = 0; i < imgCnt; i++) {
                         if (imgList[i]['name'] == imgName) {
@@ -458,7 +459,7 @@ define([
             modelConfig[modelKey] = collection;
             return modelConfig;
         },
-        setVMIsByVN: function(modelConfig, vnName, intfType) {
+        setVMIsByVN: function(modelConfig, vnName, intfType, vnDetails) {
             var pTuples = modelConfig.get('portTuples');
             var vmiList = [];
             if (null == pTuples) {
@@ -471,8 +472,8 @@ define([
                 var portTupleIntfsCnt = portTupleIntfs.length;
                 for (var j = 0; j < portTupleIntfsCnt; j++) {
                     if (intfType == portTupleIntfs[j]['interfaceType']()()) {
-                        if (window.vnVmiMaps[vnName]) {
-                            vmiList = window.vnVmiMaps[vnName];
+                        if (vnDetails.vnVmiMaps[vnName]) {
+                            vmiList = vnDetails.vnVmiMaps[vnName];
                         }
                         portTupleIntfs[j]['vmiListData']()(vmiList);
                         break;
@@ -481,8 +482,8 @@ define([
             }
             return;
         },
-        getVNListBySvcIntfType: function(svcTmpl, intf, version) {
-            var vnList = $.extend([], true, window.allVNList);
+        getVNListBySvcIntfType: function(svcTmpl, intf, version, configDetails) {
+            var vnList = $.extend([], true, configDetails.allVNList);
             if (null == intf) {
                 return vnList;
             }
@@ -548,6 +549,7 @@ define([
                 staticRTModels.push(staticRTModel);
             }
         },
+
         getHAModeListByTmplVer: function(tmplVer) {
             var haModeList = [
                 {id: "", text: 'None'},
@@ -559,14 +561,18 @@ define([
             }
             return haModeList;
         },
-        formatModelConfig: function(modelConfig, resolveConfig) {
-            if (!window.svcTmplsFormatted.length) {
+        formatModelConfig: function(modelConfig, configDetails) {
+            var svcInstDataObj = modelConfig.svcInstanceDataObj;
+            if (!svcInstDataObj ||
+                !svcInstDataObj.svcTmplsFormatted.length) {
                 showInfoWindow("No Service Template found.",
                                "Add Service Template");
                 return null;
             }
+
+            self = this;
+            self.configDetails = configDetails;
             modelConfig.host_list = [{'text': 'ANY', 'id': 'ANY'}];
-            var self = this;
             var intfTypes = [];
             if ((null != modelConfig) &&
                 (null != modelConfig['svcTmplDetails']) &&
@@ -579,7 +585,7 @@ define([
                 intfTypes = svcInstUtils.getSvcTmplIntfTypes(svcTmpl);
             } else {
                 modelConfig['service_template'] =
-                    window.svcTmplsFormatted[0]['id'];
+                    svcInstDataObj.svcTmplsFormatted[0]['id'];
                 var tmpl = modelConfig['service_template'];
                 var intfTypeStrStart = tmpl.indexOf('(');
                 var intfTypeStrEnd = tmpl.indexOf(')');
@@ -587,7 +593,7 @@ define([
                     tmpl.substr(intfTypeStrStart + 1,
                                 intfTypeStrEnd - intfTypeStrStart - 1);
                 intfTypes = intfTypes.split(', ');
-                var svcTmplObjsByFqn = $(gridElId).data('svcInstTmplts');
+                var svcTmplObjsByFqn = svcInstDataObj.svcInstTmplts;
                 if (null != tmpl) {
                     var tmplFqn = getCookie('domain') + ':' +
                     tmpl.split(' - [')[0];
@@ -604,7 +610,11 @@ define([
                 modelConfig['no_of_instances'] = maxInst;
             }
 
-            var svcTmpls = $(gridElId).data('svcInstTmplts');
+            var intfList =
+                getValueByJsonPath(modelConfig,
+                                   'service_instance_properties;interface_list',
+                                   []);
+            var svcTmpls = svcInstDataObj.svcInstTmplts;
             var tmpl = modelConfig['service_template'];
             var svcTmplFqn = getCookie('domain') + ":" +
                 tmpl.split(' - [')[0];
@@ -621,7 +631,7 @@ define([
             if (null != haMode) {
                 modelConfig.user_created_ha_mode = haMode;
             }
-            if ((false == resolveConfig) || (null == resolveConfig)) {
+            if (null == configDetails) {
                 return modelConfig;
             }
             var intfList =
@@ -668,12 +678,12 @@ define([
             var cnt = intfTypes.length;
             var staticRtsIntfList =
                 svcInstUtils.getStaticRtsInterfaceTypesByStr(modelConfig['service_template'],
-                                                        false);
+                false, self.svcInstanceDataObj.svcInstTmplts);
             for (var i = 0; i < cnt; i++) {
                 var intfType = intfTypes[i];
                 var vnList = this.getVNListBySvcIntfType(svcTmpls[svcTmplFqn],
                                                          interfaeTypes[i],
-                                                         tmplVer);
+                                                         tmplVer, self.configDetails);
                 if ((null == vnList) || (!vnList.length)) {
                     vnList = configuredVNList;
                 }
@@ -717,7 +727,8 @@ define([
                                         portTupleData:
                                             portTupleList[i],
                                         intfTypes: intfTypes,
-                                        parentIntfs: intfs, disable: true});
+                                        parentIntfs: intfs, disable: true,
+                                        vnVmiMaps: self.configDetails.vnDetails.vnVmiMaps});
                 portTupleModels.push(portTupleModel);
             }
             var portTuplesCollection = new Backbone.Collection(portTupleModels);
@@ -799,7 +810,7 @@ define([
                     dispName += ' : ';
                 }
                 var vmiId = vmiObj['uuid'];
-                var instIps = window.vmiToInstIpsMap[vmiId];
+                var instIps = self.configDetails.vnDetails.vmiToInstIpsMap[vmiId];
                 if ((null != instIps) && (instIps.length > 0)) {
                     dispName += instIps[0];
                 }
@@ -903,7 +914,7 @@ define([
             for (var i = 0; i < intfCnt; i++) {
                 if (i == intfIdx) {
                     /* Set the IP here */
-                    var instIps = window.vmiToInstIpsMap[vmiId];
+                    var instIps = self.configDetails.vnDetails.vmiToInstIpsMap[vmiId];
                     if ((null != instIps) && (instIps.length > 0)) {
                         dispStr += instIps[0];
                     }
@@ -927,17 +938,14 @@ define([
                 i--;
             }
         },
-        formatModelConfigColl: function(intfTypes, isDisabled) {
+        formatModelConfigColl: function(intfTypes, isDisabled, svcTmpls) {
             if (true == isDisabled) {
                 return;
             }
-            var self = this;
             var cnt = intfTypes.length;
             var svcTmpl = this.model().get('service_template');
-            var svcTmpls = $(gridElId).data('svcInstTmplts');
             var svcTmplFqn = getCookie('domain') + ":" +
                 svcTmpl.split(' - [')[0];
-            var svcTmplObj = {'service-template': svcTmpls[svcTmplFqn]};
 
             var tmplVer = getValueByJsonPath(svcTmpls[svcTmplFqn],
                                              'service_template_properties;version',
@@ -981,7 +989,7 @@ define([
                 var vn = null;
                 var vnList = this.getVNListBySvcIntfType(svcTmpls[svcTmplFqn],
                                                          interfaeTypes[i],
-                                                         tmplVer);
+                                                         tmplVer, self.configDetails);
                 var newInterface =
                     new InterfacesModel({'interfaceType': intfType,
                                         'virtualNetwork': vn,
@@ -1018,7 +1026,7 @@ define([
                in invisible
              */
             var svcTmpl = this.model().get('service_template');
-            var svcTmpls = $(gridElId).data('svcInstTmplts');
+            var svcTmpls = self.svcInstanceDataObj.svcInstTmplts;
             var svcTmplFqn = getCookie('domain') + ":" +
                 svcTmpl.split(' - [')[0];
             var tmplVer = getValueByJsonPath(svcTmpls[svcTmplFqn],
@@ -1072,7 +1080,8 @@ define([
                                    portTupleDisplayName: portTupleDispName,
                                    portTupleData: {},
                                    intfTypes: intfTypes,
-                                   parentIntfs: intfs, disable: false});
+                                   parentIntfs: intfs, disable: false,
+                                   vnVmiMaps: self.configDetails.vnDetails.vnVmiMaps});
             kbValidation.bind(this.editView,
                                {collection:
                                newPortTupleEntry.model().attributes.portTupleInterfaces});
@@ -1144,7 +1153,8 @@ define([
         addPropStaticRtTable: function() {
             var staticRtTables = this.model().get('staticRoutes');
             var svcTmplStr = this.model().get('service_template');
-            var types = svcInstUtils.getStaticRtsInterfaceTypesByStr(svcTmplStr, false);
+            var types = svcInstUtils.getStaticRtsInterfaceTypesByStr(svcTmplStr, false,
+                self.svcInstanceDataObj.svcInstTmplts);
             var newEntry =
                 new StaticRTModel({prefix: null,
                                    next_hop: null,
@@ -1190,12 +1200,7 @@ define([
             var entry = property.model();
             collection.remove(entry);
         },
-        getHostListByZone: function() {
-            var self = this;
-            return ko.computed(function () {
-                return window.hostListByZone;
-            }, this);
-        },
+
         showHideStaticRTs: function(interfaceIndex) {
             var idx = interfaceIndex();
             var tmplStr = this.model().get('service_template');
@@ -1204,7 +1209,7 @@ define([
             }
             tmplStr = tmplStr.trim();
             tmplStr = contrail.getCookie('domain') + ":" + tmplStr.split(' - [')[0];
-            var tmplData = $(gridElId).data('svcInstTmplts');
+            var tmplData = self.svcInstanceDataObj.svcInstTmplts;
             if (null == tmplData[tmplStr]) {
                 return false;
             }
@@ -1567,8 +1572,8 @@ define([
                     [getCookie('domain'), tmpl];
                 newSvcInst['parent_type'] = 'project';
                 newSvcInst['parent_uuid'] =
-                    window.projectDomainData.value;
-                var svcTmpls = $(gridElId).data('svcInstTmplts');
+                    self.svcInstanceDataObj.currentProject.value;
+                var svcTmpls = self.svcInstanceDataObj.svcInstTmplts;
                 var svcTmplFqn =
                     newSvcInst['service_template_refs'][0]['to'].join(':');
                 var svcTmplVersion = 1;

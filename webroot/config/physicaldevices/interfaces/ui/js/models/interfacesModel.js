@@ -106,9 +106,10 @@ define([
             );
         },
         getPhysicalInterfaceData : function(refs, physicalInfName) {
-            var pInterfaceDS = [];
-            if(window.inf !== undefined){
-                pInterfaceDS = $.extend(true, [], window.inf.pInterfaceDS);
+            var pInterfaceDS = [], self = this;
+            if(self.interfaceData !== undefined){
+                pInterfaceDS = $.extend(true, [],
+                        self.interfaceData.pInterfaceDS);
             }
             if(refs) {
                 pInterfaceDS =

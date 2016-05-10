@@ -20,9 +20,7 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig;
             self.renderView4Config(self.$el, self.model,
-                                   getSvcApplianceGridViewConfig(viewConfig), null,
-                                   null, null, function() {
-            });
+                                   getSvcApplianceGridViewConfig(viewConfig));
         }
     });
 
@@ -49,44 +47,49 @@ define([
         }
     };
 
-    var rowActionConfig = [
-        ctwgc.getEditConfig('Edit', function(rowIndex) {
-            var dataItem =
-                $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
-            var svcApplianceModel = new SvcApplianceModel(dataItem);
-            svcApplianceEditView.model = svcApplianceModel;
-            var svcApplName =
-                (null != dataItem['display_name']) ? dataItem['display_name'] :
-                    dataItem['fq_name'][2];
-            svcApplianceEditView.renderEditSvcAppliance({
-                        "title": ctwl.TITLE_EDIT_SVC_APPLIANCE +
-                            ' (' + svcApplName + ")",
-                        rowIndex: rowIndex,
-                        dataItem: dataItem,
-                        isEdit: true,
+    function rowActionConfig(viewConfig) {
+        return [
+            ctwgc.getEditConfig('Edit', function(rowIndex) {
+                var dataItem =
+                    $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
+                dataItem["service_template"] =
+                    viewConfig.svcApplData.svcApplSetSvcTmpl;
+                var svcApplianceModel = new SvcApplianceModel(dataItem);
+                svcApplianceModel.svcApplData = viewConfig.svcApplData;
+                svcApplianceEditView.model = svcApplianceModel;
+                var svcApplName =
+                    (null != dataItem['display_name']) ? dataItem['display_name'] :
+                        dataItem['fq_name'][2];
+                svcApplianceEditView.renderEditSvcAppliance({
+                            "title": ctwl.TITLE_EDIT_SVC_APPLIANCE +
+                                ' (' + svcApplName + ")",
+                            rowIndex: rowIndex,
+                            dataItem: dataItem,
+                            isEdit: true,
+                            callback: function () {
+                    var dataView =
+                        $(gridElId).data("contrailGrid")._dataView;
+                    dataView.refreshData();
+                }});
+            }),
+            ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+                var svcApplianceModel = new SvcApplianceModel();
+                var dataItem =
+                    $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
+                var checkedRows = [dataItem];
+                svcApplianceEditView.model = svcApplianceModel;
+                svcApplianceEditView.renderDeleteSvcAppliance({
+                        "title": ctwl.TITLE_DEL_SVC_APPLIANCE +
+                            ' (' + dataItem['display_name'] + ")",
+                        checkedRows: checkedRows,
                         callback: function () {
-                var dataView =
-                    $(gridElId).data("contrailGrid")._dataView;
-                dataView.refreshData();
-            }});
-        }),
-        ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-            var svcApplianceModel = new SvcApplianceModel();
-            var dataItem =
-                $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
-            var checkedRows = [dataItem];
-            svcApplianceEditView.model = svcApplianceModel;
-            svcApplianceEditView.renderDeleteSvcAppliance({
-                    "title": ctwl.TITLE_DEL_SVC_APPLIANCE +
-                        ' (' + dataItem['display_name'] + ")",
-                    checkedRows: checkedRows,
-                    callback: function () {
-                var dataView =
-                    $(gridElId).data("contrailGrid")._dataView;
-                dataView.refreshData();
-            }});
-        })
-    ];
+                    var dataView =
+                        $(gridElId).data("contrailGrid")._dataView;
+                    dataView.refreshData();
+                }});
+            })
+        ];
+    };
 
     var getConfiguration = function (viewConfig) {
         var gridElementConfig = {
@@ -98,7 +101,7 @@ define([
             },
             body: {
                 options: {
-                    actionCell: rowActionConfig,
+                    actionCell: rowActionConfig(viewConfig),
                     detail: {
                         template:
                             cowu.generateDetailTemplateHTML(getServicaApplDetailsTmplConfig(),
@@ -373,7 +376,10 @@ define([
                 "title": ctwl.TITLE_CREATE_SVC_APPLIANCE,
                 "iconClass": 'icon-plus',
                 "onClick": function() {
-                    svcApplianceModel = new SvcApplianceModel();
+                    var svcApplianceModel = new SvcApplianceModel({
+                        service_template: viewConfig.svcApplData.svcApplSetSvcTmpl
+                    });
+                    svcApplianceModel.svcApplData = viewConfig.svcApplData;
                     svcApplianceEditView.model = svcApplianceModel;
                     svcApplianceEditView.renderEditSvcAppliance({
                                   "title": ctwl.TITLE_CREATE_SVC_APPLIANCE,

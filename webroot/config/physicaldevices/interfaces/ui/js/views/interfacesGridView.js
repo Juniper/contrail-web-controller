@@ -19,6 +19,7 @@ define([
             self = this;
             viewConfig = this.attributes.viewConfig;
             interfacesEditView.pRouterSelData = viewConfig.pRouterSelData
+            self.interfaceData = viewConfig.interfaceData;
             self.renderView4Config(self.$el, self.model,
                 getInterfacesGridViewConfig(viewConfig));
         }
@@ -177,6 +178,7 @@ define([
                     title =
                         ctwl.TITLE_EDIT_INF +
                         ' ('+ dataItem['name'] +')';
+                interfacesModel.interfaceData = self.interfaceData;
                 interfacesEditView.model = interfacesModel;
                 interfacesModel.infEditView = interfacesEditView;
                 interfacesEditView.model.showClearPorts(true);
@@ -281,6 +283,7 @@ define([
                 "iconClass" : "icon-plus",
                 "onClick" : function() {
                     var interfacesModel = new InterfacesModel();
+                    interfacesModel.interfaceData = self.interfaceData;
                     interfacesModel.infEditView = interfacesEditView;
                     showHideModelAttrs(interfacesModel);
                     interfacesEditView.model = interfacesModel;
