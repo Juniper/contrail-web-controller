@@ -17,10 +17,13 @@ define([
             self.liChunkCnt = 200;
             self.ajaxTimeout = 300000;
             self.pRouterSelData = viewConfig.pRouterSelData;
-            self.renderInterfaceListView(viewConfig.pRouterSelData);
+            self.interfaceData = {};
+            self.interfaceData.pInterfaceDS = [];
+            self.renderInterfaceListView(viewConfig.pRouterSelData,
+                self.interfaceData);
 
         },
-        renderInterfaceListView : function(pRouterSelData) {
+        renderInterfaceListView : function(pRouterSelData, interfaceData) {
             var postObj = {};
             postObj.type = "physical-interface";
             postObj.parentType = "physical-router";
@@ -43,7 +46,7 @@ define([
 
             self.contrailListModel = new ContrailListModel(listModelConfig);
             self.renderView4Config(self.$el, self.contrailListModel,
-                getInterfacesSectionViewConfig(pRouterSelData));
+                getInterfacesSectionViewConfig(pRouterSelData, interfaceData));
         },
         preparePIData : function(result) {
             var gridDS = [];
@@ -72,8 +75,7 @@ define([
             if(self.piUUID.length > 0) {
                 self.fetchLIWithPI();
             }
-            window.inf = {};
-            window.inf.pInterfaceDS = pInterfaceDS;
+            self.interfaceData.pInterfaceDS = pInterfaceDS;
             return gridDS;
         },
         prepareLIData : function(result) {
@@ -224,7 +226,8 @@ define([
         }
     });
 
-    var getInterfacesSectionViewConfig = function (pRouterSelData) {
+    var getInterfacesSectionViewConfig = function (pRouterSelData,
+            interfaceData) {
         return {
             elementId:
                 cowu.formatElementId([ctwl.CONFIG_INTERFACES_SECTION_ID]),
@@ -239,7 +242,8 @@ define([
                                 view: "interfacesGridView",
                                 viewPathPrefix: ctwl.INF_VIEW_PATH_PREFIX,
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig : {pRouterSelData : pRouterSelData}
+                                viewConfig : {pRouterSelData : pRouterSelData,
+                                    interfaceData: interfaceData}
                             }
                         ]
                     }

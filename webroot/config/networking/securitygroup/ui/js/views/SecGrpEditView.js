@@ -48,10 +48,11 @@ define([
 
             self.renderView4Config($("#" + modalId).find(formId),
                                    this.model,
-                                   getEditSecGrpViewConfig(options['isEdit']),
+                                   getEditSecGrpViewConfig(options['isEdit'],
+                                       self.sgDataObj),
                                    "secGrpConfigValidations",
                                    null, null, function() {
-                sgUtils.deleteCurrentSG();
+                sgUtils.deleteCurrentSG(self.sgDataObj);
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
@@ -99,7 +100,7 @@ define([
         }
     });
 
-    function getEditSecGrpViewConfig (isDisable) {
+    function getEditSecGrpViewConfig (isDisable, sgDataObj) {
         var prefixId = ctwl.SEC_GRP_PREFIX_ID;
         var secGrpViewConfig = {
             elementId: cowu.formatElementId([prefixId, ctwl.TITLE_EDIT_SEC_GRP]),
@@ -119,7 +120,7 @@ define([
                                     dataBindValue: 'display_name',
                                     placeHolder: 'Security Group Name',
                                     onBlur: function() {
-                                        sgUtils.addCurrentSG();
+                                        sgUtils.addCurrentSG(sgDataObj);
                                     }
                                 }
                             }
@@ -162,7 +163,7 @@ define([
                             }
                         ]
                     },
-                    sgUtils.getSecGrpRulesView()
+                    sgUtils.getSecGrpRulesView(sgDataObj)
                 ]
             }
         }
