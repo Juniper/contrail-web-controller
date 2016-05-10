@@ -103,6 +103,13 @@ define([
         };
 
         /*
+         * @staticIPAddressingFormatter
+         */
+        this.staticIPAddressingFormatter = function(d, c, v, cd, dc) {
+            return getValueByJsonPath(dc, 'external_ipam', false) ? "Enabled" : "Disabled";
+        };
+
+        /*
          * @sharedFormatter
          */
         this.sharedFormatter = function(d, c, v, cd, dc) {
