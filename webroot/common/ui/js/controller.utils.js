@@ -772,6 +772,19 @@ define([
             $("#configure-" + prefixId).remove();
         };
 
+        /**
+         * Used to remove any error message for an element specified by path
+         */
+        this.removeAttrErrorMsg = function(model, path) {
+            if ((null == model) || (null == path)) {
+                return;
+            }
+            var attr = cowu.getAttributeFromPath(path);
+            var errors = model.get(cowc.KEY_MODEL_ERRORS);
+            var attrErrorObj = {};
+            attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] = null;
+            errors.set(attrErrorObj);
+        };
     };
     return CTUtils;
 });

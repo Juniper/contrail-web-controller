@@ -755,20 +755,44 @@ define([
                 'pVlanId' :
                 function (value, attr, finalObj) {
                     if (isVCenter() && finalObj['uuid'] == null) {
-                        var vlan = Number(value);
-                        if (isNaN(vlan) ||
-                            vlan < 1 || vlan > 4094) {
+                        var pVlanId = Number(value);
+                        if ((isNaN(pVlanId) ||
+                            (pVlanId < 1) || (pVlanId > 4094))) {
                             return "Enter Primary VLAN Identifier between 1 - 4094";
+                        }
+                    }
+                    if (null != finalObj['sVlanId']) {
+                        var sVlanId = Number(finalObj['sVlanId']);
+                        if (pVlanId == sVlanId) {
+                            return "Primany and Secondary VLAN identifier " +
+                                "should not be same";
+                        } else {
+                            /* Remove any error message which was displayed in
+                             * sVlanId lostFocus
+                             */
+                            ctwu.removeAttrErrorMsg(this, 'sVlanId');
                         }
                     }
                 },
                 'sVlanId' :
                 function (value, attr, finalObj) {
                     if (isVCenter() && finalObj['uuid'] == null) {
-                        var vlan = Number(value);
-                        if (isNaN(vlan) ||
-                            vlan < 1 || vlan > 4094) {
+                        var sVlanId = Number(value);
+                        if ((isNaN(sVlanId) ||
+                            (sVlanId < 1) || (sVlanId > 4094))) {
                             return "Enter Secondary VLAN Identifier between 1 - 4094";
+                        }
+                    }
+                    if (null != finalObj['pVlanId']) {
+                        var pVlanId = Number(finalObj['pVlanId']);
+                        if (sVlanId == pVlanId) {
+                            return "Primany and Secondary VLAN identifier " +
+                                "should not be same";
+                        } else {
+                            /* Remove any error message which was displayed in
+                             * pVlanId lostFocus
+                             */
+                            ctwu.removeAttrErrorMsg(this, 'pVlanId');
                         }
                     }
                 },
@@ -874,6 +898,14 @@ define([
                 this.getSRIOV(newVNCfgData);
                 this.getEcmpHashing(newVNCfgData);
 
+                if (!isVCenter()) {
+                    delete newVNCfgData.pVlanId;
+                    delete newVNCfgData.external_ipam;
+                } else {
+                    newVNCfgData['pVlanId'] =
+                        Number(getValueByJsonPath(newVNCfgData, 'sVlanId', 0));
+                }
+
                 delete newVNCfgData.virtual_network_network_id;
                 delete newVNCfgData.errors;
                 delete newVNCfgData.locks;
@@ -892,14 +924,6 @@ define([
                 delete newVNCfgData.sVlanId;
                 delete newVNCfgData.disable;
                 delete newVNCfgData.user_created_vxlan_mode;
-
-                if (!isVCenter()) {
-                    delete newVNCfgData.pVlanId;
-                    delete newVNCfgData.external_ipam;
-                } else {
-                    newVNCfgData['pVlanId'] =
-                        Number(getValueByJsonPath(newVNCfgData, 'pVlanId', 0));
-                }
 
                 postData['virtual-network'] = newVNCfgData;
 
