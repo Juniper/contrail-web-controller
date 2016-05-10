@@ -274,6 +274,14 @@ define([
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    label: 'Static IP Addressing',
+                                                    key: 'external_ipam',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'staticIPAddressingFormatter'
+                                                    },
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
                                                     label: 'Shared',
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
@@ -450,6 +458,12 @@ define([
         return formatVNCfg.adminStateFormatter(null,
                                         null, null, null, dc);
     }
+
+    this.staticIPAddressingFormatter = function (v, dc) {
+        return formatVNCfg.staticIPAddressingFormatter(null,
+                                        null, null, null, dc);
+    };
+
     this.sharedFormatter = function (v, dc) {
         return formatVNCfg.sharedFormatter(null,
                                         null, null, null, dc);
