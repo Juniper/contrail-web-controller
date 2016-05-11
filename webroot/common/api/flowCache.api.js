@@ -17,6 +17,8 @@ var assert = require('assert')
     , logutils = require(process.mainModule.exports["corePath"] +
                          '/src/serverroot/utils/log.utils')
     , nwMonUtils = require('./nwMon.utils')
+    , redisPub = require(process.mainModule.exports["corePath"] +
+                         '/src/serverroot/jobs/core/redisPub')
     , messages = require(process.mainModule.exports["corePath"] +
                          '/src/serverroot/common/messages');
 

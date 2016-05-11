@@ -16,6 +16,8 @@ var rest = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/global'),
     appErrors = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/errors/app.errors'),
+    redisPub = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/jobs/core/redisPub'),
     util = require('util'),
     async = require('async'),
     qs = require('querystring'),

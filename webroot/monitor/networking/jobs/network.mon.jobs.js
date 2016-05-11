@@ -12,6 +12,8 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     config = process.mainModule.exports["config"],
     flowCache = require('../../../common/api/flowCache.api'),
     nwMonUtils = require('../../../common/api/nwMon.utils'),
+    redisPub = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/jobs/core/redisPub'),
     qeAPI = require('../../../reports/api/qe.api.js'),
     util = require('util'),
     qs = require('querystring'),

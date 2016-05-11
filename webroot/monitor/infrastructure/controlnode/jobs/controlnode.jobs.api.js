@@ -17,6 +17,8 @@ var rest = require(process.mainModule.exports["corePath"] +
     appErrors = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/errors/app.errors'),
     util = require('util'),
+    redisPub = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/jobs/core/redisPub'),
     async = require('async'),
     qs = require('querystring'),
     adminApiHelper = require('../../../../common/api/adminapi.helper'),
