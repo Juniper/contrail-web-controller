@@ -534,8 +534,11 @@ function addGeneratorInfoToUVE (postData, uve, host, modules, callback)
             } catch(e) {
             }
         }
-        resultJSON = commonUtils.copyObject(resultJSON, uve);
-        callback(null, resultJSON);
+        if (null == uve['derived-uve']) {
+            uve['derived-uve'] = {}
+        }
+        uve['derived-uve'] = commonUtils.copyObject(uve['derived-uve'], resultJSON);
+        callback(null, uve);
     }, global.DEFAULT_CB_TIMEOUT));
 }
 
@@ -752,7 +755,7 @@ function getServerResponseByModType (req, res, appData)
 function getDataFromConfigNode (str, hostName, appData, data, callback)
 {
     var url = '/' + str;
-    data['nodeStatus'] = 'Down';
+    data['derived-uve']['nodeStatus'] = 'Down';
     configApiServer.apiGet(url, appData,
                            commonUtils.doEnsureExecution(function(err, configData) {
         if ((null != err) || (null == configData)) {
@@ -787,9 +790,12 @@ function getDataFromConfigNode (str, hostName, appData, data, callback)
         }
         configApiServer.apiGet(url, appData,
                                commonUtils.doEnsureExecution(function(err, configData) {
-            data['ConfigData'] = {};
-            data['ConfigData'] = configData;
-            data['nodeStatus'] = 'Up';
+            if (null == data['derived-uve']) {
+                data['derived-uve'] = {};
+            }
+            data['derived-uve']['ConfigData'] = {};
+            data['derived-uve']['ConfigData'] = configData;
+            data['derived-uve']['nodeStatus'] = 'Up';
             callback(null, data);
         }, global.DEFAULT_CB_TIMEOUT));
     }, global.DEFAULT_CB_TIMEOUT));
