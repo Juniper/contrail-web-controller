@@ -135,11 +135,14 @@ function getConfigNodesSummary (req, res, appData)
 function parseConfigNodeProcessUVEs (resultJSON, configProcessUVEs, configData,
                                         host)
 {
+    if(resultJSON['derived-uve'] == null) {
+        resultJSON['derived-uve'] = {};
+    }
     if ((null != configData) && (configData.length > 0)) {
         var confLen = configData.length;
         for (var i = 0; i < confLen; i++) {
             if (configData[i]['config-node']['fq_name'][1] == host) {
-                resultJSON['ConfigData'] = configData[i]['config-node'];
+                resultJSON['derived-uve']['ConfigData'] = configData[i]['config-node'];
                 break;
             }
         }
@@ -165,9 +168,9 @@ function parseConfigNodeProcessUVEs (resultJSON, configProcessUVEs, configData,
             if (null == modInstName) {
                 continue;
             }
-            resultJSON[modInstName] = {};
-            resultJSON[modInstName] =
-                commonUtils.copyObject(resultJSON[modInstName],
+            resultJSON['derived-uve'][modInstName] = {};
+            resultJSON['derived-uve'][modInstName] =
+                commonUtils.copyObject(resultJSON['derived-uve'][modInstName],
                                        cfgProcUVEData[i]['value']);
         } catch(e) {
             continue;
@@ -185,9 +188,8 @@ function postProcessConfigNodeDetails (uves, host)
         configData = configData['config-nodes'];
     }
     var resultJSON = {};
-    resultJSON['configNode'] = {};
-    resultJSON['configNode'] =
-        commonUtils.copyObject(resultJSON['configNode'], uves[0]);
+    resultJSON=
+        commonUtils.copyObject(resultJSON, uves[0]);
     resultJSON =
         parseConfigNodeProcessUVEs(resultJSON, uves[1], configData, host)
     return resultJSON;
@@ -219,9 +221,8 @@ function postProcessConfigNodeSummary (configUVEData)
         resultJSON[i] = {};
         resultJSON[i]['name'] = host;
         resultJSON[i]['value'] = {};
-        resultJSON[i]['value']['configNode'] = {};
-        resultJSON[i]['value']['configNode'] =
-            commonUtils.copyObject(resultJSON[i]['value']['configNode'],
+        resultJSON[i]['value'] =
+            commonUtils.copyObject(resultJSON[i]['value'],
                        uveData[i]['value']);
         resultJSON[i]['value'] =
             parseConfigNodeProcessUVEs(resultJSON[i]['value'], genData,

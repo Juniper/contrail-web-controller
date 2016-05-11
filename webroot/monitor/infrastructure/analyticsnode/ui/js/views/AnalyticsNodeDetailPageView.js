@@ -243,7 +243,8 @@ define([
 
     function getAnalyticsMessages(aNodeData) {
         var msgs = monitorInfraUtils.getAnalyticsMessagesCountAndSize(
-                                            aNodeData,['contrail-collector']);
+                                            aNodeData['derived-uve'],
+                                            ['contrail-collector']);
         return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
     }
 
@@ -369,7 +370,8 @@ define([
 
     function getLastLogTime(aNodeData) {
         var lmsg;
-        lmsg = monitorInfraUtils.getLastLogTimestamp(aNodeData,"analytics");
+        lmsg = monitorInfraUtils.getLastLogTimestamp(aNodeData['derived-uve'],
+                "analytics");
         if(lmsg != null){
             try{
                 return new Date(parseInt(lmsg)/1000).toLocaleString();
