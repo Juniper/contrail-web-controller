@@ -380,24 +380,19 @@ define([
                         }
                     },
                     {
-                        elementId: 'ha_mode',
+                        elementId: 'user_created_ha_mode',
                         view: 'FormDropdownView',
                         viewConfig: {
                             disabled: 'isHAModeDropDownDisabled',
                             visible: 'showHAMode',
                             class: 'span6',
-                            path: 'service_instance_properties.ha_mode',
+                            path: 'user_created_ha_mode',
                             label: 'HA Mode',
-                            dataBindValue: 'service_instance_properties().ha_mode',
+                            dataBindValue: 'user_created_ha_mode',
+                            dataBindOptionList: 'haModeList()',
                             elementConfig: {
                                 dataTextField : "text",
-                                dataValueField : "id",
-                                data : [{id: "",
-                                            text: 'None'},
-                                        {id: 'active-active',
-                                            text: 'Active-Active'},
-                                        {id: 'active-standby',
-                                            text: 'Active-Standby'}]
+                                dataValueField : "id"
                             }
                         }
                     }]
