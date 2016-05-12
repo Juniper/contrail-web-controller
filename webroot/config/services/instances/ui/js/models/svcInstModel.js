@@ -42,6 +42,7 @@ define([
             availability_zone: 'ANY',
             host_list: [],
             host: null,
+            user_created_ha_mode: "",
             parent_uuid: null
         },
         validations: {
@@ -547,6 +548,17 @@ define([
                 staticRTModels.push(staticRTModel);
             }
         },
+        getHAModeListByTmplVer: function(tmplVer) {
+            var haModeList = [
+                {id: "", text: 'None'},
+                {id: 'active-active', text: 'Active-Active'},
+                {id: 'active-standby', text: 'Active-Standby'}
+            ];
+            if (2 == tmplVer) {
+                haModeList.splice(0, 1);
+            }
+            return haModeList;
+        },
         formatModelConfig: function(modelConfig, resolveConfig) {
             if (!window.svcTmplsFormatted.length) {
                 showInfoWindow("No Service Template found.",
@@ -591,13 +603,7 @@ define([
             if (null != maxInst) {
                 modelConfig['no_of_instances'] = maxInst;
             }
-            if ((false == resolveConfig) || (null == resolveConfig)) {
-                return modelConfig;
-            }
-            var intfList =
-                getValueByJsonPath(modelConfig,
-                                   'service_instance_properties;interface_list',
-                                   []);
+
             var svcTmpls = $(gridElId).data('svcInstTmplts');
             var tmpl = modelConfig['service_template'];
             var svcTmplFqn = getCookie('domain') + ":" +
@@ -607,6 +613,21 @@ define([
                 getValueByJsonPath(svcTmpls[svcTmplFqn],
                                    'service_template_properties;version',
                                    1);
+
+            modelConfig['haModeList'] = this.getHAModeListByTmplVer(tmplVer);
+            var haMode =
+                getValueByJsonPath(modelConfig,
+                                   'service_instance_properties;ha_mode', null);
+            if (null != haMode) {
+                modelConfig.user_created_ha_mode = haMode;
+            }
+            if ((false == resolveConfig) || (null == resolveConfig)) {
+                return modelConfig;
+            }
+            var intfList =
+                getValueByJsonPath(modelConfig,
+                                   'service_instance_properties;interface_list',
+                                   []);
             var interfaeTypes = [];
             var intfsCnt = intfTypes.length;
             if ((null != svcTmpls) && (null != svcTmpls[svcTmplFqn])) {
@@ -615,6 +636,7 @@ define([
                                        'service_template_properties;interface_type',
                                        []);
             }
+
             if (!intfList.length) {
                 var interfaeTypesCnt = interfaeTypes.length;
                 for (var i = 0; i < intfsCnt; i++) {
@@ -931,12 +953,25 @@ define([
                                            'allowedAddressPairCollection');
             var interfaces = this.model().attributes['interfaces'];
             var interfaeTypes = [];
+            var svcTmplVer = 1;
             if ((null != svcTmpls) && (null != svcTmpls[svcTmplFqn])) {
                 interfaeTypes =
                     getValueByJsonPath(svcTmpls[svcTmplFqn],
                                        'service_template_properties;interface_type',
                                        []);
+                svcTmplVer =
+                    getValueByJsonPath(svcTmpls[svcTmplFqn],
+                                       'service_template_properties;version',
+                                       1);
             }
+            var haModeList = this.getHAModeListByTmplVer(tmplVer);
+            this.haModeList(haModeList);
+            if (2 == svcTmplVer) {
+                this.user_created_ha_mode('active-standby');
+            } else {
+                this.user_created_ha_mode('');
+            }
+
             var intfList =
                 getValueByJsonPath(this.model().attributes,
                                    'service_instance_properties;interface_list',
@@ -1321,10 +1356,9 @@ define([
                 }
             }
             var siP = this.model().get('service_instance_properties');
-            if ((null != siP) && (null != siP['ha_mode'])) {
-                if (("" != siP['ha_mode']) && ('v2' != stVersion)) {
-                    siProp['ha_mode'] = siP['ha_mode'];
-                }
+            var haMode = this.model().get('user_created_ha_mode');
+            if ((null != haMode) && ("" != haMode)) {
+                siProp['ha_mode'] = haMode;
             }
             siProp['interface_list'] = intfList;
             return siProp;
@@ -1582,6 +1616,8 @@ define([
                 delete newSvcInst['allowedAddressPairCollection'];
                 delete newSvcInst['svcTmplDetails'];
                 delete newSvcInst['staticRoutes'];
+                delete newSvcInst['user_created_ha_mode'];
+                delete newSvcInst['haModeList'];
 
                 if (null == newSvcInst['uuid']) {
                     delete newSvcInst['uuid'];
