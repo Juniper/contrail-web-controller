@@ -10,7 +10,8 @@ define([
     'monitor/infrastructure/controlnode/ui/js/models/ControlNodeRoutesModel'
     //Remove all query references once it is moved to core
 ], function (_, Knockback, ContrailView, ContrailListModel, ControlNodeRoutesModel) {
-    var routingInstancesDropdownList = [{text:'All',value:'All'}];
+    var routingInstancesDropdownList = [{text:'All',value:'All'}],
+    backwardRouteStack = [], forwardRouteStack = [];
     var ControlNodeRoutesFormView = ContrailView.extend({
         render: function (options) {
             var self = this, viewConfig = self.attributes.viewConfig,
@@ -22,7 +23,7 @@ define([
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ?
                         viewConfig.widgetConfig : null,
                 routesFormId = "#" + prefix + "-form";
-
+            monitorInfraUtils.appendHostNameInWidgetTitleForUnderlayPage(viewConfig);
             self.model = controlNodeRoutesModel;
             self.$el.append(routesTmpl({prefix: prefix}));
 
@@ -70,7 +71,9 @@ define([
 
             //Making the Routes call here as the result also needs to be update
             //prefix value in this form
-            var routesQueryString = self.model.getControlRoutesQueryString();
+            var routesQueryString = self.model.getControlRoutesQueryString()
+            var limit = parseInt(routesQueryString.limit) + 1;
+            routesQueryString.limit = limit.toString();
             var routesRemoteConfig = {
                     url: monitorInfraConstants.
                         monitorInfraUrls['CONTROLNODE_ROUTES'] +
@@ -83,6 +86,8 @@ define([
                         ajaxConfig : routesRemoteConfig,
                         dataParser : function (response) {
                             var selValues = {};
+                            backwardRoutes(response);
+                            forwardRoutes(response);
                             var parsedData = monitorInfraParsers.
                                         parseRoutes(response,routesQueryString);
                             //TODO need to update the prefix autocomplete
@@ -91,6 +96,7 @@ define([
                                 prefixArray.push(d.dispPrefix);
                             });
                             $('#prefix').find('input').autocomplete( "option", "source" ,prefixArray);
+                            parsedData.pop();
                             return parsedData;
 
                         }
@@ -99,9 +105,98 @@ define([
                        // ucid: ctwc.CACHE_CONFIGNODE
                     }
                 };
-            var controlRoutesListModel = new ContrailListModel(listModelConfig);
+            var backwardRoutes = function(model){
+                var routingTable, showRoute, routingInstance, prefix,
+                showRouteTable = model[0].ShowRouteResp.tables.list.ShowRouteTable;
+                if(showRouteTable.constructor().length === undefined){
+                    routingTable = showRouteTable.routing_table_name;
+                    routingInstance =  showRouteTable.routing_instance;
+                    showRoute = showRouteTable.routes.list.ShowRoute;
+                }else{
+                    routingTable = showRouteTable[0].routing_table_name;
+                    routingInstance =  showRouteTable[0].routing_instance;
+                    showRoute = showRouteTable[0].routes.list.ShowRoute
+                }
+                if(showRoute.constructor().length === undefined){
+                    prefix = showRoute.prefix;
+                }else{
+                    prefix = showRoute[0].prefix;
+                }
+                backwardRouteStack.push({
+                    limit: routesQueryString.limit,
+                    startRoutingTable: routingTable,
+                    startRoutingInstance: routingInstance,
+                    startPrefix: prefix
+                });
+            };
+            var forwardRoutes = function(model){
+                var routingTable, showRoute, routingInstance, prefix,
+                showRouteTable = model[0].ShowRouteResp.tables.list.ShowRouteTable;
+                if(showRouteTable.constructor().length === undefined){
+                    routingTable = showRouteTable.routing_table_name;
+                    routingInstance =  showRouteTable.routing_instance;
+                    showRoute = showRouteTable.routes.list.ShowRoute;
+                }else{
+                    routingTable = showRouteTable[showRouteTable.length - 1].routing_table_name;
+                    routingInstance =  showRouteTable[showRouteTable.length - 1].routing_instance;
+                    showRoute = showRouteTable[showRouteTable.length - 1].routes.list.ShowRoute;
+                }
+                if(showRoute.constructor().length === undefined){
+                    prefix = showRoute.prefix;
+                }else{
+                    prefix = showRoute[showRoute.length - 1].prefix;
+                }
+                forwardRouteStack.push({
+                    limit: routesQueryString.limit,
+                    startRoutingTable: routingTable,
+                    startRoutingInstance: routingInstance,
+                    startPrefix: prefix
+                });
+            };
+            var model = new ContrailListModel(listModelConfig);
             self.renderView4Config($(self.$el).find(queryResultId),
-                    controlRoutesListModel, responseViewConfig);
+                    model, responseViewConfig,null,null,null,function() {
+                        monitorInfraUtils.bindPaginationListeners({
+                            gridSel: $('#' + ctwl.CONTROLNODE_ROUTES_RESULTS),
+                            model: self.model,
+                            obj:viewConfig,
+                            parseFn: function(response) {
+                                backwardRoutes(response);
+                                forwardRoutes(response);
+                                var parsedData = monitorInfraParsers.
+                                parseRoutes(response, routesQueryString);
+                                //check for last data in the grid
+                                if(parsedData.length < routesQueryString.limit){
+                                    if((parsedData.length + 1) != routesQueryString.limit){
+                                        forwardRouteStack.pop();
+                                    }
+                                }
+                                if(parsedData.length >= routesQueryString.limit){
+                                    parsedData.pop();
+                                }
+                                return parsedData;
+                            },
+                            getUrlFn: function(step) {
+                                var urlparm;
+                                if(step === 'forward' && forwardRouteStack.length !== 0){
+                                    urlParm = forwardRouteStack.pop();
+                                    return monitorInfraConstants.
+                                           monitorInfraUrls['CONTROLNODE_ROUTES'] +
+                                           '?ip=' + hostname +
+                                           '&' + $.param(urlParm);
+                                }
+                                if(step === 'backward' && backwardRouteStack.length !== 1){
+                                    backwardRouteStack.splice(backwardRouteStack.length - 1, 1);
+                                    urlParm = backwardRouteStack.pop();
+                                    forwardRouteStack.pop();
+                                    return monitorInfraConstants.
+                                    monitorInfraUrls['CONTROLNODE_ROUTES'] +
+                                    '?ip=' + hostname +
+                                    '&' + $.param(urlParm);
+                                 }
+                             }
+                        });
+                    });
         },
 
         getViewConfig: function (options,viewConfig) {
@@ -138,14 +233,15 @@ define([
                                     }
                                 },
                                 {
-                                    elementId: 'address_family',
-                                    view: "FormDropdownView",
+                                    elementId: 'prefix',
+                                    view: "FormAutoCompleteTextBoxView",
                                     viewConfig: {
-                                        path: 'address_family',
-                                        dataBindValue: 'address_family',
+                                        path: 'prefix',
+                                        placeHolder:'Prefix',
+                                        dataBindValue: 'prefix',
                                         class: "span2",
                                         elementConfig: {
-                                            data: addressFamilyList
+                                            source : []
                                         }
                                     }
                                 },
@@ -166,7 +262,7 @@ define([
                                 }
                             ]
                         },
-                        {
+                        /*{
                             columns: [
                                 {
                                     elementId: 'peer_source',
@@ -195,15 +291,14 @@ define([
                                     }
                                 },
                                 {
-                                    elementId: 'prefix',
-                                    view: "FormAutoCompleteTextBoxView",
+                                    elementId: 'address_family',
+                                    view: "FormDropdownView",
                                     viewConfig: {
-                                        path: 'prefix',
-                                        placeHolder:'Prefix',
-                                        dataBindValue: 'prefix',
+                                        path: 'address_family',
+                                        dataBindValue: 'address_family',
                                         class: "span2",
                                         elementConfig: {
-                                            source : []
+                                            data: addressFamilyList
                                         }
                                     }
                                 },
@@ -220,7 +315,7 @@ define([
                                     }
                                 }
                             ]
-                        },
+                        },*/
                         {
                             columns: [
                                 {

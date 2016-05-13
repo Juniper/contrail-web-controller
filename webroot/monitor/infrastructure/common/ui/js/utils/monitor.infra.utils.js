@@ -1748,7 +1748,48 @@ define([
             }
             gridHeaderTextElem.find('span').text(pageInfoTitle);
         }
-
+        self.bindPaginationListeners = function(cfg) {
+            var cfg = ifNull(cfg,{});
+            var gridSel = cfg['gridSel'];
+            gridSel.find('i.icon-forward').parent().click(function() {
+                controlNodePrevNextClick(cfg['obj'], { gridSel: gridSel,
+                    getUrlFn: cfg['getUrlFn'], step: 'forward',
+                    parseFn: cfg['parseFn']});
+            });
+            gridSel.find('i.icon-backward').parent().click(function() {
+                controlNodePrevNextClick(cfg['obj'], { gridSel: gridSel,
+                    getUrlFn: cfg['getUrlFn'], step: 'backward',
+                    parseFn: cfg['parseFn']});
+            });
+        }
+        function controlNodePrevNextClick(obj,cfg) {
+            var gridSel = $(cfg['gridSel']);
+            if(gridSel.length == 0) {
+                return;
+            }
+            var newAjaxConfig = "";
+            var cfg = ifNull(cfg,{});
+            var parseFn = cfg['parseFn'];
+            var getUrlFn = ifNull(cfg['getUrlFn'],$.noop);
+            var gridInst = gridSel.data('contrailGrid');
+            var urlObj = getUrlFn(cfg.step);
+            if(urlObj !== undefined){
+                newAjaxConfig = {
+                            url: urlObj,
+                            type:'Get'
+                    };
+                if(gridInst != null) {
+                    $.ajax(newAjaxConfig).done(function(response) {
+                        var retData = response;
+                        if(typeof(parseFn) == 'function') {
+                            retData = parseFn(response);
+                        }
+                        if(gridInst._dataView != null)
+                            gridInst._dataView.setData(retData);
+                    });
+                }
+          }
+        }
         self.bindGridPrevNextListeners = function(cfg) {
             var cfg = ifNull(cfg,{});
             var gridSel = cfg['gridSel'];
