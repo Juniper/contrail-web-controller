@@ -206,13 +206,17 @@ define([
                            "");
             if(dhcpVals != "" && dhcpVals.length > 0){
                 var dhcp_length = dhcpVals.length;
-                dhcp = "<table><tr><td>Code</td><td>Value</td></tr>"
+                dhcp = "<table><tr><td>Code</td><td>Value</td><td>Value in Bytes</td></tr>"
                 for(var i = 0; i < dhcp_length;i++) {
                     var dhcpVal = dhcpVals[i];
                     dhcp += "<tr><td>";
-                    dhcp += dhcpVal["dhcp_option_name"]
+                    dhcp += dhcpVal["dhcp_option_name"];
                     dhcp += "</td><td>";
-                    dhcp += dhcpVal["dhcp_option_value"]
+                    dhcp += dhcpVal["dhcp_option_value"] ?
+                        dhcpVal["dhcp_option_value"] : "-";
+                    dhcp += "</td><td>";
+                    dhcp += dhcpVal["dhcp_option_value_bytes"] ?
+                        dhcpVal["dhcp_option_value_bytes"] : "-";
                     dhcp += "</td></tr>";
                 }
                 dhcp += "</table>";
