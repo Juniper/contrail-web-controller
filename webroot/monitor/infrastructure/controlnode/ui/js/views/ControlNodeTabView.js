@@ -89,7 +89,26 @@ define([
                        viewPathPrefix:
                            ctwl.CONTROLNODE_VIEWPATH_PREFIX,
                        app: cowc.APP_CONTRAIL_CONTROLLER,
-                       viewConfig: viewConfig,
+                       viewConfig: $.extend({},viewConfig,{
+                        widgetConfig: {
+                            elementId: ctwl.CONTROLNODE_ROUTES_RESULTS + '-widget',
+                            view: "WidgetView",
+                            viewConfig: {
+                                header: {
+                                    title: ctwl.CONTROLNODE_ROUTER_TITLE,
+                                    // iconClass: "icon-search"
+                                },
+                                controls: {
+                                    top: {
+                                        default: {
+                                            collapseable: true,
+                                            collapsedOnLoad:true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                       }),
                        tabConfig: {
                            activate: function(event, ui) {
                                if ($('#' + ctwl.CONTROLNODE_ROUTES_RESULTS).data('contrailGrid')) {
