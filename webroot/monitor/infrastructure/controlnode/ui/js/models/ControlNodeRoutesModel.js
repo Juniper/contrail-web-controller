@@ -10,7 +10,7 @@ define([
         defaultConfig: {
             'routing_instance': 'All',
             'address_family': 'All',
-            'routes_limit': '50',
+            'routes_limit': '10',
             'peer_source': 'All',
             'prefix': "",
             'protocol': 'All'
@@ -43,7 +43,7 @@ define([
         reset: function (data, event) {
             this.routing_instance('All');
             this.address_family('All');
-            this.routes_limit('50');
+            this.routes_limit('20');
             this.peer_source('All');
             this.prefix('');
             this.protocol("All");
