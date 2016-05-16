@@ -215,7 +215,7 @@ define([
             var labelName = ' network ';
             if (isSet(nets) && nets.length > 0) {
                 for (var i = 0; i < nets.length; i++) {
-                    var net_disp = "";
+                    var net_disp = "", networkStr;
                     var net = nets[i];
                     if (isSet(net)) {
                         if (isSet(net["security_group"])) {
@@ -223,17 +223,29 @@ define([
                         }
                         if (isSet(net["subnet"]) &&
                             isSet(net["subnet"]["ip_prefix"]) &&
-                            isSet(net["subnet"]["ip_prefix_len"])) {
+                            isSet(net["subnet"]["ip_prefix_len"]) &&
+                            isSet(net["virtual_network"])) {
                             labelName = ' ';
+                            networkStr =  net["virtual_network"].split(":");
+                            if(networkStr.length === 3) {
+                                if(networkStr[0] === domain &&
+                                    networkStr[1] === project) {
+                                    networkStr = networkStr[2];
+                                } else {
+                                    networkStr = networkStr[0] + ":" +
+                                        networkStr[1] + ":" + networkStr[2];
+                                }
+                            }
                             net_disp +=
-                                self.policyRuleFormat(
-                                    net["subnet"]["ip_prefix"] + "/" +
+                                self.policyRuleFormat(networkStr +
+                                    ":" + net["subnet"]["ip_prefix"] + "/" +
                                     net["subnet"]["ip_prefix_len"]);
-                        }
-                        if (isSet(net["virtual_network"])) {
-                            labelName = ' network ';
-                            net_disp += self.prepareFQN(domain, project,
-                                             net["virtual_network"]);
+                        } else {
+                            if (isSet(net["virtual_network"])) {
+                                labelName = ' network ';
+                                net_disp += self.prepareFQN(domain, project,
+                                                 net["virtual_network"]);
+                            }
                         }
                         if(isSet(net["network_policy"])) {
                             labelName = ' policy ';
