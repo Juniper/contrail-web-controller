@@ -336,8 +336,8 @@ function setPolicyEntries(polPostData, policyId, appData, callback)
             ruleUIRef['src_addresses'][0]['subnet'] &&
             ruleUIRef['src_addresses'][0]['subnet']['ip_prefix'] &&
             ruleUIRef['src_addresses'][0]['subnet']['ip_prefix'].length) {
-            polPostData['network-policy']['network_policy_entries']
-                ['policy_rule'][i]['src_addresses'][0]['virtual_network'] = null;
+            /*polPostData['network-policy']['network_policy_entries']
+                ['policy_rule'][i]['src_addresses'][0]['virtual_network'] = null;*/
         } else {
             polPostData['network-policy']['network_policy_entries']
                 ['policy_rule'][i]['src_addresses'][0]['subnet'] = null;
@@ -346,8 +346,8 @@ function setPolicyEntries(polPostData, policyId, appData, callback)
             'ip_prefix' in ruleUIRef['dst_addresses'][0]['subnet'] &&
             ruleUIRef['dst_addresses'][0]['subnet']['ip_prefix'] &&
             ruleUIRef['dst_addresses'][0]['subnet']['ip_prefix'].length) {
-            polPostData['network-policy']['network_policy_entries']
-                ['policy_rule'][i]['dst_addresses'][0]['virtual_network'] = null;
+            /*polPostData['network-policy']['network_policy_entries']
+                ['policy_rule'][i]['dst_addresses'][0]['virtual_network'] = null;*/
         } else {
             polPostData['network-policy']['network_policy_entries']
                 ['policy_rule'][i]['dst_addresses'][0]['subnet'] = null;

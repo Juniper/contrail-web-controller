@@ -495,7 +495,6 @@ define([
                                     view:
                                         "FormHierarchicalDropdownView",
                                     name: 'Destination',
-                                    class: "span2",
                                     width: 200,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,

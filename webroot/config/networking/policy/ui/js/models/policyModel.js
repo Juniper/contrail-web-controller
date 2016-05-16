@@ -106,6 +106,45 @@ define([
                 }
             }), ruleModels);
         },
+
+        populateSrcDestAddressReqPayload : function(selectedDomain,
+            selectedProject, address, inputAddress) {
+            var srcArr = inputAddress.split(cowc.DROPDOWN_VALUE_SEPARATOR),
+                subnetStrArray, network, subnet;
+            address[0] = {};
+            address[0]["security_group"] = null;
+            address[0]["virtual_network"] = null;
+            address[0]["subnet"] = null;
+            address[0]["network_policy"] = null;
+
+            if (srcArr.length == 2 && srcArr[1] != 'subnet') {
+                address[0][srcArr[1]] =
+                    self.getPostAddressFormat(srcArr[0], selectedDomain,
+                                         selectedProject);
+            } else if(srcArr.length == 2) {
+                //parse network and subnet from source subnet string
+                subnetStrArray = srcArr[0].split(":");
+                if(subnetStrArray.length > 1) {
+                    //network
+                    if(subnetStrArray.length === 2) {
+                        network = subnetStrArray[0]
+                    } else if(subnetStrArray.length === 4) {
+                        network = subnetStrArray[0] + ":" +
+                            subnetStrArray[1] + ":" + subnetStrArray[2];
+                    }
+                    address[0]["virtual_network"] =
+                        self.getPostAddressFormat(network, selectedDomain,
+                             selectedProject);
+                    //subnet
+                    address[0]["subnet"] = {};
+                    subnet =
+                        subnetStrArray[subnetStrArray.length - 1].split("/");
+                    address[0]["subnet"]["ip_prefix"] = subnet[0];
+                    address[0]["subnet"]["ip_prefix_len"] = parseInt(subnet[1]);
+                }
+            }
+        },
+
         configurePolicy: function (mode, callbackObj) {
             var ajaxConfig = {}, returnFlag = true;
             var validations = [
@@ -157,43 +196,17 @@ define([
                                      (policeyRule[i].protocol()).toLowerCase();
 
                     newPoliceyRule[i].dst_addresses = [];
-                    newPoliceyRule[i].dst_addresses[0] = {};
-                    newPoliceyRule[i].dst_addresses[0]["security_group"] = null;
-                    newPoliceyRule[i].dst_addresses[0]["virtual_network"] = null;
-                    newPoliceyRule[i].dst_addresses[0]["subnet"] = null;
-                    newPoliceyRule[i].dst_addresses[0]["network_policy"] = null;
-                    var desArr = policeyRule[i].dst_address().split(cowc.DROPDOWN_VALUE_SEPARATOR);
-                    if (desArr.length == 2 && desArr[1] !== 'subnet') {
-                        newPoliceyRule[i].dst_addresses[0][desArr[1]] = 
-                            self.getPostAddressFormat(desArr[0], selectedDomain,
-                                                 selectedProject);
-                    } else if(desArr.length == 2) {
-                        newPoliceyRule[i].dst_addresses[0]["subnet"] = {};
-                        var subnet = desArr[0].split("/");
-                        newPoliceyRule[i].dst_addresses[0]["subnet"]["ip_prefix"]
-                                                       = subnet[0];
-                        newPoliceyRule[i].dst_addresses[0]["subnet"]["ip_prefix_len"]
-                                                       = parseInt(subnet[1]);
-                    }
+                    self.populateSrcDestAddressReqPayload(selectedDomain,
+                        selectedProject,
+                        newPoliceyRule[i].dst_addresses,
+                        policeyRule[i].dst_address());
+
                     newPoliceyRule[i].src_addresses = [];
-                    newPoliceyRule[i].src_addresses[0] = {};
-                    newPoliceyRule[i].src_addresses[0]["security_group"] = null;
-                    newPoliceyRule[i].src_addresses[0]["virtual_network"] = null;
-                    newPoliceyRule[i].src_addresses[0]["subnet"] = null;
-                    newPoliceyRule[i].src_addresses[0]["network_policy"] = null;
-                    var srcArr = policeyRule[i].src_address().split(cowc.DROPDOWN_VALUE_SEPARATOR);
-                    if (srcArr.length == 2 && srcArr[1] != 'subnet') {
-                        newPoliceyRule[i].src_addresses[0][srcArr[1]] = 
-                            self.getPostAddressFormat(srcArr[0], selectedDomain,
-                                                 selectedProject);
-                    } else if(srcArr.length == 2) {
-                        newPoliceyRule[i].src_addresses[0]["subnet"] = {};
-                        var subnet = srcArr[0].split("/");
-                        newPoliceyRule[i].src_addresses[0]["subnet"]["ip_prefix"]
-                                                        = subnet[0];
-                        newPoliceyRule[i].src_addresses[0]["subnet"]["ip_prefix_len"]
-                                                        = parseInt(subnet[1]);
-                    }
+                    self.populateSrcDestAddressReqPayload(selectedDomain,
+                        selectedProject,
+                        newPoliceyRule[i].src_addresses,
+                        policeyRule[i].src_address());
+
                     newPoliceyRule[i].src_ports =
                             policyFormatters.formatPort
                                             (policeyRule[i].src_ports_text());
@@ -271,7 +284,6 @@ define([
                                    newPolicyData["uuid"]);
                 }
                 ajaxConfig = {};
-                ajaxConfig.async = false;
                 ajaxConfig.type = type;
                 ajaxConfig.data = JSON.stringify(postData);
                 ajaxConfig.url = url;
@@ -326,7 +338,6 @@ define([
                 delDataID.push(selectedGridData[i]["uuid"]);
             }
             var sentData = [{"type": "network-policy", "deleteIDs": delDataID}];
-            ajaxConfig.async = false;
             ajaxConfig.type = "POST";
             ajaxConfig.data = JSON.stringify(sentData);
             ajaxConfig.url = "/api/tenants/config/delete";
