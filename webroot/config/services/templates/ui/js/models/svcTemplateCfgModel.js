@@ -113,7 +113,7 @@ define([
             }
             */
 
-            var intfTypes = ['management', 'left', 'right'];
+            var intfTypes = ['management', 'left', 'right', 'other0'];
             var intfColl = this.model().get('interfaces');
             var len = intfColl.length;
             var intfTypesList = [];
@@ -129,7 +129,10 @@ define([
                 intfTypesList.push(modIntf);
                 var otherIntfArr = modIntf.split('other');
                 if ((2 == otherIntfArr.length) && (otherIntfArr[1].length > 0)) {
-                    tmpIntfList.push(modIntf);
+                    if (modIntf != 'other0') {
+                        /* other0 already inside intfTypes */
+                        tmpIntfList.push(modIntf);
+                    }
                     var idx = parseInt(otherIntfArr[1]);
                     otherIntfIdxList.push(idx);
                 }
@@ -150,7 +153,7 @@ define([
             } else {
                 var arrLen = otherIntfIdxList.length;
                 if (!arrLen) {
-                    newIntfType = 'other0';
+                    newIntfType = 'other1';
                 } else {
                     if (arrLen == otherIntfIdxList[arrLen - 1] + 1) {
                         /* All the array entries are there starting from 0 */
