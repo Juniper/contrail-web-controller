@@ -851,7 +851,7 @@ function compareUpdateVMI (error, request, portPutData, vmiData, appData, callba
             }
         }
     }
-    processDataObjects(error, DataObjectArr, DataObjectDelArr, vmiData, portPutData, DataObjectLenDetail, boolDeviceOwnerChange, request, appData,
+    processDataObjects(error, DataObjectArr, DataObjectDelArr, vmiData, portPutData, DataObjectLenDetail, false, request, appData,
     function(error, result){
         callback(error, result)
     });
