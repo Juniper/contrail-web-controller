@@ -338,10 +338,10 @@ define([
             }
         }), portModel);
         portModel.deviceComputeShow = ko.computed((function(){
-            return (this.deviceOwnerValue() === "compute");
+            return (this.deviceOwnerValue().toLowerCase() === "compute");
         }), portModel);
         portModel.deviceRouterShow = ko.computed((function(){
-            return (this.deviceOwnerValue() === "router");
+            return (this.deviceOwnerValue().toLowerCase() === "router");
         }), portModel);
     };
 
