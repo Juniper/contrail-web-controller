@@ -8,9 +8,7 @@ define(
                 _, ContrailView, ConfigNodeListModel) {
             var ConfigNodeListView = ContrailView.extend({
                 render : function() {
-                    var configNodeListModel = new ConfigNodeListModel();
-
-                    this.renderView4Config(this.$el, configNodeListModel,
+                    this.renderView4Config(this.$el, null,
                             getConfigNodeListViewConfig());
                 }
             });
@@ -24,28 +22,12 @@ define(
                                 elementId :
                                     ctwl.CONFIGNODE_SUMMARY_CHART_ID,
                                 title : ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                view : "ConfigNodeScatterChartView",
+                                view : "ConfigNodeChartsView",
                                 viewPathPrefix:
                                     ctwl.MONITOR_INFRA_VIEW_PATH,
                                 app : cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
-                                    widgetConfig: {
-                                        elementId: ctwc.CONFIGNODE_SUMMARY_CHART_ID + '-widget',
-                                        view: "WidgetView",
-                                        viewConfig: {
-                                            header: {
-                                                title: ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                                // iconClass: "icon-search"
-                                            },
-                                            controls: {
-                                                top: {
-                                                    default: {
-                                                        collapseable: true
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                                    
                                 }
                                     } ]
                         },{

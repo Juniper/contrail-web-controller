@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
-
 define(
        [ 'underscore' ],
        function(_) {
@@ -495,7 +494,6 @@ define(
                 };
 
                 this.parseConfigNodesDashboardData = function (result) {
-
                     var retArr = [];
                     $.each(result,function(idx,d) {
                         var obj = {};
@@ -700,8 +698,222 @@ define(
                     retArr.sort(dashboardUtils.sortNodesByColor);
                     return retArr;
 
-                }
+                };
+                
+                this.bucketizeConfigNodeStats = function (apiStats, bucketDuration) {
+                    bucketDuration  = ifNull(bucketDuration, ctwc.CONFIGNODESTATS_BUCKET_DURATION);
+                    var minMaxTS = d3.extent(apiStats,function(obj){
+                        return obj['T'];
+                    });
+                    //If only 1 value extend the range by 10 mins on both sides
+                    if(minMaxTS[0] == minMaxTS[1]) {
+                        minMaxTS[0] -= ctwc.CONFIGNODESTATS_BUCKET_DURATION;
+                        minMaxTS[1] += ctwc.CONFIGNODESTATS_BUCKET_DURATION;
+                    }
+                    /* Bucketizes timestamp every 10 minutes */
+                    var xBucketScale = d3.scale.quantize().domain(minMaxTS).range(d3.range(minMaxTS[0],minMaxTS[1], bucketDuration));
+                    var buckets = {};
+                    //Group nodes into buckets
+                    $.each(apiStats,function(idx,obj) {
+                        var xBucket = xBucketScale(obj['T']);
+                        if(buckets[xBucket] == null) {
+                            var timestampExtent = xBucketScale.invertExtent(xBucket);
+                            buckets[xBucket] = {timestampExtent:timestampExtent,
+                                                data:[]};
+                        }
 
+                        buckets[xBucket]['data'].push(obj);
+                    });
+                    return buckets;
+                };
+                
+                this.parseConfigNodeRequestsStackChartData = function (apiStats) {
+                    var cf =crossfilter(apiStats);
+                    var parsedData = [];
+                    var timeStampField = 'T';
+                    var groupDim = cf.dimension(function(d) { return d["Source"];});
+                    var tsDim = cf.dimension(function(d) { return d[timeStampField];});
+                    var buckets = this.bucketizeConfigNodeStats(apiStats);
+                    var colorCodes = ctwc.CONFIGNODE_COLORS;
+                    colorCodes = colorCodes.slice(0, groupDim.group().all().length);
+                    //Now parse this data to be usable in the chart
+                    var parsedData = [];
+                    for(var i  in buckets) {
+                        var y0 = 0, counts = [], totalFailedReqs = 0;
+                        var timestampExtent = buckets[i]['timestampExtent'];
+                        tsDim.filter(timestampExtent);
+                        var reqCntData = groupDim.group().all();
+                        //Getting nodes group with failed requests as value
+                        var reqFailedData = groupDim.group().reduceSum(
+                            function (d) {
+                                if (parseInt(d['api_stats.resp_code']) != 200) {
+                                    return 1;
+                                } else {
+                                    return 0;
+                                }
+                            });
+                        //Getting nodes group with response time as value
+                        var totalResTimeData = groupDim.group().reduceSum(
+                            function (d) {
+                                return d['api_stats.response_time_in_usec'];
+                            });
+                        var reqFailedArr = reqFailedData.top(Infinity);
+                        var resTimeArr = totalResTimeData.top(Infinity);
+                        var reqFailedArrLen = reqFailedArr.length;
+                        var resTimeArrLen = resTimeArr.length;
+                        var reqFailedNodeMap = {}, resTimeNodeMap = {};
+                        //Constructing the node - responsetime map
+                        for (var j = 0; j < resTimeArrLen; j++) {
+                            resTimeNodeMap[resTimeArr[j]['key']] =
+                                resTimeArr[j]['value'];
+                        }
+                        //Constructing the node - failedRequestCnt map
+                        for (var j = 0; j < reqFailedArrLen; j++) {
+                            totalFailedReqs += reqFailedArr[j]['value']
+                            reqFailedNodeMap[reqFailedArr[j]['key']] =
+                                reqFailedArr[j]['value'];
+                        }
+                        var totalReqs = 0;
+                        for (var j = 0, len = reqCntData.length; j < len; j++) {
+                            totalReqs += reqCntData[j]['value']
+                        }
+                        counts.push({
+                            name: ctwc.CONFIGNODE_FAILEDREQUESTS_TITLE,
+                            totalReqs: totalReqs,
+                            totalFailedReq: totalFailedReqs,
+                            color: ctwc.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                            y0: y0,
+                            y1: y0 += totalFailedReqs
+                        });
+                        parsedData.push({
+                            colorCodes: colorCodes,
+                            counts: counts,
+                            total: totalFailedReqs,
+                            timestampExtent: timestampExtent,
+                            date: new Date(i / 1000)
+                        });
+                        for(var j=0,len=reqCntData.length;j<len;j++) {
+                            var nodeName = reqCntData[j]['key'];
+                            var nodeReqCnt = reqCntData[j]['value'];
+                            var failedReqPerNode = ifNull(reqFailedNodeMap[nodeName], 0);
+                            var failedReqPerNodePercent = 0;
+                            if (failedReqPerNode != 0 && nodeReqCnt != 0) {
+                                failedReqPerNodePercent = Math.round((failedReqPerNode/nodeReqCnt) * 100);
+                            }
+                            var avgResTime = Math.round((ifNull(resTimeNodeMap[nodeName], 0)/nodeReqCnt)) / 1000; //Converting to millisecs
+                            counts.push({
+                                name: nodeName,
+                                color: colorCodes[j],
+                                avgResTime: contrail.format('{0} {1}', avgResTime, 'ms'),
+                                reqFailPercent: failedReqPerNodePercent,
+                                y0:y0,
+                                y1:y0 += nodeReqCnt
+                            });
+                            parsedData.push({
+                                counts: counts,
+                                total: totalReqs,
+                                timestampExtent: timestampExtent,
+                                date: new Date(i / 1000)
+                            });
+                        }
+                    }
+                    return parsedData;
+                };
+                this.parseConfigNodeResponseStackedChartData = function (apiStats) {
+                    var buckets = this.bucketizeConfigNodeStats(apiStats, 600000000);
+                    var colors = ctwc.CONFIGNODE_COLORS;
+                    var cf = crossfilter(apiStats);
+                    var tsDim = cf.dimension(function (d) {return d.T});
+                    var sourceDim = cf.dimension(function (d) {return d.Source});
+                    var sourceGroupedData = sourceDim.group().all();
+                    var nodeMap = {}, chartData = [];
+                    $.each(sourceGroupedData, function (idx, obj) {
+                        nodeMap[obj['key']] = {
+                            key: obj['key'],
+                            values: [],
+                            bar: true,
+                            color: colors[idx] != null ? colors[idx] : cowc.D3_COLOR_CATEGORY5[1]
+                        };
+                        chartData.push(nodeMap[obj['key']]);
+                    });
+                    var lineChartData = {
+                        key: ctwl.RESPONSE_SIZE,
+                        values: [],
+                        color: '#7f9d92'
+                    }
+                    for (var i in buckets) {
+                        var timestampExtent = buckets[i]['timestampExtent'],
+                            aggResSize = 0,
+                            avgResSize = 0,
+                            nodeReqMap = {};
+                        tsDim.filter(timestampExtent);
+                        var bucketRequestsCnt = tsDim.top(Infinity).length;
+                        sourceGroupedData = sourceDim.group().all();
+                        $.each(sourceGroupedData, function(idx, obj) {
+                            nodeReqMap[obj['key']] = obj['value'];
+                        });
+                        var resTimeData = sourceDim.group().reduceSum(function (d) {
+                            return d['api_stats.response_time_in_usec'];
+                        });
+                        var resSizeData = sourceDim.group().reduceSum(function (d) {
+                            return d['api_stats.response_size'];
+                        });
+                        var resTimeArr = resTimeData.top(Infinity);
+                        var resSizeArr = resSizeData.top(Infinity);
+                        var resTimeArrLen = resTimeArr.length;
+                        var resSizeArrLen = resSizeArr.length;
+                        var resTimeNodeMap = {}, resSizeNodeMap = {};
+                        //Averaging the response time on node basis
+                        for (var j = 0; j < resTimeArrLen; j++) {
+                            if (nodeMap[resTimeArr[j]['key']] != null ) {
+                                var avgResTime = 0;
+                                avgResTime = resTimeArr[j]['value']/nodeReqMap[resTimeArr[j]['key']];
+                                avgResTime = avgResTime/1000; // converting to milli secs
+                                nodeMap[resTimeArr[j]['key']]['values'].push({
+                                    x: Math.round(i/1000),
+                                    y: avgResTime
+                                });
+                            }
+                        }
+                        //Calculating the aggregrate response size of all the nodes
+                        //in particular interval and averaging with overall requests
+                        //in the particular time interval.
+                        for (var j = 0; j < resSizeArrLen; j++) {
+                            aggResSize += resSizeArr[j]['value'];
+                        }
+                        avgResSize = aggResSize/bucketRequestsCnt;
+                        lineChartData['values'].push({
+                            x: Math.round(i/1000),
+                            y: avgResSize
+                        });
+                    }
+                    chartData.push(lineChartData);
+                    return chartData;
+                    
+                };
+                this.parseConfigNodeRequestForDonutChart = function (apiStats, reqType) {
+                    var cf = crossfilter(apiStats), parsedData = [];
+                    if (!$.isArray(reqType)) {
+                        reqType = [reqType];
+                    }
+                    var reqTypeDim = cf.dimension(function (d) {return d['api_stats.operation_type']});
+                    var sourceDim = cf.dimension(function (d) {return d['Source']});
+                    var sourceGrpDim = sourceDim.group().reduceSum(function(d) {
+                        if (reqType.indexOf(d['api_stats.operation_type']) > -1) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    });
+                    var sourceGrpData = sourceGrpDim.all();
+                    $.each(sourceGrpData, function (key, value){
+                        parsedData.push({
+                            label: value['key'],
+                            value: value['value']
+                        });
+                    });
+                    return parsedData;
+                };
                 this.getNodeVersion = function (buildStr) {
                     var verStr = '';
                     if(buildStr != null) {

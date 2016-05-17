@@ -6,7 +6,7 @@ define([
     'underscore',
     'backbone',
     // 'confignode-scatterchart-view',
-    'controller-basedir/monitor/infrastructure/common/ui/js/views/ConfigNodeScatterChartView',
+    'controller-basedir/monitor/infrastructure/common/ui/js/views/ConfigNodeChartsView',
     // 'controlnode-scatterchart-view',
     'controller-basedir/monitor/infrastructure/common/ui/js/views/ControlNodeScatterChartView',
     // 'dbnode-scatterchart-view',
