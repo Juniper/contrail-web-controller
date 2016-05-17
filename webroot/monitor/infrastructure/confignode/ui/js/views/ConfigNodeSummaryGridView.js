@@ -12,7 +12,9 @@ define(
                             var self = this,
                                 viewConfig = this.attributes.viewConfig,
                                 pagerOptions = viewConfig['pagerOptions'];
+                            if (self.model != null) {
                                 self.model = new ConfigNodeListModel();
+                            }
                             this.renderView4Config(self.$el,
                             self.model,
                             getConfigNodeSummaryGridViewConfig(pagerOptions),

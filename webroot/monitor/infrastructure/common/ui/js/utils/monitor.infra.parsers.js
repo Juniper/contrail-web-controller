@@ -699,16 +699,16 @@ define(
                     return retArr;
 
                 };
-                
+
                 this.bucketizeConfigNodeStats = function (apiStats, bucketDuration) {
-                    bucketDuration  = ifNull(bucketDuration, ctwc.CONFIGNODESTATS_BUCKET_DURATION);
+                    bucketDuration  = ifNull(bucketDuration, monitorInfraConstants.CONFIGNODESTATS_BUCKET_DURATION);
                     var minMaxTS = d3.extent(apiStats,function(obj){
                         return obj['T'];
                     });
                     //If only 1 value extend the range by 10 mins on both sides
                     if(minMaxTS[0] == minMaxTS[1]) {
-                        minMaxTS[0] -= ctwc.CONFIGNODESTATS_BUCKET_DURATION;
-                        minMaxTS[1] += ctwc.CONFIGNODESTATS_BUCKET_DURATION;
+                        minMaxTS[0] -= monitorInfraConstants.CONFIGNODESTATS_BUCKET_DURATION;
+                        minMaxTS[1] += monitorInfraConstants.CONFIGNODESTATS_BUCKET_DURATION;
                     }
                     /* Bucketizes timestamp every 10 minutes */
                     var xBucketScale = d3.scale.quantize().domain(minMaxTS).range(d3.range(minMaxTS[0],minMaxTS[1], bucketDuration));
@@ -726,7 +726,7 @@ define(
                     });
                     return buckets;
                 };
-                
+
                 this.parseConfigNodeRequestsStackChartData = function (apiStats) {
                     var cf =crossfilter(apiStats);
                     var parsedData = [];
@@ -734,7 +734,7 @@ define(
                     var groupDim = cf.dimension(function(d) { return d["Source"];});
                     var tsDim = cf.dimension(function(d) { return d[timeStampField];});
                     var buckets = this.bucketizeConfigNodeStats(apiStats);
-                    var colorCodes = ctwc.CONFIGNODE_COLORS;
+                    var colorCodes = monitorInfraConstants.CONFIGNODE_COLORS;
                     colorCodes = colorCodes.slice(0, groupDim.group().all().length);
                     //Now parse this data to be usable in the chart
                     var parsedData = [];
@@ -778,10 +778,10 @@ define(
                             totalReqs += reqCntData[j]['value']
                         }
                         counts.push({
-                            name: ctwc.CONFIGNODE_FAILEDREQUESTS_TITLE,
+                            name: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_TITLE,
                             totalReqs: totalReqs,
                             totalFailedReq: totalFailedReqs,
-                            color: ctwc.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                            color: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
                             y0: y0,
                             y1: y0 += totalFailedReqs
                         });
@@ -801,11 +801,15 @@ define(
                                 failedReqPerNodePercent = Math.round((failedReqPerNode/nodeReqCnt) * 100);
                             }
                             var avgResTime = Math.round((ifNull(resTimeNodeMap[nodeName], 0)/nodeReqCnt)) / 1000; //Converting to millisecs
+                            var toTime = new XDate(timestampExtent[0]/1000).toString('yyyy-MM-dd HH:mm');
+                            var fromTime = new XDate(timestampExtent[1]/1000).toString('yyyy-MM-dd HH:mm');
                             counts.push({
                                 name: nodeName,
                                 color: colorCodes[j],
                                 avgResTime: contrail.format('{0} {1}', avgResTime, 'ms'),
+                                nodeReqCnt: nodeReqCnt,
                                 reqFailPercent: failedReqPerNodePercent,
+                                bucketDuration: contrail.format('{1} - {0}', fromTime, toTime),
                                 y0:y0,
                                 y1:y0 += nodeReqCnt
                             });
@@ -821,7 +825,7 @@ define(
                 };
                 this.parseConfigNodeResponseStackedChartData = function (apiStats) {
                     var buckets = this.bucketizeConfigNodeStats(apiStats, 600000000);
-                    var colors = ctwc.CONFIGNODE_COLORS;
+                    var colors = monitorInfraConstants.CONFIGNODE_COLORS;
                     var cf = crossfilter(apiStats);
                     var tsDim = cf.dimension(function (d) {return d.T});
                     var sourceDim = cf.dimension(function (d) {return d.Source});
@@ -889,7 +893,7 @@ define(
                     }
                     chartData.push(lineChartData);
                     return chartData;
-                    
+
                 };
                 this.parseConfigNodeRequestForDonutChart = function (apiStats, reqType) {
                     var cf = crossfilter(apiStats), parsedData = [];

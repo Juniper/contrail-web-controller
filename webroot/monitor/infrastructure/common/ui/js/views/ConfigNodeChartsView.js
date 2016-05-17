@@ -53,10 +53,10 @@ define(['underscore', 'contrail-view',
                                    right: 0,
                                    bottom: 40
                                },
-                               bucketSize: ctwc.CONFIGNODESTATS_BUCKET_DURATION/(1000 * 1000 * 60),//converting to minutes
+                               bucketSize: monitorInfraConstants.CONFIGNODESTATS_BUCKET_DURATION/(1000 * 1000 * 60),//converting to minutes
                                sliceTooltipFn: function (data) {
                                    var tooltipConfig = {};
-                                   if (data['name'] != ctwc.CONFIGNODE_FAILEDREQUESTS_TITLE) {
+                                   if (data['name'] != monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_TITLE) {
                                        tooltipConfig['title'] = {
                                            name : data['name'],
                                            type : 'Config Node'
@@ -64,6 +64,9 @@ define(['underscore', 'contrail-view',
                                        tooltipConfig['content'] = {
                                            iconClass : false,
                                            info : [{
+                                               label: 'Requests',
+                                               value: ifNull(data['nodeReqCnt'], '-')
+                                           }, {
                                                label: 'Failed Requests (%)',
                                                value: ifNull(data['reqFailPercent'], '-')
                                            }, {
@@ -120,7 +123,7 @@ define(['underscore', 'contrail-view',
                                           .attr('transform','translate('+(-10)+',0)')
                                           .attr('class', 'contrail-legend')
                                           .append('rect')
-                                          .style('fill', ctwc.CONFIGNODE_FAILEDREQUESTS_COLOR);
+                                          .style('fill', monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR);
                                        legendWrap.append('g')
                                            .attr('class', 'contrail-legend')
                                            .attr('transform','translate('+(- 20)+',0)')

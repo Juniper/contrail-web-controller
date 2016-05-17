@@ -32,7 +32,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                             },
                             chartOptions: {
                                 height: 160,
-                                color: ctwc.CONFIGNODE_COLORS,
+                                color: monitorInfraConstants.CONFIGNODE_COLORS,
                                 margin: {
                                     bottom: 10,
                                     top: 10
@@ -51,7 +51,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                             },
                             chartOptions: {
                                 height: 160,
-                                color: ctwc.CONFIGNODE_COLORS,
+                                color: monitorInfraConstants.CONFIGNODE_COLORS,
                                 margin: {
                                     top: 10,
                                     bottom: 10
@@ -81,7 +81,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                             }).attr('class','contrail-legend')
                                             .append('rect')
                                             .attr('fill', function (d, i) {
-                                                return ctwc.CONFIGNODE_COLORS[i];
+                                                return monitorInfraConstants.CONFIGNODE_COLORS[i];
                                             })
                                         legendWrap.append('g')
                                             .attr('transform', 'translate('+ (- ((data.length + 1) * 20 + 10))+',0)')

@@ -27,7 +27,7 @@ define(
                                     ctwl.MONITOR_INFRA_VIEW_PATH,
                                 app : cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
-                                    
+
                                 }
                                     } ]
                         },{
