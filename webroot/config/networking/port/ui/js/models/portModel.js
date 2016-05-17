@@ -369,7 +369,8 @@ define([
 
             //Modal config default Device Owner formatting
             var deviceOwnerValue = "none";
-            var devOwner = modelConfig['virtual_machine_interface_device_owner'];
+            var devOwner = getValueByJsonPath(modelConfig,
+                'virtual_machine_interface_device_owner', "");
             if(devOwner == "network:router_interface"){
                 // if it is Logical Router Device Owner
                 deviceOwnerValue = "router";
@@ -405,12 +406,8 @@ define([
                         modelConfig["deviceComputeShow"] = true;
                     }
                 }
-            } else if ("logical_interface_back_refs" in modelConfig) {
-                var li = getValueByJsonPath(modelConfig,
-                               "logical_interface_back_refs;0;to", []);
-                if(li.length > 0) {
-                    logicalInterfaceName = li[li.length-1];
-                }
+            } else {
+                deviceOwnerValue = devOwner.trim() ? devOwner : "none";
             }
 
             //Modal config default SubInterface formatting
@@ -475,7 +472,7 @@ define([
                     }
                 },
                 'is_sub_interface': function(value, attr, finalObj) {
-                    if(value == true && finalObj.deviceOwnerValue == "compute") { 
+                    if(value == true && finalObj.deviceOwnerValue.toLowerCase() == "compute") {
                         return "Subinterface cannot be assigned along with Compute Device Owner."
                     }
                 },
@@ -492,24 +489,24 @@ define([
                 },
                 'floatingIpValue': function(value, attr, finalObj) {
                     if(value.length > 0 &&
-                       finalObj.deviceOwnerValue == "router") {
+                       finalObj.deviceOwnerValue .toLowerCase()== "router") {
                         return "Floating Ip cannot be assigned to Router port";
                     }
                 },
                 'virtualMachineValue': function(value, attr, finalObj) {
                     if(value == "" &&
-                       finalObj.deviceOwnerValue == "compute") {
+                       finalObj.deviceOwnerValue.toLowerCase() == "compute") {
                         return "Device Owner UUID cannot be empty.";
                     }
                 },
                 'logicalRouterValue': function(value, attr, finalObj) {
                     if(value == "" &&
-                       finalObj.deviceOwnerValue == "router") {
+                       finalObj.deviceOwnerValue.toLowerCase() == "router") {
                         return "Device Owner UUID cannot be empty.";
                     }
                 },
                 'deviceOwnerValue': function(value, attr, finalObj) {
-                    if (value == "router") {
+                    if (value.toLowerCase() == "router") {
                         if (finalObj.isParent == true) {
                             return "Router cannot be set to a parent port.";
                         }
@@ -1080,11 +1077,11 @@ define([
         }
         //delete(newPortData.instance_ip_back_refs);
 
-                if(newPortData.deviceOwnerValue == "none"){
+                if(newPortData.deviceOwnerValue.toLowerCase() == "none"){
                     newPortData["virtual_machine_interface_device_owner"] = "";
                     newPortData.virtual_machine_refs = [];
                     newPortData.logical_router_back_refs = [];
-                } else if(newPortData.deviceOwnerValue == "router"){
+                } else if(newPortData.deviceOwnerValue.toLowerCase() == "router"){
                     newPortData.virtual_machine_interface_device_owner =
                                                      "network:router_interface";
                     newPortData.logical_router_back_refs = [];
@@ -1097,7 +1094,7 @@ define([
                     newPortData.logical_router_back_refs[0].to = to;
                     newPortData.logical_router_back_refs[0].uuid = uuid;
                     //delete(newPortData.logicalRouterValue);
-                } else if(newPortData.deviceOwnerValue == "compute"){
+                } else if(newPortData.deviceOwnerValue.toLowerCase() == "compute"){
                      if(newPortData.virtual_machine_interface_device_owner.substring(0,7)
                         != "compute") {
                         newPortData.virtual_machine_interface_device_owner = "compute:nova";
