@@ -1386,10 +1386,18 @@ define([
                             footerlinks.push({
                               name:'introspect',
                               onClick: function () {
-                                        monitorInfraUtils.
-                                            onConfigLinkClick(res.ip,
-                                                    res.port);
+                                          monitorInfraUtils.
+                                              onIntrospectLinkClick(res.ip,
+                                                      '8084');
                                     }
+                            });
+                            footerlinks.push({
+                                name:'config',
+                                onClick: function () {
+                                          monitorInfraUtils.
+                                              onConfigLinkClick(res.ip,
+                                                      res.port);
+                                      }
                             });
                             footerlinks.push({
                                 name:'status',
