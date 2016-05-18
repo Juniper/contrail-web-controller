@@ -268,13 +268,6 @@ define([
                                     templateGenerator: "TextGenerator",
                                     label: "UUID"
                                 },{
-                                    key: "bgpaas_ip_address",
-                                    templateGenerator: "TextGenerator",
-                                    label: "IP Address",
-                                    templateGeneratorConfig: {
-                                        formatter: "IPAddressFormatter"
-                                    }
-                                },{
                                     key: "autonomous_system",
                                     templateGenerator: "TextGenerator",
                                     label: "Autonomous System"
@@ -286,25 +279,18 @@ define([
                                         formatter: "VMIFormatter"
                                     }
                                 },{
+                                    key: "bgpaas_ip_address",
+                                    templateGenerator: "TextGenerator",
+                                    label: "IP Address",
+                                    templateGeneratorConfig: {
+                                        formatter: "IPAddressFormatter"
+                                    }
+                                },{
                                     key: "bgpaas_session_attributes.address_families",
                                     templateGenerator: "TextGenerator",
                                     label: "Address Family",
                                     templateGeneratorConfig: {
                                         formatter: "AddressFamiliesFormatter"
-                                    }
-                                },{
-                                    key: 'bgpaas_session_attributes.admin_down',
-                                    templateGenerator: 'TextGenerator',
-                                    label: 'Admin State',
-                                    templateGeneratorConfig: {
-                                        formatter: "AdminStateFormatter"
-                                    }
-                                },{
-                                    key: "bgpaas_session_attributes.passive",
-                                    templateGenerator: "TextGenerator",
-                                    label: "Passive",
-                                    templateGeneratorConfig: {
-                                        formatter: "PassiveFormatter"
                                     }
                                 },{
                                     key: "bgpaas_session_attributes.hold_time",
@@ -319,6 +305,41 @@ define([
                                     label: "Loop Count",
                                     templateGeneratorConfig: {
                                         formatter: "LoopCountFormatter"
+                                    }
+                                },{
+                                    key: 'bgpaas_session_attributes.admin_down',
+                                    templateGenerator: 'TextGenerator',
+                                    label: 'Admin State',
+                                    templateGeneratorConfig: {
+                                        formatter: "AdminStateFormatter"
+                                    }
+                                },{
+                                    key: 'bgpaas_session_attributes.as_override',
+                                    templateGenerator: 'TextGenerator',
+                                    label: 'AS Override',
+                                    templateGeneratorConfig: {
+                                        formatter: "ASOverrideFormatter"
+                                    }
+                                },{
+                                    key: "bgpaas_session_attributes.passive",
+                                    templateGenerator: "TextGenerator",
+                                    label: "Passive",
+                                    templateGeneratorConfig: {
+                                        formatter: "PassiveFormatter"
+                                    }
+                                },{
+                                    key: 'bgpaas_ipv4_mapped_ipv6_nexthop',
+                                    templateGenerator: 'TextGenerator',
+                                    label: 'Use IPv4-mapped IPv6 Nexthop',
+                                    templateGeneratorConfig: {
+                                        formatter: "IPv4MappedIPv6NexthopFormatter"
+                                    }
+                                },{
+                                    key: 'bgpaas_suppress_route_advertisement',
+                                    templateGenerator: 'TextGenerator',
+                                    label: 'Suppress Route Advertisement',
+                                    templateGeneratorConfig: {
+                                        formatter: "SuppressRouteAdvtFormatter"
                                     }
                                 },{
                                     key: "bgpaas_session_attributes.auth_data",
@@ -353,6 +374,10 @@ define([
     this.AdminStateFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.adminStateFormatter("", "", v, "", dc);
     };
+    this.ASOverrideFormatter = function(v, dc) {
+        return bgpAsAServiceFormatter.
+            bgpaasASOverrideFormatter("", "", v, "", dc);
+    };
     this.PassiveFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.passiveFormatter("", "", v, "", dc);
     };
@@ -361,6 +386,14 @@ define([
     };
     this.LoopCountFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.loopCountFormatter("", "", v, "", dc);
+    };
+    this.IPv4MappedIPv6NexthopFormatter = function(v, dc) {
+        return bgpAsAServiceFormatter.
+            ipV4MappedIPv6NexthopFormatter("", "", v, "", dc);
+    };
+    this.SuppressRouteAdvtFormatter = function(v, dc) {
+        return bgpAsAServiceFormatter.
+            suppressRouteAdvtFormatter("", "", v, "", dc);
     };
     this.AddressFamiliesFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.addressFamiliesFormatter("", "", v, "", dc);

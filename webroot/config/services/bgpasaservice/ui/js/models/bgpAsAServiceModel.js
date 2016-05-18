@@ -17,10 +17,9 @@ define([
             "autonomous_system": null,
             "bgpaas_session_attributes": {
                 "admin_down": false,
-                /*"passive": true,
-                "auth_data": null,*/
+                "as_override": false,
                 "hold_time": null,
-                /*"loop_count": null,*/
+                "loop_count": null,
                 "address_families": {
                     "family": []
                 }/*,
@@ -30,6 +29,8 @@ define([
             "user_created_virtual_machine_interface": null,
             /*"user_created_auth_key_type": "none",
             "user_created_auth_key": null*/
+            "bgpaas_ipv4_mapped_ipv6_nexthop": false,
+            "bgpaas_suppress_route_advertisement": false
         },
 
         formatModelConfig : function(modelConfig) {
@@ -213,11 +214,11 @@ define([
                 newBGPAsAServiceData["bgpaas_session_attributes"]["hold_time"] =
                     sessionAttrs.hold_time ? Number(sessionAttrs.hold_time) : 0;
 
-               /* //loop count
+                //loop count
                 newBGPAsAServiceData["bgpaas_session_attributes"]["loop_count"] =
                     sessionAttrs.loop_count ? Number(sessionAttrs.loop_count) : 0;
 
-                //auth key
+                /*//auth key
                 if(newBGPAsAServiceData.user_created_auth_key_type != 'none') {
                     newBGPAsAServiceData["bgpaas_session_attributes"]["auth_data"] = {
                         key_type : newBGPAsAServiceData.user_created_auth_key_type,
@@ -328,13 +329,13 @@ define([
                         }
                     }
                 },
-                 /*"bgpaas_session_attributes.loop_count" : function(value, attr, finalObj) {
+                 "bgpaas_session_attributes.loop_count" : function(value, attr, finalObj) {
                     if(value) {
                         if(isNaN(value) || Number(value) < 0 || Number(value) > 16) {
                             return "Enter Loop count between 0-16"
                         }
                     }
-                },
+                },/*
                 'user_created_auth_key' : function(value, attr, finalObj){
                     if (finalObj['user_created_auth_key_type'] != 'none'
                         && (value == null || value.trim() == '')) {

@@ -201,38 +201,8 @@ define([
                                                         label : "IP Address",
                                                         class: "span6"
                                                     }
-                                                },
-                                                {
-                                                    elementId: "hold_time",
-                                                    view: "FormInputView",
-                                                    viewConfig: {
-                                                        placeholder: "Enter Hold Time",
-                                                        label: "Hold Time",
-                                                        dataBindValue: "bgpaas_session_attributes().hold_time",
-                                                        path: "bgpaas_session_attributes.hold_time",
-                                                        class: "span6"
-                                                    }
                                                 }
                                             ]},{
-                                            columns: [{
-                                                    elementId: "admin_down",
-                                                    view: "FormCheckboxView",
-                                                    viewConfig: {
-                                                        label: "Admin State",
-                                                        dataBindValue: "bgpaas_session_attributes().admin_down",
-                                                        path: "bgpaas_session_attributes.admin_down",
-                                                        class: "span6",
-                                                    }
-                                                }/*,{
-                                                elementId: "passive",
-                                                view: "FormCheckboxView",
-                                                viewConfig: {
-                                                    label: "Passive",
-                                                    dataBindValue: "bgpaas_session_attributes().passive",
-                                                    path: "bgpaas_session_attributes.passive",
-                                                    class: "span6",
-                                                }
-                                            }*/]}/*,{
                                             columns: [{
                                                 elementId: "hold_time",
                                                 view: "FormInputView",
@@ -254,6 +224,48 @@ define([
                                                     class: "span6"
                                                 }
                                             }]},{
+                                            columns: [{
+                                                    elementId: "admin_down",
+                                                    view: "FormCheckboxView",
+                                                    viewConfig: {
+                                                        label: "Admin State",
+                                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                        dataBindValue: "bgpaas_session_attributes().admin_down",
+                                                        path: "bgpaas_session_attributes.admin_down",
+                                                        class: "span6",
+                                                    }
+                                                },{
+                                                elementId: "as_override",
+                                                view: "FormCheckboxView",
+                                                viewConfig: {
+                                                    label: "AS Override",
+                                                    templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                    dataBindValue: "bgpaas_session_attributes().as_override",
+                                                    path: "bgpaas_session_attributes.as_override",
+                                                    class: "span6",
+                                                }
+                                            }]},{
+                                            columns: [{
+                                                    elementId: "bgpaas_ipv4_mapped_ipv6_nexthop",
+                                                    view: "FormCheckboxView",
+                                                    viewConfig: {
+                                                        label: "Use IPv4-mapped IPv6 Nexthop",
+                                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                        dataBindValue: "bgpaas_ipv4_mapped_ipv6_nexthop",
+                                                        path: "bgpaas_ipv4_mapped_ipv6_nexthop",
+                                                        class: "span6",
+                                                    }
+                                                },{
+                                                elementId: "bgpaas_suppress_route_advertisement",
+                                                view: "FormCheckboxView",
+                                                viewConfig: {
+                                                    label: "Suppress Route Advertisement",
+                                                    templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                    dataBindValue: "bgpaas_suppress_route_advertisement",
+                                                    path: "bgpaas_suppress_route_advertisement",
+                                                    class: "span6",
+                                                }
+                                            }]}/*,{
                                             columns : [{
                                                         elementId: 'user_created_auth_key_type',
                                                         view: 'FormDropdownView',

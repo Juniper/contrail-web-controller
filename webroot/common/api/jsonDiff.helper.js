@@ -93,7 +93,12 @@ var configJsonModifyObj = {
         'preProcessCB': {
             'applyOnOldJSON': modifyConfigDataByAttrHref,
         },
-        'optFields': ['bgpaas_session_attributes', 'autonomous_system', 'bgpaas_ip_address', 'virtual_machine_interface_refs'],
+        'optFields': ['bgpaas_session_attributes',
+                      'autonomous_system',
+                      'bgpaas_ip_address',
+                      'virtual_machine_interface_refs',
+                      'bgpaas_ipv4_mapped_ipv6_nexthop',
+                      'bgpaas_suppress_route_advertisement'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'physical-interface': {
