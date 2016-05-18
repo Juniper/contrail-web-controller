@@ -979,7 +979,7 @@ define([
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;version', 1);
             if (2 == tmplVersion) {
-                return false;
+                return true;
             }
             return svcScaling;
         }), model);
@@ -1034,10 +1034,10 @@ define([
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;version', 1);
             if (2 == tmplVer) {
-                $( "#ha_mode" ).addClass( "no-margin" );
+                $( "#user_created_ha_mode" ).addClass( "no-margin" );
                 return true;
             }
-            $( "#ha_mode" ).removeClass( "no-margin" );
+            $( "#user_created_ha_mode" ).removeClass( "no-margin" );
             return false;
         }), model);
         model.showAvailibilityZone = ko.computed((function() {
