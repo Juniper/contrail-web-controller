@@ -1313,10 +1313,15 @@ function getVirtualNetworksForUser(appData, callback) {
     var configURL = null;
     authApi.getTenantList(appData.authObj.req, appData,
         function (error, tenantList) {
+            var cookieDomain =
+                commonUtils.getValueByJsonPath(appData,
+                                               'authObj;req;cookies;domain',
+                                               null, false);
             var tenantListLen = (tenantList['tenants'] != null) ? (tenantList['tenants'].length) : 0;
             for (var i = 0; i < tenantListLen; i++) {
-                configURL = '/virtual-networks?parent_type=project&parent_fq_name_str=default-domain:' +
-                    tenantList['tenants'][i]['name'];
+                configURL =
+                    '/virtual-networks?parent_type=project&parent_fq_name_str=' +
+                    cookieDomain + ':' + tenantList['tenants'][i]['name'];
                 commonUtils.createReqObj(dataObjArr, configURL,
                     global.HTTP_REQUEST_GET, null, null, null,
                     appData);
