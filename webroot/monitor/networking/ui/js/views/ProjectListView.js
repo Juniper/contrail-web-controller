@@ -22,14 +22,14 @@ define([
         return {
             remote: {
                 ajaxConfig: {
-                        url: ctwc.getProjectsURL({name: ctwc.DEFAULT_DOMAIN}, {getProjectsFromIdentity: true}),
+                        url: ctwc.getProjectsURL({name: ctwc.COOKIE_DOMAIN}, {getProjectsFromIdentity: true}),
                         type: 'GET'
                 },
                 hlRemoteConfig: nmwgc.getProjectDetailsHLazyRemoteConfig(),
                     dataParser: nmwp.projectDataParser
             },
             cacheConfig: {
-                ucid: ctwc.UCID_DEFAULT_DOMAIN_PROJECT_LIST //TODO: Handle multi-tenancy
+                ucid: ctwc.UCID_COOKIE_DOMAIN_PROJECT_LIST
             }
         };
     };

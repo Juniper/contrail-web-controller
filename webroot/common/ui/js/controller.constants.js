@@ -122,7 +122,7 @@ define([
         this.TMPL_FORM_RESULT = 'form-result-page-template';
         this.TMPL_SESSION_ANALYZER = "session-analyzer-view-template";
 
-        this.DEFAULT_DOMAIN = "default-domain";
+        this.COOKIE_DOMAIN = contrail.getCookie(cowc.COOKIE_DOMAIN);
         this.UCID_PREFIX_MN = "monitor-networking";
         this.UCID_PREFIX_BREADCRUMB = "breadcrumb";
         this.UCID_PREFIX_GRAPHS = "graphs";
@@ -135,8 +135,10 @@ define([
 
         this.UCID_ALL_VN_LIST = this.UCID_PREFIX_MN_LISTS + "all-virtual-networks";
         this.UCID_ALL_VM_LIST = this.UCID_PREFIX_MN_LISTS + "all-virtual-machines";
-        this.UCID_DEFAULT_DOMAIN_VN_LIST = this.UCID_PREFIX_MN_LISTS + this.DEFAULT_DOMAIN + ":virtual-networks";
-        this.UCID_DEFAULT_DOMAIN_PROJECT_LIST = this.UCID_PREFIX_MN_LISTS + this.DEFAULT_DOMAIN + ":projects";
+        this.UCID_COOKIE_DOMAIN_VN_LIST = this.UCID_PREFIX_MN_LISTS +
+            this.COOKIE_DOMAIN + ":virtual-networks";
+        this.UCID_COOKIE_DOMAIN_PROJECT_LIST = this.UCID_PREFIX_MN_LISTS +
+            this.COOKIE_DOMAIN + ":projects";
 
         this.UCID_BC_ALL_DOMAINS = this.UCID_PREFIX_BREADCRUMB + ':all-domains';
         this.UCID_BC_ALL_SA_SETS = this.UCID_PREFIX_BREADCRUMB + ':all-sa-sets';
