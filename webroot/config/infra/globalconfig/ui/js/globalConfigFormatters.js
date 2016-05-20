@@ -27,7 +27,7 @@
                     }
                 }
                 if ('flow_export_rate' == rowData['key']) {
-                    if ((undefined == val) || ("" == val)) {
+                    if ((undefined === val) || (null === val) || ("" === val)) {
                         return "-";
                     } else {
                         return val;
