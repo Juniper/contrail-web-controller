@@ -1407,8 +1407,9 @@ define([
                             //dont remember old position in following cases.
                             //when flowpath is drawn
                             //when drawing children of multiple parents
+                            var parentName = ifNull(node.options.nodeDetails.parent, []);
                             if(dblClickedElementName == "" ||
-                                node.options.nodeDetails.parent.indexOf(dblClickedElementName) == -1) {
+                                parentName.indexOf(dblClickedElementName) == -1) {
                                 mapPositions[id] = {};
                                 mapPositions[id] = {
                                     x: node.x,
