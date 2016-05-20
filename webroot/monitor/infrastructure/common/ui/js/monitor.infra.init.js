@@ -10,8 +10,8 @@ define([
         initStatus = contentHandler.initFeatureModuleMap[initJSpath],
         deferredObj = initStatus['deferredObj'];
 
-    initStatus['isInProgress'] = false;
-    initStatus['isComplete'] = true;
+        initStatus['isInProgress'] = false;
+        initStatus['isComplete'] = true;
 
     if(contrail.checkIfExist(deferredObj)) {
         deferredObj.resolve();

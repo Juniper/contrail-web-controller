@@ -73,8 +73,8 @@ define([
                     {
                         columns: [
                             {
-                                elementId: ctwl.CONFIG_LINK_LOCAL_SERVICES_ID,
-                                title: ctwl.TITLE_LINK_LOCAL_SERVICES,
+                                elementId: ctwl.CONFIG_BGP_SECTION_ID,
+                                title: ctwl.TITLE_BGP,
                                 view: "bgpGridView",
                                 viewPathPrefix: "config/infra/bgp/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,

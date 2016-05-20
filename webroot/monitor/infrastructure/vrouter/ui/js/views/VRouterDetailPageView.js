@@ -73,6 +73,7 @@ define([
             elementId: 'vrouter_detail_charts_id',
             title: ctwl.TITLE_DETAILS,
             view: "VRouterDetailsChartsView",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
             viewPathPrefix : ctwl.VROUTER_VIEWPATH_PREFIX,
             viewConfig: viewConfig
         }

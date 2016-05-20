@@ -11,7 +11,8 @@ define([
     'text!controller-basedir/monitor/infrastructure/common/ui/templates/monitor.infra.tmpl',
     'monitor-infra-utils',
     'monitor-infra-constants',
-    'monitor-infra-parsers'
+    'monitor-infra-parsers',
+    'controller-init'
 ], function (MonitorInfraTmpls, MonitorInfraUtils, MonitorInfraConstants, MonitorInfraParsers) {
     monitorInfraConstants = new MonitorInfraConstants;
     monitorInfraUtils = new MonitorInfraUtils;

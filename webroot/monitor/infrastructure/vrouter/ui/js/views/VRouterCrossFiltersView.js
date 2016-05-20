@@ -6,7 +6,8 @@ define([
     'underscore',
     'backbone',
     'contrail-view',
-    'barchart-cf'
+    // 'barchart-cf'
+    "core-basedir/js/views/BarChartView"
 ], function (_, Backbone,ContrailView,BarChartView) {
     //Takes an array of barChart configuration and renders
     var VRouterCrossFiltersView  = ContrailView.extend({

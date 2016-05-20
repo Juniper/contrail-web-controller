@@ -3,13 +3,14 @@
  */
 
 define([
+    'co-test-constants',
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'config/physicaldevices/physicalrouters/test/ui/views/physicalRoutersGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
     var moduleId = cttm.PHYSICAL_ROUTERS_GRID_VIEW_COMMON_TEST_MODULE;
 

@@ -1,10 +1,11 @@
 define([
+    'co-test-constants',
     'co-test-runner',
     'co-test-utils',
     'ct-test-messages',
     'common/test/ui/unit/ct.parsers.mock.data',
     'common/test/ui/unit/ct.parsers.unit.test.suite'
-], function (cotr, cotu, cttm, CTParsersUnitMockData, CTParsersUnitTestSuite) {
+], function (cotc, cotr, cotu, cttm, CTParsersUnitMockData, CTParsersUnitTestSuite) {
 
     var moduleId = cttm.CT_UNIT_TEST_MODULE;
 

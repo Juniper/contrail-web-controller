@@ -48,8 +48,6 @@ define([
             var transportCfg = {
                     url: contrail.format(monitorInfraConstants.monitorInfraUrls['CONTROLNODE_ROUTE_INST_LIST'], hostname, 40)
                 };
-            var routingInstanceDS = new ContrailDataView();
-            getOutputByPagination(routingInstanceDS,{transportCfg:transportCfg,parseFn:parseRoutingInstanceResp});
             if (widgetConfig !== null) {
                 self.renderView4Config($(self.$el).find(routesFormId),
                         self.model, widgetConfig, null, null, null);

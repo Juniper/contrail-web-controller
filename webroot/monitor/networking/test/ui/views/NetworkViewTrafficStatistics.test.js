@@ -2,12 +2,13 @@
  * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 define([
+    'co-test-constants',
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'monitor/networking/test/ui/views/NetworkView.mock.data',
     'co-chart-view-line-test-suite',
-], function (cotr, cttu, cttm, TestMockdata, LineWithFocusChartViewTestSuite) {
+], function (cotc, cotr, cttu, cttm, TestMockdata, LineWithFocusChartViewTestSuite) {
 
     var moduleId = cttm.PROJECTS_VIEW_COMMON_TEST_MODULE;
 

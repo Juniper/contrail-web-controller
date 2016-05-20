@@ -458,6 +458,12 @@ define([
                 viewPathPrefix = './';
             }
             viewPath = viewPathPrefix + viewName;
+            var checkRequirePath = viewPath.replace(/^core-basedir\//,'').replace(/^controller-basedir\//,'');
+            var pathMapping = _.invert(require.s.contexts._.config.paths);
+            pathMapping = {
+                 'monitor/infrastructure/common/ui/js/views/VRouterScatterChartView' : 'vrouter-scatterchart-view'
+            }
+            // viewPath = ifNull(pathMapping[checkRequirePath],viewPath);
             require([viewPath], function(ElementView) {
                 elementView = new ElementView({el: parentElement, model: model, attributes: viewAttributes, rootView: rootView, onAllViewsRenderCompleteCB: onAllViewsRenderCompleteCB, onAllRenderCompleteCB: onAllRenderCompleteCB});
                 elementView.viewName = viewName;

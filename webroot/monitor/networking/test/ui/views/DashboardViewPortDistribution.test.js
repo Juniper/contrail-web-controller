@@ -2,12 +2,13 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define([
+    'co-test-constants',
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'monitor/networking/test/ui/views/DashboardView.mock.data',
     'co-chart-view-zoom-scatter-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, ZoomScatterChartViewTestSuite) {
+], function (cotc, cotr, cttu, cttm, TestMockdata, ZoomScatterChartViewTestSuite) {
 
     var moduleId = cttm.PROJECTS_LIST_VIEW_COMMON_TEST_MODULE;
 

@@ -96,6 +96,7 @@ define([
             title: ctwl.TITLE_DETAILS,
             view: "ConfigNodeDetailsChartsView",
             viewPathPrefix : ctwl.CONFIGNODE_VIEWPATH_PREFIX,
+            app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: viewConfig
         }
     }
