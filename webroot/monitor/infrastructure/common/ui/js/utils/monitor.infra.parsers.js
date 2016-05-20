@@ -2,8 +2,9 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define(
-       [ 'underscore' ],
-       function(_) {
+       [ 'underscore' ,
+        'core-alarm-utils'],
+       function(_,coreAlarmUtils) {
             var MonInfraParsers = function() {
                 var self = this;
                 var noDataStr = monitorInfraConstants.noDataStr;

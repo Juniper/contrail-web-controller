@@ -37,11 +37,11 @@ define([
     });
 
     function getInfoboxesConfig() {
+        var vRouterListModel = new VRouterListModel();
         var analyticsNodeListModel = new AnalyticsNodeListModel();
         var controlNodeListModel = new ControlNodeListModel();
         var databaseNodeListModel = new DatabaseNodeListModel();
         var configNodeListModel = new ConfigNodeListModel();
-        var vRouterListModel = new VRouterListModel();
 
         return [{
             title: 'Virtual Routers',

@@ -19,7 +19,7 @@ function ConfigPoliciesLoader() {
             if(contrail.checkIfExist(loadingStartedDefObj)) {
                 loadingStartedDefObj.resolve();
             }
-        });
+        })
     }
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");

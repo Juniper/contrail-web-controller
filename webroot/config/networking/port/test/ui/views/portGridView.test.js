@@ -3,13 +3,14 @@
  */
 
 define([
+    'co-test-constants',
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'config/networking/port/test/ui/views/portGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
     var moduleId = cttm.PORT_GRID_VIEW_COMMON_TEST_MODULE;
 

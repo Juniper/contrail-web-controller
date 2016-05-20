@@ -6,8 +6,9 @@ define([
     'underscore',
     'query-form-view',
     'knockback',
-    'controller-basedir/reports/qe/ui/js/models/FlowSeriesFormModel'
-], function (_, QueryFormView, Knockback, FlowSeriesFormModel) {
+    'controller-basedir/reports/qe/ui/js/models/FlowSeriesFormModel',
+    'core-basedir/js/common/qe.utils',
+], function (_, QueryFormView, Knockback, FlowSeriesFormModel,qewu) {
 
     var FlowSeriesFormView = QueryFormView.extend({
         render: function () {

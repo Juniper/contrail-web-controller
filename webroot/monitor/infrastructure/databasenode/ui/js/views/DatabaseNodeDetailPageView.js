@@ -82,6 +82,7 @@ define([
             elementId: 'database_detail_charts_id',
             title: ctwl.TITLE_DETAILS,
             view: "DatabaseNodeDetailsChartsView",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
             viewPathPrefix : ctwl.DATABASENODE_VIEWPATH_PREFIX,
             viewConfig: viewConfig
         }

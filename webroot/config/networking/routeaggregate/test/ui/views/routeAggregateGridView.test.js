@@ -2,13 +2,14 @@
  * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 define([
+    'co-test-constants',
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'config/networking/routeaggregate/test/ui/views/routeAggregateGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
     var moduleId = cttm.ROUTE_AGGREGATE_GRID_VIEW_COMMON_TEST_MODULE;
 

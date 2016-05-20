@@ -98,6 +98,7 @@ define([
             title: ctwl.TITLE_DETAILS,
             view: "AnalyticsNodeDetailsChartsView",
             viewPathPrefix : ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
+            app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: viewConfig
         }
     }

@@ -1,4 +1,5 @@
 define([
+    'co-test-constants',
     'co-test-runner',
     'co-test-utils',
     'ct-test-messages',
@@ -6,7 +7,7 @@ define([
     'nm-parsers-unit-test-suite',
     'monitor/networking/test/ui/unit/nm.utils.mock.data',
     'nm-utils-unit-test-suite',
-], function (cotr, cotu, cttm, NMParsersUnitMockData, NMParsersUnitTestSuite, NMUtilsMockData, NMUtilsUnitTestSuite) {
+], function (cotc, cotr, cotu, cttm, NMParsersUnitMockData, NMParsersUnitTestSuite, NMUtilsMockData, NMUtilsUnitTestSuite) {
 
     var moduleId = cttm.NM_UNIT_TEST_MODULE;
 

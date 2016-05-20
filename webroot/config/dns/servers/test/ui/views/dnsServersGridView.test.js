@@ -3,13 +3,14 @@
  */
 
 define([
+    'co-test-constants',
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'config/dns/servers/test/ui/views/dnsServersGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
     var moduleId = cttm.DNS_SERVERS_GRID_VIEW_TEST_MODULE;
 

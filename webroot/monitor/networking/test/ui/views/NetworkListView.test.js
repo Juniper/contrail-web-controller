@@ -2,6 +2,7 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define([
+    'co-test-constants',
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
@@ -10,7 +11,7 @@ define([
     'co-grid-view-test-suite',
     'co-chart-view-zoom-scatter-test-suite',
     'network-list-view-custom-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, ZoomScatterChartTestSuite,
+], function (cotc,cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, ZoomScatterChartTestSuite,
              CustomTestSuite) {
 
     var moduleId = cttm.NETWORKS_LIST_VIEW_COMMON_TEST_MODULE;

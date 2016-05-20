@@ -2,13 +2,14 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define([
+    'co-test-constants',
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'config/physicaldevices/interfaces/test/ui/views/interfacesGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite'
-], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
     var moduleId = cttm.PHYSICAL_INTERFACES_GRID_VIEW_COMMON_TEST_MODULE;
 
