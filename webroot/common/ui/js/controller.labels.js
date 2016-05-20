@@ -449,6 +449,8 @@ define([
             "control_node_alarms_grid_view_id";
         this.CONTROL_NODE_ALARMS_GRID_SECTION_ID =
             "control_node_alarms_grid_section_id";
+        this.CONTROLNODE_ROUTER_TITLE =
+            "Search Routes"
 
         //vRouter summary page labels
         this.VROUTER_VIEWPATH_PREFIX =

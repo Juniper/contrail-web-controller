@@ -644,6 +644,9 @@ function getControlNodeRoutes (req, res, appData)
     var peerSource = queryData.query['peerSource'];
     var addrFamily = queryData.query['addrFamily'];
     var protocol = queryData.query['protocol'];
+    var startRoutingTable = commonUtils.getValueByJsonPath(queryData, 'query;startRoutingTable','');
+    var startRoutingInstance = commonUtils.getValueByJsonPath(queryData, 'query;startRoutingInstance','');
+    var startPrefix = commonUtils.getValueByJsonPath(queryData, 'query;startPrefix','');
     var dataObjArr = [];
 
     if (null == routingInst) {
@@ -665,8 +668,8 @@ function getControlNodeRoutes (req, res, appData)
     url =  '/Snh_ShowRouteReq?routing_table=' + encodeURIComponent(routingTable) +
         '&routing_instance=' + encodeURIComponent(routingInst) +
         '&prefix=' + encodeURIComponent(prefix) + '&longer_match=&count=' +
-        count + '&start_routing_table=' +
-        '&start_routing_instance=&start_prefix=';
+        count + '&start_routing_table=' + startRoutingTable + 
+        '&start_routing_instance=' + startRoutingInstance + '&start_prefix=' + startPrefix;
 
     var resultJSON = [];
     var bgpRtrRestAPI =

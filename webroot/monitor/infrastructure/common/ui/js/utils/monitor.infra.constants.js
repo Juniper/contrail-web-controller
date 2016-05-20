@@ -111,6 +111,19 @@ define([
                                             this.UVEModuleIds['SERVICE_MONITOR'],
                                             this.UVEModuleIds['SCHEMA']];
         this.defaultIntrospectPort = '8085';
+        this.controlRouteAddressFamily = [{ id:"enet", text:"enet" },
+                                          { id:"ermvpn", text:"ermvpn" },
+                                          { id:"evpn", text:"evpn" },
+                                          { id:"inet", text:"inet" },
+                                          { id:"inetvpn", text:"inetvpn" },
+                                          { id:"inet6", text:"inet6" },
+                                          { id:"l3vpn", text:"l3vpn" },
+                                          { id:"rtarget", text:"rtarget" }];
+        this.controlRouteProtocol = [{ id:"XMPP", text:"XMPP" },
+                                     { id:"BGP", text:"BGP" },
+                                     { id:"ServiceChain", text:"ServiceChain" },
+                                     { id:"Static", text:"Static" },
+                                     { id:"Local", text:"Local" }];
 
     };
 
