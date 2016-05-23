@@ -1124,11 +1124,11 @@ define([
                         deviceuuidval.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     var uuid = deviceUUIDArr[0];
                     newPortData.virtual_machine_refs[0] = {};
-                    newPortData.virtual_machine_refs[0].uuid = uuid;
                     if(deviceUUIDArr[1] != null) {
                         var to = deviceUUIDArr[1].split(":");
                         newPortData.virtual_machine_refs[0].to = to;
                     }
+                    newPortData.virtual_machine_refs[0].uuid = uuid;
                 }
 
         // Floating IP
