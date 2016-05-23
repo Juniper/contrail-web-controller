@@ -178,10 +178,10 @@ define([
                 sharedVNList =
                     svcInstUtils.virtNwListFormatter(sharedVNList, true);
                 window.allVNList = window.allVNList.concat(sharedVNList);
-                if (window.allVNList.length > 0) {
-                    window.allVNList.unshift({'text':"Auto Configured",
-                                             'id':"autoConfigured"});
-                } else {
+                window.allVNList.unshift({'text':"Auto Configured",
+                                         'id':"autoConfigured"});
+                if (1 == window.allVNList.length) {
+                    /* Only Auto Configured, so no VN */
                     window.allVNList.push({id: null,
                         text: "No Virtual Networks found"});
                 }
