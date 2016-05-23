@@ -338,8 +338,9 @@
                                  columns: [{
                                  elementId: 'deviceOwnerValue',
                                  name: "Device Owner",
-                                 view: "FormDropdownView",
+                                 view: "FormComboboxView",
                                      viewConfig: {
+                                         disabled: isDisable,
                                          visible : "!isVCenter()",
                                          path: 'deviceOwnerValue',
                                          dataBindValue: 'deviceOwnerValue',
@@ -349,11 +350,14 @@
                                              allowClear: true,
                                              dataTextField: "text",
                                              dataValueField: "value",
-                                             data : [
-                                                 {"text":"None","value":"none"},
-                                                 {"text":"Compute","value":"compute"},
-                                                 {"text":"Router","value":"router"}
-                                             ]
+                                             dataSource :{
+                                                 type: "local",
+                                                 data: [
+                                                     {"text":"None","value":"none"},
+                                                     {"text":"Compute","value":"compute"},
+                                                     {"text":"Router","value":"router"}
+                                                 ]
+                                             }
                                          }
                                      }
                                  },{

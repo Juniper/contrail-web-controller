@@ -677,7 +677,7 @@ define([
                 returnComputeUUID.push({"text":text,"value":deviceVMIValue});
             }
             if((returnComputeUUID.length > 0) &&
-               (edit && portModel.model.deviceOwnerValue() != "compute")) {
+               (edit && portModel.model.deviceOwnerValue().toLowerCase() != "compute")) {
                 portModel.model.virtualMachineValue(returnComputeUUID[0].value);
             }
             return returnComputeUUID;
@@ -706,7 +706,7 @@ define([
             }
             if(lrReturn.length > 0) {
                 if((!edit) ||
-                    (edit && portModel.model.deviceOwnerValue() != "router")) {
+                    (edit && portModel.model.deviceOwnerValue().toLowerCase() != "router")) {
                     portModel.model.logicalRouterValue(lrReturn[0].value);
                 }
             }
