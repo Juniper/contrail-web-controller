@@ -913,7 +913,7 @@ define([
         var vmStatus =
             getValueByJsonPath(rowData, 'statusDetails;vmStatus',
                                'Updating');
-        var vmStatusStr = "";
+        var vmStatusStr = "Updating";
         if ("Spawning" == vmStatus) {
             vmStatusStr ='<img src="/img/loading.gif">&nbsp;&nbsp;' + vmStatus;
         } else if ("Inactive" == vmStatus) {
