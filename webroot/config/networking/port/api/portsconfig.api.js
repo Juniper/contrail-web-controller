@@ -845,8 +845,7 @@ function compareUpdateVMI (error, request, portPutData, vmiData, appData, callba
                         boolDeviceOwnerChange = false;
                     }
                 }
-            } else if (vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "" &&
-                       portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "") {
+            } else {
                 boolDeviceOwnerChange = false;
             }
         }
