@@ -100,7 +100,9 @@
               var adminDown =  getValueByJsonPath(dc,
                   "bgpaas_session_attributes;admin_down", "-");
               if(adminDown !== "-") {
-                  adminState = adminDown ? "False" : "True";
+                  adminState =
+                      adminDown.toString().toLowerCase() === "true"
+                          ? "Down" : "Up";
               } else {
                   adminState = "-";
               }
@@ -138,6 +140,55 @@
               return getValueByJsonPath(dc,
                   "bgpaas_session_attributes;loop_count", "-");
           };
+
+          /*
+           * bgpaasASOverrideFormatter
+           */
+           this.bgpaasASOverrideFormatter = function(r, c, v, cd, dc) {
+               var bgpaasASOverride =  getValueByJsonPath(dc,
+                   "bgpaas_session_attributes;as_override", "-");
+               if(bgpaasASOverride !== "-") {
+                   bgpaasASOverride =
+                       bgpaasASOverride.toString().toLowerCase() === "true" ?
+                               "Enabled" : "Disabled";
+               } else {
+                   bgpaasASOverride = "-";
+               }
+               return bgpaasASOverride;
+           };
+
+           /*
+            * ipV4MappedIPv6NexthopFormatter
+            */
+            this.ipV4MappedIPv6NexthopFormatter = function(r, c, v, cd, dc) {
+                var useIpv4MppedIPv6NextHop =  getValueByJsonPath(dc,
+                    "bgpaas_ipv4_mapped_ipv6_nexthop", "-");
+                if(useIpv4MppedIPv6NextHop !== "-") {
+                    useIpv4MppedIPv6NextHop =
+                        useIpv4MppedIPv6NextHop.toString().toLowerCase() ===
+                            "true" ? "Enabled" : "Disabled";
+                } else {
+                    useIpv4MppedIPv6NextHop = "-";
+                }
+                return useIpv4MppedIPv6NextHop;
+            };
+
+            /*
+             * suppressRouteAdvtFormatter
+             */
+             this.suppressRouteAdvtFormatter = function(r, c, v, cd, dc) {
+                 var supressRouteAdvt =  getValueByJsonPath(dc,
+                     "bgpaas_suppress_route_advertisement", "-");
+                 if(supressRouteAdvt !== "-") {
+                     supressRouteAdvt =
+                         supressRouteAdvt.toString().toLowerCase() === "true" ?
+                                 "Enabled" : "Disabled";
+                 } else {
+                     supressRouteAdvt = "-";
+                 }
+                 return supressRouteAdvt;
+             };
+
 
          /*
           * addressFamiliesFormatter
