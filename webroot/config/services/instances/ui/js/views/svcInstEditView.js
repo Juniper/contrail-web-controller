@@ -7,12 +7,11 @@ define([
     'contrail-view',
     'knockback',
     'config/services/instances/ui/js/svcInst.utils'
-], function (_, ContrailView, Knockback, SvcInstUtils) {
+], function (_, ContrailView, Knockback, svcInstUtils) {
     var gridElId = '#' + ctwl.SERVICE_INSTANCES_GRID_ID,
         prefixId = ctwl.SERVICE_INSTANCES_PREFIX_ID,
         modalId = 'configure-' + prefixId,
         formId = '#' + modalId + '-form',
-        svcInstUtils = new SvcInstUtils(),
         done = 0, self;
 
     var SvcInstEditView = ContrailView.extend({
@@ -32,6 +31,28 @@ define([
                     success: function () {
                         options['callback']();
                         $("#" + modalId).modal('hide');
+                        /* Check if user has associated Health Check Object */
+                        var hlthChkBackRefs = self.model.svcHealtchChecks();
+                        svcInstUtils.doFetchSvcInstHlthChk = false;
+                        if ((null == hlthChkBackRefs) ||
+                            (!hlthChkBackRefs.length)) {
+                            /* Check if older was having SVC health check object
+                             */
+                            hlthChkBackRefs =
+                                getValueByJsonPath(options,
+                                                   'dataItem;service_health_check_back_refs',
+                                                   []);
+                        }
+                        if ((null != hlthChkBackRefs) &&
+                            (hlthChkBackRefs.length > 0)) {
+                            svcInstUtils.doFetchSvcInstHlthChk = true;
+                            svcInstUtils.svcInstTimerArray =
+                                svcInstUtils.healthCheckStatusIntervals;
+                        } else {
+                            svcInstUtils.doFetchSvcInstHlthChk = false;
+                            svcInstUtils.svcInstTimerArray =
+                                svcInstUtils.svcInstStatusIntervals;
+                        }
                     },
                     error: function (error) {
                         cowu.disableModalLoading(modalId, function () {
