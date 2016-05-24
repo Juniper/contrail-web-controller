@@ -313,70 +313,82 @@ define([
         },
         getAddress: function(address, domain, project) {
             var returnObject = {},
-                virtualNetwork = getValueByJsonPath(address, "virtual_network", "");
-            if (virtualNetwork != "") {
-                var vnText = virtualNetwork;
-                if (vnText == "any") {
-                    vnText = "ANY (All Networks in Current Project)";
-                } else if (vnText == "local") {
-                    vnText = "LOCAL (All Networks to which this policy is associated)";
-                }
-                var value = virtualNetwork + cowc.DROPDOWN_VALUE_SEPARATOR + "virtual_network";
-                var netText = policyFormatters.formatCurrentFQNameValue(domain,
-                             project,
-                             vnText);
-                var customValue = {
-                    'text': netText,
-                    'value':value,
-                    'id':value,
-                    'groupName': 'Networks'};
-
-                returnObject.addres = value;
-                returnObject.address = value;
-                returnObject.customValue = customValue;
-                return returnObject;
-            }
-            var networkPolicy = getValueByJsonPath(address, "network_policy", "");
-            if (networkPolicy != "") {
-                var value = networkPolicy + cowc.DROPDOWN_VALUE_SEPARATOR + "network_policy",
-                    text = policyFormatters.formatCurrentFQNameValue(domain,
-                           project, networkPolicy),
-                    customValue = {
-                        'text':text,
-                        'value':value,
-                        'id':value,
-                        'groupName': 'Policies'
-                    };
-                returnObject.addres = value;
-                returnObject.address = value;
-                returnObject.customValue = customValue;
-                return returnObject;
-            }
-            var prefix = getValueByJsonPath(address, "subnet;ip_prefix", ""),
-                prefixLen = getValueByJsonPath(address, "subnet;ip_prefix_len", "");
-            if (prefix != "") {
+                prefix = getValueByJsonPath(address, "subnet;ip_prefix", ""),
+                prefixLen = getValueByJsonPath(address, "subnet;ip_prefix_len", ""),
+                virtualNetwork = getValueByJsonPath(address, "virtual_network", ""),
+                networkPolicy = getValueByJsonPath(address, "network_policy", "");
+            if (prefix != "" && virtualNetwork != "") {
                 var subnet = prefix + "/" + prefixLen;
-                returnObject.addres = subnet + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet';
-                returnObject.address = subnet;
-                returnObject.customValue = {'text':subnet, 'groupName': 'CIDR'};
+                virtualNetwork = virtualNetwork.split(":");
+                if(virtualNetwork.length === 3) {
+                    if(virtualNetwork[0] === domain && virtualNetwork[1] === project) {
+                        virtualNetwork = virtualNetwork[2];
+                    } else {
+                        virtualNetwork = virtualNetwork[0] + ":" +
+                            virtualNetwork[1] + ":" + virtualNetwork[2];
+                    }
+                }
+                returnObject.addres = virtualNetwork + ":" + subnet + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet';
+                returnObject.address = virtualNetwork + ":" + subnet;
+                return returnObject;
+            } else {
+                if (virtualNetwork != "") {
+                    var vnText = virtualNetwork;
+                    if (vnText == "any") {
+                        vnText = "ANY (All Networks in Current Project)";
+                    } else if (vnText == "local") {
+                        vnText = "LOCAL (All Networks to which this policy is associated)";
+                    }
+                    var value = virtualNetwork + cowc.DROPDOWN_VALUE_SEPARATOR + "virtual_network";
+                    returnObject.addres = value;
+                    returnObject.address = value;
+                    return returnObject;
+                } else if(prefix != "") {
+                    var subnet = prefix + "/" + prefixLen;
+                    returnObject.addres = subnet + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet';
+                    returnObject.address = subnet;
+                    return returnObject;
+                }
+            }
+
+            if (networkPolicy != "") {
+                var value = networkPolicy + cowc.DROPDOWN_VALUE_SEPARATOR + "network_policy";
+                returnObject.addres = value;
+                returnObject.address = value;
                 return returnObject;
             }
+            return returnObject;
         },
         validateAddressFormat: function(val, srcOrDesString) {
             if (val == "") {
-                return "Enter a valid "+srcOrDesString+" Address";
+                return "Enter a valid " + srcOrDesString + " Address";
             }
             var address = val.split(cowc.DROPDOWN_VALUE_SEPARATOR);
             if (address.length == 2) {
-                var value = address[0].trim();
-                var group = address[1];
+                var value = address[0].trim(), group = address[1],
+                    subnetStrArray, subnetStr, networkStr, addValue;
+
                 if (group == 'subnet') {
-                    if (!isValidIP(value) ||
-                        value.split("/").length != 2) {
+                    subnetStrArray = value.split(":");
+                    if(subnetStrArray.length !== 2 &&
+                        subnetStrArray.length !== 4) {
+                        return "Enter Address in 'Network : Subnet' format";
+                    }
+                    if(subnetStrArray.length === 2) {
+                        addValue = subnetStrArray[0];
+                    } else if(subnetStrArray.length === 4){
+                        addValue = subnetStrArray[0] + ":" +
+                            subnetStrArray[1] + ":" + subnetStrArray[2];
+                    }
+                    addValue = addValue.split(":");
+                    subnetStr = subnetStrArray[subnetStrArray.length - 1]
+                    if (!isValidIP(subnetStr) ||
+                        subnetStr.split("/").length != 2) {
                         return "Enter valid Subnet/Mask";
                     }
+                } else {
+                    addValue = value.split(":");
                 }
-                var addValue = value.split(":");
                 if (addValue.length != 1 && addValue.length != 3) {
                     var groupSelectedString = "";
                     if (group == "virtual_network") {
