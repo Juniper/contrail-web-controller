@@ -32,6 +32,28 @@ define([
                     success: function () {
                         options['callback']();
                         $("#" + modalId).modal('hide');
+                        /* Check if user has associated Health Check Object */
+                        var hlthChkBackRefs = self.model.svcHealtchChecks();
+                        window.doFetchSvcInstHlthChk = false;
+                        if ((null == hlthChkBackRefs) ||
+                            (!hlthChkBackRefs.length)) {
+                            /* Check if older was having SVC health check object
+                             */
+                            hlthChkBackRefs =
+                                getValueByJsonPath(options,
+                                                   'dataItem;service_health_check_back_refs',
+                                                   []);
+                        }
+                        if ((null != hlthChkBackRefs) &&
+                            (hlthChkBackRefs.length > 0)) {
+                            window.doFetchSvcInstHlthChk = true;
+                            svcInstUtils.svcInstTimerArray =
+                                svcInstUtils.healthCheckStatusIntervals;
+                        } else {
+                            window.doFetchSvcInstHlthChk = false;
+                            svcInstUtils.svcInstTimerArray =
+                                svcInstUtils.svcInstStatusIntervals;
+                        }
                     },
                     error: function (error) {
                         cowu.disableModalLoading(modalId, function () {
