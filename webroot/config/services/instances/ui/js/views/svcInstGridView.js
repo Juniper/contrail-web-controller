@@ -707,7 +707,7 @@ define([
                 var isActive = getValueByJsonPath(hlthChkStatusData, key + ';'
                                                     + vmi + ';active', "-");
                 var intfStatus =
-                    '<span class="status-badge-rounded status-active"></span>' + "InActive";
+                    '<span class="status-badge-rounded status-partially-active"></span>' + "InActive";
                 if (true == isActive) {
                     intfStatus =
                         '<span class="status-badge-rounded status-active"></span>' + "Active";
@@ -758,7 +758,7 @@ define([
         returnHtml += statusHeader;
         var len = statusObjList.length;
         if (!len) {
-            return "No Virtual Machine Interface found.";
+            return "-";
         }
         for (var i = 0; i < len; i++) {
             returnHtml += '<tr>';
@@ -934,8 +934,21 @@ define([
         if ("Active" != vmStatus) {
             return vmStatusStr;
         }
+        var intfStatusDownCnt = 0;
+        var hlthChkStatusDownCnt = 0;
+        var vmisCnt = 0;
         for (var key in healthCheckStatusObjs) {
             for (var vmi in healthCheckStatusObjs[key]) {
+                if ('vmis' == vmi) {
+                    continue;
+                }
+                vmisCnt++;
+                var isActive =
+                    getValueByJsonPath(healthCheckStatusObjs,
+                                       key + ';' + vmi + ';' + 'active', false);
+                if (false == isActive) {
+                    intfStatusDownCnt++;
+                }
                 var hlthChkInstList =
                     getValueByJsonPath(healthCheckStatusObjs,
                                        key + ';' + vmi + ';' +
@@ -945,13 +958,32 @@ define([
                     var hlthChkStatus = getValueByJsonPath(hlthChkInstList[i],
                                                     'status', null);
                     if ("InActive" == hlthChkStatus) {
-                        return '<div class="status-badge-rounded status-partially-active"></div>&nbsp;&nbsp;' +
-                            vmStatus
+                        hlthChkStatusDownCnt++;
                     }
                 }
             }
         }
-        return vmStatusStr;
+        if ((!intfStatusDownCnt) && (!hlthChkStatusDownCnt)) {
+            return vmStatusStr;
+        }
+        var statusIcon = "status-badge-rounded status-partially-active";
+        var statusStr = "";
+        if (intfStatusDownCnt > 0) {
+            if (intfStatusDownCnt == vmisCnt) {
+                /* All are down */
+                statusIcon = "status-badge-rounded status-inactive";
+            }
+            statusStr = "Interface Down";
+        } else if (hlthChkStatusDownCnt > 0) {
+            if (hlthChkStatusDownCnt == vmisCnt) {
+                statusIcon = "status-badge-rounded status-inactive";
+            }
+            statusStr = "Health Check Down";
+        }
+        var abc = '<div class=' + '"' + statusIcon + '"' + '></div>'
+            + statusStr;
+        console.log(abc);
+        return abc;
     }
 
     this.svcTmplFormatter = function(val, rowData) {
