@@ -454,8 +454,8 @@ define([
                                         formatter: "localPrefFormater"
                                     }
                                 }, {
-                                    key: 'id_perms',
-                                    name:"id_perms",
+                                    key: 'ecmp_hashing_include_fields',
+                                    name:"ecmp_hashing_include_fields",
                                     label:"ECMP Hashing Fields",
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
@@ -545,7 +545,15 @@ define([
                     }
             });
         } else {
-            return({});
+            //return dummy key to hide device owner info
+            return({
+                key: 'dummy_vcenter',
+                label:"Device",
+                templateGenerator: 'TextGenerator',
+                templateGeneratorConfig:{
+                    formatter: "deviceOwnerFormatter"
+                }
+            });
         }
     }
     this.deviceOwnerUUID = function() {
@@ -560,7 +568,15 @@ define([
                     }
             });
         } else {
-            return({});
+          //return dummy key to hide device owner info
+            return({
+                key: 'dummy_vcenter',
+                label:"Device ID",
+                templateGenerator: 'TextGenerator',
+                templateGeneratorConfig:{
+                    formatter: "deviceUUIDFormatter"
+                }
+            });
         }
     }
     function subscribeModelChangeEvents(portModel, mode) {
