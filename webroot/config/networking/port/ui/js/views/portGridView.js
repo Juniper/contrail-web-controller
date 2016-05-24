@@ -346,6 +346,199 @@ define([
         }), portModel);
     };
 
+    function getBlockListTemplateGeneratorCfg() {
+        var blockList = [{
+            key: 'virtual_network_refs',
+            name: 'virtual_network_refs',
+            label:'Network',
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "networkFormater"
+            }
+        }, {
+            key: 'uuid',
+            name: 'uuid',
+            templateGenerator: 'TextGenerator'
+        }, {
+            key: 'fq_name',
+            name:"fq_name",
+            label:"Name",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "fqNameFormater"
+            }
+        }, {
+            key: 'id_perms',
+            name:"id_perms",
+            label: 'Admin State',
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "AdminStateFormatter"
+            }
+        }, {
+            key: 'virtual_machine_interface_mac_addresses',
+            label: 'MAC Address',
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "MACAddressFormatter"
+            }
+        }, {
+            key: 'instance_ip_back_refs',
+            name:"Fixed IPs",
+            label:"Fixed IPs",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "fixedIPFormaterExpand"
+            }
+        }, {
+            key: 'floating_ip_back_refs',
+            name:"floating_ip_back_refs",
+            label:"Floating IPs",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "floatingIPFormatter"
+            }
+        }, {
+            key: 'security_group_refs',
+            name:"security_group_refs",
+            label:"Security Groups",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "sgFormater"
+            }
+        }, {
+            key: 'virtual_machine_interface_dhcp_option_list',
+            name:"virtual_machine_interface_dhcp_option_list",
+            label:"DHCP Options",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "DHCPFormatter"
+            }
+        }, {
+            key: 'interface_route_table_refs',
+            name:"interface_route_table_refs",
+            label:"Static Routes",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "staticRoutFormatter"
+            }
+        }, {
+            key: 'service_health_check_refs',
+            name:"service_health_check_refs",
+            label:"Service Health Check",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "serviceHealthCheckFormatter"
+            }
+        }, {
+            key: 'virtual_machine_interface_properties',
+            name:"virtual_machine_interface_properties",
+            label:"Local Preference",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "localPrefFormater"
+            }
+        }, {
+            key: 'ecmp_hashing_include_fields',
+            name:"ecmp_hashing_include_fields",
+            label:"ECMP Hashing Fields",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "ECMPHashingFormatter"
+            }
+        }, {
+            key: 'virtual_machine_interface_fat_flow_protocols',
+            name:"virtual_machine_interface_fat_flow_protocols",
+            label:"FatFlow",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "FatFlowFormatter"
+            }
+        }, {
+            key: 'virtual_machine_interface_bindings',
+            name:"virtual_machine_interface_bindings",
+            label:"Bindings",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "PortBindingFormatter"
+            }
+        }, {
+            key: 'virtual_machine_interface_allowed_address_pairs',
+            name:"virtual_machine_interface_allowed_address_pairs",
+            label:"Allowed address pairs",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "AAPFormatter"
+            }
+        }, {
+            key: 'virtual_machine_interface_properties',
+            name:"virtual_machine_interface_properties",
+            label:"Mirror to",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "mirrorFormatter"
+            }
+        },  {
+            key: 'virtual_machine_interface_refs',
+            name:"virtual_machine_interface_refs",
+            label:"Sub Interfaces",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "childrensUUID"
+            }
+        }, {
+            key: 'virtual_machine_interface_properties',
+            name:"virtual_machine_interface_properties",
+            label:"Sub Interface VLAN",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "subInterfaceVXLANUUID"
+            }
+        }, {
+            key: 'virtual_machine_interface_properties.sub_interface_vlan_tag',
+            name:"virtual_machine_interface_refs.sub_interface_vlan_tag",
+            label:"Parent Port",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "parentUUIDFormatter"
+            }
+        }, {
+            key: 'virtual_machine_interface_disable_policy',
+            name:"virtual_machine_interface_disable_policy",
+            label:"Disable Policy",
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig:{
+                formatter: "disablePolicyFormatter"
+            }
+        }],
+
+        deviceOwnerTemplate = {
+                key: 'virtual_machine_interface_device_owner',
+                name:"virtual_machine_interface_device_owner",
+                label:"Device",
+                templateGenerator: 'TextGenerator',
+                templateGeneratorConfig:{
+                    formatter: "deviceOwnerFormatter"
+                }
+        },
+
+        deviceOwnerUUIDTemplate = {
+                key: 'virtual_machine_interface_device_owner',
+                name:"virtual_machine_interface_device_owner",
+                label:"Device ID",
+                templateGenerator: 'TextGenerator',
+                templateGeneratorConfig:{
+                    formatter: "deviceUUIDFormatter"
+                }
+        };
+
+        if(!isVCenter()){
+            blockList.splice(9, 0,
+            deviceOwnerTemplate, deviceOwnerUUIDTemplate);
+        }
+        return blockList;
+    };
+
     function getPortDetailsTemplateConfig() {
         return {
             templateGenerator: 'RowSectionTemplateGenerator',
@@ -358,173 +551,8 @@ define([
                             rows: [{
                                 title: ctwl.TITLE_PORT_DETAILS,
                                 templateGenerator: 'BlockListTemplateGenerator',
-                                templateGeneratorConfig: [{
-                                    key: 'virtual_network_refs',
-                                    name: 'virtual_network_refs',
-                                    label:'Network',
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "networkFormater"
-                                    }
-                                }, {
-                                    key: 'uuid',
-                                    name: 'uuid',
-                                    templateGenerator: 'TextGenerator'
-                                }, {
-                                    key: 'fq_name',
-                                    name:"fq_name",
-                                    label:"Name",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "fqNameFormater"
-                                    }
-                                }, {
-                                    key: 'id_perms',
-                                    name:"id_perms",
-                                    label: 'Admin State',
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "AdminStateFormatter"
-                                    }
-                                }, {
-                                    key: 'virtual_machine_interface_mac_addresses',
-                                    label: 'MAC Address',
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "MACAddressFormatter"
-                                    }
-                                }, {
-                                    key: 'instance_ip_back_refs',
-                                    name:"Fixed IPs",
-                                    label:"Fixed IPs",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "fixedIPFormaterExpand"
-                                    }
-                                }, {
-                                    key: 'floating_ip_back_refs',
-                                    name:"floating_ip_back_refs",
-                                    label:"Floating IPs",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "floatingIPFormatter"
-                                    }
-                                }, {
-                                    key: 'security_group_refs',
-                                    name:"security_group_refs",
-                                    label:"Security Groups",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "sgFormater"
-                                    }
-                                }, {
-                                    key: 'virtual_machine_interface_dhcp_option_list',
-                                    name:"virtual_machine_interface_dhcp_option_list",
-                                    label:"DHCP Options",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "DHCPFormatter"
-                                    }
-                                }, 
-                                    this.deviceOwner(),
-                                    this.deviceOwnerUUID()
-                                ,{
-                                    key: 'interface_route_table_refs',
-                                    name:"interface_route_table_refs",
-                                    label:"Static Routes",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "staticRoutFormatter"
-                                    }
-                                }, {
-                                    key: 'service_health_check_refs',
-                                    name:"service_health_check_refs",
-                                    label:"Service Health Check",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "serviceHealthCheckFormatter"
-                                    }
-                                }, {
-                                    key: 'virtual_machine_interface_properties',
-                                    name:"virtual_machine_interface_properties",
-                                    label:"Local Preference",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "localPrefFormater"
-                                    }
-                                }, {
-                                    key: 'id_perms',
-                                    name:"id_perms",
-                                    label:"ECMP Hashing Fields",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "ECMPHashingFormatter"
-                                    }
-                                }, {
-                                    key: 'virtual_machine_interface_fat_flow_protocols',
-                                    name:"virtual_machine_interface_fat_flow_protocols",
-                                    label:"FatFlow",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "FatFlowFormatter"
-                                    }
-                                }, {
-                                    key: 'virtual_machine_interface_bindings',
-                                    name:"virtual_machine_interface_bindings",
-                                    label:"Bindings",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "PortBindingFormatter"
-                                    }
-                                }, {
-                                    key: 'virtual_machine_interface_allowed_address_pairs',
-                                    name:"virtual_machine_interface_allowed_address_pairs",
-                                    label:"Allowed address pairs",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "AAPFormatter"
-                                    }
-                                }, {
-                                    key: 'virtual_machine_interface_properties',
-                                    name:"virtual_machine_interface_properties",
-                                    label:"Mirror to",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "mirrorFormatter"
-                                    }
-                                },  {
-                                    key: 'virtual_machine_interface_refs',
-                                    name:"virtual_machine_interface_refs",
-                                    label:"Sub Interfaces",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "childrensUUID"
-                                    }
-                                }, {
-                                    key: 'virtual_machine_interface_properties',
-                                    name:"virtual_machine_interface_properties",
-                                    label:"Sub Interface VLAN",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "subInterfaceVXLANUUID"
-                                    }
-                                }, {
-                                    key: 'virtual_machine_interface_properties.sub_interface_vlan_tag',
-                                    name:"virtual_machine_interface_refs.sub_interface_vlan_tag",
-                                    label:"Parent Port",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "parentUUIDFormatter"
-                                    }
-                                }, {
-                                    key: 'virtual_machine_interface_disable_policy',
-                                    name:"virtual_machine_interface_disable_policy",
-                                    label:"Disable Policy",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "disablePolicyFormatter"
-                                    }
-                                }]
+                                templateGeneratorConfig:
+                                    getBlockListTemplateGeneratorCfg()
                             }]
                         }]
                     }
@@ -532,36 +560,7 @@ define([
             }
         };
     };
-    this.deviceOwner = function () {
-        if(!isVCenter()) {
-            return({
-                    key: 'virtual_machine_interface_device_owner',
-                    name:"virtual_machine_interface_device_owner",
-                    label:"Device",
-                    templateGenerator: 'TextGenerator',
-                    templateGeneratorConfig:{
-                        formatter: "deviceOwnerFormatter"
-                    }
-            });
-        } else {
-            return({});
-        }
-    }
-    this.deviceOwnerUUID = function() {
-        if(!isVCenter()) {
-            return({
-                    key: 'virtual_machine_interface_device_owner',
-                    name:"virtual_machine_interface_device_owner",
-                    label:"Device ID",
-                    templateGenerator: 'TextGenerator',
-                    templateGeneratorConfig:{
-                        formatter: "deviceUUIDFormatter"
-                    }
-            });
-        } else {
-            return({});
-        }
-    }
+
     function subscribeModelChangeEvents(portModel) {
         portModel.__kb.view_model.model().on('change:virtualNetworkName',
             function(model, newValue){
