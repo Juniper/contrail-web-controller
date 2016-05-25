@@ -9,8 +9,6 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
     appErrors = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors'),
     configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
-    opApiServer = require(process.mainModule.exports["corePath"] +
-                          '/src/serverroot/common/opServer.api'),
     config = process.mainModule.exports["config"],
     flowCache = require('../../../common/api/flowCache.api'),
     nwMonUtils = require('../../../common/api/nwMon.utils'),
@@ -21,19 +19,27 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     qs = require('querystring'),
     async = require('async'),
     jsonPath = require('JSONPath').eval,
-    assert = require('assert');
+    assert = require('assert'),
+    opServer;
+
+opServer = rest.getAPIServer({
+    apiName: global.label.OPS_API_SERVER,
+    server: config.analytics.server_ip,
+    port: config.analytics.server_port
+});
 
 var parseString = require('xml2js').parseString;
 nwMonJobsApi = module.exports;
 
-function executeQueryString(queryJSON, jobData, callback) {
+function executeQueryString(queryJSON, callback) {
     var resultData, startTime = (new Date()).getTime(), endTime;
-        opApiServer.apiPost(global.RUN_QUERY_URL, queryJSON, jobData,
-                            function (error, jsonData) {
+    opServer.authorize(function () {
+        opServer.api.post(global.RUN_QUERY_URL, queryJSON, function (error, jsonData) {
             endTime = (new Date()).getTime();
             //logutils.logger.debug("Query executed in " + ((endTime - startTime) / 1000) + 'secs ' + JSON.stringify(queryJSON));
             callback(error, jsonData);
         });
+    });
 };
 
 function formatAndClause(objArr) {
@@ -651,10 +657,7 @@ function processTopNwDetailsByDomain(pubChannel, saveChannelKey, jobData, done) 
             srcSelectArr, timeObj, null,
             global.TRAFFIC_STAT_TOP_COUNT);
 
-        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                                 global.HTTP_REQUEST_POST,
-                                 commonUtils.cloneObj(srcQueryJSON), null, null,
-                                 jobData);
+        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(srcQueryJSON));
 
         destVNObjArr = createVNListObjArr(nwLists, false);
 
@@ -662,14 +665,10 @@ function processTopNwDetailsByDomain(pubChannel, saveChannelKey, jobData, done) 
             destSelectArr, timeObj, null,
             global.TRAFFIC_STAT_TOP_COUNT);
 
-        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                                 global.HTTP_REQUEST_POST,
-                                 commonUtils.cloneObj(destQueryJSON), null,
-                                 null, jobData);
+        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(destQueryJSON));
 
         //logutils.logger.debug(messages.qe.qe_execution + 'Top N/W by domain:' + domain + 'with Query' + JSON.stringify(dataObjArr[0]['data']), JSON.stringify(dataObjArr[1]['data']));
-        async.map(dataObjArr,
-                  commonUtils.getAPIServerResponse(opApiServer.apiPost, true),
+        async.map(dataObjArr, commonUtils.getServerRespByRestApi(opServer, true),
             function (err, data) {
                 parseNetStatDataByDomainOrProject(resultJSON, data, srcSelectArr, destSelectArr);
                 resultJSON = getTopNCountEntry(resultJSON, limit, null);
@@ -730,21 +729,14 @@ function processTopProjectDetailsByDomain(pubChannel, saveChannelKey, jobData, d
         srcVNObjArr = createVNListObjArr(nwLists, true);
         var srcQueryJSON = formatQueryString('FlowSeriesTable', srcVNObjArr, srcSelectArr, timeObj);
 
-        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                                 global.HTTP_REQUEST_POST,
-                                 commonUtils.cloneObj(srcQueryJSON), null, null,
-                                 jobData);
+        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(srcQueryJSON));
 
         destVNObjArr = createVNListObjArr(nwLists, false);
         var destQueryJSON = formatQueryString('FlowSeriesTable', destVNObjArr, destSelectArr, timeObj);
 
-        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                                 global.HTTP_REQUEST_POST,
-                                 commonUtils.cloneObj(destQueryJSON), null,
-                                 null, jobData);
+        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(destQueryJSON));
         //logutils.logger.debug(messages.qe.qe_execution + 'Top project by domain:' + domain + 'with Query' + JSON.stringify(dataObjArr[0]['data']), JSON.stringify(dataObjArr[1]['data']));
-        async.map(dataObjArr,
-                  commonUtils.getAPIServerResponse(opApiServer.apiPost, true),
+        async.map(dataObjArr, commonUtils.getServerRespByRestApi(opServer, true),
             function (err, data) {
                 parseNetStatDataByDomainOrProject(resultJSON, data, srcSelectArr, destSelectArr);
                 getAggDataByDomainOrProject(resultJSON, 'project', function (err, resultJSON) {
@@ -776,20 +768,14 @@ function processTopPortByDomain(pubChannel, saveChannelKey, jobData, done) {
         srcVNObjArr = createVNListObjArr(nwLists, true);
         var srcQueryJSON = formatQueryString('FlowSeriesTable', srcVNObjArr, srcSelectArr, timeObj, null, global.TRAFFIC_STAT_TOP_COUNT);
 
-        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                                 global.HTTP_REQUEST_POST,
-                                 commonUtils.cloneObj(srcQueryJSON), null, null,
-                                 jobData);
+        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(srcQueryJSON));
 
         destVNObjArr = createVNListObjArr(nwLists, false);
         var destQueryJSON = formatQueryString('FlowSeriesTable', destVNObjArr, destSelectArr, timeObj, null, global.TRAFFIC_STAT_TOP_COUNT);
-        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                                 global.HTTP_REQUEST_POST,
-                                 commonUtils.cloneObj(destQueryJSON), null,
-                                 null, jobData);
+        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(destQueryJSON));
 
         //logutils.logger.debug(messages.qe.qe_execution + 'Top port by domain:' + domain + 'with Query' + JSON.stringify(dataObjArr[0]['data']), JSON.stringify(dataObjArr[1]['data']));
-        async.map(dataObjArr, commonUtils.getAPIServerResponse(opApiServer.apiPost, true),
+        async.map(dataObjArr, commonUtils.getServerRespByRestApi(opServer, true),
             function (err, data) {
                 parseNetStatDataByDomainOrProject(resultJSON, data, srcSelectArr, destSelectArr);
                 resultJSON = getTopNCountEntry(resultJSON, limit, null);
@@ -839,21 +825,15 @@ function processTopPortByProject(pubChannel, saveChannelKey, jobData, done) {
             srcVNObjArr = createVNListObjArr(nwLists, true);
             var srcQueryJSON = formatQueryString('FlowSeriesTable', srcVNObjArr, srcSelectArr, timeObj, null, global.TRAFFIC_STAT_TOP_COUNT);
 
-            commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                                     global.HTTP_REQUEST_POST,
-                                     commonUtils.cloneObj(srcQueryJSON), null,
-                                     null, jobData);
+            commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(srcQueryJSON));
             destVNObjArr = createVNListObjArr(nwLists, true);
 
             var destQueryJSON = formatQueryString('FlowSeriesTable', destVNObjArr, destSelectArr, timeObj, null, global.TRAFFIC_STAT_TOP_COUNT);
-            commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                                     global.HTTP_REQUEST_POST,
-                                     commonUtils.cloneObj(destQueryJSON), null,
-                                     null, jobData);
+            commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(destQueryJSON));
 
             //logutils.logger.debug(messages.qe.qe_execution + 'Top port by project:' + project + 'with Query' + JSON.stringify(dataObjArr[0]['data']), JSON.stringify(dataObjArr[1]['data']));
 
-            async.map(dataObjArr, commonUtils.getAPIServerResponse(opApiServer.apiPost, true),
+            async.map(dataObjArr, commonUtils.getServerRespByRestApi(opServer, true),
                 commonUtils.doEnsureExecution(function (err, data) {
                     parseNetStatDataProjectOrNetwork(resultJSON, data, srcSelectArr, destSelectArr);
                     var resultJSONStr = JSON.stringify(resultJSON);
@@ -909,7 +889,7 @@ function processTopFlowsByProject(pubChannel, saveChannelKey, jobData, done) {
             destVNObjArr = createVNListObjArr(nwLists, false);
             srcVNObjArr = srcVNObjArr.concat(destVNObjArr);
             var srcQueryJSON = formatQueryString('FlowSeriesTable', srcVNObjArr, srcSelectArr, timeObj, null, global.TRAFFIC_STAT_TOP_COUNT);
-            executeQueryString(srcQueryJSON, jobData, function (err, data) {
+            executeQueryString(srcQueryJSON, function (err, data) {
                 var resultJSON = [], resultJSONStr = '';
                 resultJSON = parseFlowData(data);
                 resultJSON = getTopNCountEntry(resultJSON, limit, 'bytes');
@@ -941,7 +921,7 @@ function processTopFlowsByDomain(pubChannel, saveChannelKey, jobData, done) {
             srcSelectArr, timeObj, null,
             global.TRAFFIC_STAT_TOP_COUNT);
         logutils.logger.debug(messages.qe.qe_execution + 'Top Flow by Domain ' + domain);
-        executeQueryString(srcQueryJSON, jobData, function (err, data) {
+        executeQueryString(srcQueryJSON, function (err, data) {
             var resultJSON = [], resultJSONStr = '';
             resultJSON = parseFlowData(data);
             resultJSON = getTopNCountEntry(resultJSON, limit, 'bytes');
@@ -1023,7 +1003,7 @@ function processVNFlowSeriesData(pubChannel, saveChannelKey, jobData, done) {
         queryJSON['select_fields'].splice(flowCountIdx, 1);
     formatFlowSeriesQuery(queryJSON);
     logutils.logger.debug(messages.qe.qe_execution + 'VN Flow Series data ' + vnName);
-    flowCache.getFlowSeriesData('vn', appData, queryJSON, null, jobData,
+    flowCache.getFlowSeriesData('vn', appData, queryJSON, null,
         commonUtils.doEnsureExecution(function (err, data) {
             var resultJSON, resultJSONStr = '';
             if (data != null) {
@@ -1072,7 +1052,7 @@ function processVNsFlowSeriesData(pubChannel, saveChannelKey, jobData, done) {
         queryJSON['select_fields'].splice(flowCountIdx, 1);
     formatFlowSeriesQuery(queryJSON);
     logutils.logger.debug(messages.qe.qe_execution + 'Connected VNs Flow Series data ' + srcVN + ' ' + dstVN);
-    flowCache.getFlowSeriesData('conn-vn', appData, queryJSON, null, jobData,
+    flowCache.getFlowSeriesData('conn-vn', appData, queryJSON, null,
         function (err, data) {
             var resultJSON, resultJSONStr = '';
             if (data != null) {
@@ -1324,7 +1304,7 @@ function processTopFlowsByNetwork(pubChannel, saveChannelKey, jobData, done, typ
         ];
         srcQueryJSON = formatQueryString('FlowSeriesTable', srcWhereClause, srcSelectArr, timeObj, null, global.TRAFFIC_STAT_TOP_COUNT, global.TRAFFIC_DIR_INGRESS, true);
     }
-    executeQueryString(srcQueryJSON, jobData, function (err, data) {
+    executeQueryString(srcQueryJSON, function (err, data) {
         var resultJSON = [], resultJSONStr = '';
         resultJSON = parseFlowData(data);
         resultJSON = getTopNCountEntry(resultJSON, limit, 'bytes');
@@ -1438,7 +1418,7 @@ function processTopFlowsByVM(pubChannel, saveChannelKey, jobData, done) {
 
     var srcQueryJSON = formatQueryStringWithWhereClause('FlowSeriesTable', srcWhereClause, srcSelectArr, timeObj, null, global.TRAFFIC_STAT_TOP_COUNT, global.TRAFFIC_DIR_INGRESS, true);
 
-    executeQueryString(srcQueryJSON, jobData, function (err, data) {
+    executeQueryString(srcQueryJSON, function (err, data) {
         var resultJSON = [], resultJSONStr = '';
         resultJSON = parseFlowData(data);
         resultJSON = getTopNCountEntry(resultJSON, limit, 'bytes');
@@ -1488,7 +1468,7 @@ function processVMFlowSeriesData(pubChannel, saveChannelKey, jobData, done) {
 
     logutils.logger.debug(messages.qe.qe_execution + 'VM Flow Series data ' + vnName);
 
-    flowCache.getFlowSeriesData(context, appData, queryJSON, null, jobData,
+    flowCache.getFlowSeriesData(context, appData, queryJSON, null,
         function (err, data) {
             var resultJSON, resultJSONStr = '';
             if (data != null) {
@@ -1612,12 +1592,9 @@ function processStatSummary(pubChannel, saveChannelKey, jobData, done, type) {
     //logutils.logger.debug(messages.qe.qe_execution + str + ':\n' + JSON.stringify(queryJSON[0]) + '\n' + JSON.stringify(queryJSON[1]) + '\n' + JSON.stringify(queryJSON[2]) + '\n' + JSON.stringify(queryJSON[3]));
 
     for (var i = 0; i < 4; i++) {
-        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                                 global.HTTP_REQUEST_POST,
-                                 commonUtils.cloneObj(queryJSON[i]), null, null,
-                                 jobData);
+        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(queryJSON[i]));
     }
-    async.map(dataObjArr, commonUtils.getAPIServerResponse(opApiServer.apiPost, true),
+    async.map(dataObjArr, commonUtils.getServerRespByRestApi(opServer, true),
         function (err, data) {
             var resultJSON = {}, resultJSONStr = '';
             parseVMStats(resultJSON, data);
@@ -1906,7 +1883,7 @@ function processPortLevelFlowSeriesByDomain(pubChannel, saveChannelKey,
         formatFlowSeriesQuery(srcQueryJSON);
         formatFlowSeriesQuery(destQueryJSON);
         flowCache.getFlowSeriesData('port', appData, srcQueryJSON,
-            destQueryJSON, jobData, function (err, data) {
+            destQueryJSON, function (err, data) {
                 var resultJSON, resultJSONStr = '';
                 if (data != null) {
                     if (data['flow-series'] == null || data['flow-series'].length == 0) {
@@ -1978,7 +1955,7 @@ function processPortLevelFlowSeriesByProject(pubChannel, saveChannelKey,
             formatFlowSeriesQuery(srcQueryJSON);
             formatFlowSeriesQuery(destQueryJSON);
             flowCache.getFlowSeriesData('port', appData, srcQueryJSON,
-                destQueryJSON, jobData, function (err, data) {
+                destQueryJSON, function (err, data) {
                     var resultJSON, resultJSONStr = '';
                     if (data != null) {
                         if (data['flow-series'] == null || data['flow-series'].length == 0) {
@@ -2061,7 +2038,7 @@ function processPortLevelFlowSeriesByNetwork(pubChannel, saveChannelKey,
     formatFlowSeriesQuery(srcQueryJSON);
     formatFlowSeriesQuery(destQueryJSON);
     flowCache.getFlowSeriesData('port', appData, srcQueryJSON, destQueryJSON,
-                                jobData, function (err, data) {
+        function (err, data) {
             var resultJSON, resultJSONStr = '';
             if (data != null) {
                 if (data['flow-series'] == null || data['flow-series'].length == 0) {
@@ -2310,7 +2287,7 @@ function getCurrentCpuMemDataJson(timeObj, moduleId, cpuMemData, timeGran) {
     }
 }
 
-function getCpuMemoryFlowSeriesByUVE(appData, jobData, callback) {
+function getCpuMemoryFlowSeriesByUVE(appData, callback) {
     var source = appData.source,
         moduleId = appData.moduleId, url;
 
@@ -2326,7 +2303,7 @@ function getCpuMemoryFlowSeriesByUVE(appData, jobData, callback) {
         /* Not supported module */
         assert(0);
     }
-    opApiServer.apiGet(url, jobData, function (err, data) {
+    opServer.api.get(url, function (err, data) {
         if (err || (null == data)) {
             callback(null);
             return;
@@ -2398,7 +2375,7 @@ function processCPULoadFlowSeries(pubChannel, saveChannelKey, jobData, done) {
     delete queryJSON['dir'];
     var selectEleCnt = queryJSON['select_fields'].length;
     queryJSON['select_fields'].splice(selectEleCnt - 1, 1);
-    executeQueryString(queryJSON, jobData,
+    executeQueryString(queryJSON,
         commonUtils.doEnsureExecution(function (err, resultJSON) {
             formatCPULoadXMLData(resultJSON, function (err, results) {
                 /* Check if there is any data, if no data, then there is no change
@@ -2406,7 +2383,7 @@ function processCPULoadFlowSeries(pubChannel, saveChannelKey, jobData, done) {
                  * send a query to opserver to get latest data and from that
                  * build the result json
                  */
-                getCpuMemoryFlowSeriesByUVE(appData, jobData, function (resultJSON) {
+                getCpuMemoryFlowSeriesByUVE(appData, function (resultJSON) {
                     var resultsJSONStr = '';
                     if (resultJSON == null) {
                         redisPub.publishDataToRedis(pubChannel, saveChannelKey,
@@ -2482,20 +2459,14 @@ function getTrafficStatsByPort(pubChannel, saveChannelKey, jobData, done) {
     var srcQueryJSON = formatQueryStringWithWhereClause('FlowSeriesTable', srcWhereClause, srcSelectArr, timeObj, null, null);
     var destQueryJSON = formatQueryStringWithWhereClause('FlowSeriesTable', destWhereClause, destSelectArr, timeObj, null, null);
 
-    commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                             global.HTTP_REQUEST_POST,
-                             commonUtils.cloneObj(srcQueryJSON), null, null,
-                             jobData);
-    commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                             global.HTTP_REQUEST_POST,
-                             commonUtils.cloneObj(destQueryJSON), null, null,
-                             jobData);
+    commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(srcQueryJSON));
+    commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(destQueryJSON));
 
     //logutils.logger.debug("Ports Source Query JSON: " + JSON.stringify(srcQueryJSON));
     //logutils.logger.debug("Ports Dest Query JSON: " + JSON.stringify(destQueryJSON));
     //logutils.logger.debug(messages.qe.qe_execution + 'Port Distribution:' + appData['fqName'] + ' with Query' + JSON.stringify(dataObjArr[0]['data']), JSON.stringify(dataObjArr[1]['data']));
 
-    async.map(dataObjArr, commonUtils.getAPIServerResponse(opApiServer.apiPost, true),
+    async.map(dataObjArr, commonUtils.getServerRespByRestApi(opServer, true),
         commonUtils.doEnsureExecution(function (err, data) {
             var resultJSON = {}, resultJSONStr = '';
             parseNetStatDataProjectOrNetwork(resultJSON, data, srcSelectArr, destSelectArr);

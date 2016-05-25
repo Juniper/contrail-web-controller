@@ -24,6 +24,10 @@ var rest = require(process.mainModule.exports["corePath"] +
     configApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/configServer.api');
 
+opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
+                             server:config.analytics.server_ip,
+                             port:config.analytics.server_port });
+
 function postProcessAndAddQueryStats (collUVEData, genUVEData, configData,
                                       appData, isSummaryReq, callback)
 {
@@ -338,7 +342,7 @@ function getAnalyticsNodeDetails (req, res, appData)
     postData['kfilt'] = [hostName + ':*contrail-collector*',
                          hostName + ':*contrail-analytics-api*',
                          hostName + ':*contrail-query-engine*'];
-    opApiServer.apiPost(url, postData, appData, function(err, genData) {
+    opServer.api.post(url, postData, function(err, genData) {
         if (err || (null == genData)) {
             commonUtils.handleJSONResponse(err, res, resultJSON);
         } else {
@@ -353,11 +357,11 @@ function getAnalyticsNodeDetails (req, res, appData)
     });
 }
 
-function getAnalyticsNodeList (req, res, appData)
+function getAnalyticsNodeList (req, res)
 {
     var url = '/analytics/uves/analytics-nodes';
 
-    opApiServer.apiGet(url, appData, function(err, data) {
+    opServer.api.get(url, function(err, data) {
         if (err || (null == data)) {
             commonUtils.handleJSONResponse(err, res, []);
         } else {
@@ -465,7 +469,7 @@ function processAnalyticsQueryStats (collUVE, appData, details, callback)
                                      opServerAPI, null, appData);
         }
         async.map(dataObjArr,
-            commonUtils.getServerRespByRestApi(null, true),
+            commonUtils.getServerRespByRestApi(opServer, true),
             function(err, data) {
             fillHostDetailsToAnalyticsQueryStatsUVE(collUVE, data, ipList,
                                                     details);

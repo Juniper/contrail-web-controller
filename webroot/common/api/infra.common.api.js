@@ -506,12 +506,12 @@ function getvRouterList (appData, callback)
     });
 }
 
-function addGeneratorInfoToUVE (postData, uve, host, modules, appData, callback)
+function addGeneratorInfoToUVE (postData, uve, host, modules, callback)
 {
     var resultJSON = {};
     var url = '/analytics/uves/generator';
 
-    opApiServer.apiPost(url, postData, appData,
+    opServer.api.post(url, postData,
                       commonUtils.doEnsureExecution(function(err, data) {
         if ((null != err) || (null == data) || (null == data['value'])) {
             callback(null, uve);
@@ -561,7 +561,7 @@ function filterOutGeneratorInfoFromGenerators(excludeProcessList, resultJSON)
 
 function getUVEByUrlAndSendData (url, errResponse, res, appData)
 {
-    opApiServer.apiGet(url, appData, function(err, data) {
+    opServer.api.get(url, function(err, data) {
         if (err || (null == data)) {
             commonUtils.handleJSONResponse(err, res, errResponse);
         } else {
