@@ -883,7 +883,11 @@ define([
             portTuples = newPortTuples;
             return;
         },
-        setPortTupleName: function(model, portTupleEntry) {
+        setPortTupleName: function(model) {
+            if (null == model) {
+                return;
+            }
+            var portTupleEntry = model.newPortTupleEntry;
             var intfTypes = portTupleEntry.intfTypes();
             var ctIntfType = model.get('interfaceType');
             var intfIdx = intfTypes.indexOf(ctIntfType);
@@ -1081,10 +1085,9 @@ define([
             var portTupleIntfsCollLen = portTupleIntfsColl.length;
             for (var i = 0; i < portTupleIntfsCollLen; i++) {
                 var model = portTupleIntfsColl.models[i]['attributes'].model();
-                self.newPortTupleEntry = newPortTupleEntry;
+                model.newPortTupleEntry = newPortTupleEntry;
                 model.on('change:interface', function(model, newValue) {
-                    self.setPortTupleName(model,
-                                          self.newPortTupleEntry);
+                    self.setPortTupleName(model);
                 });
             }
             portTupleCollection.add([newPortTupleEntry]);
