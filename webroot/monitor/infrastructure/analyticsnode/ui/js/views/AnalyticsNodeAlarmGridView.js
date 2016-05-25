@@ -25,6 +25,27 @@ define([
                         },
                         dataParser: parseAlarms
                     },
+                    vlRemoteConfig : {
+                        vlRemoteList : [{
+                            getAjaxConfig : function() {
+                                return {
+                                    url:contrail.format(
+                                            monitorInfraConstants.
+                                            monitorInfraUrls['ANALYTICS_DETAILS'], hostname)
+                                };
+                            },
+                            successCallback : function(response, contrailListModel) {
+                                response = [{
+                                    name:hostname,
+                                    value:response
+                                }];
+                                coreAlarmUtils
+                                    .parseAndAddDerivedAnalyticsAlarms(
+                                        response, contrailListModel);
+                            }
+                        }
+                        ]
+                    },
                     cacheConfig: {
                     }
             }
