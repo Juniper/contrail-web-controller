@@ -175,11 +175,17 @@ define([
                                                 },
                                                 {
                                                     key: 'active',
-                                                    templateGenerator: 'TextGenerator'
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'status-boolean'
+                                                    }
                                                 },
                                                 {
                                                     key: 'is_health_check_active',
-                                                    templateGenerator: 'TextGenerator'
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'status-boolean'
+                                                    }
                                                 },
                                                 {
                                                     key: 'health_check_instance_list',
@@ -187,10 +193,10 @@ define([
                                                     templateGeneratorConfig: {
                                                         dataColumn: [
                                                             {
-                                                                key: 'status',
+                                                                key: 'uuid',
                                                                 templateGenerator: 'TextGenerator',
                                                                 templateGeneratorConfig: {
-                                                                    width: 45
+                                                                    width: 100
                                                                 }
                                                             },
                                                             {
@@ -201,10 +207,10 @@ define([
                                                                 }
                                                             },
                                                             {
-                                                                key: 'uuid',
+                                                                key: 'status',
                                                                 templateGenerator: 'TextGenerator',
                                                                 templateGeneratorConfig: {
-                                                                    width: 100
+                                                                    width: 45
                                                                 }
                                                             }
                                                         ]
