@@ -110,7 +110,7 @@ define([
         populateSrcDestAddressReqPayload : function(selectedDomain,
             selectedProject, address, inputAddress) {
             var srcArr = inputAddress.split(cowc.DROPDOWN_VALUE_SEPARATOR),
-                subnetStrArray, network, subnet;
+                vnSubnetObj, subnet;
             address[0] = {};
             address[0]["security_group"] = null;
             address[0]["virtual_network"] = null;
@@ -123,22 +123,15 @@ define([
                                          selectedProject);
             } else if(srcArr.length == 2) {
                 //parse network and subnet from source subnet string
-                subnetStrArray = srcArr[0].split(":");
-                if(subnetStrArray.length > 1) {
-                    //network
-                    if(subnetStrArray.length === 2) {
-                        network = subnetStrArray[0]
-                    } else if(subnetStrArray.length === 4) {
-                        network = subnetStrArray[0] + ":" +
-                            subnetStrArray[1] + ":" + subnetStrArray[2];
-                    }
-                    address[0]["virtual_network"] =
-                        self.getPostAddressFormat(network, selectedDomain,
-                             selectedProject);
-                    //subnet
-                    address[0]["subnet"] = {};
-                    subnet =
-                        subnetStrArray[subnetStrArray.length - 1].split("/");
+                vnSubnetObj = policyFormatters.parseVNSubnet(srcArr[0]);
+                //network
+                address[0]["virtual_network"] =
+                    self.getPostAddressFormat(vnSubnetObj.vn, selectedDomain,
+                            selectedProject);
+                //subnet
+                address[0]["subnet"] = {};
+                subnet = vnSubnetObj.subnet.split("/");
+                if(subnet.length === 2) {
                     address[0]["subnet"]["ip_prefix"] = subnet[0];
                     address[0]["subnet"]["ip_prefix_len"] = parseInt(subnet[1]);
                 }
