@@ -238,7 +238,8 @@ define([
                             }
                             net_disp +=
                                 self.policyRuleFormat(networkStr +
-                                    ":" + net["subnet"]["ip_prefix"] + "/" +
+                                    ctwc.VN_SUBNET_DELIMITER +
+                                    net["subnet"]["ip_prefix"] + "/" +
                                     net["subnet"]["ip_prefix_len"]);
                         } else {
                             if (isSet(net["virtual_network"])) {
@@ -421,6 +422,35 @@ define([
                 result[0]["end_port"] = parseInt("-1");
             }
             return result;
+        };
+
+        this.parseVNSubnet =  function(vnSubnetStr) {
+            var vnSubnetObj = { vn: "", subnet: "", recursiveCnt: 0};
+            if(vnSubnetStr) {
+                this.parseVNSubnetRecursive(vnSubnetStr, vnSubnetObj);
+            }
+            return vnSubnetObj
+        };
+
+        this.parseVNSubnetRecursive =  function(vnSubnetStr, vnSubnetObj) {
+            var vnSubnetArr1, vnSubnetArr2, vnSubnetArr2Str;
+            vnSubnetArr1 = vnSubnetStr.split(ctwc.VN_SUBNET_DELIMITER);
+            if(vnSubnetArr1.length > 1 && vnSubnetObj.recursiveCnt < 3) {
+                vnSubnetObj.recursiveCnt = vnSubnetObj.recursiveCnt + 1;
+                if(vnSubnetObj.vn === ""){
+                    vnSubnetObj.vn = vnSubnetArr1[0];
+                } else {
+                    vnSubnetObj.vn +=
+                        ctwc.VN_SUBNET_DELIMITER + vnSubnetArr1[0];
+                }
+                vnSubnetArr2 = vnSubnetArr1.slice(1, vnSubnetArr1.length);
+                vnSubnetArr2Str = vnSubnetArr2.join(ctwc.VN_SUBNET_DELIMITER);
+                if(isIPv4(vnSubnetArr2Str) || isIPv6(vnSubnetArr2Str)) {
+                    vnSubnetObj.subnet = vnSubnetArr2Str;
+                } else {
+                    this.parseVNSubnetRecursive(vnSubnetArr2Str, vnSubnetObj)
+                }
+            }
         };
     }
     return PolicyFormatters;
