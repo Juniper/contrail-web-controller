@@ -678,6 +678,9 @@ define([
         this.PORT_PREFIX_ID = "Ports";
         this.TEXT_PORT = 'port';
 
+        /* Policy */
+        this.VN_SUBNET_DELIMITER = ":(";
+
         /* BGP as a Service */
         this.CONFIG_BGP_AS_A_SERVICE_LIST_ID = "config-bgp-as-a-service-list";
         this.BGP_AS_A_SERVICE_GRID_ID = "bgp-as-a-service-grid";

@@ -123,7 +123,7 @@ define([
                                          selectedProject);
             } else if(srcArr.length == 2) {
                 //parse network and subnet from source subnet string
-                subnetStrArray = srcArr[0].split(":");
+                subnetStrArray = srcArr[0].split(ctwc.VN_SUBNET_DELIMITER);
                 if(subnetStrArray.length > 1) {
                     //network
                     if(subnetStrArray.length === 2) {
@@ -138,7 +138,9 @@ define([
                     //subnet
                     address[0]["subnet"] = {};
                     subnet =
-                        subnetStrArray[subnetStrArray.length - 1].split("/");
+                        subnetStrArray[subnetStrArray.length - 1];
+                    subnet = subnet.substring(0, subnet.length - 1);
+                    subnet = subnet.split("/");
                     address[0]["subnet"]["ip_prefix"] = subnet[0];
                     address[0]["subnet"]["ip_prefix_len"] = parseInt(subnet[1]);
                 }

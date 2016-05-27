@@ -328,8 +328,8 @@ define([
                             virtualNetwork[1] + ":" + virtualNetwork[2];
                     }
                 }
-                returnObject.addres = virtualNetwork + ":" + subnet + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet';
-                returnObject.address = virtualNetwork + ":" + subnet;
+                returnObject.addres = virtualNetwork + ctwc.VN_SUBNET_DELIMITER + subnet + ")" + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet';
+                returnObject.address = virtualNetwork + ctwc.VN_SUBNET_DELIMITER + subnet + ")";
                 return returnObject;
             } else {
                 if (virtualNetwork != "") {
@@ -369,10 +369,10 @@ define([
                     subnetStrArray, subnetStr, networkStr, addValue;
 
                 if (group == 'subnet') {
-                    subnetStrArray = value.split(":");
+                    subnetStrArray = value.split(ctwc.VN_SUBNET_DELIMITER);
                     if(subnetStrArray.length !== 2 &&
                         subnetStrArray.length !== 4) {
-                        return "Enter Address in 'Network : Subnet' format";
+                        return "Enter Address in 'Network:(Subnet)' format";
                     }
                     if(subnetStrArray.length === 2) {
                         addValue = subnetStrArray[0];
@@ -381,7 +381,8 @@ define([
                             subnetStrArray[1] + ":" + subnetStrArray[2];
                     }
                     addValue = addValue.split(":");
-                    subnetStr = subnetStrArray[subnetStrArray.length - 1]
+                    subnetStr = subnetStrArray[subnetStrArray.length - 1];
+                    subnetStr = subnetStr.substring(0, subnetStr.length - 1);
                     if (!isValidIP(subnetStr) ||
                         subnetStr.split("/").length != 2) {
                         return "Enter valid Subnet/Mask";

@@ -238,8 +238,9 @@ define([
                             }
                             net_disp +=
                                 self.policyRuleFormat(networkStr +
-                                    ":" + net["subnet"]["ip_prefix"] + "/" +
-                                    net["subnet"]["ip_prefix_len"]);
+                                    ctwc.VN_SUBNET_DELIMITER +
+                                    net["subnet"]["ip_prefix"] + "/" +
+                                    net["subnet"]["ip_prefix_len"]) + ")";
                         } else {
                             if (isSet(net["virtual_network"])) {
                                 labelName = ' network ';
