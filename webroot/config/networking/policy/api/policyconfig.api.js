@@ -24,6 +24,8 @@ var util = require('util');
 var url = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
+var jsonDiff      = require(process.mainModule.exports["corePath"] +
+'/src/serverroot/common/jsondiff');
 
 /**
  * Bail out if called directly as "nodejs policyconfig.api.js"
@@ -353,11 +355,15 @@ function setPolicyEntries(polPostData, policyId, appData, callback)
                 ['policy_rule'][i]['dst_addresses'][0]['subnet'] = null;
         }
     }
-
-    configApiServer.apiPut(polPostURL, polPostData, appData,
-        function (error, data) {
-            callback(error, data);
-        });
+    jsonDiff.getJSONDiffByConfigUrl(polPostURL, appData, polPostData,
+        function(err, policyDataDelta){
+            configApiServer.apiPut(polPostURL, policyDataDelta, appData,
+                function (error, data) {
+                    callback(error, data);
+                }
+            );
+        }
+    );
 }
 
 /**

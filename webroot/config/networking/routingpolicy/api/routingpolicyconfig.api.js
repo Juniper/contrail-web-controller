@@ -189,10 +189,16 @@ function updateRoutingPolicy(request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    configApiServer.apiPut(routingPolicyPutURL, routingPolicyPostData, appData,
-    function (error, data) {
-        commonUtils.handleJSONResponse(error, response, data);
-    });
+    jsonDiff.getJSONDiffByConfigUrl(routingPolicyPutURL, appData,
+        routingPolicyPostData,
+        function(err, rpDataDelta){
+            configApiServer.apiPut(routingPolicyPutURL, rpDataDelta, appData,
+                function (error, data) {
+                    commonUtils.handleJSONResponse(error, response, data);
+                }
+            );
+        }
+    );
 }
 
 /**
