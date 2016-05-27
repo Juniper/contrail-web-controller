@@ -27,7 +27,7 @@ define(['underscore', 'contrail-view',
                                view: "WidgetView",
                                viewConfig: {
                                    header: {
-                                       title: 'Request Served',
+                                       title: 'Request served',
                                    },
                                    controls: {
                                        top: {
@@ -130,7 +130,7 @@ define(['underscore', 'contrail-view',
                                            .append('text')
                                            .attr('dy', 8)
                                            .attr('text-anchor', 'end')
-                                           .text('Failure');
+                                           .text('Failures');
                                        var legend = legendWrap.selectAll('.contrail-slegend')
                                               .data(colorCodes)
                                               .enter()
@@ -166,7 +166,7 @@ define(['underscore', 'contrail-view',
                                view: "WidgetView",
                                viewConfig: {
                                    header: {
-                                       title: 'Response Parameters',
+                                       title: 'Response Statistics',
                                    },
                                    controls: {
                                        top: {
@@ -288,7 +288,7 @@ define(['underscore', 'contrail-view',
                                view: "WidgetView",
                                viewConfig: {
                                    header: {
-                                       title: 'Config Node',
+                                       title: 'Request Statistics',
                                    },
                                    controls: {
                                        top: {
