@@ -9,7 +9,6 @@ define([
     'config/infra/serviceapplianceset/ui/js/models/SvcApplianceSetModel'
 ], function (_, ContrailView, ContrailListModel, SvcApplianceSetModel) {
     var configSvcApplianceSet = null;
-    var gridElId = '#' + ctwl.QUOTAS_GRID_ID;
     var SvcApplianceSetListView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
@@ -27,19 +26,11 @@ define([
                     },
                     completeCallback: function(resp) {
                         self.renderView4Config(self.$el, contrailListModel,
-                                   getSvcApplianceSetViewConfig(),
-                                   null, null, null, function() {
-                            if ((null != resp) && (null != resp[0])) {
-                                $(gridElId).data('configObj', configSvcApplianceSet);
-                            }
-                        });
+                                   getSvcApplianceSetViewConfig());
                     }
                 },
                 vlRemoteConfig: {
-                    vlRemoteList : vlRemoteServiceApplConfig,
-                    completeCallback: function(response) {
-                        console.log("vlRemoteConfig Done:");
-                    }
+                    vlRemoteList : vlRemoteServiceApplConfig
                 }
             };
 
@@ -70,9 +61,6 @@ define([
             return lazyAjaxConfig;
         },
         successCallback: function(response, contrailListModel) {
-            if (null == window.svcApplSetSvcTmplMap) {
-                window.svcApplSetSvcTmplMap = {};
-            }
             var svcTmpls =
                 getValueByJsonPath(response[0],
                                    'service-templates', []);
@@ -88,8 +76,6 @@ define([
                     var svcAllsSetFqn = svcApplSetRefs[0]['to'][1];
                     tmplDetailObjs[svcApplSetUUID] =
                         svcTmpls[i]['service-template'];
-                    window.svcApplSetSvcTmplMap[svcAllsSetFqn] =
-                        svcTmpls[i]['service-template'];
                 }
             }
             var dataItems = contrailListModel.getItems();
@@ -102,43 +88,6 @@ define([
                 }
             }
             contrailListModel.updateData(dataItems);
-        }
-    },
-    {
-        getAjaxConfig: function(responseJSON) {
-            var lazyAjaxConfig = {
-                url: '/api/tenants/config/list-physical-interfaces',
-                type: 'GET'
-            };
-            return lazyAjaxConfig;
-        },
-        successCallback: function(response, contrailListModel) {
-            var piData = [];
-            var results = [];
-            if (null == window.svcApplData) {
-                window.svcApplData = {};
-            }
-            var intfCnt = intfTypes.length;
-            window.svcApplData.intfTypes = [];
-            for (var i = 0; i < intfCnt; i++) {
-                var id = intfTypes[i].replace(intfTypes[i][0],
-                                              intfTypes[i][0].toLowerCase());
-                window.svcApplData.intfTypes.push({text: intfTypes[i],
-                                                   id: id});
-            }
-            if ((null == response) ||
-                (null == response['physical-interfaces'])) {
-                window.svcApplData.piList = [];
-                return
-            }
-            var piData = response['physical-interfaces'];
-            var len = piData.length;
-            for (var i = 0; i < len; i++) {
-                results.push({'text': piData[i]['fq_name'].join(':'),
-                             'id': piData[i]['fq_name'].join(':') + ';' +
-                             piData[i]['uuid']});
-            }
-            window.svcApplData.piList = results;
         }
     }];
 
@@ -156,15 +105,14 @@ define([
 
     var getSvcApplianceSetViewConfig = function () {
         return {
-            elementId: cowu.formatElementId([ctwl.CONFIG_QUOTAS_SECTION_ID]),
+            elementId: cowu.formatElementId([ctwl.CONFIG_SVC_APPLIANCE_SET_SECTION_ID]),
             view: "SectionView",
             viewConfig: {
                 rows: [
                     {
                         columns: [
                             {
-                                elementId: ctwl.CONFIG_QUOTAS_ID,
-                                title: ctwl.TITLE_QUOTAS,
+                                elementId: ctwl.CONFIG_SVC_APPLIANCE_SET_ID,
                                 view: "SvcApplianceSetGridView",
                                 viewPathPrefix:
                                     "config/infra/serviceapplianceset/ui/js/views/",

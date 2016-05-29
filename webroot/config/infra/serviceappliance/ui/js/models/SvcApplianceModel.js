@@ -68,15 +68,12 @@ define([
             pairColl.add([newPair]);
         },
         addInterface: function() {
-            if (null == window.svcApplSetSvcTmplMap) {
+            var self = this;
+            if (!self.svcApplData.svcApplSetSvcTmpl) {
                 return;
             }
-            var svcTmpl =
-                window.svcApplSetSvcTmplMap[contrail.getCookie('serviceApplSet')];
-            if (null == svcTmpl) {
-                return;
-            }
-            var intfTypes = svcTmplUtils.getSvcTmplIntfTypes(svcTmpl);
+            var intfTypes = svcTmplUtils.getSvcTmplIntfTypes(
+                self.svcApplData.svcApplSetSvcTmpl);
             var intfColl = this.model().get('interfaces');
             var len = intfColl.length;
             if (len >= intfTypes.length) {
@@ -93,18 +90,18 @@ define([
                 newIntfType = newIntfTypes[0];
             }
             var tmpIntfObjs = {};
-            var len = window.svcApplData.intfTypes.length;
+            var len = self.svcApplData.intfTypes.length;
             for (var i = 0; i < len; i++) {
-                tmpIntfObjs[window.svcApplData.intfTypes[i]['text']] =
-                    window.svcApplData.intfTypes[i]['text'];
+                tmpIntfObjs[self.svcApplData.intfTypes[i]['text']] =
+                    self.svcApplData.intfTypes[i]['text'];
             }
             if (null == tmpIntfObjs[newIntfType]) {
-                window.svcApplData.intfTypes.push({text: newIntfType,
+                self.svcApplData.intfTypes.push({text: newIntfType,
                                                    id: newIntfType});
             }
             var newIntfName = "";
-            if (window.svcApplData.piList.length > 0) {
-                newIntfName = window.svcApplData.piList[0]['id'];
+            if (self.svcApplData.piList.length > 0) {
+                newIntfName = self.svcApplData.piList[0]['id'];
             }
             newIntf = new SvcAppliInterfaceModel({'interface_type': newIntfType,
                                                   'interface_name': newIntfName});
@@ -205,21 +202,13 @@ define([
                 tmpIntfTypeToPIMaps[intfType] = intfName;
             }
             var svcApplSet = contrail.getCookie('serviceApplSet');
-            var tmpl = null;
-            if ((null != window.svcApplSetSvcTmplMap) &&
-                (null != window.svcApplSetSvcTmplMap[svcApplSet])) {
-                tmpl = window.svcApplSetSvcTmplMap[svcApplSet];
-                modelConfig['service_template'] =
-                    svcTmplUtils.svcTemplateFormatter(tmpl);
+            var intfTypes = svcTmplUtils.getSvcTmplIntfTypes(
+                modelConfig['service_template']);
+
+            var intfTypesCnt = 0;
+            if (null != intfTypes) {
+                intfTypesCnt = intfTypes.length;
             }
-            if (null == tmpl) {
-                return modelConfig;
-            }
-            var intfTypes = svcTmplUtils.getSvcTmplIntfTypes(tmpl);
-            if (null == intfTypes) {
-                return modelConfig;
-            }
-            var intfTypesCnt = intfTypes.length;
             for (var i = 0; i < intfTypesCnt; i++) {
                 var intfName = "";
                 if (null != tmpIntfTypeToPIMaps[intfTypes[i]]) {
@@ -237,6 +226,11 @@ define([
             modelConfig['interfaces'] = svcApplIntfCollectionModel;
             if (null != modelConfig['physical_router_refs']) {
                 delete modelConfig['physical_router_refs'];
+            }
+            if(modelConfig["service_template"]) {
+                modelConfig['service_template'] =
+                    svcTmplUtils.
+                    svcTemplateFormatter(modelConfig['service_template']);
             }
             return modelConfig;
         },

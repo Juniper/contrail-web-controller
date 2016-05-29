@@ -304,7 +304,7 @@ define([
                 " protocol " + protocal +  " ports " + remotePort;
             return returnString;
         },
-        self.getSecGrpRulesView = function () {
+        self.getSecGrpRulesView = function (sgDataObj) {
             return {
                 columns: [{
                     elementId: 'secGrpRules',
@@ -385,7 +385,7 @@ define([
                                                     width: 250,
                                                     dataTextField: "text",
                                                     dataValueField: "value",
-                                                    data: window.sg.secGrpList,
+                                                    data: sgDataObj.secGrpList,
                                                     queryMap: [
                                                         {
                                                             name : 'CIDR',
@@ -509,7 +509,7 @@ define([
             }
             return returnString;
         },
-        self.addCurrentSG = function () {
+        self.addCurrentSG = function (sgDataObj) {
             try {
                 var secGrpName = $('#display_name').find('input').val();
                 if ((null != secGrpName) && ("" != secGrpName.trim())) {
@@ -520,7 +520,7 @@ define([
                 secGrpName = "";
             }
             if ((null != secGrpName) && ("" != secGrpName.trim())) {
-                var remoteAddValue = window.sg.secGrpList;
+                var remoteAddValue = sgDataObj.secGrpList;
                 var allSecurietyGroup = remoteAddValue[1].children;
                 secGrpName = secGrpName + cowc.DROPDOWN_VALUE_SEPARATOR + 'security_group';
                 if ((null != allSecurietyGroup[0]) &&
@@ -535,11 +535,11 @@ define([
                     allSecurietyGroup[0]['id'] = secGrpName;
                 }
                 remoteAddValue[1].children = allSecurietyGroup;
-                window.sg.secGrpList = remoteAddValue;
+                sgDataObj.secGrpList = remoteAddValue;
             }
         },
-        self.deleteCurrentSG = function () {
-            var remoteAddValue = window.sg.secGrpList;
+        self.deleteCurrentSG = function (sgDataObj) {
+            var remoteAddValue = sgDataObj.secGrpList;
             if ((null == remoteAddValue) || (null == remoteAddValue[1]) ||
                 (null == remoteAddValue[1].children)) {
                 return;
@@ -558,7 +558,7 @@ define([
             if (ctSGIdx > -1) {
                 allSecurietyGroup.splice(0, 1);
                 remoteAddValue[1].children = allSecurietyGroup;
-                window.sg.secGrpList = remoteAddValue;
+                sgDataObj.secGrpList = remoteAddValue;
             }
         },
         self.formatSGAddrDropDownEntry = function(sgFqn, domain, project) {

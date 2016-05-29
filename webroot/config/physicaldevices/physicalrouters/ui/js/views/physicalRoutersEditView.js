@@ -11,6 +11,11 @@ define([
     var pRouterConfigTemplates =  new PhysicalRoutersConfigTemplates();
     var self;
     var PhysicalRouterEditView = ContrailView.extend({
+        setGlobalVRoutersMap: function() {
+            self.physicalRouterData = {};
+            self.physicalRouterData.globalVRoutersMap = {};
+            self.model.physicalRouterData = self.physicalRouterData;
+        },
         renderAddOVSDBManagedToR: function (options) {
             var prefixId = ctwl.PHYSICAL_ROUTER_PREFIX_ID,
                 modalId = 'configure-' + prefixId,
@@ -19,6 +24,7 @@ define([
             var editLayout =
                 editTemplate({modalId: modalId, prefixId: prefixId});
                 self = this;
+            self.setGlobalVRoutersMap();
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
@@ -59,6 +65,7 @@ define([
             var editLayout =
                 editTemplate({modalId: modalId, prefixId: prefixId});
                 self = this;
+            self.setGlobalVRoutersMap();
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
@@ -98,6 +105,7 @@ define([
             var editLayout =
                 editTemplate({modalId: modalId, prefixId: prefixId});
                 self = this;
+            self.setGlobalVRoutersMap();
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                 'title': options['title'], 'body': editLayout,
                 'onSave': function () {
@@ -137,6 +145,7 @@ define([
             var editLayout =
                 editTemplate({modalId: modalId, prefixId: prefixId});
                 self = this;
+            self.setGlobalVRoutersMap();
             cowu.createModal({'modalId': modalId,
                 'className': 'modal-700', 'title': options['title'],
                 'body': editLayout, 'onSave': function () {
@@ -177,6 +186,7 @@ define([
             var editLayout =
                 editTemplate({modalId: modalId, prefixId: prefixId});
                 self = this;
+            self.setGlobalVRoutersMap();
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                 'title': options['title'], 'body': editLayout,
                 'onSave': function () {
@@ -216,6 +226,7 @@ define([
             var editLayout =
                 editTemplate({modalId: modalId, prefixId: prefixId});
                 self = this;
+            self.setGlobalVRoutersMap();
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                 'title': options['title'], 'body': editLayout,
                 'onSave': function () {
@@ -256,6 +267,7 @@ define([
             var editLayout =
                 editTemplate({modalId: modalId, prefixId: prefixId});
                 self = this;
+            self.setGlobalVRoutersMap();
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                 'title': options['title'], 'body': editLayout,
                 'onSave': function () {
@@ -296,6 +308,7 @@ define([
             var editLayout =
                 editTemplate({modalId: modalId, prefixId: prefixId});
                 self = this;
+            self.setGlobalVRoutersMap();
             cowu.createModal({'modalId': modalId,
                 'className': 'modal-700',
                 'title': options['title'],'body': editLayout,
@@ -423,8 +436,6 @@ define([
         virtualRouterDetailsParser : function(result) {
             self.torAgentVrouterDS = [];
             self.tsnVrouterDS = [];
-            window.physicalRouter = {};
-            window.physicalRouter.globalVRoutersMap = {};
             if(result && result['virtual-routers'] &&
                 result['virtual-routers'].length > 0) {
                 result = result['virtual-routers'];
@@ -442,8 +453,9 @@ define([
                         (virtualRouter['virtual_router_ip_address'])?
                         virtualRouter['virtual_router_ip_address'] : '';
                   /*build a map with vrouter name and type to be used
-                      in createEditWindow*/
-                    window.physicalRouter.globalVRoutersMap[virtualRouter['name']] =
+                      in createEditPopup*/
+                    self.physicalRouterData.
+                    globalVRoutersMap[virtualRouter['name']] =
                         {type:vRouterType,ip:vRouterIP};
                     if(vRouterType == 'tor-agent'){
                         /*Tor agent can be assigned to
