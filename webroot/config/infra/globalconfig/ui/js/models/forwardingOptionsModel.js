@@ -118,7 +118,7 @@ define([
             return encapPriOrdArr;
         },
 
-        addEncapPriOrders: function(data, dataObj, index) {
+        addEncapPriOrders: function(data, isRowAction) {
             var prioOrdList = [];
             var encapPriorityList = gcUtils.getDefaultConfigEncapList();
             var encapPriOrd = this.model().attributes['encapPriorityOrders'];
@@ -139,13 +139,19 @@ define([
                                        newEncap[0]});
             encapPriOrd.add([newOrder]);
             /* Remove any error message if any */
-            var glModel = data.model().attributes.model();
-            var attr =
-                cowu.getAttributeFromPath('encapsulation_priorities');
-            var errors = glModel.get(cowc.KEY_MODEL_ERRORS);
-            var attrErrorObj = {};
-            attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] = null;
-            errors.set(attrErrorObj);
+            var glModel;
+            if (true == isRowAction) {
+                ctwu.removeAttrErrorMsg(data.model().attributes.model(),
+                                        'encapsulation_priorities');
+            } else {
+                try {
+                    var errors = data.model().attributes.
+                        encapPriorityOrders.models[0].attributes.errors();
+                    errors.encapsulation_priorities_error(null)
+                } catch(e) {
+                    return;
+                }
+            }
         },
 
         deleteEncapPriOrders: function(data, kbAddr) {
