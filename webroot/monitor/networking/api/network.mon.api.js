@@ -1316,15 +1316,22 @@ function getVirtualNetworksForUser(appData, callback) {
     var configURL = null;
     authApi.getTenantList(appData.authObj.req, appData,
         function (error, tenantList) {
+            var cookieDomain =
+                commonUtils.getValueByJsonPath(appData,
+                                               'authObj;req;cookies;domain',
+                                               null, false);
             var tenantListLen = (tenantList['tenants'] != null) ? (tenantList['tenants'].length) : 0;
             for (var i = 0; i < tenantListLen; i++) {
-                configURL = '/virtual-networks?parent_type=project&parent_fq_name_str=default-domain:' +
-                    tenantList['tenants'][i]['name'];
+                configURL =
+                    '/virtual-networks?parent_type=project&parent_fq_name_str=' +
+                    cookieDomain + ':' + tenantList['tenants'][i]['name'];
                 commonUtils.createReqObj(dataObjArr, configURL,
                     global.HTTP_REQUEST_GET, null, null, null,
                     appData);
             }
-            async.map(dataObjArr, commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+            async.map(dataObjArr,
+                      commonUtils.getAPIServerResponse(configApiServer.apiGet,
+                                                       true),
                 function (err, configVNData) {
                     if (err || (null == configVNData)) {
                         callback(err, vnList);
@@ -1544,7 +1551,8 @@ function getInstancesDetailsForUser(req, appData, callback) {
             configURL = '/project/' + commonUtils.convertUUIDToString(tenantList['tenants'][i]['id']);
             commonUtils.createReqObj(dataObjArr, configURL, global.HTTP_REQUEST_GET, null, null, null, appData);
         }
-        async.map(dataObjArr, commonUtils.getAPIServerResponse(configApiServer.apiGet, false), function (err, projectData) {
+        async.map(dataObjArr,
+                  commonUtils.getAPIServerResponse(configApiServer.apiGet, true), function (err, projectData) {
                 if (err || (null == projectData)) {
                     callback(err, null);
                     return;
@@ -1568,7 +1576,9 @@ function getInstancesDetailsForUser(req, appData, callback) {
                     callback(null, emptyData);
                     return;
                 }
-                async.map(reqArr, commonUtils.getAPIServerResponse(configApiServer.apiGet, false), function (error, vmiData) {
+                async.map(reqArr,
+                          commonUtils.getAPIServerResponse(configApiServer.apiGet,
+                                                           true), function (error, vmiData) {
                         if (error || (null == vmiData)) {
                             callback(error, null);
                             return;
