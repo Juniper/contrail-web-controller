@@ -5,9 +5,10 @@
 define([
     'underscore',
     'contrail-list-model',
+    'core-basedir/js/common/qe.utils',
     'controller-basedir/reports/qe/ui/js/models/FlowSeriesFormModel',
     'controller-basedir/reports/qe/ui/js/models/ContrailListModelGroup'
-], function (_, ContrailListModel, FlowSeriesFormModel, ContrailListModelGroup) {
+], function (_, ContrailListModel, qewu, FlowSeriesFormModel, ContrailListModelGroup) {
 
     var SessionAnalyzerModel = ContrailListModelGroup.extend({
 
