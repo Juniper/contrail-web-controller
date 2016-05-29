@@ -18,8 +18,7 @@ var qeapi = module.exports,
     qs = require('querystring'),
     underscore = require('underscore'),
     redisReadStream = require('redis-rstream'),
-    opApiServer = require(process.mainModule.exports["corePath"] +
-                          '/src/serverroot/common/opServer.api');
+    opServer;
 
 var redisServerPort = (config.redis_server_port) ? config.redis_server_port :
         global.DFLT_REDIS_SERVER_PORT,
@@ -30,18 +29,20 @@ var redisClient =
     redisUtils.createRedisClient(redisServerPort, redisServerIP,
                                     global.QE_DFLT_REDIS_DB);
 
+opServer = rest.getAPIServer({apiName: global.label.OPS_API_SERVER, server: config.analytics.server_ip, port: config.analytics.server_port});
+
 if (!module.parent) {
     logutils.logger.warn(util.format(messages.warn.invalid_mod_call, module.filename));
     process.exit(1);
 }
 
-function executeQuery(res, options, appData) {
+function executeQuery(res, options) {
     var queryJSON = options.queryJSON,
         async = options.async, asyncHeader = {"Expect": "202-accepted"};
+    opServer.authorize(function () {
         logutils.logger.debug("Query sent to Opserver at " + new Date() + ' ' + JSON.stringify(queryJSON));
         options['startTime'] = new Date().getTime();
-        opApiServer.apiPost(global.RUN_QUERY_URL, queryJSON, appData,
-                            function (error, jsonData) {
+        opServer.api.post(global.RUN_QUERY_URL, queryJSON, function (error, jsonData) {
             if (error) {
                 logutils.logger.error('Error Run Query: ' + error.stack);
                 commonUtils.handleJSONResponse(error, res, null);
@@ -49,16 +50,14 @@ function executeQuery(res, options, appData) {
                 initPollingConfig(options, queryJSON.start_time, queryJSON.end_time)
                 options['url'] = jsonData['href'];
                 options['opsQueryId'] = parseOpsQueryIdFromUrl(jsonData['href']);
-                setTimeout(fetchQueryResults, 1000, res, jsonData, options,
-                           appData);
-                options['intervalId'] =
-                    setInterval(fetchQueryResults, options.pollingInterval, res,
-                                jsonData, options, appData);
+                setTimeout(fetchQueryResults, 1000, res, jsonData, options);
+                options['intervalId'] = setInterval(fetchQueryResults, options.pollingInterval, res, jsonData, options);
                 options['timeoutId'] = setTimeout(stopFetchQueryResult, options.pollingTimeout, options);
             } else {
                 processQueryResults(res, jsonData, options);
             }
         }, async ? asyncHeader : {});
+    });
 };
 
 function initPollingConfig(options, fromTime, toTime) {
@@ -103,10 +102,11 @@ function parseOpsQueryIdFromUrl(url) {
     return opsQueryId;
 };
 
-function fetchQueryResults(res, jsonData, options, appData) {
+function fetchQueryResults(res, jsonData, options) {
     var queryId = options['queryId'], pageSize = options['pageSize'],
         queryJSON = options['queryJSON'], progress;
-        opApiServer.apiGet(jsonData['href'], appData, function (error, queryResults) {
+    opServer.authorize(function () {
+        opServer.api.get(jsonData['href'], function (error, queryResults) {
             progress = queryResults['progress'];
             options['counter'] += 1;
             if (error) {
@@ -127,7 +127,7 @@ function fetchQueryResults(res, jsonData, options, appData) {
                 options['progress'] = progress;
                 options['count'] = queryResults.chunks[0]['count'];
                 jsonData['href'] = queryResults.chunks[0]['href'];
-                fetchQueryResults(res, jsonData, options, appData);
+                fetchQueryResults(res, jsonData, options);
             } else if (progress == null) {
                 processQueryResults(res, queryResults, options);
                 if (options.status == 'queued') {
@@ -142,6 +142,7 @@ function fetchQueryResults(res, jsonData, options, appData) {
                 commonUtils.handleJSONResponse(null, res, {status: "queued", value: []});
             }
         });
+    });
 };
 
 function stopFetchQueryResult(options) {
@@ -1014,17 +1015,17 @@ function getJSONClone(json) {
     return JSON.parse(newJSONStr);
 };
 
-function runGETQuery(req, res, appData) {
+function runGETQuery(req, res) {
     var reqQuery = req.query;
-    runQuery(req, res, reqQuery, appData);
+    runQuery(req, res, reqQuery);
 }
 
-function runPOSTQuery(req, res, appData) {
+function runPOSTQuery(req, res) {
     var reqQuery = req.body;
-    runQuery(req, res, reqQuery, appData);
+    runQuery(req, res, reqQuery);
 }
 
-function runQuery(req, res, reqQuery, appData) {
+function runQuery(req, res, reqQuery) {
     var queryId = reqQuery['queryId'],
         page = reqQuery['page'], sort = reqQuery['sort'],
         pageSize = parseInt(reqQuery['pageSize']), options;
@@ -1038,11 +1039,11 @@ function runQuery(req, res, reqQuery, appData) {
             } else if (exists == 1) {
                 returnCachedQueryResult(res, options, handleQueryResponse);
             } else {
-                runNewQuery(req, res, queryId, reqQuery, appData);
+                runNewQuery(req, res, queryId, reqQuery);
             }
         });
     } else {
-        runNewQuery(req, res, null, reqQuery, appData);
+        runNewQuery(req, res, null, reqQuery);
     }
 };
 
@@ -1208,7 +1209,7 @@ function sortJSON(resultArray, sortParams, callback) {
     }, 2000, qsStatus, callback);
 };
 
-function runNewQuery(req, res, queryId, reqQuery, appData) {
+function runNewQuery(req, res, queryId, reqQuery) {
     var tableName = reqQuery['table'], tableType = reqQuery['tableType'],
         queryId = reqQuery['queryId'], pageSize = parseInt(reqQuery['pageSize']),
         async = (reqQuery['async'] != null && reqQuery['async'] == "true") ? true : false,
@@ -1256,37 +1257,39 @@ function runNewQuery(req, res, queryId, reqQuery, appData) {
         options.statXaxis = reqQuery['Xaxis'];
     }
     options.queryJSON = queryJSON;
-    executeQuery(res, options, appData);
+    executeQuery(res, options);
 };
 
 // Handle request to get list of all tables.
-function getTables(req, res, appData) {
+function getTables(req, res) {
     var opsUrl = global.GET_TABLES_URL;
-    sendCachedJSON4Url(opsUrl, res, 3600, appData);
+    sendCachedJSON4Url(opsUrl, res, 3600);
 };
 
 // Handle request to get valid values of a table column.
-function getColumnValues(req, res, appData) {
+function getColumnValues(req, res) {
     var opsUrl = global.GET_TABLE_INFO_URL + '/' + req.param('tableName') + '/column-values/' + req.param('column');
-    sendCachedJSON4Url(opsUrl, res, 3600, appData);
+    sendCachedJSON4Url(opsUrl, res, 3600);
 };
 
 // Handle request to get table schema.
-function getTableSchema(req, res, appData) {
+function getTableSchema(req, res) {
     var opsUrl = global.GET_TABLE_INFO_URL + '/' + req.param('tableName') + '/schema';
-    sendCachedJSON4Url(opsUrl, res, 3600, appData);
+    sendCachedJSON4Url(opsUrl, res, 3600);
 };
 
-function sendCachedJSON4Url(opsUrl, res, expireTime, appData) {
+function sendCachedJSON4Url(opsUrl, res, expireTime) {
     redisClient.get(opsUrl, function (error, cachedJSONStr) {
         if (error || cachedJSONStr == null) {
-                opApiServer.apiGet(opsUrl, appData, function (error, jsonData) {
+            opServer.authorize(function () {
+                opServer.api.get(opsUrl, function (error, jsonData) {
                     if (!jsonData) {
                         jsonData = [];
                     }
                     redisClient.setex(opsUrl, expireTime, JSON.stringify(jsonData));
                     commonUtils.handleJSONResponse(error, res, jsonData);
                 });
+            });
         } else {
             commonUtils.handleJSONResponse(null, res, JSON.parse(cachedJSONStr));
         }
@@ -1305,7 +1308,7 @@ function getObjectIds(req, res, appData) {
     setMicroTimeRange(objectQuery, startTime, endTime)
     queryOptions = {queryId: null, async: false, status: "run", queryJSON: objectQuery, errorMessage: ""};
 
-    executeQuery(res, queryOptions, appData);
+    executeQuery(res, queryOptions);
 };
 
 // Handle request to get query queue.
