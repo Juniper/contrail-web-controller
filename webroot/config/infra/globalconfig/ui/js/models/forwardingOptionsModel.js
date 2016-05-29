@@ -15,7 +15,7 @@ define([
             "forwarding_mode": "Default",
             "vxlan_network_identifier_mode": "automatic",
             "encapsulation_priorities": {
-                "encapsulation": []
+                "encapsulation": ["MPLSoUDP", "MPLSoGRE", "VXLAN"]
             },
             'ecmp_hashing_include_fields': {
                 'hashing_configured': true,
@@ -118,7 +118,7 @@ define([
             return encapPriOrdArr;
         },
 
-        addEncapPriOrders: function(data, dataObj, index) {
+        addEncapPriOrders: function(data, isRowAction) {
             var prioOrdList = [];
             var encapPriorityList = gcUtils.getDefaultConfigEncapList();
             var encapPriOrd = this.model().attributes['encapPriorityOrders'];
@@ -139,13 +139,23 @@ define([
                                        newEncap[0]});
             encapPriOrd.add([newOrder]);
             /* Remove any error message if any */
-            var glModel = data.model().attributes.model();
-            var attr =
-                cowu.getAttributeFromPath('encapsulation_priorities');
-            var errors = glModel.get(cowc.KEY_MODEL_ERRORS);
-            var attrErrorObj = {};
-            attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] = null;
-            errors.set(attrErrorObj);
+            var glModel;
+            if (true == isRowAction) {
+                ctwu.removeAttrErrorMsg(data.model().attributes.model(),
+                                        'encapsulation_priorities');
+            } else {
+                var attr =
+                    getValueByJsonPath(data.model(),
+                                       'attributes;encapPriorityOrders;models;0;attributes',
+                                       null);
+                var errors = null;
+                if (null != attr) {
+                    errors = attr.errors();
+                }
+                if (null != errors) {
+                    errors.encapsulation_priorities_error(null);
+                }
+            }
         },
 
         deleteEncapPriOrders: function(data, kbAddr) {
