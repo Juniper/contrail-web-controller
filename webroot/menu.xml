@@ -64,7 +64,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 <tab>vRouters</tab>
                             </queryParams>
                         </item>
-                        <item>
+                        <!--<item>
                             <hash>mon_infra_mx</hash>
                             <label>MX Visualisation</label>
                             <resources>
@@ -75,7 +75,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <class>mxRenderer</class>
                                 </resource>
                             </resources>
-                        </item>
+                        </item>-->
                         <item>
                             <hash>mon_infra_underlay</hash>
                             <label>Physical Topology</label>
