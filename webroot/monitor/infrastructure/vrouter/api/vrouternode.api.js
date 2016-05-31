@@ -23,10 +23,6 @@ var rest = require(process.mainModule.exports["corePath"] +
     configApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/configServer.api');
 
-opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
-                             server:config.analytics.server_ip,
-                             port:config.analytics.server_port });
-
 function getAclUUIDByFlowAclInfo (flowAclInfo)
 {
     try {
@@ -276,7 +272,7 @@ function getvRouterDetails (req, res, appData)
             'UVEAlarms'];
     }
 
-    opServer.api.post(url,postData,
+    opApiServer.apiPost(url, postData, appData,
                      commonUtils.doEnsureExecution(function(err, data) {
         if ((null != err) || (null == data)) {
             data = {};
@@ -294,7 +290,7 @@ function getvRouterDetails (req, res, appData)
             postData['kfilt'] = [host + ':*contrail-vrouter-agent*',host + ':*TorAgent*'];
             infraCmn.addGeneratorInfoToUVE(postData, data, host,
                                   ['contrail-vrouter-agent', 'TorAgent'],
-                                  function(err, data) {
+                                  appData, function(err, data) {
                 infraCmn.getDataFromConfigNode('virtual-routers', host, appData,
                                                data, function(err, data) {
                     commonUtils.handleJSONResponse(null, res, data);

@@ -22,10 +22,6 @@ var rest = require(process.mainModule.exports["corePath"] +
     configApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/configServer.api');
 
-opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
-                             server:config.analytics.server_ip,
-                             port:config.analytics.server_port });
-
 function getControlNodesSummary (req, res, appData)
 {
     var nodesHostIp = {'hosts': {}, 'ips': {}};
@@ -101,7 +97,7 @@ function getControlNodeDetails (req, res, appData)
     var url = '/analytics/uves/control-node/' + hostName + '?flat';
     var resultJSON = {};
 
-    opServer.api.get(url,
+    opApiServer.apiGet(url, appData,
                      commonUtils.doEnsureExecution(function(err, data) {
         if ((null != err) || (null == data)) {
             data = {};
@@ -113,7 +109,7 @@ function getControlNodeDetails (req, res, appData)
             var postData = {};
             postData['kfilt'] = [hostName + '*:contrail-control*'];
             infraCmn.addGeneratorInfoToUVE(postData, data, hostName,
-                                  ['contrail-control'],
+                                  ['contrail-control'], appData,
                                   function(err, data) {
                 infraCmn.getDataFromConfigNode('bgp-routers', hostName, appData,
                                                data, function(err, data) {
@@ -127,12 +123,19 @@ function getControlNodeDetails (req, res, appData)
 function getControlNodePeerInfo (req, res, appData)
 {
     var hostName = req.param('hostname');
-    var urlLists = [];
+    var dataObjArr = [];
 
-    urlLists[0] = '/analytics/uves/bgp-peer/*:' + hostName + ':*';
-    urlLists[1] = '/analytics/uves/xmpp-peer/' + hostName + ':*?flat';
+    var reqUrl = '/analytics/uves/bgp-peer/*:' + hostName + ':*';
+    commonUtils.createReqObj(dataObjArr, reqUrl,
+                             global.HTTP_REQUEST_GET, null, null, null,
+                             appData);
+    reqUrl = '/analytics/uves/xmpp-peer/' + hostName + ':*?flat';
+    commonUtils.createReqObj(dataObjArr, reqUrl,
+                             global.HTTP_REQUEST_GET, null, null, null,
+                             appData);
 
-    async.map(urlLists, commonUtils.getJsonViaInternalApi(opServer.api, true),
+    async.map(dataObjArr,
+              commonUtils.getAPIServerResponse(opApiServer.apiGet, true),
               function(err, results) {
        var resultJSON = {};
        resultJSON['bgp-peer'] = results[0];
@@ -143,8 +146,10 @@ function getControlNodePeerInfo (req, res, appData)
 
 function getControlNodePeerDetails (req, res, appData)
 {
+    var reqUrl;
     var urlLists = [];
     var resultJSON = [];
+    var dataObjArr = [];
 
     adminApiHelper.getControlNodeList(appData, function(err, configData) {
         if (err || (null == configData)) {
@@ -153,12 +158,20 @@ function getControlNodePeerDetails (req, res, appData)
         }
         var len = configData.length;
         for (var i = 0; i < len; i++) {
-            urlLists[i] = '/analytics/uves/bgp-peer/*' + configData[i]['name'] + '*';
-            urlLists[i + len] = '/analytics/uves/xmpp-peer/' + configData[i]['name']
-                + ':*?flat';
+            reqUrl = '/analytics/uves/bgp-peer/*' + configData[i]['name'] + '*';
+            commonUtils.createReqObj(dataObjArr, reqUrl,
+                                     global.HTTP_REQUEST_GET, null, null, null,
+                                     appData);
         }
-        async.map(urlLists,
-                  commonUtils.getJsonViaInternalApi(opServer.api, true),
+        for (i = 0; i < len; i++) {
+            reqUrl = '/analytics/uves/xmpp-peer/' + configData[i]['name'] +
+                ':*?flat';
+            commonUtils.createReqObj(dataObjArr, reqUrl,
+                                     global.HTTP_REQUEST_GET, null, null, null,
+                                     appData);
+        }
+        async.map(dataObjArr,
+                  commonUtils.getAPIServerResponse(opApiServer.apiGet, true),
                   function(err, results) {
             for (var i = 0; i < len; i++) {
                 resultJSON[i] = {};
@@ -182,16 +195,22 @@ function getControlNodePeerPagedInfo (req, res, appData)
     var count = req.param('count');
     var lastKey = req.param('lastKey');
     var name = null;
+    var dataObjArr = [];
 
     if (null == count) {
         count = -1;
     } else {
         count = parseInt(count);
     }
-    urlLists[0] = '/analytics/uves/bgp-peers';
-    urlLists[1] = '/analytics/uves/xmpp-peers';
+    var reqUrl = '/analytics/uves/bgp-peers';
+    commonUtils.createReqObj(dataObjArr, reqUrl,
+                             null, null, null, null, appData);
+    reqUrl = '/analytics/uves/xmpp-peers';
+    commonUtils.createReqObj(dataObjArr, reqUrl,
+                             null, null, null, null, appData);
 
-    async.map(urlLists, commonUtils.getJsonViaInternalApi(opServer.api, true),
+    async.map(dataObjArr,
+              commonUtils.getAPIServerResponse(opApiServer.apiGet, true),
               function(err, results) {
         if ((null != err) || (null == results)) {
             commonUtils.handleJSONResponse(err, res, resultJSON);
@@ -564,15 +583,20 @@ function getBgpPeerList (req, res, appData)
 {
     var hostname = req.param('hostname');
     var urlList = [];
+    var dataObjArr = [];
 
-    urlList[0] = '/analytics/uves/xmpp-peer/' + hostname +
+    var reqUrl = '/analytics/uves/xmpp-peer/' + hostname +
         ':*?cfilt=XmppPeerInfoData:identifier';
-    urlList[1] = '/analytics/uves/bgp-peer/*:' + hostname +
+    commonUtils.createReqObj(dataObjArr, reqUrl,
+                             null, null, null, null, appData);
+    reqUrl = '/analytics/uves/bgp-peer/*:' + hostname +
         ':*?cfilt=BgpPeerInfoData:peer_address';
+    commonUtils.createReqObj(dataObjArr, reqUrl,
+                             null, null, null, null, appData);
 
-    async.map(urlList,
-        commonUtils.getJsonViaInternalApi(opServer.api, true),
-        function(err, data) {
+    async.map(dataObjArr,
+              commonUtils.getAPIServerResponse(opApiServer.apiGet, true),
+              function(err, data) {
         if (err || (null == data)) {
             commonUtils.handleJSONResponse(null, res, []);
             return;
