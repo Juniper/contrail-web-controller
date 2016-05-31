@@ -42,13 +42,12 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     request = require('request'),
     jsonDiff = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/common/jsondiff'),
-    opServer;
+    opApiServer = require(process.mainModule.exports["corePath"] +
+                          '/src/serverroot/common/opServer.api');
 
 var parser = null;
 var bgpHeader = {};
 bgpHeader['X-Tenant-Name'] = 'default-project';
-
-opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER, server:config.analytics.server_ip, port:config.analytics.server_port });
 
 if (!module.parent) {
 	logutils.logger.warn(util.format(messages.warn.invalid_mod_call, module.filename));
@@ -663,39 +662,41 @@ adminapi.updateBGPRouter = function (req, res, appData) {
 };
 
 // Handle request to get JSON of all analysers.
-adminapi.getAnalyzers = function (req, res) {
+adminapi.getAnalyzers = function (req, res, appData) {
 	var url = '/analyzers';
 	logutils.logger.debug('getAnalyzers: ' + url);
-	opServer.authorize(function () {
-		opServer.api.get(url, function (error, data) {
+		opApiServer.apiGet(url, appData, function (error, data) {
 			if (error) {
 				commonUtils.handleResponse(error, res, '');
 			} else {
 				commonUtils.handleJSONResponse(null, res, data['analyzers']);
 			}
 		});
-	});
 };
 
 // Handle request to get JSON of an analyzer with a given name.
-adminapi.getAnalyzer = function (req, res) {
+adminapi.getAnalyzer = function (req, res, appData) {
 	var name = req.param('name'),
 		url = '/analyzers?name=' + name,
-		mirrorUrls = [],
+        dataObjArr = [],
 		mUrl, mirrorsJSON;
 	logutils.logger.debug('getAnalyzer: ' + url);
-	opServer.authorize(function () {
-		opServer.api.get(url, function (error, analyzerJSON) {
+		opApiServer.apiGet(url, appData, function (error, analyzerJSON) {
 			if (error) {
 				commonUtils.handleResponse(error, res, '');
 			} else {
 				mirrorsJSON = analyzerJSON.analyzer.mirrors;
 				for (i = 0; i < mirrorsJSON.length; i += 1) {
 					mUrl = '/mirrors?name=' + mirrorsJSON[i].name;
+                    commonUtils.createReqObj(dataObjArr, mUrl,
+                                             global.HTTP_REQUEST_GET, null,
+                                             null, null, appData);
 					logutils.logger.debug('getMirror: ', mUrl);
-					mirrorUrls[i] = mUrl;
 				}
-				async.map(mirrorUrls, commonUtils.getJsonViaInternalApi(opServer.api, true), function (err, results) {
+                async.map(dataObjArr,
+                          commonUtils.getAPIServerResponse(opApiServer.apiGet,
+                                                           true),
+                          function (err, results) {
 					var i;
 					if (!err) {
 						for (i = 0; i < mirrorsJSON.length; i += 1) {
@@ -708,47 +709,41 @@ adminapi.getAnalyzer = function (req, res) {
 				});
 			}
 		});
-	});
 };
 
 // Handle request to get JSON of all mirrors.
-adminapi.getMirrors = function (req, res) {
+adminapi.getMirrors = function (req, res, appData) {
 	var url = '/mirrors';
 	logutils.logger.debug('getMirrors: ' + url);
-	opServer.authorize(function () {
-		opServer.api.get(url, function (error, data) {
+		opApiServer.apiGet(url, appData, function (error, data) {
 			if (error) {
 				commonUtils.handleResponse(error, res, '');
 			} else {
 				commonUtils.handleJSONResponse(null, res, data['mirrors']);
 			}
 		});
-	});
 };
 
 // Handle request to get JSON of a mirror with a given name.
-adminapi.getMirror = function (req, res) {
+adminapi.getMirror = function (req, res, appData) {
 	var name = req.param('name');
 	var url = '/mirrors?name=' + name;
 	logutils.logger.debug('getMirror: ' + url);
-	opServer.authorize(function () {
-		opServer.api.get(url, function (error, data) {
+		opApiServer.apiGet(url, appData, function (error, data) {
 			if (error) {
 				commonUtils.handleResponse(error, res, '');
 			} else {
 				commonUtils.handleJSONResponse(null, res, data);
 			}
 		});
-	});
 };
 
 // Handle request to add analyser.
-adminapi.addAnalyzer = function (req, res) {
+adminapi.addAnalyzer = function (req, res, appData) {
 	var analyzerName = req.param('analyzerName');
 	var url = '/request-analyzer/' + analyzerName;
 	logutils.logger.debug("addAnalyser: " + url);
-	opServer.authorize(function () {
-		opServer.api.get(url, function (error, data) {
+		opApiServer.apiGet(url, appData, function (error, data) {
 			if (error || data['status'] != "pass") {
 				if (data && data['error']) {
 					error = new appErrors.RESTServerError(data['error']);
@@ -760,16 +755,14 @@ adminapi.addAnalyzer = function (req, res) {
 				commonUtils.handleJSONResponse(null, res, data);
 			}
 		});
-	});
 };
 
 // Handle request to delete analyzer.
-adminapi.deleteAnalyzer = function (req, res) {
+adminapi.deleteAnalyzer = function (req, res, appData) {
 	var analyzerName = req.param('name');
 	var url = '/delete-analyzer/' + analyzerName;
 	logutils.logger.debug("deleteAnalyzer: " + url);
-	opServer.authorize(function () {
-		opServer.api.get(url, function (error, data) {
+		opApiServer.apiGet(url, appData, function (error, data) {
 			if (error || data['status'] != "pass") {
 				if (data && data['error']) {
 					error = new appErrors.RESTServerError(data['error']);
@@ -781,7 +774,6 @@ adminapi.deleteAnalyzer = function (req, res) {
 				commonUtils.handleJSONResponse(null, res, data);
 			}
 		});
-	});
 };
 
 /**
@@ -869,14 +861,13 @@ function validateAddMirrorReq(reqQuery) {
 };
 
 // Handle request to add mirror.
-adminapi.addMirror = function (req, res) {
+adminapi.addMirror = function (req, res, appData) {
 	var mirrorName = req.param('mirror_name'),
 		url;
 	validateAddMirrorReq(req.query);
 	url = '/request-mirroring/' + mirrorName + '?' + qs.stringify(req.query);
 	logutils.logger.debug("addMirror: " + url);
-	opServer.authorize(function () {
-		opServer.api.get(url, function (error, data) {
+		opApiServer.apiGet(url, appData, function (error, data) {
 			if (error || data['status'] != "pass") {
 				if (data && data['error']) {
 					error = new appErrors.RESTServerError(data['error']);
@@ -888,16 +879,14 @@ adminapi.addMirror = function (req, res) {
 				commonUtils.handleJSONResponse(null, res, data);
 			}
 		});
-	});
 };
 
 // Handle request to delete mirror.
-adminapi.deleteMirror = function (req, res) {
+adminapi.deleteMirror = function (req, res, appData) {
 	var mirrorName = req.param('name');
 	var url = '/delete-mirroring/' + mirrorName;
 	logutils.logger.debug("deleteMirror: " + url);
-	opServer.authorize(function () {
-		opServer.api.get(url, function (error, data) {
+		opApiServer.apiGet(url, appData, function (error, data) {
 			if (error || data['status'] != "pass") {
 				if (data && data['error']) {
 					error = new appErrors.RESTServerError(data['error']);
@@ -909,7 +898,6 @@ adminapi.deleteMirror = function (req, res) {
 				commonUtils.handleJSONResponse(null, res, data);
 			}
 		});
-	});
 };
 
 // Handle request to get a JSON of all virtual networks.
