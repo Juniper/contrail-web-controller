@@ -83,15 +83,6 @@ define([
                 rule["rule_sequence"] = {};
                 rule["rule_sequence"]["major"] = -1;
                 rule["rule_sequence"]["minor"] = -1;
-
-                rule["ui_rule_id"] = {};
-                if (i == 0) {
-                    rule["ui_rule_id"]["first"] = null;
-                } else if (i == rules.length - 1) {
-                    rule["ui_rule_id"]["last"] = null;
-                } else {
-                    rule["ui_rule_id"]["after"] = i - 1 + ".0";
-                }
                 rule["direction"] = r.direction();
                 rule["protocol"] = r.protocol();
 
