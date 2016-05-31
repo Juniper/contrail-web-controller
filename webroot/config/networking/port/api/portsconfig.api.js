@@ -1490,119 +1490,6 @@ function listVirtualMachines (request, response, appData)
         });
 }
 
-function getVMIDetailsCB (vmiURL, appData, res, err)
-{
-    var vmiToIpMap = {};
-    var dataObjArr = [];
-    var vmiUUIDList = [];
-    configApiServer.apiGet(vmiURL, appData, function(err, vmiData) {
-        if ((null != err) || (null == vmiData) ||
-            (null == vmiData['virtual-machine-interfaces']) ||
-            (!vmiData['virtual-machine-interfaces'].length)) {
-            commonUtils.handleJSONResponse(err, res, null);
-            return;
-        }
-        var vmiData = vmiData['virtual-machine-interfaces'];
-        var vmiCnt = vmiData.length;
-        for (var i = 0; i < vmiCnt; i++) {
-            vmiUUIDList.push(vmiData[i]['virtual-machine-interface']['uuid']);
-        }
-        if (!vmiUUIDList.length) {
-            commonUtils.handleJSONResponse(null, res, vmiData);
-            return;
-        }
-        var chunk = 200;
-        var uuidStrLists = [];
-        for (i = 0, j = vmiCnt; i < j; i += chunk) {
-            tempArray = vmiUUIDList.slice(i, i + chunk);
-            var instIPUrl = '/instance-ips?detail=true&back_ref_id=' +
-                tempArray.join(',');
-            commonUtils.createReqObj(dataObjArr, instIPUrl, null, null, null,
-                                     null, appData);
-        }
-        async.map(dataObjArr,
-                  commonUtils.getAPIServerResponse(configApiServer.apiGet,
-                                                   true),
-                  function(err, results) {
-            if ((null != err) || (null == results)) {
-                commonUtils.handleJSONResponse(null, res, vmiData);
-                return;
-            }
-            var instIpData = [];
-            var dataObjArrLen = dataObjArr.length;
-            for (i = 0; i < dataObjArrLen; i++) {
-                if (null != dataObjArr[i]) {
-                    instIpData = instIpData.concat(results[i]['instance-ips']);
-                }
-            }
-            var instIpCnt = instIpData.length;
-            for (i = 0; i < instIpCnt; i++) {
-                if ((null == instIpData[i]['instance-ip']) ||
-                    (null ==
-                        instIpData[i]['instance-ip']['virtual_machine_interface_refs'])) {
-                    continue;
-                }
-                var vmiRef =
-                    instIpData[i]['instance-ip']['virtual_machine_interface_refs'];
-                if (null == vmiToIpMap[vmiRef[0]['uuid']]) {
-                    vmiToIpMap[vmiRef[0]['uuid']] = [];
-                }
-                vmiToIpMap[vmiRef[0]['uuid']].push(
-                    instIpData[i]['instance-ip']['instance_ip_address']);
-            }
-            for (i = 0; i < vmiCnt; i++) {
-                if (null !=
-                    vmiToIpMap[vmiData[i]['virtual-machine-interface']['uuid']]) {
-                    if (null ==
-                        vmiData[i]['virtual-machine-interface']['instance_ip_address']) {
-                        vmiData[i]['virtual-machine-interface']['instance_ip_address'] =
-                            [];
-                    }
-                    vmiData[i]['virtual-machine-interface']['instance_ip_address']
-                        =
-                        vmiToIpMap[vmiData[i]['virtual-machine-interface']['uuid']];
-                }
-            }
-            commonUtils.handleJSONResponse(null, res, vmiData);
-        });
-    });
-}
-
-
-function getVMIDetails  (req, res, appData)
-{
-    var backRefID = req.param('vn_uuid');
-    var parentID = req.param('proj_uuid');
-    var projFQN   = req.param('proj_fqn');
-    var vmiURL =
-        '/virtual-machine-interfaces?detail=true&fields=' +
-        'virtual_machine_refs,instance_ip_back_refs';
-    if (null != backRefID) {
-        vmiURL += '&back_ref_id=' + backRefID;
-    } else if (null != parentID) {
-        vmiURL += '&parent_id=' + parentID;
-    } else if (null != projFQN) {
-        configUtil.getUUIDByFQN({'appData': appData,
-                                  'fqnReq' : {'fq_name': projFQN.split(':'),
-                                              'type': 'project'}},
-            function (error, data) {
-                if (error != null || data == null) {
-                    var error = new appErrors.RESTServerError(
-                        'Invalid Project FQName');
-                    commonUtils.handleJSONResponse(error, res, data);
-                    return;
-                }
-                vmiURL += '&parent_id=' + data['uuid'];
-                getVMIDetailsCB(vmiURL, appData, res);
-            }
-        );
-        return;
-    }
-
-
-   getVMIDetailsCB(vmiURL, appData, res);
-}
-
 function getVMIAndInstIPDetails (req, res, appData)
 {
     var tmpVMIObjs = {};
@@ -1680,7 +1567,7 @@ function getVMIAndInstIPDetails (req, res, appData)
     });
 }
 
-function getVMIDetailsCB (vmiURL, appData, res, err)
+function getVMIDetailsCB (vmiURL, filterSvcInstIP, appData, res, err)
 {
     var vmiToIpMap = {};
     var dataObjArr = [];
@@ -1737,8 +1624,15 @@ function getVMIDetailsCB (vmiURL, appData, res, err)
                 if (null == vmiToIpMap[vmiRef[0]['uuid']]) {
                     vmiToIpMap[vmiRef[0]['uuid']] = [];
                 }
-                vmiToIpMap[vmiRef[0]['uuid']].push(
-                    instIpData[i]['instance-ip']['instance_ip_address']);
+                var isSvcInstIP =
+                    commonUtils.getValueByJsonPath(instIpData[i],
+                                                   'instance-ip;service_instance_ip',
+                                                   false);
+                if ((false == filterSvcInstIP) ||
+                    ((true == filterSvcInstIP) && (false == isSvcInstIP))) {
+                    vmiToIpMap[vmiRef[0]['uuid']].push(
+                        instIpData[i]['instance-ip']['instance_ip_address']);
+                }
             }
             for (i = 0; i < vmiCnt; i++) {
                 if (null !=
@@ -1775,6 +1669,17 @@ function getVMIDetails  (req, res, appData)
     var projFQN   = req.param('proj_fqn');
     var vnFqn = req.param('vn_fqn');
     var vnFqns = req.param('vn_fqns');
+    var filterSvcInstIP = req.param('filter_svc_inst_ip');
+    switch (filterSvcInstIP) {
+    case 'true':
+    case true:
+        filterSvcInstIP = true;
+        break;
+    case 'false':
+    case false:
+    default:
+        filterSvcInstIP = false;
+    }
     var dataObjArr = [];
     var vmiURL =
         '/virtual-machine-interfaces?detail=true&fields=' +
@@ -1816,14 +1721,12 @@ function getVMIDetails  (req, res, appData)
                     uuidList.push(results[i]['uuid']);
                 }
                 vmiURL += '&' + urlId + '=' + uuidList.join(',');
-                getVMIDetailsCB(vmiURL, appData, res);
+                getVMIDetailsCB(vmiURL, filterSvcInstIP, appData, res);
             }
         );
         return;
     }
-
-
-   getVMIDetailsCB(vmiURL, appData, res);
+    getVMIDetailsCB(vmiURL, filterSvcInstIP, appData, res);
 }
 
 function deleteAllPorts (req, res, appData)
