@@ -9,7 +9,6 @@ function ControllerInfraDashboardLoader() {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
-            rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
             renderFn = paramObject['function'];
 
         if(monInfraDashboardLoader.loadedControllerInfoboxes != true) {
