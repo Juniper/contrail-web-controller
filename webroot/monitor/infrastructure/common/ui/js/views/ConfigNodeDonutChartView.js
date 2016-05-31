@@ -34,7 +34,6 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                             },
                             chartOptions: {
                                 height: 160,
-                                color: monitorInfraConstants.CONFIGNODE_COLORS,
                                 margin: {
                                     bottom: 10,
                                     top: 10
@@ -55,7 +54,6 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                             },
                             chartOptions: {
                                 height: 160,
-                                color: monitorInfraConstants.CONFIGNODE_COLORS,
                                 margin: {
                                     top: 10,
                                     bottom: 10

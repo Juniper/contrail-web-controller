@@ -899,7 +899,10 @@ define(
 
                 };
                 this.parseConfigNodeRequestForDonutChart = function (apiStats, reqType) {
-                    var cf = crossfilter(apiStats), parsedData = [];
+                    var cf = crossfilter(apiStats),
+                        parsedData = [],
+                        colors = monitorInfraConstants.CONFIGNODE_COLORS;
+
                     if (!$.isArray(reqType)) {
                         reqType = [reqType];
                     }
@@ -916,7 +919,8 @@ define(
                     $.each(sourceGrpData, function (key, value){
                         parsedData.push({
                             label: value['key'],
-                            value: value['value']
+                            value: value['value'],
+                            color: colors[key] != null ? colors[key] : cowc.D3_COLOR_CATEGORY5[1]
                         });
                     });
                     return parsedData;
