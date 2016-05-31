@@ -6,8 +6,10 @@ define([
     'underscore',
     'contrail-view',
     'contrail-list-model',
+    'core-basedir/js/common/qe.utils',
+    'core-basedir/js/common/qe.grid.config',
     'controller-basedir/reports/qe/ui/js/models/SessionAnalyzerModel'
-], function (_, ContrailView, ContrailListModel, SessionAnalyzerModel) {
+], function (_, ContrailView, ContrailListModel, qewu, qewgc, SessionAnalyzerModel) {
     var SessionAnalyzerView = ContrailView.extend({
         render: function () {
             var self = this,
