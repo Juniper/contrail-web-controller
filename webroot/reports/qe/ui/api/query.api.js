@@ -321,6 +321,13 @@ function fetchQueryResults(res, jsonData, queryOptions) {
                 queryOptions['progress'] = progress;
                 queryOptions['count'] = queryResults.chunks[0]['count'];
                 jsonData['href'] = queryResults.chunks[0]['href'];
+
+                if (queryOptions['count'] > 10000 && queryOptions['status'] != 'queued') {
+                    queryOptions['progress'] = progress;
+                    queryOptions['status'] = 'queued';
+                    updateQueryStatus(queryOptions);
+                    commonUtils.handleJSONResponse(null, res, {status: "queued", data: []});
+                }
                 fetchQueryResults(res, jsonData, queryOptions);
             } else if (progress == null || progress === 'undefined') {
                 processQueryResults(res, queryResults, queryOptions);

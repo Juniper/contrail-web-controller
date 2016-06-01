@@ -1501,7 +1501,8 @@ define([
         var link, linkedElements = [];
         for (var i = 0; i < links.length; i++) {
             var sInstances = links[i] ['service_inst'],
-                source = {}, target = {};
+                source = {}, target = {},
+                isHealthCheckActive = links[i]['more_attributes']['is_health_check_active'];
 
             if (sInstances == null || sInstances.length == 0) {
                 source = {
@@ -1518,11 +1519,10 @@ define([
                         source: {id: source.id},
                         target: {id: target.id},
                         smooth: false,
-                        router: {name: 'manhattan'},
                         connector: {name: 'normal'},
                         attrs: {
                             '.connection': {
-                                'stroke': '#333',
+                                'stroke': (isHealthCheckActive) ? '#e80015' : '#333',
                                 'stroke-width': 2,
                                 'stroke-dasharray': '4 4'
                             },

@@ -62,15 +62,35 @@ define([
 
 
         this.FILTERS_INSTANCE_LIST_INTERFACES= [
-            'UveVMInterfaceAgent:virtual_network', 'UveVMInterfaceAgent:ip6_address', 'UveVMInterfaceAgent:ip_address',
-            'UveVMInterfaceAgent:gateway', 'UveVMInterfaceAgent:ip6_active', 'UveVMInterfaceAgent:vm_name', 'UveVMInterfaceAgent:if_stats',
-            'UveVMInterfaceAgent:in_bw_usage', 'UveVMInterfaceAgent:out_bw_usage', "UveVMInterfaceAgent:mac_address",
-            'UveVMInterfaceAgent:uuid', 'UveVMInterfaceAgent:vm_uuid', 'UveVMInterfaceAgent:active', 'UveVMInterfaceAgent:is_health_check_active',
-            'UveVMInterfaceAgent:health_check_instance_list', 'UveVMInterfaceAgent:floating_ips', 'UveVMInterfaceAgent:fip_agg_stats'
+            //Generic Details
+            'UveVMInterfaceAgent:vm_name',
+            'UveVMInterfaceAgent:uuid',
+            'UveVMInterfaceAgent:vm_uuid',
+            'UveVMInterfaceAgent:mac_address',
+            'UveVMInterfaceAgent:active',
+            'UveVMInterfaceAgent:is_health_check_active',
+            'UveVMInterfaceAgent:health_check_instance_list',
+            'UveVMInterfaceAgent:gateway',
+            'UveVMInterfaceAgent:in_bw_usage',
+            'UveVMInterfaceAgent:out_bw_usage',
+            'UveVMInterfaceAgent:if_stats',
+            //Networking
+            'UveVMInterfaceAgent:virtual_network',
+            'UveVMInterfaceAgent:ip6_address',
+            'UveVMInterfaceAgent:ip_address',
+            'UveVMInterfaceAgent:ip6_active',
+            'UveVMInterfaceAgent:floating_ips',
+            'UveVMInterfaceAgent:fip_agg_stats'
         ];
 
-        this.FILTERS_COLUMN_VM = ['UveVirtualMachineAgent:interface_list', 'UveVirtualMachineAgent:vrouter', 'UveVirtualMachineAgent:fip_stats_list',
-            'UveVirtualMachineAgent:cpu_info', 'UveVirtualMachineAgent:if_bmap_list', 'UveVirtualMachineAgent:cpu_info', 'UveVirtualMachineAgent:vm_name', 'UveVirtualMachineAgent:uuid'
+        this.FILTERS_COLUMN_VM = [
+            'UveVirtualMachineAgent:vm_name',
+            'UveVirtualMachineAgent:uuid',
+            'UveVirtualMachineAgent:vrouter',
+            'UveVirtualMachineAgent:cpu_info',
+            'UveVirtualMachineAgent:interface_list',
+            'UveVirtualMachineAgent:fip_stats_list',
+            'UveVirtualMachineAgent:if_bmap_list',
             //'VirtualMachineStats:if_stats'
         ];
 

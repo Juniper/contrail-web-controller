@@ -5,7 +5,8 @@
 define([
     'underscore',
     'query-form-view',
-], function (_, QueryFormView) {
+    'core-basedir/js/common/qe.utils'
+], function (_, QueryFormView, qewu) {
 
     var QueryTextView = QueryFormView.extend({
         render: function () {

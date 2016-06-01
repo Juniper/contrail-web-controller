@@ -305,6 +305,12 @@ and need to add the iconClass tag wherever we need to show some icons
         <item>
             <name>configure</name>
             <label>Configure</label>
+            <resources>
+                <resource>
+                    <rootDir>/common/ui</rootDir>
+                    <css>contrail.controller.css</css>
+                </resource>
+            </resources>
             <iconClass>icon-wrench</iconClass>
             <items>
                 <item>
@@ -662,7 +668,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <function>renderRtTable</function>
                                 </resource>
                             </resources>
-                            <searchStrings>Route Table</searchStrings>
+                            <searchStrings>Route Tables</searchStrings>
                         </item>
                         <!-- <item>
                             <label>Route Aggregates</label>
@@ -837,6 +843,12 @@ and need to add the iconClass tag wherever we need to show some icons
         <item>
             <label>Setting</label>
             <name>setting</name>
+            <resources>
+                <resource>
+                    <rootDir>/common/ui</rootDir>
+                    <css>contrail.controller.css</css>
+                </resource>
+            </resources>
             <iconClass>icon-cog</iconClass>
             <access>
                 <roles>
@@ -921,6 +933,11 @@ and need to add the iconClass tag wherever we need to show some icons
             <name>query</name>
             <iconClass>icon-search</iconClass>
             <resources>
+                <resource>
+                    <rootDir>/common/ui</rootDir>
+                    <template>controller.tmpl</template>
+                    <css>contrail.controller.css</css>
+                </resource>
                 <resource>
                     <rootDir>/reports/qe/ui</rootDir>
                     <css>qe.main.css</css>
