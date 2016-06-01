@@ -43,7 +43,9 @@ var interfaceFilters = [
     'UveVMInterfaceAgent:vm_uuid',
     'UveVMInterfaceAgent:ip_address',
     'UveVMInterfaceAgent:gateway',
-    'UveVMInterfaceAgent:mac_address'
+    'UveVMInterfaceAgent:mac_address',
+    'UveVMInterfaceAgent:is_health_check_active',
+    'UveVMInterfaceAgent:health_check_instance_list'
 ];
 
 var networkFilters = [
@@ -1039,6 +1041,7 @@ function processInstanceConnectedGraph(instanceGraphData, callback) {
         var networkName = networkList[i]['name'],
             interfaceDetails = interfaceMap[networkName],
             interfaceStats = interfaceDetails['value']['UveVMInterfaceAgent']['if_stats'],
+            isHealthCheckActive = interfaceDetails['value']['UveVMInterfaceAgent']['is_health_check_active'],
             networkNode = {name: networkName, more_attributes: getVNNodeAttributes(networkList[i]), node_type: "virtual-network", status: "Active"};
 
         if(!isServiceVN(networkName) && instanceNode['srcVNDetails'] == null) {
@@ -1047,7 +1050,10 @@ function processInstanceConnectedGraph(instanceGraphData, callback) {
 
         var inStats = {src: networkName, dst: instanceFQN , pkts: interfaceStats['in_pkts'], bytes: interfaceStats['in_bytes']},
             outStats = {src: networkName, dst: instanceFQN, pkts: interfaceStats['out_pkts'], bytes: interfaceStats['out_bytes']},
-            link = {src: networkName, dst: instanceFQN, dir: "bi", more_attributes: {in_stats: [inStats], out_stats: [outStats]}};
+            link = {
+                src: networkName, dst: instanceFQN, dir: "bi",
+                more_attributes: {in_stats: [inStats], out_stats: [outStats], is_health_check_active: isHealthCheckActive}
+            };
 
         connectedGraphJSON['nodes'].push(networkNode);
         connectedGraphJSON['links'].push(link);

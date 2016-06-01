@@ -518,6 +518,8 @@ define([
                 controlPanelConfig: {
                     filter: {
                         enable: true,
+                        iconClass: 'icon-filter',
+                        title: 'Filter',
                         viewConfig: getControlPanelFilterConfig()
                     },
                     legend: {
@@ -840,7 +842,10 @@ define([
                                                 dataColumn: [
                                                     {
                                                         key: 'active',
-                                                        templateGenerator: 'TextGenerator'
+                                                        templateGenerator: 'TextGenerator',
+                                                        templateGeneratorConfig: {
+                                                            formatter: 'status-boolean'
+                                                        }
                                                     },
                                                     {
                                                         key: 'ip',
@@ -860,7 +865,10 @@ define([
                                                     },
                                                     {
                                                         key: 'is_health_check_active',
-                                                        templateGenerator: 'TextGenerator'
+                                                        templateGenerator: 'TextGenerator',
+                                                        templateGeneratorConfig: {
+                                                            formatter: 'status-boolean'
+                                                        }
                                                     },
                                                     {
                                                         key: 'health_check_instance_list',
@@ -868,10 +876,10 @@ define([
                                                         templateGeneratorConfig: {
                                                             dataColumn: [
                                                                 {
-                                                                    key: 'status',
+                                                                    key: 'uuid',
                                                                     templateGenerator: 'TextGenerator',
                                                                     templateGeneratorConfig: {
-                                                                        width: 35
+                                                                        width: 100
                                                                     }
                                                                 },
                                                                 {
@@ -882,10 +890,10 @@ define([
                                                                     }
                                                                 },
                                                                 {
-                                                                    key: 'uuid',
+                                                                    key: 'status',
                                                                     templateGenerator: 'TextGenerator',
                                                                     templateGeneratorConfig: {
-                                                                        width: 90
+                                                                        width: 45
                                                                     }
                                                                 }
                                                             ]
