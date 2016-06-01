@@ -1522,7 +1522,7 @@ define([
                         connector: {name: 'normal'},
                         attrs: {
                             '.connection': {
-                                'stroke': (isHealthCheckActive) ? '#e80015' : '#333',
+                                'stroke': (isHealthCheckActive) ? '#333' : '#e80015',
                                 'stroke-width': 2,
                                 'stroke-dasharray': '4 4'
                             },
