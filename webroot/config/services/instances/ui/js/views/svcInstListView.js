@@ -289,11 +289,11 @@ define([
             },
             successCallback: function(response, contrailListModel) {
                 window.svcTmplsFormatted = [];
+                var svcTmpObjs = {};
                 if (('service_templates' in response) &&
                     (response['service_templates'].length > 0)) {
                     var svcTmps = response['service_templates'];
                     var respCnt = svcTmps.length;
-                    var svcTmpObjs = {};
                     var svcTmplObjsByFqn ={};
                     if (!respCnt) {
                         var nullObj =
