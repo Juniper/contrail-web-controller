@@ -111,7 +111,7 @@ function getConfigNodesSummary (req, res, appData)
             var nodeIpsCnt = 0;
             try {
                 var nodeIps =
-                    resultJSON[i]['value']['configNode']['ModuleCpuState']
+                    resultJSON[i]['value']['ModuleCpuState']
                                     ['config_node_ip'];
                 nodeIpsCnt = nodeIps.length;
             } catch(e) {
