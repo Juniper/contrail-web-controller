@@ -132,7 +132,8 @@ define([
                 ajaxConfigs[1] =
                     $.ajax({
                         url:
-                            '/api/tenants/config/get-virtual-machine-details?vn_fqns='
+                            '/api/tenants/config/get-virtual-machine-details?' +
+                            'filter_svc_inst_ip=true&vn_fqns='
                                 + setVNList.join('::'),
                         type: 'GET',
                         timeout: 60000,
@@ -216,7 +217,8 @@ define([
             }
             var ajaxConfig = {
                 url :
-                    '/api/tenants/config/get-virtual-machine-details?vn_fqn=' + newValue,
+                    '/api/tenants/config/get-virtual-machine-details?' +
+                    'filter_svc_inst_ip=true&vn_fqn=' + newValue,
                 type : 'GET',
                 timeout : 30000
             };
