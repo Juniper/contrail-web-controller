@@ -70,10 +70,6 @@ function getDefaultProjectQuotas (projectData, appData, callback)
         commonUtils.getValueByJsonPath(projectData,
                                         'project;fq_name', null);
     var defProjectFqn = ['default-domain', 'default-project'];
-    if (null != projFqn) {
-        defProjectFqn = projFqn;
-        defProjectFqn[1] = 'default-project';
-    }
     var postData = {
         'appData': appData,
         'fqnReq' : {
@@ -83,14 +79,14 @@ function getDefaultProjectQuotas (projectData, appData, callback)
     };
     configUtilApi.getUUIDByFQN(postData, function(error, data) {
         if ((null != error) || (null == data)) {
-            callback(error, data);
+            getDefaultQuotas(appData, data, callback);
             return;
         }
         var uuid = data.uuid;
         var defProjGetUrl = '/project/' + uuid;
         configApiServer.apiGet(defProjGetUrl, appData, function(error, data) {
             if ((null != error) || (null == data)) {
-                callback(error, data);
+                getDefaultQuotas(appData, data, callback);
                 return;
             }
             var quotas =
@@ -142,6 +138,10 @@ function readProjectQuotas (userData, callback)
  * 1. Get default quotas
  */
 function getDefaultQuotas (appData, data, callback) {
+    if(data === null || data === undefined || data.trim() === "") {
+        data = {};
+        data["project"] = {};
+    }
     data["project"]["quota"] = { defaults: -1 };
     getProjectQuotasCb(null, data, appData, callback);
 }
