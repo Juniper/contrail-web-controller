@@ -3,7 +3,9 @@
  */
 
 define([
-    'underscore'
+    'underscore',
+    'core-bundle',
+    'nonamd-libs'
 ], function (_) {
     var CTConstants = function () {
 

@@ -5,8 +5,10 @@
 define([
     'underscore',
     'contrail-view',
-    'contrail-list-model'
-], function (_, ContrailView, ContrailListModel) {
+    'contrail-list-model',
+    'core-alarm-utils',
+    'core-alarm-parsers'
+], function (_, ContrailView, ContrailListModel,coreAlarmUtils,coreAlarmParsers) {
     var hostname;
     var AnalyticsNodeAlarmGridView = ContrailView.extend({
         el: $(contentContainer),

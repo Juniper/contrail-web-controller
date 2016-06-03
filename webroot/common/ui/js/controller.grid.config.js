@@ -3,7 +3,8 @@
  */
 
 define([
-    'underscore'
+    'underscore',
+    'nonamd-libs'
 ], function (_) {
     var CTGridConfig = function () {
 
