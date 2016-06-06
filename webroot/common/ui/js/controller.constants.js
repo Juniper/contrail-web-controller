@@ -4,8 +4,8 @@
 
 define([
     'underscore',
-    'core-bundle',
-    'nonamd-libs'
+    'core-constants',
+    'contrail-common'
 ], function (_) {
     var CTConstants = function () {
 

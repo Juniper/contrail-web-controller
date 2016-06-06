@@ -4,7 +4,7 @@
 
 define([
     'underscore',
-    'nonamd-libs'
+    'web-utils'
 ], function (_) {
     var CTGridConfig = function () {
 

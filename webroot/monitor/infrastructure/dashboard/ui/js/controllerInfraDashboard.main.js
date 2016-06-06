@@ -7,7 +7,7 @@ var controllerInfraDashboardLoader = new ControllerInfraDashboardLoader();
 
 function ControllerInfraDashboardLoader() {
     this.load = function (paramObject) {
-        var self = this, currMenuObj = globalObj.currMenuObj,
+        var self = this, 
             hashParams = paramObject['hashParams'],
             renderFn = paramObject['function'];
 
