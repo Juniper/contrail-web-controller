@@ -818,6 +818,53 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
+                <item>
+                    <label>RBAC</label>
+                    <access>
+                        <roles>
+                            <role>member</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                        </orchModels>
+                    </access>
+                    <iconClass>icon-user</iconClass>
+                    <items>
+                        <item>
+                            <label>Domain</label>
+                            <hash>config_rbac_domain</hash>
+                               <resources>
+                                   <resource>
+                                       <rootDir>/common/ui</rootDir>
+                                       <js>controller.app.js</js>
+                                   </resource>
+                                   <resource>
+                                       <rootDir>/config/rbac/domain/ui</rootDir>
+                                       <js>rbacDomain.main.js</js>
+                                       <class>configRBACDomainPageLoader</class>
+                                       <function>renderRBACDomain</function>
+                                   </resource>
+                               </resources>
+                            <searchStrings>RBAC Domain</searchStrings>
+                        </item>
+                        <item>
+                            <label>Project</label>
+                            <hash>config_rbac_project</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/rbac/project/ui</rootDir>
+                                    <js>rbacProject.main.js</js>
+                                    <class>configRBACProjectPageLoader</class>
+                                    <function>renderRBACProject</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>RBAC Project</searchStrings>
+                        </item>
+                    </items>
+                </item>                
                 <!--
                 <item>
                     <label>IPAM</label>
