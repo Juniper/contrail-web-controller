@@ -26,7 +26,9 @@ var util        = require('util');
 var url         = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
-var async = require('async'); 
+var async = require('async');
+var jsonDiff      = require(process.mainModule.exports["corePath"] +
+'/src/serverroot/common/jsondiff');
 
 /**
  * @getVirtualRoutersList
@@ -134,16 +136,22 @@ function createVirtualRouters (request, response, appData)
  */
 function updateVirtualRouters (request, response, appData)
 {
-     var vRouterID = validateVirtualRouterId(request); 
-     var postData     =  request.body;
-     configApiServer.apiPut('/virtual-router/' + vRouterID, postData, appData,
-         function(error, data) {
-            if(error) {
-                commonUtils.handleJSONResponse(error, response, null);
-                return;
-            }         
-            getVirtualRouters(request, response, appData);
-         });             
+     var vRouterID = validateVirtualRouterId(request),
+         vrURL = '/virtual-router/' + vRouterID,
+         postData     =  request.body;
+     jsonDiff.getJSONDiffByConfigUrl(vrURL, appData, postData,
+         function(err, vrDataDelta){
+             configApiServer.apiPut(vrURL, vrDataDelta, appData,
+                 function(error, data) {
+                    if(error) {
+                        commonUtils.handleJSONResponse(error, response, null);
+                        return;
+                    }
+                    getVirtualRouters(request, response, appData);
+                 }
+             );
+         }
+     );
 } 
 
 /**

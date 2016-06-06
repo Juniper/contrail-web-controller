@@ -27,6 +27,8 @@ var url         = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var async = require('async');
+var jsonDiff      = require(process.mainModule.exports["corePath"] +
+'/src/serverroot/common/jsondiff');
 
 
 /**
@@ -718,18 +720,25 @@ function updatePRouter(request, response, pRouterId, postData, appData){
     delete postData['physical-router']['isVirtualRouterEdit'];
     //update physical router
     updateBGPRouter(appData, postData, function(err, prData) {
+        var prUrl = '/physical-router/' + pRouterId;
         if(err) {
             commonUtils.handleJSONResponse(err, response, null);
             return;
         }
-        configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
-                function(error, data) {
-                    if(error){
-                        commonUtils.handleJSONResponse(error, response, null);
-                        return;
+        jsonDiff.getJSONDiffByConfigUrl(prUrl, appData, postData,
+            function(err, prDataDelta){
+                configApiServer.apiPut(prUrl, prDataDelta, appData,
+                    function(error, data) {
+                        if(error){
+                            commonUtils.handleJSONResponse(error,
+                                response, null);
+                            return;
+                        }
+                        commonUtils.handleJSONResponse(error, response, data);
                     }
-                    commonUtils.handleJSONResponse(error, response, data);
-                });
+                );
+            }
+        );
     });
 }
 

@@ -289,7 +289,7 @@ define([
                             split(cowc.DROPDOWN_VALUE_SEPARATOR);
                         var vnRefs = [];
                         for(var i = 0; i < arr.length; i++) {
-                            var fqName = arr[i].split(' ');
+                            var fqName = arr[i].split(':');
                             vnRefs.push({"to":fqName});
                         }
                         postObject["physical-router"]["virtual_network_refs"] =

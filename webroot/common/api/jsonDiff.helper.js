@@ -5,6 +5,37 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils');
 
 var configJsonModifyObj = {
+    "bgp-router": {
+        "isConfig": true,
+        "optFields": ["bgp_router_parameters",
+                      "bgp_router_refs"],
+        "mandateFields":["fq_name", "uuid", "display_name"]
+    },
+    "virtual-router": {
+        "isConfig": true,
+        "optFields": ["virtual_router_ip_address",
+                      "virtual_router_type"],
+        "mandateFields":["fq_name", "uuid", "display_name"]
+    },
+    "physical-router": {
+        "isConfig": true,
+        'preProcessCB': {
+            'applyOnOldJSON': modifyConfigDataByAttrHrefUUID,
+            'applyOnNewJSON': modifyConfigDataByAttrHrefUUID
+        },
+        "optFields": ["physical_router_vendor_name",
+                      "physical_router_product_name",
+                      "physical_router_management_ip",
+                      "physical_router_dataplane_ip",
+                      "physical_router_snmp_credentials",
+                      "physical_router_user_credentials",
+                      "physical_router_junos_service_ports",
+                      "virtual_router_refs",
+                      "bgp_router_refs",
+                      "physical_router_vnc_managed",
+                      "virtual_network_refs"],
+        "mandateFields":["fq_name", "uuid", "display_name"]
+    },
     'virtual-network': {
         'isConfig': true,
         'preProcessCB': {
@@ -34,8 +65,8 @@ var configJsonModifyObj = {
     'virtual-machine-interface': {
         'isConfig': true,
         'preProcessCB': {
-            'applyOnOldJSON': modifyConfigDataByAttrHref,
-            'applyOnNewJSON': modifyConfigDataByHref
+            'applyOnOldJSON': modifyConfigDataByAttrHrefUUID,
+            'applyOnNewJSON': modifyConfigDataByAttrHrefUUID
         },
         'optFields': ['ecmp_hashing_include_fields', 'virtual_machine_interface_bindings',
             'virtual_machine_interface_allowed_address_pairs',
@@ -53,6 +84,11 @@ var configJsonModifyObj = {
         ],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
+    "network-policy": {
+        "isConfig": true,
+        "optFields": ["network_policy_entries"],
+        "mandateFields":["fq_name", "uuid", "display_name"]
+    },
     'security-group': {
         'isConfig': true,
         'preProcessCB': {
@@ -65,7 +101,7 @@ var configJsonModifyObj = {
         'isConfig': true,
         'preProcessCB': {
             'applyOnOldJSON': modifyConfigDataByAttrHref,
-            'applyOnNewJSON': modifyConfigDataByHref
+            'applyOnNewJSON': modifyConfigDataByAttrHref
         },
         'optFields': [
             'virtual_machine_interface_refs',
@@ -73,6 +109,11 @@ var configJsonModifyObj = {
             'configured_route_target_list'
         ],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
+    "routing-policy": {
+        "isConfig": true,
+        "optFields": ["routing_policy_entries"],
+        "mandateFields":["fq_name", "uuid", "display_name"]
     },
     'virtual-DNS': {
         'isConfig': true,
@@ -91,7 +132,7 @@ var configJsonModifyObj = {
     'bgp-as-a-service': {
         'isConfig': true,
         'preProcessCB': {
-            'applyOnOldJSON': modifyConfigDataByAttrHref,
+            'applyOnOldJSON': modifyConfigDataByAttrHref
         },
         'optFields': ['bgpaas_session_attributes',
                       'autonomous_system',
@@ -109,7 +150,7 @@ var configJsonModifyObj = {
     'logical-interface': {
         'isConfig': true,
         'preProcessCB': {
-            'applyOnOldJSON': modifyConfigDataByAttrHref,
+            'applyOnOldJSON': modifyConfigDataByAttrHref
         },
         'optFields': ['virtual_machine_interface_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
@@ -193,37 +234,22 @@ function modifyPhyTopoData (type, jsonData, optFields, mandateFields)
 }
 
 var configArrSkipObjsUUID = ['href', 'uuid'];
-var configArrSkipObjsAttr = ['href', 'attr'];
-var configArrSkipObjsHref = ['href'];
-function modifyConfigDataByAttrHref (type, configData, optFields, mandateFields)
+var configArrSkipObjsAttrHref = ['href', 'attr'];
+var configArrSkipObjsAttrHrefUUID = ['href', 'attr', 'uuid'];
+
+function modifyConfigDataByAttrHref (type, configData,
+    optFields, mandateFields)
 {
     return modifyConfigData(type, configData, optFields, mandateFields,
-                            configArrSkipObjsAttr);
-}
+            configArrSkipObjsAttrHref);
+};
 
-function modifyConfigDataByHref (type, configData, optFields, mandateFields)
+function modifyConfigDataByAttrHrefUUID (type, configData,
+        optFields, mandateFields)
 {
-    return modifyConfigData(type, configData, optFields, mandateFields,
-                            configArrSkipObjsHref);
-}
-
-function configArrAttrFound (configObj, skipArr)
-{
-    var skipArrLen = skipArr.length;
-    for (var i = 0; i < skipArrLen; i++) {
-        var found = false;
-        for (key in configObj) {
-            if (key == skipArr[i]) {
-                found = true;
-                break;
-            }
-        }
-        if (false == found) {
-            return false;
-        }
-    }
-    return true;
-}
+        return modifyConfigData(type, configData, optFields, mandateFields,
+                                configArrSkipObjsAttrHrefUUID);
+};
 
 function modifyVirtualNetworkConfigData (type, configData, optFields, mandateFields)
 {
@@ -286,11 +312,6 @@ function modifyConfigData (type, configData, optFields, mandateFields, skipArr)
         if (newConfigData[optFields[i]] instanceof Array) {
             var newConfigDataFieldsLen = newConfigData[optFields[i]].length;
             for (var j = 0; j < newConfigDataFieldsLen; j++) {
-                if (false ==
-                        configArrAttrFound(newConfigData[optFields[i]][j],
-                                           skipArr)) {
-                    continue;
-                }
                 for (var k = 0; k < configArrSkipObjsLen; k++) {
                     delete newConfigData[optFields[i]][j][skipArr[k]];
                 }
