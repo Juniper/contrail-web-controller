@@ -44,6 +44,7 @@ function GlobalConfigPageLoader ()
         ctwu.destroyDOMResources(ctwc.GLOBAL_FORWARDING_OPTIONS_PREFIX_ID);
         ctwu.destroyDOMResources(ctwc.GLOBAL_BGP_OPTIONS_PREFIX_ID);
         ctwu.destroyDOMResources(ctwc.GLOBAL_FLOW_AGING_PREFIX_ID);
+        ctwu.destroyDOMResources(ctwc.RBAC_PREFIX_ID);
     };
 }
 
