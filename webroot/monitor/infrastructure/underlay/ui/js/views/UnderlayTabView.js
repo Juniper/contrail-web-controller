@@ -152,7 +152,8 @@ define([
                             // onAllViewsRenderComplete callback is executed when
                             // all the tabs are rendered hence interface click
                             // handler is bind in the interface tabs callback
-                            $("#details .intfCnt").click(function () {
+                            $("#details .intfCnt").click(function (e) {
+                                e.preventDefault();
                                 $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:3});
                             })
                         }
