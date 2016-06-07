@@ -21,12 +21,6 @@ var cacheApi = require(process.mainModule.exports["corePath"] + '/src/serverroot
     async = require('async'),
     jsonPath = require('JSONPath').eval;
 
-var opServer = rest.getAPIServer({
-    apiName: global.label.OPS_API_SERVER,
-    server: config.analytics.server_ip,
-    port: config.analytics.server_port
-});
-
 var instanceFilters = [
     'UveVirtualMachineAgent:vm_name',
     'UveVirtualMachineAgent:uuid',
@@ -182,7 +176,7 @@ function vnOrSIConfigExist(fqName, configData) {
     return true;
 }
 
-function parseAndGetMissingVNsUVEs(fqName, vnUVE, callback) {
+function parseAndGetMissingVNsUVEs(fqName, vnUVE, appData, callback) {
     var resultJSON = [], insertedVNObjs = {}, index = 0,
         vnCnt = vnUVE.length, arrIndex = 0,
         url = '/analytics/uves/virtual-network/*?kfilt=',
@@ -249,7 +243,7 @@ function parseAndGetMissingVNsUVEs(fqName, vnUVE, callback) {
     if (kfiltArr[1]) {
         postData['kfilt'] = kfiltArr[1].split(',');
     }
-    opServer.api.post(url, postData, function (err, data) {
+    opApiServer.apiPost(url, postData, appData, function (err, data) {
         if (err || (null == data)) {
             logutils.logger.error('In Network Topology: we did not get data ' +
             'for: ' + url);
@@ -854,7 +848,7 @@ function processNetworkConnectedGraph(fqName, networkData, appData, callback) {
         return;
     }
 
-    parseAndGetMissingVNsUVEs(fqName, vnUVE, function (err, vnUVE) {
+    parseAndGetMissingVNsUVEs(fqName, vnUVE, appData, function (err, vnUVE) {
         var vnResultJSON = parseVirtualNetworkUVE(fqName, vnUVE),
             scResultJSON = parseServiceChainUVE(fqName, vnResultJSON, scUVE);
 
@@ -942,7 +936,7 @@ function processProjectConnectedGraph(fqName, projectData, appData, callback) {
         return;
     }
 
-    parseAndGetMissingVNsUVEs(fqName, vnUVE, function (err, vnUVE) {
+    parseAndGetMissingVNsUVEs(fqName, vnUVE, appData, function (err, vnUVE) {
         var vnResultJSON = parseVirtualNetworkUVE(fqName, vnUVE),
             scResultJSON = parseServiceChainUVE(fqName, vnResultJSON, scUVE);
 
@@ -1005,7 +999,7 @@ function getInstanceConnectedGraph(req, res, appData) {
         var interfaceList = instanceData[0]['UveVirtualMachineAgent']['interface_list'];
         interfaceUrl = '/analytics/uves/virtual-machine-interface/*?kfilt=' + interfaceList.join(",") + "&cfilt=" + interfaceFilters.join(",");
 
-        opServer.api.get(interfaceUrl, function (err, interfaceData) {
+        opApiServer.apiGet(interfaceUrl, appData, function (err, interfaceData) {
             var interfaceDetailsList = interfaceData['value'],
                 networkList = [], interfaceMap = {}, network;
 
@@ -1018,7 +1012,7 @@ function getInstanceConnectedGraph(req, res, appData) {
             instanceData[0]['UveVirtualMachineAgent']['interface_map'] = interfaceMap;
             networkUrl = '/analytics/uves/virtual-network/*?kfilt=' + networkList.join(',') + "&cfilt=" + networkFilters.join(",");
 
-            opServer.api.get(networkUrl, function (err, networkData) {
+            opApiServer.apiGet(networkUrl, appData, function (err, networkData) {
                 processInstanceConnectedGraph({instance: instanceData[0], networks: networkData['value']}, function (error, connectedGraphJSON) {
                     commonUtils.handleJSONResponse(null, res, connectedGraphJSON);
                 });
