@@ -7,6 +7,12 @@ define([
 ], function (_) {
     var svcInstUtils = function() {
         var self = this;
+        this.svcInstStatusIntervals =
+            [20000, 35000, 45000, 55000, 65000, 75000];
+        this.healthCheckStatusIntervals =
+            [15000, 30000];
+        this.svcInstTimerArray = [];
+        this.doFetchSvcInstHlthChk = false;
         this.getVNNameFormatter = function (vnFqn, domain, project) {
             if (null == domain) {
                 domain = getCookie('domain');
@@ -1116,6 +1122,6 @@ define([
                 }
         }
     };
-    return svcInstUtils;
+    return new svcInstUtils();
 });
 

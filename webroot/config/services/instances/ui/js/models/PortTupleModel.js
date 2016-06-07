@@ -6,11 +6,9 @@
 define([
     'underscore',
     'contrail-model',
-    'config/services/instances/ui/js/models/InterfaceTypesModel',
-    'config/services/instances/ui/js/svcInst.utils'
-], function (_, ContrailModel, InterfaceTypesModel, SvcInstUtils) {
+    'config/services/instances/ui/js/models/InterfaceTypesModel'
+], function (_, ContrailModel, InterfaceTypesModel) {
     var gridElId = "#" + ctwl.SERVICE_INSTANCES_GRID_ID;
-    var svcInstUtils = new SvcInstUtils();
     var InterfacesModel = ContrailModel.extend({
 
         defaultConfig: {

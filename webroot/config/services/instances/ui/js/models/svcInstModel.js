@@ -15,10 +15,10 @@ define([
     'config/services/instances/ui/js/models/RtAggregateModel',
     'config/services/instances/ui/js/models/AllowedAddressPairModel',
     'config/services/instances/ui/js/models/StaticRTModel'
-], function (_, ContrailModel, Knockout, InterfacesModel, SvcInstUtils,
+], function (_, ContrailModel, Knockout, InterfacesModel, svcInstUtils,
              PortTupleModel, SvcHealthChkModel, IntfRtTableModel, RtPolicyModel,
              RtAggregateModel, AllowedAddressPairModel, StaticRTModel) {
-    var svcInstUtils = new SvcInstUtils(), self;
+    var self;
     var SvcInstModel = ContrailModel.extend({
         defaultConfig: {
             service_template: null,

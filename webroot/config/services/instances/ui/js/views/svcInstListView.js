@@ -7,12 +7,10 @@ define([
     'contrail-view',
     'contrail-list-model',
     'config/services/instances/ui/js/svcInst.utils'
-], function (_, ContrailView, ContrailListModel, SvcInstUtils) {
+], function (_, ContrailView, ContrailListModel, svcInstUtils) {
     var self;
     var chunkCnt = 10;
-    var svcInstUtils = new SvcInstUtils();
     var svcInstTimerLevel = 0;
-    var svcInstTimerArray = [20000, 35000, 45000, 55000, 65000, 75000];
     var svcInstanceTimer = null;
 
     var doFetchSvcInst = false;
@@ -97,13 +95,14 @@ define([
                 }
                 dataList = self.siRefStatusData[0];
             }
-            if (svcInstTimerLevel < svcInstTimerArray.length) {
+            if (svcInstTimerLevel < svcInstUtils.svcInstTimerArray.length) {
                 svcInstanceTimer = setTimeout(function() {
                     self.fetchSIStatusAndUpdateListModel(dataList, isRefetch);
                     svcInstTimerLevel++;
-                }, svcInstTimerArray[svcInstTimerLevel]);
+                }, svcInstUtils.svcInstTimerArray[svcInstTimerLevel]);
             } else {
                 doFetchSvcInst = false;
+                svcInstTimerLevel = 0;
                 return;
             }
         },
@@ -139,12 +138,12 @@ define([
                 return;
             }
             self.clearSITimer();
-            if (svcInstTimerLevel < svcInstTimerArray.length) {
+            if (svcInstTimerLevel < svcInstUtils.svcInstTimerArray.length) {
                 svcInstanceTimer = setTimeout(function() {
                     self.parseSIStatusToListModel(response,
                                                   doFetchSvcInst);
                     svcInstTimerLevel++;
-                }, svcInstTimerArray[svcInstTimerLevel]);
+                }, svcInstUtils.svcInstTimerArray[svcInstTimerLevel]);
             } else {
                 self.clearSITimer();
             }
@@ -157,6 +156,8 @@ define([
             var novaStatusData = getValueByJsonPath(response, '1', []);
             self.clearSITimer();
             doFetchSvcInst = false;
+            svcInstUtils.svcInstTimerArray = svcInstUtils.svcInstStatusIntervals;
+
             var dataItems = self.contrailListModel.getItems();
             var dataCnt = dataItems.length;
             var tmpSvcInstObjs = {};
@@ -164,10 +165,15 @@ define([
             var vmiToHlthCheckMap = {};
             for (var i = 0; i < uveHlthCheckDataCnt; i++) {
                 var vmiName = uveHlthCheckData[i]['name'];
-                var hlthCheckInstList =
+                var vmiData =
                     getValueByJsonPath(uveHlthCheckData[i],
-                                       'value;UveVMInterfaceAgent', []);
-                vmiToHlthCheckMap[vmiName] = hlthCheckInstList;
+                                       'value;UveVMInterfaceAgent', null);
+                vmiToHlthCheckMap[vmiName] = vmiData;
+            }
+            if (true == svcInstUtils.doFetchSvcInstHlthChk) {
+                svcInstUtils.svcInstTimerArray =
+                    svcInstUtils.healthCheckStatusIntervals;
+                doFetchSvcInst = true;
             }
             for (var instID in instTupleVMIMaps) {
                 for (var portTupleID in instTupleVMIMaps[instID]) {
