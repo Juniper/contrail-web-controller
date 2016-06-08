@@ -122,41 +122,22 @@ define(['underscore', 'contrail-view',
                                        var legendWrap = d3.select($(svg)[0]).append('g')
                                               .attr('class','legend-wrap')
                                               .attr('transform','translate('+width+',0)')
-                                      //legend for failure requests
-                                      legendWrap.selectAll('.contrail-legend')
-                                          .data([data])
-                                          .enter()
-                                          .append('g')
-                                          .attr('transform','translate('+(-10)+',0)')
-                                          .attr('class', 'contrail-legend')
-                                          .append('rect')
-                                          .style('fill', monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR);
-                                       legendWrap.append('g')
-                                           .attr('class', 'contrail-legend')
-                                           .attr('transform','translate('+(- 20)+',0)')
-                                           .append('text')
-                                           .attr('dy', 8)
-                                           .attr('text-anchor', 'end')
-                                           .text('Failures');
-                                       var legend = legendWrap.selectAll('.contrail-slegend')
-                                              .data(colorCodes)
-                                              .enter()
-                                              .append('g')
-                                              .attr('class','contrail-legend')
-                                              .attr('transform',function (d, i) { return 'translate('+ - (( colorCodes.length - i) * 20 + 70)+',0)';})
-                                       legend.append('rect')
-                                             .style('fill', function (d, i) {
-                                                 return colorCodes[i];
-                                             }).on('click', function () {
-                                                 //need to write the click handler
-                                             });
-                                       legendWrap.append('g')
-                                           .attr('class','contrail-legend')
-                                           .attr('transform','translate('+ (-((colorCodes.length * 20) + 10 + 70)) +',0)')
-                                           .append('text')
-                                           .attr('dy', 8)
-                                           .attr('text-anchor', 'end')
-                                           .text('Config Nodes');
+                                       monitorInfraUtils.addLegendToSummaryPageCharts({
+                                           container: legendWrap,
+                                           cssClass: 'contrail-legend-error',
+                                           data: [data],
+                                           offset: -10,
+                                           colors: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                                           label: 'Failures',
+                                       });
+                                       monitorInfraUtils.addLegendToSummaryPageCharts({
+                                           container: legendWrap,
+                                           cssClass: 'contrail-legend-stackedbar',
+                                           data: colorCodes,
+                                           offset: 70,
+                                           colors: colorCodes,
+                                           label: 'Config Nodes',
+                                       });
                                    }
                                }
                            },
@@ -252,45 +233,19 @@ define(['underscore', 'contrail-view',
                                            .append('g')
                                            .attr('transform', 'translate('+width+', 0)')
                                            .attr('class', 'contrail-legendWrap');
-                                       //Appending the line chart legend
-                                       legendWrap.selectAll('g')
-                                               .data(lineData)
-                                               .enter()
-                                               .append('g')
-                                               .attr('transform', function (d, i) {
-                                                   return 'translate('+ (- (i + 1) * 20) +', 0)';
-                                               }).attr('class','contrail-legend')
-                                               .append('rect')
-                                               .attr('fill', function (d, i) {
-                                                   return d['color'];
-                                               })
-                                       legendWrap.append('g')
-                                           .attr('transform', 'translate('+ (- ((lineCnt * 20 ) + 10))+', 0)')
-                                           .attr('class', 'contrail-legend')
-                                           .append('text')
-                                           .attr('dy', 8)
-                                           .attr('text-anchor', 'end')
-                                           .text(ctwl.RESPONSE_SIZE);
-                                       //Appending the bar chart legend
-                                       var legend = legendWrap.selectAll('g.contrail-legend-bar')
-                                           .data(barsData)
-                                           .enter()
-                                           .append('g')
-                                           .attr('transform', function (d, i) {
-                                               return 'translate('+ (- (((barsData.length - i) + lineCnt + 1) * 20 + 80) )+', 0)';
-                                           })
-                                           .attr('class', 'contrail-legend')
-                                           .append('rect')
-                                           .attr('fill', function (d, i) {
-                                               return d['color'];
-                                           });
-                                         legendWrap.append('g')
-                                             .attr('transform', 'translate('+(- ((lineCnt + barsCnt + 1) * 20 + 90))+', 0)')
-                                             .attr('class', 'contrail-legend')
-                                             .append('text')
-                                             .attr('text-anchor', 'end')
-                                             .attr('dy', 8)
-                                             .text('Config Nodes');
+                                       monitorInfraUtils.addLegendToSummaryPageCharts({
+                                           container: legendWrap,
+                                           cssClass: 'contrail-legend-line',
+                                           data: lineData,
+                                           label: ctwl.RESPONSE_SIZE
+                                       });
+                                       monitorInfraUtils.addLegendToSummaryPageCharts({
+                                           container: legendWrap,
+                                           cssClass: 'contrail-legend-bar',
+                                           data: barsData,
+                                           offset: 90 + lineCnt * 20,
+                                           label: 'Config Nodes'
+                                       });
                                    }
                                }
                            },

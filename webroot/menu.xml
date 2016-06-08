@@ -27,7 +27,8 @@ and need to add the iconClass tag wherever we need to show some icons
                     <init>/monitor/infrastructure/common/ui/js/monitor.infra.init.js</init>
                     <resources>
                         <resource>
-                            <rootDir>/monitor/infra/common/ui</rootDir>
+                            <rootDir>/monitor/infrastructure/common/ui</rootDir>
+                            <css>monitor.infra.css</css>
                         </resource>
                     </resources>
                     <iconClass>icon-desktop</iconClass>

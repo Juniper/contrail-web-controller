@@ -2303,6 +2303,49 @@ define([
                     }
             );
         };
+
+        /*
+         * This function adds the legend to the component
+         * which accepts
+         * colors - checks the color object if it is not there
+         *          takes the color from the data
+         * cssClass - any custom css to the legend
+         * label - label for the legend
+         * clickFn - Handler for the click event
+         */
+        self.addLegendToSummaryPageCharts = function (options) {
+            var container = options['container'],
+                data = options['data'],
+                color = options['colors'],
+                offset = options['offset'] != null ? options['offset'] : 0,
+                label = options['label'],
+                cssClass = options['cssClass'] != null ? options['cssClass'] : 'contrail-legend',
+                dataLen = data.length,
+                clickFn = options['clickFn'];
+            if (color != null && !$.isArray(color)) {
+                color = [color];
+            }
+            container.selectAll('g.'+cssClass)
+                .data(data)
+                .enter()
+                .append('g')
+                .attr('transform', function (d, i) {
+                    return 'translate('+ (- ((dataLen - i) * 20 + offset)) +', 0)';
+                }).attr('class', 'contrail-legend '+cssClass)
+                .append('rect')
+                .attr('width', 8)
+                .attr('height', 8)
+                .attr('fill', function (d, i) {
+                    return (color != null && color[i] != null) ? color[i] : d['color'];
+                });
+            container.append('g')
+                .attr('transform', 'translate('+ (- ((dataLen * 20 + 10) + offset))+', 0)')
+                .attr('class', 'contrail-legend '+cssClass)
+                .append('text')
+                .attr('dy', 8)
+                .attr('text-anchor', 'end')
+                .text(label);
+        }
     };
     return MonitorInfraUtils;
 });
