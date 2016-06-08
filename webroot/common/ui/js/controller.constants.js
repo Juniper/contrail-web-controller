@@ -6,7 +6,7 @@ define([
     'underscore',
     'core-constants',
     'contrail-common'
-], function (_) {
+], function (_,cowc) {
     var CTConstants = function () {
 
         this.URL_ALL_DOMAINS = '/api/tenants/config/domains';
@@ -809,7 +809,8 @@ define([
         this.ROUTE_AGGREGATE_PREFIX_ID = "route_aggregate";
         this.URL_CREATE_ROUTE_AGGREGATE = "/route-aggregates";
         this.URL_UPDATE_ROUTE_AGGREGATE = "/route-aggregate/";
-
+         /* Config Browser Constants */
+        this.CONFIG_HEADER_TEXT = "Root Level";
         this.DEFAULT_COMMUNITIES = [
             {text:"no-export",id:"no-export"},
             {text:"accept-own",id:"accept-own"},
@@ -900,6 +901,17 @@ define([
         this.URL_GET_CONFIG_DETAILS = "/api/tenants/config/get-config-details";
         this.URL_CREATE_CONFIG_OBJECT = "/api/tenants/config/create-config-object";
         this.URL_UPDATE_CONFIG_OBJECT = "/api/tenants/config/update-config-object";
+        this.URL_GET_CONFIG_LIST = "/api/tenants/config/get-config-list";
+       // Config Editor Constants
+        this.CONFIG_OBJECT_LIST_VIEW = 'config-object-list-view';
+        this.CONFIG_OBJECT_DETAILS_VIEW = 'config-object-details-view';
+        this.CONFIG_API_LIST_VIEW = 'config-api-list-view';
+        this.CONFIG_PATH = 'config/configEditor/ui/js/views/';
+        this.TMPL_CONFIG_HREF = "config-editor-href-container";
+        this.COPIED_MSG = 'Copied To Clipboard';
+        this.CONFIG_EDITOR_TEMPLATE = 'config-editor-template';
+        this.CONFIG_HASH_PATH = '/#p=config_editor&q[objName]=';
+        this.TEXT_AREA_PLACEHOLDER = 'Copy / Paste JSON data for ';
 
         this.MULTISELECT_VALUE_SEPARATOR = ";;";
     };
