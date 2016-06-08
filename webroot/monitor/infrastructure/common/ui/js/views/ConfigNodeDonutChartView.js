@@ -30,7 +30,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                             parseFn: function (response) {
                                 return monitorInfraParsers
                                     .parseConfigNodeRequestForDonutChart(
-                                         response, ['GET']);
+                                         response, ['POST', 'PUT', 'DELETE']);
                             },
                             chartOptions: {
                                 height: 160,
@@ -39,7 +39,8 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                     top: 10
                                 },
                                 showLabels: false,
-                                title: 'Read',
+                                title: 'Write',
+                                defaultDataStatusMessage: false
                             },
                         }
                     }, {
@@ -50,7 +51,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                             parseFn: function (response) {
                                 return monitorInfraParsers
                                     .parseConfigNodeRequestForDonutChart(
-                                         response, 'POST', 'PUT', 'DELETE');
+                                         response, ['GET']);
                             },
                             chartOptions: {
                                 height: 160,
@@ -60,7 +61,8 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                 },
                                 showLabels: false,
                                 showLegend: true,
-                                title: 'Write',
+                                title: 'Read',
+                                defaultDataStatusMessage: false,
                                 legendFn: function (data, svg, chart) {
                                     if (data != null && svg != null && chart != null) {
                                         $(svg).find('g.contrail-legendWrap').remove();

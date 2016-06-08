@@ -27,7 +27,7 @@ define(['underscore', 'contrail-view',
                                view: "WidgetView",
                                viewConfig: {
                                    header: {
-                                       title: 'Request served',
+                                       title: 'Requests Served',
                                    },
                                    controls: {
                                        top: {
@@ -42,20 +42,21 @@ define(['underscore', 'contrail-view',
                            chartOptions:{
                                brush: false,
                                height: 380,
-                               xAxisLabel: 'Time (hrs)',
-                               yAxisLabel: 'Requests Served',
+                               xAxisLabel: 'Time',
+                               yAxisLabel: 'Requests served',
                                yAxisOffset: 25,
                                axisLabelFontSize: 11,
                                tickPadding: 8,
                                margin: {
-                                   left: 45,
-                                   top: 25,
+                                   left: 40,
+                                   top: 35,
                                    right: 0,
                                    bottom: 40
                                },
                                bucketSize: monitorInfraConstants.CONFIGNODESTATS_BUCKET_DURATION/(1000 * 1000 * 60),//converting to minutes
                                sliceTooltipFn: function (data) {
-                                   var tooltipConfig = {};
+                                   var tooltipConfig = {},
+                                       time = data['time'];
                                    if (data['name'] != monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_TITLE) {
                                        tooltipConfig['title'] = {
                                            name : data['name'],
@@ -64,6 +65,9 @@ define(['underscore', 'contrail-view',
                                        tooltipConfig['content'] = {
                                            iconClass : false,
                                            info : [{
+                                               label: 'Time',
+                                               value: time
+                                           }, {
                                                label: 'Requests',
                                                value: ifNull(data['nodeReqCnt'], '-')
                                            }, {
@@ -82,6 +86,9 @@ define(['underscore', 'contrail-view',
                                        tooltipConfig['content'] = {
                                            iconClass : false,
                                            info : [{
+                                               label: 'Time',
+                                               value: time
+                                           },{
                                                label: 'Total Requests',
                                                value: ifNull(data['totalReqs'], '-')
                                            }, {
@@ -184,16 +191,27 @@ define(['underscore', 'contrail-view',
                            chartOptions: {
                                y1AxisLabel:ctwl.RESPONSE_TIME,
                                y2AxisLabel:ctwl.RESPONSE_SIZE,
-                               xAxisTicksCnt: 8, //(for every 15 mins, total duration is 2 hrs)
-                               margin: {top: 20, right: 70, bottom: 40, left: 60},
+                               xAxisTicksCnt: 8, //In case of time scale for every 15 mins one tick
+                               margin: {top: 20, right: 50, bottom: 40, left: 50},
                                axisLabelDistance: -10,
+                               y2AxisWidth: 50,
                                //forceY1: [0, 1],
                                focusEnable: false,
                                height: 190,
                                showLegend: true,
-                               xAxisLabel: 'Time (hrs)',
-                               xFormatter: function (xValue) {
-                                   return d3.time.format('%H:%M')(new Date(xValue));
+                               xAxisLabel: 'Time',
+                               xAxisMaxMin: false,
+                               defaultDataStatusMessage: false,
+                               xFormatter: function (xValue, tickCnt) {
+                                   // Same function is called for
+                                   // axis ticks and the tool tip
+                                   // title
+                                   var date = new Date(xValue);
+                                   if (tickCnt != null) {
+                                       var mins = date.getMinutes();
+                                       date.setMinutes(Math.ceil(mins/15) * 15);
+                                   }
+                                   return d3.time.format('%H:%M')(date);
                                },
                                y1Formatter: function (y1Value) {
                                    var formattedValue = Math.round(y1Value) + ' ms';
