@@ -24,10 +24,6 @@ var rest = require(process.mainModule.exports["corePath"] +
     configApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/configServer.api');
 
-opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
-                             server:config.analytics.server_ip,
-                             port:config.analytics.server_port });
-
 function postProcessAndAddQueryStats (collUVEData, genUVEData, configData,
                                       appData, isSummaryReq, callback)
 {
@@ -342,7 +338,7 @@ function getAnalyticsNodeDetails (req, res, appData)
     postData['kfilt'] = [hostName + ':*contrail-collector*',
                          hostName + ':*contrail-analytics-api*',
                          hostName + ':*contrail-query-engine*'];
-    opServer.api.post(url, postData, function(err, genData) {
+    opApiServer.apiPost(url, postData, appData, function(err, genData) {
         if (err || (null == genData)) {
             commonUtils.handleJSONResponse(err, res, resultJSON);
         } else {
@@ -357,11 +353,11 @@ function getAnalyticsNodeDetails (req, res, appData)
     });
 }
 
-function getAnalyticsNodeList (req, res)
+function getAnalyticsNodeList (req, res, appData)
 {
     var url = '/analytics/uves/analytics-nodes';
 
-    opServer.api.get(url, function(err, data) {
+    opApiServer.apiGet(url, appData, function(err, data) {
         if (err || (null == data)) {
             commonUtils.handleJSONResponse(err, res, []);
         } else {
@@ -465,11 +461,13 @@ function processAnalyticsQueryStats (collUVE, appData, details, callback)
                 rest.getAPIServer({apiName:'Op-Server',
                                    server: serverIP,
                                    port: anaPort});
+            var headers = {};
+            headers = configApiServer.configAppHeaders(headers, appData);
             commonUtils.createReqObj(dataObjArr, url, null, null,
-                                     opServerAPI, null, appData);
+                                     opServerAPI, headers, appData);
         }
         async.map(dataObjArr,
-            commonUtils.getServerRespByRestApi(opServer, true),
+            commonUtils.getServerRespByRestApi(null, true),
             function(err, data) {
             fillHostDetailsToAnalyticsQueryStatsUVE(collUVE, data, ipList,
                                                     details);
