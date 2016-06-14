@@ -40,7 +40,9 @@ define(['contrail-list-model'], function(ContrailListModel) {
                             },
                             onAllRequestsCompleteCB: function(fetchedContrailListModel) {
                                 var data = fetchedContrailListModel.getItems();
-                                contrailListModel.setData(data);
+                                if(!fetchedContrailListModel.error) {
+                                    contrailListModel.setData(data);
+                                }
                             },
                             dataParser : monitorInfraParsers.parsevRoutersDashboardData,
                         },
