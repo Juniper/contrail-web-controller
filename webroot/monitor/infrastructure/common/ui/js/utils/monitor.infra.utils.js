@@ -1535,10 +1535,16 @@ define([
             var nodes = currObj['children'];
             //var avgCpu = d3.mean(nodes,function(d){return d.x});
             //var avgMem = d3.mean(nodes,function(d){return d.y});
+            var maxSize = self.vRouterBubbleSizeFn(nodes);
+            var nodeWithMaxSize = _.filter(nodes,function (obj) {
+                return obj['size'] == maxSize;
+            });
             var tooltipContents = [
                 {label:'', value: 'No. of Nodes: ' + nodes.length},
                 {label:'Avg. ' + ctwl.TITLE_CPU, value:$.isNumeric(currObj['x']) ? currObj['x'].toFixed(2)  : currObj['x']},
-                {label:'Avg. Memory', value:$.isNumeric(currObj['y']) ? formatBytes(currObj['y'] * 1024* 1024) : currObj['y']}
+                {label:'Avg. Memory', value:$.isNumeric(currObj['y']) ? formatBytes(currObj['y'] * 1024* 1024) : currObj['y']},
+                {label: 'Max Throughput', value: formatThroughput(nodeWithMaxSize[0]['inThroughput'])
+                    + ' / ' + formatThroughput(nodeWithMaxSize[0]['outThroughput'])}
             ];
             if(formatType == 'simple') {
                 return tooltipContents;
@@ -1571,6 +1577,13 @@ define([
                 {label: ctwl.TITLE_CPU, value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  : '-'},
                 {label:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
             ];
+            if(currObj['type'] == 'vRouter') {
+                var bandwidthTooltipContent = {
+                    label: 'Throughput',
+                    value: formatThroughput(currObj['inThroughput'])
+                    + ' / ' + formatThroughput(currObj['outThroughput'])};
+                tooltipContents = tooltipContents.concat(bandwidthTooltipContent);
+            }
             //Get tooltipAlerts
             tooltipContents = tooltipContents.concat(self.getTooltipAlerts(currObj));
             var cfg = ifNull(cfg,{});
