@@ -328,8 +328,8 @@ define([
                             virtualNetwork[1] + ":" + virtualNetwork[2];
                     }
                 }
-                returnObject.addres = virtualNetwork + ":" + subnet + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet';
-                returnObject.address = virtualNetwork + ":" + subnet;
+                returnObject.addres = virtualNetwork + ctwc.VN_SUBNET_DELIMITER + subnet + cowc.DROPDOWN_VALUE_SEPARATOR + 'subnet';
+                returnObject.address = virtualNetwork + ctwc.VN_SUBNET_DELIMITER + subnet;
                 return returnObject;
             } else {
                 if (virtualNetwork != "") {
@@ -366,30 +366,28 @@ define([
             var address = val.split(cowc.DROPDOWN_VALUE_SEPARATOR);
             if (address.length == 2) {
                 var value = address[0].trim(), group = address[1],
-                    subnetStrArray, subnetStr, networkStr, addValue;
+                    vnSubnetObj, addValue;
 
                 if (group == 'subnet') {
-                    subnetStrArray = value.split(":");
-                    if(subnetStrArray.length !== 2 &&
-                        subnetStrArray.length !== 4) {
-                        return "Enter Address in 'Network : Subnet' format";
+                    vnSubnetObj = policyFormatters.parseVNSubnet(value);
+                    if(!vnSubnetObj || !vnSubnetObj.vn ||
+                        !vnSubnetObj.subnet) {
+                        return "Enter valid " + srcOrDesString +
+                            " in 'VN:CIDR' format";
                     }
-                    if(subnetStrArray.length === 2) {
-                        addValue = subnetStrArray[0];
-                    } else if(subnetStrArray.length === 4){
-                        addValue = subnetStrArray[0] + ":" +
-                            subnetStrArray[1] + ":" + subnetStrArray[2];
-                    }
-                    addValue = addValue.split(":");
-                    subnetStr = subnetStrArray[subnetStrArray.length - 1]
-                    if (!isValidIP(subnetStr) ||
-                        subnetStr.split("/").length != 2) {
-                        return "Enter valid Subnet/Mask";
+                    if(vnSubnetObj) {
+                        if(vnSubnetObj.vn){
+                            addValue = vnSubnetObj.vn.split(":");
+                        }
+                        if(vnSubnetObj.subnet &&
+                                vnSubnetObj.subnet.split("/").length !== 2) {
+                            return "Enter valid Subnet/Mask";
+                        }
                     }
                 } else {
                     addValue = value.split(":");
                 }
-                if (addValue.length != 1 && addValue.length != 3) {
+                if (addValue && addValue.length != 1 && addValue.length != 3) {
                     var groupSelectedString = "";
                     if (group == "virtual_network") {
                         groupSelectedString = "Network";
