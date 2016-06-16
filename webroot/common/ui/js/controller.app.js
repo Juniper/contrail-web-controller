@@ -28,10 +28,6 @@ if (typeof ctBaseDir !== 'undefined') {
         'monitor-infra-module' : [
             'monitor-infra-utils','monitor-infra-constants','monitor-infra-parsers'
         ],
-        'nm-module' : [
-            // 'geometry','vectorizer','joint.layout.DirectedGraph','joint',
-            'contrail-graph-model','graph-view','core-basedir/js/handlers/GraphLayoutHandler'
-        ]
     }
     if(globalObj['env'] == "prod")
         bundles = controllerBundles;
