@@ -522,7 +522,8 @@ define([
         this.GLOBAL_BGP_OPTIONS_MAP = [
             {"key": "autonomous_system", "name": "Global ASN"},
             {"key": "ibgp_auto_mesh", "name": "iBGP Auto Mesh"},
-            {"key": "ip_fabric_subnets", "name": "IP Fabric Subnets"}
+            {"key": "ip_fabric_subnets", "name": "IP Fabric Subnets"},
+            {"key": "graceful_restart_params", "name": "Graceful Restart Params"}
         ];
         this.GLOBAL_BGP_OPTIONS_SECTION_ID = "global-bgp-options-section";
         this.GLOBAL_BGP_OPTIONS_ID = "global-bgp-options";
