@@ -36,11 +36,14 @@ define(['contrail-list-model'], function(ContrailListModel) {
                     var fetchContrailListModel = new ContrailListModel({
                         remote : {
                             ajaxConfig : {
-                                url : monitorInfraConstants.monitorInfraUrls.VROUTER_CACHED_SUMMARY + '?forceRefresh'
+                                url : monitorInfraConstants.monitorInfraUrls.VROUTER_CACHED_SUMMARY + '?forceRefresh',
+                                timeout : 300000 // 5 mins as this may take more time with more nodes
                             },
                             onAllRequestsCompleteCB: function(fetchedContrailListModel) {
                                 var data = fetchedContrailListModel.getItems();
-                                contrailListModel.setData(data);
+                                if(!fetchedContrailListModel.error) {
+                                    contrailListModel.setData(data);
+                                }
                             },
                             dataParser : monitorInfraParsers.parsevRoutersDashboardData,
                         },
