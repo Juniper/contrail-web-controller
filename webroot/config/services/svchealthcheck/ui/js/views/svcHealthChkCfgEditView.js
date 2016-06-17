@@ -256,6 +256,29 @@ define([
                                 placeholder: 'Retries to attempt before declaring a failure'
                            }
                         },
+                        {
+                            elementId: 'health_check_type',
+                            view: "FormDropdownView",
+                            viewConfig: {
+                                path :
+                                    'service_health_check_properties.' +
+                                    'health_check_type',
+                                class: 'span6',
+                                dataBindValue :
+                                    'service_health_check_properties().' +
+                                    'health_check_type',
+                                label: 'Health Check Type',
+                                elementConfig : {
+                                    dataTextField : "text",
+                                    dataValueField : "id",
+                                    placeholder : 'Select Health Check Type',
+                                    data : [{id: 'link-local',
+                                                text:'Link-Local'},
+                                            {id: 'end-to-end',
+                                                text:'End-To-End'}]
+                                }
+                            }
+                        }
                     ]
                 },
                 ]  // End Rows
