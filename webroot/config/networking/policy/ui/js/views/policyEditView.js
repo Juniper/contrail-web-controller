@@ -150,6 +150,12 @@ define([
                 type:"GET"
             });
 
+            //get securty groups
+            getAjaxs[4] = $.ajax({
+                url:"/api/tenants/config/securitygroup",
+                type:"GET"
+            });
+
             $.when.apply($, getAjaxs).then(
                 function () {
                     //all success
@@ -252,6 +258,46 @@ define([
                                  parent : "network_policy"});
                         }
                     }
+
+                    //prepare security group sub array
+                    var allSGs = [{ text: "Enter or Select a SG",
+                        value: "dummy" +
+                           cowc.DROPDOWN_VALUE_SEPARATOR +
+                           "security_group",
+                        disabled: true}],
+                        sgs = getValueByJsonPath(results,
+                            "4;0;security-groups", []);
+                    _.each(sgs, function(sg){
+                        var fqn =  getValueByJsonPath(sg, "fq_name", [], false);
+                        var domain = fqn[0];
+                        var project = fqn[1];
+                        if(domain === selectedDomain &&
+                           project === selectedProject) {
+                            allSGs.push(
+                                {text : fqn.length === 3 ? fqn[2] : "",
+                                 value : fqn.join(":")
+                                         + cowc.DROPDOWN_VALUE_SEPARATOR +
+                                         "security_group",
+                                 id : fqn.join(":")
+                                         + cowc.DROPDOWN_VALUE_SEPARATOR +
+                                         "security_group",
+                                 parent : "security_group"});
+                        } else {
+                            allSGs.push(
+                                    {text : fqn.length === 3 ? fqn[2] + " (" +
+                                            fqn[1] + ":" + fqn[2] + ")" : "",
+                                     value : fqn.join(":")
+                                             + cowc.DROPDOWN_VALUE_SEPARATOR +
+                                             "security_group",
+                                     id : fqn.join(":")
+                                             + cowc.DROPDOWN_VALUE_SEPARATOR +
+                                             "security_group",
+                                     parent : "security_group"});
+                        }
+                    });
+
+
+
                     returnArr["service_instances"] = [];
                     returnArr["service_instances_ref"] = [];
                     var analyzerInsts = [];
@@ -321,10 +367,13 @@ define([
                                         text:'Enter VN:CIDR',
                                         value:"dummy",
                                         disabled : true }]},
-                                   {text : 'Networks', value : 'virtual_network',
+                                   {text : 'Network', value : 'virtual_network',
                                    children : allVns},
-                                   {text : 'Policies', value : 'network_policy',
-                                   children : allPolicies});
+                                   {text : 'Policy', value : 'network_policy',
+                                   children : allPolicies},
+                                   {text : "Security Group",
+                                       value: "security_group",
+                                       children: allSGs});
                     returnArr["addrFields"] = addrFields;
                     callback(returnArr);
                 }
@@ -447,18 +496,23 @@ define([
                                                 'icon-contrail-network-ipam'
                                             },
                                             {
-                                                name : 'Networks',
+                                                name : 'Network',
                                                 value : 'virtual_network',
                                                 iconClass:
                                                 'icon-contrail-virtual-network'
                                             },
                                             {
-                                                name : 'Policies',
+                                                name : 'Policy',
                                                 value : 'network_policy',
                                                 iconClass:
                                                 'icon-contrail-network-policy'
-                                            }
-                                            ]
+                                            },
+                                            {
+                                                name : 'Security Group',
+                                                value : 'security_group',
+                                                iconClass:
+                                                'icon-contrail-security-group'
+                                            }]
                                         }
                                     }
                                 },
@@ -516,16 +570,22 @@ define([
                                                 'icon-contrail-network-ipam'
                                             },
                                             {
-                                                name : 'Networks',
+                                                name : 'Network',
                                                 value : 'virtual_network',
                                                 iconClass:
                                                 'icon-contrail-virtual-network'
                                             },
                                             {
-                                                name : 'Policies',
+                                                name : 'Policy',
                                                 value : 'network_policy',
                                                 iconClass:
                                                 'icon-contrail-network-policy'
+                                            },
+                                            {
+                                                name : 'Security Group',
+                                                value : 'security_group',
+                                                iconClass:
+                                                'icon-contrail-security-group'
                                             }]
                                         }
                                     }
