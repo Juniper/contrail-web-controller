@@ -23,7 +23,8 @@ define([
                 'url_path': null,       // i.e. http://local-ip, icmp://local-ip,
                                         // 192.168.2.1,
                                         // http://my-vm-hostname:8080
-                'expected_codes': null  // Unsupported 
+                'expected_codes': null,  // Unsupported
+                'health_check_type': 'link-local'
             },
         },
 

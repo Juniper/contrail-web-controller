@@ -119,6 +119,13 @@ define([
                          formatter: getRetries,
                          sortable: { sortBy: 'formattedValue'},
                      },
+                     {
+                         field:  'service_health_check_properties.' +
+                             'health_check_type',
+                         name:   'Health Check Type',
+                         formatter: healthCheckTypeColumnFormatter,
+                         sortable: { sortBy: 'formattedValue'},
+                     }
                 ]
             },
         };
@@ -243,6 +250,20 @@ define([
                                                     templateGenerator: 'TextGenerator',
                                                 },
                                                 {
+                                                    label: 'Health Check Type',
+                                                    key:
+                                                        'service_health_' +
+                                                        'check_properties.' +
+                                                        'health_check_type',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'healthCheckType' +
+                                                            'DetailsFormatter'
+                                                    }
+                                                },
+                                                {
                                                     label: 'Associated Service Instance(s)',
                                                     key: 'service_instance_refs',
                                                     templateGenerator: 'TextGenerator',
@@ -306,6 +327,30 @@ define([
 
         return instRefs == '' ? '-' : instRefs; 
     }
+
+    this.healthCheckTypeColumnFormatter = function (r, c, v, cd, dc) {
+        return getHealthCheckType(r, c, v, cd, dc);
+    };
+
+    this.healthCheckTypeDetailsFormatter =  function(v, dc) {
+        return getHealthCheckType("", "", v, "", dc);
+
+    };
+
+    this.getHealthCheckType = function(r, c, v, cd, dc) {
+        var formattedHealtChkType,
+            healthChkType = getValueByJsonPath(dc,
+                "service_health_check_properties;health_check_type",
+                "");
+        if(healthChkType === "link-local") {
+            formattedHealtChkType = "Link-Local";
+        } else if(healthChkType === "end-to-end") {
+            formattedHealtChkType = "End-To-End";
+        } else {
+            formattedHealtChkType = "-"
+        }
+        return formattedHealtChkType;
+    };
 
     return svcHealthChkCfgGridView;
 });
