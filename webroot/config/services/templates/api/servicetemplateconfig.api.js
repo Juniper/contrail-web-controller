@@ -251,9 +251,10 @@ function stSendResponse(error, stConfig, response)
  */
 function listServiceTemplateImages(request, response, appData) 
 {
+    var emptyImageList = {images: []};
     imageApi.getImageList(request, function (error, data) {
-        if (error) {
-            commonUtils.handleJSONResponse(error, response, null);
+        if ((null != error) || (null == data)) {
+            commonUtils.handleJSONResponse(null, response, emptyImageList);
         } else {
             commonUtils.handleJSONResponse(error, response, data);
         }
