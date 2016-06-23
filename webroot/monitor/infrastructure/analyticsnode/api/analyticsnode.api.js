@@ -461,8 +461,10 @@ function processAnalyticsQueryStats (collUVE, appData, details, callback)
                 rest.getAPIServer({apiName:'Op-Server',
                                    server: serverIP,
                                    port: anaPort});
+            var headers = {};
+            headers = configApiServer.configAppHeaders(headers, appData);
             commonUtils.createReqObj(dataObjArr, url, null, null,
-                                     opServerAPI, null, appData);
+                                     opServerAPI, headers, appData);
         }
         async.map(dataObjArr,
             commonUtils.getServerRespByRestApi(null, true),
