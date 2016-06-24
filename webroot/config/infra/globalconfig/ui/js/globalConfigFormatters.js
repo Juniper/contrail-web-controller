@@ -108,6 +108,26 @@
                     }
                     return dispStr;
                 }
+
+                if("graceful_restart_params" == rowData["key"]) {
+                    var grTime = getValueByJsonPath(val,
+                            "graceful_restart_time", "-"),
+                        llgTime = getValueByJsonPath(val,
+                            "long_lived_graceful_restart_time", "-"),
+                        eorRecTime = getValueByJsonPath(val,
+                            "end_of_rib_receive_time", "-"),
+                            dispStr = "";
+
+                    dispStr += "Restart Time : " +
+                        (grTime === "-" ? grTime : grTime + " (seconds)");
+                    dispStr += "<br>Long Lived Restart Time : " +
+                        (llgTime === "-" ? llgTime : llgTime + " (seconds)");
+                    dispStr += "<br>End of RIB Receive Time : " +
+                        (eorRecTime === "-" ? eorRecTime :
+                            eorRecTime + " (seconds)");
+
+                    return dispStr;
+                }
                 return val;
           };
      };

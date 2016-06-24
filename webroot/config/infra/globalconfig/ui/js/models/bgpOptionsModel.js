@@ -13,6 +13,11 @@ define([
             "ibgp_auto_mesh": true,
             "ip_fabric_subnets": {
                 "subnet": []
+            },
+            "graceful_restart_params": {
+                "graceful_restart_time": 0,
+                "long_lived_graceful_restart_time": 0,
+                "end_of_rib_receive_time": 30
             }
         },
         validations: {
@@ -21,6 +26,41 @@ define([
                     var asn = Number(value);
                     if (isNaN(asn) || asn < 1 || asn > 65534) {
                         return "Enter ASN number between 1-65534";
+                    }
+                },
+                "graceful_restart_params.graceful_restart_time":
+                function(value, attr, finalObj) {
+                    if(value) {
+                        var gfRestartTime = Number(value);
+                        if (isNaN(gfRestartTime) || gfRestartTime < 0 ||
+                                gfRestartTime > 600) {
+                            return "Enter Graceful Restart Time " +
+                                "between 0-600";
+                        }
+                    }
+                },
+                "graceful_restart_params.long_lived_graceful_restart_time":
+                function(value, attr,
+                        finalObj) {
+                    if(value) {
+                        var llgRestartTime = Number(value);
+                        if (isNaN(llgRestartTime) || llgRestartTime < 0 ||
+                                llgRestartTime > 16777215) {
+                            return "Enter Long Lived Graceful Restart Time " +
+                                "between 0-16777215";
+                        }
+                    }
+                },
+                "graceful_restart_params.end_of_rib_receive_time":
+                 function(value, attr, finalObj) {
+                    if(value) {
+                        var endOfRIBReceiveTime = Number(value);
+                        if (isNaN(endOfRIBReceiveTime) ||
+                                endOfRIBReceiveTime < 0 ||
+                                endOfRIBReceiveTime > 600) {
+                            return "Enter End of RIB Receive Time " +
+                                "between 0-600";
+                        }
                     }
                 }
             }
@@ -71,7 +111,7 @@ define([
         configureBGPOptions: function (callbackObj) {
             var self = this, ajaxConfig = {}, returnFlag = false,
                 newBGPOptionsConfig, putData = {}, globalSysConfigData = {},
-                ipFabricSubnets,
+                ipFabricSubnets, endOfRIBRecTime,
                 validations = [
                     {
                         key: null,
@@ -102,6 +142,27 @@ define([
                     newBGPOptionsConfig['ibgp_auto_mesh'];
                 globalSysConfigData['global-system-config']['autonomous_system'] =
                     Number(newBGPOptionsConfig['autonomous_system']);
+
+                //prepare graceful restart params post object
+                globalSysConfigData['global-system-config']
+                    ["graceful_restart_params"] = {};
+                globalSysConfigData['global-system-config']
+                ["graceful_restart_params"]["graceful_restart_time"] =
+                    Number(newBGPOptionsConfig["graceful_restart_params"]
+                    ["graceful_restart_time"]);
+                globalSysConfigData['global-system-config']
+                ["graceful_restart_params"]
+                ["long_lived_graceful_restart_time"] =
+                    Number(
+                    newBGPOptionsConfig["graceful_restart_params"]
+                    ["long_lived_graceful_restart_time"]);
+                endOfRIBRecTime = newBGPOptionsConfig["graceful_restart_params"]
+                                    ["end_of_rib_receive_time"];
+                endOfRIBRecTime = endOfRIBRecTime ? endOfRIBRecTime : 30;
+                globalSysConfigData['global-system-config']
+                ["graceful_restart_params"]["end_of_rib_receive_time"] =
+                    Number(endOfRIBRecTime);
+
                 if (null != newBGPOptionsConfig['uuid']) {
                     globalSysConfigData['global-system-config']['uuid'] =
                         newBGPOptionsConfig['uuid'];
