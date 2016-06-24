@@ -19,6 +19,7 @@ define([
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
                 queryType = contrail.checkIfExist(hashParams.queryType) ? hashParams.queryType : null,
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
+                queryPrefix = cowc.FS_QUERY_PREFIX,
                 queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FS_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
                 flowSeriesId = cowl.QE_FLOW_SERIES_ID,
                 queryFormAttributes = contrail.checkIfExist(hashParams.queryFormAttributes) ? hashParams.queryFormAttributes : {};
@@ -41,7 +42,7 @@ define([
                     }
                 });
 
-                qewu.adjustHeight4FormTextarea(self.$el);
+                qewu.adjustHeight4FormTextarea(queryPrefix);
 
                 if (queryType === cowc.QUERY_TYPE_RERUN) {
                     self.renderQueryResult();
