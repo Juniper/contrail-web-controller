@@ -316,7 +316,9 @@ define([
                 prefix = getValueByJsonPath(address, "subnet;ip_prefix", ""),
                 prefixLen = getValueByJsonPath(address, "subnet;ip_prefix_len", ""),
                 virtualNetwork = getValueByJsonPath(address, "virtual_network", ""),
-                networkPolicy = getValueByJsonPath(address, "network_policy", "");
+                networkPolicy = getValueByJsonPath(address, "network_policy", ""),
+                securityGroup =
+                    getValueByJsonPath(address, "security_group", "");
             if (prefix != "" && virtualNetwork != "") {
                 var subnet = prefix + "/" + prefixLen;
                 virtualNetwork = virtualNetwork.split(":");
@@ -353,6 +355,15 @@ define([
 
             if (networkPolicy != "") {
                 var value = networkPolicy + cowc.DROPDOWN_VALUE_SEPARATOR + "network_policy";
+                returnObject.addres = value;
+                returnObject.address = value;
+                return returnObject;
+            }
+
+            if(securityGroup) {
+                var value =
+                    securityGroup + cowc.DROPDOWN_VALUE_SEPARATOR +
+                    "security_group";
                 returnObject.addres = value;
                 returnObject.address = value;
                 return returnObject;

@@ -219,7 +219,9 @@ define([
                     var net = nets[i];
                     if (isSet(net)) {
                         if (isSet(net["security_group"])) {
-                            net_disp += net["security_group"].toString();
+                            labelName = " security-group ";
+                            net_disp += self.prepareFQN(domain, project,
+                                    net["security_group"]);
                         }
                         if (isSet(net["subnet"]) &&
                             isSet(net["subnet"]["ip_prefix"]) &&

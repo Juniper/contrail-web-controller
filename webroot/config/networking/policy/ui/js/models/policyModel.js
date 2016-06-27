@@ -116,6 +116,7 @@ define([
             address[0]["virtual_network"] = null;
             address[0]["subnet"] = null;
             address[0]["network_policy"] = null;
+            address[0]["security_group"] = null;
 
             if (srcArr.length == 2 && srcArr[1] != 'subnet') {
                 address[0][srcArr[1]] =
