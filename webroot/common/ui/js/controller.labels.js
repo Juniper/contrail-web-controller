@@ -943,6 +943,15 @@ define([
         this.TITLE_DNS_RECORD_MULTI_DELETE = "Delete DNS Record(s)";
         this.TITLE_EDIT_DNS_RECORD = 'Edit DNS Record';
 
+        /* RBAC labels */
+        this.TITLE_RBAC = 'API Access';
+        this.TITLE_CREATE_RBAC = 'Create API Access';
+        this.TITLE_DEL_RBAC = 'Delete API Access';
+        this.TITLE_RBAC_MULTI_DELETE =
+            "Delete API Access";
+        this.TITLE_EDIT_RBAC = 'Edit API Access';
+        this.TITLE_INSERT_RBAC = 'Insert API Access';
+
         //Config DB Labels - Start
         this.CDB_FQ_TABLE_NAMES_GRID_ID = "cdb-fq-table-names-grid";
         this.CDB_TITLE_FQ_TABLE_NAMES = "FQ Names Table Keys";

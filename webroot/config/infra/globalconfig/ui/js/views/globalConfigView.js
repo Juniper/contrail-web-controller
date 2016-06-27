@@ -78,6 +78,21 @@ define([
                    },
                    renderOnActivate: true
                }
+           },{
+               elementId: 'rbac_global_tab',
+               title: 'RBAC',
+               view: "rbacGlobalListView",
+               viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
+               viewConfig: viewConfig,
+               tabConfig: {
+                   activate: function(event, ui) {
+                       var gridId = $('#' + ctwc.RBAC_GRID_ID);
+                       if (gridId.data('contrailGrid')) {
+                           gridId.data('contrailGrid').refreshView();
+                       }
+                   },
+                   renderOnActivate: true
+               }
            }]
         };
     };
