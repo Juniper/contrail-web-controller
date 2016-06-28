@@ -159,6 +159,18 @@ define([
             traceflow_radiobtn_name: '',
             traceFlowDropdown: '',
 
+            /* Introspect */
+            'control': 'Control Node',
+            'dns': 'DNS',
+            'control-nodemgr': 'Node Manager',
+            'vrouter-agent': 'Agent',
+            'vrouter-nodemgr': 'Node Manager',
+            'api': 'API',
+            'svc-monitor': 'SVC Monitor',
+            'config-nodemgr': 'Node Manager',
+            'analytics-api': 'Analytics API',
+            'analytics-nodemgr': 'Node Manager',
+
             /* Query */
             table_name: 'Table',
             time_range: 'Time Range',
@@ -986,6 +998,12 @@ define([
         this.CDB_LABEL_KEY_VALUES = "keyvalues";
         this.CDB_LABEL_KEY = "keys";
         //Config DB Labels - End
+
+        /*
+         * Settings/Introspect
+         */
+
+        this.TITLE_INTROSPECT = "Introspect";
 
         /* Service Appliance */
         this.TITLE_SVC_APPLIANCE = 'Service Appliance';
