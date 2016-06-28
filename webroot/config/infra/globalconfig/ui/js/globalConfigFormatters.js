@@ -130,6 +130,29 @@
                 }
                 return val;
           };
+
+          this.formatForwardingClassId = function(r, c, v, cd, dc) {
+              return getValueByJsonPath(dc, "forwarding_class_id", "-");
+          };
+
+          this.formatForwardingClassDSCP = function(r, c, v, cd, dc) {
+              var dscp = getValueByJsonPath(dc, "forwarding_class_dscp", "-");
+              return gcUtils.getTextByValue(ctwc.QOS_DSCP_VALUES, dscp);
+          };
+
+          this.formatForwardingClassVLAN = function(r, c, v, cd, dc) {
+              var vlan = getValueByJsonPath(dc,
+                      "forwarding_class_vlan_priority", "-");
+              return gcUtils.getTextByValue(ctwc.QOS_VLAN_PRIORITY_VALUES,
+                      vlan);
+          };
+
+          this.formatForwardingClassMPLS = function(r, c, v, cd, dc) {
+              var mpls = getValueByJsonPath(dc,
+                      "forwarding_class_mpls_exp", "-");
+              return gcUtils.getTextByValue(ctwc.QOS_MPLS_EXP_VALUES,
+                      mpls);
+          };
      };
      return globalConfigFormatters;
  });

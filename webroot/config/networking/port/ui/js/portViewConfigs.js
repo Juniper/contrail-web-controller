@@ -266,6 +266,7 @@
                                      name: 'Static Routes',
                                      viewConfig: {
                                          label:'Service Health Check',
+                                         class: "span6",
                                          path: 'service_health_check_refs',
                                          dataBindValue: 'service_health_check_refs',
                                          elementConfig:{
@@ -285,6 +286,30 @@
                                                                           isDisable,
                                                                           portEditView);
                                                  }
+                                             }
+                                         }
+                                     }
+                                 },
+                                 {
+                                     elementId: 'qos_config_refs',
+                                     view: "FormDropdownView",
+                                     viewConfig: {
+                                         label: "QoS",
+                                         path : 'qos_config_refs',
+                                         class: "span6",
+                                         dataBindValue :
+                                             'qos_config_refs',
+                                         elementConfig : {
+                                             placeholder: 'Select QoS',
+                                             dataTextField : "text",
+                                             dataValueField : "id",
+                                             dataSource : {
+                                                 type: 'remote',
+                                                 requestType: 'POST',
+                                                 postData: JSON.stringify({data: [{type: "qos-configs",
+                                                     parent_id: selectedProjectId}]}),
+                                                 url: ctwc.URL_GET_CONFIG_DETAILS,
+                                                 parse: portFormatter.qosDropDownFormatter
                                              }
                                          }
                                      }

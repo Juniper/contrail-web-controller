@@ -72,6 +72,7 @@ define([
             'user_created_sriov_enabled': false , //fake checkbox created for SRIOV
             'pVlanId': null, //fake created for vcenter pvlan
             'sVlanId': null, //fake created for vcenter sec pvlan
+            'qos_config_refs': [],
             'user_created_vxlan_mode': false,
             'disable': false,
         },
@@ -110,8 +111,21 @@ define([
             this.readSRIOV(modelConfig);
             this.readEcmpHashing(modelConfig);
             this.readProperties(modelConfig);
+            this.readQoS(modelConfig);
 
             return modelConfig;
+        },
+
+        readQoS: function(modelConfig) {
+            var qosToArry = getValueByJsonPath(modelConfig,
+                    "qos_config_refs;0;to", []);
+            if(qosToArry.length === 3){
+                modelConfig["qos_config_refs"] = qosToArry[0] +
+                    cowc.DROPDOWN_VALUE_SEPARATOR + qosToArry[1] +
+                    cowc.DROPDOWN_VALUE_SEPARATOR + qosToArry[2];
+            } else {
+                modelConfig["qos_config_refs"] = "";
+            }
         },
 
         readSubnetHostRoutes: function (modelConfig) {
@@ -732,6 +746,15 @@ define([
             attr['ecmp_hashing_include_fields'] = hashObj;
         },
 
+        getQoS: function(attr) {
+            var qos = getValueByJsonPath(attr, "qos_config_refs", ""),
+                qosList = [];
+            if(qos !== "none" && qos.trim() !== "") {
+                qosList.push({"to": qos.split(cowc.DROPDOWN_VALUE_SEPARATOR)});
+            }
+            attr["qos_config_refs"] = qosList;
+        },
+
         validations: {
             vnCfgConfigValidations: {
                 'display_name': {
@@ -897,6 +920,7 @@ define([
                 this.getRouteTargets(newVNCfgData);
                 this.getSRIOV(newVNCfgData);
                 this.getEcmpHashing(newVNCfgData);
+                this.getQoS(newVNCfgData);
 
                 if (!isVCenter()) {
                     delete newVNCfgData.pVlanId;

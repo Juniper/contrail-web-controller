@@ -233,6 +233,14 @@ define([
                             newPoliceyRule[i].action_list.apply_service = SIVal;
                         }
                     }
+
+                    //QoS
+                    if(policeyRule[i].qos_action_check() === true) {
+                        newPoliceyRule[i].action_list.qos_action =
+                            policeyRule[i].qos();
+                    } else {
+                        newPoliceyRule[i].action_list.qos_action = null;
+                    }
                     delete(policeyRule[i])
                 }
                 if (policeyRuleLen > 0) {

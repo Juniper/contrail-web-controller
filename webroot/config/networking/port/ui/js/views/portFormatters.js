@@ -942,6 +942,37 @@ define([
             }
             return formattedNetworks;
         };
+
+        /*
+         * @qosDropDownFormatter
+         */
+        self.qosDropDownFormatter = function(response) {
+            var ddQoSDataSrc = [{text: "None", id: "none"}], qos,
+            qosConfigs = getValueByJsonPath(response,
+                "0;qos-configs",
+                [], false);
+            _.each(qosConfigs, function(qosConfig) {
+                if("qos-config" in qosConfig) {
+                    qos = qosConfig["qos-config"];
+                    ddQoSDataSrc.push({
+                        text: qos.name,
+                        id: qos.fq_name && qos.fq_name.length === 3 ?
+                                (qos.fq_name[0] +
+                                cowc.DROPDOWN_VALUE_SEPARATOR + qos.fq_name[1]
+                                + cowc.DROPDOWN_VALUE_SEPARATOR +
+                                qos.fq_name[2]) : qos.uuid
+                    });
+                }
+            });
+            return ddQoSDataSrc;
+        };
+
+        /*
+         * @qosExpansionFormatter
+         */
+        self.qosExpansionFormatter = function(d, c, v, cd, dc) {
+            return getValueByJsonPath(dc, "qos_config_refs;0;to;2", "-");
+        };
     }
     return PortFormatters;
 });

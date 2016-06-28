@@ -48,7 +48,8 @@ var configJsonModifyObj = {
             'router_external', 'id_perms:enable',
             'flood_unknown_unicast', 'multi_policy_service_chains_enabled',
             'route_table_refs', 'provider_properties',
-            'ecmp_hashing_include_fields'],
+            'ecmp_hashing_include_fields',
+            'qos_config_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name'],
         'subType': {
             'project': {
@@ -80,7 +81,8 @@ var configJsonModifyObj = {
             'virtual_machine_interface_properties:sub_interface_vlan_tag',
             'virtual_machine_interface_mac_addresses', 'security_group_refs',
             'virtual_network_refs', 'virtual_machine_interface_device_owner',
-            'virtual_machine_interface_disable_policy'
+            'virtual_machine_interface_disable_policy',
+            'qos_config_refs'
         ],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },

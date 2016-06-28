@@ -788,6 +788,74 @@ define([
             {text:"no-reoriginate",id:"no-reoriginate"}
         ];
 
+        /* QOS constants */
+        this.QOS_GLOBAL_PAGE_ID = "config-qos-global-list";
+        this.CONFIG_QOS_GLOBAL_SECTION_ID = "config-qos-global-section";
+        this.CONFIG_QOS_GLOBAL_ID = "config-qos-global";
+
+        this.QOS_PROJECT_PAGE_ID = "config-qos-project-list";
+        this.CONFIG_QOS_PROJECT_SECTION_ID = "config-qos-project-section";
+        this.CONFIG_QOS_PROJECT_ID = "config-qos-project";
+
+        this.QOS_GRID_ID = "qos-grid";
+        this.CONFIG_QOS_LIST_VIEW_ID = "config-qos-list-view";
+        this.QOS_PREFIX_ID = "qos_cofig";
+        this.QOS_CONFIG_TYPE_DATA = [{text: "vHost", value: "vhost"},
+                                     {text: "Physical", value: "fabric"},
+                                     {text: "Project", value: "project"}];
+        this.QOS_DSCP_VALUES = [
+                                { text: "ef (101110)", value: "46"},
+                                { text: "af11 (001010)", value: "10"},
+                                { text: "af12 (001100)", value: "12"},
+                                { text: "af13 (001110)", value: "14"},
+                                { text: "af21 (010010)", value: "18"},
+                                { text: "af22 (010100)", value: "20"},
+                                { text: "af23 (010110)", value: "22"},
+                                { text: "af31 (011010)", value: "26"},
+                                { text: "af32 (011100)", value: "28"},
+                                { text: "af33 (011110)", value: "30"},
+                                { text: "af41 (100010)", value: "34"},
+                                { text: "af42 (100100)", value: "36"},
+                                { text: "af43 (100110)", value: "38"},
+                                { text: "be (000000)", value: "0"},
+                                { text: "cs1 (001000)", value: "8"},
+                                { text: "cs2 (010000)", value: "16"},
+                                { text: "cs3 (011000)", value: "24"},
+                                { text: "cs4 (100000)", value: "32"},
+                                { text: "cs5 (101000)", value: "40"},
+                                { text: "nc1/cs6 (110000)", value: "48"},
+                                { text: "nc2/cs7 (111000)", value: "56"}];
+
+        this.QOS_MPLS_EXP_VALUES = [
+                                { text: "be (000)", value: "0"},
+                                { text: "be1 (001)", value: "1"},
+                                { text: "ef (010)", value: "2"},
+                                { text: "ef1 (011)", value: "3"},
+                                { text: "af11 (100)", value: "4"},
+                                { text: "af12 (101)", value: "5"},
+                                { text: "nc1/cs6 (110)", value: "6"},
+                                { text: "nc2/cs7 (111)", value: "7"}];
+
+        this.QOS_VLAN_PRIORITY_VALUES = [
+                                { text: "be (000)", value: "0"},
+                                { text: "be1 (001)", value: "1"},
+                                { text: "ef (010)", value: "2"},
+                                { text: "ef1 (011)", value: "3"},
+                                { text: "af11 (100)", value: "4"},
+                                { text: "af12 (101)", value: "5"},
+                                { text: "nc1/cs6 (110)", value: "6"},
+                                { text: "nc2/cs7 (111)", value: "7"}];
+
+        /* Forwarding Class Constants */
+        this.CONFIG_FORWARDING_CLASS_LIST_ID = "config-forwarding-class-list";
+        this.FORWARDING_CLASS_GRID_ID = "forwarding-class-grid";
+        this.CONFIG_FORWARDING_CLASS_SECTION_ID =
+            "config-forwarding-class-section";
+        this.CONFIG_FORWARDING_CLASS_ID = "config-forwarding-class";
+        this.CONFIG_FORWARDING_CLASS_LIST_VIEW_ID =
+            "config-forwarding-class-list-view";
+        this.FORWARDING_CLASS_PREFIX_ID = "forwarding_class";
+
         /* Packet Capture Constants */
         this.PACKET_CAPTURE_LIST_ID = "packet-capture-list";
         this.PACKET_CAPTURE_GRID_ID = "packet-capture-grid";

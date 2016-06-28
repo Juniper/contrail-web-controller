@@ -270,6 +270,7 @@ define([
             if (isSet(action_list)) {
                 var as = action_list.apply_service;
                 var mt = action_list.mirror_to;
+                var qos = action_list.qos_action;
                 if (isSet(as) && as.length > 0 && as[0] != null) {
                     var services_value = "";
                     //if(as[0].length > 0) as = as[0];
@@ -311,6 +312,24 @@ define([
                         mt_txt = analyzer_name_arr[0];
                     }
                     service_str += ' mirror ' + self.policyRuleFormat(mt_txt);
+                }
+
+                if (isSet(qos)) {
+                    var qos_arr = qos.split(':');
+                    var qos_txt = "";
+                    if(qos_arr.length === 3) {
+                        if(qos_arr[0] === domain &&
+                                qos_arr[1] === project) {
+                            qos_txt = qos_arr[2];
+                        } else {
+                            qos_txt = qos_arr[2] + ' (' +
+                            qos_arr[0] + ':' +
+                            qos_arr[1] + ')';
+                        }
+                    } else {
+                        qos_txt = qos_arr[0];
+                    }
+                    service_str += ' qos ' + self.policyRuleFormat(qos_txt);
                 }
             }
             return service_str;
@@ -453,6 +472,30 @@ define([
                     this.parseVNSubnetRecursive(vnSubnetArr2Str, vnSubnetObj)
                 }
             }
+        };
+
+        /*
+         * @qosDropDownFormatter
+         */
+        this.qosDropDownFormatter = function(response) {
+            var ddQoSDataSrc = [], qos,
+            qosConfigs = getValueByJsonPath(response,
+                "0;qos-configs",
+                [], false);
+            _.each(qosConfigs, function(qosConfig) {
+                if("qos-config" in qosConfig) {
+                    qos = qosConfig["qos-config"];
+                    ddQoSDataSrc.push({
+                        text: qos.name,
+                        id: qos.fq_name && qos.fq_name.length === 3 ?
+                                (qos.fq_name[0] +
+                                ":" + qos.fq_name[1]
+                                + ":" +
+                                qos.fq_name[2]) : ""
+                    });
+                }
+            });
+            return ddQoSDataSrc;
         };
     }
     return PolicyFormatters;

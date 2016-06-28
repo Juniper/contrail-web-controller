@@ -1056,6 +1056,24 @@ define([
         this.TITLE_ROUTE_AGGREGATE_MULTI_DELETE = 'Delete Route Aggregate(s)';
         this.TITLE_ADD_ROUTE_AGGREGATE = 'Create Route Aggregate';
 
+        /* QOS labels */
+        this.TITLE_QOS = 'QoS';
+        this.TITLE_CREATE_QOS = 'Create QoS';
+        this.TITLE_GLOBAL_CREATE_VHOST_QOS = 'Create vHost QoS';
+        this.TITLE_GLOBAL_CREATE_PHYSICAL_QOS = 'Create Fabric QoS';
+        this.TITLE_DEL_QOS = 'Delete QoS';
+        this.TITLE_QOS_MULTI_DELETE =
+            'Delete QoS';
+        this.TITLE_EDIT_QOS = 'Edit QoS';
+
+        /* Forwarding Class labels */
+        this.TITLE_FORWARDING_CLASS = 'Forwarding Classes';
+        this.TITLE_CREATE_FORWARDING_CLASS = 'Create Forwarding Class';
+        this.TITLE_DEL_FORWARDING_CLASS = 'Delete Forwarding Class';
+        this.TITLE_FORWARDING_CLASS_MULTI_DELETE =
+            "Delete Forwarding Classes";
+        this.TITLE_EDIT_FORWARDING_CLASS = 'Edit Forwarding Class';
+
         // Health Check Config labels
         this.CFG_SVC_HEALTH_CHK_PAGE_ID = 'config-svc-health-chk-page';
         this.CFG_SVC_HEALTH_CHK_LIST_ID = 'config-svc-health-chk-list';

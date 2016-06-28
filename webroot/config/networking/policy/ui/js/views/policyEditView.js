@@ -63,7 +63,7 @@ define([
                    self.renderView4Config(
                         $("#" + modalId).find("#" + modalId + "-form"),
                         self.model, getConfigureViewConfig
-                        (disableElement, allData),
+                        (disableElement, allData, self.selectedProjId),
                         'policyValidations', null, null, function(){
                             self.model.showErrorAttr(prefixId +
                                             cowc.FORM_SUFFIX_ID, false);
@@ -391,7 +391,7 @@ define([
         return returnText;
     }
 
-    var getConfigureViewConfig = function(isDisable, allData) {
+    var getConfigureViewConfig = function(isDisable, allData, selectedProjId) {
         return {
             elementId: cowu.formatElementId(
                             [prefixId, ctwl.TITLE_EDIT_POLICY]),
@@ -638,6 +638,19 @@ define([
                                      path: 'mirror_to_check',
                                      dataBindValue: 'mirror_to_check()'
                                     }
+                                },
+                                {
+                                    elementId: 'qos_action_check',
+                                    name: 'QoS',
+                                    view: "FormCheckboxView",
+                                    class: "",
+                                    width: 40,
+                                    viewConfig: {
+                                        templateId:
+                                         cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
+                                        path: 'qos_action_check',
+                                        dataBindValue: 'qos_action_check()'
+                                       }
                                 }]
                             },{
                             columns: [
@@ -689,7 +702,43 @@ define([
                                 "function() { $root.deleteRules($data, this); }",
                                  iconClass: 'icon-minus'}
                             ]*/
-                        }],
+                        },{
+                            columns: [
+                                {
+                                    elementId: 'qos',
+                                    name: 'QoS',
+                                    width: 100,
+                                    view: "FormDropdownView",
+                                    viewConfig: {
+                                        placeholder: 'Select QoS',
+                                        visible: "qos_action_check()",
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_DROPDOWN_LEFT_LABEL_VIEW,
+                                        path : 'qos',
+                                        colSpan: "10",
+                                        dataBindValue :
+                                            'qos()',
+                                        elementConfig : {
+                                            placeholder: 'Select QoS',
+                                            dataTextField : "text",
+                                            dataValueField : "id",
+                                            dataSource : {
+                                                type: 'remote',
+                                                requestType: 'POST',
+                                                postData: JSON.stringify({data:
+                                                    [{type: "qos-configs",
+                                                    parent_id:
+                                                        selectedProjId}]}),
+                                                url:
+                                                    ctwc.URL_GET_CONFIG_DETAILS,
+                                                parse:
+                                                  policyFormatters.
+                                                  qosDropDownFormatter
+                                            }
+                                        }
+                                    }
+                                }]
+                            }],
                             gridActions: [
                                 {onClick: "function() { addRule(); }",
                                  buttonTitle: ""}

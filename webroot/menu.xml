@@ -687,6 +687,23 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Route Aggregates</searchStrings>
                         </item> -->
+                        <item>
+                            <label>QoS</label>
+                            <hash>config_net_qos</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/qos/ui</rootDir>
+                                    <js>qos.main.js</js>
+                                    <class>configQOSPageLoader</class>
+                                    <function>renderQOS</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>QoS</searchStrings>
+                        </item>
                     </items>
                 </item>
                 <item>
