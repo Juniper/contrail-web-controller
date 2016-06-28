@@ -984,7 +984,7 @@ define([
         this.CDB_DELETE_MODAL_ID_ = "delete-cdb";
 
         this.CDB_LABEL_KEY_VALUES = "keyvalues";
-        this.CDB_LABEL_KEY = "key";
+        this.CDB_LABEL_KEY = "keys";
         //Config DB Labels - End
 
         /* Service Appliance */

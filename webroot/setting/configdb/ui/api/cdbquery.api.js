@@ -6,50 +6,30 @@ var cdbqueryapi = module.exports,
     commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
     config = process.mainModule.exports["config"],
     editEnabled = config.cassandra.enable_edit,
-    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils');
+    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
+    cassandra = require('cassandra-driver');
 
-var helenus = require('helenus'),
-    hosts = getCassandraHostList(config.cassandra.server_ips, config.cassandra.server_port),
-    defaultConPool = new helenus.ConnectionPool({
-        hosts: hosts,
-        keyspace: 'config_db_uuid',
-        timeout: 5000
-    }),
-    cql3ConPool = new helenus.ConnectionPool({
-        hosts: hosts,
-        keyspace: 'config_db_uuid',
-        timeout: 5000,
-        cqlVersion: '3.0.0'
-    });
+var hosts = getCassandraHostList(config.cassandra.server_ips, config.cassandra.server_port),
+    cClient = new cassandra.Client({ contactPoints: hosts, keyspace: 'config_db_uuid'});
 
-defaultConPool.on('error', function (err) {
-    logutils.logger.error(err.stack);
-});
-
-cql3ConPool.on('error', function (err) {
+cClient.on('error', function (err) {
     logutils.logger.error(err.stack);
 });
 
 cdbqueryapi.listKeys4Table = function (req, res) {
     var table = req.param('table'),
         responseJSON = {"table": table, "keys": [], "editEnabled": editEnabled};
-    defaultConPool.connect(function (err, keyspace) {
+
+    cClient.execute("SELECT DISTINCT key FROM " + table, [], function (err, results) {
+        console.log(err);
         if (err) {
             logutils.logger.error(err.stack);
             commonUtils.handleJSONResponse(err, res, null);
         } else {
-            defaultConPool.cql("SELECT key FROM " + table, [], function (err, results) {
-                if (err) {
-                    logutils.logger.error(err.stack);
-                    commonUtils.handleJSONResponse(err, res, null);
-                } else {
-                    results.forEach(function (row) {
-                        responseJSON.keys.push({"table": table, "key": (row.get('key').value).toString()});
-                    });
-                    commonUtils.handleJSONResponse(null, res, responseJSON);
-                }
+            results.rows.forEach(function (row) {
+                responseJSON.keys.push({"table": table, "key": (row['key']).toString()});
             });
-
+            commonUtils.handleJSONResponse(null, res, responseJSON);
         }
     });
 };
@@ -58,22 +38,16 @@ cdbqueryapi.listValues4Key = function (req, res) {
     var key = req.param("key"),
         table = req.param("table"),
         responseJSON = {"editEnabled": editEnabled, "keyvalues": []};
-    cql3ConPool.connect(function (err, keyspace) {
+
+    cClient.execute("SELECT * FROM " + table + " WHERE key = asciiAsBlob('" + key + "')", [], function (err, results) {
         if (err) {
             logutils.logger.error(err.stack);
             commonUtils.handleJSONResponse(err, res, null);
         } else {
-            cql3ConPool.cql("SELECT * FROM " + table + " WHERE key = asciiAsBlob('" + key + "')", [], function (err, results) {
-                if (err) {
-                    logutils.logger.error(err.stack);
-                    commonUtils.handleJSONResponse(err, res, null);
-                } else {
-                    results.forEach(function (row) {
-                        responseJSON.keyvalues.push({"key": key, "table": table, "keyvalue": (row.get('column1').value).toString()});
-                    });
-                    commonUtils.handleJSONResponse(null, res, responseJSON);
-                }
+            results.rows.forEach(function (row) {
+                responseJSON.keyvalues.push({"key": key, "table": table, "keyvalue": (row['column1']).toString()});
             });
+            commonUtils.handleJSONResponse(null, res, responseJSON);
         }
     });
 };
@@ -85,25 +59,14 @@ cdbqueryapi.deleteValue4Key = function (req, res) {
     if (value && value == "") {
         value = null;
     }
-    defaultConPool.connect(function (err, keyspace) {
+
+    //TODO:
+    cClient.execute("DELETE FROM " + table + " WHERE KEY = asciiAsBlob('" + key + "') AND COLUMN1 = asciiAsBlob('" + value + "')", [], function (err, results) {
         if (err) {
             logutils.logger.error(err.stack);
             commonUtils.handleJSONResponse(err, res, null);
         } else {
-            keyspace.get(table, function (err, cf) {
-                if (err) {
-                    logutils.logger.error(err.stack);
-                    commonUtils.handleJSONResponse(err, res, null);
-                } else {
-                    cf.remove(key, value, null, {consistency: helenus.ConsistencyLevel.ONE}, function (err) {
-                        if (err) {
-                            commonUtils.handleJSONResponse(err, res, null);
-                        } else {
-                            commonUtils.handleJSONResponse(null, res, {"success": 1});
-                        }
-                    });
-                }
-            });
+            commonUtils.handleJSONResponse(null, res, results);
         }
     });
 };
@@ -112,19 +75,13 @@ cdbqueryapi.deleteKeyFromTable = function (req, res) {
     var table = req.param('table'),
         key = req.param('key');
 
-    defaultConPool.connect(function (err, keyspace) {
+    //TODO:
+    cClient.execute("DELETE FROM " + table + " WHERE KEY = asciiAsBlob('" + key + "')", [], function (err, results) {
         if (err) {
             logutils.logger.error(err.stack);
             commonUtils.handleJSONResponse(err, res, null);
         } else {
-            defaultConPool.cql("DELETE FROM " + table + " WHERE KEY = asciiAsBlob('" + key + "')", [], function (err, results) {
-                if (err) {
-                    logutils.logger.error(err.stack);
-                    commonUtils.handleJSONResponse(err, res, null);
-                } else {
-                    commonUtils.handleJSONResponse(null, res, results);
-                }
-            });
+            commonUtils.handleJSONResponse(null, res, results);
         }
     });
 };
