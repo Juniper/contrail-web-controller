@@ -55,7 +55,11 @@ define([
             }
 
             var ifCollectionModel = new Backbone.Collection(ifModels);
-
+            var versionList = [{text: 'v2', id: 2}];
+            if (false == isVCenter()) {
+                versionList.splice(0, 0, {text: 'v1', id: 1});
+            }
+            modelConfig['versionList'] = versionList;
             modelConfig['service_template_properties']['version'] =
                 getValueByJsonPath(modelConfig,
                                    'service_template_properties;version', 1);

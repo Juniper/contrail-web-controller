@@ -36,10 +36,6 @@ define([
             if (null == dispStr) {
                 return "";
             }
-            var version =
-                getValueByJsonPath(dc,
-                                   'service_template_properties;version', 1);
-            dispStr += ' - v' + version;
             return dispStr;
         };
 
@@ -51,7 +47,10 @@ define([
                 getValueByJsonPath(dc,
                 'service_template_properties;service_type', '-');
 
-             return capitalize(serviceType);
+            var version =
+                getValueByJsonPath(dc,
+                                   'service_template_properties;version', 1);
+            return (capitalize(serviceType) + ' / v' + version);
         };
 
         /*

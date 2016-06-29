@@ -115,7 +115,7 @@ define([
                     },
                     {
                          field:  'service_template_properties.service_type',
-                         name:   'Type',
+                         name:   'Type / Version',
                          formatter: formatSvcTemplateCfg.serviceTypeFormatter,
                              sortable: {
                              sortBy: 'formattedValue'

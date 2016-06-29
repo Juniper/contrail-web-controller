@@ -133,11 +133,10 @@ define([
                                     class: 'span6',
                                     dataBindValue:
                                         'user_created_version',
+                                    dataBindOptionList: 'versionList()',
                                     elementConfig : {
-                                        dataTextField : "text",
-                                        dataValueField : "id",
-                                        data: [{id: 1, text: 'v1'},
-                                               {id: 2, text: 'v2'}]
+                                        dataTextField: 'text',
+                                        dataValueField: 'id'
                                     }
                                 }
                             },
