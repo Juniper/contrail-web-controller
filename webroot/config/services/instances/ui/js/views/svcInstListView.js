@@ -56,7 +56,7 @@ define([
                                                            'webServerInfo;role',
                                                            []);
                         }
-                        if (-1 != userRoles.indexOf('superAdmin')) {
+                        if (-1 != userRoles.indexOf('cloudAdmin')) {
                             var ajaxConfig = {
                                 url: '/api/tenants/config/getHostList',
                                 type: "GET"
