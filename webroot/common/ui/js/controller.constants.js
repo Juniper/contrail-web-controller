@@ -224,6 +224,36 @@ define([
         this.OBJECT_SHARED_TABLE = "obj_shared_table";
         this.OBJECT_UUID_TABLE = "obj_uuid_table";
 
+        /*
+         * Setting/Introspect
+         */
+        this.TMPL_INTROSPECT_PAGE = "introspect-page-template";
+        this.INTROSPECT_CONTROL_NODE_PORTS = {
+            8083: 'control',
+            8092: 'dns',
+            8101: 'control-nodemgr'
+        };
+        this.INTROSPECT_VIRTUAL_ROUTER_PORTS = {
+            8085: 'vrouter-agent',
+            8102: 'vrouter-nodemgr'
+        };
+        this.INTROSPECT_CONFIG_NODE_PORTS = {
+            // 5998: '',
+            // 8082: '',
+            8084: 'api',
+            8087: 'schema',
+            8088: 'svc-monitor',
+            8096: 'device-manager',
+            8100: 'config-nodemgr',
+        };
+        this.INTROSPECT_ANALYTICS_NODE_PORTS = {
+            // 8081: '',
+            8089: 'collector',
+            8090: 'analytics-api',
+            8091: 'query-engine',
+            8104: 'analytics-nodemgr',
+        };
+
         // Underlay constants
         this.UNDERLAY_TOPOLOGY_CACHE = "underlayTopology";
         this.UNDERLAY_TABS_VIEW_ID = 'underlayTabsView';
@@ -619,7 +649,7 @@ define([
                                               value: "inet6-vpn"
                                           }
                                       ];
-         this.AUTHENTICATION_DATA = [
+        this.AUTHENTICATION_DATA = [
                                         {
                                             text : 'None',
                                             value : 'none'
@@ -629,7 +659,7 @@ define([
                                             value : 'md5'
                                         }
                                     ];
-         this.BGP_AAS_ROUTERS = ["bgpaas-server", "bgpaas-client"];
+        this.BGP_AAS_ROUTERS = ["bgpaas-server", "bgpaas-client"];
 
         //Physical Routers constants
         this.URL_PHYSICAL_ROUTERS_DETAILS_IN_CHUNKS =

@@ -962,24 +962,67 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
-                <!-- <item>
-                  <label>Analytics DB</label>
-                  <iconClass>icon-contrail-analytics-db</iconClass>
-                  <items>
-                      <item>
-                          <hash>setting_analyticsdb_usage</hash>
-                          <label>Usage</label>
-                          <resources>
-                              <resource>
-                                  <rootDir>/setting/analytics_db</rootDir>
-                                  <view>usage.view</view>
-                                  <js>usage.js</js>
-                                  <class>dbUsageObj</class>
-                              </resource>
-                          </resources>
-                      </item>
-                  </items>
-                </item> -->
+                <!--<item>
+                    <label>Introspect</label>
+                    <iconClass>icon-code</iconClass>
+                    <resources>
+                        <resource>
+                            <rootDir>setting/introspect/ui</rootDir>
+                            <css>contrail.introspect.css</css>
+                        </resource>
+                    </resources>
+                    <init>/setting/introspect/ui/js/introspect.init.js</init>
+                    <items>
+                        <item>
+                            <hash>setting_introspect_control</hash>
+                            <label>Control Nodes</label>
+                            <loader>
+                                <class>introspectPageLoader</class>
+                                <function>renderControlNodeIntrospect</function>
+                            </loader>
+                            <queryParams>
+                                <node>control</node>
+                            </queryParams>
+                            <searchStrings>Control Node</searchStrings>
+                        </item>
+                        <item>
+                            <hash>setting_introspect_vrouter</hash>
+                            <label>Virtual Router</label>
+                            <loader>
+                                <class>introspectPageLoader</class>
+                                <function>renderVirtualRouterIntrospect</function>
+                            </loader>
+                            <queryParams>
+                                <node>vrouter</node>
+                            </queryParams>
+                            <searchStrings>Virtual Router</searchStrings>
+                        </item>
+                        <item>
+                            <hash>setting_introspect_config</hash>
+                            <label>Config Nodes</label>
+                            <loader>
+                                <class>introspectPageLoader</class>
+                                <function>renderConfigNodeIntrospect</function>
+                            </loader>
+                            <queryParams>
+                                <node>config</node>
+                            </queryParams>
+                            <searchStrings>Config Node</searchStrings>
+                        </item>
+                        <item>
+                            <hash>setting_introspect_analytics</hash>
+                            <label>Analytics Nodes</label>
+                            <loader>
+                                <class>introspectPageLoader</class>
+                                <function>renderAnalyticsNodeIntrospect</function>
+                            </loader>
+                            <queryParams>
+                                <node>analytics</node>
+                            </queryParams>
+                            <searchStrings>Analytics Node</searchStrings>
+                        </item>
+                    </items>
+                </item>-->
             </items>
         </item>
         <item>
