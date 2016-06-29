@@ -697,6 +697,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </roles>
                         <orchModels>
                             <model>openstack</model>
+                            <model>vcenter</model>
                         </orchModels>
                     </access>
                     <iconClass>icon-link</iconClass>
@@ -754,6 +755,11 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>BGP as a Service</label>
                             <hash>config_sc_bgpasaservice</hash>
+                            <access>
+                                <orchModels>
+                                    <model>openstack</model>
+                                </orchModels>
+                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
