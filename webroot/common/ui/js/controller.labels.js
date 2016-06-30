@@ -187,16 +187,12 @@ define([
         this.BOTTOM_CONTENT_CONTAINER = "bottom-content-container";
 
         this.MONITOR_PROJECT_LIST_ID = "monitor-project-list";
-        this.MONITOR_PROJECT_ID = "monitor-project";
         this.MONITOR_PROJECT_VIEW_ID = "monitor-project-view";
         this.MONITOR_PROJECT_PAGE_ID = "monitor-project-page";
         this.MONITOR_PROJECT_LIST_PAGE_ID = "monitor-project-list-page";
-        this.MONITOR_PROJECT_LIST_VIEW_ID = "monitor-project-list-view";
         this.MONITOR_NETWORK_PAGE_ID = "monitor-network-page";
         this.MONITOR_NETWORK_LIST_PAGE_ID = "monitor-network-list-page";
         this.MONITOR_NETWORK_LIST_ID = "monitor-network-list";
-        this.MONITOR_NETWORK_LIST_VIEW_ID = "monitor-network-list-view";
-        this.MONITOR_NETWORK_ID = "monitor-network";
         this.MONITOR_NETWORK_VIEW_ID = "monitor-network-view";
         this.MONITOR_INSTANCE_LIST_ID = "monitor-instance-list";
         this.MONITOR_INSTANCE_PAGE_ID = "monitor-instance-page";
@@ -206,7 +202,6 @@ define([
         this.MONITOR_INSTANCE_ID = "monitor-instance";
         this.MONITOR_INSTANCE_VIEW_ID = "monitor-instance-view";
         this.MONITOR_FLOW_LIST_ID = "monitor-flow-list";
-        this.MONITOR_FLOW_LIST_VIEW_ID = "monitor-flow-list-view";
         this.MONITOR_FLOWS_PAGE_ID = "monitor-flows-page";
 
         this.DOMAINS_BREADCRUMB_DROPDOWN = "domains-breadcrumb-dropdown";
@@ -215,7 +210,6 @@ define([
 
         this.PROJECTS_ID = "projects";
         this.PROJECT_GRAPH_ID = "project-graph";
-        this.PROJECT_DETAILS_ID = "project-details";
         this.PROJECT_TABS_ID = "project-tabs";
         this.PROJECT_INSTANCE_GRID_ID = "project-instance-grid";
         this.PROJECTS_GRID_ID = "projects-grid";

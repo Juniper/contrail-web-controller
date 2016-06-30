@@ -33,25 +33,13 @@ define([
 
     var getInstanceGridViewConfig = function (instanceRemoteConfig, ucid, pagerOptions) {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_LIST_VIEW_ID]),
-            view: "SectionView",
+            elementId: ctwl.PROJECT_INSTANCE_GRID_ID,
+            title: ctwl.TITLE_INSTANCES,
+            view: "GridView",
             viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.PROJECT_INSTANCE_GRID_ID,
-                                title: ctwl.TITLE_INSTANCES,
-                                view: "GridView",
-                                viewConfig: {
-                                    elementConfig: getProjectInstancesConfig(instanceRemoteConfig, ucid, pagerOptions)
-                                }
-                            }
-                        ]
-                    }
-                ]
+                elementConfig: getProjectInstancesConfig(instanceRemoteConfig, ucid, pagerOptions)
             }
-        }
+        };
     };
 
     var getProjectInstancesConfig = function (instanceRemoteConfig, ucid, pagerOptions) {

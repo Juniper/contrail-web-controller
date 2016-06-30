@@ -50,25 +50,12 @@ define([
 
     function getProjectGraphViewConfig(connectedGraph, configGraph, projectFQN, projectUUID) {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_ID]),
-            view: "SectionView",
-            viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.PROJECT_GRAPH_ID,
-                                view: "NetworkingGraphView",
-                                viewPathPrefix: "monitor/networking/ui/js/views/",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {connectedGraph: connectedGraph, configGraph: configGraph}
-                            }
-                        ]
-                    },
-
-                ]
-            }
-        }
+            elementId: ctwl.PROJECT_GRAPH_ID,
+            view: "NetworkingGraphView",
+            viewPathPrefix: "monitor/networking/ui/js/views/",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            viewConfig: {connectedGraph: connectedGraph, configGraph: configGraph}
+        };
     };
 
     return ProjectView;

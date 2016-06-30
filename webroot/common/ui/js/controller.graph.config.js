@@ -20,23 +20,11 @@ define([
                     };
 
                     config = {
-                        elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_ID]),
-                        view: "SectionView",
-                        viewConfig: {
-                            rows: [
-                                {
-                                    columns: [
-                                        {
-                                            elementId: ctwl.MONITOR_PROJECT_VIEW_ID,
-                                            view: "ProjectTabView",
-                                            viewPathPrefix: "monitor/networking/ui/js/views/",
-                                            app: cowc.APP_CONTRAIL_CONTROLLER,
-                                            viewConfig: options
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
+                        elementId: ctwl.MONITOR_PROJECT_VIEW_ID,
+                        view: "ProjectTabView",
+                        viewPathPrefix: "monitor/networking/ui/js/views/",
+                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                        viewConfig: options
                     };
 
                     break;
@@ -49,23 +37,11 @@ define([
                     };
 
                     config = {
-                        elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_ID]),
-                        view: "SectionView",
-                        viewConfig: {
-                            rows: [
-                                {
-                                    columns: [
-                                        {
-                                            elementId: ctwl.MONITOR_NETWORK_VIEW_ID,
-                                            view: "NetworkTabView",
-                                            viewPathPrefix: "monitor/networking/ui/js/views/",
-                                            app: cowc.APP_CONTRAIL_CONTROLLER,
-                                            viewConfig: options
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
+                        elementId: ctwl.MONITOR_NETWORK_VIEW_ID,
+                        view: "NetworkTabView",
+                        viewPathPrefix: "monitor/networking/ui/js/views/",
+                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                        viewConfig: options
                     };
 
                     break;
@@ -78,23 +54,11 @@ define([
                     };
 
                     config = {
-                        elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_ID]),
-                        view: "SectionView",
-                        viewConfig: {
-                            rows: [
-                                {
-                                    columns: [
-                                        {
-                                            elementId: ctwl.MONITOR_INSTANCE_VIEW_ID,
-                                            view: "InstanceTabView",
-                                            viewPathPrefix: "monitor/networking/ui/js/views/",
-                                            app: cowc.APP_CONTRAIL_CONTROLLER,
-                                            viewConfig: options
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
+                        elementId: ctwl.MONITOR_INSTANCE_VIEW_ID,
+                        view: "InstanceTabView",
+                        viewPathPrefix: "monitor/networking/ui/js/views/",
+                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                        viewConfig: options
                     };
 
                     break;
@@ -102,23 +66,11 @@ define([
                 case ctwc.GRAPH_ELEMENT_CONNECTED_NETWORK:
 
                     config = {
-                        elementId: cowu.formatElementId([ctwl.MONITOR_CONNECTED_NETWORK_ID]),
-                        view: "SectionView",
-                        viewConfig: {
-                            rows: [
-                                {
-                                    columns: [
-                                        {
-                                            elementId: ctwl.MONITOR_CONNECTED_NETWORK_VIEW_ID,
-                                            view: "ConnectedNetworkTabView",
-                                            viewPathPrefix: "monitor/networking/ui/js/views/",
-                                            app: cowc.APP_CONTRAIL_CONTROLLER,
-                                            viewConfig: elementObj
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
+                        elementId: ctwl.MONITOR_CONNECTED_NETWORK_VIEW_ID,
+                        view: "ConnectedNetworkTabView",
+                        viewPathPrefix: "monitor/networking/ui/js/views/",
+                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                        viewConfig: elementObj
                     };
 
                     break;

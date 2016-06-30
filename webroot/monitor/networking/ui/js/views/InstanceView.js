@@ -52,28 +52,16 @@ define([
 
     function getInstanceGraphViewConfig(connectedGraph, configGraph, networkFQN, instanceUUID) {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_ID]),
-            view: "SectionView",
+            elementId: ctwl.INSTANCE_GRAPH_ID,
+            view: "NetworkingGraphView",
+            viewPathPrefix: "monitor/networking/ui/js/views/",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.INSTANCE_GRAPH_ID,
-                                view: "NetworkingGraphView",
-                                viewPathPrefix: "monitor/networking/ui/js/views/",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {
-                                    connectedGraph: connectedGraph,
-                                    networkFQN: networkFQN,
-                                    instanceUUID: instanceUUID
-                                }
-                            }
-                        ]
-                    }
-                ]
+                connectedGraph: connectedGraph,
+                networkFQN: networkFQN,
+                instanceUUID: instanceUUID
             }
-        }
+        };
     };
 
     return InstanceView;

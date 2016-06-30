@@ -67,25 +67,13 @@ define([
 
     function getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId) {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_INTERFACE_LIST_VIEW_ID]),
-            view: "SectionView",
+            elementId: elementId,
+            title: ctwl.TITLE_INTERFACES,
+            view: "GridView",
             viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: elementId,
-                                title: ctwl.TITLE_INTERFACES,
-                                view: "GridView",
-                                viewConfig: {
-                                    elementConfig: getInstanceInterfacesConfig(interfacesAjaxConfig, ucid)
-                                }
-                            }
-                        ]
-                    }
-                ]
+                elementConfig: getInstanceInterfacesConfig(interfacesAjaxConfig, ucid)
             }
-        }
+        };
     };
 
     function getInstanceInterfacesConfig(interfacesAjaxConfig, ucid) {

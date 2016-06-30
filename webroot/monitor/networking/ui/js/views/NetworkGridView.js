@@ -36,25 +36,13 @@ define([
 
     var getNetworkGridViewConfig = function (networkRemoteConfig, ucid, pagerOptions) {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_LIST_VIEW_ID]),
-            view: "SectionView",
+            elementId: ctwl.PROJECT_NETWORK_GRID_ID,
+            title: ctwl.TITLE_NETWORKS,
+            view: "GridView",
             viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.PROJECT_NETWORK_GRID_ID,
-                                title: ctwl.TITLE_NETWORKS,
-                                view: "GridView",
-                                viewConfig: {
-                                    elementConfig: getProjectNetworkGridConfig(networkRemoteConfig, ucid, pagerOptions)
-                                }
-                            }
-                        ]
-                    }
-                ]
+                elementConfig: getProjectNetworkGridConfig(networkRemoteConfig, ucid, pagerOptions)
             }
-        }
+        };
     };
 
     var getProjectNetworkGridConfig = function (networkRemoteConfig, ucid, pagerOptions) {

@@ -25,25 +25,13 @@ define([
 
     var getProjectListViewConfig = function (projectsRemoteConfig, pagerOptions) {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_LIST_VIEW_ID]),
-            view: "SectionView",
+            elementId: ctwl.PROJECTS_GRID_ID,
+            title: ctwl.TITLE_PROJECTS,
+            view: "GridView",
             viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.PROJECTS_GRID_ID,
-                                title: ctwl.TITLE_PROJECTS,
-                                view: "GridView",
-                                viewConfig: {
-                                    elementConfig: getProjectGridConfig(projectsRemoteConfig, pagerOptions)
-                                }
-                            }
-                        ]
-                    }
-                ]
+                elementConfig: getProjectGridConfig(projectsRemoteConfig, pagerOptions)
             }
-        }
+        };
     };
 
     var getProjectGridConfig = function (projectsRemoteConfig, pagerOptions) {

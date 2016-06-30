@@ -30,27 +30,14 @@ define([
                 }
             }
             return {
-                elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_VIEW_ID, '-section']),
-                view: "SectionView",
+                elementId: ctwl.INSTANCE_TABS_ID,
+                view: "TabsView",
                 viewConfig: {
-                    rows: [
-                        {
-                            columns: [
-                                {
-                                    elementId: ctwl.INSTANCE_TABS_ID,
-                                    view: "TabsView",
-                                    viewConfig: {
-                                        theme: 'classic',
-                                        active: 1,
-                                        tabs: tabObjs
-                                    }
-                                }
-                            ]
-                        }
-                    ]
+                    theme: 'classic',
+                    active: 1,
+                    tabs: tabObjs
                 }
-            }
-
+            };
         };
 
         self.getInstanceDetailPageTabConfig = function (viewConfig) {

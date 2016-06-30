@@ -24,25 +24,13 @@ define([
 
     function getFlowListViewConfig(flowRemoteConfig, pagerOptions) {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_FLOW_LIST_VIEW_ID]),
-            view: "SectionView",
+            elementId: ctwl.PROJECT_FLOW_GRID_ID,
+            title: ctwl.TITLE_FLOW_SERIES,
+            view: "GridView",
             viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.PROJECT_FLOW_GRID_ID,
-                                title: ctwl.TITLE_FLOW_SERIES,
-                                view: "GridView",
-                                viewConfig: {
-                                    elementConfig: getProjectFlowGridConfig(flowRemoteConfig, pagerOptions)
-                                }
-                            }
-                        ]
-                    }
-                ]
+                elementConfig: getProjectFlowGridConfig(flowRemoteConfig, pagerOptions)
             }
-        }
+        };
     };
 
     function getProjectFlowGridConfig(flowRemoteConfig, pagerOptions) {
