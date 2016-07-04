@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-view',
     'knockback',
-    'controller-basedir/reports/qe/ui/js/models/FlowSeriesFormModel'
-], function (_, ContrailView, Knockback, FlowSeriesFormModel) {
+    'controller-basedir/reports/qe/ui/js/models/FlowSeriesFormModel',
+    'core-basedir/js/common/qe.utils'
+], function (_, ContrailView, Knockback, FlowSeriesFormModel,qewu) {
 
     var FormRecordDetailsTabView = ContrailView.extend({
         render: function (renderConfig) {

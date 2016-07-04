@@ -7,8 +7,9 @@ define([
     'contrail-view',
     'knockback',
     'query-form-view',
-    'reports/qe/ui/js/models/ObjectLogsFormModel'
-],    function (_, ContrailView, Knockback, QueryFormView, ObjectLogsFormModel) {
+    'reports/qe/ui/js/models/ObjectLogsFormModel',
+    'core-basedir/js/common/qe.utils'
+],    function (_, ContrailView, Knockback, QueryFormView, ObjectLogsFormModel,qewu) {
     var MonitorInfrObjectLogsPopUpView = QueryFormView.extend({
         render : function (options) {
             var self = this;
