@@ -1291,23 +1291,6 @@ define([
             }
         }
 
-        /**
-         * Util functions to create the footer links in the monitor infra details pages
-         */
-        /*self.createFooterLinks = function (parent, config) {
-            var template = contrail.getTemplate4Id('monitor-footer-links-template');
-            $('#monitor-footer-links-template').remove();
-            $(parent).append(template(config));
-            if(config.onIntrospectClick != null) {
-                $('#linkIntrospect').off('click');
-                $('#linkIntrospect').click(config.onIntrospectClick);
-            }
-            if(config.onStatusClick != null) {
-                $('#linkStatus').off('click');
-                $('#linkStatus').click(config.onStatusClick);
-            }
-        }*/
-
         self.getSandeshPostData = function(ip,port,url) {
             var postData;
             var obj = {};
@@ -1326,6 +1309,10 @@ define([
             return postData;
         }
 
+        /**
+         * To be used to create just the status and introspect links for
+         * node details pages.
+         */
         self.createMonInfraDetailsFooterLinks = function (parent, ipList, port) {
             var ipDeferredObj = $.Deferred();
             var ipPortList = [];
@@ -1361,17 +1348,28 @@ define([
             });
         };
 
-        self.createConfigNodeDetailsFooterLinks = function (parent, ipList) {
-            var apiIpPortsDeferredObj = $.Deferred();
-            self.getApiServerIpPorts (apiIpPortsDeferredObj);
-            apiIpPortsDeferredObj.done (function (apiServerDetails) {
-                if (apiServerDetails != null) {
-                    var cnt = apiServerDetails.length;
+        /**
+         * To be used to create footer links in the Mon infra details pages
+         * in which we have status and introspect link by default and an additional
+         * user defined link.
+         */
+        self.createNodeDetailsFooterLinks = function (options) {
+            var parent = options.parent;
+            var ipList = options.ipList;
+            var introspectPort = options.introspectPort;
+            var linkLabel = options.linkLabel;
+            var type = options.type;
+
+            var ipPortsDeferredObj = $.Deferred();
+            self.getServerIpPortsForType (ipPortsDeferredObj,type);
+            ipPortsDeferredObj.done (function (serverDetails) {
+                if (serverDetails != null) {
+                    var cnt = serverDetails.length;
                     var ipPortList = [];
                     for (var i = 0 ; i < cnt; i++) {
                         ipPortList.push({
-                            "ip"   : apiServerDetails[i]['ip-address'],
-                            "port" : apiServerDetails[i]['port'],
+                            "ip"   : serverDetails[i]['ip-address'],
+                            "port" : serverDetails[i]['port'],
                             "isConfig" : true
                         })
                     }
@@ -1386,11 +1384,12 @@ define([
                               onClick: function () {
                                           monitorInfraUtils.
                                               onIntrospectLinkClick(res.ip,
-                                                      '8084');
+                                                      introspectPort);
                                     }
                             });
                             footerlinks.push({
-                                name:'config',
+                                name: linkLabel,
+                                label: linkLabel,
                                 onClick: function () {
                                           monitorInfraUtils.
                                               onConfigLinkClick(res.ip,
@@ -1415,8 +1414,8 @@ define([
          * Try to get the port from discovery.
          * If not found get it from the config.global.js and return
          */
-        self.getApiServerIpPorts = function (deferredObj) {
-            var apiServersInfo = [];
+        self.getServerIpPortsForType = function (deferredObj,type) {
+            var serversInfo = [];
             //If discovery is enabled fetch api server details from discovery
             if (getValueByJsonPath(globalObj,
                     'webServerInfo;discoveryEnabled',true)) {
@@ -1424,27 +1423,31 @@ define([
                     url:'/api/tenant/monitoring/discovery-service-list',
                     type:'GET',
                 }).done(function(result) {
-                    var apiServers = getValueByJsonPath(result,
-                            'ApiServer;data;ApiServer', []);
-                    deferredObj.resolve(apiServers);
+                    var servers = getValueByJsonPath(result,
+                            type + ';data;' + type, []);
+                    deferredObj.resolve(servers);
                     return;
                 }).fail(function(result) {
                     deferredObj.resolve(null);
                 });
             } else {
               //Not found in discovery so check in config
-                var configServer = getValueByJsonPath(globalObj,
-                        'webServerInfo;configServer', null);
-                var apiServerPort,apiServerIp;
-                if (configServer != null) {
-                    apiServerPort = configServer.port;
-                    apiServerIp = configServer.ip;
+                var serverType = '';
+                if (type == 'ApiServer') {
+                    serverType = 'apiServer'
+                } else if (type == 'OpServer') {
+                    serverType = 'opServer';
                 }
-                apiServersInfo.push({
-                    "ip-address":apiServerIp,
-                    "port":apiServerPort
-                });
-                deferredObj.resolve(apiServersInfo);
+                var server = getValueByJsonPath(globalObj,
+                        'webServerInfo;' + serverType, null);
+                if (server != null) {
+                    serversInfo.push({
+                        "ip-address": server.server_ip,
+                        "port": server.server_port
+                    });
+                }
+
+                deferredObj.resolve(serversInfo);
             }
         }
 
@@ -1455,9 +1458,11 @@ define([
             $(parent).find('.footer-links').remove();
             $(parent).append(template(config));
             $.each(config,function(i,d){
+                var label = (d.label != null)? d.label :
+                    cowl.getFirstCharUpperCase(d.name);
                 var linkDiv = '<a id="mon_infra_footer_link_'+
-                                d.name +'" class="pull-right" >'+
-                                cowl.getFirstCharUpperCase(d.name) +'</a>';
+                                d.name +'" class="pull-right" >'+ label  +'</a>';
+
                 $(parent).find('.footer-links').append(linkDiv);
                 if(d.onClick != null) {
                     $('#mon_infra_footer_link_' + d.name).off('click');
