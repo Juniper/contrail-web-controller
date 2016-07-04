@@ -1264,13 +1264,13 @@ function getUnderlayPath (req, res, appData)
         flowPostData['cfilt'] = ['PRouterEntry:ipMib', 'ContrailConfig'];
         var url = '/analytics/uves/prouter';
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
-                                 flowPostData, null, null, null);
+                                 flowPostData, null, null, appData);
         url = '/analytics/uves/virtual-machine';
         var vmPostData = {};
         vmPostData['cfilt'] = ['UveVirtualMachineAgent:interface_list',
             'UveVirtualMachineAgent:vrouter'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
-                                 vmPostData, null, null, null);
+                                 vmPostData, null, null, appData);
         var vmiUrl = '/analytics/uves/virtual-machine-interface';
         var vmiPostData = {};
         vmiPostData['cfilt'] = vmiPostCfilt;
@@ -1672,12 +1672,12 @@ function getUnderlayStats (req, res, appData)
     prPostData['kfilt'] = [node1, node2];
     prPostData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable'];
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
-                             prPostData, null, null, null);
+                             prPostData, null, null, appData);
     vrPostData['kfilt'] = [node1, node2];
     vrPostData['cfilt'] = ['VrouterStatsAgent:phy_if_stats_list'];
     url = '/analytics/uves/vrouter';
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
-                             vrPostData, null, null, null);
+                             vrPostData, null, null, appData);
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(opApiServer, true),
               function(err, results) {
@@ -1801,18 +1801,18 @@ function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, srcVN, destVN,
         var prPostData = {};
         prPostData['cfilt'] = ['PRouterEntry:ipMib', 'ContrailConfig'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
-                                 prPostData, null, null, null);
+                                 prPostData, null, null, appData);
         url = '/analytics/uves/vrouter';
         var vrPostData = {};
         vrPostData['cfilt'] = ['VrouterAgent:self_ip_list'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
-                                 vrPostData, null, null, null);
+                                 vrPostData, null, null, appData);
         var vmPostData = {};
         url = '/analytics/uves/virtual-machine';
         vmPostData['cfilt'] = ['UveVirtualMachineAgent:interface_list',
             'UveVirtualMachineAgent:vrouter'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
-                                 vmPostData, null, null, null);
+                                 vmPostData, null, null, appData);
         var vmiUrl = '/analytics/uves/virtual-machine-interface';
         var vmiPostData = {};
         vmiPostData['cfilt'] = vmiPostCfilt;
@@ -1970,6 +1970,7 @@ function getTraceFlow (req, res, appData)
 
 function getIfStatsBypRouterLink (dataObj, callback)
 {
+    var appData = dataObj['appData'];
     var prouter1 = dataObj['prouter1'];
     var prouter2 = dataObj['prouter2'];
     var prouter1_ifidx = dataObj['prouter1_ifidx'];
@@ -2004,9 +2005,9 @@ function getIfStatsBypRouterLink (dataObj, callback)
     queryJSON2['select_fields'].push(timeGranStr);
     var url = '/analytics/query';
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
-                             queryJSON1, null, null, null);
+                             queryJSON1, null, null, appData);
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
-                             queryJSON2, null, null, null);
+                             queryJSON2, null, null, appData);
     logutils.logger.debug("Executing pRouter Stats Query1:", 
                           JSON.stringify(queryJSON1) + "at:" + new Date());
     logutils.logger.debug("Executing pRouter Stats Query2:", 
@@ -2048,7 +2049,8 @@ function getIfStatsBypRouterLink (dataObj, callback)
 function buildpRouterLinkAndGetStats (prObj, callback)
 {
     var prLinkData = prObj['prLinkData'];
-    var uiData = prObj['appData'];
+    var uiData = prObj['uiData'];
+    var appData = prObj['appData'];
     var prouterList = uiData['data']['endpoints']
     var prouter1 = prouterList[0];
     var prouter2 = prouterList[1];
@@ -2080,7 +2082,7 @@ function buildpRouterLinkAndGetStats (prObj, callback)
                         links[i]['more_attributes'][j]['local_interface_name'],
                         'prouter2_ifname':
                         links[i]['more_attributes'][j]['remote_interface_name'],
-                        'more_attributes': uiData['data']});
+                        'more_attributes': uiData['data'], appData: appData});
     }
     async.map(dataObjArr, getIfStatsBypRouterLink,
               function(err, results) {
@@ -2105,7 +2107,8 @@ function getpRouterLinkStats (req, res, appData)
                     return;
                 }
                 buildpRouterLinkAndGetStats({'prLinkData': data,
-                                            'appData': body},
+                                            'uiData': body,
+                                            'appData': appData},
                                             function(err, results) {
                     commonUtils.handleJSONResponse(err, res, results);
                     return;
@@ -2113,7 +2116,8 @@ function getpRouterLinkStats (req, res, appData)
             });
         } else {
             buildpRouterLinkAndGetStats({'prLinkData': data,
-                                        'appData': body},
+                                         'uiData': body,
+                                         'appData': appData},
                                         function(err, results) {
                 commonUtils.handleJSONResponse(err, res, results);
             });
