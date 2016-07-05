@@ -89,9 +89,11 @@ define([
             }
             return {};
         },
-        this.vmiListFormatter = function(vmis) {
-            var vnVmiMaps = {};
-            var vmiToInstIpsMap = {};
+        this.vmiListFormatter = function(vmis, extDetails) {
+            var vnVmiMaps = extDetails && extDetails.vnVmiMaps ?
+                    extDetails.vnVmiMaps : {};
+            var vmiToInstIpsMap = extDetails && extDetails.vmiToInstIpsMap ?
+                    extDetails.vmiToInstIpsMap : {};
             if ((null == vmis) || (!vmis.length)) {
                 return ({
                     vnVmiMaps: vnVmiMaps, vmiToInstIpsMap: vmiToInstIpsMap});
@@ -121,14 +123,19 @@ define([
                     /* We should not come here */
                  //   continue;
                 //}
-                var vnRefsCnt = vnRefs.length;
+                var vnRefsCnt = vnRefs.length, ItemExist;
                 for (var j = 0; j < vnRefsCnt; j++) {
                     var vnText = this.getVNNameFormatter(vnRefs[j]['to']);
                     var vnFqn = vnRefs[j]['to'].join(':');
                     if (null == vnVmiMaps[vnFqn]) {
                         vnVmiMaps[vnFqn] = [];
                     }
-                    vnVmiMaps[vnFqn].push(builtVMI);
+                    ItemExist = _.find(vnVmiMaps[vnFqn], function(vmiObj){
+                        return vmiObj.id === builtVMI.id;
+                    });
+                    if(!ItemExist) {
+                        vnVmiMaps[vnFqn].push(builtVMI);
+                    }
                 }
             }
             return {vnVmiMaps: vnVmiMaps,

@@ -252,8 +252,9 @@ define([
             };
             contrail.ajaxHandler(ajaxConfig, null,
                 function(result){
-                var vnDetails = svcInstUtils.vmiListFormatter(result);
-                self.model.configDetails.vnDetails = vnDetails;
+                var vnDetails = svcInstUtils.vmiListFormatter(result,
+                        self.model.configDetails.vnDetails);
+
                 self.model.setVMIsByVN(model, newValue, intfType, vnDetails);
             },
             function(error){
