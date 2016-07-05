@@ -99,7 +99,8 @@ define([
                 'source_port': true,
                 'destination_port': true*/
             },
-            'virtual_machine_interface_disable_policy': false
+            'virtual_machine_interface_disable_policy': false,
+            'qos_config_refs': []
         },
         onVNSelectionChanged: function(portFormatters, newValue, mode) {
             if(mode === ctwl.CREATE_ACTION) {
@@ -280,6 +281,17 @@ define([
                         cowc.DROPDOWN_VALUE_SEPARATOR + healthCheckuuid;
                     modelConfig['service_health_check_refs'] = healthCheckVal;
                 }
+            }
+
+            //Modal config default qos formatting
+            var qosToArry = getValueByJsonPath(modelConfig,
+                    "qos_config_refs;0;to", []);
+            if(qosToArry.length === 3){
+                modelConfig["qos_config_refs"] = qosToArry[0] +
+                    cowc.DROPDOWN_VALUE_SEPARATOR + qosToArry[1] +
+                    cowc.DROPDOWN_VALUE_SEPARATOR + qosToArry[2];
+            } else {
+                modelConfig["qos_config_refs"] = "";
             }
 
             //Modal config default ECMP formatting
@@ -1007,6 +1019,15 @@ define([
                 } else {
                     newPortData.service_health_checks_refs = [];
                 }
+
+         //QoS
+            var qos = getValueByJsonPath(newPortData, "qos_config_refs", ""),
+                qosList = [];
+            if(qos !== "none" && qos.trim() !== "") {
+                qosList.push({"to": qos.split(cowc.DROPDOWN_VALUE_SEPARATOR)});
+            }
+            newPortData["qos_config_refs"] = qosList;
+
         /* ECMP Hashing */
                 var ecmpHashIncFields = this.getNonDefaultECMPHashingFields();
                 var count = 0;

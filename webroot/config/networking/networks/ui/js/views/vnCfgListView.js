@@ -70,7 +70,7 @@ define([
 
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                     contrailListModel, getVNCfgListViewConfig());
+                     contrailListModel, getVNCfgListViewConfig(viewConfig));
         }
     });
 
@@ -106,7 +106,7 @@ define([
         });
     };
 
-    var getVNCfgListViewConfig = function () {
+    var getVNCfgListViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwl.CFG_VN_LIST_ID]),
             view: "SectionView",
@@ -121,7 +121,10 @@ define([
                                 viewPathPrefix:
                                     "config/networking/networks/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {}
+                                viewConfig: {
+                                    selectedProjId:
+                                      viewConfig.projectSelectedValueData.value
+                                }
                             }
                         ]
                     }

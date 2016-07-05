@@ -46,6 +46,28 @@ define([
                 }
             }
             return configEncapList;
+        },
+
+        this.getTextByValue = function(arry, val) {
+            var i, arryCnt = arry.length, text = val;
+            for(i = 0; i < arryCnt; i++) {
+                if(arry[i].value == val){
+                    text = arry[i].text;
+                    break;
+                }
+            }
+            return text;
+        },
+
+        this.getValueByText =  function(arry, txt) {
+            var i, arryCnt = arry.length, value = txt;
+            for(i = 0; i < arryCnt; i++) {
+                if(arry[i].text === txt){
+                    value = arry[i].value;
+                    break;
+                }
+            }
+            return value;
         }
     }
     return globalConfigUtils;

@@ -35,11 +35,11 @@ define([
 
             var contrailListModel = new ContrailListModel(listModelConfig);
             self.renderView4Config(this.$el, contrailListModel,
-                                   getPoliciesListViewConfig());
+                                   getPoliciesListViewConfig(selectedProjectVal));
         }
     });
 
-    var getPoliciesListViewConfig = function () {
+    var getPoliciesListViewConfig = function (selectedProjectVal) {
         return {
             elementId:
               cowu.formatElementId([ctwl.CONFIG_POLICY_FORMAT_ID]),
@@ -62,7 +62,8 @@ define([
                                                options: {
                                                   pageSize: 10,
                                                   pageSizeSelect: [10, 50, 100]
-                                                  }}
+                                                  }},
+                                             selectedProjId: selectedProjectVal
                                             }
                             }
                         ]

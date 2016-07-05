@@ -21,7 +21,8 @@ define([
         render: function () {
             var self = this;
             var viewConfig = this.attributes.viewConfig;
-
+            vnCfgEditView.selectedProjId =
+                viewConfig.selectedProjId;
             this.renderView4Config(self.$el, self.model,
                                    getVNCfgGridViewConfig());
         }
@@ -436,6 +437,16 @@ define([
                                                         formatter: 'importRouteTargetFormatter',
                                                     }
                                                 },
+                                                {
+                                                    label: 'QoS',
+                                                    key: 'qos_config_refs',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'QoSFormatter',
+                                                    }
+                                                }
                                             ]
                                         }
                                     ]
@@ -547,5 +558,9 @@ define([
         return formatVNCfg.staticRouteFormatter(null,
                                         null, null, null, dc);
     }
+    this.QoSFormatter = function (v, dc) {
+        return formatVNCfg.qosExpansionFormatter(null,
+                                        null, null, null, dc);
+    };
     return vnCfgGridView;
 });

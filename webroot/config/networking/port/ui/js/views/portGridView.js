@@ -431,6 +431,15 @@ define([
                 formatter: "serviceHealthCheckFormatter"
             }
         }, {
+            label: 'QoS',
+            key: 'qos_config_refs',
+            templateGenerator:
+                'TextGenerator',
+            templateGeneratorConfig: {
+                formatter:
+                    'QoSFormatter',
+            }
+        }, {
             key: 'virtual_machine_interface_properties',
             name:"virtual_machine_interface_properties",
             label:"Local Preference",
@@ -633,6 +642,10 @@ define([
     };
     this.disablePolicyFormatter = function(v, dc) {
         return portFormatters.disablePolicyFormatter("", "", v, "", dc);
+    };
+    this.QoSFormatter = function (v, dc) {
+        return portFormatters.qosExpansionFormatter(null,
+                                        null, null, null, dc);
     };
     return portGridView;
 });

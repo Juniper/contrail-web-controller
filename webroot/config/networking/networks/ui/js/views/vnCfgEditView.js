@@ -49,7 +49,8 @@ define([
             self.renderView4Config($("#" +
                                     modalId).find("#" + prefixId + "-form"),
                                     self.model,
-                                    getVNCfgViewConfig(false),
+                                    getVNCfgViewConfig(false,
+                                            self.selectedProjId),
                                     "vnCfgConfigValidations", null, null,
                                     function () {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
@@ -109,7 +110,8 @@ define([
             self.renderView4Config($("#" +
                                     modalId).find("#" + prefixId + "-form"),
                                     self.model,
-                                    getVNCfgViewConfig(true),
+                                    getVNCfgViewConfig(true,
+                                            self.selectedProjId),
                                     "vnCfgConfigValidations", null, null,
                                     function () {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
@@ -172,7 +174,7 @@ define([
         }
     });
 
-    function getVNCfgViewConfig (disableOnEdit) {
+    function getVNCfgViewConfig (disableOnEdit, selectedProjId) {
         var prefixId = ctwl.CFG_VN_PREFIX_ID;
         var vnCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
@@ -757,7 +759,7 @@ define([
                                                 viewConfig: {
                                                     label: 'ECMP Hashing Fields',
                                                     path: 'ecmp_hashing_include_fields',
-                                                    class: 'span12',
+                                                    class: 'span6',
                                                     dataBindValue: 'ecmp_hashing_include_fields',
                                                     elementConfig: {
                                                         placeholder: 'Select ECMP Hashing Fields',
@@ -777,8 +779,31 @@ define([
                                                         ]
                                                 }
                                             }
-                                        }
-                                        ]
+                                        },
+                                        {
+                                            elementId: 'qos_config_refs',
+                                            view: "FormDropdownView",
+                                            viewConfig: {
+                                                label: "QoS",
+                                                path : 'qos_config_refs',
+                                                class: "span6",
+                                                dataBindValue :
+                                                    'qos_config_refs',
+                                                elementConfig : {
+                                                    placeholder: 'Select QoS',
+                                                    dataTextField : "text",
+                                                    dataValueField : "id",
+                                                    dataSource : {
+                                                        type: 'remote',
+                                                        requestType: 'POST',
+                                                        postData: JSON.stringify({data: [{type: "qos-configs",
+                                                            parent_id: selectedProjId}]}),
+                                                        url: ctwc.URL_GET_CONFIG_DETAILS,
+                                                        parse: formatVNCfg.qosDropDownFormatter
+                                                    }
+                                                }
+                                            }
+                                        }]
                                     },
                                     {
                                         columns: [

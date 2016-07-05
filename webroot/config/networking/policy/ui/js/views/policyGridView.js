@@ -22,7 +22,7 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
-
+            policyCreateEditView.selectedProjId = viewConfig.selectedProjId;
             self.renderView4Config(self.$el, self.model,
                                   getPoliciesGridViewConfig(pagerOptions));
         }
