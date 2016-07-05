@@ -979,7 +979,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
-                <!--<item>
+                <item>
                     <label>Introspect</label>
                     <iconClass>icon-code</iconClass>
                     <resources>
@@ -1039,7 +1039,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Analytics Node</searchStrings>
                         </item>
                     </items>
-                </item>-->
+                </item>
             </items>
         </item>
         <item>
