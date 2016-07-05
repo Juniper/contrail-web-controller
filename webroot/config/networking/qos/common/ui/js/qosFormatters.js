@@ -19,7 +19,7 @@
               if(qosType === "vhost") {
                   formattedQOSType = "vHost";
               } else if(qosType === "fabric") {
-                  formattedQOSType = "Physical";
+                  formattedQOSType = "Fabric";
               } else if(qosType === "project") {
                   formattedQOSType = "Project";
               } else {
@@ -29,28 +29,10 @@
          };
 
          /*
-          * trusted
-          */
-         self.trustedFormatter = function(r, c, v, cd, dc) {
-              var trusted = getValueByJsonPath(dc,
-                  "trusted", "", false),
-                  formattedTrusted;
-              trusted = trusted.toString().toLowerCase();
-              if(trusted === "true") {
-                  formattedTrusted = "Enabled";
-              } else if(trusted === "false") {
-                  formattedTrusted = "Disabled";
-              } else {
-                  formattedTrusted = "-"
-              }
-              return formattedTrusted;
-         };
-
-         /*
           * dscpEntriesFormatter
           */
          self.dscpEntriesFormatter = function(r, c, v, cd, dc) {
-             var formattedDSCP = "";
+             var formattedDSCP = "", dscpStr;
              var dscp =  getValueByJsonPath(dc,
                  "dscp_entries;qos_id_forwarding_class_pair", []);
              var i, dscpCnt = dscp.length;
@@ -59,14 +41,14 @@
                      if(i > 1 && cd) {
                          break;
                      }
-                     dscp = dscp[i] ?
+                     dscpStr = dscp[i] ?
                         gcUtils.getTextByValue(
                                 ctwc.QOS_DSCP_VALUES, dscp[i].key) + " : " +
                                 dscp[i].forwarding_class_id : "";
                      if(i === 0) {
-                         formattedDSCP = dscp;
+                         formattedDSCP = dscpStr;
                      } else {
-                         formattedDSCP += "<br>" + dscp;
+                         formattedDSCP += "<br>" + dscpStr;
                      }
                  }
                  if (dscpCnt > 2 && cd) {
@@ -102,7 +84,7 @@
                  if(dscpStr) {
                      formattedDSCP =
                          "<table style='width:100%'><thead><tr>\
-                         <th style='width:50%'>DSCP</th>\
+                         <th style='width:50%'>DSCP bits</th>\
                          <th style='width:50%'>Forwarding Class ID</th>\
                          </tr></thead><tbody>";
                      formattedDSCP += dscpStr;
@@ -119,7 +101,7 @@
           * vlanPriorityEntriesFormatter
           */
          self.vlanPriorityEntriesFormatter = function(r, c, v, cd, dc) {
-             var formattedVLAN = "";
+             var formattedVLAN = "", vlanStr = "";
              var vlan =  getValueByJsonPath(dc,
                  "vlan_priority_entries;qos_id_forwarding_class_pair", []);
              var i, vlanCnt = vlan.length;
@@ -128,14 +110,14 @@
                      if(i > 1 && cd) {
                          break;
                      }
-                     vlan = vlan[i] ?
+                     vlanStr = vlan[i] ?
                          gcUtils.getTextByValue(
                            ctwc.QOS_VLAN_PRIORITY_VALUES,vlan[i].key) + " : " +
                            vlan[i].forwarding_class_id : "";
                      if(i === 0) {
-                         formattedVLAN = vlan;
+                         formattedVLAN = vlanStr;
                      } else {
-                         formattedVLAN += "<br>" + vlan;
+                         formattedVLAN += "<br>" + vlanStr;
                      }
                  }
                  if (vlanCnt > 2 && cd) {
@@ -172,7 +154,7 @@
                  if(vlanStr) {
                      formattedVLAN =
                          "<table style='width:100%'><thead><tr>\
-                         <th style='width:50%'>VLAN Priority</th>\
+                         <th style='width:50%'>VLAN Priority bits</th>\
                          <th style='width:50%'>Forwarding Class ID</th>\
                          </tr></thead><tbody>";
                      formattedVLAN += vlanStr;
@@ -188,7 +170,7 @@
           * mplsExpEntriesFormatter
           */
          self.mplsExpEntriesFormatter = function(r, c, v, cd, dc) {
-             var formattedMPLS = "";
+             var formattedMPLS = "", mplsStr = "";
              var mpls =  getValueByJsonPath(dc,
                  "mpls_exp_entries;qos_id_forwarding_class_pair", []);
              var i, mplsCnt = mpls.length;
@@ -197,14 +179,14 @@
                      if(i > 1 && cd) {
                          break;
                      }
-                     mpls = mpls[i] ?
+                     mplsStr = mpls[i] ?
                         gcUtils.getTextByValue(
                                 ctwc.QOS_MPLS_EXP_VALUES, mpls[i].key) + " : "
                                 + mpls[i].forwarding_class_id : "";
                      if(i === 0) {
-                         formattedMPLS = mpls;
+                         formattedMPLS = mplsStr;
                      } else {
-                         formattedMPLS += "<br>" + mpls;
+                         formattedMPLS += "<br>" + mplsStr;
                      }
                  }
                  if (mplsCnt > 2 && cd) {
@@ -240,7 +222,7 @@
                  if(mplsStr) {
                      formattedMPLS =
                          "<table style='width:100%'><thead><tr>\
-                         <th style='width:50%'>MPLS Exp</th>\
+                         <th style='width:50%'>MPLS EXP bits</th>\
                          <th style='width:50%'>Forwarding Class ID</th>\
                          </tr></thead><tbody>";
                      formattedMPLS += mplsStr;
