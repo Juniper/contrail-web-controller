@@ -117,7 +117,7 @@ define([
                             elementId: 'forwarding_class_id',
                             view: 'FormInputView',
                             viewConfig: {
-                                label: 'ID',
+                                label: 'Forwarding Class',
                                 path : 'forwarding_class_id',
                                 class: 'span6',
                                 disabled: disableOnEdit,
@@ -129,14 +129,14 @@ define([
                             elementId: 'forwarding_class_dscp',
                             view: 'FormComboboxView',
                             viewConfig: {
-                                label: 'DSCP',
+                                label: 'DSCP bits',
                                 path : 'forwarding_class_dscp',
                                 class: 'span6',
                                 dataBindValue : 'forwarding_class_dscp',
                                 elementConfig: {
                                     dataTextField: "text",
                                     dataValueField: "value",
-                                    placeholder: 'Enter or Select DSCP',
+                                    placeholder: 'Enter or Select DSCP bits',
                                     dataSource: {
                                         type: "local",
                                         data: ctwc.QOS_DSCP_VALUES
@@ -147,10 +147,29 @@ define([
                     ]}, {
                     columns: [
                         {
+                            elementId: 'forwarding_class_mpls_exp',
+                            view: 'FormComboboxView',
+                            viewConfig: {
+                                label: 'MPLS EXP bits',
+                                path : 'forwarding_class_mpls_exp',
+                                class: 'span6',
+                                dataBindValue : 'forwarding_class_mpls_exp',
+                                elementConfig: {
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    placeholder: 'Enter or Select MPLS EXP bits',
+                                    dataSource: {
+                                        type: "local",
+                                        data: ctwc.QOS_MPLS_EXP_VALUES
+                                    }
+                                }
+                           }
+                        },
+                        {
                             elementId: 'forwarding_class_vlan_priority',
                             view: 'FormComboboxView',
                             viewConfig: {
-                                label: 'VLAN Priority',
+                                label: 'VLAN Priority bits',
                                 path : 'forwarding_class_vlan_priority',
                                 class: 'span6',
                                 dataBindValue :
@@ -159,29 +178,10 @@ define([
                                     dataTextField: "text",
                                     dataValueField: "value",
                                     placeholder:
-                                        'Enter or Select VLAN Priority',
+                                        'Enter or Select VLAN Priority bits',
                                     dataSource: {
                                         type: "local",
                                         data: ctwc.QOS_VLAN_PRIORITY_VALUES
-                                    }
-                                }
-                           }
-                        },
-                        {
-                            elementId: 'forwarding_class_mpls_exp',
-                            view: 'FormComboboxView',
-                            viewConfig: {
-                                label: 'MPLS EXP',
-                                path : 'forwarding_class_mpls_exp',
-                                class: 'span6',
-                                dataBindValue : 'forwarding_class_mpls_exp',
-                                elementConfig: {
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    placeholder: 'Enter or Select MPLS EXP',
-                                    dataSource: {
-                                        type: "local",
-                                        data: ctwc.QOS_MPLS_EXP_VALUES
                                     }
                                 }
                            }

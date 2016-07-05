@@ -31,12 +31,34 @@ define([
 
 
         validations: {
-            fipPoolModelConfigValidations: {
-                'key': {
-                    required: true
+            dscpValidations: {
+                'dscp_key': {
+                    required: true,
+                    msg: "DSCP bits are required"
                 },
                 'forwarding_class_id': {
-                    required: true
+                    required: true,
+                    msg: "Forwarding Class ID is required"
+                }
+            },
+            mplsValidations: {
+                'mpls_key': {
+                    required: true,
+                    msg: "MPLS Exp bits are required"
+                },
+                'forwarding_class_id': {
+                    required: true,
+                    msg: "Forwarding Class ID is required"
+                }
+            },
+            vlanValidations: {
+                'vlan_key': {
+                    required: true,
+                    msg: "VLAN Priority bits are required"
+                },
+                'forwarding_class_id': {
+                    required: true,
+                    msg: "Forwarding Class ID is required"
                 }
             }
         }

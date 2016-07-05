@@ -24,8 +24,10 @@ define([
 
         validations: {
             fwdClassConfigValidations: {
-                'forwarding_class_id': {
-                    required: true
+                'forwarding_class_id': function(value, attr, finalObj){
+                    if(!value || isNaN(Number(value))) {
+                        return "Forwarding Class ID should be a number";
+                    }
                 }
             }
         },
@@ -77,8 +79,6 @@ define([
                 fcId = getValueByJsonPath(newForwardingClass,
                         "forwarding_class_id", "").toString();
                 if(mode === ctwl.CREATE_ACTION) {
-                    newUUID = UUIDjs.create();
-                    newUUID = newUUID ? newUUID.hex: "";
                     newForwardingClass["fq_name"] = [];
                     newForwardingClass["fq_name"].push(
                             "default-global-system-config");
@@ -94,7 +94,8 @@ define([
                 dscp = gcUtils.getValueByText(ctwc.QOS_DSCP_VALUES, dscp);
                 vlan = getValueByJsonPath(newForwardingClass,
                                'forwarding_class_vlan_priority', '').toString();
-                vlan= gcUtils.getValueByText(ctwc.QOS_VLAN_PRIORITY_VALUES, vlan);
+                vlan= gcUtils.getValueByText(ctwc.QOS_VLAN_PRIORITY_VALUES,
+                        vlan);
                 mpls = getValueByJsonPath(newForwardingClass,
                                 'forwarding_class_mpls_exp', '').toString();
                 mpls = gcUtils.getValueByText(ctwc.QOS_MPLS_EXP_VALUES, mpls);
