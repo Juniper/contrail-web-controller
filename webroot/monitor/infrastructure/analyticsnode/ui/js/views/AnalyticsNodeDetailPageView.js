@@ -82,10 +82,13 @@ define([
 
                     obj['lastLogTimestamp'] = getLastLogTime(analyticsNodeData);
 
-                    monitorInfraUtils.createMonInfraDetailsFooterLinks (
-                            $('#left-column-container').parent(),
-                            obj['ip'].split(','),
-                            '8089');
+                    monitorInfraUtils.createNodeDetailsFooterLinks ({
+                        parent : $('#left-column-container').parent(),
+                        ipList : obj['ip'].split(','),
+                        introspectPort : '8089',
+                        linkLabel : 'OpServer',
+                        type : 'OpServer'
+                    });
                     return obj;
                 }
             }
