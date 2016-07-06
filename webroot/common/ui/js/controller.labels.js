@@ -958,6 +958,19 @@ define([
         this.TITLE_EDIT_RBAC = 'Edit API Access';
         this.TITLE_INSERT_RBAC = 'Insert API Access';
 
+        /* Config Alarm labels */
+        this.TITLE_ALARM = 'Alarms';
+        this.TITLE_EDIT_ALARM = 'Edit Alarm';
+        this.TITLE_ALARM_MULTI_DELETE = "Delete Alarms";
+        this.TITLE_ALARM_DELETE = "Delete Alarm";
+        this.TITLE_CREATE_ALARM = 'Create Alarm';
+        this.TXT_CONFIG_ALARM_RULE = 'rule';
+        this.CONFIG_ALARM_MSG_MAP = {
+             2: 'Critical',
+             3: 'Major',
+             4: 'Minor'
+        }
+
         //Config DB Labels - Start
         this.CDB_FQ_TABLE_NAMES_GRID_ID = "cdb-fq-table-names-grid";
         this.CDB_TITLE_FQ_TABLE_NAMES = "FQ Names Table Keys";
