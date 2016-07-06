@@ -445,3 +445,9 @@ td.action-cell a{color:#787878;}
 #PolicyRules .custom-combobox-input:focus +span i.icon-caret-down{
     display:block;
 }
+/*
+Added for severity bubble in config alarms
+*/
+.circle.mini {
+	border: 1px;
+}
