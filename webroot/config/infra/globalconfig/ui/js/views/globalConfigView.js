@@ -123,6 +123,21 @@ define([
                    },
                    renderOnActivate: true
                }
+           },{
+               elementId: 'alarm_rule_global_tab',
+               title: 'Alarms',
+               view: "ConfigAlarmGlobalListView",
+               viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
+               viewConfig: viewConfig,
+               tabConfig: {
+                   activate: function(event, ui) {
+                       var gridId = $('#' + ctwc.ALARM_RULE_GRID_ID);
+                       if (gridId.data('contrailGrid')) {
+                           gridId.data('contrailGrid').refreshView();
+                       }
+                   },
+                   renderOnActivate: true
+               }
            }]
         };
     };
