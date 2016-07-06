@@ -1060,7 +1060,18 @@ function sendServerRetrieveError (res)
     var error = new appErrors.RESTServerError(global.STR_CACHE_RETRIEVE_ERROR);
     commonUtils.handleJSONResponse(error, res, null);
 }
-
+function getUVEKeys (req, res, appData) {
+    var url = '/analytics/uves';
+    opApiServer.apiGet(url, appData,
+        function(err, data) {
+            if (err || (null == data)) {
+                commonUtils.handleJSONResponse(err, res, null);
+            } else {
+                commonUtils.handleJSONResponse(null, res, data);
+            }
+    });
+}
+exports.getUVEKeys = getUVEKeys;
 exports.dovRouterListProcess = dovRouterListProcess;
 exports.checkAndGetSummaryJSON = checkAndGetSummaryJSON;
 exports.getvRouterList = getvRouterList;
