@@ -347,6 +347,10 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <class>globalConfigPageLoader</class>
                                     <function>renderGlobalConfig</function>
                                 </resource>
+                                <resource>
+                                     <rootDir>/reports/qe/ui</rootDir>
+                                     <css>qe.main.css</css>
+                                </resource>
                             </resources>
                             <searchStrings>Configure Global Config</searchStrings>
                         </item>
@@ -885,6 +889,41 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>RBAC Project</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
+                    <label>Alarms</label>
+                    <access>
+                        <roles>
+                            <role>member</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                        </orchModels>
+                    </access>
+                    <iconClass>icon-bell-alt</iconClass>
+                    <items>
+                        <item>
+                            <label>Project</label>
+                            <hash>config_alarm_project</hash>
+                               <resources>
+                                   <resource>
+                                       <rootDir>/common/ui</rootDir>
+                                       <js>controller.app.js</js>
+                                   </resource>
+                                   <resource>
+                                       <rootDir>/config/alarm/project/ui</rootDir>
+                                       <js>ConfigAlarmProject.main.js</js>
+                                       <class>configAlarmProjectPageLoader</class>
+                                       <function>renderProjectAlarm</function>
+                                   </resource>
+                                   <resource>
+                                       <rootDir>/reports/qe/ui</rootDir>
+                                       <css>qe.main.css</css>
+                                   </resource>
+                               </resources>
+                            <searchStrings>Alarm Project</searchStrings>
                         </item>
                     </items>
                 </item>
