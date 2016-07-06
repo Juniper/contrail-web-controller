@@ -30,5 +30,11 @@
         <feature>monitoring</feature>
         <callback>infraCmn.getReachableIP</callback>
     </item>
+    <item>
+        <url>/api/admin/monitor/get-uve-keys</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>infraCmn.getUVEKeys</callback>
+    </item>
 </urlLists>
 
