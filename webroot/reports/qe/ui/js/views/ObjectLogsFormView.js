@@ -96,31 +96,6 @@ define([
                         {
                             columns: [
                                 {
-                                    elementId: 'table_name', view: "FormComboboxView",
-                                    viewConfig: {
-                                        path: 'table_name', dataBindValue: 'table_name', class: "span3",
-                                        elementConfig: {
-                                            defaultValueId: 0, allowClear: false, placeholder: cowl.QE_SELECT_OBJECT_TABLE,
-                                            dataTextField: "name", dataValueField: "name",
-                                            dataSource: {
-                                                type: 'remote', url: cowc.URL_TABLES, parse: function (response) {
-                                                    var parsedOptionList = [];
-                                                    for(var i = 0; i < response.length; i++) {
-                                                        if(response[i].type == 'OBJECT') {
-                                                            parsedOptionList.push(response[i]);
-                                                        }
-                                                    }
-                                                    return parsedOptionList;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            columns: [
-                                {
                                     elementId: 'time_range', view: "FormDropdownView",
                                     viewConfig: {
                                         path: 'time_range', dataBindValue: 'time_range', class: "span3",
@@ -142,6 +117,24 @@ define([
                                         path: 'to_time', dataBindValue: 'to_time', class: "span3",
                                         elementConfig: qewu.getToTimeElementConfig('from_time', 'to_time'),
                                         visible: "time_range() == -1"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'table_name', view: "FormComboboxView",
+                                    viewConfig: {
+                                        label: 'Active Table',
+                                        path: 'table_name',
+                                        dataBindValue: 'table_name',
+                                        dataBindOptionList: 'table_name_data_object',
+                                        class: "span6",
+                                        elementConfig: {
+                                            defaultValueId: 0, allowClear: false, placeholder: cowl.QE_SELECT_OBJECT_TABLE,
+                                            dataTextField: "name", dataValueField: "name",
+                                        }
                                     }
                                 }
                             ]
