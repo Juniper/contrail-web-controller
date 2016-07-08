@@ -123,6 +123,22 @@ define([
                    },
                    renderOnActivate: true
                }
+           },
+           {
+               elementId: 'user_defined_counter_tab',
+               title: 'Counters',
+               view: "userDefinedCountersListView",
+               viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
+               viewConfig: viewConfig,
+               tabConfig: {
+                   activate: function(event, ui) {
+                       var gridId = $('#' + ctwc.USER_DEFINED_COUNTRERS_GRID_ID);
+                       if (gridId.data('contrailGrid')) {
+                           gridId.data('contrailGrid').refreshView();
+                       }
+                   },
+                   renderOnActivate: true
+               }
            }]
         };
     };

@@ -949,6 +949,14 @@ define([
         this.TITLE_DNS_RECORD_MULTI_DELETE = "Delete DNS Record(s)";
         this.TITLE_EDIT_DNS_RECORD = 'Edit DNS Record';
 
+        /* User defined counters labels */
+        this.TITLE_USER_DEFINED_COUNTERS = "Counters"
+        this.TITLE_CREATE_USER_DEFINDED_COUNTER = 'Create Counter';
+        this.TITLE_DEL_USER_DEFINDED_COUNTER = 'Delete Counter';
+        this.TITLE_DEL_USER_DEFINDED_COUNTERS = 'Delete Counter(s)';
+        this.TITLE_EDIT_USER_DEFINDED_COUNTER = 'Edit Counter';
+        this.COUNTERS_MUTI_SELECT_DELETE = 'countersMultiSelectDelete';
+
         /* RBAC labels */
         this.TITLE_RBAC = 'API Access';
         this.TITLE_CREATE_RBAC = 'Create API Access';
