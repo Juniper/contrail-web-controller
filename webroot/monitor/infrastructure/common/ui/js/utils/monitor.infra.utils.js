@@ -1359,55 +1359,52 @@ define([
             var introspectPort = options.introspectPort;
             var linkLabel = options.linkLabel;
             var type = options.type;
+            var featurePort = options.featurePort;
 
-            var ipPortsDeferredObj = $.Deferred();
-            self.getServerIpPortsForType (ipPortsDeferredObj,type);
-            ipPortsDeferredObj.done (function (serverDetails) {
-                if (serverDetails != null) {
-                    var cnt = serverDetails.length;
-                    var ipPortList = [];
-                    for (var i = 0 ; i < cnt; i++) {
-                        ipPortList.push({
-                            "ip"   : serverDetails[i]['ip-address'],
-                            "port" : serverDetails[i]['port'],
-                            "isConfig" : true
-                        })
-                    }
-                    var ipDeferredObj = $.Deferred();
-                    self.getReachableIpFromList(ipPortList,
-                                                ipDeferredObj);
-                    ipDeferredObj.done (function (res){
-                        var footerlinks = [];
-                        if (res != null) {
-                            footerlinks.push({
-                              name:'introspect',
-                              onClick: function () {
-                                          monitorInfraUtils.
-                                              onIntrospectLinkClick(res.ip,
-                                                      introspectPort);
-                                    }
-                            });
-                            footerlinks.push({
-                                name: linkLabel,
-                                label: linkLabel,
-                                onClick: function () {
-                                          monitorInfraUtils.
-                                              onConfigLinkClick(res.ip,
-                                                      res.port);
-                                      }
-                            });
-                            footerlinks.push({
-                                name:'status',
-                                onClick : function () {
-                                          monitorInfraUtils.
-                                              onStatusLinkClick(res.ip);
-                                      }
-                            });
-                        }
-                        self.createFooterLinks(parent,footerlinks);
-                    });
+            if (ipList != null) {
+                var cnt = ipList.length;
+                var ipPortList = [];
+                for (var i = 0 ; i < cnt; i++) {
+                    ipPortList.push({
+                        "ip"   : ipList[i],
+                        "port" : featurePort,
+                        "isConfig" : (type == 'ApiServer') ? true : false
+                    })
                 }
-            });
+                var ipDeferredObj = $.Deferred();
+                self.getReachableIpFromList(ipPortList,
+                                            ipDeferredObj);
+                ipDeferredObj.done (function (res){
+                    var footerlinks = [];
+                    if (res != null) {
+                        footerlinks.push({
+                          name:'introspect',
+                          onClick: function () {
+                                      monitorInfraUtils.
+                                          onIntrospectLinkClick(res.ip,
+                                                  introspectPort);
+                                }
+                        });
+                        footerlinks.push({
+                            name: linkLabel,
+                            label: linkLabel,
+                            onClick: function () {
+                                      monitorInfraUtils.
+                                          onConfigLinkClick(res.ip,
+                                                  res.port);
+                                  }
+                        });
+                        footerlinks.push({
+                            name:'status',
+                            onClick : function () {
+                                      monitorInfraUtils.
+                                          onStatusLinkClick(res.ip);
+                                  }
+                        });
+                    }
+                    self.createFooterLinks(parent,footerlinks);
+                });
+            }
         };
 
         /**

@@ -21,6 +21,16 @@ define([
         this.DATABASE_NODE = 'databaseNode';
         this.DNS_SERVER = 'dns-server:';
 
+        //Default introspect ports
+        this.ApiServerIntrospectPort = '8084';
+        this.ControlNodeIntrospectPort = '8083';
+        this.VRouterIntrospectPort = '8085';
+        this.OpServerIntrospectPort = '8089';
+
+        //Default feature ports
+        this.ApiServerPort = '8082';
+        this.OpServerPort = '8081'; 
+
         this.excludeProcessList = ['contrail-config-nodemgr','contrail-analytics-nodemgr','contrail-control-nodemgr','contrail-snmp-collector','contrail-topology',
             'contrail-vrouter-nodemgr','openstack-nova-compute','contrail-svc-monitor','contrail-schema','contrail-discovery','contrail-zookeeper','redis-sentinel','contrail-device-manager'];
         this.vRouterDashboardChartInitialized = false;
