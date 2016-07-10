@@ -447,7 +447,8 @@ define([
         monitorInfraUtils.createMonInfraDetailsFooterLinks (
                 $('#left-column-container').parent(),
                 ipList,
-                getValueByJsonPath(viewConfig,'introspectPort','8085'));
+                getValueByJsonPath(viewConfig,'introspectPort',
+                        monitorInfraConstants.VRouterIntrospectPort));
 
         return obj;
     }
