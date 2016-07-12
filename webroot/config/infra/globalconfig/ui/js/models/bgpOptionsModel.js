@@ -13,12 +13,12 @@ define([
             "ibgp_auto_mesh": true,
             "ip_fabric_subnets": {
                 "subnet": []
-            },
+            }/*,
             "graceful_restart_params": {
                 "graceful_restart_time": 0,
                 "long_lived_graceful_restart_time": 0,
                 "end_of_rib_receive_time": 30
-            }
+            }*/
         },
         validations: {
             bgpOptionsValidations: {
@@ -27,7 +27,7 @@ define([
                     if (isNaN(asn) || asn < 1 || asn > 65534) {
                         return "Enter ASN number between 1-65534";
                     }
-                },
+                }/*,
                 "graceful_restart_params.graceful_restart_time":
                 function(value, attr, finalObj) {
                     if(value) {
@@ -62,7 +62,7 @@ define([
                                 "between 0-600";
                         }
                     }
-                }
+                }*/
             }
         },
         formatModelConfig: function(modelConfig) {
@@ -144,7 +144,7 @@ define([
                     Number(newBGPOptionsConfig['autonomous_system']);
 
                 //prepare graceful restart params post object
-                globalSysConfigData['global-system-config']
+                /*globalSysConfigData['global-system-config']
                     ["graceful_restart_params"] = {};
                 globalSysConfigData['global-system-config']
                 ["graceful_restart_params"]["graceful_restart_time"] =
@@ -161,7 +161,7 @@ define([
                 endOfRIBRecTime = endOfRIBRecTime ? endOfRIBRecTime : 30;
                 globalSysConfigData['global-system-config']
                 ["graceful_restart_params"]["end_of_rib_receive_time"] =
-                    Number(endOfRIBRecTime);
+                    Number(endOfRIBRecTime);*/
 
                 if (null != newBGPOptionsConfig['uuid']) {
                     globalSysConfigData['global-system-config']['uuid'] =
