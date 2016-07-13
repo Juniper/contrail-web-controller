@@ -6,7 +6,7 @@ define([
     'underscore',
     'backbone',
     // 'config node charts view'
-    'controller-basedir/monitor/infrastructure/common/ui/js/views/ConfigNodeChartsView',
+    'controller-basedir/monitor/infrastructure/common/ui/js/views/ConfigNodeScatterChartView',
     // 'controlnode-scatterchart-view',
     'controller-basedir/monitor/infrastructure/common/ui/js/views/ControlNodeScatterChartView',
     // 'dbnode-scatterchart-view',
@@ -20,7 +20,7 @@ define([
     'monitor-infra-confignode-model',
     'monitor-infra-controlnode-model',
     'monitor-infra-vrouter-model'
-], function(_,Backbone,ConfigNodeChartsView,
+], function(_,Backbone,ConfigNodeScatterChartView,
         ControlNodeScatterChartView,DatabaseNodeScatterChartView,
         AnalyticsNodeScatterChartView,MonitorInfraDashboardView,VRouterDashboardView,
         AnalyticsNodeListModel,DatabaseNodeListModel,ConfigNodeListModel,
@@ -60,7 +60,7 @@ define([
             downCntFn: dashboardUtils.getDownNodeCnt
         },{
             title: 'Config Nodes',
-            view: ConfigNodeChartsView,
+            view: ConfigNodeScatterChartView,
             model: configNodeListModel,
             downCntFn: dashboardUtils.getDownNodeCnt
         },{
