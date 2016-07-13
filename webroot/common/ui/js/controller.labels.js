@@ -380,6 +380,9 @@ define([
         this.CONFIGNODE_SUMMARY_CHART_ID = 'config-nodes-chart';
         this.CONFIGNODE_SUMMARY_LIST_SECTION_ID = 'config-nodes-list-section';
         this.CONFIGNODE_SUMMARY_CHART_SECTION_ID = 'config-nodes-chart-section';
+        //Config node scatter chart
+        this.CONFIGNODE_SUMMARY_SCATTERCHART_ID = 'config-nodes-scatterchart';
+        this.CONFIGNODE_SUMMARY_SCATTERCHART_SECTION_ID = 'config-nodes-scatterchart-section';
         this.CONFIGNODE_DETAILS_PAGE_ID = 'config_nodes_details_pages';
         this.CONFIGNODE_TAB_SECTION_ID = 'config_node_tab_section';
         this.CONFIGNODE_TAB_VIEW_ID = 'config_node_tab';
