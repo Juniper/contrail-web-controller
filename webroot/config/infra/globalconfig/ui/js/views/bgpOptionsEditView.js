@@ -99,7 +99,6 @@ define([
                                        elementId: "ipFabric_subnets_section",
                                        title : "IP Fabric Subnets",
                                        view : "SectionView",
-                                       active:false,
                                        viewConfig : {
                                            rows : ipFabriSubnetSection()
                                        }
@@ -107,7 +106,7 @@ define([
                                 ]
                             }
                         ]
-                    },
+                    }/*,
                     {
                         columns : [
                             {
@@ -126,7 +125,7 @@ define([
                                 ]
                             }
                         ]
-                    }
+                    }*/
                 ]
             }
         }
@@ -146,7 +145,7 @@ define([
                         class: "span12",
                         columns: [{
                             elementId: 'ip_fabric_subnets',
-                            name: 'IP Fabric Subnets',
+                            name: 'Subnet',
                             view: 'FormInputView',
                             viewConfig: {
                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
