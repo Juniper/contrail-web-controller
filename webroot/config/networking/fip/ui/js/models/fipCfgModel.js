@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'contrail-model'
-], function (_, ContrailModel) {
+    'contrail-config-model'
+], function (_, ContrailConfigModel) {
 
-    var fipCfgModel = ContrailModel.extend({
+    var fipCfgModel = ContrailConfigModel.extend({
 
         defaultConfig: {
             'name': '',
@@ -48,7 +48,8 @@ define([
             } else {
                 modelConfig['virtual_machine_interface_refs'] = null;
             }
-
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
 
@@ -83,7 +84,17 @@ define([
             var postData = {'floating-ip':{}};
 
             var self = this;
-            if (self.model().isValid(true, "fipCfgConfigValidations")) {
+
+            var validation = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'fipCfgConfigValidations'
+              },
+              //permissions
+              ctwu.getPermissionsValidation()
+            ];
+
+            if (this.isDeepValid(validation)) {
 
                 var newFipCfgData = $.extend(true, {}, self.model().attributes);
 
@@ -91,7 +102,8 @@ define([
                 var project = contrail.getCookie(cowc.COOKIE_PROJECT);
                 var allocType  = newFipCfgData['user_created_alloc_type'];
                 var fqName = newFipCfgData['user_created_floating_ip_pool'].split(":");
-
+                //permissions
+                this.updateRBACPermsAttrs(newFipCfgData);
                 ctwu.deleteCGridData(newFipCfgData);
                 delete newFipCfgData['display_name'];
                 delete newFipCfgData['name'];

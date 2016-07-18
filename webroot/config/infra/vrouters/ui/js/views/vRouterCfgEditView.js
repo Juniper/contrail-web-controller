@@ -18,7 +18,7 @@ define([
             var editLayout = editTemplate({prefixId: prefixId}),
                 self = this;
 
-            cowu.createModal({'modalId': modalId, 'className': 'modal-480',
+            cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 console.log("onSave clicked");
@@ -54,7 +54,9 @@ define([
                     Knockback.applyBindings(self.model,
                         document.getElementById(modalId));
                     kbValidation.bind(self);
-                                   });
+                    //permissions
+                    ctwu.bindPermissionsValidation(self);
+                                   }, null, true);
         },
 
         renderEditvRouterCfg: function(options) {
@@ -62,7 +64,7 @@ define([
                 contrail.getTemplate4Id(cowc.TMPL_EDIT_FORM);
             var editLayout = editTemplate({prefixId: prefixId}),
                 self = this;
-            cowu.createModal({'modalId': modalId, 'className': 'modal-480',
+            cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 self.model.addEditvRouterCfg({
@@ -98,7 +100,9 @@ define([
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
                 kbValidation.bind(self);
-                                   });
+                //permissions
+                ctwu.bindPermissionsValidation(self);
+                                   }, null, true);
         },
 
         renderMultiDeletevRouterCfg: function(options) {
@@ -147,7 +151,7 @@ define([
         var vRouterCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
                                ctwl.CFG_VROUTER_TITLE_CREATE]),
-            title: ctwl.CFG_VROUTER_TITLE_CREATE,
+            title: "Virtual Router",
             view: "SectionView",
             viewConfig: {
                 rows: [

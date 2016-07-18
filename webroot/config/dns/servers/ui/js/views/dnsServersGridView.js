@@ -52,9 +52,7 @@ define([
             dnsServersModel = new DnsServersModel(dataItem);
             dnsServersEditView.model = dnsServersModel;
             dnsServersEditView.renderAddEditDNSServer({
-                "title": ctwl.TITLE_EDIT_DNS_SERVER +
-                    ' (' + dataItem['display_name'] +
-                    ')',
+                "title": ctwl.EDIT,
                 callback: function() {
                     var dataView =
                         $(gridElId).data(
@@ -289,7 +287,9 @@ define([
                                         }
                                     }
                                 ]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails()]
                         }]
                     }
                 }]
@@ -357,7 +357,7 @@ define([
                 var dnsServersModel = new DnsServersModel();
                 dnsServersEditView.model = dnsServersModel;
                 dnsServersEditView.renderAddEditDNSServer({
-                    "title": ctwl.TITLE_CREATE_DNS_SERVER,
+                    "title": ctwl.CREATE,
                     gridData: gridData,
                     configData: configData,
                     callback: function() {

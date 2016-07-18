@@ -5,13 +5,13 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/networking/logicalrouter/ui/js/views/logicalRouterFormatters',
     'config/common/ui/js/routeTarget.utils'
-], function (_, ContrailModel, logicalRouterFormatters, RouteTargetUtils) {
+], function (_, ContrailConfigModel, logicalRouterFormatters, RouteTargetUtils) {
     var lRFormatters = new logicalRouterFormatters();
     var routeTargetUtils = new RouteTargetUtils();
-    var LogicalRouterModel = ContrailModel.extend({
+    var LogicalRouterModel = ContrailConfigModel.extend({
         defaultConfig: {
             'name': '',
             'fq_name': null,
@@ -59,6 +59,8 @@ define([
                    }
             }
             routeTargetUtils.readRouteTargetList(modelConfig, 'user_created_configured_route_target_list');
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
         validations: {
@@ -82,7 +84,8 @@ define([
                   type: cowc.OBJECT_TYPE_COLLECTION,
                   getValidation: 'routeTargetModelConfigValidations'
                 },
-
+                //permissions
+                ctwu.getPermissionsValidation()
             ];
             if (this.isDeepValid(validation)) {
                 var newLRData = $.extend({},this.model().attributes),
@@ -158,6 +161,8 @@ define([
                     }
                 }
                 routeTargetUtils.getRouteTargets(newLRData);
+                //permissions
+                this.updateRBACPermsAttrs(newLRData);
 
                 delete(newLRData.errors);
                 delete(newLRData.cgrid);

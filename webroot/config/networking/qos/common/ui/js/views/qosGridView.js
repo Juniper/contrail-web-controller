@@ -106,7 +106,7 @@ define([
                         ctwl.TITLE_EDIT_QOS;
                 qosEditView.model = qosModel;
                 qosEditView.renderAddEditQOS(
-                    {"title": title, checkedRow: checkedRow,
+                    {"title": ctwl.EDIT, checkedRow: checkedRow,
                         callback: function () {
                             gridObj._dataView.refreshData();
                         },

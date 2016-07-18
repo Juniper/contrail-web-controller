@@ -4,12 +4,12 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/networking/routingpolicy/ui/js/views/routingPolicyFormatter',
     'config/networking/routingpolicy/ui/js/models/routingPolicyTermModel'
-], function (_, ContrailModel, RoutingPolicyFormatter, RoutingPolicyTermModel) {
+], function (_, ContrailConfigModel, RoutingPolicyFormatter, RoutingPolicyTermModel) {
     var routingPolicyFormatter = new RoutingPolicyFormatter();
-    var RoutingPolicyModel = ContrailModel.extend({
+    var RoutingPolicyModel = ContrailConfigModel.extend({
         defaultConfig: {
             'display_name': null,
             'routing_policy_entries': {
@@ -44,6 +44,8 @@ define([
             modelConfig['termCollection'] = termCollectionModel;
             modelConfig["routing_policy_entries"]["term"] =
                 termCollectionModel;
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
         addRule: function () {
@@ -78,7 +80,9 @@ define([
                         key : ["termCollection", "then_terms"],
                         type : cowc.OBJECT_TYPE_COLLECTION_OF_COLLECTION,
                         getValidation : "thenTermValidation"
-                    }
+                    },
+                    //permissions
+                    ctwu.getPermissionsValidation()
                 ];
             if (this.isDeepValid(validations)) {
                 var newRoutingPolicyData = $.extend(true, {}, this.model().attributes),
@@ -111,6 +115,10 @@ define([
                 } else {
                     delete(newRoutingPolicyData.parent_uuid);
                 }
+
+                //permissions
+                this.updateRBACPermsAttrs(newRoutingPolicyData);
+
                 delete(newRoutingPolicyData.errors);
                 delete(newRoutingPolicyData.locks);
                 delete(newRoutingPolicyData.termCollection);

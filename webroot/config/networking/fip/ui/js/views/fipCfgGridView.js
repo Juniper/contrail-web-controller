@@ -144,7 +144,7 @@ define([
                     fipCfgEditView.model = new FipCfgModel();
 		    
                     fipCfgEditView.renderAllocateFipCfg({
-                                              "title": ctwl.CFG_FIP_TITLE_ALLOCATE,
+                                              "title": "Allocate",
                                               callback: function () {
                     $('#' + ctwl.CFG_FIP_GRID_ID).data("contrailGrid")._dataView.refreshData();
                     }});
@@ -219,7 +219,9 @@ define([
                                                     }
                                                 }
                                             ]
-                                        }
+                                        },
+                                        //permissions
+                                        ctwu.getRBACPermissionExpandDetails()
                                     ]
                                 }
                             ]

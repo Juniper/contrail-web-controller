@@ -88,6 +88,61 @@ define([
             }
         }
 
+        self.getRBACPermissionExpandDetails = function(keyClass) {
+            return {
+                title: "Permissions",
+                templateGenerator: 'BlockListTemplateGenerator',
+                templateGeneratorConfig: [
+                    {
+                        label: 'Owner',
+                        key: 'perms2.owner',
+                        keyClass: keyClass,
+                        templateGenerator: 'TextGenerator'
+                    },
+                    {
+                        label: 'Owner Permissions',
+                        key: 'perms2.owner_access',
+                        keyClass: keyClass,
+                        templateGenerator: 'TextGenerator',
+                        templateGeneratorConfig: {
+                            formatter: 'permissionFormatter',
+                        }
+                    },
+                    {
+                        label: 'Global Permissions',
+                        key: 'perms2.global_access',
+                        keyClass: keyClass,
+                        templateGenerator: 'TextGenerator',
+                        templateGeneratorConfig: {
+                            formatter: 'permissionFormatter',
+                        }
+                    },
+                    {
+                        label: 'Shared List',
+                        key: 'perms2.share',
+                        keyClass: keyClass,
+                        templateGenerator: 'TextGenerator',
+                        templateGeneratorConfig: {
+                            formatter: 'sharedPermissionFormatter'
+                        }
+                    }
+                ]
+            }
+        };
+
+        self.getPermissionsValidation = function() {
+            return {
+                key: 'share_list',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'rbacPermsShareValidations'
+            }
+        };
+
+        self.bindPermissionsValidation = function(editView) {
+            kbValidation.bind(editView,
+                    {collection: editView.model.model().attributes.share_list});
+        };
+
         //If there is discrepancy in data sent from multiple sources
         self.getDataBasedOnSource = function (data) {
             if ((data != null) && (data[0] instanceof Array)) {
@@ -791,6 +846,67 @@ define([
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] = null;
             errors.set(attrErrorObj);
         };
+    };
+    
+    this.permissionFormatter =  function(v, dc) {
+        var retStr = "";
+        switch (Number(v)) {
+            case 1:
+                retStr = "Refer";
+                break;
+            case 2:
+                retStr = "Write";
+                break;
+            case 3:
+                retStr = "Write, Refer";
+                break;
+            case 4:
+                retStr = "Read";
+                break;
+            case 5:
+                retStr = "Read, Refer";
+                break;
+            case 6:
+                retStr = "Read, Write";
+                break;
+            case 7:
+                retStr = "Read, Write, Refer";
+                break;
+            default:
+                retStr = "-";
+                break;
+        };
+        return retStr;
+    };
+
+    this.sharedPermissionFormatter = function(v, dc) {
+        var formattedSharedPerms = "", sharedPermsStr = "",
+            sharedPerms =  getValueByJsonPath(dc, "perms2;share", []),
+            i, sharedPermsCnt = sharedPerms.length;
+        if(sharedPermsCnt) {
+            for(i = 0; i < sharedPermsCnt; i++) {
+                if(sharedPerms[i]) {
+                    sharedPermsStr += "<tr style='vertical-align:top'><td>";
+                    sharedPermsStr += sharedPerms[i].tenant + "</td><td>";
+                    sharedPermsStr +=
+                        permissionFormatter(sharedPerms[i].tenant_access) +
+                        "</td><td>";
+                    sharedPermsStr += "</tr>";
+                }
+            }
+            if(sharedPermsStr) {
+                formattedSharedPerms =
+                    "<table style='width:100%'><thead><tr>\
+                    <th style='width:40%'>Project</th>\
+                    <th style='width:60%'>Permissions</th>\
+                    </tr></thead><tbody>";
+                formattedSharedPerms += sharedPermsStr;
+                formattedSharedPerms += "</tbody></table>";
+            }
+        } else {
+            formattedSharedPerms = "-";
+        }
+        return formattedSharedPerms;
     };
     return CTUtils;
 });
