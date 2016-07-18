@@ -319,13 +319,23 @@
                                  columns: [{
                                      elementId: 'local_preference',
                                      name: "Local Preference",
-                                     view: "FormInputView",
+                                     view: "FormComboboxView",
                                      viewConfig: {
                                          path: 'virtual_machine_interface_properties.local_preference',
                                          label: 'Local Preference',
-                                         placeholder: '1 - 4294967295',
                                          dataBindValue: 'virtual_machine_interface_properties().local_preference',
-                                         class: ""
+                                         class: "",
+                                         elementConfig: {
+                                             dataTextField: "text",
+                                             dataValueField: "value",
+                                             placeholder: "Select Local Preference",
+                                             dataSource:{
+                                                 type: "local",
+                                                 data: [
+                                                    {text: "100", value: "100"},
+                                                    {text: "200", value: "200"}]
+                                             }
+                                         }
                                      }
                                  }]
                              }, {

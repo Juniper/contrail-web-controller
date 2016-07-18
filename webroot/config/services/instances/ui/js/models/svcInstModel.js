@@ -1365,7 +1365,7 @@ define([
             }
             var siP = this.model().get('service_instance_properties');
             var haMode = this.model().get('user_created_ha_mode');
-            if ((null != haMode) && ("" != haMode)) {
+            if (stVersion === "v1" && (null != haMode) && ("" != haMode)) {
                 siProp['ha_mode'] = haMode;
             }
             siProp['interface_list'] = intfList;
