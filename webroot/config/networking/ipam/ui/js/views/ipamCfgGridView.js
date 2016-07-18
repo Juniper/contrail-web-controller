@@ -154,7 +154,7 @@ define([
                     ipamCfgEditView.model = new IpamCfgModel();
 
                     ipamCfgEditView.renderAddIpamCfg({
-                                              "title": ctwl.CFG_IPAM_TITLE_CREATE,
+                                              "title": ctwl.CREATE,
                                               callback: function () {
                     $('#' + ctwl.CFG_IPAM_GRID_ID).data("contrailGrid")._dataView.refreshData();
                     }});
@@ -170,7 +170,7 @@ define([
             dataView = $('#' + ctwl.CFG_IPAM_GRID_ID).data("contrailGrid")._dataView;
             ipamCfgEditView.model = new IpamCfgModel(dataView.getItem(rowIndex));
             ipamCfgEditView.renderEditIpamCfg({
-                                  "title": ctwl.CFG_IPAM_TITLE_EDIT,
+                                  "title": ctwl.EDIT,
                                   callback: function () {
                                       dataView.refreshData();
             }});
@@ -255,7 +255,9 @@ define([
                                                     }
                                                 },
                                             ]
-                                        }
+                                        },
+                                        //permissions
+                                        ctwu.getRBACPermissionExpandDetails()
                                     ]
                                 }
                             ]

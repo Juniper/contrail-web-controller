@@ -3,10 +3,10 @@
  */
 define([
     'underscore',
-    'contrail-model'
-], function(_, ContrailModel) {
+    'contrail-config-model'
+], function(_, ContrailConfigModel) {
     var self;
-    var dnsRecordsModel = ContrailModel.extend({
+    var dnsRecordsModel = ContrailConfigModel.extend({
         defaultConfig: {
             "uuid": null,
             "virtual_DNS_record_data": {
@@ -23,6 +23,13 @@ define([
             "record_data_label" : "IPv4 Address",
             "record_data_placeholder" : "Enter an IPv4 Address"
         },
+
+        formatModelConfig: function(modelConfig) {
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
+            return modelConfig;
+        },
+
         addEditDnsRecords: function(mode, callbackObj,
             ajaxMethod) {
             var ajaxConfig = {},
@@ -32,8 +39,15 @@ define([
             };
 
             self = this;
-            if (self.model().isValid(true,
-                    "dnsRecordsValidations")) {
+            var validation = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'dnsRecordsValidations'
+            },
+            //permissions
+            ctwu.getPermissionsValidation()];
+
+            if (self.isDeepValid(validation)) {
 
                 var newdnsRecordsData = $.extend(true, {},
                     self.model().attributes);
@@ -100,6 +114,12 @@ define([
                 newdnsRecordsData['virtual_DNS_records'][0]
                     ['to'] =
                     newdnsRecordsData['fq_name'];
+
+                //permissions
+                this.updateRBACPermsAttrs(newdnsRecordsData);
+                newdnsRecordsData['virtual_DNS_records'][0]
+                    ["perms2"] = newdnsRecordsData["perms2"];
+
                 ctwu.deleteCGridData(newdnsRecordsData);
 
                 delete newdnsRecordsData[

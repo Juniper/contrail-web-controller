@@ -4,11 +4,11 @@
 
 define([
     'underscore',
-    'contrail-model'
-], function (_, ContrailModel) {
-    var vRouterCfgModel = ContrailModel.extend({
+    'contrail-config-model'
+], function (_, ContrailConfigModel) {
+    var vRouterCfgModel = ContrailConfigModel.extend({
         constructor: function () {
-            ContrailModel.apply(this,arguments);
+            ContrailConfigModel.apply(this,arguments);
             if (this.virtual_router_type() == '' ||
                 this.virtual_router_type() == [] ||
                 this.virtual_router_type() == null) {
@@ -23,6 +23,12 @@ define([
             'parent_type': 'global-system-config',
             'virtual_router_type': 'hypervisor',
             'virtual_router_ip_address': null
+        },
+
+        formatModelConfig: function(modelConfig) {
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
+            return modelConfig;
         },
 
         validations: {
@@ -44,7 +50,14 @@ define([
             var postData = {'virtual-router':{}};
 
             var self  = this;
-            if (self.model().isValid(true, "vRouterCfgConfigValidations")) {
+            var validation = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'vRouterCfgConfigValidations'
+            },
+            //permissions
+            ctwu.getPermissionsValidation()];
+            if (self.isDeepValid(validation)) {
 
                 var newvRouterCfgData = $.extend({},this.model().attributes);
                 if (newvRouterCfgData['display_name'] == '') {
@@ -60,7 +73,8 @@ define([
                 if (newvRouterCfgData['virtual_router_type'] === 'hypervisor') {
                     newvRouterCfgData['virtual_router_type'] = null;
                 }
-
+                //permissions
+                self.updateRBACPermsAttrs(newvRouterCfgData);
                 ctwu.deleteCGridData(newvRouterCfgData);
                 delete newvRouterCfgData.id_perms;
                 delete newvRouterCfgData.physical_router_back_refs;

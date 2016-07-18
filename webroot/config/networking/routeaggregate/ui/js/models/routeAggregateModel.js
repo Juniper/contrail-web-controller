@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/networking/routeaggregate/ui/js/models/rtAggregateRoutesModel'
-], function (_, ContrailModel, RouteAggregateRoutesModel) {
-    var routeAggreagteModel = ContrailModel.extend({
+], function (_, ContrailConfigModel, RouteAggregateRoutesModel) {
+    var routeAggreagteModel = ContrailConfigModel.extend({
         defaultConfig: {
             "name": null,
             "display_name": null,
@@ -32,6 +32,8 @@ define([
             modelConfig['display_name'] = ctwu.getDisplayNameOrName(modelConfig);
             modelConfig["routes"] =
                 new Backbone.Collection(routesModelCol);
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
 
@@ -65,7 +67,9 @@ define([
                         key : null,
                         type : cowc.OBJECT_TYPE_MODEL,
                         getValidation : "configureValidation"
-                    }
+                    },
+                    //permissions
+                    ctwu.getPermissionsValidation()
                 ];
 
             if (this.isDeepValid(validations)) {
@@ -86,6 +90,9 @@ define([
                 //aggregate route entries
                 newRouteAggregateData["aggregate_route_entries"]["route"] =
                     self.getRoutes(attr);
+
+                //permissions
+                this.updateRBACPermsAttrs(newRouteAggregateData);
 
                 ctwu.deleteCGridData(newRouteAggregateData);
 

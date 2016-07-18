@@ -3,11 +3,11 @@
  */
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/physicaldevices/interfaces/ui/js/models/serversModel'
-], function (_, ContrailModel, ServersModel) {
+], function (_, ContrailConfigModel, ServersModel) {
     var self;
-    var InterfacesModel = ContrailModel.extend({
+    var InterfacesModel = ContrailConfigModel.extend({
         defaultConfig: {
             'uuid' : null,
             'name' : null,
@@ -96,6 +96,8 @@ define([
             } else {
                 modelConfig["user_created_physical_interface"] =  "none";
             }
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
         subscribeServerModelChangeEvents: function (serverModel) {
@@ -235,14 +237,16 @@ define([
                     key: 'servers',
                     type: cowc.OBJECT_TYPE_COLLECTION,
                     getValidation: 'serverValidation'
-                }
+                },
+                //permissions
+                ctwu.getPermissionsValidation()
             ];
             if(this.isDeepValid(validations)) {
                 self = this;
                 self.vmiDetails = [];
                 self.editView = editView;
                 //Fetch the server tuples and create vmis appropriately
-                var attr = this.model().attributes;
+                var attr = $.extend(true, {}, this.model().attributes);
                 var serverTuples = this.getServerList(attr);
                 var requireVMICreation = false;
                 var liType = attr.logical_interface_type;
@@ -541,6 +545,10 @@ define([
                 postObject["physical-interface"]["uuid"] = attr.uuid;
                 ajaxConfig.url = ajaxConfig.url + '/' + attr.uuid;
             }
+            //permissions
+            this.updateRBACPermsAttrs(attr);
+            postObject["physical-interface"]["perms2"] =
+                attr["perms2"];
             ajaxConfig.data = JSON.stringify(postObject);
             ajaxConfig.type = ajaxOpt.type;
             return ajaxConfig;
@@ -626,6 +634,10 @@ define([
                         ['virtual_machine_interface_refs'] = vmiRefs;
                     postObject["logical-interface"]
                         ["logical_interface_type"] = liType;
+                    //permissions
+                    this.updateRBACPermsAttrs(attr);
+                    postObject["logical-interface"]["perms2"] =
+                        attr["perms2"];
                     if(ajaxOpt.type === 'PUT') {
                         postObject["logical-interface"]["uuid"] =
                             attr.uuid;
@@ -669,7 +681,9 @@ define([
                                 response["physical-interface"].uuid;
                                 postObject = self.liPostObject(
                                     pRouterDD.name, piName, actName, uuid, name,
-                                    vlan, vmiRefs, liType, ajaxOpt);
+                                    vlan, vmiRefs, liType, ajaxOpt, attr);
+                                postObject["logical-interface"]["perms2"] =
+                                    attr["perms2"];
                                 ajaxConfig.data = JSON.stringify(postObject);
                                 ajaxConfig.url = ajaxOpt.url + '/' + type;
                                 contrail.ajaxHandler(ajaxConfig, function () {
@@ -694,7 +708,7 @@ define([
                         exists create the Logical interface*/
                         postObject = self.liPostObject(pRouterDD.name, piName,
                             actName, this.getParentUUID(parent, pInterfaceDS),
-                            name, vlan, vmiRefs,liType, ajaxOpt);
+                            name, vlan, vmiRefs,liType, ajaxOpt, attr);
                         if(ajaxOpt.type === 'PUT') {
                             postObject["logical-interface"]["uuid"] =
                                 attr.uuid;
@@ -743,7 +757,7 @@ define([
             );
         },
         liPostObject : function(pRouterDDName, piName, actName,
-            uuid, name, vlan, vmiRefs, liType, ajaxOpt) {
+            uuid, name, vlan, vmiRefs, liType, ajaxOpt, attr) {
             var postObject = {};
             postObject["logical-interface"] = {};
             postObject["logical-interface"]["fq_name"] =
@@ -764,6 +778,10 @@ define([
             ['virtual_machine_interface_refs'] = vmiRefs;
             postObject["logical-interface"]
             ["logical_interface_type"] = liType;
+            //permissions
+            this.updateRBACPermsAttrs(attr);
+            postObject["logical-interface"]["perms2"] =
+                attr["perms2"];
             return postObject;
         },
         handleInterfaceName : function(name) {
