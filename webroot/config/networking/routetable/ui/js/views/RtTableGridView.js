@@ -147,7 +147,9 @@ define([
                                         }
                                     }
                                 ]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails('span3')]
                         }]
                     }
                 }]
@@ -193,9 +195,7 @@ define([
             var rtTableModel = new RtTableModel(dataItem);
             rtTableEditView.model = rtTableModel;
             rtTableEditView.renderConfigureRtTable({
-                                  "title": 'Edit ' + getRtTableDisplayName() +
-                                  ' (' + dataItem['display_name'] +
-                                     ')',
+                                  "title": ctwl.EDIT,
                                   rowIndex: rowIndex,
                                   type: getRTTableName(),
                                   dataItem: dataItem,
@@ -335,7 +335,7 @@ define([
                     rtTableModel = new RtTableModel();
                     rtTableEditView.model = rtTableModel;
                     rtTableEditView.renderConfigureRtTable({
-                                  "title": 'Create ' + rtTableName,
+                                  "title": ctwl.CREATE,
                                   "isEdit": false,
                                   type: getRTTableName(),
                                   projFqn: projFqn,

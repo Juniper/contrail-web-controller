@@ -17,7 +17,7 @@ define([
             var editLayout = editTemplate({prefixId: prefixId});
             self = this;
 
-            cowu.createModal({'modalId': modalId, 'className': 'modal-480',
+            cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                 'title': options['title'], 'body': editLayout,
                  'onSave': function () {
                         self.configEditForwardingClass(options);
@@ -61,7 +61,9 @@ define([
                     Knockback.applyBindings(self.model,
                         document.getElementById(modalId));
                    kbValidation.bind(self);
-                }
+                   //permissions
+                   ctwu.bindPermissionsValidation(self);
+                }, null, true
             );
         },
 
@@ -108,7 +110,7 @@ define([
         var fwdClassViewConfig = {
             elementId: cowu.formatElementId([prefixId,
                                             ctwl.TITLE_FORWARDING_CLASS]),
-            title: ctwl.TITLE_CREATE_FORWARDING_CLASS,
+            title: "Forwarding Class",
             view: "SectionView",
             viewConfig: {
                 rows: [{

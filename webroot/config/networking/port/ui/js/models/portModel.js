@@ -5,19 +5,19 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/networking/port/ui/js/views/portFormatters',
     'config/networking/port/ui/js/models/fixedIPModel',
     'config/networking/port/ui/js/models/allowAddressPairModel',
     'config/networking/port/ui/js/models/dhcpOptionModel',
     'config/networking/port/ui/js/models/fatFlowModel',
     'config/networking/port/ui/js/models/portBindingModel'
-], function (_, ContrailModel, PortFormatters, FixedIPModel,
+], function (_, ContrailConfigModel, PortFormatters, FixedIPModel,
              AllowAddressPairModel, DHCPOptionModel, FatFlowModel,
              PortBindingModel) {
     var portFormatters = new PortFormatters();
     var self;
-    var PortModel = ContrailModel.extend({
+    var PortModel = ContrailConfigModel.extend({
         defaultConfig: {
             'name': '',
             'display_name': null,
@@ -462,6 +462,10 @@ define([
                 }
             }
             modelConfig['deviceOwnerValue'] = deviceOwnerValue;
+
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
+
             return modelConfig;
         },
         validations: {
@@ -839,7 +843,9 @@ define([
                     key : 'portBindingCollection',
                     type : cowc.OBJECT_TYPE_COLLECTION,
                     getValidation : 'portBindingValidations'
-                }
+                },
+                //permissions
+                ctwu.getPermissionsValidation()
             ];
             if(this.isDeepValid(validations)) {
                 var newPortData = $.extend(true, {}, this.model().attributes),
@@ -1238,6 +1244,9 @@ define([
                     delete(newPortData.routing_instance_refs);
                 }
 
+                //permissions
+                this.updateRBACPermsAttrs(newPortData);
+
                 ctwu.deleteCGridData(newPortData);
 
                 delete(newPortData.virtualNetworkName);
@@ -1260,7 +1269,6 @@ define([
                 delete(newPortData.templateGeneratorData);
                 delete(newPortData.rawData);
                 delete(newPortData.vmi_ref);
-                delete(newPortData.perms2);
                 delete(newPortData.disablePort);
                 delete(newPortData.disable_sub_interface);
                 delete(newPortData.subnetGroupVisible);

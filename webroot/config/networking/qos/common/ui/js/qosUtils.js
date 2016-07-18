@@ -66,7 +66,9 @@
                                               "VLANPriorityEntriesExpFormatter"
                                          }
                                      }]
-                                 }]
+                                 },
+                                 //permissions
+                                 ctwu.getRBACPermissionExpandDetails()]
                              }]
                          }
                      }]

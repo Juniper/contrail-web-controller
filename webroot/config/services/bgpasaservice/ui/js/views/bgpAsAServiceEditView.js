@@ -61,7 +61,9 @@ define([
                         document.getElementById(modalId));
                    kbValidation.bind(self,
                        {collection: self.model.model().attributes.familyAttrs});
-                }
+                   //permissions
+                   ctwu.bindPermissionsValidation(self);
+                }, null, true
             );
         },
         renderDeleteBGPAsAService: function(options) {
@@ -103,7 +105,7 @@ define([
             var bgpViewConfig = {
                 elementId: cowu.formatElementId([prefixId,
                                    ctwl.TITLE_ADD_BGP_AS_A_SERVICE]),
-                title: ctwl.TITLE_ADD_BGP_AS_A_SERVICE,
+                title: "BGP as a Service",
                 view: "SectionView",
                 viewConfig :{
                     rows : [

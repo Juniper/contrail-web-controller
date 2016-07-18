@@ -127,7 +127,7 @@ define([
                 alarmModel.editView = alarmEditView;
                 alarmEditView.model = alarmModel;
                 alarmEditView.renderAddEditRule({
-                    title: title,
+                    title: ctwl.EDIT,
                     selectedGridData: [dataItem],
                     callback: function () {
                         gridObj._dataView.refreshData();
@@ -189,7 +189,7 @@ define([
                     alarmModel.editView = alarmEditView;
                     alarmEditView.model = alarmModel;
                     alarmEditView.renderAddEditRule(
-                        {"title": ctwl.TITLE_CREATE_ALARM_RULE,
+                        {"title": ctwl.CREATE,
                             callback: function () {
                                 gridObj._dataView.refreshData();
                             },
@@ -269,7 +269,9 @@ define([
                                         formatter: "rulesFormatter"
                                     }
                                 }]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails()]
                         }]
                     }
                 }]

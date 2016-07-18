@@ -11,6 +11,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                     elementId: cowu.formatElementId([prefixId,
                                        "view_config"]),
                     view: "SectionView",
+                    title: "QoS",
                     viewConfig:{
                         rows: [
                             {

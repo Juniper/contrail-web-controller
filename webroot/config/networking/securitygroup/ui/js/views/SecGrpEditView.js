@@ -59,7 +59,9 @@ define([
                 kbValidation.bind(self,
                                   {collection:
                                   self.model.model().attributes.rules});
-            });
+                //permissions
+                ctwu.bindPermissionsValidation(self);
+            }, null, true);
         },
         renderDeleteSecGrps: function(options) {
             var delTemplate =
@@ -104,7 +106,7 @@ define([
         var prefixId = ctwl.SEC_GRP_PREFIX_ID;
         var secGrpViewConfig = {
             elementId: cowu.formatElementId([prefixId, ctwl.TITLE_EDIT_SEC_GRP]),
-            title: ctwl.TITLE_EDIT_SEC_GRP,
+            title: "Security Group",//permissions
             view: "SectionView",
             viewConfig: {
                 rows: [

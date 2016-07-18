@@ -56,7 +56,9 @@ define([
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
                 kbValidation.bind(self);
-                                    });
+                //permissions
+                ctwu.bindPermissionsValidation(self);
+                                    }, null, true);
         },
 
         renderEditSvcHealthChkCfg: function(options) {
@@ -101,7 +103,9 @@ define([
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
                 kbValidation.bind(self);
-                                    });
+                //permissions
+                ctwu.bindPermissionsValidation(self);
+                                    }, null, true);
         },
 
         renderMultiDeleteSvcHealthChkCfg: function(options) {
@@ -150,7 +154,7 @@ define([
         var svcHealthChkCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
                                             ctwl.CFG_SVC_HEALTH_CHK_TITLE_CREATE]),
-            title: ctwl.CFG_SVC_HEALTH_CHK_TITLE_CREATE,
+            title: "Health Check Service",
             view: "SectionView",
             viewConfig: {
                 rows: [

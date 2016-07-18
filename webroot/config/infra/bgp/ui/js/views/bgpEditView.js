@@ -107,7 +107,9 @@ define([
                                 {collection: peerModels[i].model().attributes.family_attrs});
                         }
                     }
-                }
+                    //permissions
+                    ctwu.bindPermissionsValidation(self);
+                }, null, true
             );
         },
 
@@ -155,7 +157,7 @@ define([
             var bgpViewConfig = {
                 elementId: cowu.formatElementId([prefixId,
                                    ctwl.TITLE_ADD_BGP]),
-                title: ctwl.TITLE_ADD_BGP,
+                title: "BGP",
                 view: "SectionView",
                 viewConfig :{
                     rows : [
