@@ -162,7 +162,7 @@ define([
                 bgpAsAServiceEditView.model = bgpAsAServiceModel;
                 /*subscribeModelChangeEvents(bgpAsAServiceModel);*/
                 bgpAsAServiceEditView.renderAddEditBGPAsAService(
-                    {"title": title, checkedRow: checkedRow,
+                    {"title": ctwl.EDIT, checkedRow: checkedRow,
                         callback: function () {
                             var dataView =
                                 $(gridElId).data("contrailGrid")._dataView;
@@ -231,7 +231,7 @@ define([
 	                    bgpAsAServiceEditView.model = bgpAsAServiceModel;
                         /*subscribeModelChangeEvents(bgpAsAServiceModel);*/
 	                    bgpAsAServiceEditView.renderAddEditBGPAsAService(
-	                        {"title": ctwl.TITLE_ADD_BGP_AS_A_SERVICE,
+	                        {"title": ctwl.CREATE,
 	                            callback: function () {
 	                                var dataView =
 	                                    $(gridElId).
@@ -340,7 +340,9 @@ define([
                                         formatter: "FamilyAttrsFormatter"
                                     }
                                 }*/]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails()]
                         }]
                     }
                 }]

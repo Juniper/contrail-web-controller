@@ -20,7 +20,7 @@ define([
             var editLayout = editTemplate({prefixId: prefixId}),
                 self = this;
 
-            cowu.createModal({'modalId': modalId, 'className': 'modal-480',
+            cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 self.model.allocateFipCfg({
@@ -54,7 +54,9 @@ define([
                     Knockback.applyBindings(self.model,
                                 document.getElementById(modalId));
                     kbValidation.bind(self);
-                                   });
+                    //permissions
+                    ctwu.bindPermissionsValidation(self);
+                                   }, null, true);
         },
 
         renderAssociateFipCfg: function(options) {
@@ -182,7 +184,7 @@ define([
         var prefixId = ctwl.CFG_FIP_PREFIX_ID;
         var fipCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId, ctwl.CFG_FIP_TITLE_ALLOCATE]),
-            title: ctwl.CFG_FIP_TITLE_ALLOCATE,
+            title: "Floating IP",
             view: "SectionView",
             viewConfig: {
                 rows: [

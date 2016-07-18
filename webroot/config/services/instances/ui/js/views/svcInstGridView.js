@@ -97,9 +97,7 @@ define([
         svcInstEditView.model = svcInstModel;
         svcInstModel.editView = svcInstEditView;
         svcInstEditView.renderConfigureSvcInst({
-                              "title": ctwl.TITLE_EDIT_SERVICE_INSTANCE +
-                              ' (' + dataItem['display_name'] +
-                                 ')',
+                              "title": ctwl.EDIT,
                               dataItem: dataItem,
                               "isEdit": true,
                               callback: function () {
@@ -133,9 +131,7 @@ define([
             svcInstEditView.model = svcInstModel;
             svcInstModel.editView = svcInstEditView;
             svcInstEditView.renderConfigureSvcInst({
-                              "title": ctwl.TITLE_EDIT_SERVICE_INSTANCE +
-                              ' (' + dataItem['display_name'] +
-                                 ')',
+                              "title": ctwl.EDIT,
                               dataItem: dataItem,
                               'setVNList': setVNList,
                               "isEdit": true,
@@ -299,7 +295,9 @@ define([
                                         }
                                     }
                                 ]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails()]
                         }]
                     }
                 }]
@@ -1104,7 +1102,7 @@ define([
                     svcInstEditView.model = svcInstModel;
                     svcInstModel.editView = svcInstEditView;
                     svcInstEditView.renderConfigureSvcInst({
-                        "title": ctwl.TITLE_CREATE_SERVICE_INSTANCE,
+                        "title": ctwl.CREATE,
                         "isEdit": false,
                         callback: function() {
                             var dataView =
@@ -1120,4 +1118,3 @@ define([
 
    return SvcInstGridView;
 });
-

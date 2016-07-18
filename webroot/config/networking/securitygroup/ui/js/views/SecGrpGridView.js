@@ -125,7 +125,9 @@ define([
                                         }
                                     }
                                 ]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails()]
                         }]
                     }
                 }]
@@ -166,9 +168,7 @@ define([
             showHideModelAttr(secGrpModel);
             secGrpEditView.model = secGrpModel;
             secGrpEditView.renderConfigureSecGrp({
-                                  "title": ctwl.TITLE_EDIT_SEC_GRP +
-                                  ' (' + dataItem['display_name'] +
-                                     ')',
+                                  "title": ctwl.EDIT,
                                   rowIndex: rowIndex,
                                   dataItem: dataItem,
                                   isEdit: true,
@@ -251,7 +251,7 @@ define([
                     showHideModelAttr(secGrpModel);
                     secGrpEditView.model = secGrpModel;
                     secGrpEditView.renderConfigureSecGrp({
-                                  "title": ctwl.TITLE_CREATE_SEC_GRP,
+                                  "title": ctwl.CREATE,
                                   "isEdit": false,
                                   projFqn: projFqn,
                                   callback: function() {

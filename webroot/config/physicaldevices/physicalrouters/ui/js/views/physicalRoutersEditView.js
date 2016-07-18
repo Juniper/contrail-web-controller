@@ -412,7 +412,9 @@ define([
                             kbValidation.bind(self,
                                 {collection:
                                     self.model.model().attributes.servicePorts});
-                        }
+                            //permissions
+                            ctwu.bindPermissionsValidation(self);
+                        }, null, true
                     );
 
                 },
@@ -521,6 +523,7 @@ define([
             return {
                 elementId: ctwl.PHYSICAL_ROUTER_PREFIX_ID,
                 view: "SectionView",
+                title: "OVSDB Managed ToR",
                 viewConfig: {
                     rows: [
                         pRouterConfigTemplates.pRouterName(disableId),
@@ -536,8 +539,9 @@ define([
         },
         getNetConfManagedTorViewConfig : function(disableId) {
             return {
-                elementId: ctwc.PHYSICAL_ROUTER_PREFIX_ID,
+                elementId: ctwl.PHYSICAL_ROUTER_PREFIX_ID,
                 view: "SectionView",
+                title: "Netconf Managed Physical Router",
                 viewConfig: {
                     rows: [
                         pRouterConfigTemplates.pRouterName(disableId),
@@ -590,8 +594,9 @@ define([
         },
         getCPERouterViewConfig : function(disableId) {
             return {
-                elementId: ctwc.PHYSICAL_ROUTER_PREFIX_ID,
+                elementId: ctwl.PHYSICAL_ROUTER_PREFIX_ID,
                 view: "SectionView",
+                title: "vCPE Router",
                 viewConfig: {
                     rows: [
                         pRouterConfigTemplates.pRouterName(disableId),
@@ -602,8 +607,9 @@ define([
         },
         getPhysicalRouterViewConfig : function(disableId){
             return {
-                elementId: ctwc.PHYSICAL_ROUTER_PREFIX_ID,
+                elementId: ctwl.PHYSICAL_ROUTER_PREFIX_ID,
                 view: "SectionView",
+                title: "Physical Router",
                 viewConfig: {
                     rows: [
                         pRouterConfigTemplates.pRouterName(disableId),

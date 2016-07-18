@@ -61,8 +61,7 @@ define([
             var logicalRouterModel = new LogicalRouterModel(dataItem);
             logicalRouterCreateEditView.model = logicalRouterModel;
             logicalRouterCreateEditView.renderLogicalRouterPopup({
-                                  "title": ctwl.TITLE_EDIT_LOGICAL_ROUTER +
-                                  ' (' + dataItem.name + ')',
+                                  "title": ctwl.EDIT,
                                   mode: "edit",
                                   callback: function () {
                 var dataView =
@@ -200,7 +199,7 @@ define([
                     var logicalRouterModel = new LogicalRouterModel();
                     logicalRouterCreateEditView.model = logicalRouterModel;
                     logicalRouterCreateEditView.renderLogicalRouterPopup({
-                                     "title": ctwl.TITLE_ADD_LOGICAL_ROUTER,
+                                     "title": ctwl.CREATE,
                                      mode : "add",
                                      callback: function () {
                         var dataView =
@@ -281,7 +280,9 @@ define([
                                         formatter: "routeTargetFormatterCommon"
                                     }
                                 }]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails('span3')]
                         }]
                     }
                 }]

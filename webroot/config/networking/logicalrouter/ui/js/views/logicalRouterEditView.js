@@ -74,7 +74,9 @@ define([
                             kbValidation.bind(self,
                              {collection:
                                self.model.model().attributes.user_created_configured_route_target_list});
-                   });
+                            //permissions
+                            ctwu.bindPermissionsValidation(self);
+                   }, null, true);
                    return;
                }
            );
@@ -173,6 +175,7 @@ define([
             elementId: cowu.formatElementId(
                             [prefixId, ctwl.TITLE_EDIT_LOGICAL_ROUTER]),
             view: "SectionView",
+            title: "Router",
             viewConfig:{
             rows: [{
                     columns: [{

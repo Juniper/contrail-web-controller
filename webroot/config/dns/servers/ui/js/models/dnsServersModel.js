@@ -3,9 +3,9 @@
  */
 define([
     'underscore',
-    'contrail-model'
-], function(_, ContrailModel) {
-    var dnsServersModel = ContrailModel.extend({
+    'contrail-config-model'
+], function(_, ContrailConfigModel) {
+    var dnsServersModel = ContrailConfigModel.extend({
         defaultConfig: {
             "name": null,
             "display_name": null,
@@ -42,6 +42,8 @@ define([
                  }
                  modelConfig['user_created_network_ipams'] = ipamStr;
              }
+             //permissions
+             this.formatRBACPermsModelConfig(modelConfig);
              return modelConfig;
         },
         addEditDnsServer: function(mode, callbackObj,
@@ -53,8 +55,15 @@ define([
             };
 
             var self = this;
-            if (self.model().isValid(true,
-                    "dnsConfigValidations")) {
+            var validation = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'dnsConfigValidations'
+            },
+            //permissions
+            ctwu.getPermissionsValidation()];
+
+            if (self.isDeepValid(validation)) {
 
                 var newdnsServerData = $.extend(true, {},
                     self.model().attributes);
@@ -126,6 +135,9 @@ define([
                     newdnsServerData,
                     'user_created_dns_method',
                     'default');
+
+                //permissions
+                this.updateRBACPermsAttrs(newdnsServerData);
 
                 ctwu.deleteCGridData(newdnsServerData);
 
