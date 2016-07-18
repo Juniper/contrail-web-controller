@@ -6,10 +6,10 @@ define([
     'underscore',
     'backbone',
     'knockout',
-    'contrail-model',
+    'contrail-config-model',
     'config/alarm/common/ui/js/models/AlarmRuleOrModel'
-], function (_, Backbone, Knockout, ContrailModel, AlarmRuleOrModel) {
-    var AlarmModel = ContrailModel.extend({
+], function (_, Backbone, Knockout, ContrailConfigModel, AlarmRuleOrModel) {
+    var AlarmModel = ContrailConfigModel.extend({
 
         defaultConfig: {
             name: null,
@@ -44,6 +44,8 @@ define([
             modelConfig['orRules'] = orRuleCollection;
             modelConfig['display_name'] =
                 ctwu.getDisplayNameOrName(modelConfig);
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
 
@@ -57,7 +59,9 @@ define([
                 key: ['orRules', 'andRules'],
                 type: cowc.OBJECT_TYPE_COLLECTION_OF_COLLECTION,
                 getValidation: 'alarmRuleValidations'
-            }];
+            },
+            //permissions
+            ctwu.getPermissionsValidation()];
             if (this.isDeepValid(validations)) {
                 var newRuleData = $.extend(true, {}, this.model().attributes);
                 var url = ctwc.URL_CREATE_CONFIG_OBJECT, reqUrl = "/alarms";
@@ -115,6 +119,8 @@ define([
                     url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                     reqUrl = '/alarm/'+newRuleData['uuid'];
                 }
+                //permissions
+                this.updateRBACPermsAttrs(newRuleData);
                 delete newRuleData['orRules'];
                 delete newRuleData['enable'];
                 delete newRuleData['description'];

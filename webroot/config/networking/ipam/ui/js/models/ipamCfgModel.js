@@ -4,13 +4,13 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/networking/ipam/ui/js/models/ipamTenantDNSModel',
     'config/networking/ipam/ui/js/views/ipamCfgFormatters'
-], function (_, ContrailModel, IpamTenantDNSModel, IpamCfgFormatters) {
+], function (_, ContrailConfigModel, IpamTenantDNSModel, IpamCfgFormatters) {
     var formatipamCfg = new IpamCfgFormatters();
 
-    var ipamCfgModel = ContrailModel.extend({
+    var ipamCfgModel = ContrailConfigModel.extend({
 
         defaultConfig: {
             'name': '',
@@ -89,8 +89,8 @@ define([
                         formatipamCfg.getDhcpOptions(dhcpList, 4).trim();
            modelConfig['user_created']['domain_name'] =
                         formatipamCfg.getDhcpOptions(dhcpList, 15).trim();
-
-
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
 
@@ -162,7 +162,9 @@ define([
                                 key: 'tenant_dns_server',
                                 type: cowc.OBJECT_TYPE_COLLECTION,
                                 getValidation: 'ipamTenantDNSConfigValidations'
-                              }
+                              },
+                              //permissions
+                              ctwu.getPermissionsValidation()
                             ];
 
             var self = this;
@@ -244,6 +246,8 @@ define([
                         ['dhcp_option_list']['dhcp_option'] = dhcpOptions;
                 }
 
+                //permissions
+                this.updateRBACPermsAttrs(newipamCfgData);
 
                 ctwu.deleteCGridData(newipamCfgData);
                 delete newipamCfgData.id_perms;

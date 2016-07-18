@@ -969,6 +969,9 @@ define([
         this.TITLE_EDIT_RBAC = 'Edit API Access';
         this.TITLE_INSERT_RBAC = 'Insert API Access';
 
+        this.EDIT = "Edit";
+        this.CREATE = "Create";
+
         /* Config Alarm labels */
         this.TITLE_ALARM_RULE = 'Alarm Rules';
         this.TITLE_EDIT_ALARM_RULE = 'Edit Alarm Rule';

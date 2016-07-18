@@ -135,7 +135,7 @@ define([
                 bgpModel.bgpData = $('#' + ctwl.BGP_GRID_ID).
 	                data("contrailGrid")._dataView.getItems();
                 bgpEditView.renderAddEditBGP(
-                    {"title": title, checkedRow: checkedRow,
+                    {"title": ctwl.EDIT, checkedRow: checkedRow,
                         callback: function () {
                             var dataView =
                                 $('#' + ctwl.BGP_GRID_ID).
@@ -210,7 +210,7 @@ define([
                         bgpModel.bgpData = $('#' + ctwl.BGP_GRID_ID).
 	                        data("contrailGrid")._dataView.getItems();
 	                    bgpEditView.renderAddEditBGP(
-	                        {"title": ctwl.TITLE_ADD_BGP,
+	                        {"title": ctwl.CREATE,
 	                            callback: function () {
 	                                var dataView =
 	                                    $('#' + ctwl.BGP_GRID_ID).
@@ -448,7 +448,9 @@ define([
                                                     }
                                                 }
                                             ]
-                                        }
+                                        },
+                                        //permissions
+                                        ctwu.getRBACPermissionExpandDetails()
                                     ]
                                 }
                             ]

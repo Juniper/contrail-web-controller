@@ -4,7 +4,7 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'knockout',
     'config/services/instances/ui/js/models/InterfacesModel',
     'config/services/instances/ui/js/svcInst.utils',
@@ -15,11 +15,11 @@ define([
     'config/services/instances/ui/js/models/RtAggregateModel',
     'config/services/instances/ui/js/models/AllowedAddressPairModel',
     'config/services/instances/ui/js/models/StaticRTModel'
-], function (_, ContrailModel, Knockout, InterfacesModel, svcInstUtils,
+], function (_, ContrailConfigModel, Knockout, InterfacesModel, svcInstUtils,
              PortTupleModel, SvcHealthChkModel, IntfRtTableModel, RtPolicyModel,
              RtAggregateModel, AllowedAddressPairModel, StaticRTModel) {
     var self;
-    var SvcInstModel = ContrailModel.extend({
+    var SvcInstModel = ContrailConfigModel.extend({
         defaultConfig: {
             service_template: null,
             display_name: null,
@@ -770,6 +770,8 @@ define([
             }
             var appCollectionModel = new Backbone.Collection(addrPairModels);
             modelConfig['allowedAddressPairCollection'] = appCollectionModel;
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
         getPortTupleDisplayName: function(portTupleName, portTupleData,
@@ -1542,7 +1544,9 @@ define([
                 key: ['staticRoutes'],
                 type: cowc.OBJECT_TYPE_COLLECTION,
                 getValidation: 'staticRoutesValidation'
-            }];
+            },
+            //permissions
+            ctwu.getPermissionsValidation()];
             return validationList;
         },
         configureSvcInst: function (isEdit, dataItem, callbackObj) {
@@ -1608,6 +1612,9 @@ define([
                     newSvcInst['service_instance_properties']
                         ['availability_zone'] = availZone;
                 }
+                //permissions
+                this.updateRBACPermsAttrs(newSvcInst);
+
                 delete newSvcInst['interfaces'];
                 delete newSvcInst['host_list'];
                 delete newSvcInst['service_template'];

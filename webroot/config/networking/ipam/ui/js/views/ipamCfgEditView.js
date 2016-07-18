@@ -21,7 +21,7 @@ define([
             var editLayout = editTemplate({prefixId: prefixId}),
                 self = this;
 
-            cowu.createModal({'modalId': modalId, 'className': 'modal-480',
+            cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 self.model.addEditIpamCfg({
@@ -59,7 +59,9 @@ define([
                                         document.getElementById(modalId));
                 kbValidation.bind(self,
                     {collection: self.model.model().attributes.tenant_dns_server});
-                                    });
+                //permissions
+                ctwu.bindPermissionsValidation(self);
+                                    }, null, true);
         },
 
         renderEditIpamCfg: function(options) {
@@ -67,7 +69,7 @@ define([
                 contrail.getTemplate4Id(cowc.TMPL_EDIT_FORM);
             var editLayout = editTemplate({prefixId: prefixId}),
                 self = this;
-            cowu.createModal({'modalId': modalId, 'className': 'modal-480',
+            cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 self.model.addEditIpamCfg({
@@ -105,7 +107,9 @@ define([
                                         document.getElementById(modalId));
                 kbValidation.bind(self,
                     {collection: self.model.model().attributes.tenant_dns_server});
-                                    });
+                //permissions
+                ctwu.bindPermissionsValidation(self);
+                                    }, null, true);
         },
 
         renderMultiDeleteIpamCfg: function(options) {
@@ -155,7 +159,7 @@ define([
         var ipamCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
                                             ctwl.CFG_IPAM_TITLE_CREATE]),
-            title: ctwl.CFG_IPAM_TITLE_CREATE,
+            title: "IPAM",
             view: "SectionView",
             viewConfig: {
                 rows: [

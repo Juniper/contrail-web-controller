@@ -24,7 +24,7 @@ define([
             self.mode = options.mode;
             cowu.createModal({
                 'modalId': modalId,
-                'className': 'modal-680',
+                'className': 'modal-700',
                 'title': options['title'],
                 'body': editLayout,
                 'onSave': function() {
@@ -80,7 +80,9 @@ define([
                         document.getElementById(
                             modalId));
                     kbValidation.bind(self);
-                });
+                    //permissions
+                    ctwu.bindPermissionsValidation(self);
+                }, null, true);
         },
 
         renderDeleteDnsServer: function(options) {
@@ -204,7 +206,7 @@ define([
     function getAddDnsServerViewConfig(isDisable) {
         var dnsViewConfig = {
             elementId: cowu.formatElementId([prefixId, ctwl.TITLE_CREATE_DNS_SERVER]),
-            title: ctwl.TITLE_CREATE_DNS_SERVER,
+            title: "DNS Server",
             view: "SectionView",
             viewConfig: {
                 rows: [{
