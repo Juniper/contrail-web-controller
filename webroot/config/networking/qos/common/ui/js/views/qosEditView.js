@@ -72,7 +72,9 @@ define([
                         {collection:
                             self.model.model().attributes.
                             mpls_exp_entries_fc_pair});
-                }
+                    //permissions
+                    ctwu.bindPermissionsValidation(self);
+                }, null, true
             );
         },
 

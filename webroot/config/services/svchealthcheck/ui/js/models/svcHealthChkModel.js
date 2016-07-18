@@ -4,9 +4,9 @@
 
 define([
     'underscore',
-    'contrail-model'
-], function (_, ContrailModel) {
-    var svcHealthChkCfgModel = ContrailModel.extend({
+    'contrail-config-model'
+], function (_, ContrailConfigModel) {
+    var svcHealthChkCfgModel = ContrailConfigModel.extend({
 
         defaultConfig: {
             'name': '',
@@ -26,6 +26,12 @@ define([
                 'expected_codes': null,  // Unsupported
                 'health_check_type': 'link-local'
             },
+        },
+
+        formatModelConfig: function(modelConfig) {
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
+            return modelConfig;
         },
 
         validations: {
@@ -61,7 +67,14 @@ define([
             var postData = {'service-health-check':{}};
 
             var self = this;
-            if (self.model().isValid(true, "svcHealthChkCfgConfigValidations")) {
+            var validation = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'svcHealthChkCfgConfigValidations'
+            },
+            //permissions
+            ctwu.getPermissionsValidation()];
+            if (self.isDeepValid(validation)) {
 
                 var newsvcHealthChkCfgData = $.extend(true,
                                                 {}, self.model().attributes);
@@ -95,6 +108,9 @@ define([
                 newsvcHealthChkCfgData['service_health_check_properties']['timeout'] = timeout;
                 max_retries = max_retries.trim().length != 0 ? Number(max_retries) : null;
                 newsvcHealthChkCfgData['service_health_check_properties']['max_retries'] = max_retries;
+
+                //permissions
+                this.updateRBACPermsAttrs(newsvcHealthChkCfgData);
 
                 ctwu.deleteCGridData(newsvcHealthChkCfgData);
                 delete newsvcHealthChkCfgData.id_perms;

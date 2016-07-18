@@ -18,7 +18,7 @@ define([
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
             var editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
                 self = this;
-            cowu.createModal({'modalId': modalId, 'className': 'modal-560',
+            cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 self.model.configureSvcApplianceSet(options['isEdit'], {
@@ -55,7 +55,9 @@ define([
                 kbValidation.bind(self,
                                   {collection:
                                   self.model.model().attributes.svcApplProperties});
-            });
+                //permissions
+                ctwu.bindPermissionsValidation(self);
+            }, null, true);
         },
         renderDeleteSvcApplianceSet: function(options) {
             var delTemplate =
@@ -212,7 +214,7 @@ define([
         var svcApplianceSetViewConfig = {
             elementId: cowu.formatElementId([prefixId,
                                             ctwl.TITLE_EDIT_SVC_APPLIANCE_SET]),
-            title: ctwl.TITLE_EDIT_SVC_APPLIANCE_SET,
+            title: "Service Appliance Set",
             view: "SectionView",
             viewConfig: {
                 rows: [

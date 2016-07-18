@@ -54,8 +54,7 @@ define([
             var svcApplianceSetModel = new SvcApplianceSetModel(dataItem);
             svcApplianceSetEditView.model = svcApplianceSetModel;
             svcApplianceSetEditView.renderEditSvcApplianceSet({
-                        "title": ctwl.TITLE_EDIT_SVC_APPLIANCE_SET +
-                            ' (' + dataItem['display_name'] + ")",
+                        "title": ctwl.EDIT,
                         rowIndex: rowIndex,
                         dataItem: dataItem,
                         isEdit: true,
@@ -244,7 +243,9 @@ define([
                                         }
                                     }
                                 ]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails()]
                         }]
                     }
                 }]
@@ -343,7 +344,7 @@ define([
                     svcApplianceSetModel = new SvcApplianceSetModel();
                     svcApplianceSetEditView.model = svcApplianceSetModel;
                     svcApplianceSetEditView.renderEditSvcApplianceSet({
-                                  "title": ctwl.TITLE_CREATE_SVC_APPLIANCE_SET,
+                                  "title": ctwl.CREATE,
                                   callback: function() {
                         var dataView =
                             $(gridElId).data("contrailGrid")._dataView;

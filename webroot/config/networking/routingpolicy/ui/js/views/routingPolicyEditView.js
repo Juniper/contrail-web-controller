@@ -87,7 +87,10 @@ define([
                         kbValidation.bind(self, {collection: termModels[i].model().attributes['then_terms']});
                     }
 
-                });
+                    //permissions
+                    ctwu.bindPermissionsValidation(self);
+
+                }, null, true);
             return;
         },
         renderDeleteRoutingPolicy: function (options) {
@@ -147,6 +150,7 @@ define([
             elementId: cowu.formatElementId(
                 [prefixId, ctwl.TITLE_ROUTING_POLICY_EDIT]),
             view: "SectionView",
+            title: "Routing Policy",
             viewConfig: {
                 rows: [{
                     columns: [{

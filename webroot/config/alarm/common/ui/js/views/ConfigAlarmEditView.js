@@ -79,8 +79,10 @@ define([
                     for (var i = 0; i < orRuleModels.length; i++) {
                         kbValidation.bind(self, {collection: orRuleModels[i].model().attributes['andRules']});
                     }
+                    //permissions
+                    ctwu.bindPermissionsValidation(self);
 
-                });
+                }, null, true);
             return;
         },
         renderDeleteRule: function (options) {
@@ -140,6 +142,7 @@ define([
             elementId: cowu.formatElementId(
                     [prefixId, ctwl.TITLE_EDIT_ALARM_RULE]),
                 view: "SectionView",
+                title: "Alarm Rule",
                 viewConfig: {
                     rows: [{
                         columns: [{

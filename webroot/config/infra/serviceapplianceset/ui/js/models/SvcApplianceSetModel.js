@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/infra/serviceapplianceset/ui/js/models/SvcAppliPropModel'
-], function (_, ContrailModel, SvcAppliPropModel) {
-    var SvcApplianceSetModel = ContrailModel.extend({
+], function (_, ContrailConfigModel, SvcAppliPropModel) {
+    var SvcApplianceSetModel = ContrailConfigModel.extend({
         defaultConfig: {
             display_name: "",
             service_appliance_driver: null,
@@ -71,6 +71,8 @@ define([
             if (null != modelConfig['service_appliance_set_properties']) {
                 delete modelConfig['service_appliance_set_properties'];
             }
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
         deepValidationList: function () {
@@ -83,7 +85,9 @@ define([
                 key: 'svcApplProperties',
                 type: cowc.OBJECT_TYPE_COLLECTION,
                 getValidation: 'svcApplPropValidation'
-            }];
+            },
+            //permissions
+            ctwu.getPermissionsValidation()];
             return validationList;
         },
         configureSvcApplianceSet: function (isEdit, callbackObj) {
@@ -109,7 +113,8 @@ define([
                 newSvcAppl['fq_name'] = ['default-global-system-config',
                     newSvcAppl['display_name']];
                 newSvcAppl['parent_type'] = 'global-system-config';
-
+                //permissions
+                this.updateRBACPermsAttrs(newSvcAppl);
                 delete newSvcAppl.svcApplProperties;
                 ctwu.deleteCGridData(newSvcAppl);
 

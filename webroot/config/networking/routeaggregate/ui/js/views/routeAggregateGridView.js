@@ -126,7 +126,7 @@ define([
 
                 routeAggregateEditView.model = routeAggregateModel;
                 routeAggregateEditView.renderAddEditRouteAggregate(
-                    {"title": title, checkedRow: checkedRow,
+                    {"title": ctwl.EDIT, checkedRow: checkedRow,
                         callback: function () {
                             var dataView =
                                 $(gridElId).data("contrailGrid")._dataView;
@@ -194,7 +194,7 @@ define([
 	                    var routeAggregateModel = new RouteAggregateModel();
 	                    routeAggregateEditView.model = routeAggregateModel;
 	                    routeAggregateEditView.renderAddEditRouteAggregate(
-	                        {"title": ctwl.TITLE_ADD_ROUTE_AGGREGATE,
+	                        {"title": ctwl.CREATE,
 	                            callback: function () {
 	                                var dataView =
 	                                    $(gridElId).
@@ -257,7 +257,9 @@ define([
                                         formatter: "ServiceInstancesFormatter"
                                     }
                                 }]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails()]
                         }]
                     }
                 }]

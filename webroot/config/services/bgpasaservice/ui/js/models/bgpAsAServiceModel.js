@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'contrail-model'/*,
+    'contrail-config-model'/*,
     'config/services/bgpasaservice/ui/js/models/bgpAsAServiceFamilyAttrModel'*/
-], function (_, ContrailModel/*, BGPAsAServiceFamilyAttrModel*/) {
-    var bgpAsAServiceModel = ContrailModel.extend({
+], function (_, ContrailConfigModel/*, BGPAsAServiceFamilyAttrModel*/) {
+    var bgpAsAServiceModel = ContrailConfigModel.extend({
         defaultConfig: {
             "name": null,
             "display_name": null,
@@ -98,6 +98,9 @@ define([
                     editVMIRefs;
             }
             /*modelConfig["familyAttrs"] = new Backbone.Collection(familyAttrArray);*/
+
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
 
@@ -169,6 +172,9 @@ define([
                     type : cowc.OBJECT_TYPE_COLLECTION,
                     getValidation : "familyAttrValidation"
                 }*/
+                ,
+                //permissions
+                ctwu.getPermissionsValidation()
             ];
 
             if (self.isDeepValid(validations)) {
@@ -234,6 +240,9 @@ define([
                 //virtual_machine_interface refs
                  newBGPAsAServiceData["virtual_machine_interface_refs"] =
                      self.prepareVMIRefs(attr);
+
+                //permissions
+                this.updateRBACPermsAttrs(newBGPAsAServiceData);
 
                 ctwu.deleteCGridData(newBGPAsAServiceData);
                 delete newBGPAsAServiceData.id_perms;

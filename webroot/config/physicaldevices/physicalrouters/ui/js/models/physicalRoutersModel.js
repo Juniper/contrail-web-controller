@@ -3,11 +3,11 @@
  */
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/physicaldevices/physicalrouters/ui/js/models/servicePortsModel'
-], function (_, ContrailModel, ServicePortModel) {
+], function (_, ContrailConfigModel, ServicePortModel) {
     var self;
-    var PhysicalRouterModel = ContrailModel.extend({
+    var PhysicalRouterModel = ContrailConfigModel.extend({
         defaultConfig: {
             'uuid' : null,
             'name' : null,
@@ -164,6 +164,8 @@ define([
                 });
             }
             modelConfig['virtualRouterType'] = vrType;
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
         getPortNameList : function(attr) {
@@ -195,12 +197,14 @@ define([
                     key : 'servicePorts',
                     type : cowc.OBJECT_TYPE_COLLECTION,
                     getValidation : 'servicePortValidation'
-                }
+                },
+                //permissions
+                ctwu.getPermissionsValidation()
             ];
             if(this.isDeepValid(validations)) {
                 var ajaxConfig = {},
                     returnFlag = false;
-                var attr = this.model().attributes,
+                var attr = $.extend(true, {}, this.model().attributes),
                     postObject = {};
                 postObject["physical-router"] = {};
                 postObject["physical-router"]["fq_name"] =
@@ -465,6 +469,11 @@ define([
                     postObject["physical-router"]
                         ['physical_router_snmp_credentials'] = null;
                 }
+                //permissions
+                this.updateRBACPermsAttrs(attr);
+                postObject["physical-router"]["perms2"] =
+                    attr["perms2"];
+
                 ajaxConfig.type = ajaxOpt.type;
                 ajaxConfig.data = JSON.stringify(postObject);
                 ajaxConfig.url = ajaxOpt.url;//ctwc.URL_PHYSICAL_ROUTER_CREATE;

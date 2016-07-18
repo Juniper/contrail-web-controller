@@ -88,7 +88,9 @@ define([
                         {collection:
                           self.model.model().attributes.portBindingCollection}
                         );
-                }
+                    //permissions
+                   ctwu.bindPermissionsValidation(self);
+                }, null, true
             );
             return;
         },
@@ -195,6 +197,7 @@ define([
             return {
                 elementId: cowu.formatElementId([prefixId, ctwl.TITLE_EDIT_PORT]),
                 view: "SectionView",
+                title: "Port",//permissions
                 viewConfig:{
                     rows: [
                         portViewConfigs.virtualNetworkSection(self,
