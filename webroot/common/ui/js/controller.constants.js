@@ -800,6 +800,18 @@ define([
         this.RBAC_ALL_ROLES = "All Roles (*)";
         this.RBAC_PREFIX_ID = "rbac";
 
+        /* Config Alarm Rule Constants */
+        this.ALARM_PREFIX_ID = "configalarm";
+        this.ALARM_GRID_ID = "config-alarm-grid";
+        this.ALARM_LIST_VIEW_ID = "alarm-list-view";
+        this.CONFIG_ALARM_PROJECT_SECTION_ID = "config-alarm-project-section";
+        this.CONFIG_ALARM_LIST_VIEW_ID = "config-alarm-list-view";
+        this.CONFIG_ALARM_PROJECT_ID = 'config-alarm-project';
+        this.CONFIG_ALARM_GLOBAL_ID = "config-alarm-global";
+        this.CONFIG_ALARM_GLOBAL_SECTION_ID = "config-alarm-global-section";
+        this.CONFIG_ALARM_LIST_ID = "config-alarm-list";
+        this.CONFIG_ALARM_SEVERITY_TEMPLATE = 'config-alarm-severity-template';
+
         /* Route Aggregate Constants */
         this.CONFIG_ROUTE_AGGREGATE_LIST_ID = "config-route-aggregate-list";
         this.ROUTE_AGGREGATE_GRID_ID = "route-aggregate-grid";
