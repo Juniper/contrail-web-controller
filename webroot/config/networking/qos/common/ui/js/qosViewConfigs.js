@@ -21,7 +21,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                                         viewConfig: {
                                             disabled: disableId,
                                             path: "display_name",
-                                            placeholder: "Enter QOS " +
+                                            placeholder: "Enter QoS " +
                                                 "Config Name",
                                             dataBindValue: "display_name",
                                             label: "Name",
@@ -29,12 +29,17 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                                         }
                                     },
                                     {
-                                        elementId: "trusted",
-                                        view: "FormCheckboxView",
+                                        elementId:
+                                            "default_forwarding_class_id",
+                                        view: "FormInputView",
                                         viewConfig: {
-                                            path: "trusted",
-                                            dataBindValue: "trusted",
-                                            label: "Trusted",
+                                            path: "default_forwarding_class_id",
+                                            placeholder: "Enter Default " +
+                                                "Forwarding Class ID",
+                                            dataBindValue:
+                                                "default_forwarding_class_id",
+                                            label:
+                                                "Default Forwarding Class ID",
                                             class: "span6"
                                         }
                                     }
@@ -56,6 +61,22 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                                }]
                             },{
                                 columns:[{
+                                    elementId: "mpls_exp_entries_accordion",
+                                    view: "AccordianView",
+                                    viewConfig:[{
+                                       elementId: "mpls_exp_entries_section",
+                                       view:  "SectionView",
+                                       title: "MPLS EXP",
+                                       viewConfig:{
+                                           rows: [{
+                                               columns:
+                                                  this.MPLSExpEntriesSection()
+                                            }]
+                                        }
+                                    }]
+                                }]
+                             },{
+                                columns:[{
                                     elementId:
                                         "vlan_priority_entries_accordion",
                                     view: "AccordianView",
@@ -72,23 +93,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                                         }
                                     }]
                                 }]
-                             },{
-                                 columns:[{
-                                     elementId: "mpls_exp_entries_accordion",
-                                     view: "AccordianView",
-                                     viewConfig:[{
-                                        elementId: "mpls_exp_entries_section",
-                                        view:  "SectionView",
-                                        title: "MPLS Exp",
-                                        viewConfig:{
-                                            rows: [{
-                                                columns:
-                                                   this.MPLSExpEntriesSection()
-                                             }]
-                                         }
-                                     }]
-                                 }]
-                              }
+                             }
                         ]
                     }
             };
@@ -140,11 +145,11 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                 viewConfig: {
                     path : 'dscp_entries_fc_pair',
                     validation:
-                   'dscpEntriesValidations',
+                   'dscpValidations',
                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                     collection:
                         'dscp_entries_fc_pair',
-                    columns: this.fcPairColumns("DSCP", "dscp_key",
+                    columns: this.fcPairColumns("DSCP bits", "dscp_key",
                             "forwarding_class_id",
                             ctwc.QOS_DSCP_VALUES),
                     rowActions: [
@@ -174,11 +179,11 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                 viewConfig: {
                     path : 'vlan_priority_entries_fc_pair',
                     validation:
-                   'vlanPriorityEntriesValidations',
+                   'vlanValidations',
                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                     collection:
                         'vlan_priority_entries_fc_pair',
-                    columns: this.fcPairColumns("VLAN Priority", "vlan_key",
+                    columns: this.fcPairColumns("VLAN Priority bits", "vlan_key",
                             "forwarding_class_id",
                             ctwc.QOS_VLAN_PRIORITY_VALUES),
                     rowActions: [
@@ -208,11 +213,11 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                 viewConfig: {
                     path : 'mpls_exp_entries_fc_pair',
                     validation:
-                   'mplsExpEntriesValidations',
+                   'mplsValidations',
                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                     collection:
                         'mpls_exp_entries_fc_pair',
-                    columns: this.fcPairColumns("MPLS EXP", "mpls_key",
+                    columns: this.fcPairColumns("MPLS EXP bits", "mpls_key",
                             "forwarding_class_id",
                             ctwc.QOS_MPLS_EXP_VALUES),
                     rowActions: [

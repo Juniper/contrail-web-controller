@@ -61,9 +61,17 @@ define([
                                              false);
                     Knockback.applyBindings(self.model,
                         document.getElementById(modalId));
-                   kbValidation.bind(self,
-                           {collection:
-                               self.model.model().attributes.rule_perms});
+                    kbValidation.bind(self,
+                       {collection:
+                           self.model.model().attributes.dscp_entries_fc_pair});
+                    kbValidation.bind(self,
+                        {collection:
+                            self.model.model().attributes.
+                                vlan_priority_entries_fc_pair});
+                    kbValidation.bind(self,
+                        {collection:
+                            self.model.model().attributes.
+                            mpls_exp_entries_fc_pair});
                 }
             );
         },
