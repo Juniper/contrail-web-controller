@@ -489,12 +489,10 @@ define([
                 'virtual_machine_interface_properties.local_preference' :
                     function(value, attr, finalObj) {
                     if(value != "") {
-                        if (!isNumber(String(value).trim())){
-                            return "Local preference has to be a number.";
-                        }
-                        var vlanVal = Number(String(value).trim());
-                        if (vlanVal < 1 || vlanVal > 4294967295) {
-                            return "Enter Local preference between 1 to 4294967295";
+                        if (!isNumber(String(value).trim()) ||
+                                (value.toString() !== "100" &&
+                                value.toString() !== "200")){
+                            return "Local Preference has to be 100 or 200.";
                         }
                     }
                 },

@@ -1152,7 +1152,7 @@ define([
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;version', 1);
             if (2 == tmplVersion) {
-                return true;
+                return false;
             }
             return svcScaling;
         }), model);
