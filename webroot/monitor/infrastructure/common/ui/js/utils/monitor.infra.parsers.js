@@ -24,10 +24,13 @@ define(
                         if($.inArray(routerType, ctwc.BGP_AAS_ROUTERS) !== -1) {
                             return true;
                         }
-                        obj['x'] = parseFloat(jsonPath(d,'$.value.ControlCpuState.cpu_info[0].cpu_share')[0]);
+                        var memCpuUsage = jsonPath(d,'$.value.NodeStatus.process_mem_cpu_usage' +
+                                            '[?(@.module_id=="contrail-control")]')[0];
+                        obj['x'] = parseInt(getValueByJsonPath(memCpuUsage,'cpu_share'));
+                            //parseFloat(jsonPath(d,'$.value.ControlCpuState.cpu_info[0].cpu_share')[0]);
                         //Info:Need to specify the processname explictly
                         //for which we need res memory && Convert to MB
-                        obj['y'] = parseInt(jsonPath(d,'$.value.ControlCpuState.cpu_info[0].mem_res')[0])/1024;
+                        obj['y'] = parseInt(getValueByJsonPath(memCpuUsage,'mem_res'))/1024;
                         obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
                         obj['y'] = $.isNumeric(obj['y']) ? obj['y'] : 0;
@@ -382,13 +385,10 @@ define(
                     var retArr = [];
                     $.each(result, function(idx, d) {
                         var obj = {};
-                        obj['x'] =
-                            parseFloat(jsonPath(d,'$..ModuleCpuState.module_cpu_info' +
-                            '[?(@.module_id=="contrail-collector")]..cpu_share')[0]);
-                        obj['y'] =
-                            parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info' +
-                            '[?(@.module_id=="contrail-collector")]..meminfo.res')[0])
-                            / 1024;
+                        var memCpuUsage = jsonPath(d,'$.value.NodeStatus.process_mem_cpu_usage' +
+                                            '[?(@.module_id=="contrail-collector")]')[0];
+                        obj['x'] = parseInt(getValueByJsonPath(memCpuUsage,'cpu_share'));
+                        obj['y'] = parseInt(getValueByJsonPath(memCpuUsage,'mem_res'))/1024;
                         obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
                         obj['memory'] = formatBytes(obj['y'] * 1024 * 1024);
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
@@ -499,12 +499,10 @@ define(
                     var retArr = [];
                     $.each(result,function(idx,d) {
                         var obj = {};
-                        obj['x'] = parseFloat(jsonPath(d,
-                            '$..ModuleCpuState.module_cpu_info'+
-                            '[?(@.module_id=="contrail-api")]..cpu_share')[0]);
-                        obj['y'] = parseInt(jsonPath(d,
-                            '$..ModuleCpuState.module_cpu_info'+
-                            '[?(@.module_id=="contrail-api")]..meminfo.res')[0])/1024;
+                        var memCpuUsage = jsonPath(d,'$.value.NodeStatus.process_mem_cpu_usage' +
+                                            '[?(@.module_id="^contrail-api")]')[0];
+                        obj['x'] = parseInt(getValueByJsonPath(memCpuUsage,'cpu_share'));
+                        obj['y'] = parseInt(getValueByJsonPath(memCpuUsage,'mem_res'))/1024;
                         obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
                         obj['memory'] = formatBytes(obj['y']*1024*1024);
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
