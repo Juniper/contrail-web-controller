@@ -480,7 +480,9 @@ define([
 
         var summaryAddColumns = [
             {
-                id: 'fc-badge', field:"", name:"", resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: { allow: false },
+                id: 'fc-badge', field:"", name:"",
+                cssClass: 'center',
+                resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: { allow: false },
                 formatter: function(r, c, v, cd, dc){
                     return ['<span class="label-icon-badge label-icon-badge-' , dc.key , ' icon-badge-color-' , r ,
                         ' " data-color_key="' , r , '"><i class="icon-sign-blank"></i></span>'].join("");
