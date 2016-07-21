@@ -2668,7 +2668,26 @@ function getServiceInstDetails(siObj, callback)
     }
 }
 
-function getServiceInstDetailsV2 (siObj, callback) {
+function isSubInterface (vmi)
+{
+    var vlan =
+        commonUtils.getValueByJsonPath(vmi,
+                                       'virtual-machine-interface;' +
+                                       'virtual_machine_interface_properties;' +
+                                       'sub_interface_vlan_tag', null);
+    var vmiRefs =
+        commonUtils.getValueByJsonPath(vmi,
+                                       'virtual-machine-interface;' +
+                                       'virtual_machine_interface_refs',
+                                       []);
+    if ((null != vlan) && (vmiRefs.length > 0)) {
+        return true;
+    }
+    return false;
+}
+
+function getServiceInstDetailsV2 (siObj, callback)
+{
     var req = siObj['req'];
     var appData = siObj['appData'];
     var servInstId = siObj['servInstId'];
@@ -2691,7 +2710,7 @@ function getServiceInstDetailsV2 (siObj, callback) {
         uuidList.push(portTuples[i]['uuid']);
     }
     var vmiUrl =
-        '/virtual-machine-interfaces?&fields=virtual_machine_refs&'
+        '/virtual-machine-interfaces?detail=true&fields=virtual_machine_refs&'
         + 'back_ref_id=' + uuidList.join(',');
     configApiServer.apiGet(vmiUrl, appData, function(error, vmiData) {
         if ((null != error) || (null == vmiData) ||
@@ -2706,10 +2725,12 @@ function getServiceInstDetailsV2 (siObj, callback) {
         var vmiCnt = vmiData.length;
         var vmRefs = null;
         var vmRefsList = [];
+        var subIntfList = [];
         var tmpVMIUuids = {};
         for (var i = 0; i < vmiCnt; i++) {
             vmRefs =
                 commonUtils.getValueByJsonPath(vmiData[i],
+                                               'virtual-machine-interface;' +
                                                'virtual_machine_refs',
                                                []);
             var vmRefsCnt = vmRefs.length;
@@ -2720,29 +2741,85 @@ function getServiceInstDetailsV2 (siObj, callback) {
                     tmpVMIUuids[vmiID] = vmiID;
                 }
             }
+            if (!vmRefsCnt) {
+                /* Check if it is sub interface */
+                if (isSubInterface(vmiData[i])) {
+                    var parentVMI =
+                        commonUtils.getValueByJsonPath(vmiData[i],
+                                                       'virtual-machine-interface;' +
+                                                       'virtual_machine_interface_refs;0;uuid',
+                                                       null);
+                    if (null != parentVMI) {
+                        subIntfList.push(parentVMI);
+                    }
+                }
+            }
         }
-        if (!vmRefsList.length) {
-            result['ConfigData'] = data;
-            result['vmStatus'] = global.STR_VM_STATE_SPAWNING;
-            updateVMStatusByCreateTS(result);
-            callback(null, result);
+        if (!subIntfList.length) {
+            getSIStatusByVMRefsList(req, vmRefsList, data, result,
+                                    callback);
             return;
         }
-        computeApi.getServiceInstanceVMStatus(req, vmRefsList,
-                                              function (err, result) {
-            if (err) {
-                logutils.logger.debug('Error in retrieving VM details for ' +
-                                      ' Instance Id: ' + servInstId +
-                                      ' with error:' + err);
+        var vmiReqUrl =
+            '/virtual-machine-interfaces?fields=virtual_machine_refs&' +
+            'obj_uuids=' + subIntfList.join(',');
+        configApiServer.apiGet(vmiReqUrl, appData,
+                               function(error, subIntfData) {
+            if ((null != error) || (null == subIntfData) ||
+                (null == subIntfData['virtual-machine-interfaces'])) {
+                getSIStatusByVMRefsList(req, vmRefsList, data, result,
+                                        callback);
+                return;
             }
-            var resultJSON = {};
-            resultJSON['ConfigData'] = data;
-            resultJSON['VMDetails'] = result;
-            /* Now update the vmStatus field */
-            resultJSON = updateVMStatus(resultJSON);
-            updateVMStatusByCreateTS(resultJSON);
-            callback(null, resultJSON);
+            var tmpVMIUuids = {};
+            var vmiData = subIntfData['virtual-machine-interfaces'];
+            var vmiCnt = vmiData.length;
+            var vmRefs = null;
+            vmRefsList = [];
+            for (var i = 0; i < vmiCnt; i++) {
+                vmRefs =
+                    commonUtils.getValueByJsonPath(vmiData[i],
+                                                   'virtual_machine_refs',
+                                                   []);
+                var vmRefsCnt = vmRefs.length;
+                for (var j = 0; j < vmRefsCnt; j++) {
+                    var vmiID = vmRefs[j]['uuid'];
+                    if (null == tmpVMIUuids[vmiID]) {
+                        vmRefsList.push(vmRefs[j]);
+                        tmpVMIUuids[vmiID] = vmiID;
+                    }
+                }
+            }
+            getSIStatusByVMRefsList(req, vmRefsList, data, result,
+                                    callback);
+            return;
         });
+    });
+}
+
+function getSIStatusByVMRefsList (req, vmRefsList, data, result, callback)
+{
+    if (!vmRefsList.length) {
+        result['ConfigData'] = data;
+        result['vmStatus'] = global.STR_VM_STATE_SPAWNING;
+        updateVMStatusByCreateTS(result);
+        callback(null, result);
+        return;
+    }
+    computeApi.getServiceInstanceVMStatus(req, vmRefsList,
+                                          function (err, result) {
+        if (err) {
+            logutils.logger.debug('Error in retrieving VM details for ' +
+                                  ' Instance Id: ' + servInstId +
+                                  ' with error:' + err);
+        }
+        var resultJSON = {};
+        resultJSON['ConfigData'] = data;
+        resultJSON['VMDetails'] = result;
+        /* Now update the vmStatus field */
+        resultJSON = updateVMStatus(resultJSON);
+        updateVMStatusByCreateTS(resultJSON);
+        callback(null, resultJSON);
     });
 }
 
@@ -3099,10 +3176,11 @@ function getHostList(request, response, appdata)
             commonUtils.handleJSONResponse(null, response, filteredOSHostList);
             return;
         }
-        var allOSHostList = data["hosts"];
-        for (i = 0; i < data["hosts"].length; i++) {
-            if(data["hosts"][i].service == "compute"){
-                filteredOSHostList.push(data["hosts"][i]);
+        var allOSHostList =
+            commonUtils.getValueByJsonPath(data, 'hosts', []);
+        for (i = 0; i < allOSHostList.length; i++) {
+            if (allOSHostList[i].service == "compute"){
+                filteredOSHostList.push(allOSHostList[i]);
             }
         }
         var returnArr = {};
