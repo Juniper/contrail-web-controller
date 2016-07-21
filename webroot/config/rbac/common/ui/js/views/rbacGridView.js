@@ -83,10 +83,10 @@ define([
                 },
                 statusMessages: {
                     loading: {
-                        text: 'Loading API Acess..'
+                        text: 'Loading API Access..'
                     },
                     empty: {
-                        text: 'No API Acess Found.'
+                        text: 'No API Access Found.'
                     }
                 }
             },

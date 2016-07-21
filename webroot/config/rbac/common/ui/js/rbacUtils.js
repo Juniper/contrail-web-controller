@@ -40,13 +40,17 @@
                                    rule_perms: model.getRulePerms(attr)
                                };
                  if (null == uuid) {
-                     fqName.push(domain);
                      if(options.isProject) {
                          parentType = "project";
                          project = contrail.getCookie(cowc.COOKIE_PROJECT);
+                         fqName.push(domain);
                          fqName.push(project);
+                     } else if(options.isGlobal) {
+                         parentType = "global-system-config";
+                         fqName.push("default-global-system-config");
                      } else {
                          parentType = "domain";
+                         fqName.push(domain);
                      }
                      fqName.push(defaultAALName);
                      putData = {};
