@@ -1,31 +1,17 @@
-.confignode-chart .widget-box .widget-header > :first-child {
-    line-height: 23px;
-}
-.confignode-chart .widget-box .widget-main {
-    padding: 0px;
-}
-.confignode-chart g.nv-barsWrap g.nv-group {
+
+/******Config Node chart and Analytics node chart CSS starts here****/
+
+.mon-infra-chart g.nv-barsWrap g.nv-group {
     fill-opacity: 1 !important;
 }
-.confignode-chart .contrail-legend text {
+.mon-infra-chart .contrail-legend text {
     font: normal 11px Open Sans;
     opacity: 1;
 }
-.confignode-chart .widget-box {
-    margin: 0px;
-}
-.confignode-chart .contrail-chart-title text {
+.mon-infra-chart .contrail-chart-title text {
     font-size: 11px;
 }
-.confignode-chart .widget-box .widget-header {
-    border-bottom: none;
-    font-size: 14px;
-    height: 23px;
-    cursor: auto;
-    padding: 3px 0px;
-}
-/******Config Node chart CSS starts here****/
-#config-nodes-chart{
+#config-nodes-chart, #analytics-nodes-chart{
     margin-top:15px !important;
 }
 #config-nodes-chart .chart-container g.main text.axis-label, #config-nodes-donutchart-section g.contrail-chart-title text, #config-nodes-linebarchart .nv-axislabel{
@@ -39,4 +25,12 @@
 #config-nodes-linebarchart{
     width:43% !important;
 }
-/******Config Node chart CSS Ends here****/
+#analytics-chart-queries-stackedbarchart-id .chart-container g.main text.axis-label, #analytics-chart-database-read-stackedbarchart-id .chart-container g.main text.axis-label,  #analytics-chart-database-write-stackedbarchart-id .chart-container g.main text.axis-label{
+    text-anchor:middle;
+    font-weight:600;
+    font-size:11px !important;
+}
+#analytics-nodes-chart .chartMargin{
+    margin:0 10px 0 10px !important;
+}
+/******Config Node chart and Analytics node chart Ends here****/
