@@ -67,7 +67,7 @@ define([
             rbacValidations: {
                 rule_object : {
                     required : true,
-                    msg : "Object is required"
+                    msg : "Object is Required"
                 }
             }
         }

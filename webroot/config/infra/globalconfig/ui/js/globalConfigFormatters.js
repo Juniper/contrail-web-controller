@@ -132,7 +132,11 @@
           };
 
           this.formatForwardingClassId = function(r, c, v, cd, dc) {
-              return getValueByJsonPath(dc, "forwarding_class_id", "-");
+              var fwdClass = getValueByJsonPath(dc, "forwarding_class_id", "");
+              if(fwdClass === ""){
+                  fwdClass = getValueByJsonPath(dc, "name", "-");
+              }
+              return fwdClass;
           };
 
           this.formatForwardingClassDSCP = function(r, c, v, cd, dc) {
