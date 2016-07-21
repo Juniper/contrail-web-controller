@@ -24,8 +24,8 @@ define([
                         url: ctwc.URL_GET_CONFIG_DETAILS,
                         type: "POST",
                         data: JSON.stringify({data: [{type: "api-access-lists",
-                            parent_fq_name_str: "default-domain",
-                            parent_type: "domain"}]})
+                            parent_fq_name_str: "default-global-system-config",
+                            parent_type: "global-system-config"}]})
                     },
                     dataParser: self.parseRBACGlobalData,
                 }
