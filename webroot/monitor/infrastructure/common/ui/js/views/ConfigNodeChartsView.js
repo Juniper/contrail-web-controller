@@ -22,7 +22,7 @@ define(['underscore', 'contrail-view',
                        elementId : ctwl.CONFIGNODE_SUMMARY_STACKEDCHART_ID,
                        view : "StackedBarChartWithFocusView",
                        viewConfig : {
-                           class: 'span7 confignode-chart',
+                           class: 'span7 mon-infra-chart',
                            chartOptions:{
                                brush: false,
                                height: 380,
@@ -133,7 +133,7 @@ define(['underscore', 'contrail-view',
                        elementId: ctwl.CONFIGNODE_SUMMARY_LINEBARCHART_ID,
                        view: 'LineBarWithFocusChartView',
                        viewConfig: {
-                           class: 'span5 confignode-chart',
+                           class: 'span5 mon-infra-chart',
                            parseFn: function (response) {
                                return monitorInfraParsers.parseConfigNodeResponseStackedChartData(response);
                            },
@@ -224,7 +224,7 @@ define(['underscore', 'contrail-view',
                        viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
                        app : cowc.APP_CONTRAIL_CONTROLLER,
                        viewConfig: {
-                           class: 'span5 confignode-chart'
+                           class: 'span5 mon-infra-chart'
                        }
                    }]
                }]
