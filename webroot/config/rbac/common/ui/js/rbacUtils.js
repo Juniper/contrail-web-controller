@@ -35,18 +35,27 @@
                      getValueByJsonPath(putData, "api-access-list;uuid",
                                         null);
                  rbacRuleObj = {
-                                   rule_object: attr.rule_object,
-                                   rule_field: attr.rule_field,
+                                   rule_object: (attr.rule_object &&
+                                           attr.rule_object.trim()) ?
+                                           attr.rule_object.trim() : "*",
+                                   rule_field:
+                                       (attr.rule_field &&
+                                           attr.rule_field.trim()) ?
+                                           attr.rule_field.trim(): "*",
                                    rule_perms: model.getRulePerms(attr)
                                };
                  if (null == uuid) {
-                     fqName.push(domain);
                      if(options.isProject) {
                          parentType = "project";
                          project = contrail.getCookie(cowc.COOKIE_PROJECT);
+                         fqName.push(domain);
                          fqName.push(project);
+                     } else if(options.isGlobal) {
+                         parentType = "global-system-config";
+                         fqName.push("default-global-system-config");
                      } else {
                          parentType = "domain";
+                         fqName.push(domain);
                      }
                      fqName.push(defaultAALName);
                      putData = {};

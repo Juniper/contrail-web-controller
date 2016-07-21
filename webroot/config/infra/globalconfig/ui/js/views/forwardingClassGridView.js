@@ -230,7 +230,7 @@ define([
                                 templateGenerator:
                                     'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [{
-                                    key: "forwarding_class_id",
+                                    key: "uuid",
                                     templateGenerator: "TextGenerator",
                                     label: "Forwarding Class",
                                     templateGeneratorConfig: {
