@@ -669,10 +669,11 @@ define([
                     addrStr += ':';
                     addrStr += (null != addr[key][0]['addr']) ?
                         addr[key][0]['addr'] : '-';
+                    addrStr += ' <br>';
                 } else {
+                    addrStr += ' <br>';
                     addrStr += "~~";
                 }
-                addrStr += ' <br>';
             }
             statusDataList.push({id: serId, name: serName, status: serStatus,
                                 address: addrStr, state: pwrState});
@@ -719,7 +720,7 @@ define([
                 var strLen = instDetailStr.length;
                 for(var inc = 0; inc < strLen - 1; inc++) {
                     returnHtml += '&nbsp;&nbsp;<span class="status-badge-rounded status-inactive" title="#= msgStr #" ></span>'
-                    returnHtml += instDetailStr[inc + 1];
+                    returnHtml += instDetailStr[inc];
                 }
                 returnHtml += '</td>';
             } else {
