@@ -9,7 +9,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                 viewConfig = self.attributes.viewConfig;
             this.renderView4Config(this.$el, this.model,
                     getConfigNodeDonutChartViewConfig(), null, null, null, function () {
-                if (viewConfig['widgetConfig'] !== null) {
+                if (viewConfig['widgetConfig'] != null) {
                     self.renderView4Config($(self.$el).find('.section-content'), self.model, viewConfig['widgetConfig'], null, null, null);
                 }
             });
