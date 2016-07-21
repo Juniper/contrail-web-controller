@@ -22,7 +22,7 @@ define(
                                     elementId :
                                         ctwl.ANALYTICSNODE_SUMMARY_CHART_ID,
                                     title : ctwl.ANALYTICSNODE_SUMMARY_TITLE,
-                                    view : "AnalyticsNodeScatterChartView",
+                                    view : "AnalyticsNodeSummaryView",
                                     viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
                                     app : cowc.APP_CONTRAIL_CONTROLLER,
                                     viewConfig: {
