@@ -729,6 +729,244 @@ define(
                     return buckets;
                 };
 
+                self.parseSandeshMessageStackChartData = function (apiStats) {
+                    var cf =crossfilter(apiStats);
+                    var parsedData = [];
+                    var timeStampField = 'T';
+                    var groupDim = cf.dimension(function(d) { return d["Source"];});
+                    var tsDim = cf.dimension(function(d) { return d[timeStampField];});
+                    var buckets = this.bucketizeConfigNodeStats(apiStats);
+                    var colorCodes = monitorInfraConstants.CONFIGNODE_COLORS;
+                    colorCodes = colorCodes.slice(0, groupDim.group().all().length);
+                    //Now parse this data to be usable in the chart
+                    var parsedData = [];
+                    for(var i  in buckets) {
+                        var y0 = 0, counts = [], totalFailedReqs = 0;
+                        var timestampExtent = buckets[i]['timestampExtent'];
+                        tsDim.filter(timestampExtent);
+                        var reqCntData = groupDim.group().all();
+                        //Getting nodes group with msg_info.messages
+                        var totalResMessages = groupDim.group().reduceSum(
+                            function (d) {
+                                return d['msg_info.messages'];
+                            });
+                        var totalResMessagesArr = totalResMessages.top(Infinity);
+                        var totalResMessagesArrLen = totalResMessagesArr.length;
+                        var totalReqs = 0;
+                        for (var j =0 ; j < totalResMessagesArrLen; j++) {
+                            totalReqs += totalResMessagesArr[j]['value']
+                        }
+                        for(var j=0;j<totalResMessagesArrLen;j++) {
+                            var nodeName = totalResMessagesArr[j]['key'];
+                            var nodeReqCnt = totalResMessagesArr[j]['value'];
+                            var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
+                            var toTime = new XDate((timestampExtent[1]/1000)).toString('HH:mm');
+                            counts.push({
+                                name: nodeName,
+                                color: colorCodes[j],
+                                nodeReqCnt: nodeReqCnt,
+                                msgCnt: totalResMessagesArr[j]['value'],
+                                time: contrail.format('{0}', fromTime),
+                                y0:y0,
+                                y1:y0 += nodeReqCnt
+                            });
+                        }
+                        parsedData.push({
+                            colorCodes: colorCodes,
+                            counts: counts,
+                            total: totalReqs,
+                            timestampExtent: timestampExtent,
+                            date: new Date(i / 1000)
+                        });
+                    }
+                    return parsedData;
+                };
+
+                this.parseAnlyticsQueriesChartData = function (apiStats) {
+                    var cf =crossfilter(apiStats);
+                    var parsedData = [];
+                    var timeStampField = 'T';
+                    var groupDim = cf.dimension(function(d) { return d["Source"];});
+                    var tsDim = cf.dimension(function(d) { return d[timeStampField];});
+                    var buckets = this.bucketizeConfigNodeStats(apiStats);
+                    var colorCodes = monitorInfraConstants.CONFIGNODE_COLORS;
+                    colorCodes = colorCodes.slice(0, groupDim.group().all().length);
+                    //Now parse this data to be usable in the chart
+                    var parsedData = [];
+                    for(var i  in buckets) {
+                        var y0 = 0, counts = [], totalFailedReqs = 0;
+                        var timestampExtent = buckets[i]['timestampExtent'];
+                        tsDim.filter(timestampExtent);
+                        var queriesCntData = groupDim.group().all();
+                       //reqCntData
+                        //Getting nodes group with failed requests as value
+                        var reqFailedData = groupDim.group().reduceSum(
+                            function (d) {
+                                if (d['query_stats.error'] != "None") {
+                                    return 1;
+                                } else {
+                                    return 0;
+                                }
+                            });
+                        //Getting nodes group with response time as value
+                        var totalResTimeData = groupDim.group().reduceSum(
+                            function (d) {
+                                return d['name'];
+                            });
+                        var reqFailedArr = reqFailedData.top(Infinity);
+                        var resTimeArr = totalResTimeData.top(Infinity);
+
+                        var reqFailedArrLen = reqFailedArr.length;
+                        var resTimeArrLen = resTimeArr.length;
+                        var reqFailedNodeMap = {}, resTimeNodeMap = {};
+                        //Constructing the node - responsetime map
+                        for (var j = 0; j < resTimeArrLen; j++) {
+                            resTimeNodeMap[resTimeArr[j]['key']] =
+                                resTimeArr[j]['value'];
+                        }
+                        //Constructing the node - failedRequestCnt map
+                        for (var j = 0; j < reqFailedArrLen; j++) {
+                            totalFailedReqs += reqFailedArr[j]['value']
+                            reqFailedNodeMap[reqFailedArr[j]['key']] =
+                                reqFailedArr[j]['value'];
+                        }
+                        var totalReqs = 0;
+                        for (var j = 0, len = queriesCntData.length; j < len; j++) {
+                            totalReqs += queriesCntData[j]['value']
+                        }
+                        counts.push({
+                            name: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_TITLE,
+                            totalReqs: totalReqs,
+                            totalFailedReq: totalFailedReqs,
+                            color: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                            y0: y0,
+                            y1: y0 += totalFailedReqs
+                        });
+                        for(var j=0,len=queriesCntData.length;j<len;j++) {
+                            var nodeName = queriesCntData[j]['key'];
+                            var nodeReqCnt = queriesCntData[j]['value'];
+                            var failedReqPerNode = ifNull(reqFailedNodeMap[nodeName], 0);
+                            var failedReqPerNodePercent = 0;
+                            if (failedReqPerNode != 0 && nodeReqCnt != 0) {
+                                failedReqPerNodePercent = Math.round((failedReqPerNode/nodeReqCnt) * 100);
+                            }
+                            //var avgResTime = Math.round((ifNull(resTimeNodeMap[nodeName], 0)/nodeReqCnt)) / 1000; //Converting to millisecs
+                            var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
+                            var toTime = new XDate((timestampExtent[1]/1000)).toString('HH:mm');
+                            counts.push({
+                                name: nodeName,
+                                color: colorCodes[j],
+                                //avgResTime: contrail.format('{0} {1}', avgResTime, 'ms'),
+                                nodeReqCnt: nodeReqCnt,
+                                reqFailPercent: failedReqPerNodePercent,
+                                time: contrail.format('{0}', fromTime),
+                                y0:y0,
+                                y1:y0 += nodeReqCnt
+                            });
+                        }
+                        parsedData.push({
+                            colorCodes: colorCodes,
+                            counts: counts,
+                            total: totalReqs,
+                            timestampExtent: timestampExtent,
+                            date: new Date(i / 1000)
+                        });
+                    }
+                    return parsedData;
+                };
+
+                this.parseAnlyticsNodeDataBaseReadWriteChartData = function (apiStats, reqfailed, reqdata) {
+                    var cf =crossfilter(apiStats);
+                    var parsedData = [];
+                    var timeStampField = 'T';
+                    var groupDim = cf.dimension(function(d) { return d["Source"];});
+                    var tsDim = cf.dimension(function(d) { return d[timeStampField];});
+                    var buckets = this.bucketizeConfigNodeStats(apiStats);
+                    var colorCodes = monitorInfraConstants.CONFIGNODE_COLORS;
+                    colorCodes = colorCodes.slice(0, groupDim.group().all().length);
+                    //Now parse this data to be usable in the chart
+                    var parsedData = [];
+                    for(var i  in buckets) {
+                        var y0 = 0, counts = [], totalFailedReqs = 0;
+                        var timestampExtent = buckets[i]['timestampExtent'];
+                        tsDim.filter(timestampExtent);
+                        var reqCntData = groupDim.group().all();
+
+                        //Getting nodes group with failed requests as value
+                        var reqFailedData = groupDim.group().reduceSum(
+                            function (d) {
+                                if (d[reqfailed] > 0) {
+                                    return 1;
+                                } else {
+                                    return 0;
+                                }
+                            });
+                        //Getting nodes group with response time as value
+
+                        var totalResReadWriteData = groupDim.group().reduceSum(
+                            function (d) {
+                                return d[reqdata];
+                            });
+                        var reqFailedArr = reqFailedData.top(Infinity);
+                        var totalResReadWriteDataArr = totalResReadWriteData.top(Infinity);
+
+                        var reqFailedArrLen = reqFailedArr.length;
+                        var totalResReadWriteDataArrLen = totalResReadWriteDataArr.length;
+                        var reqFailedNodeMap = {}, resTimeNodeMap = {};
+                        //Constructing the node - failedRequestCnt map
+                        for (var j = 0; j < reqFailedArrLen; j++) {
+                            totalFailedReqs += reqFailedArr[j]['value']
+                            reqFailedNodeMap[reqFailedArr[j]['key']] =
+                                reqFailedArr[j]['value'];
+                        }
+                        var totalReqs = 0;
+                        //console.log(totalResTimeData);
+                        if(totalResReadWriteData){
+                            for (var j = 0; j < totalResReadWriteDataArrLen; j++) {
+                                totalReqs += totalResReadWriteDataArr[j]['value']
+                            }
+                        }
+                        counts.push({
+                            name: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_TITLE,
+                            totalReqs: totalReqs,
+                            totalFailedReq: totalFailedReqs,
+                            color: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                            y0: y0,
+                            y1: y0 += totalFailedReqs
+                        });
+                        for (var j = 0; j < totalResReadWriteDataArrLen; j++) {
+                            var nodeName = totalResReadWriteDataArr[j]['key'];
+                            var nodeReqCnt = totalResReadWriteDataArr[j]['value'];
+                            var failedReqPerNode = ifNull(reqFailedNodeMap[nodeName], 0);
+                            var failedReqPerNodePercent = 0;
+                            if (failedReqPerNode != 0 && nodeReqCnt != 0) {
+                                failedReqPerNodePercent = Math.round((failedReqPerNode/nodeReqCnt) * 100);
+                            }
+                            var avgResTime = Math.round((ifNull(resTimeNodeMap[nodeName], 0)/nodeReqCnt)) / 1000; //Converting to millisecs
+                            console.log(avgResTime);
+                            var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
+                            var toTime = new XDate((timestampExtent[1]/1000)).toString('HH:mm');
+                            counts.push({
+                                name: nodeName,
+                                color: colorCodes[j],
+                                avgResTime: contrail.format('{0} {1}', avgResTime, 'ms'),
+                                nodeReqCnt: nodeReqCnt,
+                                reqFailPercent: failedReqPerNodePercent,
+                                time: contrail.format('{0}', fromTime),
+                                y0:y0,
+                                y1:y0 += nodeReqCnt
+                            });
+                        }
+                        parsedData.push({
+                            colorCodes: colorCodes,
+                            counts: counts,
+                            total: totalReqs,
+                            timestampExtent: timestampExtent,
+                            date: new Date(i / 1000)
+                        });
+                    }
+                    return parsedData;
+                };
                 this.parseConfigNodeRequestsStackChartData = function (apiStats) {
                     var cf =crossfilter(apiStats);
                     var parsedData = [];
