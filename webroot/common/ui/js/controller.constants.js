@@ -258,13 +258,13 @@ define([
         };
 
         this.constructReqURL = function (urlConfig) {
-            var url = "", length = 0,
-                context;
+            var url = "", length = 0, context,
+                fqName = contrail.checkIfExist(urlConfig['fqName']) ? decodeURIComponent(urlConfig['fqName']) : urlConfig['fqName'];
 
-            if (urlConfig['fqName'] != null)
-                length = urlConfig['fqName'].split(':').length;
+            if (fqName != null)
+                length = fqName.split(':').length;
             else
-                urlConfig['fqName'] = "*";
+                fqName = "*";
 
             context = urlConfig['context'];
 
@@ -349,25 +349,25 @@ define([
             else
                 $.extend(reqParams, {limit: 100});    //Hack
             //Rename fqName variable as per NodeJS API requirement
-            if (urlConfig['fqName'] != null) {
+            if (fqName != null) {
                 //For flow-series,need to pass fqName as srcVN
                 if (context == 'connected-nw') {
-                    $.extend(reqParams, {'srcVN': urlConfig['srcVN'], 'destVN': urlConfig['fqName']});
+                    $.extend(reqParams, {'srcVN': urlConfig['srcVN'], 'destVN': fqName});
                 } else if (urlConfig['widget'] == 'flowseries') {
                     if (context == 'instance') {
                         $.extend(reqParams, {
-                            'fqName': ifNull(urlConfig['vnName'], urlConfig['fqName']),
+                            'fqName': ifNull(urlConfig['vnName'], fqName),
                             'ip': urlConfig['ip']
                         });
                     } else
-                        $.extend(reqParams, {'fqName': urlConfig['fqName']});        //change queryParameter to fqName
+                        $.extend(reqParams, {'fqName': fqName});        //change queryParameter to fqName
                 } else if (urlConfig['type'] == 'details') {
                     if (context == 'network')
                         $.extend(reqParams, {'uuid': urlConfig['uuid']});
                 } else if (context == 'instance') {
                     $.extend(reqParams, {'fqName': urlConfig['vnName'], 'ip': urlConfig['ip']});
                 } else
-                    $.extend(reqParams, {'fqName': urlConfig['fqName']});
+                    $.extend(reqParams, {'fqName': fqName});
             }
 
             //If port argument is present,just copy it..arguments that need to be copied to reqParams as it is
@@ -378,7 +378,7 @@ define([
                 }
             });
             if (urlConfig['type'] == 'portRangeDetail') {
-                var fqName = urlConfig['fqName'], protocolCode;
+                var fqName = fqName, protocolCode;
                 reqParams['timeRange'] = 600;
                 reqParams['table'] = 'FlowSeriesTable';
                 if (urlConfig['startTime'] != null) {
@@ -442,10 +442,10 @@ define([
             if (urlConfig['source'] == 'uve') {
                 if (urlConfig['type'] != 'instance') {
                     delete reqParams['fqName'];
-                    if (urlConfig['fqName'] == '' || urlConfig['fqName'] == '*')
+                    if (fqName == '' || fqName == '*')
                         reqParams['fqNameRegExp'] = '*';
                     else
-                        reqParams['fqNameRegExp'] = '*' + urlConfig['fqName'] + ':*';
+                        reqParams['fqNameRegExp'] = '*' + fqName + ':*';
                 } else {
                     reqParams['fqName'] = '';
                 }
