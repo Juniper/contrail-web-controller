@@ -70,8 +70,6 @@ define([
             //Making the Routes call here as the result also needs to be update
             //prefix value in this form
             var routesQueryString = self.model.getControlRoutesQueryString()
-            var limit = parseInt(routesQueryString.limit) + 1;
-            routesQueryString.limit = limit.toString();
             var routesRemoteConfig = {
                     url: monitorInfraConstants.
                         monitorInfraUrls['CONTROLNODE_ROUTES'] +
@@ -84,19 +82,20 @@ define([
                         ajaxConfig : routesRemoteConfig,
                         dataParser : function (response) {
                             var selValues = {};
-                            backwardRoutes(response);
-                            forwardRoutes(response);
+                            backwardRouteStack = []; forwardRouteStack = [];
                             var parsedData = monitorInfraParsers.
                                         parseRoutes(response,routesQueryString);
+                            if(getValueByJsonPath(response[0],'ShowRouteResp;tables;list','') !== ''){
+                                backwardRoutes(response);
+                                forwardRoutes(response);
+                            }
                             //TODO need to update the prefix autocomplete
                             var prefixArray = [];
                             $.each(parsedData,function(i,d){
                                 prefixArray.push(d.dispPrefix);
                             });
                             $('#prefix').find('input').autocomplete( "option", "source" ,prefixArray);
-                            parsedData.pop();
                             return parsedData;
-
                         }
                     },
                     cacheConfig : {
@@ -104,8 +103,8 @@ define([
                     }
                 };
             var backwardRoutes = function(model){
-                var routingTable, showRoute, routingInstance, prefix,
-                showRouteTable = model[0].ShowRouteResp.tables.list.ShowRouteTable;
+                var routingTable, showRoute, routingInstance, prefix;
+                var showRouteTable = getValueByJsonPath(model[0],'ShowRouteResp;tables;list;ShowRouteTable',{});
                 if(showRouteTable.constructor().length === undefined){
                     routingTable = showRouteTable.routing_table_name;
                     routingInstance =  showRouteTable.routing_instance;
@@ -120,16 +119,30 @@ define([
                 }else{
                     prefix = showRoute[0].prefix;
                 }
-                backwardRouteStack.push({
-                    limit: routesQueryString.limit,
-                    startRoutingTable: routingTable,
-                    startRoutingInstance: routingInstance,
-                    startPrefix: prefix
-                });
+                if(checkNonExistRoute(backwardRouteStack, routingTable, prefix)){
+                    backwardRouteStack.push({
+                        limit: routesQueryString.limit,
+                        startRoutingTable: routingTable,
+                        startRoutingInstance: routingInstance,
+                        startPrefix: prefix
+                    });
+                }
+            };
+            var checkNonExistRoute = function(existingStack,routeTable,prefix){
+                var nonExistRecord = false;
+                if(existingStack.length !== 0){
+                    var lastRecord = existingStack[existingStack.length - 1];
+                    if(lastRecord.startRoutingTable !== routeTable && lastRecord.startPrefix !== prefix){
+                        nonExistRecord = true;
+                    }
+                 return nonExistRecord;
+                }else{
+                    return true;
+                }
             };
             var forwardRoutes = function(model){
-                var routingTable, showRoute, routingInstance, prefix,
-                showRouteTable = model[0].ShowRouteResp.tables.list.ShowRouteTable;
+                var routingTable, showRoute, routingInstance, prefix;
+                var showRouteTable = getValueByJsonPath(model[0],'ShowRouteResp;tables;list;ShowRouteTable',{});
                 if(showRouteTable.constructor().length === undefined){
                     routingTable = showRouteTable.routing_table_name;
                     routingInstance =  showRouteTable.routing_instance;
@@ -163,15 +176,6 @@ define([
                                 forwardRoutes(response);
                                 var parsedData = monitorInfraParsers.
                                 parseRoutes(response, routesQueryString);
-                                //check for last data in the grid
-                                if(parsedData.length < routesQueryString.limit){
-                                    if((parsedData.length + 1) != routesQueryString.limit){
-                                        forwardRouteStack.pop();
-                                    }
-                                }
-                                if(parsedData.length >= routesQueryString.limit){
-                                    parsedData.pop();
-                                }
                                 return parsedData;
                             },
                             getUrlFn: function(step) {
@@ -187,10 +191,12 @@ define([
                                     backwardRouteStack.splice(backwardRouteStack.length - 1, 1);
                                     urlParm = backwardRouteStack.pop();
                                     forwardRouteStack.pop();
-                                    return monitorInfraConstants.
-                                    monitorInfraUrls['CONTROLNODE_ROUTES'] +
-                                    '?ip=' + hostname +
-                                    '&' + $.param(urlParm);
+                                    if(urlParm !== undefined){
+                                        return monitorInfraConstants.
+                                        monitorInfraUrls['CONTROLNODE_ROUTES'] +
+                                        '?ip=' + hostname +
+                                        '&' + $.param(urlParm);
+                                    }
                                  }
                              }
                         });
