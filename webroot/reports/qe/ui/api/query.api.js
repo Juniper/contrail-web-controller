@@ -12,23 +12,19 @@ var qeapi = module.exports,
     commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
     messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
     global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
-    opApiServer = require(process.mainModule.exports["corePath"] +
-                          '/src/serverroot/common/opServer.api'),
+    opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
     config = process.mainModule.exports["config"],
     redisReadStream = require('redis-rstream'),
+    Worker = require('webworker-threads').Worker;
     qs = require('querystring'),
     redisUtils = require(process.mainModule.exports["corePath"] +
                          '/src/serverroot/utils/redis.utils'),
     _ = require('underscore');
 
-var redisServerPort = (config.redis_server_port) ? config.redis_server_port :
-        global.DFLT_REDIS_SERVER_PORT,
-    redisServerIP = (config.redis_server_ip) ? config.redis_server_ip :
-        global.DFLT_REDIS_SERVER_IP,
-    redisClient;
-var redisClient =
-    redisUtils.createRedisClient(redisServerPort, redisServerIP,
-                                 global.QE_DFLT_REDIS_DB);
+var redisServerPort = (config.redis_server_port) ? config.redis_server_port : global.DFLT_REDIS_SERVER_PORT,
+    redisServerIP = (config.redis_server_ip) ? config.redis_server_ip : global.DFLT_REDIS_SERVER_IP;
+
+var redisClient = redisUtils.createRedisClient(redisServerPort, redisServerIP, global.QE_DFLT_REDIS_DB);
 
 if (!module.parent) {
     logutils.logger.warn(util.format(messages.warn.invalid_mod_call, module.filename));
@@ -68,7 +64,7 @@ function getTableColumnValues(req, res, appData) {
     startTime = reqQueryObj['fromTimeUTC'];
     endTime = reqQueryObj['toTimeUTC'];
 
-    if(tableName == null) {
+    if (tableName == null) {
         commonUtils.handleJSONResponse(null, res, {});
     } else {
         objectQuery = {"start_time": startTime, "end_time": endTime, "select_fields": selectFields, "table": tableName, "where": where};
@@ -244,8 +240,7 @@ function executeQuery(res, queryOptions, appData) {
 
         logutils.logger.debug("Query sent to Opserver at " + new Date() + ' ' + JSON.stringify(queryJSON));
         queryOptions['startTime'] = new Date().getTime();
-        opApiServer.apiPost(global.RUN_QUERY_URL, queryJSON, appData,
-                            function (error, jsonData) {
+        opApiServer.apiPost(global.RUN_QUERY_URL, queryJSON, appData, function (error, jsonData) {
             if (error) {
                 logutils.logger.error('Error Run Query: ' + error.stack);
                 commonUtils.handleJSONResponse(error, res, null);
@@ -253,11 +248,8 @@ function executeQuery(res, queryOptions, appData) {
                 initPollingConfig(queryOptions, queryJSON.start_time, queryJSON.end_time)
                 queryOptions['url'] = jsonData['href'];
                 queryOptions['opsQueryId'] = parseOpsQueryIdFromUrl(jsonData['href']);
-                setTimeout(fetchQueryResults, 3000, res, jsonData, queryOptions,
-                           appData);
-                queryOptions['intervalId'] =
-                setInterval(fetchQueryResults, queryOptions.pollingInterval, res,
-                            jsonData, queryOptions, appData);
+                setTimeout(fetchQueryResults, 3000, res, jsonData, queryOptions, appData);
+                queryOptions['intervalId'] = setInterval(fetchQueryResults, queryOptions.pollingInterval, res, jsonData, queryOptions, appData);
                 queryOptions['timeoutId'] = setTimeout(stopFetchQueryResult, queryOptions.pollingTimeout, queryOptions);
             } else {
                 processQueryResults(res, jsonData, queryOptions);
@@ -332,6 +324,7 @@ function fetchQueryResults(res, jsonData, queryOptions, appData) {
                 fetchQueryResults(res, jsonData, queryOptions, appData);
             } else if (progress == null || progress === 'undefined') {
                 processQueryResults(res, queryResults, queryOptions);
+                //TODO: Query should be marked complete
                 queryOptions['endTime'] = new Date().getTime();
                 queryOptions['status'] = 'completed';
                 updateQueryStatus(queryOptions);
@@ -390,59 +383,34 @@ function handleQueryResponse(res, options) {
         sort = options.sort;
 
     if (chunk == null || toSort) {
-        redisClient.exists(queryId, function (err, exists) {
+        logutils.logger.error("QE received a query without any chunk information. Returning data for first chunk if available.");
+        redisClient.exists(queryId + ":chunk1", function (err, exists) {
             if (exists) {
-                var stream = redisReadStream(redisClient, queryId),
-                    chunkedData, accumulatedData = [], dataBuffer, resultJSON;
-                stream.on('error', function (err) {
-                    logutils.logger.error(err.stack);
-                    commonUtils.handleJSONResponse(err, res, null);
-                }).on('readable', function () {
-                    while ((chunkedData = stream.read()) !== null) {
-                        accumulatedData.push(chunkedData)
-                    }
-                }).on('end', function () {
-                    dataBuffer = Buffer.concat(accumulatedData);
-                    resultJSON = JSON.parse(dataBuffer);
-                    if (toSort) {
-                        sortJSON(resultJSON['data'], sort, function () {
-                            var startIndex, endIndex, total, responseJSON
-                            total = resultJSON['total'];
-                            startIndex = (chunk - 1) * chunkSize;
-                            endIndex = (total < (startIndex + chunkSize)) ? total : (startIndex + chunkSize);
-                            responseJSON = resultJSON['data'].slice(startIndex, endIndex);
-                            commonUtils.handleJSONResponse(null, res, {data: responseJSON, total: total, queryJSON: resultJSON['queryJSON']});
-                            saveQueryResult2Redis(resultJSON['data'], total, queryId, chunkSize, sort, resultJSON['queryJSON']);
-                        });
-                    } else {
-                        commonUtils.handleJSONResponse(null, res, resultJSON);
-                    }
-                });
+                chunk = 1;
             } else {
                 commonUtils.handleJSONResponse(null, res, {data: [], total: 0});
             }
         });
-    } else {
-        redisClient.get(queryId + ":chunk" + chunk, function (error, result) {
-            var resultJSON = result ? JSON.parse(result) : {data: [], total: 0};
-            if (error) {
-                logutils.logger.error(error.stack);
-                commonUtils.handleJSONResponse(error, res, null);
-            } else if (toSort) {
-                sortJSON(resultJSON['data'], sort, function () {
-                    var startIndex, endIndex, total, responseJSON
-                    total = resultJSON['total'];
-                    startIndex = (chunk - 1) * chunkSize;
-                    endIndex = (total < (startIndex + chunkSize)) ? total : (startIndex + chunkSize);
-                    responseJSON = resultJSON['data'].slice(startIndex, endIndex);
-                    commonUtils.handleJSONResponse(null, res, {data: responseJSON, total: total, queryJSON: resultJSON['queryJSON']});
-                    saveQueryResult2Redis(resultJSON['data'], total, queryId, chunkSize, sort, resultJSON['queryJSON']);
-                });
-            } else {
-                commonUtils.handleJSONResponse(null, res, resultJSON);
-            }
-        });
     }
+    redisClient.get(queryId + ":chunk" + chunk, function (error, result) {
+        var resultJSON = result ? JSON.parse(result) : {data: [], total: 0};
+        if (error) {
+            logutils.logger.error(error.stack);
+            commonUtils.handleJSONResponse(error, res, null);
+        } else if (toSort) {
+            sortJSON(resultJSON['data'], sort, function () {
+                var startIndex, endIndex, total, responseJSON
+                total = resultJSON['total'];
+                startIndex = (chunk - 1) * chunkSize;
+                endIndex = (total < (startIndex + chunkSize)) ? total : (startIndex + chunkSize);
+                responseJSON = resultJSON['data'].slice(startIndex, endIndex);
+                commonUtils.handleJSONResponse(null, res, {data: responseJSON, total: total, queryJSON: resultJSON['queryJSON']});
+                saveQueryResult2Redis(resultJSON['data'], total, queryId, chunkSize, sort, resultJSON['queryJSON']);
+            });
+        } else {
+            commonUtils.handleJSONResponse(null, res, resultJSON);
+        }
+    });
 };
 
 function exportQueryResult(req, res) {
@@ -578,12 +546,22 @@ function processQueryResults(res, queryResults, queryOptions) {
         commonUtils.handleJSONResponse(null, res, {data: responseJSON, total: total, queryJSON: queryJSON, chunk: 1, chunkSize: chunkSize, serverSideChunking: true});
     }
 
-    saveQueryResult2Redis(resultJSON, total, queryId, chunkSize, getSortStatus4Query(queryJSON), queryJSON);
+    if(queryId != null) {
+        var workerData = {};
 
-    if (table == 'FlowSeriesTable') {
-        saveData4Chart2Redis(queryId, resultJSON, queryJSON['select_fields'], 'flow_class_id', "T");
-    } else if (tableType = "STAT") {
-        saveData4Chart2Redis(queryId, resultJSON, queryJSON['select_fields'], 'CLASS(T=)', "T=");
+        saveQueryResult2Redis(resultJSON, total, queryId, chunkSize, getSortStatus4Query(queryJSON), queryJSON);
+        workerData['selectFields'] = queryJSON['select_fields'];
+        workerData['dataJSON'] = resultJSON;
+
+        if (table == 'FlowSeriesTable') {
+            workerData['groupFieldName'] = 'flow_class_id';
+            workerData['timeFieldName'] = "T";
+            saveData4Chart2Redis(queryId, workerData);
+        } else if (tableType = "STAT") {
+            workerData['groupFieldName'] = 'CLASS(T=)';
+            workerData['timeFieldName'] = "T=";
+            saveData4Chart2Redis(queryId, workerData);
+        }
     }
 };
 
@@ -592,10 +570,10 @@ function saveQueryResult2Redis(resultData, total, queryId, chunkSize, sort, quer
     if (sort != null) {
         redisClient.set(queryId + ":sortStatus", JSON.stringify(sort));
     }
-    // TODO: Should we need to save every chunk?
-    redisClient.set(queryId, JSON.stringify({data: resultData, total: total, queryJSON: queryJSON}));
+
     if (total == 0) {
         redisClient.set(queryId + ':chunk1', JSON.stringify({data: [], total: 0, queryJSON: queryJSON}));
+        redisClient.set(queryId, JSON.stringify({data: [], total: 0, queryJSON: queryJSON}));
     } else {
         for (var j = 0, k = 1; j < total; k++) {
             endRow = k * chunkSize;
@@ -603,11 +581,53 @@ function saveQueryResult2Redis(resultData, total, queryId, chunkSize, sort, quer
                 endRow = resultData.length;
             }
             var spliceData = resultData.slice(j, endRow);
-            redisClient.set(queryId + ':chunk' + k, JSON.stringify({data: spliceData, total: total, queryJSON: queryJSON, chunk: k, chunkSize: chunkSize, serverSideChunking: true}));
+
+            var redisKey = queryId + ':chunk' + k,
+                dataJSON = {data: spliceData, total: total, queryJSON: queryJSON, chunk: k, chunkSize: chunkSize, serverSideChunking: true},
+                workerData = {redisKey: redisKey, dataJSON: dataJSON};
+
+            writeData2Redis(workerData);
+
             j = endRow;
         }
     }
 };
+
+function writeData2Redis(workerData) {
+    var redisKey = workerData['redisKey'],
+        dataJSON = workerData['dataJSON'];
+
+    var jsonWorker = new Worker(function () {
+        this.onmessage = function (event) {
+            var jsonData = event.data;
+            try {
+                var jsonStr = JSON.stringify(jsonData);
+                postMessage({error: null, jsonStr: jsonStr});
+            } catch (error) {
+                postMessage({error: error});
+            }
+        };
+    });
+
+    jsonWorker.onmessage = function (event) {
+        var workedData = event.data;
+        if (workedData.error == null) {
+            var jsonStr = workedData['jsonStr']
+
+            //logutils.logger.debug(redisKey + " start writing data to redis");
+            redisClient.set(redisKey, jsonStr, function (rError) {
+                if (rError) {
+                    logutils.logger.error("QE Redis Write Error: " + rError);
+                }
+                //logutils.logger.debug(redisKey + " end writing data to redis");
+            });
+        } else {
+            logutils.logger.error("QE JSON Stringify Error: " + workedData.error);
+        }
+    }
+
+    jsonWorker.postMessage(dataJSON);
+}
 
 function getSortStatus4Query(queryJSON) {
     var sortFields, sortDirection, sortStatus;
@@ -620,51 +640,94 @@ function getSortStatus4Query(queryJSON) {
     return sortStatus;
 };
 
-function saveData4Chart2Redis(queryId, dataJSON, selectFields, groupFieldName, timeFieldName) {
-    var resultData = {}, uniqueChartGroupArray = [], charGroupArray = [],
-        result, i, k, chartGroupId, chartGroup, secTime;
+function saveData4Chart2Redis(queryId, workerData) {
+    var jsonWorker = new Worker(function () {
+        this.onmessage = function (event) {
+            var workerData = event.data,
+                groupFieldName = workerData['groupFieldName'],
+                timeFieldName = workerData['timeFieldName'],
+                selectFields = workerData['selectFields'],
+                dataJSON = workerData['dataJSON'];
 
-    if (selectFields.length != 0) {
-        for (i = 0; i < dataJSON.length; i++) {
-            chartGroupId = dataJSON[i][groupFieldName];
+            try {
+                var resultData = {}, uniqueChartGroupArray = [], charGroupArray = [],
+                    result, i, k, chartGroupId, chartGroup, secTime;
 
-            if (uniqueChartGroupArray.indexOf(chartGroupId) == -1) {
-                chartGroup = getGroupRecord4Chart(dataJSON[i], groupFieldName);
-                uniqueChartGroupArray.push(chartGroupId);
-                charGroupArray.push(chartGroup);
+                if (selectFields.length != 0) {
+                    for (i = 0; i < dataJSON.length; i++) {
+                        chartGroupId = dataJSON[i][groupFieldName];
+
+                        if (uniqueChartGroupArray.indexOf(chartGroupId) == -1) {
+                            chartGroup = getGroupRecord4Chart(dataJSON[i], groupFieldName);
+                            uniqueChartGroupArray.push(chartGroupId);
+                            charGroupArray.push(chartGroup);
+                        }
+
+                        secTime = Math.floor(dataJSON[i][timeFieldName] / 1000);
+                        result = {'date': new Date(secTime)};
+                        result[groupFieldName] = chartGroupId;
+
+                        for (k = 0; k < selectFields.length; k++) {
+                            result[selectFields[k]] = dataJSON[i][selectFields[k]];
+                        }
+
+                        if (resultData[chartGroupId] == null) {
+                            resultData[chartGroupId] = {};
+                            resultData[chartGroupId][secTime] = result;
+                        } else {
+                            resultData[chartGroupId][secTime] = result;
+                        }
+                    }
+                }
+                postMessage({error: null, charGroupArray: charGroupArray, resultData: resultData});
+            } catch (error) {
+                postMessage({error: error});
             }
 
-            secTime = Math.floor(dataJSON[i][timeFieldName] / 1000);
-            result = {'date': new Date(secTime)};
-            result[groupFieldName] = chartGroupId;
+            function getGroupRecord4Chart(row, groupFieldName) {
+                var groupRecord = {chart_group_id: row[groupFieldName]};
 
-            for (k = 0; k < selectFields.length; k++) {
-                result[selectFields[k]] = dataJSON[i][selectFields[k]];
-            }
+                for (var fieldName in row) {
+                    if (!isAggregateField(fieldName)) {
+                        groupRecord[fieldName] = row[fieldName];
+                    }
+                }
 
-            if (resultData[chartGroupId] == null) {
-                resultData[chartGroupId] = {};
-                resultData[chartGroupId][secTime] = result;
-            } else {
-                resultData[chartGroupId][secTime] = result;
-            }
+                return groupRecord;
+            };
+
+            function isAggregateField(fieldName) {
+                var fieldNameLower = fieldName.toLowerCase(),
+                    isAggregate = false;
+
+                var AGGREGATE_PREFIX_ARRAY = ['min(', 'max(', 'count(', 'sum('];
+
+                for (var i = 0; i < AGGREGATE_PREFIX_ARRAY.length; i++) {
+                    if (fieldNameLower.indexOf(AGGREGATE_PREFIX_ARRAY[i]) != -1) {
+                        isAggregate = true;
+                        break;
+                    }
+                }
+
+                return isAggregate;
+            };
+        };
+    });
+
+    jsonWorker.onmessage = function (event) {
+        var workedData = event.data;
+        if (workedData.error == null) {
+            var charGroupArray = workedData['charGroupArray'],
+                resultData = workedData['resultData'];
+
+            writeData2Redis({ redisKey: queryId + ':chartgroups', dataJSON: charGroupArray });
+            writeData2Redis({ redisKey: queryId + ':chartdata', dataJSON: resultData });
+        } else {
+            logutils.logger.error("QE JSON Stringify Error: " + JSON.stringify(workedData.error));
         }
     }
 
-    redisClient.set(queryId + ':chartgroups', JSON.stringify(charGroupArray));
-    redisClient.set(queryId + ':chartdata', JSON.stringify(resultData));
-};
-
-function getGroupRecord4Chart(row, groupFieldName) {
-    var groupRecord = {chart_group_id: row[groupFieldName]};
-
-    for (var fieldName in row) {
-        if(!isAggregateField(fieldName)) {
-            groupRecord[fieldName] = row[fieldName];
-        }
-    }
-
-    return groupRecord;
+    jsonWorker.postMessage(workerData);
 };
 
 function setMicroTimeRange(query, fromTime, toTime) {
@@ -684,7 +747,7 @@ function getQueryJSON4Table(queryReqObj) {
     var formModelAttrs = queryReqObj['formModelAttrs'],
         tableName = formModelAttrs['table_name'], tableType = formModelAttrs['table_type'],
         queryJSON = {
-            "table" : tableName,
+            "table": tableName,
             "start_time": "",
             "end_time": "",
             "select_fields": [],
@@ -710,8 +773,8 @@ function getQueryJSON4Table(queryReqObj) {
             queryJSON['sort'] = 2;
         }
 
-        if(formModelAttrs['log_level'] != null && formModelAttrs['log_level'] != "") {
-            for(var i = 0; i < queryJSON.filter.length; i++) {
+        if (formModelAttrs['log_level'] != null && formModelAttrs['log_level'] != "") {
+            for (var i = 0; i < queryJSON.filter.length; i++) {
                 queryJSON.filter[i].push({"name": "Level", "value": formModelAttrs['log_level'], "op": 5})
             }
         }
@@ -720,7 +783,7 @@ function getQueryJSON4Table(queryReqObj) {
         queryJSON = _.extend({}, queryJSON, {"select_fields": ['flow_class_id', 'direction_ing']});
 
         if (autoSort) {
-            if(select.indexOf('T=') != -1) {
+            if (select.indexOf('T=') != -1) {
                 queryJSON['select_fields'].push('T');
             }
             queryJSON['sort_fields'] = ['T'];
@@ -752,7 +815,7 @@ function getQueryJSON4Table(queryReqObj) {
         parseSLWhere(queryJSON, where, formModelAttrs['keywords'])
     }
 
-    if(filters != null && filters != "") {
+    if (filters != null && filters != "") {
         parseFilters(queryJSON, filters);
     }
 
@@ -760,7 +823,7 @@ function getQueryJSON4Table(queryReqObj) {
         queryJSON['dir'] = parseInt(direction);
     }
 
-    if(queryJSON['limit'] == null) {
+    if (queryJSON['limit'] == null) {
         queryJSON['limit'] = getDefaultQueryLimit(tableType);
     }
 
@@ -794,10 +857,10 @@ function parseSelect(query, formModelAttrs) {
     }
 };
 
-function parseSLWhere (query, where, keywords) {
+function parseSLWhere(query, where, keywords) {
     var keywordsArray = keywords.split(','), keywordAndClause = [];
     if (keywords != null && keywords.trim() != '') {
-        for (var i = 0; i < keywordsArray.length; i++){
+        for (var i = 0; i < keywordsArray.length; i++) {
             keywordsArray[i] = keywordsArray[i].trim();
         }
         keywordAndClause = parseKeywordsObj(keywordsArray);
@@ -815,7 +878,7 @@ function parseSLWhere (query, where, keywords) {
             where[i] = where[i].concat(keywordAndClause);
         }
         query['where'] = where;
-    } else{
+    } else {
         // where clause is empty but keywords are non empty case
         if (keywords != null && keywords.trim() != '') {
             var where = [];
@@ -825,24 +888,14 @@ function parseSLWhere (query, where, keywords) {
     }
 }
 
-function getKeywordsStrFromArray (keywords) {
-    var tempStr = "";
-    for (var i = 1; i < keywords.length; i++) {
-        tempStr = tempStr.concat("AND Keyword = " + keywords[i] + " ");
-    }
-    var final = ("Keyword = " + keywords[0] + " ").concat(tempStr);
-    return final;
-}
-
-function parseKeywordsObj(keywordsArray)
-{
+function parseKeywordsObj(keywordsArray) {
     var keywordObj = [], keywordArray = [];
-    for(var i=0; i<keywordsArray.length; i++){
-        keywordObj[i] = {"name":"", value:"", op:""};
+    for (var i = 0; i < keywordsArray.length; i++) {
+        keywordObj[i] = {"name": "", value: "", op: ""};
         keywordObj[i].name = "Keyword";
         var keywordStrLen = keywordsArray[i].length;
         //check if the keyword has a star in the end: if yes change op to 7 and delete trailing star; else let it be 1
-        if(keywordsArray[i].charAt(keywordStrLen - 1) === '*'){
+        if (keywordsArray[i].charAt(keywordStrLen - 1) === '*') {
             keywordObj[i].value = keywordsArray[i].slice(0, -1);
             keywordObj[i].op = 7;
         } else {
@@ -874,29 +927,29 @@ function parseFilters(query, filters) {
     for (var i = 0; i < filtersArray.length; i++) {
         filter = filtersArray[i];
 
-        if(filter.indexOf('filter:') != -1) {
+        if (filter.indexOf('filter:') != -1) {
             filterBy = splitString2Array(filter, "filter:")[1];
 
-            if(filterBy.length > 0) {
+            if (filterBy.length > 0) {
                 parseFilterBy(query, filterBy);
             }
 
         } else if (filter.indexOf('limit:') != -1) {
             limitBy = splitString2Array(filter, "limit:")[1];
 
-            if(limitBy.length > 0) {
+            if (limitBy.length > 0) {
                 parseLimitBy(query, limitBy);
             }
-        } else if (filter.indexOf('sort_fields:') != -1){
+        } else if (filter.indexOf('sort_fields:') != -1) {
             sortFields = splitString2Array(filter, "sort_fields:")[1];
 
-            if(sortFields.length > 0) {
+            if (sortFields.length > 0) {
                 parseSortFields(query, sortFields);
             }
-        } else if (filter.indexOf('sort:') != -1){
+        } else if (filter.indexOf('sort:') != -1) {
             sortOrder = splitString2Array(filter, "sort:")[1];
 
-            if(sortOrder.length > 0) {
+            if (sortOrder.length > 0) {
                 parseSortOrder(query, sortOrder);
             }
         }
@@ -914,7 +967,7 @@ function parseFilterBy(query, filterBy) {
             filterClause.push(filterObj);
         }
         // Loop through the default filters and add the UI submitted ones to each
-        for(var j = 0; j < query['filter'].length; j++) {
+        for (var j = 0; j < query['filter'].length; j++) {
             var filterArr = query['filter'][j];
             filterArr = filterArr.concat(filterClause);
             query['filter'][j] = filterArr;
@@ -1056,7 +1109,7 @@ function getFilterObj(filter) {
         filterObj = parseFilterObj(filter, '!=');
     } else if (filter.indexOf(" RegEx= ") != -1) {
         filterObj = parseFilterObj(filter, 'RegEx=');
-    }  else if (filter.indexOf("<=") != -1) {
+    } else if (filter.indexOf("<=") != -1) {
         filterObj = parseFilterObj(filter, '<=');
     } else if (filter.indexOf(">=") != -1) {
         filterObj = parseFilterObj(filter, '>=');
@@ -1090,22 +1143,6 @@ function isEmptyObject(obj) {
             return false;
     }
     return true;
-};
-
-function isAggregateField(fieldName) {
-    var fieldNameLower = fieldName.toLowerCase(),
-        isAggregate = false;
-
-    var AGGREGATE_PREFIX_ARRAY = ['min(', 'max(', 'count(', 'sum('];
-
-    for (var i = 0; i < AGGREGATE_PREFIX_ARRAY.length; i++) {
-        if(fieldNameLower.indexOf(AGGREGATE_PREFIX_ARRAY[i]) != -1) {
-            isAggregate = true;
-            break;
-        }
-    }
-
-    return isAggregate;
 };
 
 exports.runGETQuery = runGETQuery;
