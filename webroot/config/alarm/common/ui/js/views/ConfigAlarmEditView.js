@@ -173,20 +173,20 @@ define([
                                         data: function () {
                                             var template = contrail.getTemplate4Id(ctwc.CONFIG_ALARM_SEVERITY_TEMPLATE);
                                             return [
-                                             {value: '2', text: template({
+                                             {value: '4', text: template({
                                                  showText : true,
-                                                 color : 'red',
-                                                 text : ctwl.CONFIG_ALARM_TEXT_MAP[2],
+                                                 color : 'orange',
+                                                 text : contrail.format('{0} - {1}',ctwl.CONFIG_ALARM_TEXT_MAP[4], 4)
                                              })},
                                              {value: '3', text: template({
                                                  showText : true,
                                                  color : 'red',
-                                                 text : ctwl.CONFIG_ALARM_TEXT_MAP[3],
+                                                 text : contrail.format('{0} - {1}',ctwl.CONFIG_ALARM_TEXT_MAP[3], 3)
                                              })},
-                                             {value: '4', text: template({
+                                             {value: '2', text: template({
                                                  showText : true,
-                                                 color : 'orange',
-                                                 text : ctwl.CONFIG_ALARM_TEXT_MAP[4],
+                                                 color : 'red',
+                                                 text : contrail.format('{0} - {1}',ctwl.CONFIG_ALARM_TEXT_MAP[2], 2)
                                              })},
                                              {value: '0', text: '0'},
                                              {value: '1', text: '1'},
