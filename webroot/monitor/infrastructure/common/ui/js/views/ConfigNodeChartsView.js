@@ -22,28 +22,12 @@ define(['underscore', 'contrail-view',
                        elementId : ctwl.CONFIGNODE_SUMMARY_STACKEDCHART_ID,
                        view : "StackedBarChartWithFocusView",
                        viewConfig : {
-                           widgetConfig: {
-                               elementId: ctwl.CONFIGNODE_SUMMARY_STACKEDCHART_ID + '-widget',
-                               view: "WidgetView",
-                               viewConfig: {
-                                   header: {
-                                       title: 'Requests Served',
-                                   },
-                                   controls: {
-                                       top: {
-                                           default: {
-                                               collapseable: false
-                                           }
-                                       }
-                                   }
-                               }
-                           },
                            class: 'span7 confignode-chart',
                            chartOptions:{
                                brush: false,
                                height: 380,
-                               xAxisLabel: 'Time',
-                               yAxisLabel: 'Requests served',
+                               xAxisLabel: '',
+                               yAxisLabel: 'Requests Served',
                                yAxisOffset: 25,
                                axisLabelFontSize: 11,
                                tickPadding: 8,
@@ -149,22 +133,6 @@ define(['underscore', 'contrail-view',
                        elementId: ctwl.CONFIGNODE_SUMMARY_LINEBARCHART_ID,
                        view: 'LineBarWithFocusChartView',
                        viewConfig: {
-                           widgetConfig: {
-                               elementId: ctwl.CONFIGNODE_SUMMARY_LINEBARCHART_ID + '-widget',
-                               view: "WidgetView",
-                               viewConfig: {
-                                   header: {
-                                       title: 'Response Statistics',
-                                   },
-                                   controls: {
-                                       top: {
-                                           default: {
-                                               collapseable: false
-                                           }
-                                       }
-                                   }
-                               }
-                           },
                            class: 'span5 confignode-chart',
                            parseFn: function (response) {
                                return monitorInfraParsers.parseConfigNodeResponseStackedChartData(response);
@@ -180,7 +148,7 @@ define(['underscore', 'contrail-view',
                                focusEnable: false,
                                height: 190,
                                showLegend: true,
-                               xAxisLabel: 'Time',
+                               xAxisLabel: '',
                                xAxisMaxMin: false,
                                defaultDataStatusMessage: false,
                                xFormatter: function (xValue, tickCnt) {
@@ -256,22 +224,6 @@ define(['underscore', 'contrail-view',
                        viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
                        app : cowc.APP_CONTRAIL_CONTROLLER,
                        viewConfig: {
-                           widgetConfig: {
-                               elementId: ctwl.CONFIGNODE_SUMMARY_DONUTCHART_SECTION_ID + '-widget',
-                               view: "WidgetView",
-                               viewConfig: {
-                                   header: {
-                                       title: 'Request Statistics',
-                                   },
-                                   controls: {
-                                       top: {
-                                           default: {
-                                               collapseable: false
-                                           }
-                                       }
-                                   }
-                               }
-                           },
                            class: 'span5 confignode-chart'
                        }
                    }]
