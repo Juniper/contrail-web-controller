@@ -24,3 +24,19 @@
     cursor: auto;
     padding: 3px 0px;
 }
+/******Config Node chart CSS starts here****/
+#config-nodes-chart{
+    margin-top:15px !important;
+}
+#config-nodes-chart .chart-container g.main text.axis-label, #config-nodes-donutchart-section g.contrail-chart-title text, #config-nodes-linebarchart .nv-axislabel{
+    text-anchor:middle !important;
+    font-weight:600 !important;
+    font-size:11px !important;
+}
+#config-nodes-stackedchart{
+    width:53% !important;
+}
+#config-nodes-linebarchart{
+    width:43% !important;
+}
+/******Config Node chart CSS Ends here****/

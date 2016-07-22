@@ -308,8 +308,8 @@ define([
         this.TITLE_CPU = "CPU Share (%)";
         this.TITLE_CPU_LOAD = "CPU Load";
         this.TITLE_MEMORY = "Memory";
-        this.RESPONSE_SIZE = 'Response size';
-        this.RESPONSE_TIME = 'Response time';
+        this.RESPONSE_SIZE = 'Response Size';
+        this.RESPONSE_TIME = 'Response Time';
 
         /** Titles used in node details chart widget **/
         this.TITLE_CONTROLNODE_CPU_MEM_UTILIZATION = 'Control Node CPU/Memory Utilization';
