@@ -111,7 +111,8 @@ define([
                             gridObj._dataView.refreshData();
                         },
                         mode : ctwl.EDIT_ACTION,
-                        isGlobal: viewConfig.isGlobal
+                        isGlobal: viewConfig.isGlobal,
+                        qosType: checkedRow.qos_config_type
                     }
                 );
             }, "Edit"),

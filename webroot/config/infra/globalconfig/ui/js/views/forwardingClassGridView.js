@@ -83,7 +83,7 @@ define([
                         text: 'Loading Forwarding Class Config..'
                     },
                     empty: {
-                        text: 'No Forwarding Classs Found.'
+                        text: 'No Forwarding Classes Found.'
                     }
                 }
             },
@@ -91,31 +91,31 @@ define([
                 columns: [
                     {
                          field: "forwarding_class_id",
-                         name: "ID",
+                         name: "Forwarding Class",
                          formatter:
                              globalConfigFormatters.formatForwardingClassId,
                          sortable: false
                      },
                      {
                          field: "forwarding_class_dscp",
-                         name: "DSCP",
+                         name: "DSCP bits",
                          sortable: false,
                          formatter:
                              globalConfigFormatters.formatForwardingClassDSCP
                      },
                      {
-                         field: "forwarding_class_vlan_priority",
-                         name: "VLAN Priority",
-                         sortable: false,
-                         formatter:
-                             globalConfigFormatters.formatForwardingClassVLAN
-                     },
-                     {
                          field: "forwarding_class_mpls_exp",
-                         name: "MPLS Exp",
+                         name: "MPLS EXP bits",
                          sortable: false,
                          formatter:
                              globalConfigFormatters.formatForwardingClassMPLS
+                     },
+                     {
+                         field: "forwarding_class_vlan_priority",
+                         name: "VLAN Priority bits",
+                         sortable: false,
+                         formatter:
+                             globalConfigFormatters.formatForwardingClassVLAN
                      }
                 ]
             }
@@ -232,30 +232,30 @@ define([
                                 templateGeneratorConfig: [{
                                     key: "forwarding_class_id",
                                     templateGenerator: "TextGenerator",
-                                    label: "ID",
+                                    label: "Forwarding Class",
                                     templateGeneratorConfig: {
                                         formatter: "FormatForwardingClassId"
                                     }
                                 },{
-                                    key: "forwarding_class_dscp",
+                                    key: "uuid",
                                     templateGenerator: "TextGenerator",
-                                    label: "DSCP",
+                                    label: "DSCP bits",
                                     templateGeneratorConfig: {
                                         formatter: "FormatForwardingClassDSCP"
                                     }
                                 },{
-                                    key: "forwarding_class_vlan_priority",
+                                    key: "uuid",
                                     templateGenerator: "TextGenerator",
-                                    label: "VLAN Priority",
-                                    templateGeneratorConfig: {
-                                        formatter: "FormatForwardingClassVLAN"
-                                    }
-                                },{
-                                    key: "forwarding_class_mpls_exp",
-                                    templateGenerator: "TextGenerator",
-                                    label: "MPLS Exp",
+                                    label: "MPLS EXP bits",
                                     templateGeneratorConfig: {
                                         formatter: "FormatForwardingClassMPLS"
+                                    }
+                                },{
+                                    key: "uuid",
+                                    templateGenerator: "TextGenerator",
+                                    label: "VLAN Priority bits",
+                                    templateGeneratorConfig: {
+                                        formatter: "FormatForwardingClassVLAN"
                                     }
                                 }]
                             }]

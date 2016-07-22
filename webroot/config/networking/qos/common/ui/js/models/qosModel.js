@@ -25,8 +25,21 @@ define([
             "mpls_exp_entries": {
                 "qos_id_forwarding_class_pair": []
             },
-            "trusted": true
+            "default_forwarding_class_id": null
+        },
 
+        validations: {
+            qosValidations: {
+                'display_name': {
+                    required: true,
+                    msg: "QoS Config Name is required"
+                },
+
+                'default_forwarding_class_id': {
+                    required: true,
+                    msg: "Default Forwarding Class ID is required"
+                }
+            }
         },
 
         formatModelConfig: function(modelConfig){
@@ -162,7 +175,22 @@ define([
                     {
                         key : null,
                         type : cowc.OBJECT_TYPE_MODEL,
-                        getValidation : "configureValidation"
+                        getValidation : "qosValidations"
+                    },
+                    {
+                        key : "dscp_entries_fc_pair",
+                        type : cowc.OBJECT_TYPE_COLLECTION,
+                        getValidation : "dscpValidations"
+                    },
+                    {
+                        key : "vlan_priority_entries_fc_pair",
+                        type : cowc.OBJECT_TYPE_COLLECTION,
+                        getValidation : "vlanValidations"
+                    },
+                    {
+                        key : "mpls_exp_entries_fc_pair",
+                        type : cowc.OBJECT_TYPE_COLLECTION,
+                        getValidation : "mplsValidations"
                     }
                 ];
 
@@ -199,6 +227,9 @@ define([
                     newQOSConfigData["parent_type"] = "project";
                 }
                 newQOSConfigData["qos_config_type"] = qosType;
+                //default fc
+                newQOSConfigData["default_forwarding_class_id"] =
+                    Number(newQOSConfigData["default_forwarding_class_id"]);
                 //dscp
                 newQOSConfigData["dscp_entries"]
                    ["qos_id_forwarding_class_pair"] =
@@ -255,7 +286,7 @@ define([
                 });
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
-                    callbackObj.error(this.getFormErrorText(ctwl.QOS_PREFIX_ID));
+                    callbackObj.error(this.getFormErrorText(ctwc.QOS_PREFIX_ID));
                 }
             }
 
