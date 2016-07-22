@@ -84,19 +84,22 @@ define([
                         ajaxConfig : routesRemoteConfig,
                         dataParser : function (response) {
                             var selValues = {};
-                            backwardRoutes(response);
-                            forwardRoutes(response);
+                            backwardRouteStack = []; forwardRouteStack = [];
                             var parsedData = monitorInfraParsers.
                                         parseRoutes(response,routesQueryString);
+                            //During loading time proper PareseData is not coming based on limit because of that belows check
+                            if(getValueByJsonPath(response[0],'ShowRouteResp;tables;list') !== '' && ( parsedData.length > routesQueryString.limit - 11)){
+                                backwardRoutes(response);
+                                forwardRoutes(response);
+                                parsedData.pop();
+                            }
                             //TODO need to update the prefix autocomplete
                             var prefixArray = [];
                             $.each(parsedData,function(i,d){
                                 prefixArray.push(d.dispPrefix);
                             });
                             $('#prefix').find('input').autocomplete( "option", "source" ,prefixArray);
-                            parsedData.pop();
                             return parsedData;
-
                         }
                     },
                     cacheConfig : {
@@ -165,9 +168,16 @@ define([
                                 parseRoutes(response, routesQueryString);
                                 //check for last data in the grid
                                 if(parsedData.length < routesQueryString.limit){
-                                    if((parsedData.length + 1) != routesQueryString.limit){
-                                        forwardRouteStack.pop();
+                                    // This Check because parseData is not coming consistently based on limit
+                                    if(self.typeOfstep === 'forward'){
+                                        if(parsedData.length <= routesQueryString.limit - 1){
+                                            forwardRouteStack.pop();
+                                        }
                                     }
+                                    if(self.typeOfstep === 'backward'){
+                                        parsedData.pop();
+                                    }
+                                    //Check Ended
                                 }
                                 if(parsedData.length >= routesQueryString.limit){
                                     parsedData.pop();
@@ -176,6 +186,7 @@ define([
                             },
                             getUrlFn: function(step) {
                                 var urlparm;
+                                self.typeOfstep = step;
                                 if(step === 'forward' && forwardRouteStack.length !== 0){
                                     urlParm = forwardRouteStack.pop();
                                     return monitorInfraConstants.
@@ -187,10 +198,12 @@ define([
                                     backwardRouteStack.splice(backwardRouteStack.length - 1, 1);
                                     urlParm = backwardRouteStack.pop();
                                     forwardRouteStack.pop();
-                                    return monitorInfraConstants.
-                                    monitorInfraUrls['CONTROLNODE_ROUTES'] +
-                                    '?ip=' + hostname +
-                                    '&' + $.param(urlParm);
+                                    if(urlParm !== undefined){
+                                        return monitorInfraConstants.
+                                        monitorInfraUrls['CONTROLNODE_ROUTES'] +
+                                        '?ip=' + hostname +
+                                        '&' + $.param(urlParm);
+                                    }
                                  }
                              }
                         });
