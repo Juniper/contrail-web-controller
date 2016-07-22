@@ -19,8 +19,6 @@ define([
               "to_time": Date.now(),
               "to_time_utc": Date.now(),
               "select": "Source, T, UUID, api_stats.operation_type," +
-                  " api_stats.user, api_stats.useragent, api_stats.remote_ip," +
-                  " api_stats.domain_name, api_stats.project_name, api_stats.object_type," +
                   " api_stats.response_time_in_usec, api_stats.response_size," +
                   " api_stats.resp_code, name",
               "time_granularity_unit": "secs",
