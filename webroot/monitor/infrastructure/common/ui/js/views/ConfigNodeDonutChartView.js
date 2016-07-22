@@ -39,7 +39,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                     top: 10
                                 },
                                 showLabels: false,
-                                title: 'Write',
+                                title: 'Writes',
                                 defaultDataStatusMessage: false
                             },
                         }
@@ -61,7 +61,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                 },
                                 showLabels: false,
                                 showLegend: true,
-                                title: 'Read',
+                                title: 'Reads',
                                 defaultDataStatusMessage: false,
                                 legendFn: function (data, svg, chart) {
                                     if (data != null && svg != null && chart != null) {
