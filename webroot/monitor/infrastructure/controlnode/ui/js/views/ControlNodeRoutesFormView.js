@@ -27,9 +27,24 @@ define([
             self.model = controlNodeRoutesModel;
             self.$el.append(routesTmpl({prefix: prefix}));
 
+            var remoteAjaxConfig = {
+                    remote: {
+                        ajaxConfig: {
+                            url: contrail.format(monitorInfraConstants.
+                                    monitorInfraUrls['CONTROLNODE_ROUTE_INST_LIST'], 
+                                    hostname),
+                            type: "GET",
+                        },
+                        dataParser: parseRoutingInstanceResp
+                    },
+                    cacheConfig: {
+                    }
+            };
+            var routingInstanceListModel = new ContrailListModel(remoteAjaxConfig);
+
             self.renderView4Config($(self.$el).find(routesFormId),
                     this.model,
-                    self.getViewConfig(options,viewConfig),
+                    self.getViewConfig(options,viewConfig,routingInstanceListModel),
                     null,
                     null,
                     null,
@@ -45,9 +60,6 @@ define([
                         });
                     }
             );
-            var transportCfg = {
-                    url: contrail.format(monitorInfraConstants.monitorInfraUrls['CONTROLNODE_ROUTE_INST_LIST'], hostname, 40)
-                };
             if (widgetConfig !== null) {
                 self.renderView4Config($(self.$el).find(routesFormId),
                         self.model, widgetConfig, null, null, null);
@@ -197,7 +209,7 @@ define([
                     });
         },
 
-        getViewConfig: function (options,viewConfig) {
+        getViewConfig: function (options,viewConfig,routingInstanceListModel) {
             var self = this;
             var hostname = viewConfig['hostname'];
             var addressFamilyList = ["All","enet","ermvpn","evpn",
@@ -226,7 +238,7 @@ define([
                                             dropdownAutoWidth : false,
                                             dataTextField:'text',
                                             dataValueField:'value',
-                                            data: routingInstancesDropdownList
+                                            dataBindOptionList: routingInstanceListModel
                                         }
                                     }
                                 },
