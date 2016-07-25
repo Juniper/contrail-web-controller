@@ -116,7 +116,7 @@ function createPhysicalInterfaces (request, response, appData)
          commonUtils.handleJSONResponse(error, response, null);
          return;
      }
-     updateVMIDetails(request, appData, postData, function() {
+     //updateVMIDetails(request, appData, postData, function() {
          configApiServer.apiPost(url, postData, appData,
              function(error, data) {
                 if(error) {
@@ -125,7 +125,7 @@ function createPhysicalInterfaces (request, response, appData)
                 }
                 commonUtils.handleJSONResponse(error, response, data);
              });
-     });
+     //});
 }
 
 /**
@@ -144,7 +144,7 @@ function updatePhysicalInterfaces (request, response, appData)
          return;
      }
      var postData     =  request.body;
-     updateVMIDetails(request, appData, postData, function() {
+     //updateVMIDetails(request, appData, postData, function() {
          var reqUrl = url + pInterfaceId;
          jsonDiff.getJSONDiffByConfigUrl(reqUrl, appData, postData,
                                          function(err, delta) {
@@ -157,7 +157,7 @@ function updatePhysicalInterfaces (request, response, appData)
                 commonUtils.handleJSONResponse(error, response, data);
              });
          });
-     });
+     //});
 }
 
 /**
@@ -240,7 +240,7 @@ function deleteInterfaceAsync(dataObj, callback)
     var appData = dataObj.appData;
     var request = appData.authObj.req;
     var response = request.res;
-    if ((data.vmiIdArr != null) && (data.vmiIdArr.length > 0)) {
+    /*if ((data.vmiIdArr != null) && (data.vmiIdArr.length > 0)) {
         var putObj = {
                          "logical-interface": {
                              "uuid" : data.uuid,
@@ -268,7 +268,10 @@ function deleteInterfaceAsync(dataObj, callback)
                 callback(null, {'error' : err, 'data' : liData});
             }
         );
-    }
+    }*/
+    configApiServer.apiDelete(url, appData, function(err, liData){
+        callback(null, {'error' : err, 'data' : liData});
+    });
 }
 
 function deletePortAsync(dataObj, callback)
