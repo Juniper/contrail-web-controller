@@ -1340,9 +1340,7 @@ function getVirtualNetworksForUser(appData, callback) {
                     var vnArray = [], configVNDataLen = configVNData.length;
                     for (var i = 0; i < configVNDataLen; i++) {
                         var vnList =
-                            commonUtils.getValueByJsonPath(configVNData,
-                                                           'i;virtual-networks',
-                                                           []);
+                            commonUtils.getValueByJsonPath(configVNData[i], 'virtual-networks', []);
                         vnArray = vnArray.concat(vnList);
                     }
                     configVNData['virtual-networks'] = vnArray;
