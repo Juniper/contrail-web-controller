@@ -24,11 +24,12 @@ define(
                         if($.inArray(routerType, ctwc.BGP_AAS_ROUTERS) !== -1) {
                             return true;
                         }
-                        obj['x'] = parseFloat(jsonPath(d,'$.value.ControlCpuState.cpu_info[0].cpu_share')[0]);
-                        //Info:Need to specify the processname explictly
-                        //for which we need res memory && Convert to MB
-                        obj['y'] = parseInt(jsonPath(d,'$.value.ControlCpuState.cpu_info[0].mem_res')[0])/1024;
+                        var memCpuUsage = jsonPath(d,'$.value.NodeStatus.process_mem_cpu_usage' +
+                                            '[?(@.module_id=="contrail-control")]')[0];
+                        obj['x'] = parseInt(getValueByJsonPath(memCpuUsage,'cpu_share'));
+                        obj['y'] = parseInt(getValueByJsonPath(memCpuUsage,'mem_res'))/1024;
                         obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
+                        obj['memory'] = formatBytes(obj['y'] * 1024 * 1024);
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
                         obj['y'] = $.isNumeric(obj['y']) ? obj['y'] : 0;
                         obj['histCpuArr'] =
@@ -53,9 +54,6 @@ define(
                         }
                         obj['summaryIps'] = monitorInfraUtils.
                                             getControlIpAddresses(d,"summary");
-                        obj['memory'] = monitorInfraUtils.
-                            formatMemoryForDisplay(ifNull(jsonPath(d,
-                                    '$.value.ControlCpuState.cpu_info[0].mem_res')[0]));
                         obj['size'] = ifNull(jsonPath(d,'$..output_queue_depth')[0],0);
                         obj['shape'] = 'circle';
                         obj['name'] = d['name'];
@@ -111,8 +109,8 @@ define(
                         obj['isPartialUveMissing'] = false;
                         obj['isIfmapDown'] = false;
                         if(obj['isUveMissing'] == false) {
-                            obj['isPartialUveMissing'] = (cowu.isEmptyObject(jsonPath(d,
-                                '$.value.ControlCpuState.cpu_info')[0]) || cowu.isEmptyObject(
+                            obj['isPartialUveMissing'] = 
+                                (memCpuUsage == null || cowu.isEmptyObject(memCpuUsage) || cowu.isEmptyObject(
                                 jsonPath(d,'$.value.BgpRouterState.build_info')[0]) ||
                                 (obj['configIP'] == '-') || obj['uveIP'].length == 0)
                                 ? true : false;
@@ -195,11 +193,17 @@ define(
                         var obj = {};
                         var d = result[i];
                         var dValue = result[i]['value'];
-                        obj['cpu'] = getValueByJsonPath(dValue,
-                            'VrouterStatsAgent;cpu_info;cpu_share', '--');
+                        var memCpuUsage = jsonPath(d,'$.value.NodeStatus.process_mem_cpu_usage' +
+                            '[?(@.module_id=="contrail-vrouter-agent")]')[0];
+                        var cpu = getValueByJsonPath(memCpuUsage,'cpu_share','--');
+                        var mem = getValueByJsonPath(memCpuUsage,'mem_res','--');
+                        obj['cpu'] = $.isNumeric(cpu) ? parseFloat(cpu.
+                                            toFixed(2)) : NaN;
                         obj['x'] = $.isNumeric(obj['cpu']) ? obj['cpu'] : NaN;
-                        obj['cpu'] = $.isNumeric(obj['cpu']) ? parseFloat(obj['cpu'].toFixed(
-                            2)) : NaN;
+                        obj['resMemory'] = $.isNumeric(mem) ? parseFloat(
+                                parseFloat(mem / 1024).toFixed(2)) : NaN;
+                        obj['y'] = obj['resMemory'];
+                        obj['memory'] = formatBytes(obj['y'] * 1024 * 1024);
                         obj['ip'] = getValueByJsonPath(dValue,
                             'VrouterAgent;control_ip', '-');
                         obj['xField'] = 'cpu';
@@ -265,17 +269,6 @@ define(
                         var processes = ['contrail-vrouter-agent',
                             'contrail-vrouter-nodemgr', 'supervisor-vrouter'
                         ];
-                        obj['memory'] = formatMemory(getValueByJsonPath(dValue,
-                            'VrouterStatsAgent;cpu_info;meminfo', '--'));
-                        //Used for plotting in scatterChart
-                        obj['resMemory'] = getValueByJsonPath(dValue,
-                            'VrouterStatsAgent;cpu_info;meminfo;res', '-');
-                        obj['resMemory'] = $.isNumeric(obj['resMemory']) ? parseFloat(
-                            parseFloat(obj['resMemory'] / 1024).toFixed(2)) : NaN;
-                        obj['y'] = obj['resMemory'];
-                        obj['virtMemory'] = parseInt(getValueByJsonPath(dValue,
-                                'VrouterStatsAgent;cpu_info;meminfo;virt', '--')) /
-                            1024;
                         obj['outThroughput'] = getValueByJsonPath(dValue,
                             'VrouterStatsAgent;phy_if_5min_usage;0;out_bandwidth_usage', 0);
                         obj['inThroughput'] = getValueByJsonPath(dValue,
@@ -327,7 +320,7 @@ define(
                             });
                             obj['isPartialUveMissing'] = $.isEmptyObject(
                                     getValueByJsonPath(dValue,
-                                        'VrouterStatsAgent;cpu_info')) ||
+                                        'NodeStatus;process_mem_cpu_usage;cpu_share')) ||
                                 $.isEmptyObject(getValueByJsonPath(dValue,
                                     'VrouterAgent;build_info')) ||
                                 obj['uveIP'].length == 0 ? true : false;
@@ -382,13 +375,10 @@ define(
                     var retArr = [];
                     $.each(result, function(idx, d) {
                         var obj = {};
-                        obj['x'] =
-                            parseFloat(jsonPath(d,'$..ModuleCpuState.module_cpu_info' +
-                            '[?(@.module_id=="contrail-collector")]..cpu_share')[0]);
-                        obj['y'] =
-                            parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info' +
-                            '[?(@.module_id=="contrail-collector")]..meminfo.res')[0])
-                            / 1024;
+                        var memCpuUsage = jsonPath(d,'$.value.NodeStatus.process_mem_cpu_usage' +
+                                            '[?(@.module_id=="contrail-collector")]')[0];
+                        obj['x'] = parseInt(getValueByJsonPath(memCpuUsage,'cpu_share'));
+                        obj['y'] = parseInt(getValueByJsonPath(memCpuUsage,'mem_res'))/1024;
                         obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
                         obj['memory'] = formatBytes(obj['y'] * 1024 * 1024);
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
@@ -453,16 +443,13 @@ define(
                         obj['isPartialUveMissing'] = false;
                         if (obj['isUveMissing'] == false) {
                             if (cowu.isEmptyObject(jsonPath(d,
-                                '$.value.ModuleCpuState.module_cpu_info'+
-                                '[?(@.module_id=="contrail-collector")].cpu_info')[0])
+                                '$.value.NodeStatus.process_mem_cpu_usage'+
+                                '[?(@.module_id=="contrail-collector")].cpu_share')[0])
                                 || cowu.isEmptyObject(jsonPath(d,
                                         '$.value.CollectorState.build_info')[0])) {
                                         obj['isPartialUveMissing'] = true;
                             }
                         }
-                        //get the cpu for analytics node
-                        var cpuInfo =
-                            jsonPath(d,'$..ModuleCpuState.module_cpu_info')[0];
                         obj['isGeneratorRetrieved'] = false;
                         var genInfos = ifNull(jsonPath(d,
                             '$.value.CollectorState.generator_infos')[0], []);
@@ -499,12 +486,10 @@ define(
                     var retArr = [];
                     $.each(result,function(idx,d) {
                         var obj = {};
-                        obj['x'] = parseFloat(jsonPath(d,
-                            '$..ModuleCpuState.module_cpu_info'+
-                            '[?(@.module_id=="contrail-api")]..cpu_share')[0]);
-                        obj['y'] = parseInt(jsonPath(d,
-                            '$..ModuleCpuState.module_cpu_info'+
-                            '[?(@.module_id=="contrail-api")]..meminfo.res')[0])/1024;
+                        var memCpuUsage = jsonPath(d,'$.value.NodeStatus.process_mem_cpu_usage' +
+                                            '[?(@.module_id="^contrail-api")]')[0];
+                        obj['x'] = parseInt(getValueByJsonPath(memCpuUsage,'cpu_share'));
+                        obj['y'] = parseInt(getValueByJsonPath(memCpuUsage,'mem_res'))/1024;
                         obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
                         obj['memory'] = formatBytes(obj['y']*1024*1024);
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
@@ -562,10 +547,10 @@ define(
                             obj['summaryIps'] = ipString;
                         }
                         if(cowu.isEmptyObject(jsonPath(d,
-                           '$.value.configNode.ModuleCpuState.module_cpu_info'+
-                           '[?(@.module_id=="contrail-api")].cpu_info')[0]) ||
+                           '$.value.NodeStatus.process_mem_cpu_usage'+
+                           '[?(@.module_id="^contrail-api")]')[0]) ||
                            cowu.isEmptyObject(jsonPath(d,
-                                '$.value.configNode.ModuleCpuState.build_info')[0])) {
+                                '$.value.ModuleCpuState.build_info')[0])) {
                            obj['isPartialUveMissing'] = true;
                         }
                         obj['isGeneratorRetrieved'] = false;
