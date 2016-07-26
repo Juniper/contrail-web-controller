@@ -6,7 +6,9 @@ define([
     'underscore',
     'contrail-view',
     'contrail-list-model'
-], function (_, ContrailView, ContrailListModel) {
+    'core-alarm-utils',
+    'core-alarm-parsers'
+], function (_, ContrailView, ContrailListModel,coreAlarmUtils,coreAlarmParsers) {
     var hostname;
     var DatabaseNodeAlarmGridView = ContrailView.extend({
         el: $(contentContainer),
