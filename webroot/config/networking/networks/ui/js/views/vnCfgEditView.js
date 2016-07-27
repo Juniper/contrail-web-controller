@@ -577,7 +577,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'is_shared',
-                                                class : "span4",
+                                                class : "span3",
                                                 label:'Shared',
                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'is_shared',
@@ -591,7 +591,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'router_external',
-                                                class : "span4",
+                                                class : "span3",
                                                 label:'External',
                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'router_external',
@@ -605,10 +605,24 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'virtual_network_properties.allow_transit',
-                                                class : "span4",
+                                                class : "span3",
                                                 label:'Allow Transit',
                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'virtual_network_properties().allow_transit',
+                                                elementConfig : {
+                                                    isChecked:false
+                                                }
+                                            }
+                                        },
+                                        {
+                                            elementId: 'mirror_destination',
+                                            view: "FormCheckboxView",
+                                            viewConfig : {
+                                                path : 'virtual_network_properties.mirror_destination',
+                                                class : "span3",
+                                                label:'Mirroring',
+                                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                dataBindValue : 'virtual_network_properties().mirror_destination',
                                                 elementConfig : {
                                                     isChecked:false
                                                 }
@@ -623,7 +637,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'flood_unknown_unicast',
-                                                class : "span4",
+                                                class : "span3",
                                                 label:'Flood Unknown Unicast',
                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'flood_unknown_unicast',
@@ -637,7 +651,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'virtual_network_properties.rpf',
-                                                class : "span4",
+                                                class : "span3",
                                                 label:'Reverse Path Forwarding',
                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'virtual_network_properties().rpf',
@@ -651,7 +665,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'multi_policy_service_chains_enabled',
-                                                class : "span4",
+                                                class : "span3",
                                                 label:'Multiple Service Chains',
                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'multi_policy_service_chains_enabled',
