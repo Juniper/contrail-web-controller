@@ -25,7 +25,7 @@
 #config-nodes-linebarchart{
     width:43% !important;
 }
-#analytics-chart-queries-stackedbarchart-id .chart-container g.main text.axis-label, #analytics-chart-database-read-stackedbarchart-id .chart-container g.main text.axis-label,  #analytics-chart-database-write-stackedbarchart-id .chart-container g.main text.axis-label{
+#analytics-chart-sandesh-stackedbarchart-id .chart-container g.main text.axis-label, #analytics-chart-queries-stackedbarchart-id .chart-container g.main text.axis-label, #analytics-chart-database-read-stackedbarchart-id .chart-container g.main text.axis-label,  #analytics-chart-database-write-stackedbarchart-id .chart-container g.main text.axis-label{
     text-anchor:middle;
     font-weight:600;
     font-size:11px !important;

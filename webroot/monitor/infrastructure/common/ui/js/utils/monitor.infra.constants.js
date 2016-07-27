@@ -49,6 +49,11 @@ define([
 
         this.HOST_DPDK = 'HOST_DPDK';
 
+        //Color scheme for monitor infra nodes
+        this.SINGLE_NODE_COLOR = ['#adcfdc'];
+        this.THREE_NODE_COLOR = ['#a8c0d1', '#6f97ae', '#617683']
+        this.FIVE_NODE_COLOR = ['#819eb5', '#6b8295', '#876f8a', '#b2a198', '#eccc9b'];
+
         //Config Summary page Constants
         this.CONFIGNODESTATS_BUCKET_DURATION = 150000000;
         this.CONFIGNODE_COLORS = ['#b0c8c3', '#bf94e0', '#5d6e7e', '#b2a198', '#eccc9b'];

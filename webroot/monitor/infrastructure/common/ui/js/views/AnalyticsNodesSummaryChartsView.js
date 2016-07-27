@@ -179,7 +179,7 @@ define(['underscore', 'contrail-view',
                                           value: time
                                       },{
                                           label: ctwl.ANALYTICS_CHART_QUERIES_LABEL,
-                                          value: ifNull(data['nodeReqCnt'], '-')
+                                          value: ifNull(data['totalReqs'], '-')
                                       }, {
                                           label: ctwl.ANALYTICS_CHART_FAILED_QUERIES,
                                           value: ifNull(data['totalFailedReq'], '-')
@@ -283,7 +283,7 @@ define(['underscore', 'contrail-view',
                                            label: ctwl.ANALYTICS_CHART_DATABASE_READ_LABEL,
                                            value: ifNull(data['nodeReqCnt'], '-')
                                        }, {
-                                           label: ANALYTICS_CHART_FAILED_DATABASE_READS+'(%)',
+                                           label: ctwl.ANALYTICS_CHART_FAILED_DATABASE_READS+'(%)',
                                            value: ifNull(data['reqFailPercent'], '-')
                                        }]
                                    };
