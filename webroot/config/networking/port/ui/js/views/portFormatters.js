@@ -389,36 +389,125 @@ define([
         };
         //Grid column expand label: Mirror//
         self.mirrorFormatter = function(d, c, v, cd, dc) {
-            var mirror = "";
-            var mirrorDirection = getValueByJsonPath(dc,
-                          "virtual_machine_interface_properties;interface_mirror;traffic_direction",
-                          "");
-            if (mirrorDirection != "") {
-                mirror += self.addTableRow(["Mirror Direction", " : ", mirrorDirection]);
+            var mirror = "",
+                analyzerIP = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;analyzer_ip_address", null),
+                udpPort = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;udp_port", null),
+                analyzerName = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;analyzer_name", null),
+                routingInst = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;routing_instance", null),
+                jnprHeader = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;juniper_header", null),
+                analyzerMAC = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;analyzer_mac_address", null),
+                mirrorDirection = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;traffic_direction", null),
+                nhMode = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;nh_mode", null),
+                vtepDestIP, vtepDestMAC, VxLANId;
+
+            if(analyzerIP) {
+                mirror += self.addTableRow(["Analyzer IP", " : ", analyzerIP]);
+            } else {
+                mirror += self.addTableRow(["Analyzer IP", " : ", "-"]);
             }
-            var mirrorObj = getValueByJsonPath(dc,
-                          "virtual_machine_interface_properties;interface_mirror;mirror_to",
-                          "");
-            if (mirrorObj != "") {
-                var temp = getValueByJsonPath(mirrorObj, "analyzer_name", "");
-                mirror += self.addTableRow(["Analyzer Name", " : ", temp]);
 
-                temp = getValueByJsonPath(mirrorObj, "analyzer_ip_address", "-");
-                var temp1 = getValueByJsonPath(mirrorObj, "udp_port", "-");
+            if(udpPort) {
+                mirror += self.addTableRow(["UDP Port", " : ", udpPort]);
+            } else {
+                mirror += self.addTableRow(["UDP Port", " : ", "-"]);
+            }
 
-                mirror += self.addTableRow(["Analyzer IP Address", " : ",
-                                            temp + ", UDP port : " + temp1]);
+            if(analyzerName) {
+                mirror += self.addTableRow(["Analyzer Name", " : ", analyzerName]);
+            } else {
+                mirror += self.addTableRow(["Analyzer Name", " : ", "-"]);
+            }
 
-                temp = getValueByJsonPath(mirrorObj, "routing_instance", "");
-                if (temp != "") {
-                    var routingInst = temp.split(":");
-                    temp = ctwu.formatCurrentFQName(routingInst,
-                        self.currentDomainProject);
-                } else {
-                    temp = "-";
+            if(routingInst) {
+                var ri = routingInst.split(":");
+                routingInst = ctwu.formatCurrentFQName(ri,
+                    self.currentDomainProject);
+                mirror += self.addTableRow(["Routing Instance", " : ", routingInst]);
+            } else {
+                mirror += self.addTableRow(["Routing Instance", " : ", "-"]);
+            }
+
+            if(jnprHeader !== null) {
+                jnprHeader = jnprHeader === true ? "Enabled" : "Disabled";
+                mirror += self.addTableRow(["Juniper Header", " : ", jnprHeader]);
+            } else {
+                mirror += self.addTableRow(["Juniper Header", " : ", "-"]);
+            }
+
+            if(analyzerMAC) {
+                mirror += self.addTableRow(["Analyzer MAC", " : ", analyzerMAC]);
+            } else {
+                mirror += self.addTableRow(["Analyzer MAC", " : ", "-"]);
+            }
+
+            if(mirrorDirection) {
+                var dir = "Both";
+                if(mirrorDirection  === "ingress") {
+                    dir = "Ingress";
+                } else if(mirrorDirection  === "egress") {
+                    dir = "Egress";
                 }
-                mirror += self.addTableRow(["Routing Instance", " : ", temp]);
+                mirror += self.addTableRow(["Traffic Direction", " : ", dir]);
+            } else {
+                mirror += self.addTableRow(["Traffic Direction", " : ", "-"]);
             }
+
+            if(nhMode) {
+                var mode = "Dynamic";
+                if(nhMode === ctwc.MIRROR_STATIC) {
+                    mode = "Static"
+                }
+                mirror += self.addTableRow(["Nexthop Mode", " : ", mode]);
+            } else {
+                mirror += self.addTableRow(["Nexthop Mode", " : ", "-"]);
+            }
+
+            if(nhMode === ctwc.MIRROR_STATIC) {
+                vtepDestIP = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;static_nh_header;" +
+                        "vtep_dst_ip_address", null);
+                vtepDestMAC = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;static_nh_header;" +
+                        "vtep_dst_mac_address", null);
+                VxLANId = getValueByJsonPath(dc,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;static_nh_header;" +
+                        "vni", null);
+                if(vtepDestIP) {
+                    mirror += self.addTableRow(["VTEP Dest IP", " : ", vtepDestIP]);
+                } else {
+                    mirror += self.addTableRow(["VTEP Dest IP", " : ", "-"]);
+                }
+                if(vtepDestMAC) {
+                    mirror += self.addTableRow(["VTEP Dest MAC", " : ", vtepDestMAC]);
+                } else {
+                    mirror += self.addTableRow(["VTEP Dest MAC", " : ", "-"]);
+                }
+                if(VxLANId) {
+                    mirror += self.addTableRow(["VxLAN ID", " : ", VxLANId]);
+                } else {
+                    mirror += self.addTableRow(["VxLAN ID", " : ", "-"]);
+                }
+            }
+
             if (mirror == "") {
                 mirror = "-";
             } else {
@@ -915,7 +1004,7 @@ define([
         self.disablePolicyFormatter = function(d, c, v, cd, dc) {
             return v && v.toString() === "true" ? "True" : "False";
         };
-        
+
         self.formatNetworksData = function(portEditView, result, mode) {
             var formattedNetworks =
                 self.networkDDFormatter(result),
