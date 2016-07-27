@@ -721,8 +721,7 @@ define(
                     var groupDim = cf.dimension(function(d) { return d["Source"];});
                     var tsDim = cf.dimension(function(d) { return d[timeStampField];});
                     var buckets = this.bucketizeConfigNodeStats(apiStats);
-                    var colorCodes = monitorInfraConstants.CONFIGNODE_COLORS;
-                    colorCodes = colorCodes.slice(0, groupDim.group().all().length);
+                    var colorCodes = monitorInfraUtils.getMonitorInfraNodeColors(groupDim.group().all().length);
                     //Now parse this data to be usable in the chart
                     var parsedData = [];
                     for(var i  in buckets) {
@@ -783,6 +782,8 @@ define(
                             var avgResTime = Math.round((ifNull(resTimeNodeMap[nodeName], 0)/nodeReqCnt)) / 1000; //Converting to millisecs
                             var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
                             var toTime = new XDate((timestampExtent[1]/1000)).toString('HH:mm');
+                            //Subtract the failedRequests from node requests
+                            nodeReqCnt = nodeReqCnt - failedReqPerNode;
                             counts.push({
                                 name: nodeName,
                                 color: colorCodes[j],
@@ -811,6 +812,7 @@ define(
                     var tsDim = cf.dimension(function (d) {return d.T});
                     var sourceDim = cf.dimension(function (d) {return d.Source});
                     var sourceGroupedData = sourceDim.group().all();
+                    var colors = monitorInfraUtils.getMonitorInfraNodeColors(sourceGroupedData.length);
                     var nodeMap = {}, chartData = [];
                     $.each(sourceGroupedData, function (idx, obj) {
                         nodeMap[obj['key']] = {
@@ -879,7 +881,7 @@ define(
                 this.parseConfigNodeRequestForDonutChart = function (apiStats, reqType) {
                     var cf = crossfilter(apiStats),
                         parsedData = [],
-                        colors = monitorInfraConstants.CONFIGNODE_COLORS;
+                        colors = [];
                     if (!$.isArray(reqType)) {
                         reqType = [reqType];
                     }
@@ -893,6 +895,7 @@ define(
                         }
                     });
                     var sourceGrpData = sourceGrpDim.all();
+                    colors = monitorInfraUtils.getMonitorInfraNodeColors(sourceGrpData.length);
                     $.each(sourceGrpData, function (key, value){
                         parsedData.push({
                             label: value['key'],
