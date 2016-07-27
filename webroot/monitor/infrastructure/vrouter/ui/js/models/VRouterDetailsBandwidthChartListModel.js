@@ -6,10 +6,15 @@ define(['contrail-list-model'], function(ContrailListModel) {
     var VRouterDetailsBandwidthChartListModel = function(config) {
         var hostname = config['node'];
         var isTORAgent = config['isTORAgent'];
-        var bandwidthPostData = monitorInfraUtils.
+        var bandwidthInPostData = monitorInfraUtils.
                         getPostDataForCpuMemStatsQuery({
                                 nodeType:monitorInfraConstants.COMPUTE_NODE,
-                                moduleType:"vRouterBandwidth",
+                                moduleType:"vRouterBandwidthIn",
+                                node:hostname});
+        var bandwidthOutPostData = monitorInfraUtils.
+                        getPostDataForCpuMemStatsQuery({
+                                nodeType:monitorInfraConstants.COMPUTE_NODE,
+                                moduleType:"vRouterBandwidthOut",
                                 node:hostname});
         var flowRatePostData = monitorInfraUtils.
                         getPostDataForCpuMemStatsQuery({
@@ -27,7 +32,25 @@ define(['contrail-list-model'], function(ContrailListModel) {
                     },
                     successCallback: function(response, contrailListModel) {
                         var flowRateData = getValueByJsonPath(response,'data',[]);
-                        parseAndMergeFlowStats (flowRateData,contrailListModel);
+                        parseAndMergeStats (flowRateData,contrailListModel,'MAX(flow_rate.active_flows)');
+                    }
+                },
+                {
+                    getAjaxConfig: function() {
+                        return {
+                            url:monitorInfraConstants.monitorInfraUrls['QUERY'],
+                            type:'POST',
+                            data:JSON.stringify(bandwidthOutPostData)
+                        }
+                    },
+                    successCallback: function(response, contrailListModel) {
+                        var data;
+                        if(!isTORAgent) {
+                            data = monitorInfraUtils.filterTORAgentData(response['data']);
+                        } else {
+                            data = getValueByJsonPath(response,'data',[]);
+                        }
+                        parseAndMergeStats (data,contrailListModel,'phy_band_out_bps.__value');
                     }
                 }
             ]
@@ -37,7 +60,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                 ajaxConfig : {
                     url: monitorInfraConstants.monitorInfraUrls['QUERY'],
                     type: 'POST',
-                    data: JSON.stringify(bandwidthPostData)
+                    data: JSON.stringify(bandwidthInPostData)
                 },
                 dataParser : function (response) {
                     if(!isTORAgent) {
@@ -52,7 +75,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
             }
         };
 
-        function parseAndMergeFlowStats (response,primaryDS) {
+        function parseAndMergeStats (response,primaryDS,key) {
             var primaryData = primaryDS.getItems();
             if(primaryData.length == 0) {
                 return response;
@@ -72,12 +95,12 @@ define(['contrail-list-model'], function(ContrailListModel) {
             var cnt = primaryData.length;
             for (var i = 0; i < cnt ; i++) {
                 primaryData[i]['T'] = primaryData[i]['T='];
-                if (response[i] != null && response[i]['MAX(flow_rate.active_flows)'] != null) {
-                    primaryData[i]['MAX(flow_rate.active_flows)'] =
-                        response[i]['MAX(flow_rate.active_flows)'];
+                if (response[i] != null && response[i][key] != null) {
+                    primaryData[i][key] =
+                        response[i][key];
                 } else if (i > 0){
-                    primaryData[i]['MAX(flow_rate.active_flows)'] =
-                        primaryData[i-1]['MAX(flow_rate.active_flows)'];
+                    primaryData[i][key] =
+                        primaryData[i-1][key];
                 }
             }
             primaryDS.updateData(primaryData);
