@@ -2035,9 +2035,13 @@ define([
                         postData['select'] = 'Source, name, T, cpu_info.cpu_share, cpu_info.mem_res';
                     } else if (moduleType == 'vRouterSystem') {
                         postData['select'] = 'Source, name, T, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
-                    } else if (moduleType == 'vRouterBandwidth') {
-                        postData['table'] = 'StatTable.VrouterStatsAgent.phy_if_band';
-                        postData['select'] = 'Source, name, T=, phy_if_band.in_bandwidth_usage, phy_if_band.out_bandwidth_usage';
+                    } else if (moduleType == 'vRouterBandwidthIn') {
+                        postData['table'] = 'StatTable.VrouterStatsAgent.phy_band_in_bps';
+                        postData['select'] = 'Source, name, T=, phy_band_in_bps.__value';
+                        postData['tgValue'] = 60;
+                    } else if (moduleType == 'vRouterBandwidthOut') {
+                        postData['table'] = 'StatTable.VrouterStatsAgent.phy_band_out_bps';
+                        postData['select'] = 'Source, name, T=, phy_band_out_bps.__value';
                         postData['tgValue'] = 60;
                     } else if (moduleType == 'vRouterFlowRate') {
                         postData['table'] = 'StatTable.VrouterStatsAgent.flow_rate';
