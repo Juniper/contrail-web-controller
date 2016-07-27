@@ -3,10 +3,15 @@ a.introspect-link {
 }
 .contrail-introspect-grid {
     width: 100%;
+    border-bottom: none;
 }
 .contrail-introspect-grid .grid-body{
     width: 100%;
     overflow: scroll;
+    padding: 5px;
+    border-left: 1px solid #DADADA;
+    border-right: 1px solid #DADADA;
+    border-bottom: 1px solid #DADADA;
 }
 .contrail-introspect-grid table {
     width: 100%;
@@ -14,6 +19,9 @@ a.introspect-link {
 }
 .contrail-introspect-grid table thead {
     border-top: 1px solid #CCCCCC;
+}
+.contrail-introspect-grid table tbody {
+    border-top: 1px solid #DADADA;
     border-bottom: 1px solid #DADADA;
 }
 .contrail-introspect-grid table thead tr th {
@@ -45,6 +53,7 @@ a.introspect-link {
     white-space: normal;
 }
 
+.contrail-introspect-grid table,
 .contrail-introspect-grid table.table_3,
 .contrail-introspect-grid table.table_5,
 .contrail-introspect-grid table.table_7,
@@ -52,6 +61,7 @@ a.introspect-link {
     background-color: #FFFFFF;
     border-bottom: 1px solid #DADADA;
 }
+.contrail-introspect-grid table > thead,
 .contrail-introspect-grid table.table_3 > thead,
 .contrail-introspect-grid table.table_5 > thead,
 .contrail-introspect-grid table.table_7 > thead,
@@ -59,12 +69,14 @@ a.introspect-link {
     border-left: 1px solid #DADADA;
     border-top: 1px solid #DADADA;
 }
+.contrail-introspect-grid table > thead > tr > th,
 .contrail-introspect-grid table.table_3 > thead > tr > th,
 .contrail-introspect-grid table.table_5 > thead > tr > th,
 .contrail-introspect-grid table.table_7 > thead > tr > th,
 .contrail-introspect-grid table.table_9 > thead > tr > th {
     border-right: 1px solid #DADADA;
 }
+.contrail-introspect-grid table > tbody > tr,
 .contrail-introspect-grid table.table_3 > tbody > tr,
 .contrail-introspect-grid table.table_5 > tbody > tr,
 .contrail-introspect-grid table.table_7 > tbody > tr,
@@ -72,23 +84,23 @@ a.introspect-link {
     border-left: 1px solid #DADADA;
     border-top: 1px solid #DADADA;
 }
+.contrail-introspect-grid table > tbody > tr:last-child,
 .contrail-introspect-grid table.table_3 > tbody > tr:last-child,
 .contrail-introspect-grid table.table_5 > tbody > tr:last-child,
 .contrail-introspect-grid table.table_7 > tbody > tr:last-child,
 .contrail-introspect-grid table.table_9 > tbody > tr:last-child {
     border-bottom: 1px solid #DADADA;
 }
+.contrail-introspect-grid table > tbody > tr > td,
 .contrail-introspect-grid table.table_3 > tbody > tr > td,
 .contrail-introspect-grid table.table_5 > tbody > tr > td,
 .contrail-introspect-grid table.table_7 > tbody > tr > td,
 .contrail-introspect-grid table.table_9 > tbody > tr > td {
     border-right: 1px solid #DADADA;
 }
-
-/*
- * Copyright (c) 2013 Juniper Networks, Inc. All rights reserved.
- */
-
+.contrail-introspect-grid p.no-data-text {
+    margin-bottom: 0;
+}
 .first-cap {
     text-transform:capitalize;
 }
