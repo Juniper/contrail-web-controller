@@ -27,6 +27,7 @@ define([
                 'allow_transit': false,
                 'rpf': 'enable',
                 'vxlan_network_identifier': null, //delete if it is null
+                'mirror_destination': false
             },
             'external_ipam': false, // set only when vcenter is enabled
             'virtual_network_network_id': 0, // never set at post / put
