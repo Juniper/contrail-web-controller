@@ -165,7 +165,7 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'btnName': 'Confirm',
                              'body': delLayout, 'onSave': function () {
-                self.model.deleteAllPort({
+                self.model.deleteAllPort(options.selectedProjectId, {
                     init: function () {
                         self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                         cowu.enableModalLoading(modalId);

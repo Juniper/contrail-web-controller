@@ -146,11 +146,11 @@ define([
                     autoRefresh: false,
                     checkboxSelectable: {
                         onNothingChecked: function(e){
-                            $('#btnDeletePort').addClass(
+                            $('.deletePortClass').parent().addClass(
                                                          'disabled-link');
                         },
                         onSomethingChecked: function(e){
-                            $('#btnDeletePort').removeClass(
+                            $('.deletePortClass').parent().removeClass(
                                                          'disabled-link');
                         }
                     },
@@ -245,8 +245,7 @@ define([
         dropdownActions = [
             {
                 "title" : ctwl.TITLE_DELETE_CONFIG,
-                "id" : "btnDeletePort",
-                "iconClass": 'icon-trash',
+                "iconClass" : "deletePortClass",
                 "onClick" : function() {
                     var checkedRows =
                         $(gridElId).data("contrailGrid").
@@ -295,7 +294,6 @@ define([
                 "type": "dropdown",
                 "title": ctwl.TITLE_DELETE_CONFIG,
                 "iconClass": "icon-trash",
-                "linkElementId": "btnDeletePort",
                 "actions": dropdownActions
             },
             {
