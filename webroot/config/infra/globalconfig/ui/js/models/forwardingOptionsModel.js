@@ -15,7 +15,7 @@ define([
             "forwarding_mode": "Default",
             "vxlan_network_identifier_mode": "automatic",
             "encapsulation_priorities": {
-                "encapsulation": ["MPLSoUDP", "MPLSoGRE", "VXLAN"]
+                "encapsulation": []
             },
             'ecmp_hashing_include_fields': {
                 'hashing_configured': true,
@@ -71,6 +71,10 @@ define([
             var encapPrioList = getValueByJsonPath(modelConfig,
                 "encapsulation_priorities;encapsulation", []);
             var encapPrioListLen = encapPrioList.length;
+            if (!encapPrioListLen) {
+                encapPrioList = gcUtils.getDefaultConfigEncapList();
+                encapPrioListLen = encapPrioList.length;
+            }
             for (var i = 0; i < encapPrioListLen; i++) {
                 encapPriOrdModel =
                     new EncapPriorityModel({encapsulation_priorities:
