@@ -538,6 +538,16 @@ define([
         };
 
         /*
+         * @mirrorDestinationFormatter
+         */
+        this.mirrorDestinationFormatter = function(d, c, v, cd, dc) {
+            var mirrorDest = getValueByJsonPath(dc,
+                'virtual_network_properties;mirror_destination', false);
+
+            return mirrorDest ? 'Enabled' : 'Disabled';
+        };
+
+        /*
          * @rpfFormatter
          */
         this.rpfFormatter = function(d, c, v, cd, dc) {

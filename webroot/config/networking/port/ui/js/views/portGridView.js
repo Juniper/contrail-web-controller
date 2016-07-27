@@ -477,8 +477,7 @@ define([
                 formatter: "AAPFormatter"
             }
         }, {
-            key: 'virtual_machine_interface_properties',
-            name:"virtual_machine_interface_properties",
+            key: 'virtual_machine_interface_properties.interface_mirror',
             label:"Mirror to",
             templateGenerator: 'TextGenerator',
             templateGeneratorConfig:{

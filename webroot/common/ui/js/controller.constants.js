@@ -742,6 +742,8 @@ define([
         this.PORT_GRID_ID = "port-grid-id";
         this.PORT_PREFIX_ID = "Ports";
         this.TEXT_PORT = 'port';
+        this.MIRROR_STATIC = 'static';
+        this.MIRROR_DYNAMIC = 'dynamic';
 
         /* Policy */
         this.VN_SUBNET_DELIMITER = ":";
