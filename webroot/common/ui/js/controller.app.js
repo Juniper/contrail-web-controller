@@ -82,6 +82,7 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'monitor-infra-analytics-sandesh-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeSandeshChartModel',
             'monitor-infra-analytics-queries-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeQueriesModel',
             'monitor-infra-analytics-database-read-write-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeDatabaseWriteReadModel',
+            'monitor-infra-analytics-database-usage-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/DatabaseUsageModel',
             'monitor-infra-analyticsnode-model' : ctWebDir + '/monitor/infrastructure/common/ui/js/models/AnalyticsNodeListModel',
             'monitor-infra-databasenode-model' : ctWebDir + '/monitor/infrastructure/common/ui/js/models/DatabaseNodeListModel',
             'monitor-infra-controlnode-model' : ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeListModel',
@@ -116,6 +117,7 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
 
             'controller-init': ctWebDir + '/common/ui/js/controller.init',
             'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
+            'monitor-infra-analytics-database-usage-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/DatabaseUsageModel',
             //Monitor Infra analytics charts
             'monitor-infra-analytics-sandesh-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeSandeshChartModel',
             'monitor-infra-analytics-queries-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeQueriesModel',

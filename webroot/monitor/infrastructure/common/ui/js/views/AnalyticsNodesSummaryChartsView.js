@@ -3,35 +3,59 @@
  */
 
 define(['underscore', 'contrail-view',
-       'monitor-infra-analytics-sandesh-chart-model', 'monitor-infra-analytics-queries-chart-model', 'monitor-infra-analytics-database-read-write-chart-model'],function(_, ContrailView,AnalyticsNodeSandeshChartModel, AnalyticsNodeQueriesChartModel, AnalyticsNodeDataBaseReadWriteChartModel){
+       'monitor-infra-analytics-sandesh-chart-model',
+       'monitor-infra-analytics-queries-chart-model',
+       'monitor-infra-analytics-database-read-write-chart-model',
+       'monitor-infra-analytics-database-usage-model'],
+       function(_, ContrailView,AnalyticsNodeSandeshChartModel,
+            AnalyticsNodeQueriesChartModel, AnalyticsNodeDataBaseReadWriteChartModel,
+            AanlyticsNodeDatabaseUsageModel){
         var AnalyticsNodesSummaryChartsView = ContrailView.extend({
         render : function (){
             var anlyticsTemplate = contrail.getTemplate4Id(
                     cowc.TMPL_4COLUMN__2ROW_CONTENT_VIEW);
-            var self = this;
-            this.$el.html(anlyticsTemplate);
-            var topleftColumn = this.$el.find(".top-container .left-column"),
-                toprightCoulmn = this.$el.find(".top-container .right-column"),
-                bottomleftColumn = this.$el.find(".bottom-container .left-column"),
-                bottomrightCoulmn = this.$el.find(".bottom-container .right-column"),
-                sandeshModel = new AnalyticsNodeSandeshChartModel(),
-                queriesModel = new AnalyticsNodeQueriesChartModel(),
-                databseReadWritemodel = new AnalyticsNodeDataBaseReadWriteChartModel();
+            var self = this,
+                analyticsNodeList = [];
+            self.$el.html(anlyticsTemplate);
+            if (self.model != null) {
+                self.model.onDataUpdate.subscribe(function (e, obj) {
+                    if (self.model.isPrimaryRequestInProgress() == false
+                            && callBackExecuted == false) {
+                        callBackExecuted = true;
+                        if(self.model.loadedFromCache) {
+                            var cacheObj = cowch.getDataFromCache(ctwl.CACHE_ANALYTICSNODE),
+                            cacheListModel = getValueByJsonPath(cacheObj, 'dataObject;listModel');
+                            if (cacheListModel != null) {
+                                analyticsNodeList = cacheListModel.getItems();
+                            }
+                        } else {
+                            analyticsNodeList = self.model.getItems();
+                        }
+                        var topleftColumn = self.$el.find(".top-container .left-column"),
+                            toprightCoulmn = self.$el.find(".top-container .right-column"),
+                            bottomleftColumn = self.$el.find(".bottom-container .left-column"),
+                            bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
+                            sandeshModel = new AnalyticsNodeSandeshChartModel(),
+                            queriesModel = new AnalyticsNodeQueriesChartModel(),
+                            dbUsageModel = new AanlyticsNodeDatabaseUsageModel();
+                            databseReadWritemodel = new AnalyticsNodeDataBaseReadWriteChartModel();
+                        var colorMap = monitorInfraUtils.constructNodeColorMap(analyticsNodeList);
+                        self.renderView4Config(topleftColumn,  sandeshModel,
+                                getAnalyticsNodeSandeshChartViewConfig(colorMap));
 
-            self.renderView4Config(topleftColumn,  sandeshModel,
-                    getAnalyticsNodeSandeshChartViewConfig());
+                        self.renderView4Config(toprightCoulmn,  queriesModel,
+                                getAnalyticsNodeQueriesChartViewConfig(colorMap));
 
-            self.renderView4Config(toprightCoulmn,  queriesModel,
-                    getAnalyticsNodeQueriesChartViewConfig());
+                        self.renderView4Config(bottomrightCoulmn,  dbUsageModel,
+                                getAnalyticsNodeDatabaseUsageChartViewConfig(colorMap));
 
-            self.renderView4Config(bottomrightCoulmn,  databseReadWritemodel,
-                    getAnalyticsNodeDatabaseReadChartViewConfig());
-
-            self.renderView4Config(bottomleftColumn,  databseReadWritemodel,
-                    getAnalyticsNodeDatabaseWriteChartViewConfig());
+                        self.renderView4Config(bottomleftColumn,  databseReadWritemodel,
+                                getAnalyticsNodeDatabaseWriteChartViewConfig(colorMap));}
+                });
+            }
         }
     });
-   function getAnalyticsNodeSandeshChartViewConfig() {
+   function getAnalyticsNodeSandeshChartViewConfig(colorMap) {
        return {
            elementId : ctwl.ANALYTICS_CHART_SANDESH_SECTION_ID,
            view : "SectionView",
@@ -43,6 +67,7 @@ define(['underscore', 'contrail-view',
                        viewConfig : {
                            class: 'mon-infra-chart chartMargin',
                            chartOptions:{
+                               colorMap: colorMap,
                                brush: false,
                                height: 230,
                                xAxisLabel: '',
@@ -103,13 +128,14 @@ define(['underscore', 'contrail-view',
                                            cssClass: 'contrail-legend-stackedbar',
                                            data: colorCodes,
                                            colors: colorCodes,
+                                           nodeColorMap: colorMap,
                                            label: ctwl.ANALYTICS_NODES,
                                        });
                                    }
                                }
                            },
-                           parseFn: function (response) {
-                               return monitorInfraParsers.parseSandeshMessageStackChartData(response);
+                           parseFn: function (response, chartViewModel) {
+                               return monitorInfraParsers.parseSandeshMessageStackChartData(response, chartViewModel);
                            }
                        }
                    }]
@@ -119,7 +145,7 @@ define(['underscore', 'contrail-view',
 
    }
 
-   function getAnalyticsNodeQueriesChartViewConfig() {
+   function getAnalyticsNodeQueriesChartViewConfig(colorMap) {
        return {
            elementId : ctwl.ANALYTICS_CHART_QUERIES_SECTION_ID,
            view : "SectionView",
@@ -132,6 +158,7 @@ define(['underscore', 'contrail-view',
                        viewConfig : {
                            class: 'mon-infra-chart chartMargin',
                            chartOptions:{
+                               colorMap: colorMap,
                                brush: false,
                                height: 230,
                                xAxisLabel: '',
@@ -140,7 +167,7 @@ define(['underscore', 'contrail-view',
                                axisLabelFontSize: 11,
                                tickPadding: 4,
                                margin: {
-                                   left: 40,
+                                   left: 50,
                                    top: 35,
                                    right: 0,
                                    bottom: 40
@@ -179,7 +206,7 @@ define(['underscore', 'contrail-view',
                                           value: time
                                       },{
                                           label: ctwl.ANALYTICS_CHART_QUERIES_LABEL,
-                                          value: ifNull(data['nodeReqCnt'], '-')
+                                          value: ifNull(data['totalReqs'], '-')
                                       }, {
                                           label: ctwl.ANALYTICS_CHART_FAILED_QUERIES,
                                           value: ifNull(data['totalFailedReq'], '-')
@@ -214,6 +241,9 @@ define(['underscore', 'contrail-view',
                                            cssClass: 'contrail-legend-error',
                                            data: [data],
                                            offset: -10,
+                                           nodeColorMap: {
+                                               'Failures': monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                                           },
                                            colors: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
                                            label: 'Failures',
                                        });
@@ -223,13 +253,14 @@ define(['underscore', 'contrail-view',
                                            data: colorCodes,
                                            offset: 70,
                                            colors: colorCodes,
+                                           nodeColorMap: colorMap,
                                            label: ctwl.ANALYTICS_NODES,
                                        });
                                    }
                                }
                            },
-                           parseFn: function (response) {
-                               return monitorInfraParsers.parseAnlyticsQueriesChartData(response);
+                           parseFn: function (response, chartViewModel) {
+                               return monitorInfraParsers.parseAnlyticsQueriesChartData(response, chartViewModel);
                            }
                        }
                    }]
@@ -239,7 +270,7 @@ define(['underscore', 'contrail-view',
 
    }
 
-   function getAnalyticsNodeDatabaseReadChartViewConfig() {
+   function getAnalyticsNodeDatabaseUsageChartViewConfig(colorMap) {
        return {
            elementId : ctwl.ANALYTICS_CHART_DATABASE_READ_SECTION_ID,
            view : "SectionView",
@@ -252,15 +283,19 @@ define(['underscore', 'contrail-view',
                        viewConfig : {
                            class: 'mon-infra-chart chartMargin',
                            chartOptions:{
+                               colorMap: colorMap,
                                brush: false,
                                height: 230,
                                xAxisLabel: '',
-                               yAxisLabel: ctwl.ANALYTICS_CHART_DATABASE_READ_LABEL,
+                               yAxisLabel: ctwl.ANALYTICS_CHART_DATABASE_USAGE,
                                yAxisOffset: 25,
+                               yAxisFormatter: function (d) {
+                                   return formatBytes(d, true);
+                               },
                                axisLabelFontSize: 11,
                                tickPadding: 8,
                                margin: {
-                                   left: 40,
+                                   left: 50,
                                    top: 35,
                                    right: 0,
                                    bottom: 40
@@ -280,29 +315,8 @@ define(['underscore', 'contrail-view',
                                            label: 'Time',
                                            value: time
                                        }, {
-                                           label: ctwl.ANALYTICS_CHART_DATABASE_READ_LABEL,
-                                           value: ifNull(data['nodeReqCnt'], '-')
-                                       }, {
-                                           label: ANALYTICS_CHART_FAILED_DATABASE_READS+'(%)',
-                                           value: ifNull(data['reqFailPercent'], '-')
-                                       }]
-                                   };
-                               } else {
-                                   tooltipConfig['title'] = {
-                                           name : data['name'],
-                                           type: ctwl.ANALYTICS_NODES
-                                   };
-                                   tooltipConfig['content'] = {
-                                       iconClass : false,
-                                       info : [{
-                                           label: 'Time',
-                                           value: time
-                                       },{
-                                           label: 'Total Requests',
-                                           value: ifNull(data['totalReqs'], '-')
-                                       }, {
-                                           label: ctwl.ANALYTICS_CHART_FAILED_DATABASE_READS,
-                                           value: ifNull(data['totalFailedReq'], '-')
+                                           label: ctwl.ANALYTICS_CHART_DATABASE_USAGE,
+                                           value: formatBytes(ifNull(data['perNodeDBUsage'], 0))
                                        }]
                                    };
                                }
@@ -331,27 +345,19 @@ define(['underscore', 'contrail-view',
                                               .attr('transform','translate('+width+',0)')
                                        monitorInfraUtils.addLegendToSummaryPageCharts({
                                            container: legendWrap,
-                                           cssClass: 'contrail-legend-error',
-                                           data: [data],
-                                           offset: -10,
-                                           colors: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
-                                           label: 'Failures',
-                                       });
-                                       monitorInfraUtils.addLegendToSummaryPageCharts({
-                                           container: legendWrap,
                                            cssClass: 'contrail-legend-stackedbar',
                                            data: colorCodes,
-                                           offset: 70,
                                            colors: colorCodes,
-                                           label: ctwl.ANALYTICS_NODES,
+                                           nodeColorMap: {
+                                               'DB Usage': monitorInfraConstants.SINGLE_NODE_COLOR[0]
+                                           },
+                                           label: ctwl.ANALYTICS_CHART_DATABASE_USAGE,
                                        });
                                    }
                                }
                            },
-                           parseFn: function (response) {
-                               var dataBaseReadfailed = ctwl.ANALYTICS_CHART_DATABASE_READ_FAILS;
-                               var dataBaseReaddata = ctwl.ANALYTICS_CHART_DATABASE_READ;
-                               return monitorInfraParsers.parseAnlyticsNodeDataBaseReadWriteChartData(response, dataBaseReadfailed, dataBaseReaddata);
+                           parseFn: function (response, chartViewModel) {
+                               return monitorInfraParsers.parseDatabaseUsageData(response, chartViewModel, 'MAX(database_usage.analytics_db_size_1k)');
                            }
                        }
                    }]
@@ -361,7 +367,7 @@ define(['underscore', 'contrail-view',
 
    }
 
-   function getAnalyticsNodeDatabaseWriteChartViewConfig() {
+   function getAnalyticsNodeDatabaseWriteChartViewConfig(colorMap) {
        return {
            elementId : ctwl.ANALYTICS_CHART_DATABASE_WRITE_SECTION_ID,
            view : "SectionView",
@@ -374,6 +380,7 @@ define(['underscore', 'contrail-view',
                        viewConfig : {
                            class: 'mon-infra-chart chartMargin',
                            chartOptions:{
+                               colorMap: colorMap,
                                brush: false,
                                height: 230,
                                xAxisLabel: '',
@@ -457,6 +464,9 @@ define(['underscore', 'contrail-view',
                                            data: [data],
                                            offset: -10,
                                            colors: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                                           nodeColorMap: {
+                                               'Failures': monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                                           },
                                            label: 'Failures',
                                        });
                                        monitorInfraUtils.addLegendToSummaryPageCharts({
@@ -465,15 +475,16 @@ define(['underscore', 'contrail-view',
                                            data: colorCodes,
                                            offset: 70,
                                            colors: colorCodes,
+                                           nodeColorMap: colorMap,
                                            label: ctwl.ANALYTICS_NODES,
                                        });
                                    }
                                }
                            },
-                           parseFn: function (response) {
+                           parseFn: function (response, chartViewModel) {
                                var dataBaseWritefailed = ctwl.ANALYTICS_CHART_DATABASE_WRITE_FAILS;
                                var dataBaseWritedata = ctwl.ANALYTICS_CHART_DATABASE_WRITE;
-                               return monitorInfraParsers.parseAnlyticsNodeDataBaseReadWriteChartData(response, dataBaseWritefailed, dataBaseWritedata);
+                               return monitorInfraParsers.parseAnlyticsNodeDataBaseReadWriteChartData(response, chartViewModel, dataBaseWritefailed, dataBaseWritedata);
                            }
                        }
                    }]

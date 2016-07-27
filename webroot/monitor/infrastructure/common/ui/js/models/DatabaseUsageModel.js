@@ -5,20 +5,20 @@
 define([
     'contrail-list-model'
 ], function (ContrailListModel) {
-    var AnalyticsNodeSandeshChartModel = function () {
+    var DatabaseUsageModel = function () {
         var queryPostData = {
             "autoSort": true,
             "async": false,
             "formModelAttrs": {
-             "table_name": "StatTable.SandeshMessageStat.msg_info",
+              "table_name": "StatTable.DatabaseUsageInfo.database_usage",
               "table_type": "STAT",
               "query_prefix": "stat",
+              "time_range": "3600",
               "from_time": Date.now() - (2 * 60 * 60 * 1000),
               "from_time_utc": Date.now() - (2 * 60 * 60 * 1000),
               "to_time": Date.now(),
               "to_time_utc": Date.now(),
-              "select": "Source, T=, SUM(msg_info.messages)",
-              "time_granularity": 150,
+              "select": "Source, T, MAX(database_usage.analytics_db_size_1k)",
               "time_granularity_unit": "secs",
               "limit": "150000"
             },
@@ -32,17 +32,22 @@ define([
                     timeout : 120000 //2 mins
                 },
                 dataParser : function (response) {
+                    var stats = getValueByJsonPath(response, 'data', []);
+                    $.each(stats, function(idx, obj) {
+                        obj['MAX(database_usage.analytics_db_size_1k)'] =
+                            ifNull(obj['MAX(database_usage.analytics_db_size_1k)'],0) * 1024; //Converting KB to Bytes
+                    });
                     listModel.queryJSON = response['queryJSON'];
-                    return response['data'];
+                    return stats;
                 }
             },
             cacheConfig : {
-                ucid: ctwl.CACHE_ANALYTICSNODE_SANDESH_CHARTS
+                ucid: ctwl.CACHE_DATABASE_USAGE_CHARTS
             }
         };
         var listModel = new ContrailListModel(listModelConfig)
         return listModel;
     };
-    return AnalyticsNodeSandeshChartModel;
+    return DatabaseUsageModel;
     }
 );

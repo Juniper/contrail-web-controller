@@ -28,16 +28,21 @@ define([
                 ajaxConfig : {
                     url : "/api/qe/query",
                     type: 'POST',
-                    data: JSON.stringify(queryPostData)
+                    data: JSON.stringify(queryPostData),
+                    timeout : 120000 //2 mins
                 },
                 dataParser : function (response) {
+                    listModel.queryJSON = response['queryJSON'];
                     return response['data'];
                 }
             },
-            cacheConfig : {}
+            cacheConfig : {
+                ucid: ctwl.CACHE_ANALYTICSNODE_DATABASEREADWRITE_CHARTS
+            }
         };
 
-        return ContrailListModel(listModelConfig);
+        var listModel = new ContrailListModel(listModelConfig)
+        return listModel;
     };
     return AnalyticsNodeDatabaseWriteReadModel;
     }
