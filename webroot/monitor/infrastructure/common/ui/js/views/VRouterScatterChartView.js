@@ -60,6 +60,9 @@ define(['underscore', 'contrail-view'], function(_, ContrailView) {
                                bubbleSizeFn: function(d) {
                                     return d3.max(d,function(d) { return d.size;});
                                },
+                               bubbleCfg : {
+                                    defaultMaxValue : monitorInfraConstants.VROUTER_DEFAULT_MAX_THROUGHPUT
+                               },
                                tooltipConfigCB: monitorInfraUtils.vRouterTooltipFn,
                                controlPanelConfig: {
                                    // legend: {
