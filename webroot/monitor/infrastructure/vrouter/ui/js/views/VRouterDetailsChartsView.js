@@ -69,7 +69,7 @@ define([
             sparklineTitle1:'Flow Rate',
             sparklineTitle2:'Bandwidth In',
             sparkline1Dimension: 'MAX(flow_rate.active_flows)',
-            sparkline2Dimension:'phy_if_band.out_bandwidth_usage',
+            sparkline2Dimension:'phy_band_in_bps.__value',
             view: VRouterDetailsBandwidthLineChartView,
             model: vRouterDetailsBandwidthChartListModel
         }];
