@@ -11,7 +11,7 @@
           * uve_keys formatter
           */
          self.uveKeysFormatter = function(r, c, v, cd, dc) {
-             var uve_keys = getValueByJsonPath(dc,'uve_keys',[]);
+             var uve_keys = getValueByJsonPath(dc,'uve_keys;uve_key',[]);
              return uve_keys.length > 0 ? uve_keys.join(',</br>') : '-';
          };
          /*
@@ -64,7 +64,7 @@
                      }
                  }
              }
-             return returnString;
+             return returnString != "" ? returnString: '-';
          };
 
          self.getRuleFormat = function (alarmObj) {
@@ -73,7 +73,7 @@
              returnString += '<span class="rule-format">'+ alarmObj['operation'] +'</span>';
              returnString += " "+alarmObj['operand2'];
              if (ifNull(alarmObj['vars'], []).length) {
-                 returnString += ", <span class='rule-format'>vars</span> " +alarmObj['vars'];
+                 returnString += ", <span class='rule-format'>variables</span> " +alarmObj['variables'];
              }
              return returnString;
          };

@@ -15,7 +15,9 @@ define([
             name: null,
             display_name: null,
             alarm_severity: 4, //Default minor severity
-            uve_keys: null,
+            uve_keys: {
+                uve_key: []
+            },
             orRules: null,
             alarm_rules: {
                 or_list: []
@@ -69,7 +71,7 @@ define([
                         andRulePostObjArr = [];
                     for (var j = 0; j < andRuleList.length; j++) {
                         var andRuleObj = andRuleList[j];
-                        var vars = andRuleObj.vars()();
+                        var vars = andRuleObj.variables()();
                         if (vars != null && vars != "" && typeof vars == 'string') {
                             vars = vars.split(',')
                         } else if (vars == "") {
@@ -79,7 +81,7 @@ define([
                             operand1: andRuleObj.operand1()(),
                             operand2: andRuleObj.operand2()(),
                             operation: andRuleObj.operation()(),
-                            vars: vars
+                            variables: vars
                         });
                     }
                     orRuleList.push({
@@ -90,8 +92,13 @@ define([
                     or_list: orRuleList
                 };
                 newRuleData['alarm_severity'] = parseInt(newRuleData['alarm_severity']);
-                newRuleData['uve_keys'] = newRuleData['uve_keys'] != null && newRuleData['uve_keys'] != ""?
-                        newRuleData['uve_keys'].split(',') : [];
+                var uve_keys = getValueByJsonPath(newRuleData, 'uve_keys;uve_key', []);
+                if (typeof uve_keys == 'string') {
+                    uve_keys = uve_keys.split(',');
+                }
+                if (newRuleData['uve_keys'] != null) {
+                    newRuleData['uve_keys']['uve_key'] = uve_keys;
+                }
                 if (options['mode'] === ctwl.CREATE_ACTION) {
                     var parent = 'global-system-config'
                         fqName = ['default-global-system-config', newRuleData['name']];
@@ -187,10 +194,10 @@ define([
                 'display_name': {
                     required: true,
                     msg: 'Enter Name'
-                }, /*'uve_keys': {
+                }, 'uve_keys.uve_key': {
                     required: true,
                     msg: "Select UVE"
-                },*/'id_perms.description': {
+                },'id_perms.description': {
                     required: true,
                     msg: 'Enter Description'
                 }
