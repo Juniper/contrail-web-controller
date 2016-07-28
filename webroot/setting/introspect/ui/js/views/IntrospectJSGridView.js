@@ -24,7 +24,7 @@ define([
     });
 
     function getIntrospectJSGridViewConfig(jsonData, introspectNode, introspectPort) {
-        var sandeshData = parseSandeshData(jsonData),
+        var sandeshData = parseData(jsonData),
             gridViewConfigs = [];
 
         _.each(sandeshData, function(value, key){
@@ -38,7 +38,7 @@ define([
                         }
                     }
                 ]
-            })
+            });
         });
 
         return {
@@ -51,13 +51,15 @@ define([
     }
 
     function getIntrospectJSGridConfig(value) {
+        var dataObj, gridData =  [], gridColumnsObj = {columns: []};
 
-        var dataObj = parseDataObject(value.data),
-            gridData =  [], gridColumnsObj = {};
+        if (isSandeshDataHavingObject(value)) {
+            dataObj = parseDataObject(value.data);
 
-        if (dataObj != null && dataObj != undefined) {
-            gridColumnsObj = createGridColumns(dataObj);
-            gridData = createGridData(dataObj);
+            if (dataObj != null && dataObj != undefined) {
+                gridColumnsObj = createGridColumns(dataObj);
+                gridData = createGridData(dataObj);
+            }
         }
 
         return {
@@ -109,7 +111,8 @@ define([
 
                 }
 
-                if (_.contains(['list', 'struct', 'sandesh'], value['_type'])) {
+                if (_.contains(['list', 'struct', 'sandesh'], value['_type']) ||
+                    (!contrail.checkIfExist(value['_type']) && _.isArray(value))) {
                     gridColumn['formatter'] = {
                         format: 'json2html', options: {jsonValuePath: key, htmlValuePath: key + 'HTML', expandLevel: 0}
                     };
@@ -216,54 +219,74 @@ define([
         return word.join(" ");
     };
 
-    function parseSandeshData(jsonObject, title) {
-        var keys = _.keys(jsonObject),
-            sandeshKey = null, sandeshObj = {}, sandeshObjKeys, sandeshData = [],
-            sandeshTypes = ['list', 'struct'],
-            sandeshTypesLength = 0;
-
-        sandeshKey = keys[0];
-        sandeshObj = jsonObject[sandeshKey];
+    function parseData(jsonObject, title) {
+        var sandeshData = [],
+            filteredSandeshObj = filterSandeshObject(jsonObject),
+            sandeshKey = filteredSandeshObj['key'],
+            sandeshObj = filteredSandeshObj['value'];
 
         if (sandeshObj['_type'] === 'sandesh') {
-            sandeshObj = _.omit(sandeshObj, ['_type', 'more', 'next_batch']);
-            sandeshObjKeys = _.keys(sandeshObj);
-            sandeshTypesLength = getLengthOfTypesInSandeshObj(sandeshObj, sandeshTypes);
-
-            if (sandeshTypesLength < sandeshObjKeys.length) {
-                sandeshData.push({
-                    title: (contrail.checkIfExist(title) ? title + ' | ' : '') + sandeshKey,
-                    data: filterTypesOfSandeshObj(sandeshObj, sandeshTypes)
-                });
-            }
-
-            if (sandeshTypesLength > 0) {
-                _.each(sandeshObj, function (value, key) {
-                    if(_.contains(sandeshTypes, value['_type'])) {
-                        sandeshData.push({
-                            title: (contrail.checkIfExist(title) ? title + ' | ' : '') + sandeshKey + ' | ' + key,
-                            data: value
-                        });
-                    }
-                });
-            }
+            sandeshData = sandeshData.concat(parseSandeshData(jsonObject, title))
 
         } else if (sandeshObj['_type'] === 'slist') {
             sandeshObj = _.omit(sandeshObj, ['_type', 'more', 'next_batch']);
-            _.each(sandeshObj, function(value, key) {
+            _.each(sandeshObj, function(sandeshValue, sandeshKey) {
                 var sandeshListObj = {};
-                sandeshListObj[key] = value;
-                sandeshData = sandeshData.concat(parseSandeshData(sandeshListObj, sandeshKey));
+                sandeshListObj[sandeshKey] = sandeshValue;
+                sandeshData = sandeshData.concat(parseData(sandeshListObj, sandeshKey));
             });
         } else {
 
             sandeshData.push({
-                title: contrail.checkIfExist(title) ? title : '',
+                title: (contrail.checkIfExist(title) ? title + ' | ' : '') + sandeshKey,
                 data: jsonObject
             });
         }
 
-        return sandeshData
+        return sandeshData;
+    }
+
+    function parseSandeshData(jsonObject, title) {
+        var sandeshTypes = ['list', 'struct'], sandeshData = [],
+            filteredSandeshObj = filterSandeshObject(jsonObject),
+            sandeshKey = filteredSandeshObj['key'],
+            sandeshObj = _.omit(filteredSandeshObj['value'], ['_type']),
+            sandeshObjKeys = _.keys(sandeshObj),
+            sandeshTypesLength = getLengthOfTypesInSandeshObj(sandeshObj, sandeshTypes);
+
+        if (sandeshTypesLength < sandeshObjKeys.length) {
+            sandeshData.push({
+                title: (contrail.checkIfExist(title) ? title + ' | ' : '') + sandeshKey,
+                data: filterTypesOfSandeshObj(sandeshObj, sandeshTypes)
+            });
+        }
+
+        if (sandeshTypesLength > 0) {
+            _.each(sandeshObj, function (value, key) {
+                var newTitle = (contrail.checkIfExist(title) ? title + ' | ' : '') + sandeshKey + ' | ' + key;
+
+                if (isSandeshAllListORStruct(value)) {
+                    sandeshData = sandeshData.concat(parseSandeshData(value, newTitle))
+                } else  if(_.contains(sandeshTypes, value['_type'])) {
+                    sandeshData.push({
+                        title: newTitle,
+                        data: value
+                    });
+                }
+            });
+        }
+
+        return sandeshData;
+    }
+
+    function isSandeshAllListORStruct(jsonObject) {
+        var sandeshTypes = ['list', 'struct'],
+            filteredSandeshObj = filterSandeshObject(jsonObject),
+            sandeshObj = filteredSandeshObj['value'],
+            sandeshObjKeys = _.keys(sandeshObj),
+            sandeshTypesLength = getLengthOfTypesInSandeshObj(sandeshObj, sandeshTypes);
+
+        return (sandeshTypesLength == sandeshObjKeys.length);
     }
 
     function getLengthOfTypesInSandeshObj(sandeshObj, types) {
@@ -275,6 +298,16 @@ define([
         });
 
         return typesLength;
+    }
+
+    function filterSandeshObject(jsonObject) {
+        var keys = _.keys(jsonObject),
+            sandeshKey = keys[0],
+            sandeshObj = jsonObject[sandeshKey];
+
+        sandeshObj = _.omit(sandeshObj, ['more', 'next_batch']);
+
+        return {key: sandeshKey, value: sandeshObj};
     }
 
     function filterTypesOfSandeshObj(sandeshObj, omitTypes) {
@@ -314,6 +347,15 @@ define([
         }
 
         return jsonObject;
+    }
+
+    function isSandeshDataHavingObject(sandeshDataItem) {
+        var isObject = false;
+        _.each(sandeshDataItem.data, function(value, key) {
+            isObject = isObject || _.isObject(value);
+        });
+
+        return isObject;
     }
 
     function parseListDataObj(jsonObject) {
