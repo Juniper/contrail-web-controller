@@ -26,7 +26,7 @@ define([
                             data: [{
                                 type: "alarms",
                                 parent_type: "global-system-config",
-                                parent_fq_name_str: 'default-global-system-config'
+                                //parent_fq_name_str: 'default-global-system-config'
                             }]})
                     },
                     dataParser: configAlarmFormatters.parseAlarmDetails,

@@ -49,7 +49,7 @@ define([
                         operand1: ruleObj['operand1'],
                         operand2: ruleObj['operand2'],
                         operation: ruleObj['operation'],
-                        vars: ruleObj['vars'],
+                        variables: ruleObj['variables'],
                     };
                     andRuleModel = new AlarmRuleModel(self, andRuleObj);
                     andRuleModels.push(andRuleModel);
@@ -97,7 +97,7 @@ define([
                 var operand1 = andRuleObj.operand1(),
                     operand2 = andRuleObj.operand2(),
                     operation = andRuleObj.operation(),
-                    vars = andRuleObj.vars(),
+                    vars = andRuleObj.variables(),
                     andRuleStr = '';
                 operand1 = contrail.checkIfFunction(operand1) ? operand1() : operand1;
                 operand2 = contrail.checkIfFunction(operand2) ? operand2() : operand2;
