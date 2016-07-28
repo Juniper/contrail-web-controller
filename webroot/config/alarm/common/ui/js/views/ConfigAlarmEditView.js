@@ -170,33 +170,32 @@ define([
                                     },
                                     dataSource: {
                                         type: 'local',
-                                        data: function () {
-                                            var template = contrail.getTemplate4Id(ctwc.CONFIG_ALARM_SEVERITY_TEMPLATE);
-                                            return [
-                                             {value: '2', text: template({
-                                                 showText : true,
-                                                 color : 'red',
-                                                 text : ctwl.CONFIG_ALARM_TEXT_MAP[2],
-                                             })},
-                                             {value: '3', text: template({
-                                                 showText : true,
-                                                 color : 'red',
-                                                 text : ctwl.CONFIG_ALARM_TEXT_MAP[3],
-                                             })},
-                                             {value: '4', text: template({
-                                                 showText : true,
-                                                 color : 'orange',
-                                                 text : ctwl.CONFIG_ALARM_TEXT_MAP[4],
-                                             })},
-                                             {value: '0', text: '0'},
-                                             {value: '1', text: '1'},
-                                             {value: '5', text: '5'},
-                                             {value: '6', text: '6'},
-                                             {value: '7', text: '7'},
-                                          ];
-                                        }()
+                                      data: function () {
+                                           var template = contrail.getTemplate4Id(ctwc.CONFIG_ALARM_SEVERITY_TEMPLATE);
+                                           return [
+                                            {value: '2', text: template({
+                                                showText : true,
+                                                color : 'red',
+                                                text : ctwl.CONFIG_ALARM_TEXT_MAP[2],
+                                            })},
+                                            {value: '3', text: template({
+                                                showText : true,
+                                                color : 'red',
+                                                text : ctwl.CONFIG_ALARM_TEXT_MAP[3],
+                                            })},
+                                            {value: '4', text: template({
+                                                showText : true,
+                                                color : 'orange',
+                                                text : ctwl.CONFIG_ALARM_TEXT_MAP[4],
+                                            })},
+                                            {value: '0', text: '0'},
+                                            {value: '1', text: '1'},
+                                            {value: '5', text: '5'},
+                                            {value: '6', text: '6'},
+                                            {value: '7', text: '7'},
+                                         ];
+                                       }()
                                     }
-
                                 }
                             }
                         }]
@@ -206,9 +205,9 @@ define([
                             view: "FormMultiselectView",
                             viewConfig: {
                                 class: "span6",
-                                path: 'uve_keys',
+                                path: 'uve_keys.uve_key',
                                 label: "UVE Keys",
-                                dataBindValue: 'uve_keys',
+                                dataBindValue: 'uve_keys().uve_key',
                                 elementConfig: {
                                     placeholder: "Select UVE",
                                     dataTextField : "text",
@@ -366,15 +365,15 @@ define([
                                                                     }
                                                                 },
                                                                 {
-                                                                    elementId: 'vars',
+                                                                    elementId: 'variables',
                                                                     view: "FormInputView",
                                                                     class: "",
                                                                     viewConfig: {
                                                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                                                        path: "vars",
-                                                                        dataBindValue: "vars()",
+                                                                        path: "variables",
+                                                                        dataBindValue: "variables()",
                                                                         width: 200,
-                                                                        placeholder: 'Vars',
+                                                                        placeholder: 'Variables',
                                                                     }
                                                                 }
                                                             ]
