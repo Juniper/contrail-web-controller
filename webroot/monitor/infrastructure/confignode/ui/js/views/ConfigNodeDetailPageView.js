@@ -84,7 +84,8 @@ define([
                     monitorInfraUtils.createNodeDetailsFooterLinks ({
                         parent : $('#left-column-container').parent(),
                         ipList : obj['ips'].split(','),
-                        introspectPort : '8084',
+                        introspectPort : monitorInfraConstants.ApiServerIntrospectPort,
+                        featurePort : monitorInfraConstants.ApiServerPort,
                         linkLabel : 'Config',
                         type : 'ApiServer'
                     });

@@ -414,7 +414,8 @@ define([
 
         var ipList = getControlNodeIpAddressList(ctrlNodeData);
         monitorInfraUtils.createMonInfraDetailsFooterLinks (
-                $('#left-column-container').parent(), ipList, '8083');
+                $('#left-column-container').parent(), ipList, 
+                monitorInfraConstants.ControlNodeIntrospectPort);
 
         return obj;
 
