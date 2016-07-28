@@ -58,8 +58,7 @@ define([
             var routingPolicyModel = new RoutingPolicyModel(dataItem);
             routingPolicyEditView.model = routingPolicyModel;
             routingPolicyEditView.renderRoutingPolicyPopup({
-                                  "title": ctwl.TITLE_ROUTING_POLICY_EDIT +
-                                  ' (' + dataItem.name + ')',
+                                  "title": ctwl.EDIT,
                                   mode: "edit",
                                   callback: function () {
                 var dataView =
@@ -195,7 +194,7 @@ define([
                     var routingPolicyModel = new RoutingPolicyModel();
                     routingPolicyEditView.model = routingPolicyModel;
                     routingPolicyEditView.renderRoutingPolicyPopup({
-                                     "title": ctwl.TITLE_ROUTING_ADD_POLICY,
+                                     "title": ctwl.CREATE,
                                      mode : "add",
                                      callback: function () {
                         var dataView =
@@ -242,7 +241,9 @@ define([
                                             "RoutingPolicyTermExpandFormatter"
                                     }
                                 }]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails('span3')]
                         }]
                     }
                 }]

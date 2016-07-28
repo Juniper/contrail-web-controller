@@ -72,7 +72,9 @@ define([
                     {collection: self.model.model().attributes.user_created_import_route_targets});
                 kbValidation.bind(self,
                     {collection: self.model.model().attributes.user_created_export_route_targets});
-                                    });
+                //permissions
+                ctwu.bindPermissionsValidation(self);
+                                    }, null, true);
         },
 
         renderEditVNCfg: function(options) {
@@ -115,6 +117,9 @@ define([
                                     "vnCfgConfigValidations", null, null,
                                     function () {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
+                /*var model;
+                model = $.extend(true, model, self.model);
+                self.model = model;*/
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
                 //kbValidation.bind(self);
@@ -128,8 +133,9 @@ define([
                     {collection: self.model.model().attributes.user_created_dns_servers});
                 kbValidation.bind(self,
                     {collection: self.model.model().attributes.user_created_route_targets});
-
-                                    });
+                //permissions
+                ctwu.bindPermissionsValidation(self);
+                                    }, null, true);
         },
 
         renderMultiDeleteVNCfg: function(options) {
@@ -179,7 +185,7 @@ define([
         var vnCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
                                             ctwl.CFG_VN_TITLE_CREATE]),
-            title: ctwl.CFG_VN_TITLE_CREATE,
+            title: "Network",//permissions
             view: "SectionView",
             viewConfig: {
                 rows: [

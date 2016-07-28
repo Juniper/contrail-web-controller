@@ -5,10 +5,10 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/networking/routetable/ui/js/models/RtTableRoutesModel'
-], function (_, ContrailModel, RtTableRoutesModel) {
-    var RtTableModel = ContrailModel.extend({
+], function (_, ContrailConfigModel, RtTableRoutesModel) {
+    var RtTableModel = ContrailConfigModel.extend({
         defaultConfig: {
             'display_name': ""
         },
@@ -43,6 +43,8 @@ define([
             rtTableTypesCollectionModel = new
                 Backbone.Collection(rtTableTypesModels);
             modelConfig['routes'] = rtTableTypesCollectionModel;
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
         deleteRtTable: function(data, rules) {
@@ -119,7 +121,10 @@ define([
                 key: 'routes',
                 type: cowc.OBJECT_TYPE_COLLECTION,
                 getValidation: 'rtTableRoutesValidation'
-            }];
+            },
+            //permissions
+            ctwu.getPermissionsValidation()
+            ];
             return validationList;
         },
         configureRtTable: function (type, projFqn, dataItem, callbackObj) {
@@ -140,6 +145,9 @@ define([
                 if ('route-table' == type) {
                     rtKey = 'routes';
                 }
+                //permissions
+                this.updateRBACPermsAttrs(newRtTableData);
+
                 delete newRtTableData['route'];
                 delete newRtTableData['routes'];
 

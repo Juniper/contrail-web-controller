@@ -67,8 +67,7 @@ define([
                                    portModel.virtualNetworkName());
             }
             portEditView.renderPortPopup({
-                                  "title": ctwl.TITLE_EDIT_PORT +
-                                  ' (' + dataItem.name + ')',
+                                  "title": ctwl.EDIT,
                                   mode: ctwl.EDIT_ACTION,
                                   callback: function () {
                 var dataView =
@@ -311,7 +310,7 @@ define([
                     showHideModelAttrs(portModel);
                     subscribeModelChangeEvents(portModel, ctwl.CREATE_ACTION);
                     portEditView.renderPortPopup({
-                                     "title": ctwl.TITLE_ADD_PORT,
+                                     "title": ctwl.CREATE,
                                      mode : ctwl.CREATE_ACTION,
                                      callback: function () {
                         var dataView =
@@ -561,7 +560,9 @@ define([
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig:
                                     getBlockListTemplateGeneratorCfg()
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails()]
                         }]
                     }
                 }]

@@ -4,14 +4,14 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/infra/serviceappliance/ui/js/models/SvcAppliPropModel',
     'config/infra/serviceappliance/ui/js/models/SvcAppliInterfaceModel',
     'config/common/ui/js/svcTmpl.utils'
-], function (_, ContrailModel, SvcAppliPropModel, SvcAppliInterfaceModel,
+], function (_, ContrailConfigModel, SvcAppliPropModel, SvcAppliInterfaceModel,
              SvcTmplUtils) {
     var svcTmplUtils = new SvcTmplUtils();
-    var SvcApplianceModel = ContrailModel.extend({
+    var SvcApplianceModel = ContrailConfigModel.extend({
         defaultConfig: {
             display_name: null,
             service_appliance_user_credentials: {
@@ -232,6 +232,8 @@ define([
                     svcTmplUtils.
                     svcTemplateFormatter(modelConfig['service_template']);
             }
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
         deepValidationList: function () {
@@ -249,7 +251,9 @@ define([
                 key: 'svcApplProperties',
                 type: cowc.OBJECT_TYPE_COLLECTION,
                 getValidation: 'svcApplPropValidation'
-            }];
+            },
+            //permissions
+            ctwu.getPermissionsValidation()];
             return validationList;
         },
         configureSvcAppliance: function (isEdit, callbackObj) {
@@ -292,7 +296,8 @@ define([
                 if ((null == userName) && (null == password)) {
                     newSvcAppl['service_appliance_user_credentials'] = null;
                 }
-
+                //permissions
+                this.updateRBACPermsAttrs(newSvcAppl);
                 delete newSvcAppl.svcApplProperties;
                 delete newSvcAppl.interfaces;
                 delete newSvcAppl.service_template;

@@ -60,7 +60,9 @@ define([
                     Knockback.applyBindings(self.model,
                         document.getElementById(modalId));
                    kbValidation.bind(self);
-                }
+                   //permissions
+                   ctwu.bindPermissionsValidation(self);
+                }, null, true
             );
         },
 
@@ -104,7 +106,7 @@ define([
             var rtAggregateConfig = {
                 elementId: cowu.formatElementId([prefixId,
                                    ctwl.TITLE_ADD_ROUTE_AGGREGATE]),
-                title: ctwl.TITLE_ADD_ROUTE_AGGREGATE,
+                title: "Route Aggregate",
                 view: "SectionView",
                 viewConfig :{
                     rows : [

@@ -58,7 +58,9 @@ define([
                 kbValidation.bind(self,
                                   {collection:
                                   self.model.model().attributes.routes});
-            });
+                //permissions
+                ctwu.bindPermissionsValidation(self);
+            }, null, true);
         },
         renderDeleteRtTables: function(options) {
             var delTemplate =
@@ -186,7 +188,7 @@ define([
         var prefixId = ctwl.RT_TABLE_PREFIX_ID;
         var rtTableViewConfig = {
             elementId: cowu.formatElementId([prefixId, ctwl.TITLE_EDIT_RT_TABLE]),
-            title: ctwl.TITLE_EDIT_RT_TABLE,
+            title: "Route Table",
             view: "SectionView",
             viewConfig: {
                 rows: [{
