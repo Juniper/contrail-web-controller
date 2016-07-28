@@ -108,8 +108,8 @@ define(['underscore', 'contrail-view',
                                    }
                                }
                            },
-                           parseFn: function (response) {
-                               return monitorInfraParsers.parseSandeshMessageStackChartData(response);
+                           parseFn: function (response, chartViewModel) {
+                               return monitorInfraParsers.parseSandeshMessageStackChartData(response, chartViewModel);
                            }
                        }
                    }]
@@ -228,8 +228,8 @@ define(['underscore', 'contrail-view',
                                    }
                                }
                            },
-                           parseFn: function (response) {
-                               return monitorInfraParsers.parseAnlyticsQueriesChartData(response);
+                           parseFn: function (response, chartViewModel) {
+                               return monitorInfraParsers.parseAnlyticsQueriesChartData(response, chartViewModel);
                            }
                        }
                    }]
@@ -348,10 +348,10 @@ define(['underscore', 'contrail-view',
                                    }
                                }
                            },
-                           parseFn: function (response) {
+                           parseFn: function (response, chartViewModel) {
                                var dataBaseReadfailed = ctwl.ANALYTICS_CHART_DATABASE_READ_FAILS;
                                var dataBaseReaddata = ctwl.ANALYTICS_CHART_DATABASE_READ;
-                               return monitorInfraParsers.parseAnlyticsNodeDataBaseReadWriteChartData(response, dataBaseReadfailed, dataBaseReaddata);
+                               return monitorInfraParsers.parseAnlyticsNodeDataBaseReadWriteChartData(response, chartViewModel, dataBaseReadfailed, dataBaseReaddata);
                            }
                        }
                    }]
@@ -470,10 +470,10 @@ define(['underscore', 'contrail-view',
                                    }
                                }
                            },
-                           parseFn: function (response) {
+                           parseFn: function (response, chartViewModel) {
                                var dataBaseWritefailed = ctwl.ANALYTICS_CHART_DATABASE_WRITE_FAILS;
                                var dataBaseWritedata = ctwl.ANALYTICS_CHART_DATABASE_WRITE;
-                               return monitorInfraParsers.parseAnlyticsNodeDataBaseReadWriteChartData(response, dataBaseWritefailed, dataBaseWritedata);
+                               return monitorInfraParsers.parseAnlyticsNodeDataBaseReadWriteChartData(response, chartViewModel, dataBaseWritefailed, dataBaseWritedata);
                            }
                        }
                    }]

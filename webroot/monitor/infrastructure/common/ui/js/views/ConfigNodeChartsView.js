@@ -125,8 +125,8 @@ define(['underscore', 'contrail-view',
                                    }
                                }
                            },
-                           parseFn: function (response) {
-                               return monitorInfraParsers.parseConfigNodeRequestsStackChartData(response);
+                           parseFn: function (response, chartViewModel) {
+                               return monitorInfraParsers.parseConfigNodeRequestsStackChartData(response, chartViewModel);
                            }
                        }
                    }, {
