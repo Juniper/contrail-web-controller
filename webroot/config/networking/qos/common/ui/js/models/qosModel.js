@@ -25,7 +25,7 @@ define([
             "mpls_exp_entries": {
                 "qos_id_forwarding_class_pair": []
             },
-            "default_forwarding_class_id": null
+            "default_forwarding_class_id": 0
         },
 
         validations: {
@@ -35,9 +35,11 @@ define([
                     msg: "QoS Config Name is required"
                 },
 
-                'default_forwarding_class_id': {
-                    required: true,
-                    msg: "Default Forwarding Class ID is required"
+                'default_forwarding_class_id': function(value, attr, finalObj) {
+                    if(isNaN(value)){
+                        return "Default Forwarding Class ID " +
+                               "should be a number";
+                    }
                 }
             }
         },
