@@ -39,7 +39,10 @@ define([
                 self.renderIntrospectTabs(data);
             }, function(error) {
                 if (error.status === 404) {
-                    //TODO
+                    self.$el.html('<div class="alert alert-error">' +
+                        '<button type="button" class="close" data-dismiss="alert"></button> ' +
+                        '<strong>Error: </strong> <span> '  + error.responseText + ' </span>' +
+                        '</div>');
                 }
             }, null);
         },

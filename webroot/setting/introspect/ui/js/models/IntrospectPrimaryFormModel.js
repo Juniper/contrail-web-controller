@@ -242,8 +242,11 @@ define([
                 moduleIntrospect = model.attributes.module_introspect,
                 uiAddedParameters = model.attributes.ui_added_parameters;
 
-            IntrospectFormView.renderIntrospectSecondaryForm(uiAddedParameters[node][port][ipAddress][module][moduleIntrospect]);
-
+            if (moduleIntrospect !== '') {
+                IntrospectFormView.renderIntrospectSecondaryForm(uiAddedParameters[node][port][ipAddress][module][moduleIntrospect]);
+            } else {
+                IntrospectFormView.removeIntrospectSecondaryForm();
+            }
         },
 
         validations: {
