@@ -152,14 +152,14 @@ define([
                 introspectFormId = '#introspect-' + introspectNode + '-' + introspectType + '-form',
                 introspectResultId = '#introspect-' + introspectNode + '-' + introspectType + '-results',
                 primaryModelAttributes = self['primary']['model'].model()['attributes'],
-                ipAddress = primaryModelAttributes.ip_address;
+                ipAddress = primaryModelAttributes.ip_address,
+                introspectResultTabViewConfig = getIntrospectResultTabViewConfig(introspectNode, ipAddress, introspectPort, moduleIntrospect, introspectType, params);
             
             if (widgetConfig !== null) {
                 $(introspectFormId).parents('.widget-box').data('widget-action').collapse();
             }
 
-            self.renderView4Config($(introspectResultId), self.model,
-                getIntrospectResultTabViewConfig(introspectNode, ipAddress, introspectPort, moduleIntrospect, introspectType, params), null, null, modelMap, null);
+            self.renderView4Config($(introspectResultId), self.model, introspectResultTabViewConfig, null, null, modelMap, null);
 
         }
     });
