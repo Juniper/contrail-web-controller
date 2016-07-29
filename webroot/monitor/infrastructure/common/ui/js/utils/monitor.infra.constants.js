@@ -140,6 +140,8 @@ define([
                                      { id:"Static", text:"Static" },
                                      { id:"Local", text:"Local" }];
 
+        this.VROUTER_DEFAULT_MAX_THROUGHPUT = 10737418240; // 10 GB
+
     };
 
     return MonitorInfraConstants;
