@@ -2365,6 +2365,18 @@ define([
                 .attr('text-anchor', 'end')
                 .text(label);
         }
+
+        self.getMonitorInfraNodeColors = function (nodeCnt) {
+            var colors = [];
+            if (nodeCnt == 1) {
+                colors = monitorInfraConstants.SINGLE_NODE_COLOR;
+            } else if (nodeCnt > 1 && nodeCnt <=3) {
+                colors = monitorInfraConstants.THREE_NODE_COLOR;
+            } else if (nodeCnt > 3 && nodeCnt <=5) {
+                colors = monitorInfraConstants.FIVE_NODE_COLOR;
+            }
+            return colors.slice(0, nodeCnt);
+        };
     };
     return MonitorInfraUtils;
 });

@@ -727,8 +727,7 @@ define(
                     var groupDim = cf.dimension(function(d) { return d["Source"];});
                     var tsDim = cf.dimension(function(d) { return d[timeStampField];});
                     var buckets = this.bucketizeConfigNodeStats(apiStats);
-                    var colorCodes = monitorInfraConstants.CONFIGNODE_COLORS;
-                    colorCodes = colorCodes.slice(0, groupDim.group().all().length);
+                    var colorCodes = monitorInfraUtils.getMonitorInfraNodeColors(groupDim.group().all().length);
                     //Now parse this data to be usable in the chart
                     var parsedData = [];
                     for(var i  in buckets) {
@@ -780,8 +779,7 @@ define(
                     var groupDim = cf.dimension(function(d) { return d["Source"];});
                     var tsDim = cf.dimension(function(d) { return d[timeStampField];});
                     var buckets = this.bucketizeConfigNodeStats(apiStats);
-                    var colorCodes = monitorInfraConstants.CONFIGNODE_COLORS;
-                    colorCodes = colorCodes.slice(0, groupDim.group().all().length);
+                    var colorCodes = monitorInfraUtils.getMonitorInfraNodeColors(groupDim.group().all().length);
                     //Now parse this data to be usable in the chart
                     var parsedData = [];
                     for(var i  in buckets) {
@@ -806,7 +804,6 @@ define(
                             });
                         var reqFailedArr = reqFailedData.top(Infinity);
                         var resTimeArr = totalResTimeData.top(Infinity);
-
                         var reqFailedArrLen = reqFailedArr.length;
                         var resTimeArrLen = resTimeArr.length;
                         var reqFailedNodeMap = {}, resTimeNodeMap = {};
@@ -822,6 +819,8 @@ define(
                                 reqFailedArr[j]['value'];
                         }
                         var totalReqs = 0;
+                        var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
+                        var toTime = new XDate((timestampExtent[1]/1000)).toString('HH:mm');
                         for (var j = 0, len = queriesCntData.length; j < len; j++) {
                             totalReqs += queriesCntData[j]['value']
                         }
@@ -830,6 +829,7 @@ define(
                             totalReqs: totalReqs,
                             totalFailedReq: totalFailedReqs,
                             color: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                            time: contrail.format('{0}', fromTime),
                             y0: y0,
                             y1: y0 += totalFailedReqs
                         });
@@ -841,13 +841,11 @@ define(
                             if (failedReqPerNode != 0 && nodeReqCnt != 0) {
                                 failedReqPerNodePercent = Math.round((failedReqPerNode/nodeReqCnt) * 100);
                             }
-                            //var avgResTime = Math.round((ifNull(resTimeNodeMap[nodeName], 0)/nodeReqCnt)) / 1000; //Converting to millisecs
-                            var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
-                            var toTime = new XDate((timestampExtent[1]/1000)).toString('HH:mm');
+                          //Subtract the failedQueries from queries
+                            nodeReqCnt = nodeReqCnt - failedReqPerNode;
                             counts.push({
                                 name: nodeName,
                                 color: colorCodes[j],
-                                //avgResTime: contrail.format('{0} {1}', avgResTime, 'ms'),
                                 nodeReqCnt: nodeReqCnt,
                                 reqFailPercent: failedReqPerNodePercent,
                                 time: contrail.format('{0}', fromTime),
@@ -873,8 +871,7 @@ define(
                     var groupDim = cf.dimension(function(d) { return d["Source"];});
                     var tsDim = cf.dimension(function(d) { return d[timeStampField];});
                     var buckets = this.bucketizeConfigNodeStats(apiStats);
-                    var colorCodes = monitorInfraConstants.CONFIGNODE_COLORS;
-                    colorCodes = colorCodes.slice(0, groupDim.group().all().length);
+                    var colorCodes = monitorInfraUtils.getMonitorInfraNodeColors(groupDim.group().all().length);
                     //Now parse this data to be usable in the chart
                     var parsedData = [];
                     for(var i  in buckets) {
@@ -882,18 +879,12 @@ define(
                         var timestampExtent = buckets[i]['timestampExtent'];
                         tsDim.filter(timestampExtent);
                         var reqCntData = groupDim.group().all();
-
                         //Getting nodes group with failed requests as value
                         var reqFailedData = groupDim.group().reduceSum(
                             function (d) {
-                                if (d[reqfailed] > 0) {
-                                    return 1;
-                                } else {
-                                    return 0;
-                                }
+                                    return d[reqfailed];
                             });
                         //Getting nodes group with response time as value
-
                         var totalResReadWriteData = groupDim.group().reduceSum(
                             function (d) {
                                 return d[reqdata];
@@ -911,6 +902,8 @@ define(
                                 reqFailedArr[j]['value'];
                         }
                         var totalReqs = 0;
+                        var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
+                        var toTime = new XDate((timestampExtent[1]/1000)).toString('HH:mm');
                         //console.log(totalResTimeData);
                         if(totalResReadWriteData){
                             for (var j = 0; j < totalResReadWriteDataArrLen; j++) {
@@ -922,6 +915,7 @@ define(
                             totalReqs: totalReqs,
                             totalFailedReq: totalFailedReqs,
                             color: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                            time: contrail.format('{0}', fromTime),
                             y0: y0,
                             y1: y0 += totalFailedReqs
                         });
@@ -933,14 +927,12 @@ define(
                             if (failedReqPerNode != 0 && nodeReqCnt != 0) {
                                 failedReqPerNodePercent = Math.round((failedReqPerNode/nodeReqCnt) * 100);
                             }
-                            var avgResTime = Math.round((ifNull(resTimeNodeMap[nodeName], 0)/nodeReqCnt)) / 1000; //Converting to millisecs
-                            console.log(avgResTime);
-                            var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
-                            var toTime = new XDate((timestampExtent[1]/1000)).toString('HH:mm');
+
+                          //Subtract the failedDatabase Read/Write
+                           nodeReqCnt = nodeReqCnt - failedReqPerNode;
                             counts.push({
                                 name: nodeName,
                                 color: colorCodes[j],
-                                avgResTime: contrail.format('{0} {1}', avgResTime, 'ms'),
                                 nodeReqCnt: nodeReqCnt,
                                 reqFailPercent: failedReqPerNodePercent,
                                 time: contrail.format('{0}', fromTime),
@@ -965,8 +957,7 @@ define(
                     var groupDim = cf.dimension(function(d) { return d["Source"];});
                     var tsDim = cf.dimension(function(d) { return d[timeStampField];});
                     var buckets = this.bucketizeConfigNodeStats(apiStats);
-                    var colorCodes = monitorInfraConstants.CONFIGNODE_COLORS;
-                    colorCodes = colorCodes.slice(0, groupDim.group().all().length);
+                    var colorCodes = monitorInfraUtils.getMonitorInfraNodeColors(groupDim.group().all().length);
                     //Now parse this data to be usable in the chart
                     var parsedData = [];
                     for(var i  in buckets) {
@@ -1027,6 +1018,8 @@ define(
                             var avgResTime = Math.round((ifNull(resTimeNodeMap[nodeName], 0)/nodeReqCnt)) / 1000; //Converting to millisecs
                             var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
                             var toTime = new XDate((timestampExtent[1]/1000)).toString('HH:mm');
+                            //Subtract the failedRequests from node requests
+                            nodeReqCnt = nodeReqCnt - failedReqPerNode;
                             counts.push({
                                 name: nodeName,
                                 color: colorCodes[j],
@@ -1055,6 +1048,7 @@ define(
                     var tsDim = cf.dimension(function (d) {return d.T});
                     var sourceDim = cf.dimension(function (d) {return d.Source});
                     var sourceGroupedData = sourceDim.group().all();
+                    var colors = monitorInfraUtils.getMonitorInfraNodeColors(sourceGroupedData.length);
                     var nodeMap = {}, chartData = [];
                     $.each(sourceGroupedData, function (idx, obj) {
                         nodeMap[obj['key']] = {
@@ -1123,7 +1117,7 @@ define(
                 this.parseConfigNodeRequestForDonutChart = function (apiStats, reqType) {
                     var cf = crossfilter(apiStats),
                         parsedData = [],
-                        colors = monitorInfraConstants.CONFIGNODE_COLORS;
+                        colors = [];
                     if (!$.isArray(reqType)) {
                         reqType = [reqType];
                     }
@@ -1137,6 +1131,7 @@ define(
                         }
                     });
                     var sourceGrpData = sourceGrpDim.all();
+                    colors = monitorInfraUtils.getMonitorInfraNodeColors(sourceGrpData.length);
                     $.each(sourceGrpData, function (key, value){
                         parsedData.push({
                             label: value['key'],
