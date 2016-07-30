@@ -6,13 +6,24 @@ define(['underscore', 'contrail-view',
         'monitor-infra-confignode-charts-model'],function(_, ContrailView, ConfigNodeChartsModel){
    var ConfigNodeChartView = ContrailView.extend({
         render : function (){
-            this.model = new ConfigNodeChartsModel();
-            this.renderView4Config(this.$el, this.model,
-                    getConfigNodeChartViewConfig());
+            var self = this,
+                configNodeListModel = self.model,
+                configNodeList = [];
+            if (self.model != null) {
+                self.model.onDataUpdate.subscribe(function (e, obj) {
+                    if (obj['previous'] != obj['current']) {
+                        configNodeList = self.model.getItems();
+                        var nodeColorMap = monitorInfraUtils.constructNodeColorMap(configNodeList);
+                        var chartModel = new ConfigNodeChartsModel();
+                        self.renderView4Config(self.$el, chartModel,
+                                getConfigNodeChartViewConfig(nodeColorMap));
+                    }
+                });
+            }
         }
     });
 
-   function getConfigNodeChartViewConfig() {
+   function getConfigNodeChartViewConfig(nodeColorMap) {
        return {
            elementId : ctwl.CONFIGNODE_SUMMARY_CHART_SECTION_ID,
            view : "SectionView",
@@ -24,6 +35,7 @@ define(['underscore', 'contrail-view',
                        viewConfig : {
                            class: 'span7 mon-infra-chart',
                            chartOptions:{
+                               colorMap: nodeColorMap,
                                brush: false,
                                height: 380,
                                xAxisLabel: '',
@@ -112,6 +124,9 @@ define(['underscore', 'contrail-view',
                                            data: [data],
                                            offset: -10,
                                            colors: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                                           nodeColorMap: {
+                                               'Failures': monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR
+                                           },
                                            label: 'Failures',
                                        });
                                        monitorInfraUtils.addLegendToSummaryPageCharts({
@@ -120,6 +135,7 @@ define(['underscore', 'contrail-view',
                                            data: colorCodes,
                                            offset: 70,
                                            colors: colorCodes,
+                                           nodeColorMap: nodeColorMap,
                                            label: 'Config Nodes',
                                        });
                                    }
@@ -135,7 +151,7 @@ define(['underscore', 'contrail-view',
                        viewConfig: {
                            class: 'span5 mon-infra-chart',
                            parseFn: function (response) {
-                               return monitorInfraParsers.parseConfigNodeResponseStackedChartData(response);
+                               return monitorInfraParsers.parseConfigNodeResponseStackedChartData(response, nodeColorMap);
                            },
                            chartOptions: {
                                y1AxisLabel:ctwl.RESPONSE_TIME,
@@ -188,6 +204,7 @@ define(['underscore', 'contrail-view',
                                            lineCnt = 0,
                                            barsData = [],
                                            lineData = [];
+                                       var lineLabel = ctwl.RESPONSE_SIZE;
                                        $.each(data, function (idx, obj) {
                                            if (obj['bar'] == true) {
                                                barsCnt ++;
@@ -203,12 +220,16 @@ define(['underscore', 'contrail-view',
                                            .attr('class', 'contrail-legendWrap');
                                        monitorInfraUtils.addLegendToSummaryPageCharts({
                                            container: legendWrap,
+                                           nodeColorMap: {
+                                               'Response Size': monitorInfraConstants.CONFIGNODE_RESPONSESIZE_COLOR,
+                                           },
                                            cssClass: 'contrail-legend-line',
                                            data: lineData,
-                                           label: ctwl.RESPONSE_SIZE
+                                           label: lineLabel
                                        });
                                        monitorInfraUtils.addLegendToSummaryPageCharts({
                                            container: legendWrap,
+                                           nodeColorMap: nodeColorMap,
                                            cssClass: 'contrail-legend-bar',
                                            data: barsData,
                                            offset: 90 + lineCnt * 20,
@@ -224,7 +245,8 @@ define(['underscore', 'contrail-view',
                        viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
                        app : cowc.APP_CONTRAIL_CONTROLLER,
                        viewConfig: {
-                           class: 'span5 mon-infra-chart'
+                           class: 'span5 mon-infra-chart',
+                           colorMap: nodeColorMap
                        }
                    }]
                }]
