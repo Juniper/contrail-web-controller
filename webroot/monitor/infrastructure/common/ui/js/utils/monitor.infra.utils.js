@@ -2336,9 +2336,15 @@ define([
                 label = options['label'],
                 cssClass = options['cssClass'] != null ? options['cssClass'] : 'contrail-legend',
                 dataLen = data.length,
+                nodeColorMap = options['nodeColorMap'],
                 clickFn = options['clickFn'];
             if (color != null && !$.isArray(color)) {
                 color = [color];
+            }
+            if (nodeColorMap != null && !cowu.isEmptyObject(nodeColorMap)) {
+                color = _.values(nodeColorMap);
+                data = _.keys(nodeColorMap);
+                dataLen = data.length;
             }
             container.selectAll('g.'+cssClass)
                 .data(data)
@@ -2352,6 +2358,10 @@ define([
                 .attr('height', 8)
                 .attr('fill', function (d, i) {
                     return (color != null && color[i] != null) ? color[i] : d['color'];
+                })
+                .append('title')
+                .text(function (d){
+                    return d;
                 });
             container.append('g')
                 .attr('transform', 'translate('+ (- ((dataLen * 20 + 10) + offset))+', 0)')
@@ -2361,7 +2371,18 @@ define([
                 .attr('text-anchor', 'end')
                 .text(label);
         }
-
+        self.constructNodeColorMap = function (nodeList) {
+            nodeList = ifNull(nodeList, []);
+            nodeList = _.sortBy(nodeList, 'name');
+            var colors = self.getMonitorInfraNodeColors(nodeList.length);
+            var colorMap = {};
+            $.each(nodeList, function (idx, obj){
+                if (colorMap[obj['name']] == null && colors[idx] != null) {
+                    colorMap[obj['name']] = colors[idx];
+                }
+            });
+            return colorMap;
+        }
         self.getMonitorInfraNodeColors = function (nodeCnt) {
             var colors = [];
             if (nodeCnt == 1) {
