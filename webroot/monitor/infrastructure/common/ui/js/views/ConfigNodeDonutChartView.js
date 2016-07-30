@@ -8,7 +8,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
             var self = this,
                 viewConfig = self.attributes.viewConfig;
             this.renderView4Config(this.$el, this.model,
-                    getConfigNodeDonutChartViewConfig(), null, null, null, function () {
+                    getConfigNodeDonutChartViewConfig(ifNull(viewConfig.colorMap, {})), null, null, null, function () {
                 if (viewConfig['widgetConfig'] != null) {
                     self.renderView4Config($(self.$el).find('.section-content'), self.model, viewConfig['widgetConfig'], null, null, null);
                 }
@@ -16,7 +16,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
         }
     });
 
-    function getConfigNodeDonutChartViewConfig () {
+    function getConfigNodeDonutChartViewConfig (colorMap) {
         return {
             elementId: ctwl.CONFIGNODE_SUMMARY_DONUTCHART_SECTION_ID,
             view: 'SectionView',
@@ -30,7 +30,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                             parseFn: function (response) {
                                 return monitorInfraParsers
                                     .parseConfigNodeRequestForDonutChart(
-                                         response, ['GET']);
+                                         response, ['GET'], colorMap);
                             },
                             chartOptions: {
                                 height: 160,
@@ -52,7 +52,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                             parseFn: function (response) {
                                 return monitorInfraParsers
                                     .parseConfigNodeRequestForDonutChart(
-                                         response, ['POST', 'PUT', 'DELETE']);
+                                         response, ['POST', 'PUT', 'DELETE'], colorMap);
                             },
                             chartOptions: {
                                 height: 160,

@@ -8,30 +8,37 @@ define(['underscore', 'contrail-view',
         render : function (){
             var anlyticsTemplate = contrail.getTemplate4Id(
                     cowc.TMPL_4COLUMN__2ROW_CONTENT_VIEW);
-            var self = this;
-            this.$el.html(anlyticsTemplate);
-            var topleftColumn = this.$el.find(".top-container .left-column"),
-                toprightCoulmn = this.$el.find(".top-container .right-column"),
-                bottomleftColumn = this.$el.find(".bottom-container .left-column"),
-                bottomrightCoulmn = this.$el.find(".bottom-container .right-column"),
-                sandeshModel = new AnalyticsNodeSandeshChartModel(),
-                queriesModel = new AnalyticsNodeQueriesChartModel(),
-                databseReadWritemodel = new AnalyticsNodeDataBaseReadWriteChartModel();
+            var self = this,
+                analyticsNodeList = [];
+            self.$el.html(anlyticsTemplate);
+            if (self.model != null) {
+                self.model.onDataUpdate.subscribe(function (e, obj) {
+                    if (!self.model.isPrimaryRequestInProgress()) {
+                        analyticsNodeList = self.model.getItems();
+                        var topleftColumn = self.$el.find(".top-container .left-column"),
+                            toprightCoulmn = self.$el.find(".top-container .right-column"),
+                            bottomleftColumn = self.$el.find(".bottom-container .left-column"),
+                            bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
+                            sandeshModel = new AnalyticsNodeSandeshChartModel(),
+                            queriesModel = new AnalyticsNodeQueriesChartModel(),
+                            databseReadWritemodel = new AnalyticsNodeDataBaseReadWriteChartModel();
+                        var colorMap = monitorInfraUtils.constructNodeColorMap(analyticsNodeList);
+                        self.renderView4Config(topleftColumn,  sandeshModel,
+                                getAnalyticsNodeSandeshChartViewConfig(colorMap));
 
-            self.renderView4Config(topleftColumn,  sandeshModel,
-                    getAnalyticsNodeSandeshChartViewConfig());
+                        self.renderView4Config(toprightCoulmn,  queriesModel,
+                                getAnalyticsNodeQueriesChartViewConfig(colorMap));
 
-            self.renderView4Config(toprightCoulmn,  queriesModel,
-                    getAnalyticsNodeQueriesChartViewConfig());
+                        self.renderView4Config(bottomrightCoulmn,  databseReadWritemodel,
+                                getAnalyticsNodeDatabaseReadChartViewConfig(colorMap));
 
-            self.renderView4Config(bottomrightCoulmn,  databseReadWritemodel,
-                    getAnalyticsNodeDatabaseReadChartViewConfig());
-
-            self.renderView4Config(bottomleftColumn,  databseReadWritemodel,
-                    getAnalyticsNodeDatabaseWriteChartViewConfig());
+                        self.renderView4Config(bottomleftColumn,  databseReadWritemodel,
+                                getAnalyticsNodeDatabaseWriteChartViewConfig(colorMap));}
+                });
+            }
         }
     });
-   function getAnalyticsNodeSandeshChartViewConfig() {
+   function getAnalyticsNodeSandeshChartViewConfig(colorMap) {
        return {
            elementId : ctwl.ANALYTICS_CHART_SANDESH_SECTION_ID,
            view : "SectionView",
@@ -43,6 +50,7 @@ define(['underscore', 'contrail-view',
                        viewConfig : {
                            class: 'mon-infra-chart chartMargin',
                            chartOptions:{
+                               colorMap: colorMap,
                                brush: false,
                                height: 230,
                                xAxisLabel: '',
@@ -103,6 +111,7 @@ define(['underscore', 'contrail-view',
                                            cssClass: 'contrail-legend-stackedbar',
                                            data: colorCodes,
                                            colors: colorCodes,
+                                           nodeColorMap: colorMap,
                                            label: ctwl.ANALYTICS_NODES,
                                        });
                                    }
@@ -119,7 +128,7 @@ define(['underscore', 'contrail-view',
 
    }
 
-   function getAnalyticsNodeQueriesChartViewConfig() {
+   function getAnalyticsNodeQueriesChartViewConfig(colorMap) {
        return {
            elementId : ctwl.ANALYTICS_CHART_QUERIES_SECTION_ID,
            view : "SectionView",
@@ -132,6 +141,7 @@ define(['underscore', 'contrail-view',
                        viewConfig : {
                            class: 'mon-infra-chart chartMargin',
                            chartOptions:{
+                               colorMap: colorMap,
                                brush: false,
                                height: 230,
                                xAxisLabel: '',
@@ -214,6 +224,9 @@ define(['underscore', 'contrail-view',
                                            cssClass: 'contrail-legend-error',
                                            data: [data],
                                            offset: -10,
+                                           nodeColorMap: {
+                                               'Failures': monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                                           },
                                            colors: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
                                            label: 'Failures',
                                        });
@@ -223,6 +236,7 @@ define(['underscore', 'contrail-view',
                                            data: colorCodes,
                                            offset: 70,
                                            colors: colorCodes,
+                                           nodeColorMap: colorMap,
                                            label: ctwl.ANALYTICS_NODES,
                                        });
                                    }
@@ -239,7 +253,7 @@ define(['underscore', 'contrail-view',
 
    }
 
-   function getAnalyticsNodeDatabaseReadChartViewConfig() {
+   function getAnalyticsNodeDatabaseReadChartViewConfig(colorMap) {
        return {
            elementId : ctwl.ANALYTICS_CHART_DATABASE_READ_SECTION_ID,
            view : "SectionView",
@@ -252,6 +266,7 @@ define(['underscore', 'contrail-view',
                        viewConfig : {
                            class: 'mon-infra-chart chartMargin',
                            chartOptions:{
+                               colorMap: colorMap,
                                brush: false,
                                height: 230,
                                xAxisLabel: '',
@@ -335,6 +350,9 @@ define(['underscore', 'contrail-view',
                                            data: [data],
                                            offset: -10,
                                            colors: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                                           nodeColorMap: {
+                                               'Failures': monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                                           },
                                            label: 'Failures',
                                        });
                                        monitorInfraUtils.addLegendToSummaryPageCharts({
@@ -343,6 +361,7 @@ define(['underscore', 'contrail-view',
                                            data: colorCodes,
                                            offset: 70,
                                            colors: colorCodes,
+                                           nodeColorMap: colorMap,
                                            label: ctwl.ANALYTICS_NODES,
                                        });
                                    }
@@ -361,7 +380,7 @@ define(['underscore', 'contrail-view',
 
    }
 
-   function getAnalyticsNodeDatabaseWriteChartViewConfig() {
+   function getAnalyticsNodeDatabaseWriteChartViewConfig(colorMap) {
        return {
            elementId : ctwl.ANALYTICS_CHART_DATABASE_WRITE_SECTION_ID,
            view : "SectionView",
@@ -374,6 +393,7 @@ define(['underscore', 'contrail-view',
                        viewConfig : {
                            class: 'mon-infra-chart chartMargin',
                            chartOptions:{
+                               colorMap: colorMap,
                                brush: false,
                                height: 230,
                                xAxisLabel: '',
@@ -457,6 +477,9 @@ define(['underscore', 'contrail-view',
                                            data: [data],
                                            offset: -10,
                                            colors: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                                           nodeColorMap: {
+                                               'Failures': monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
+                                           },
                                            label: 'Failures',
                                        });
                                        monitorInfraUtils.addLegendToSummaryPageCharts({
@@ -465,6 +488,7 @@ define(['underscore', 'contrail-view',
                                            data: colorCodes,
                                            offset: 70,
                                            colors: colorCodes,
+                                           nodeColorMap: colorMap,
                                            label: ctwl.ANALYTICS_NODES,
                                        });
                                    }
