@@ -764,6 +764,7 @@ define(
                         for (var j =0 ; j < totalResMessagesArrLen; j++) {
                             totalReqs += totalResMessagesArr[j]['value']
                         }
+                        totalResMessagesArr = _.sortBy(totalResMessagesArr, 'key');
                         for(var j=0;j<totalResMessagesArrLen;j++) {
                             var nodeName = totalResMessagesArr[j]['key'];
                             var nodeReqCnt = totalResMessagesArr[j]['value'];
@@ -851,6 +852,7 @@ define(
                             y0: y0,
                             y1: y0 += totalFailedReqs
                         });
+                        queriesCntData = _.sortBy(queriesCntData, 'key');
                         for(var j=0,len=queriesCntData.length;j<len;j++) {
                             var nodeName = queriesCntData[j]['key'];
                             var nodeReqCnt = queriesCntData[j]['value'];
@@ -937,6 +939,7 @@ define(
                             y0: y0,
                             y1: y0 += totalFailedReqs
                         });
+                        totalResReadWriteDataArr = _.sortBy(totalResReadWriteDataArr, 'key');
                         for (var j = 0; j < totalResReadWriteDataArrLen; j++) {
                             var nodeName = totalResReadWriteDataArr[j]['key'];
                             var nodeReqCnt = totalResReadWriteDataArr[j]['value'];
@@ -1029,6 +1032,7 @@ define(
                             y0: y0,
                             y1: y0 += totalFailedReqs
                         });
+                        reqCntData = _.sortBy(reqCntData, 'key');
                         for(var j=0,len=reqCntData.length;j<len;j++) {
                             var nodeName = reqCntData[j]['key'];
                             var nodeReqCnt = reqCntData[j]['value'];
@@ -1066,10 +1070,9 @@ define(
                     }
                     return parsedData;
                 };
-                this.parseConfigNodeResponseStackedChartData = function (apiStats) {
+                this.parseConfigNodeResponseStackedChartData = function (apiStats, colorMap) {
                     var cf = crossfilter(apiStats);
                     var buckets = this.bucketizeConfigNodeStats(apiStats, 240000000, false);
-                    var colors = monitorInfraConstants.CONFIGNODE_COLORS;
                     var tsDim = cf.dimension(function (d) {return d.T});
                     var sourceDim = cf.dimension(function (d) {return d.Source});
                     var sourceGroupedData = sourceDim.group().all();
@@ -1080,14 +1083,15 @@ define(
                             key: obj['key'],
                             values: [],
                             bar: true,
-                            color: colors[idx] != null ? colors[idx] : cowc.D3_COLOR_CATEGORY5[1]
+                            color: colorMap[obj['key']] != null ? colorMap[obj['key']]:
+                                (colors[idx] != null ? colors[idx] : cowc.D3_COLOR_CATEGORY5[1])
                         };
                         chartData.push(nodeMap[obj['key']]);
                     });
                     var lineChartData = {
                         key: ctwl.RESPONSE_SIZE,
                         values: [],
-                        color: '#7f9d92'
+                        color: monitorInfraConstants.CONFIGNODE_RESPONSESIZE_COLOR
                     }
                     for (var i in buckets) {
                         var timestampExtent = buckets[i]['timestampExtent'],
@@ -1097,6 +1101,7 @@ define(
                         tsDim.filter(timestampExtent);
                         var bucketRequestsCnt = tsDim.top(Infinity).length;
                         sourceGroupedData = sourceDim.group().all();
+                        sourceGroupedData = _.sortBy(sourceGroupedData, 'key');
                         $.each(sourceGroupedData, function(idx, obj) {
                             nodeReqMap[obj['key']] = obj['value'];
                         });
@@ -1139,7 +1144,7 @@ define(
                     return chartData;
 
                 };
-                this.parseConfigNodeRequestForDonutChart = function (apiStats, reqType) {
+                this.parseConfigNodeRequestForDonutChart = function (apiStats, reqType, nodeColorMap) {
                     var cf = crossfilter(apiStats),
                         parsedData = [],
                         colors = [];
@@ -1161,7 +1166,7 @@ define(
                         parsedData.push({
                             label: value['key'],
                             value: value['value'],
-                            color: colors[key]
+                            color: nodeColorMap[value['key']] != null ? nodeColorMap[value['key']] : colors[key]
                         });
                     });
                     return parsedData;
