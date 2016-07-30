@@ -41,7 +41,8 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                 showLabels: false,
                                 showLegend: false,
                                 title: 'Reads',
-                                defaultDataStatusMessage: false
+                                defaultDataStatusMessage: false,
+                                showEmptyDonut: true
                             },
                         }
                     }, {
@@ -62,7 +63,8 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                 },
                                 showLabels: false,
                                 title: 'Writes',
-                                defaultDataStatusMessage: false
+                                defaultDataStatusMessage: false,
+                                showEmptyDonut: true
                             },
                         }
                     }]
