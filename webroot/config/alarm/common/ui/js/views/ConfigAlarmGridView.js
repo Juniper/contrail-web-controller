@@ -103,7 +103,7 @@ define([
                         field: "uve_keys",
                         name: "UVE Keys",
                         sortable: true,
-                        maxWidth: 130,
+                        maxWidth: 170,
                         formatter: alarmFormatters.uveKeysFormatter
                     },{
                         field: "alarm_rules",
