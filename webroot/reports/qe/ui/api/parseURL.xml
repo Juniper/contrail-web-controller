@@ -25,6 +25,13 @@
         <feature>query-engine</feature>
         <callback>qeapi.runPOSTQuery</callback>
     </item>
+     <item>
+        <url>/api/qe/get-query</url>
+        <method>post</method>
+        <timeout>600</timeout>
+        <feature>query-engine</feature>
+        <callback>qeapi.getQueryData</callback>
+    </item>
     <item>
         <url>/api/qe/query/export</url>
         <method>get</method>

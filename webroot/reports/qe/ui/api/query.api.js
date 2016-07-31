@@ -17,6 +17,7 @@ var qeapi = module.exports,
     redisReadStream = require('redis-rstream'),
     Worker = require('webworker-threads').Worker;
     qs = require('querystring'),
+    crypto = require('crypto'),
     redisUtils = require(process.mainModule.exports["corePath"] +
                          '/src/serverroot/utils/redis.utils'),
     _ = require('underscore');
@@ -524,6 +525,79 @@ function updateQueryStatus(queryOptions) {
     redisClient.hmset(queryOptions.queryQueue, queryOptions.queryId, JSON.stringify(queryStatus));
 };
 
+function createStatRedisKey (req, query)
+{
+    var reqPayload = commonUtils.cloneObj(query);
+    var fromTime =
+        commonUtils.getValueByJsonPath(reqPayload, 'formModelAttrs;from_time',
+                                       null);
+    if (null != fromTime) {
+        delete reqPayload.formModelAttrs.from_time;
+    }
+    var fromTimeUTC =
+        commonUtils.getValueByJsonPath(reqPayload,
+                                       'formModelAttrs;from_time_utc', null);
+    if (null != fromTimeUTC) {
+        delete reqPayload.formModelAttrs.from_time_utc;
+    }
+    var toTime =
+        commonUtils.getValueByJsonPath(reqPayload,
+                                       'formModelAttrs;to_time', null);
+    if (null != toTime) {
+        delete reqPayload.formModelAttrs.to_time;
+    }
+    var toTimeUTC =
+        commonUtils.getValueByJsonPath(reqPayload,
+                                       'formModelAttrs;to_time_utc', null);
+    if (null != toTimeUTC) {
+        delete reqPayload.formModelAttrs.to_time_utc;
+    }
+    var reqPayload = commonUtils.doDeepSort(reqPayload);
+    var md5Data = req.url + reqPayload;
+    var redisKey =
+        crypto.createHash('md5').update(md5Data).digest('hex');
+    return redisKey;
+}
+
+function saveDataToRedisByReqPayload (res, resJson)
+{
+    var reqPayload = res.req.body;
+    if (global.HTTP_REQUEST_GET == res.req.method) {
+        reqPayload = res.req.query;
+    } else {
+        reqPayload = res.req.body;
+    }
+    var redisKey = createStatRedisKey(res.req, reqPayload);
+    redisClient.set(redisKey, JSON.stringify(resJson), function(error) {
+        if (null != error) {
+            logutils.logger.error('Redis key ' + redisKey + ' save error:' +
+                                  error);
+        }
+    });
+}
+
+function getQueryData (req, res, appData)
+{
+    var query;
+    if (global.HTTP_REQUEST_GET == req.method) {
+        query = req.query;
+    } else {
+        query = req.body;
+    }
+    if ((null != req.query) && ('forceRefresh' in req.query)) {
+        runQuery(req, res, query, appData);
+        return;
+    }
+    var redisKey = createStatRedisKey(req, query);
+    redisClient.get(redisKey, function(error, data) {
+        if ((null != error) || (null == data)) {
+            runQuery(req, res, query, appData);
+            return;
+        }
+        commonUtils.handleJSONResponse(null, res, JSON.parse(data));
+    });
+}
+
 function processQueryResults(res, queryResults, queryOptions) {
     var startDate = new Date(), startTime = startDate.getTime(),
         queryId = queryOptions.queryId, chunkSize = queryOptions.chunkSize,
@@ -543,7 +617,10 @@ function processQueryResults(res, queryResults, queryOptions) {
         } else {
             responseJSON = resultJSON.slice(0, chunkSize);
         }
-        commonUtils.handleJSONResponse(null, res, {data: responseJSON, total: total, queryJSON: queryJSON, chunk: 1, chunkSize: chunkSize, serverSideChunking: true});
+        var resJson = {data: responseJSON, total: total, queryJSON: queryJSON,
+            chunk: 1, chunkSize: chunkSize, serverSideChunking: true};
+        commonUtils.handleJSONResponse(null, res, resJson);
+        saveDataToRedisByReqPayload(res, resJson);
     }
 
     if(queryId != null) {
@@ -1159,3 +1236,5 @@ exports.flushQueryCache = flushQueryCache;
 exports.exportQueryResult = exportQueryResult;
 exports.getQueryJSON4Table = getQueryJSON4Table;
 exports.getCurrentTime = getCurrentTime;
+exports.getQueryData = getQueryData;
+
