@@ -376,6 +376,7 @@ define([
         this.ANALYTICS_CHART_DATABASE_READ_STACKEDBARCHART_ID = "analytics-chart-database-read-stackedbarchart-id";
         this.ANALYTICS_CHART_DATABASE_READ_LABEL = "DB Reads";
         this.ANALYTICS_CHART_FAILED_DATABASE_READS = "Failed DB Reads";
+        this.ANALYTICS_CHART_DATABASE_USAGE = "DB Usage";
         this.ANALYTICS_CHART_DATABASE_WRITE_SECTION_ID = "analytics-chart-database-write-section-id";
         this.ANALYTICS_CHART_DATABASE_WRITE_STACKEDBARCHART_ID = "analytics-chart-database-write-stackedbarchart-id";
         this.ANALYTICS_CHART_DATABASE_WRITE_LABEL = "DB Writes";

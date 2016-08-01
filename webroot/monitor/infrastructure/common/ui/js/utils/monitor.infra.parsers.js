@@ -791,6 +791,61 @@ define(
                     return parsedData;
                 };
 
+                self.parseDatabaseUsageData = function (dbstats, chartViewModel, key) {
+                    var cf = crossfilter(dbstats);
+                    var parsedData = [];
+                    var timeStampField = 'T';
+                    var groupDim = cf.dimension(function(d) { return d["Source"];});
+                    var tsDim = cf.dimension(function(d) { return d[timeStampField];});
+                    var buckets = this.bucketizeConfigNodeStats(dbstats, null, null, chartViewModel.queryJSON);
+                    var colorCodes = monitorInfraUtils.getMonitorInfraNodeColors(groupDim.group().all().length);
+                    //Now parse this data to be usable in the chart
+                    var parsedData = [];
+                    for(var i  in buckets) {
+                        var y0 = 0, counts = [], totalFailedReqs = 0;
+                        var timestampExtent = buckets[i]['timestampExtent'];
+                        tsDim.filter(timestampExtent);
+                        var grpDimCnt = groupDim.group().all();
+                        //Getting nodes group with database_usage.analytics_db_size_1k
+                        var bucketdbstats = groupDim.group().reduceSum(
+                            function (d) {
+                                return ifNull(d[key],0);
+                            });
+                        var bucketdbstatsArr = bucketdbstats.top(Infinity);
+                        var bucketdbstatsArrLen = bucketdbstatsArr.length;
+                        var totalUsage = 0;
+                        for (var j =0 ; j < bucketdbstatsArrLen; j++) {
+                            totalUsage += bucketdbstatsArr[j]['value']
+                        }
+                        totalUsage = totalUsage/getValueByJsonPath(grpDimCnt, '0;value', 1);
+                        grpDimCnt = _.indexBy(grpDimCnt, 'key');
+                        bucketdbstatsArr = _.sortBy(bucketdbstatsArr, 'key');
+                        for(var j=0;j<bucketdbstatsArrLen;j++) {
+                            var nodeName = bucketdbstatsArr[j]['key'];
+                            //Need to average the db usage
+                            var perNodeDBUsage = bucketdbstatsArr[j]['value']/getValueByJsonPath(grpDimCnt, nodeName+';value', 1);
+                            var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
+                            var toTime = new XDate((timestampExtent[1]/1000)).toString('HH:mm');
+                            counts.push({
+                                name: nodeName,
+                                color: colorCodes[j],
+                                perNodeDBUsage: perNodeDBUsage,
+                                time: contrail.format('{0}', fromTime),
+                                y0:y0,
+                                y1:y0 += perNodeDBUsage
+                            });
+                        }
+                        parsedData.push({
+                            colorCodes: colorCodes,
+                            counts: counts,
+                            total: totalUsage,
+                            timestampExtent: timestampExtent,
+                            date: new Date(i / 1000)
+                        });
+                    }
+                    return parsedData;
+                };
+
                 this.parseAnlyticsQueriesChartData = function (apiStats, chartViewModel) {
                     var cf =crossfilter(apiStats);
                     var parsedData = [];
