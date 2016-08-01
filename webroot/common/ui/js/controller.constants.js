@@ -745,6 +745,7 @@ define([
 
         /* Policy */
         this.VN_SUBNET_DELIMITER = ":";
+        this.SUBNET_ONLY = "subnet_only";
 
         /* BGP as a Service */
         this.CONFIG_BGP_AS_A_SERVICE_LIST_ID = "config-bgp-as-a-service-list";

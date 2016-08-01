@@ -364,7 +364,7 @@ define([
                     var addrFields = [];
                     addrFields.push({text : 'CIDR', value : 'subnet',
                                     children : [{
-                                        text:'Enter VN:CIDR',
+                                        text:'Enter CIDR or VN:CIDR',
                                         value:"dummy",
                                         disabled : true }]},
                                    {text : 'Network', value : 'virtual_network',

@@ -396,18 +396,25 @@ define([
 
                 if (group == 'subnet') {
                     vnSubnetObj = policyFormatters.parseVNSubnet(value);
-                    if(!vnSubnetObj || !vnSubnetObj.vn ||
-                        !vnSubnetObj.subnet) {
-                        return "Enter valid " + srcOrDesString +
-                            " in 'VN:CIDR' format";
-                    }
-                    if(vnSubnetObj) {
-                        if(vnSubnetObj.vn){
-                            addValue = vnSubnetObj.vn.split(":");
-                        }
+                    if(vnSubnetObj.mode === ctwc.SUBNET_ONLY) {
                         if(vnSubnetObj.subnet &&
                                 vnSubnetObj.subnet.split("/").length !== 2) {
-                            return "Enter valid Subnet/Mask";
+                                return "Enter valid Subnet/Mask";
+                         }
+                    } else {
+                        if(!vnSubnetObj.vn || !vnSubnetObj.subnet) {
+                            return "Enter valid " + srcOrDesString +
+                                " as CIDR or VN:CIDR";
+                        }
+
+                        if(vnSubnetObj) {
+                            if(vnSubnetObj.vn){
+                                addValue = vnSubnetObj.vn.split(":");
+                            }
+                            if(vnSubnetObj.subnet &&
+                                vnSubnetObj.subnet.split("/").length !== 2) {
+                                return "Enter valid Subnet/Mask";
+                            }
                         }
                     }
                 } else {
