@@ -12,15 +12,7 @@ define([
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig;
 
-            self.renderView4Config(self.$el, self.model, self.getViewConfig(),
-                    null,null,null,
-                    function(){
-                        cowu.addGridGrouping ('vrouter_flows-results',{
-                            groupingField :"acl_uuid",
-                            groupHeadingPrefix : 'ACL UUID: ',
-                            rowCountSuffix : ['Flow','Flows']
-                        });
-                    });
+            self.renderView4Config(self.$el, self.model, self.getViewConfig());
         },
 
         getViewConfig: function () {
@@ -85,7 +77,7 @@ define([
                                 searchFn: function(data) {
                                     return getAclSgUuuidString(data,true);
                                 },
-                                hide:true,
+//                                hide:true,
                                 minWidth:280
                             },
                             {
@@ -201,6 +193,7 @@ define([
                     checkboxSelectable: false,
                     // fixedRowHeight: 30,
                     sortable: false,
+                    lazyLoading:false,
                     detail: ctwu.getDetailTemplateConfigToDisplayRawJSON()
                 },
                 dataSource: {
