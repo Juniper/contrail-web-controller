@@ -6,6 +6,7 @@ define([
     'underscore',
     'contrail-model'
 ], function (_, ContrailModel) {
+    var self;
     var forwardingClassPairModel = ContrailModel.extend({
 
         defaultConfig: {
@@ -15,6 +16,10 @@ define([
             "forwarding_class_id": null
         },
 
+        formatModelConfig: function(modelConfig) {
+            self = this;
+            return modelConfig;
+        },
 
         validateAttr: function (attributePath, validation, data) {
             var model = data.model().attributes.model(),
@@ -29,12 +34,26 @@ define([
             errors.set(attrErrorObj);
         },
 
+        isValidBits: function(arry, txt) {
+            var i, arryCnt = arry.length, value = txt, isValid = true;
+            for(i = 0; i < arryCnt; i++) {
+                if(arry[i].text === txt){
+                    value = arry[i].value;
+                    break;
+                }
+            }
+            if(isNaN(parseInt(value, 2)) && isNaN(parseInt(value, 10))) {
+                isValid = false;
+            }
+            return isValid;
+        },
 
         validations: {
             dscpValidations: {
-                'dscp_key': {
-                    required: true,
-                    msg: "DSCP bits are required"
+                'dscp_key': function(value, attr, finalObj) {
+                    if(!self.isValidBits(ctwc.QOS_DSCP_VALUES, value)) {
+                        return "Enter valid DSCP bits";
+                    }
                 },
                 'forwarding_class_id': {
                     required: true,
@@ -42,9 +61,10 @@ define([
                 }
             },
             mplsValidations: {
-                'mpls_key': {
-                    required: true,
-                    msg: "MPLS Exp bits are required"
+                'mpls_key': function(value, attr, finalObj) {
+                    if(!self.isValidBits(ctwc.QOS_MPLS_EXP_VALUES, value)) {
+                        return "Enter valid MPLS EXP bits";
+                    }
                 },
                 'forwarding_class_id': {
                     required: true,
@@ -52,9 +72,10 @@ define([
                 }
             },
             vlanValidations: {
-                'vlan_key': {
-                    required: true,
-                    msg: "VLAN Priority bits are required"
+                'vlan_key': function(value, attr, finalObj) {
+                    if(!self.isValidBits(ctwc.QOS_VLAN_PRIORITY_VALUES, value)) {
+                        return "Enter valid VLAN Priority bits";
+                    }
                 },
                 'forwarding_class_id': {
                     required: true,
