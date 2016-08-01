@@ -12,6 +12,7 @@ define([
 ], function (_, Knockback, ContrailView, ContrailListModel, VRouterFlowsFormModel) {
 
     var VRouterFlowsFormView = ContrailView.extend({
+        lastFlowReq : false,
         render: function (options) {
             var self = this, viewConfig = self.attributes.viewConfig,
                 hostname = viewConfig['hostname'],
@@ -93,7 +94,7 @@ define([
                         ajaxConfig : remoteConfig,
                         dataParser :  function(response) {
                             var retData = monitorInfraParsers.parseVRouterFlowsData(response);
-                            return retData;
+                            return retData['data'];
                         }
                     },
                     cacheConfig : {
@@ -108,6 +109,7 @@ define([
             function onSelectAcl(acluuid) {
                 var flowGrid = $('#' + ctwl.VROUTER_FLOWS_GRID_ID).data('contrailGrid');
                 var newAjaxConfig = "";
+                self.lastFlowReq = false;
                 flowKeyStack = [];
                 aclIterKeyStack = [];
                 if (acluuid != 'All') {
@@ -129,8 +131,9 @@ define([
                 // reloadGrid(flowGrid);
                 $.ajax(newAjaxConfig).done(function(response) {
                     var retData = monitorInfraParsers.parseVRouterFlowsData(response,acluuid);
+                    self.lastFlowReq = retData.lastFlowReq;
                     if(flowGrid._dataView != null)
-                        flowGrid._dataView.setData(retData);
+                        flowGrid._dataView.setData(retData['data']);
                         flowGrid.refreshView();
                 });
             }
@@ -139,6 +142,9 @@ define([
                 var flowGrid = $('#' + ctwl.VROUTER_FLOWS_GRID_ID).data('contrailGrid');
                 var acluuid = self.model.acl_uuid();
                 var newAjaxConfig = "";
+                if(self.lastFlowReq) {
+                    return;
+                }
                 isAllPrevFirstTimeClicked = true;
                 isAclPrevFirstTimeClicked = true;
                 if(acluuid == 'All' && flowKeyStack.length > 0 &&
@@ -172,8 +178,9 @@ define([
                 // reloadGrid(flowGrid);
                 $.ajax(newAjaxConfig).done(function(response) {
                     var retData = monitorInfraParsers.parseVRouterFlowsData(response,acluuid);
+                    self.lastFlowReq = retData['lastFlowReq'];
                     if(flowGrid._dataView != null)
-                        flowGrid._dataView.setData(retData);
+                        flowGrid._dataView.setData(retData['data']);
                         flowGrid.refreshView();
                 });
             }
@@ -230,9 +237,10 @@ define([
                 // flowGrid.setRemoteAjaxConfig(newAjaxConfig);
                 // reloadGrid(flowGrid);
                 $.ajax(newAjaxConfig).done(function(response) {
-                    var retData = monitorInfraParsers.parseVRouterFlowsData(response);
+                    var retData = monitorInfraParsers.parseVRouterFlowsData(response,acluuid);
+                    self.lastFlowReq = retData.lastFlowReq;
                     if(flowGrid._dataView != null)
-                        flowGrid._dataView.setData(retData,acluuid);
+                        flowGrid._dataView.setData(retData['data'],acluuid);
                         flowGrid.refreshView();
                 });
             }
