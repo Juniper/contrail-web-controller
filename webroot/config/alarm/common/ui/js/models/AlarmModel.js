@@ -206,11 +206,6 @@ define([
                 },'id_perms.description': {
                     required: true,
                     msg: 'Enter Description'
-                }, 'alarm_severity': function (value, attr, finalObj) {
-                    var severity = parseInt(value);
-                    if (isNaN(severity)) {
-                        return 'Enter valid Severity between 0-7'
-                    }
                 }
             }
         }
