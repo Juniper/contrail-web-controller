@@ -12,8 +12,9 @@ define([
             'address_family': 'All',
             'routes_limit': '50',
             'peer_source': 'All',
-            'prefix': "",
-            'protocol': 'All'
+            'prefix': '',
+            'protocol': 'All',
+            'prefixOptionList':[]
         },
 
         validations: {

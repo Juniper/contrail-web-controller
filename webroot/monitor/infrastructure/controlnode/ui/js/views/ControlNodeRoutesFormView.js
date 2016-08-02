@@ -11,7 +11,7 @@ define([
     //Remove all query references once it is moved to core
 ], function (_, Knockback, ContrailView, ContrailListModel, ControlNodeRoutesModel) {
     var routingInstancesDropdownList = [{text:'All',value:'All'}],
-    backwardRouteStack = [], forwardRouteStack = [];
+    backwardRouteStack = [], forwardRouteStack = [], filteredPrefix = '';
     var ControlNodeRoutesFormView = ContrailView.extend({
         render: function (options) {
             var self = this, viewConfig = self.attributes.viewConfig,
@@ -81,7 +81,12 @@ define([
 
             //Making the Routes call here as the result also needs to be update
             //prefix value in this form
-            var routesQueryString = self.model.getControlRoutesQueryString()
+            var routesQueryString = self.model.getControlRoutesQueryString();
+            if(routesQueryString.prefix !== undefined){
+                filteredPrefix = routesQueryString.prefix;
+            }else{
+                filteredPrefix = ''; 
+            }
             var routesRemoteConfig = {
                     url: monitorInfraConstants.
                         monitorInfraUrls['CONTROLNODE_ROUTES'] +
@@ -101,12 +106,11 @@ define([
                                 backwardRoutes(response);
                                 forwardRoutes(response);
                             }
-                            //TODO need to update the prefix autocomplete
-                            var prefixArray = [];
+                            var prefixList = [];
                             $.each(parsedData,function(i,d){
-                                prefixArray.push(d.dispPrefix);
+                                prefixList.push({text:d.dispPrefix,value:d.dispPrefix});
                             });
-                            $('#prefix').find('input').autocomplete( "option", "source" ,prefixArray);
+                            self.model.prefixOptionList(prefixList);
                             return parsedData;
                         }
                     },
@@ -136,7 +140,8 @@ define([
                         limit: routesQueryString.limit,
                         startRoutingTable: routingTable,
                         startRoutingInstance: routingInstance,
-                        startPrefix: prefix
+                        startPrefix: prefix,
+                        prefix: filteredPrefix
                     });
                 }
             };
@@ -173,7 +178,8 @@ define([
                     limit: routesQueryString.limit,
                     startRoutingTable: routingTable,
                     startRoutingInstance: routingInstance,
-                    startPrefix: prefix
+                    startPrefix: prefix,
+                    prefix: filteredPrefix
                 });
             };
             var model = new ContrailListModel(listModelConfig);
@@ -250,15 +256,18 @@ define([
                                 },
                                 {
                                     elementId: 'prefix',
-                                    view: "FormAutoCompleteTextBoxView",
+                                    view: "FormComboboxView",
                                     viewConfig: {
+                                        label:'Prefix',
                                         path: 'prefix',
-                                        placeHolder:'Prefix',
-                                        dataBindValue: 'prefix',
                                         class: "span2",
+                                        dataBindValue: 'prefix',
+                                        dataBindOptionList: 'prefixOptionList',
                                         elementConfig: {
-                                            source : []
-                                        }
+                                            dataTextField: "text",
+                                            dataValueField: "value",
+                                            placeholder: 'Prefix'
+                                         }
                                     }
                                 },
                                 {
