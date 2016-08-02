@@ -243,12 +243,18 @@ define([
                                     ctwc.VN_SUBNET_DELIMITER +
                                     net["subnet"]["ip_prefix"] + "/" +
                                     net["subnet"]["ip_prefix_len"]);
-                        } else {
-                            if (isSet(net["virtual_network"])) {
-                                labelName = ' network ';
-                                net_disp += self.prepareFQN(domain, project,
-                                                 net["virtual_network"]);
-                            }
+                        } else if (isSet(net["virtual_network"])){
+                            labelName = ' network ';
+                            net_disp += self.prepareFQN(domain, project,
+                                             net["virtual_network"]);
+                        } else if(isSet(net["subnet"]) &&
+                            isSet(net["subnet"]["ip_prefix"]) &&
+                            isSet(net["subnet"]["ip_prefix_len"])) {
+                            labelName = ' ';
+                            net_disp +=
+                                self.policyRuleFormat(
+                                    net["subnet"]["ip_prefix"] + "/" +
+                                    net["subnet"]["ip_prefix_len"]);
                         }
                         if(isSet(net["network_policy"])) {
                             labelName = ' policy ';
@@ -446,9 +452,15 @@ define([
         };
 
         this.parseVNSubnet =  function(vnSubnetStr) {
-            var vnSubnetObj = { vn: "", subnet: "", recursiveCnt: 0};
+            var vnSubnetObj = { vn: "", subnet: "", recursiveCnt: 0, mode: ""};
             if(vnSubnetStr) {
-                this.parseVNSubnetRecursive(vnSubnetStr, vnSubnetObj);
+                if(isIPv4(vnSubnetStr) || isIPv6(vnSubnetStr)) {
+                    vnSubnetObj.subnet = vnSubnetStr;
+                    vnSubnetObj.mode = ctwc.SUBNET_ONLY;
+                    vnSubnetObj.vn = null;
+                } else {
+                    this.parseVNSubnetRecursive(vnSubnetStr, vnSubnetObj);
+                }
             }
             return vnSubnetObj
         };
