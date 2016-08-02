@@ -181,7 +181,7 @@ function getCurrentTime(req, res) {
     commonUtils.handleJSONResponse(null, res, {currentTime: currentTime});
 };
 
-function runQuery(req, res, queryReqObj, appData) {
+function runQuery(req, res, queryReqObj, appData, isGetQ) {
     var queryId = queryReqObj['queryId'],
         chunk = queryReqObj['chunk'], chunkSize = parseInt(queryReqObj['chunkSize']),
         sort = queryReqObj['sort'], cachedResultConfig;
@@ -198,20 +198,20 @@ function runQuery(req, res, queryReqObj, appData) {
             } else if (exists == 1) {
                 returnCachedQueryResult(res, cachedResultConfig, handleQueryResponse);
             } else {
-                runNewQuery(req, res, queryId, queryReqObj, appData);
+                runNewQuery(req, res, queryId, queryReqObj, appData, isGetQ);
             }
         });
     } else {
-        runNewQuery(req, res, null, queryReqObj, appData);
+        runNewQuery(req, res, null, queryReqObj, appData, isGetQ);
     }
 };
 
-function runNewQuery(req, res, queryId, queryReqObj, appData) {
+function runNewQuery(req, res, queryId, queryReqObj, appData, isGetQ) {
     var queryOptions = getQueryOptions(queryReqObj),
         queryJSON = getQueryJSON4Table(queryReqObj);
 
     queryOptions.queryJSON = queryJSON;
-    executeQuery(res, queryOptions, appData);
+    executeQuery(res, queryOptions, appData, isGetQ);
 };
 
 function getQueryOptions(queryReqObj) {
@@ -235,7 +235,7 @@ function getQueryOptions(queryReqObj) {
     return queryOptions;
 };
 
-function executeQuery(res, queryOptions, appData) {
+function executeQuery(res, queryOptions, appData, isGetQ) {
     var queryJSON = queryOptions.queryJSON,
         async = queryOptions.async, asyncHeader = {"Expect": "202-accepted"};
 
@@ -253,7 +253,7 @@ function executeQuery(res, queryOptions, appData) {
                 queryOptions['intervalId'] = setInterval(fetchQueryResults, queryOptions.pollingInterval, res, jsonData, queryOptions, appData);
                 queryOptions['timeoutId'] = setTimeout(stopFetchQueryResult, queryOptions.pollingTimeout, queryOptions);
             } else {
-                processQueryResults(res, jsonData, queryOptions);
+                processQueryResults(res, jsonData, queryOptions, isGetQ);
             }
         }, async ? asyncHeader : {});
 };
@@ -527,6 +527,8 @@ function updateQueryStatus(queryOptions) {
 
 function createStatRedisKey (req, query)
 {
+    var urlReq = require('url');
+    var urlParts = urlReq.parse(req.url);
     var reqPayload = commonUtils.cloneObj(query);
     var fromTime =
         commonUtils.getValueByJsonPath(reqPayload, 'formModelAttrs;from_time',
@@ -553,7 +555,7 @@ function createStatRedisKey (req, query)
         delete reqPayload.formModelAttrs.to_time_utc;
     }
     var reqPayload = commonUtils.doDeepSort(reqPayload);
-    var md5Data = req.url + reqPayload;
+    var md5Data = urlParts.pathname + reqPayload;
     var redisKey =
         crypto.createHash('md5').update(md5Data).digest('hex');
     return redisKey;
@@ -585,20 +587,20 @@ function getQueryData (req, res, appData)
         query = req.body;
     }
     if ((null != req.query) && ('forceRefresh' in req.query)) {
-        runQuery(req, res, query, appData);
+        runQuery(req, res, query, appData, true);
         return;
     }
     var redisKey = createStatRedisKey(req, query);
     redisClient.get(redisKey, function(error, data) {
         if ((null != error) || (null == data)) {
-            runQuery(req, res, query, appData);
+            runQuery(req, res, query, appData, true);
             return;
         }
         commonUtils.handleJSONResponse(null, res, JSON.parse(data));
     });
 }
 
-function processQueryResults(res, queryResults, queryOptions) {
+function processQueryResults(res, queryResults, queryOptions, isGetQ) {
     var startDate = new Date(), startTime = startDate.getTime(),
         queryId = queryOptions.queryId, chunkSize = queryOptions.chunkSize,
         queryJSON = queryOptions.queryJSON, endDate = new Date(),
@@ -620,7 +622,9 @@ function processQueryResults(res, queryResults, queryOptions) {
         var resJson = {data: responseJSON, total: total, queryJSON: queryJSON,
             chunk: 1, chunkSize: chunkSize, serverSideChunking: true};
         commonUtils.handleJSONResponse(null, res, resJson);
-        saveDataToRedisByReqPayload(res, resJson);
+        if (true == isGetQ) {
+            saveDataToRedisByReqPayload(res, resJson);
+        }
     }
 
     if(queryId != null) {
