@@ -125,15 +125,16 @@ define([
                 kbValidation.bind(self['secondary']);
 
                 $('#submit-introspect' + introspectNode + '-' + introspectPort).on('click', function() {
-                    var params = self['secondary']['model'].model()['attributes'];
+                    var params = self['secondary']['model'].model()['attributes'],
+                        encodedParams = {};
                     
                     $.each(params, function(key, value) {
                         if (value !== null) {
-                            params[key] = encodeURIComponent(value);
+                            encodedParams[key] = encodeURIComponent(value);
                         }
                     });
 
-                    self.renderIntrospectResult(moduleIntrospect, params);
+                    self.renderIntrospectResult(moduleIntrospect, encodedParams);
                 });
 
                 $(introspectResultId)
