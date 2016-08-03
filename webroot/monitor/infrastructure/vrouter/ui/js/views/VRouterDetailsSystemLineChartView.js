@@ -40,7 +40,10 @@ define([
                                     chartOptions: {
                                         y1AxisLabel:ctwl.TITLE_CPU_LOAD,
                                         y2AxisLabel:ctwl.TITLE_MEMORY,
-                                        forceY1: [0, 1]
+                                        forceY1: [0, 1],
+                                        y1Formatter: function (y1Value) {
+                                            return (!isNaN(y1Value))? y1Value.toFixed(2): y1Value;
+                                        }
                                     },
                                     widgetConfig: {
                                         elementId: ctwl.VROUTER_DETAILS_SYSTEM_CHART_WIDGET,

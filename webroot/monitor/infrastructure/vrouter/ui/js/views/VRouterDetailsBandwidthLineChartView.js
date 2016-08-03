@@ -41,7 +41,7 @@ define([
                                     chartOptions: {
                                         y1AxisLabel:'Flow Rate',
                                         y1Formatter: function (y1Value) {
-                                            return y1Value;
+                                            return (!isNaN(y1Value))? y1Value.toFixed(2): y1Value;
                                         },
                                         y2AxisLabel:'Bandwidth In/Out',
                                         y2Formatter: function (y2Value) {
