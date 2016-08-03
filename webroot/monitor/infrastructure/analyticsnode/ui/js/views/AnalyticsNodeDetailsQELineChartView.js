@@ -45,7 +45,10 @@ define([
                                     chartOptions: {
                                         y1AxisLabel:ctwl.TITLE_CPU,
                                         y2AxisLabel:ctwl.TITLE_MEMORY,
-                                        forceY1: [0, 1]
+                                        forceY1: [0, 1],
+                                        y1Formatter: function (y1Value) {
+                                            return (!isNaN(y1Value))? y1Value.toFixed(2): y1Value;
+                                        }
                                     },
                                     widgetConfig: {
                                         elementId: ctwl.ANALYTICS_DETAILS_QE_CHART_WIDGET,
