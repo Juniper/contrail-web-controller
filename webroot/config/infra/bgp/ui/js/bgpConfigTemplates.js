@@ -360,7 +360,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                                             view: "FormInputView",
                                                             viewConfig: {
                                                                 placeholder: "Enter Loop Count",
-                                                                width: 195,
+                                                                width: 215,
                                                                 path: "loop_count",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                                 dataBindValue: "loop_count()",
@@ -371,7 +371,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                                             view: "FormInputView",
                                                             viewConfig: {
                                                                 placeholder: "Enter Prefix Limit",
-                                                                width: 195,
+                                                                width: 215,
                                                                 path: "prefix_limit",
                                                                 dataBindValue: "prefix_limit()",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW

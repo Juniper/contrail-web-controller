@@ -658,7 +658,7 @@ define([
                             },{
                             columns: [
                                 {
-                                     elementId: 'service_instance',
+                                     elementId: 'service_instances',
                                      name: 'Services',
                                      view: "FormMultiselectView",
                                      width: 100,
@@ -708,7 +708,7 @@ define([
                         },{
                             columns: [
                                 {
-                                    elementId: 'qos',
+                                    elementId: 'QoS',
                                     name: 'QoS',
                                     width: 100,
                                     view: "FormDropdownView",
