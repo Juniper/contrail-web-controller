@@ -24,7 +24,7 @@ define([
             var detailsChartsTmpl = contrail.getTemplate4Id(cowc.NODE_DETAILS_CHARTS);
             self.$el.append(detailsChartsTmpl);
             this.infoBoxView = new NodeDetailsInfoboxesView({el:$(contentContainer).
-                find('#infoboxes-container'), widgetTitle:'Database Space Utilization'});
+                find('#infoboxes-container'), widgetTitle:'Resource Utilization'});
             var infoBoxList = getInfoboxesConfig({node:hostname});
             for(var i=0;i<infoBoxList.length;i++) {
                 this.infoBoxView.add(infoBoxList[i]);
@@ -35,10 +35,10 @@ define([
     function getInfoboxesConfig(config) {
         var databaseNodeDetailsChartListModel = new DatabaseNodeDetailsChartListModel(config);
         return [{
-            title: 'Database',
+            title: 'Disk Usage',
             prefix:'databaseCollector',
-            sparklineTitle1:'Disk Usage',
-            sparklineTitle2:'Analytics DB',
+            sparklineTitle1:'Used Space',
+            sparklineTitle2:'Analytics DB Size',
             sparkline1Dimension:'database_usage.disk_space_used_1k',
             sparkline2Dimension:'database_usage.analytics_db_size_1k',
             view: DatabaseNodeDetailsLineChartView,
