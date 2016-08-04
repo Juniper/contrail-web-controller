@@ -167,7 +167,7 @@ define([
                 [
                     {
                         key: 'databaseUsage',
-                        label: 'Database Usage',
+                        label: 'Disk Space',
                         templateGenerator: 'TextGenerator'
                     },
                     {
