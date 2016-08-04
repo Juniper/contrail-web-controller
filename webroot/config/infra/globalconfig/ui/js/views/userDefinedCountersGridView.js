@@ -72,15 +72,15 @@ define([
                 },
                 statusMessages: {
                     loading: {
-                        text: 'Loading User Defined Counters..'
+                        text: 'Loading Patterns..'
                     },
                     empty: {
-                        text: 'No User Defined Counters Found.'
+                        text: 'No Patterns Found.'
                     },
                     errorGettingData: {
                         type: 'error',
                         iconClasses: 'icon-warning',
-                        text: 'Error in getting User Defined Counters.'
+                        text: 'Error in getting Patterns.'
                     }
                 }
             },

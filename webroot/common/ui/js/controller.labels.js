@@ -953,11 +953,11 @@ define([
         this.TITLE_EDIT_DNS_RECORD = 'Edit DNS Record';
 
         /* User defined counters labels */
-        this.TITLE_USER_DEFINED_COUNTERS = "Counters"
-        this.TITLE_CREATE_USER_DEFINDED_COUNTER = 'Create Counter';
-        this.TITLE_DEL_USER_DEFINDED_COUNTER = 'Delete Counter';
-        this.TITLE_DEL_USER_DEFINDED_COUNTERS = 'Delete Counter(s)';
-        this.TITLE_EDIT_USER_DEFINDED_COUNTER = 'Edit Counter';
+        this.TITLE_USER_DEFINED_COUNTERS = "Log Statistic"
+        this.TITLE_CREATE_USER_DEFINDED_COUNTER = 'Create Log Statistic';
+        this.TITLE_DEL_USER_DEFINDED_COUNTER = 'Delete Log Statistic';
+        this.TITLE_DEL_USER_DEFINDED_COUNTERS = 'Delete Log Statistic';
+        this.TITLE_EDIT_USER_DEFINDED_COUNTER = 'Edit Log Statistic';
         this.COUNTERS_MUTI_SELECT_DELETE = 'countersMultiSelectDelete';
 
         /* RBAC labels */
