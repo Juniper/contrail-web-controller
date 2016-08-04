@@ -322,7 +322,7 @@ define([
         this.TITLE_CONFIGNODE_APISERVER_CPU_MEM_UTILIZATION = 'API Server CPU/Memory Utilization';
         this.TITLE_CONFIGNODE_SERVICE_MONITOR_CPU_MEM_UTILIZATION = 'Service Monitor CPU/Memory Utilization';
         this.TITLE_CONFIGNODE_SCHEMA_CPU_MEM_UTILIZATION = 'Schema CPU/Memory Utilization';
-        this.TITLE_DATABASENODE_DISK_USAGE = 'Database Node Disk Space Usage';
+        this.TITLE_DATABASENODE_DISK_USAGE = 'Disk Usage';
         /**ENDS Titles used in node details chart widget **/
 
         this.X_AXIS_TITLE_PORT = "Port";
