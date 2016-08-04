@@ -50,13 +50,13 @@ define([
             //Call the configure function in the parent model
             var userDefinedCountersData = {};
             userDefinedCountersData['global-system-config'] = {};
-            userDefinedCountersData['global-system-config']['user_defined_counter'] = {};
+            userDefinedCountersData['global-system-config']['user_defined_log_statistics'] = {};
             if ((null != currentUserDefinedCounterList) &
                     (currentUserDefinedCounterList.length > 0)) {
-                userDefinedCountersData['global-system-config']['user_defined_counter']
-                       ['counter'] = currentUserDefinedCounterList;
+                userDefinedCountersData['global-system-config']['user_defined_log_statistics']
+                       ['statlist'] = currentUserDefinedCounterList;
             } else {
-                userDefinedCountersData['global-system-config']['user_defined_counter']['counter'] = [];
+                userDefinedCountersData['global-system-config']['user_defined_log_statistics']['statlist'] = [];
             }
             if (null != currentGlobalSystemConfigData['uuid']) {
                 userDefinedCountersData['global-system-config']['uuid'] =
@@ -106,7 +106,7 @@ define([
                         "0;global-system-configs;0;global-system-config", {});
                  var currentUserDefinedCounterList =
                      getValueByJsonPath(currentGlobalSystemConfigData,
-                             "user_defined_counter;counter",[]);
+                             "user_defined_log_statistics;statlist",[]);
 
                  currentUserDefinedCounterList = currentUserDefinedCounterList.filter(function(val) {
                      for(var i = 0; i < namesTobeDeleted.length ; i++) {
@@ -142,7 +142,7 @@ define([
                   "0;global-system-configs;0;global-system-config", {});
                    var currentUserDefinedCounterList =
                        getValueByJsonPath(currentGlobalSystemConfigData,
-                               "user_defined_counter;counter",[]);
+                               "user_defined_log_statistics;statlist",[]);
                    if(currentUserDefinedCounterList.length === 0){
                        currentUserDefinedCounterList.push(newUserDefinedCounterConfig);
                    }

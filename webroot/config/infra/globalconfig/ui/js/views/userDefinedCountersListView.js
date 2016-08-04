@@ -28,7 +28,7 @@ define([
         },
         parseUserDefinedCounterData : function(result){
             var gridDS = getValueByJsonPath(result,
-                    "0;global-system-configs;0;global-system-config;user_defined_counter;counter", []);
+                    "0;global-system-configs;0;global-system-config;user_defined_log_statistics;statlist", []);
             return gridDS;
         }
     });

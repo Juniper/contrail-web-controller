@@ -141,7 +141,7 @@ define([
            },
            {
                elementId: 'user_defined_counter_tab',
-               title: 'Counters',
+               title: 'Log Statistic',
                view: "userDefinedCountersListView",
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
