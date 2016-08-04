@@ -40,7 +40,7 @@ define([
                             setFIPEnabledNets(response, contrailListModel);
                         }
                     },
-                    {
+                    /*{
                         getAjaxConfig  : function () {
                             return {
                                 url: ctwc.get(ctwc.URL_CFG_VN_DETAILS) +
@@ -52,7 +52,7 @@ define([
                         successCallback: function (response, contrailListModel) {
                             contrailListModel.addData(ctwp.vnCfgDataParser(response, true));
                         }
-                    },
+                    },*/
                     {
                         getAjaxConfig  : function () {
                             return {
