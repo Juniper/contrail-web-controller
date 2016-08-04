@@ -10,6 +10,7 @@ define([
         this.CT_UNIT_TEST_MODULE = 'Controller Unit Tests -';
 
         this.NETWORKS_LIST_VIEW_COMMON_TEST_MODULE = 'Neworks List view - Common Tests';
+        this.NETWORKS_GRID_VIEW_TEST_MODULE = 'Networks grid view test module';
         this.NETWORKS_VIEW_COMMON_TEST_MODULE = 'Neworks View - Common Tests';
         this.PROJECTS_LIST_VIEW_COMMON_TEST_MODULE = 'Projects List view - Common Tests';
         this.PROJECTS_VIEW_COMMON_TEST_MODULE = 'Projects view - Common Tests';
