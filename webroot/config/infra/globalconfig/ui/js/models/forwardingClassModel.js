@@ -25,7 +25,9 @@ define([
         validations: {
             fwdClassConfigValidations: {
                 'forwarding_class_id': function(value, attr, finalObj){
-                    if(!value || isNaN(Number(value))) {
+                    if(value === null ||
+                        value.toString().trim() === "" ||
+                        isNaN(Number(value))) {
                         return "Forwarding Class ID should be a number";
                     }
                 }
@@ -102,13 +104,13 @@ define([
                 fcId = fcId.trim().length != 0 ? Number(fcId) : null;
                 newForwardingClass['forwarding_class_id'] = fcId;
 
-                dscp = dscp.trim().length != 0 ? Number(dscp) : null;
+                dscp = dscp.toString().trim().length != 0 ? Number(dscp) : null;
                 newForwardingClass['forwarding_class_dscp'] = dscp;
 
-                vlan = vlan.trim().length != 0 ? Number(vlan) : null;
+                vlan = vlan.toString().trim().length != 0 ? Number(vlan) : null;
                 newForwardingClass['forwarding_class_vlan_priority'] = vlan;
 
-                mpls = mpls.trim().length != 0 ? Number(mpls) : null;
+                mpls = mpls.toString().trim().length != 0 ? Number(mpls) : null;
                 newForwardingClass['forwarding_class_mpls_exp'] = mpls;
 
                 ctwu.deleteCGridData(newForwardingClass);
