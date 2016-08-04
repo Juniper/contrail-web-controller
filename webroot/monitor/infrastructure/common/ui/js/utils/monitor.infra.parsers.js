@@ -791,6 +791,45 @@ define(
                     return parsedData;
                 };
 
+                self.parseDatabaseUsageData = function (dbstats, chartViewModel, key) {
+                    var cf = crossfilter(dbstats);
+                    var parsedData = [];
+                    var timeStampField = 'T';
+                    var groupDim = cf.dimension(function(d) { return d["Source"];});
+                    var tsDim = cf.dimension(function(d) { return d[timeStampField];});
+                    var buckets = this.bucketizeConfigNodeStats(dbstats, null, null, chartViewModel.queryJSON);
+                    var colorCodes = monitorInfraUtils.getMonitorInfraNodeColors(1);
+                    //Now parse this data to be usable in the chart
+                    var parsedData = [];
+                    for(var i  in buckets) {
+                        var y0 = 0, counts = [], totalFailedReqs = 0;
+                        var timestampExtent = buckets[i]['timestampExtent'];
+                        tsDim.filter(timestampExtent);
+                        var bucketdbstatsArr = tsDim.top(Infinity);
+                        var fromTime = new XDate((timestampExtent[0]/1000)).toString('HH:mm');
+                        var maxDBUsageObj = _.max(bucketdbstatsArr, function (d) {
+                            return ifNull(d[key], 0);
+                        });
+                        var maxDBUsage = ifNull(maxDBUsageObj[key], 0);
+                        counts.push({
+                            name: ctwl.ANALYTICS_CHART_DATABASE_USAGE,
+                            color: colorCodes[0],
+                            perNodeDBUsage: maxDBUsage,
+                            time: contrail.format('{0}', fromTime),
+                            y0:y0,
+                            y1:y0 += maxDBUsage
+                        });
+                        parsedData.push({
+                            colorCodes: colorCodes,
+                            counts: counts,
+                            total: maxDBUsage,
+                            timestampExtent: timestampExtent,
+                            date: new Date(i / 1000)
+                        });
+                    }
+                    return parsedData;
+                };
+
                 this.parseAnlyticsQueriesChartData = function (apiStats, chartViewModel) {
                     var cf =crossfilter(apiStats);
                     var parsedData = [];

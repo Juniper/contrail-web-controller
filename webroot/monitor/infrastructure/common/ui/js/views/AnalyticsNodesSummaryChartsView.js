@@ -3,7 +3,13 @@
  */
 
 define(['underscore', 'contrail-view',
-       'monitor-infra-analytics-sandesh-chart-model', 'monitor-infra-analytics-queries-chart-model', 'monitor-infra-analytics-database-read-write-chart-model'],function(_, ContrailView,AnalyticsNodeSandeshChartModel, AnalyticsNodeQueriesChartModel, AnalyticsNodeDataBaseReadWriteChartModel){
+       'monitor-infra-analytics-sandesh-chart-model',
+       'monitor-infra-analytics-queries-chart-model',
+       'monitor-infra-analytics-database-read-write-chart-model',
+       'monitor-infra-analytics-database-usage-model'],
+       function(_, ContrailView,AnalyticsNodeSandeshChartModel,
+            AnalyticsNodeQueriesChartModel, AnalyticsNodeDataBaseReadWriteChartModel,
+            AanlyticsNodeDatabaseUsageModel){
         var AnalyticsNodesSummaryChartsView = ContrailView.extend({
         render : function (){
             var anlyticsTemplate = contrail.getTemplate4Id(
@@ -24,6 +30,7 @@ define(['underscore', 'contrail-view',
                             bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
                             sandeshModel = new AnalyticsNodeSandeshChartModel(),
                             queriesModel = new AnalyticsNodeQueriesChartModel(),
+                            dbUsageModel = new AanlyticsNodeDatabaseUsageModel();
                             databseReadWritemodel = new AnalyticsNodeDataBaseReadWriteChartModel();
                         var colorMap = monitorInfraUtils.constructNodeColorMap(analyticsNodeList);
                         self.renderView4Config(topleftColumn,  sandeshModel,
@@ -32,8 +39,8 @@ define(['underscore', 'contrail-view',
                         self.renderView4Config(toprightCoulmn,  queriesModel,
                                 getAnalyticsNodeQueriesChartViewConfig(colorMap));
 
-                        self.renderView4Config(bottomrightCoulmn,  databseReadWritemodel,
-                                getAnalyticsNodeDatabaseReadChartViewConfig(colorMap));
+                        self.renderView4Config(bottomrightCoulmn,  dbUsageModel,
+                                getAnalyticsNodeDatabaseUsageChartViewConfig(colorMap));
 
                         self.renderView4Config(bottomleftColumn,  databseReadWritemodel,
                                 getAnalyticsNodeDatabaseWriteChartViewConfig(colorMap));}
@@ -153,7 +160,7 @@ define(['underscore', 'contrail-view',
                                axisLabelFontSize: 11,
                                tickPadding: 4,
                                margin: {
-                                   left: 40,
+                                   left: 50,
                                    top: 35,
                                    right: 0,
                                    bottom: 40
@@ -256,7 +263,7 @@ define(['underscore', 'contrail-view',
 
    }
 
-   function getAnalyticsNodeDatabaseReadChartViewConfig(colorMap) {
+   function getAnalyticsNodeDatabaseUsageChartViewConfig(colorMap) {
        return {
            elementId : ctwl.ANALYTICS_CHART_DATABASE_READ_SECTION_ID,
            view : "SectionView",
@@ -273,12 +280,15 @@ define(['underscore', 'contrail-view',
                                brush: false,
                                height: 230,
                                xAxisLabel: '',
-                               yAxisLabel: ctwl.ANALYTICS_CHART_DATABASE_READ_LABEL,
+                               yAxisLabel: ctwl.ANALYTICS_CHART_DATABASE_USAGE,
                                yAxisOffset: 25,
+                               yAxisFormatter: function (d) {
+                                   return formatBytes(d, true);
+                               },
                                axisLabelFontSize: 11,
                                tickPadding: 8,
                                margin: {
-                                   left: 40,
+                                   left: 50,
                                    top: 35,
                                    right: 0,
                                    bottom: 40
@@ -298,29 +308,8 @@ define(['underscore', 'contrail-view',
                                            label: 'Time',
                                            value: time
                                        }, {
-                                           label: ctwl.ANALYTICS_CHART_DATABASE_READ_LABEL,
-                                           value: ifNull(data['nodeReqCnt'], '-')
-                                       }, {
-                                           label: ctwl.ANALYTICS_CHART_FAILED_DATABASE_READS+'(%)',
-                                           value: ifNull(data['reqFailPercent'], '-')
-                                       }]
-                                   };
-                               } else {
-                                   tooltipConfig['title'] = {
-                                           name : data['name'],
-                                           type: ctwl.ANALYTICS_NODES
-                                   };
-                                   tooltipConfig['content'] = {
-                                       iconClass : false,
-                                       info : [{
-                                           label: 'Time',
-                                           value: time
-                                       },{
-                                           label: 'Total Requests',
-                                           value: ifNull(data['totalReqs'], '-')
-                                       }, {
-                                           label: ctwl.ANALYTICS_CHART_FAILED_DATABASE_READS,
-                                           value: ifNull(data['totalFailedReq'], '-')
+                                           label: ctwl.ANALYTICS_CHART_DATABASE_USAGE,
+                                           value: formatBytes(ifNull(data['perNodeDBUsage'], 0))
                                        }]
                                    };
                                }
@@ -349,31 +338,19 @@ define(['underscore', 'contrail-view',
                                               .attr('transform','translate('+width+',0)')
                                        monitorInfraUtils.addLegendToSummaryPageCharts({
                                            container: legendWrap,
-                                           cssClass: 'contrail-legend-error',
-                                           data: [data],
-                                           offset: -10,
-                                           colors: monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
-                                           nodeColorMap: {
-                                               'Failures': monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_COLOR,
-                                           },
-                                           label: 'Failures',
-                                       });
-                                       monitorInfraUtils.addLegendToSummaryPageCharts({
-                                           container: legendWrap,
                                            cssClass: 'contrail-legend-stackedbar',
                                            data: colorCodes,
-                                           offset: 70,
                                            colors: colorCodes,
-                                           nodeColorMap: colorMap,
-                                           label: ctwl.ANALYTICS_NODES,
+                                           nodeColorMap: {
+                                               'DB Usage': monitorInfraConstants.SINGLE_NODE_COLOR[0]
+                                           },
+                                           label: ctwl.ANALYTICS_CHART_DATABASE_USAGE,
                                        });
                                    }
                                }
                            },
                            parseFn: function (response, chartViewModel) {
-                               var dataBaseReadfailed = ctwl.ANALYTICS_CHART_DATABASE_READ_FAILS;
-                               var dataBaseReaddata = ctwl.ANALYTICS_CHART_DATABASE_READ;
-                               return monitorInfraParsers.parseAnlyticsNodeDataBaseReadWriteChartData(response, chartViewModel, dataBaseReadfailed, dataBaseReaddata);
+                               return monitorInfraParsers.parseDatabaseUsageData(response, chartViewModel, 'MAX(database_usage.analytics_db_size_1k)');
                            }
                        }
                    }]
