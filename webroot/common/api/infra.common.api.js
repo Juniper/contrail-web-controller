@@ -1061,13 +1061,27 @@ function sendServerRetrieveError (res)
     commonUtils.handleJSONResponse(error, res, null);
 }
 function getUVEKeys (req, res, appData) {
-    var url = '/analytics/uves';
+    var url = '/analytics/uve-types';
+    var isProject = req.query['isProject'],
+        globalUVEKeys = [],
+        projectUVEKeys = [],
+        uveKeys = [];
     opApiServer.apiGet(url, appData,
         function(err, data) {
             if (err || (null == data)) {
                 commonUtils.handleJSONResponse(err, res, null);
             } else {
-                commonUtils.handleJSONResponse(null, res, data);
+                for(var key in data) {
+                    if (data[key] != null) {
+                        var uveObj = data[key];
+                        globalUVEKeys.push(key);
+                        if (uveObj['global_system_object'] == false) {
+                            projectUVEKeys.push(key);
+                        }
+                    }
+                }
+                uveKeys = (isProject === 'true') ? projectUVEKeys : globalUVEKeys;
+                commonUtils.handleJSONResponse(null, res, uveKeys);
             }
     });
 }
