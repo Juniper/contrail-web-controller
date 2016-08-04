@@ -15,31 +15,32 @@ define([
                 viewConfig = self.attributes.viewConfig,
                 xmlData = viewConfig.xmlData;
 
-            $.ajax({
+            contrail.ajaxHandler({
                 url: 'xsl/main.xsl',
-                dataType: 'xml',
-                success: function(xsl) {
-                    var xsltProcessor = new XSLTProcessor(),
-                        resultDocument;
+                dataType: 'xml'
+            }, function() {
+                self.$el.html('<p class="padding-10-0"><i class="icon-spin icon-spinner"></i> Loading Results.</p>');
+            }, function(xsl) {
+                var xsltProcessor = new XSLTProcessor(),
+                    resultDocument;
 
-                    xsltProcessor.importStylesheet(xsl);
-                    resultDocument = xsltProcessor.transformToFragment(xmlData, document);
+                xsltProcessor.importStylesheet(xsl);
+                resultDocument = xsltProcessor.transformToFragment(xmlData, document);
 
-                    $(self.$el).html(resultDocument);
+                $(self.$el).html(resultDocument);
 
-                    $(self.$el)
-                        .off('click', '.contrail-introspect-grid .widget-toolbar-icon')
-                        .on('click', '.contrail-introspect-grid .widget-toolbar-icon', function(e){
-                            $('.contrail-introspect-grid .widget-toolbar-icon').removeClass('selected');
-                            $(this).addClass('selected');
+                $(self.$el)
+                    .off('click', '.contrail-introspect-grid .widget-toolbar-icon')
+                    .on('click', '.contrail-introspect-grid .widget-toolbar-icon', function(e){
+                        $('.contrail-introspect-grid .widget-toolbar-icon').removeClass('selected');
+                        $(this).addClass('selected');
 
-                            if ($(this).data('action') === 'wrap') {
-                                $('.contrail-introspect-grid table tbody tr td .td-cell').css('white-space', 'normal');
-                            } else if ($(this).data('action') === 'no-wrap') {
-                                $('.contrail-introspect-grid table tbody tr td .td-cell').css('white-space', 'nowrap');
-                            }
-                        });
-                }
+                        if ($(this).data('action') === 'wrap') {
+                            $('.contrail-introspect-grid table tbody tr td .td-cell').css('white-space', 'normal');
+                        } else if ($(this).data('action') === 'no-wrap') {
+                            $('.contrail-introspect-grid table tbody tr td .td-cell').css('white-space', 'nowrap');
+                        }
+                    });
             });
         }
     });
