@@ -164,7 +164,7 @@ define([
                             qosType: "vhost"
                         });
                     }
-                },
+                }/*,
                 {
                     "title": "Fabric QoS",
                     "onClick": function () {
@@ -182,7 +182,7 @@ define([
                             qosType: "fabric"
                         });
                     }
-                }];
+                }*/];
             createTemplate = {
                     "type": "dropdown",
                     "title": ctwl.TITLE_CREATE_QOS,
