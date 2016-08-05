@@ -65,6 +65,11 @@ define([
                         key : null,
                         type : cowc.OBJECT_TYPE_MODEL,
                         getValidation : "configureValidation"
+                    },
+                    {
+                        key : "routes",
+                        type : cowc.OBJECT_TYPE_COLLECTION,
+                        getValidation : "rtAggregateRoutesValidation"
                     }
                 ];
 
