@@ -125,8 +125,16 @@ define([
                 kbValidation.bind(self['secondary']);
 
                 $('#submit-introspect' + introspectNode + '-' + introspectPort).on('click', function() {
-                    var params = self['secondary']['model'].model()['attributes'];
-                    self.renderIntrospectResult(moduleIntrospect, params);
+                    var params = self['secondary']['model'].model()['attributes'],
+                        encodedParams = {};
+
+                    $.each(params, function(key, value) {
+                        if (value !== null) {
+                            encodedParams[key] = encodeURIComponent(value);
+                        }
+                    });
+
+                    self.renderIntrospectResult(moduleIntrospect, encodedParams);
                 });
 
                 $(introspectResultId)
@@ -138,6 +146,19 @@ define([
                         self.renderIntrospectResult(xmlName, params);
                     });
             });
+        },
+
+        removeIntrospectSecondaryForm: function() {
+            var self = this,
+                viewConfig = self.attributes.viewConfig,
+                hashParams = layoutHandler.getURLHashParams(),
+                introspectNode = hashParams['node'],
+                introspectType = viewConfig.type,
+                introspectSecondaryFormId = '#introspect-' + introspectNode + '-' + introspectType + '-secondary-form',
+                primaryModelAttributes = self['primary']['model'].model()['attributes'];
+
+            $(introspectSecondaryFormId).empty();
+
         },
 
         renderIntrospectResult: function(moduleIntrospect, params) {
