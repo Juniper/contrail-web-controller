@@ -1726,6 +1726,7 @@ define(
                     var origResponse = response;
                     var isFromACLFlows = false;
                     var ret = [];
+                    var lastFlowReq = false;
                     response = jsonPath(origResponse,"$..SandeshFlowData")[0];
                     if (response == null){
                         isFromACLFlows = true;
@@ -1733,15 +1734,6 @@ define(
                     }
                     var flowKey = jsonPath(origResponse,"$..flow_key")[0];
                     var iterationKey = jsonPath(origResponse,"$..iteration_key")[0];
-                // var retArr = [];
-                /* for (var i = 0; i < response.length; i++) {
-                        var currACL = response[i];
-                        for (var j = 0; j < currACL['flowData'].length; j++) {
-                            var currFlow = currACL['flowData'][j];
-                            var aclUuid = currACL['acl_uuid'];
-                            retArr.push($.extend(currFlow, {acl_uuid:aclUuid}));
-                        }
-                    }*/
                     if( response != null ){
                         if(!(response instanceof Array)){
                             response = [response];
@@ -1793,23 +1785,23 @@ define(
                     if(flowKey != null && !$.isEmptyObject(flowKey)){
                         //Had to add this hack because sometimes we get into to
                         //this parse function twice leading this to be added twice to the stack
-                        if(flowKey != "0:0:0:0:0.0.0.0:0.0.0.0" &&
+                        if(flowKey != "0-0-0-0-0-0.0.0.0-0.0.0.0" &&
                             flowKeyStack[flowKeyStack.length - 1] != flowKey)
                             flowKeyStack.push(flowKey);
                     }
-                    if((flowKey == null) || (flowKey == "0:0:0:0:0.0.0.0:0.0.0.0")) {
+                    if((flowKey == null) || (flowKey == "0-0-0-0-0-0.0.0.0-0.0.0.0")) {
                         lastFlowReq = true;
                     }
                     //Push the aclIterKey to the stack for Next use
                     if(iterationKey != null && !$.isEmptyObject(iterationKey)){
                         //Had to add this hack because sometimes we get into to
                         //this parse function twice leading this to be added twice to the stack
-                        if(iterationKey.indexOf('0:0:0:0:0.0.0.0:0.0.0.0') == -1 &&
+                        if(iterationKey.indexOf('0-0-0-0-0-0.0.0.0-0.0.0.0') == -1 &&
                             aclIterKeyStack[aclIterKeyStack.length - 1] != iterationKey)
                             aclIterKeyStack.push(iterationKey);
                     }
                     //$('#flowCnt').text(response.flowData.length);
-                    return  ret;
+                    return  {data:ret,lastFlowReq:lastFlowReq};
                 }
 
                 self.mergeACLAndSGData = function(sgData,aclListModel) {
