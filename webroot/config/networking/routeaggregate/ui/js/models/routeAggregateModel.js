@@ -72,6 +72,12 @@ define([
                     ctwu.getPermissionsValidation()
                 ];
 
+            validations.push({
+                key : "routes",
+                type : cowc.OBJECT_TYPE_COLLECTION,
+                getValidation : "rtAggregateRoutesValidation"
+            });
+
             if (this.isDeepValid(validations)) {
                 attr = this.model().attributes;
                 newRouteAggregateData = $.extend(true, {}, attr);
