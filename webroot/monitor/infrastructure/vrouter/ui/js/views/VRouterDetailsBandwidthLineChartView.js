@@ -48,7 +48,10 @@ define([
                                             return formatBytes(y2Value / 8, true, null, null,
                                                     cowc.BYTES_PER_SECOND_PREFIXES);
                                         },
-                                        forceY1: [0, 1]
+                                        forceY1: [0, 1],
+                                        y1Formatter: function (y1Value) {
+                                            return (!isNaN(y1Value))? y1Value.toFixed(2): y1Value;
+                                        }
                                     },
                                     widgetConfig: {
                                         elementId: ctwl.VROUTER_DETAILS_BANDWIDTH_CHART_WIDGET,
