@@ -693,11 +693,12 @@ define(
 
                 };
 
-                this.bucketizeConfigNodeStats = function (apiStats, bucketDuration, insertEmptyBuckets, queryJSON) {
+                this.bucketizeConfigNodeStats = function (apiStats, bucketDuration, insertEmptyBuckets, queryJSON, timeStampField) {
+                    timeStampField = ifNull(timeStampField, 'T');
                     insertEmptyBuckets = ifNull(insertEmptyBuckets, true);
                     bucketDuration  = ifNull(bucketDuration, monitorInfraConstants.CONFIGNODESTATS_BUCKET_DURATION);
                     var minMaxTS = d3.extent(apiStats,function(obj){
-                        return obj['T'];
+                        return obj[timeStampField];
                     });
                     if (insertEmptyBuckets && queryJSON != null
                          && queryJSON['start_time'] && queryJSON['end_time']) {
@@ -715,7 +716,7 @@ define(
                     var buckets = {};
                     //Group nodes into buckets
                     $.each(apiStats,function(idx,obj) {
-                        var xBucket = xBucketScale(obj['T']);
+                        var xBucket = xBucketScale(obj[timeStampField]);
                         if(buckets[xBucket] == null) {
                             var timestampExtent = xBucketScale.invertExtent(xBucket);
                             buckets[xBucket] = {timestampExtent:timestampExtent,
@@ -741,10 +742,10 @@ define(
                 self.parseSandeshMessageStackChartData = function (apiStats, chartViewModel) {
                     var cf =crossfilter(apiStats);
                     var parsedData = [];
-                    var timeStampField = 'T';
+                    var timeStampField = 'T=';
                     var groupDim = cf.dimension(function(d) { return d["Source"];});
                     var tsDim = cf.dimension(function(d) { return d[timeStampField];});
-                    var buckets = this.bucketizeConfigNodeStats(apiStats, null, null, chartViewModel.queryJSON);
+                    var buckets = this.bucketizeConfigNodeStats(apiStats, null, null, chartViewModel.queryJSON, timeStampField);
                     var colorCodes = monitorInfraUtils.getMonitorInfraNodeColors(groupDim.group().all().length);
                     //Now parse this data to be usable in the chart
                     var parsedData = [];
@@ -756,7 +757,7 @@ define(
                         //Getting nodes group with msg_info.messages
                         var totalResMessages = groupDim.group().reduceSum(
                             function (d) {
-                                return d['msg_info.messages'];
+                                return d['SUM(msg_info.messages)'];
                             });
                         var totalResMessagesArr = totalResMessages.top(Infinity);
                         var totalResMessagesArrLen = totalResMessagesArr.length;
