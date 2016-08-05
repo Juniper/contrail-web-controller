@@ -1001,9 +1001,9 @@ define([
         this.TITLE_CREATE_ALARM_RULE = 'Create Alarm Rule';
         this.TXT_CONFIG_ALARM_RULE = 'rule';
         this.CONFIG_ALARM_TEXT_MAP = {
-             2: 'Critical',
-             3: 'Major',
-             4: 'Minor'
+             0: 'Critical',
+             1: 'Major',
+             2: 'Minor'
         };
 
         //Config DB Labels - Start

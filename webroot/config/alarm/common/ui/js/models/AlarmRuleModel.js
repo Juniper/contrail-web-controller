@@ -11,7 +11,7 @@ define([
     var AlarmRuleModel = ContrailModel.extend({
 
         defaultConfig: {
-            operation: '==',
+            operation: '==' + cowc.DROPDOWN_VALUE_SEPARATOR + 'uve_attribute',
             variables: [],
             operand1: null,
             operand2: null,
