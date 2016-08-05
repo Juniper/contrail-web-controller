@@ -12,7 +12,7 @@ define([
 
         defaultConfig: {
             operation: '==',
-            vars: [],
+            variables: [],
             operand1: null,
             operand2: null,
         },
