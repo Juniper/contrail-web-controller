@@ -334,6 +334,14 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    label: 'Mirroring',
+                                                    key: 'uuid',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'mirrorDestinationFormatter',
+                                                    }
+                                                },
+                                                {
                                                     label: 'Reverse Path Forwarding',
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
@@ -522,6 +530,10 @@ define([
     }
     this.allowTransitFormatter = function (v, dc) {
         return formatVNCfg.allowTransitFormatter(null,
+                                        null, null, null, dc);
+    }
+    this.mirrorDestinationFormatter = function (v, dc) {
+        return formatVNCfg.mirrorDestinationFormatter(null,
                                         null, null, null, dc);
     }
     this.rpfFormatter = function (v, dc) {
