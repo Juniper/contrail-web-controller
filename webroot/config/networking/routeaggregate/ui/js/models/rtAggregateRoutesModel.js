@@ -23,6 +23,19 @@ define([
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] = (isValid == true) ?
                 false : isValid;
             errors.set(attrErrorObj);
+        },
+
+        validations: {
+            rtAggregateRoutesValidation: {
+                route: function(value, attr, finalObj) {
+                    var route = getValueByJsonPath(finalObj, "route", ""),
+                        routeArry = route.split("/");
+                    if(routeArry.length !== 2 || (!isIPv4(routeArry[0]) &&
+                            !isIPv6(routeArry[0]))) {
+                        return "Enter valid IPv4 or IPv6 Prefix";
+                    }
+                }
+            }
         }
     });
 

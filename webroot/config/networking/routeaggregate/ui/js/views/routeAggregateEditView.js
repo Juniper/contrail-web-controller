@@ -59,7 +59,7 @@ define([
                                              false);
                     Knockback.applyBindings(self.model,
                         document.getElementById(modalId));
-                   kbValidation.bind(self);
+                   kbValidation.bind(self, {collection:self.model.model().attributes.routes});
                 }
             );
         },
@@ -136,14 +136,16 @@ define([
                                                     viewConfig: {
                                                         path: "routes",
                                                         collection: "routes",
+                                                        validation:
+                                                            "rtAggregateRoutesValidation",
                                                         templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                                         columns: [{
                                                             elementId: "route",
-                                                            name: "Routes",
+                                                            name: "Route Prefix",
                                                             view: "FormInputView",
                                                             width: 350,
                                                             viewConfig: {
-                                                                placeholder: "Enter Route",
+                                                                placeholder: "xxx.xxx.xxx.xxx/xx",
                                                                 width: 350,
                                                                 path: "route",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
