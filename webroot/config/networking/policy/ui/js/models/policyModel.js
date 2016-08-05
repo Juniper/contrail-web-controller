@@ -125,10 +125,15 @@ define([
             } else if(srcArr.length == 2) {
                 //parse network and subnet from source subnet string
                 vnSubnetObj = policyFormatters.parseVNSubnet(srcArr[0]);
+
                 //network
-                address[0]["virtual_network"] =
-                    self.getPostAddressFormat(vnSubnetObj.vn, selectedDomain,
-                            selectedProject);
+                if(vnSubnetObj.mode === ctwc.SUBNET_ONLY) {
+                    address[0]["virtual_network"] = vnSubnetObj.vn;
+                } else {
+                    address[0]["virtual_network"] =
+                        self.getPostAddressFormat(vnSubnetObj.vn,
+                                selectedDomain, selectedProject);
+                }
                 //subnet
                 address[0]["subnet"] = {};
                 subnet = vnSubnetObj.subnet.split("/");
