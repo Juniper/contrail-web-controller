@@ -39,7 +39,10 @@ define([
                 self.renderIntrospectTabs(data);
             }, function(error) {
                 if (error.status === 404) {
-                    //TODO
+                    self.$el.html('<div class="alert alert-error">' +
+                        '<button type="button" class="close" data-dismiss="alert"></button> ' +
+                        '<strong>Error: </strong> <span> '  + error.responseText + ' </span>' +
+                        '</div>');
                 }
             }, null);
         },
@@ -106,6 +109,7 @@ define([
             viewPathPrefix: "setting/introspect/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             tabConfig: {
+                renderOnActivate: true,
                 activate: function (event, ui) {
                     _.each($('#' + gridId).find('.contrail-grid'), function (gridEl, key) {
                         if ($(gridEl).data('contrailGrid')) {

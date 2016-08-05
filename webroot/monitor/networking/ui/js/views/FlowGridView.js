@@ -121,7 +121,7 @@ define([
 
     function applyProtocolFilter (event, ui) {
         var checkedRows = $('#' + ctwl.PROJECT_FILTER_PROTOCOL_MULTISELECT_ID).data('contrailCheckedMultiselect').getChecked(),
-            flowsGrid = $('#' + ctwl.PROJECT_FLOW_GRID_ID).data('contrailGrid'),
+            flowsGrid = $('#' + ctwl.FLOWS_GRID_ID).data('contrailGrid'),
             checkedProtocols = [];
 
         $.each(checkedRows, function (checkedRowKey, checkedRowValue) {
