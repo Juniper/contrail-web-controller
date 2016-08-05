@@ -4,11 +4,11 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/infra/globalconfig/ui/js/globalConfig.utils'
-], function (_, ContrailModel, GlobalConfigUtils) {
+], function (_, ContrailConfigModel, GlobalConfigUtils) {
     var gcUtils = new GlobalConfigUtils();
-    var forwardingClassModel = ContrailModel.extend({
+    var forwardingClassModel = ContrailConfigModel.extend({
 
         defaultConfig: {
             'name': null,
@@ -59,7 +59,8 @@ define([
                 modelConfig["forwarding_class_mpls_exp"] =
                     gcUtils.getTextByValue(ctwc.QOS_MPLS_EXP_VALUES, mpls);
             }
-
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
 
@@ -72,7 +73,9 @@ define([
                                key : null,
                                type : cowc.OBJECT_TYPE_MODEL,
                                getValidation : "fwdClassConfigValidations"
-                           }];
+                           },
+                           //permissions
+                           ctwu.getPermissionsValidation()];
             if (self.isDeepValid(validations)) {
                 var newForwardingClass = $.extend(true,
                                                 {}, self.model().attributes);
@@ -112,7 +115,8 @@ define([
 
                 mpls = mpls.toString().trim().length != 0 ? Number(mpls) : null;
                 newForwardingClass['forwarding_class_mpls_exp'] = mpls;
-
+                //permissions
+                this.updateRBACPermsAttrs(newForwardingClass);
                 ctwu.deleteCGridData(newForwardingClass);
                 delete newForwardingClass.id_perms;
                 delete newForwardingClass.href;

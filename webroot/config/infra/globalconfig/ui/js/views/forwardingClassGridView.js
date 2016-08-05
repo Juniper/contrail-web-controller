@@ -135,7 +135,7 @@ define([
                         ctwl.TITLE_EDIT_FORWARDING_CLASS;
                 forwardingClassEditView.model = forwardingClassModel;
                 forwardingClassEditView.renderAddEditForwardingClass(
-                    {"title": title, checkedRow: checkedRow,
+                    {"title": ctwl.EDIT, checkedRow: checkedRow,
                         callback: function () {
                             gridObj._dataView.refreshData();
                         },
@@ -203,7 +203,7 @@ define([
                         forwardingClassModel = new ForwardingClassModel();
                     forwardingClassEditView.model = forwardingClassModel;
                     forwardingClassEditView.renderAddEditForwardingClass(
-                        {"title": ctwl.TITLE_CREATE_FORWARDING_CLASS,
+                        {"title": ctwl.CREATE,
                             callback: function () {
                                 gridObj._dataView.refreshData();
                             },
@@ -258,7 +258,9 @@ define([
                                         formatter: "FormatForwardingClassVLAN"
                                     }
                                 }]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails()]
                         }]
                     }
                 }]

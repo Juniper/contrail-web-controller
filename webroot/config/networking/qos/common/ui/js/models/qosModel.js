@@ -4,12 +4,12 @@
 
 define([
     "underscore",
-    "contrail-model",
+    "contrail-config-model",
     "config/networking/qos/common/ui/js/models/forwardingClassPairModel",
     "config/infra/globalconfig/ui/js/globalConfig.utils"
-], function (_, ContrailModel, FCPairModel, globalConfigUtils) {
+], function (_, ContrailConfigModel, FCPairModel, globalConfigUtils) {
     var gcUtils = new globalConfigUtils();
-    var rbacModel = ContrailModel.extend({
+    var rbacModel = ContrailConfigModel.extend({
         defaultConfig: {
             "name": null,
             "fq_name": null,
@@ -93,7 +93,8 @@ define([
                     new Backbone.Collection(mplsEntryModelArry);
                 modelConfig['display_name'] =
                     ctwu.getDisplayNameOrName(modelConfig);
-
+               //permissions
+               this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
 
@@ -193,7 +194,9 @@ define([
                         key : "mpls_exp_entries_fc_pair",
                         type : cowc.OBJECT_TYPE_COLLECTION,
                         getValidation : "mplsValidations"
-                    }
+                    },
+                    //permissions
+                    ctwu.getPermissionsValidation()
                 ];
 
             if (this.isDeepValid(validations)) {
@@ -246,6 +249,9 @@ define([
                 newQOSConfigData["mpls_exp_entries"]
                    ["qos_id_forwarding_class_pair"] =
                     self.getMPLSExpEntries(attr);
+
+                //permissions
+                this.updateRBACPermsAttrs(newQOSConfigData);
 
                 ctwu.deleteCGridData(newQOSConfigData);
 

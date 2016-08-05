@@ -160,7 +160,7 @@ define([
                     svcHealthChkEditView.model = new SvcHealthChkModel();
 
                     svcHealthChkEditView.renderAddSvcHealthChkCfg({
-                                              "title": ctwl.CFG_SVC_HEALTH_CHK_TITLE_CREATE,
+                                              "title": ctwl.CREATE,
                                               callback: function () {
                     $('#' + ctwl.CFG_SVC_HEALTH_CHK_GRID_ID).data("contrailGrid")._dataView.refreshData();
                     }});
@@ -176,7 +176,7 @@ define([
             dataView = $('#' + ctwl.CFG_SVC_HEALTH_CHK_GRID_ID).data("contrailGrid")._dataView;
             svcHealthChkEditView.model = new SvcHealthChkModel(dataView.getItem(rowIndex));
             svcHealthChkEditView.renderEditSvcHealthChkCfg({
-                                  "title": ctwl.CFG_SVC_HEALTH_CHK_TITLE_EDIT,
+                                  "title": ctwl.EDIT,
                                   callback: function () {
                                       dataView.refreshData();
             }});
@@ -272,7 +272,9 @@ define([
                                                     }
                                                 },
                                             ]
-                                        }
+                                        },
+                                        //permissions
+                                        ctwu.getRBACPermissionExpandDetails()
                                     ]
                                 }
                             ]

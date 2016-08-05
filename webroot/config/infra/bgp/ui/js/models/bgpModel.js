@@ -4,11 +4,11 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/infra/bgp/ui/js/models/bgpPeersModel'
-], function (_, ContrailModel, BGPPeersModel) {
+], function (_, ContrailConfigModel, BGPPeersModel) {
     var self;
-    var bgpCfgModel = ContrailModel.extend({
+    var bgpCfgModel = ContrailConfigModel.extend({
         defaultConfig: {
             'name': null,
             'display_name' : null,
@@ -148,6 +148,8 @@ define([
             };
             peerCollectionModel = new Backbone.Collection(peerModels);
             modelConfig['peers'] = peerCollectionModel;
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
 
@@ -261,7 +263,9 @@ define([
                     key : ["peers", "family_attrs"],
                     type : cowc.OBJECT_TYPE_COLLECTION_OF_COLLECTION,
                     getValidation : "familyAttrValidation"
-                }
+                },
+                //permissions
+                ctwu.getPermissionsValidation()
             ];
 
             if (this.isDeepValid(validations)) {
@@ -358,6 +362,8 @@ define([
                 if(!port) {
                    delete newBGPRouterCfgData.bgp_router_parameters.source_port;
                 }
+                //permissions
+                this.updateRBACPermsAttrs(newBGPRouterCfgData);
 
                 ctwu.deleteCGridData(newBGPRouterCfgData);
 

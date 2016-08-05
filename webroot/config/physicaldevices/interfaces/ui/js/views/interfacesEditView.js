@@ -162,6 +162,8 @@ define([
                     self.offChangeEvnt = false;
                     kbValidation.bind(self,
                         {collection: self.model.model().attributes.servers});
+                    //permissions
+                    ctwu.bindPermissionsValidation(self);
                     self.subscribeEvents();
                     if(self.checkedRow != null) {
                         var parentName;
@@ -184,7 +186,7 @@ define([
                         self.model.parent(parentName);
                         self.model.setServerDataSource();
                     }
-                }
+                }, null, true
             );
 
         },
@@ -435,6 +437,7 @@ define([
             return {
                 elementId: ctwl.INTERFACE_PREFIX_ID,
                 view: "SectionView",
+                title: "Interface",
                 viewConfig: {
                     rows: [
                         infConfigTemplates.infFixedSection(disableId,

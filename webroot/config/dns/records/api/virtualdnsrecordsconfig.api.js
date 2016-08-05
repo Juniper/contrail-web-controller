@@ -194,7 +194,7 @@ function updateVDNSRecordAdd(request, response, appData) {
 function updateVDNSRecordUpdate(request, response, appData) {
     var dnsRecURL = '/virtual-DNS-record/';
     var vdnsRecPutData = request.body;
-    var requestParams = url.parse(request.url, true);
+    var requestParams = url.parse(request.url, true), perms2;
 
     if (!(virtualDNSId = request.param('id').toString())) {
         error = new appErrors.RESTServerError('Virtual DNS Id ' +
@@ -214,6 +214,10 @@ function updateVDNSRecordUpdate(request, response, appData) {
             vdnsRecPutData['virtual-DNS']['virtual_DNS_records'][0][
                 'virtual_DNS_record_data'
             ];
+        perms2 =
+            vdnsRecPutData['virtual-DNS']['virtual_DNS_records'][0][
+                'perms2'
+            ];
     } catch (e) {
         error = new appErrors.RESTServerError('DNS Record not found');
         commonUtils.handleJSONResponse(error, response, null);
@@ -228,6 +232,8 @@ function updateVDNSRecordUpdate(request, response, appData) {
         var oldConfigData = commonUtils.cloneObj(configData);
         configData['virtual-DNS-record']['virtual_DNS_record_data'] =
             vdnsRecData;
+        configData['virtual-DNS-record']['perms2'] =
+            perms2;
         var delta =
             jsonDiff.getConfigJSONDiff('virtual-DNS-record',
                 oldConfigData,

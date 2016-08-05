@@ -4,14 +4,14 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/networking/policy/ui/js/models/ruleModel',
     'config/networking/policy/ui/js/views/policyFormatters'
-], function (_, ContrailModel, RuleModel, PolicyFormatters) {
+], function (_, ContrailConfigModel, RuleModel, PolicyFormatters) {
     var policyFormatters = new PolicyFormatters();
     var SIDataSource;
     var self;
-    var policyModel = ContrailModel.extend({
+    var policyModel = ContrailConfigModel.extend({
         defaultConfig: {
             'fq_name':null,
             'display_name': '',
@@ -43,6 +43,8 @@ define([
             modelConfig['PolicyRules'] = rulesCollectionModel;
             modelConfig["network_policy_entries"]["policy_rule"] =
                                                      rulesCollectionModel;
+            //permissions
+            self.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
         validations: {
@@ -157,6 +159,8 @@ define([
                     type : cowc.OBJECT_TYPE_COLLECTION,
                     getValidation : 'ruleValidation'
                 },
+                //permissions
+                ctwu.getPermissionsValidation()
             ];
             if (this.isDeepValid(validations)) {
                 var newPolicyData = $.extend(true,{},this.model().attributes),
@@ -261,6 +265,10 @@ define([
                 } else {
                     delete(newPolicyData.parent_uuid);
                 }
+
+                //permissions
+                this.updateRBACPermsAttrs(newPolicyData);
+
                 delete(newPolicyData.errors);
                 delete(newPolicyData.locks);
                 delete(newPolicyData.PolicyRules);

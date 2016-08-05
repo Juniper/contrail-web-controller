@@ -57,12 +57,7 @@ define([
                 subscribeModelAttrChanges(dnsRecordsModel);
                 dnsRecordsEditView.model = dnsRecordsModel;
                 dnsRecordsEditView.renderAddEditDnsRecords({
-                    "title": ctwl.TITLE_EDIT_DNS_RECORD +
-                        ' (' + dataItem[
-                            'virtual_DNS_record_data'][
-                            'record_name'
-                        ] +
-                        ')',
+                    "title": ctwl.EDIT,
                     callback: function() {
                         var dataView =
                             $(gridElId).data(
@@ -220,7 +215,9 @@ define([
                                     label: 'MX Preference',
                                     templateGenerator: 'TextGenerator'
                                 }]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails()]
                         }]
                     }
                 }]
@@ -307,7 +304,7 @@ define([
                 subscribeModelAttrChanges(dnsRecordsModel);
                 dnsRecordsEditView.model = dnsRecordsModel;
                 dnsRecordsEditView.renderAddEditDnsRecords({
-                    "title": ctwl.TITLE_CREATE_DNS_RECORD,
+                    "title": ctwl.CREATE,
                     callback: function() {
                         var dataView = $(
                                 gridElId).data(

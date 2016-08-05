@@ -5,12 +5,12 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/networking/securitygroup/ui/js/SecGrpUtils',
     'config/networking/securitygroup/ui/js/models/SecGrpRulesModel'
-], function (_, ContrailModel, SecGrpUtils, SecGrpRulesModel) {
+], function (_, ContrailConfigModel, SecGrpUtils, SecGrpRulesModel) {
     var sgUtils = new SecGrpUtils();
-    var SecGrpModel = ContrailModel.extend({
+    var SecGrpModel = ContrailConfigModel.extend({
         defaultConfig: {
             'display_name': null,
             'security_group_entries': {
@@ -93,6 +93,10 @@ define([
                 /* Create */
                 modelConfig = this.createDefaultRules(modelConfig);
             }
+
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
+
             return modelConfig;
         },
         deleteSecGrpRules: function(data, rules) {
@@ -149,7 +153,9 @@ define([
                 key: 'rules',
                 type: cowc.OBJECT_TYPE_COLLECTION,
                 getValidation: 'secGrpRulesValidation'
-            }];
+            },
+            //permissions
+            ctwu.getPermissionsValidation()];
             return validationList;
         },
         configureSecGrp: function (projFqn, dataItem, callbackObj) {
@@ -184,6 +190,10 @@ define([
                     newSecGrpData['configured_security_group_id'] =
                         Number(newSecGrpData['configured_security_group_id']);
                 }
+
+                //permissions
+                this.updateRBACPermsAttrs(newSecGrpData);
+
                 ajaxConfig = {};
                 ctwu.deleteCGridData(newSecGrpData);
                 delete newSecGrpData['rules'];

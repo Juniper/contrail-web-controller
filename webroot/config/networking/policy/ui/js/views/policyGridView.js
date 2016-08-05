@@ -58,8 +58,8 @@ define([
             var policyModel = new PolicyModel(dataItem);
             policyCreateEditView.model = policyModel;
             policyCreateEditView.renderPolicyPopup({
-                                  "title": ctwl.TITLE_POLICY_EDIT +
-                                  ' (' + dataItem.name + ')',
+                                  //permissions
+                                  "title": ctwl.EDIT,
                                   mode: "edit",
                                   callback: function () {
                 var dataView =
@@ -204,7 +204,8 @@ define([
                     var policyModel = new PolicyModel();
                     policyCreateEditView.model = policyModel;
                     policyCreateEditView.renderPolicyPopup({
-                                     "title": ctwl.TITLE_ADD_POLICY,
+                                     //permissions
+                                     "title": ctwl.CREATE,
                                      mode : "add",
                                      callback: function () {
                         var dataView =
@@ -267,7 +268,9 @@ define([
                                         }
                                     }
                                 }]
-                            }]
+                            },
+                            //permissions
+                            ctwu.getRBACPermissionExpandDetails('span3')]
                         }]
                     }
                 }]
