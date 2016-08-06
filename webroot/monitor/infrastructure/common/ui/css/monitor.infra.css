@@ -33,4 +33,8 @@
 #analytics-nodes-chart .chartMargin{
     margin:0 10px 0 10px !important;
 }
+#config-nodes-donutchart-one .nvd3-svg{
+    width:211px;
+    margin-left:40%;
+ }
 /******Config Node chart and Analytics node chart Ends here****/
