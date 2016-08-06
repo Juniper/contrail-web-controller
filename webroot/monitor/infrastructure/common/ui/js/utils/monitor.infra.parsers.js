@@ -562,7 +562,7 @@ define(
                         obj['isGeneratorRetrieved'] = false;
                         obj['nodeAlerts'] =
                             infraMonitorAlertUtils.processConfigNodeAlerts(obj);
-                        var alarms = getValueByJsonPath(d,'value;configNode;UVEAlarms;alarms',[]);
+                        var alarms = getValueByJsonPath(d,'value;UVEAlarms;alarms',[]);
                         if(cowu.getAlarmsFromAnalytics) {
                             obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
                                                             {
@@ -669,7 +669,7 @@ define(
                             monitorInfraUtils.isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
                         obj['nodeAlerts'] =
                             infraMonitorAlertUtils.processDbNodeAlerts(obj);
-                        var alarms = getValueByJsonPath(d,'value;databaseNode;UVEAlarms;alarms',[]);
+                        var alarms = getValueByJsonPath(d,'value;UVEAlarms;alarms',[]);
                         if(cowu.getAlarmsFromAnalytics) {
                             obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
                                                             {
