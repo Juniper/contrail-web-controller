@@ -32,7 +32,7 @@ define(
                             }
                             cfDataSource.addCallBack('updateCFListModel',function(data) {
                                 //Update listUIModel with crossfilter data
-                                vRouterUIListModel.setData(cfDataSource.getFilteredData());
+                                vRouterUIListModel.setData(cfDataSource.getFilteredData().sort(dashboardUtils.sortNodesByColor));
                             });
                             this.renderView4Config(self.$el,
                                 vRouterUIListModel,

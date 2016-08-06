@@ -74,7 +74,7 @@ define(
                     if(data['cfg']['source'] != 'grid') {
                         //Need to get the data after filtering from dimensions other than gridFilter
                         var currGridFilter = cfDataSource.removeFilter('gridFilter');
-                        vRouterUIListModel.setData(cfDataSource.getDimension('gridFilter').top(Infinity));
+                        vRouterUIListModel.setData(cfDataSource.getDimension('gridFilter').top(Infinity).sort(dashboardUtils.sortNodesByColor));
                         if(currGridFilter != null) {
                             cfDataSource.applyFilter('gridFilter',currGridFilter);
                         }
