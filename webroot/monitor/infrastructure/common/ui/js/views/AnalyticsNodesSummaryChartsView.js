@@ -77,7 +77,7 @@ define(['underscore', 'contrail-view',
                                axisLabelFontSize: 11,
                                tickPadding: 8,
                                margin: {
-                                   left: 40,
+                                   left: 55,
                                    top: 35,
                                    right: 0,
                                    bottom: 40
@@ -168,7 +168,7 @@ define(['underscore', 'contrail-view',
                                axisLabelFontSize: 11,
                                tickPadding: 4,
                                margin: {
-                                   left: 50,
+                                   left: 55,
                                    top: 35,
                                    right: 0,
                                    bottom: 40
@@ -296,7 +296,7 @@ define(['underscore', 'contrail-view',
                                axisLabelFontSize: 11,
                                tickPadding: 8,
                                margin: {
-                                   left: 50,
+                                   left: 55,
                                    top: 35,
                                    right: 0,
                                    bottom: 40
@@ -390,7 +390,7 @@ define(['underscore', 'contrail-view',
                                axisLabelFontSize: 11,
                                tickPadding: 8,
                                margin: {
-                                   left: 40,
+                                   left: 55,
                                    top: 35,
                                    right: 0,
                                    bottom: 40
