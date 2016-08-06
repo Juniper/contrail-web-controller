@@ -15,7 +15,15 @@ define(['underscore', 'contrail-view',
                     if (self.model.isPrimaryRequestInProgress() == false
                             && callBackExecuted == false) {
                         callBackExecuted = true;
-                        configNodeList = self.model.getItems();
+                        if(self.model.loadedFromCache) {
+                            var cacheObj = cowch.getDataFromCache(ctwl.CACHE_CONFIGNODE),
+                            cacheListModel = getValueByJsonPath(cacheObj, 'dataObject;listModel');
+                            if (cacheListModel != null) {
+                                configNodeList = cacheListModel.getItems();
+                            }
+                        } else {
+                            configNodeList = self.model.getItems();
+                        }
                         var nodeColorMap = monitorInfraUtils.constructNodeColorMap(configNodeList);
                         var chartModel = new ConfigNodeChartsModel();
                         self.renderView4Config(self.$el, chartModel,

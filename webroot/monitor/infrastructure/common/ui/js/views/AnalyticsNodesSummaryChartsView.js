@@ -23,7 +23,15 @@ define(['underscore', 'contrail-view',
                     if (self.model.isPrimaryRequestInProgress() == false
                             && callBackExecuted == false) {
                         callBackExecuted = true;
-                        analyticsNodeList = self.model.getItems();
+                        if(self.model.loadedFromCache) {
+                            var cacheObj = cowch.getDataFromCache(ctwl.CACHE_ANALYTICSNODE),
+                            cacheListModel = getValueByJsonPath(cacheObj, 'dataObject;listModel');
+                            if (cacheListModel != null) {
+                                analyticsNodeList = cacheListModel.getItems();
+                            }
+                        } else {
+                            analyticsNodeList = self.model.getItems();
+                        }
                         var topleftColumn = self.$el.find(".top-container .left-column"),
                             toprightCoulmn = self.$el.find(".top-container .right-column"),
                             bottomleftColumn = self.$el.find(".bottom-container .left-column"),

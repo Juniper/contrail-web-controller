@@ -13,13 +13,12 @@ define([
              "table_name": "StatTable.SandeshMessageStat.msg_info",
               "table_type": "STAT",
               "query_prefix": "stat",
-              "time_range": "3600",
               "from_time": Date.now() - (2 * 60 * 60 * 1000),
               "from_time_utc": Date.now() - (2 * 60 * 60 * 1000),
               "to_time": Date.now(),
               "to_time_utc": Date.now(),
-              "select": "Source, T, UUID, msg_info.messages," +
-              " name",
+              "select": "Source, T=, SUM(msg_info.messages)",
+              "time_granularity": 150,
               "time_granularity_unit": "secs",
               "limit": "150000"
             },
