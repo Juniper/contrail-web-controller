@@ -315,7 +315,7 @@ define([
                                                                         templateId: cowc.TMPL_EDITABLE_GRID_TEXTAREA_VIEW,
                                                                         path: "operand1",
                                                                         dataBindValue: "operand1()",
-                                                                        width: 200,
+                                                                        width: 230,
                                                                         placeHolder: 'Operand1',
                                                                     }
                                                                 },
@@ -327,7 +327,7 @@ define([
                                                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                                         path: "operation",
                                                                         dataBindValue: "operation()",
-                                                                        width: 160,
+                                                                        width: 130,
                                                                         elementConfig: {
                                                                             dataTextField: 'text',
                                                                             dataValueField: 'id',
@@ -336,7 +336,6 @@ define([
                                                                                 type: 'local',
                                                                                 data: [
                                                                                    {
-                                                                                       id:"uve_attribute",
                                                                                        text:"UVE Key",
                                                                                        children: [
                                                                                           {
@@ -375,7 +374,6 @@ define([
                                                                                        ]
                                                                                    },
                                                                                    {
-                                                                                       id:"json_value",
                                                                                        text:"Value",
                                                                                        children: [
                                                                                                   {
