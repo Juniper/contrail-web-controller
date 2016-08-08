@@ -386,6 +386,10 @@ define([
         this.ANALYTICS_CHART_DATABASE_WRITE = "table_info.writes";
         this.ANALYTICS_CHART_DATABASE_WRITE_FAILS = "table_info.write_fails";
         this.ANALYTICS_NODES = 'Analytics Nodes';
+        this.CACHE_ANALYTICSNODE_SANDESH_CHARTS = 'cache-analyticsnode-sandesh-charts';
+        this.CACHE_ANALYTICSNODE_QUERIES_CHARTS = 'cache-analyticsnode-queries-charts';
+        this.CACHE_ANALYTICSNODE_DATABASEREADWRITE_CHARTS = 'cache-analyticsnode-databsereadwrite-charts';
+        this.CACHE_DATABASE_USAGE_CHARTS = 'cache-databse-usage-charts';
         //Config node labels
         this.CONFIGNODE_VIEWPATH_PREFIX = 'monitor/infrastructure/confignode/ui/js/views/';
         this.CONFIGNODE_SUMMARY_PAGE_ID = 'monitor-config-nodes';

@@ -28,7 +28,8 @@ define([
                 ajaxConfig : {
                     url : "/api/qe/query",
                     type: 'POST',
-                    data: JSON.stringify(queryPostData)
+                    data: JSON.stringify(queryPostData),
+                    timeout : 120000 //2 mins
                 },
                 dataParser : function (response) {
                     var stats = getValueByJsonPath(response, 'data', []);
@@ -41,7 +42,7 @@ define([
                 }
             },
             cacheConfig : {
-
+                ucid: ctwl.CACHE_DATABASE_USAGE_CHARTS
             }
         };
         var listModel = new ContrailListModel(listModelConfig)
