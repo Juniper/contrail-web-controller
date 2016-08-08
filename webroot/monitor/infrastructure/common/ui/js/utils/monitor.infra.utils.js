@@ -1234,7 +1234,12 @@ define([
          */
         self.getOverallNodeStatusForDetails = function (data){
             var statusObj = this.getNodeStatusForSummaryPages(data);
-            var templateData = {result:statusObj['alerts'],showMore:true,defaultItems:1};
+            var templateData = {
+                result : statusObj['alerts'],
+                sevColor : statusObj['sevColor'],
+                showMore : true,
+                defaultItems : 1
+            };
             return contrail.getTemplate4Id('overallNodeStatusTemplate')(templateData);
         }
 
@@ -1265,10 +1270,7 @@ define([
             result['nodeSeverity'] = data['alerts'][0] != null ?
                     data['alerts'][0]['sevLevel'] : sevLevels['INFO'];
             result['messages'] = msgs;
-             var statusTemplate = contrail.getTemplate4Id('statusTemplate');
-            if(page == 'summary')
-                return statusTemplate({sevLevel:result['nodeSeverity'],
-                    sevLevels:sevLevels});
+            result['sevColor'] = data['color'];
             return result;
         }
         /**
@@ -1971,7 +1973,10 @@ define([
         Handlebars.registerHelper('renderStatusTemplate', function(sevLevel, options) {
             var selector = '#statusTemplate',
                 source = $(selector).html(),
-                html = Handlebars.compile(source)({sevLevel:sevLevel,sevLevels:sevLevels});
+                 html = Handlebars.compile(source)({
+                        color : cowc.COLOR_SEVERITY_MAP[cowc.SEV_TO_COLOR_MAP[sevLevel]],
+                        colorSevMap : cowc.COLOR_SEVERITY_MAP
+                    });
             return new Handlebars.SafeString(html);
         });
 

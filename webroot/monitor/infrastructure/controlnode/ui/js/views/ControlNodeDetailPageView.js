@@ -368,9 +368,10 @@ define([
         try{
             overallStatus = monitorInfraUtils.
                 getOverallNodeStatusForDetails(obj);
-        }catch(e){overallStatus = "<span> "+statusTemplate({
-                sevLevel:sevLevels['ERROR'],
-                sevLevels:sevLevels})+" Down</span>";}
+        }catch(e){
+            overallStatus = "<span> "+ statusTemplate({color:'red',
+                colorSevMap:cowc.COLOR_SEVERITY_MAP})+" Down</span>";
+        }
 
         try{
             //Add the process status list with uptime
