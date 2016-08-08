@@ -11,7 +11,8 @@ define([
     //Remove all query references once it is moved to core
 ], function (_, Knockback, ContrailView, ContrailListModel, ControlNodeRoutesModel) {
     var routingInstancesDropdownList = [{text:'All',value:'All'}],
-    backwardRouteStack = [], forwardRouteStack = [], filteredPrefix = '', routInstance = '';
+    backwardRouteStack = [], forwardRouteStack = [], filteredPrefix = '', 
+    routInstance = '', showRouteStack = [];
     var ControlNodeRoutesFormView = ContrailView.extend({
         render: function (options) {
             var self = this, viewConfig = self.attributes.viewConfig,
@@ -107,7 +108,7 @@ define([
                         ajaxConfig : routesRemoteConfig,
                         dataParser : function (response) {
                             var selValues = {};
-                            backwardRouteStack = []; forwardRouteStack = [];
+                            backwardRouteStack = []; forwardRouteStack = [],showRouteStack = [];
                             var parsedData = monitorInfraParsers.
                                         parseRoutes(response,routesQueryString);
                             if(getValueByJsonPath(response[0],'ShowRouteResp;tables;list','') !== ''){
@@ -143,7 +144,8 @@ define([
                 }else{
                     prefix = showRoute[0].prefix;
                 }
-                if(checkNonExistRoute(backwardRouteStack, routingTable, prefix)){
+                if(showRouteStack.length === 0){
+                    showRouteStack.push(showRouteTable);
                     backwardRouteStack.push({
                         limit: routesQueryString.limit,
                         startRoutingTable: routingTable,
@@ -152,18 +154,19 @@ define([
                         prefix: filteredPrefix,
                         routingInst:routInstance
                     });
-                }
-            };
-            var checkNonExistRoute = function(existingStack,routeTable,prefix){
-                var nonExistRecord = false;
-                if(existingStack.length !== 0){
-                    var lastRecord = existingStack[existingStack.length - 1];
-                    if(lastRecord.startRoutingTable !== routeTable){
-                        nonExistRecord = true;
-                    }
-                 return nonExistRecord;
                 }else{
-                    return true;
+                    var previousObj = showRouteStack[showRouteStack.length - 1];
+                    if(!_.isEqual(previousObj, showRouteTable)){
+                        showRouteStack.push(showRouteTable);
+                        backwardRouteStack.push({
+                            limit: routesQueryString.limit,
+                            startRoutingTable: routingTable,
+                            startRoutingInstance: routingInstance,
+                            startPrefix: prefix,
+                            prefix: filteredPrefix,
+                            routingInst:routInstance
+                        });
+                    }
                 }
             };
             var forwardRoutes = function(model){
