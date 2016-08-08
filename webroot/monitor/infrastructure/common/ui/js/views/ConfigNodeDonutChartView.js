@@ -33,7 +33,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                          response, ['GET'], colorMap);
                             },
                             chartOptions: {
-                                height: 205,
+                                height: 170,
                                 margin: {
                                     top: 10,
                                     bottom: 10
@@ -56,7 +56,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                          response, ['POST', 'PUT', 'DELETE'], colorMap);
                             },
                             chartOptions: {
-                                height: 205,
+                                height: 170,
                                 margin: {
                                     bottom: 10,
                                     top: 10
