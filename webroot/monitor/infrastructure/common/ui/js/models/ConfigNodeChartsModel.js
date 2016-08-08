@@ -35,7 +35,8 @@ define([
                 ajaxConfig : {
                     url : "/api/qe/query",
                     type: 'POST',
-                    data: JSON.stringify(queryPostData)
+                    data: JSON.stringify(queryPostData),
+                    timeout : 120000 //2 mins
                 },
                 dataParser : function (response) {
                     listModel.queryJSON = response['queryJSON'];
@@ -43,7 +44,7 @@ define([
                 }
             },
             cacheConfig : {
-
+                ucid: ctwl.CACHE_CONFIGNODE_CHARTS
             }
         };
         var listModel = new ContrailListModel(listModelConfig)
