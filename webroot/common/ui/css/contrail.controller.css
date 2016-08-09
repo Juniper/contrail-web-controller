@@ -239,7 +239,7 @@ div.vis-network canvas{
     width:23.08% !important;
 }
 #bgp-grid ul.item-list .value{
-    width:57.26%; !important;
+    width:57.26% !important;
 }
 
 
@@ -274,7 +274,11 @@ div.vis-network canvas{
 #bgp-grid .value th, #config-vn-list .value th, #service-instances-grid .value th{
     font-weight:600;
     border-bottom:#777 solid 1px;
-    padding-bottom:2px;}
+    padding-bottom:2px;
+    text-align:left;
+}
+#port-grid-id .value th{
+    text-align:left;}
 #bgp-grid .value tr td{
     border-bottom:#f5f5f5 solid 1px;
     vertical-align:top;}
@@ -305,11 +309,11 @@ div.vis-network canvas{
 #bgp-grid ul.item-list .key, #config-vn-list ul.item-list .key, #service-instances-grid ul.item-list .key{
     width:23.08% !important;
 }
-#bgp-grid ul.item-list .value, #service-instances-grid ul.item-list .value{
+#service-instances-grid ul.item-list .value{
     width:57.26% !important;
     vertical-align:top;
 }
-#config-vn-list ul.item-list .value{
+#config-vn-list ul.item-list .value,#bgp-grid ul.item-list .value{
     width:76.26%!important;
     vertical-align:top;}
 div#peer_selection_section {
