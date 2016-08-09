@@ -78,13 +78,16 @@ define([
                         var vars = andRuleObj.variables()();
                         if (vars != null && vars != "" && typeof vars == 'string') {
                             vars = vars.split(',')
+                            vars = $.map(vars, $.trim);
                         } else if (vars == "") {
                             vars = [];
                         }
                         var operation = andRuleObj.operation()();
                             operationArr = operation.split(cowc.DROPDOWN_VALUE_SEPARATOR),
                             operand2 = andRuleObj.operand2()(),
+                            operand1 = andRuleObj.operand1()(),
                             operand2Obj = {};
+                            operand2 = operand2.toString().trim();
                         if (operationArr[1] == 'uve_attribute') {
                             operand2Obj = {
                                 uve_attribute: operand2
@@ -95,7 +98,7 @@ define([
                             }
                         }
                         andRulePostObjArr.push({
-                            operand1: andRuleObj.operand1()(),
+                            operand1: operand1.toString().trim(),
                             operand2: operand2Obj,
                             operation: operationArr[0],
                             variables: vars
