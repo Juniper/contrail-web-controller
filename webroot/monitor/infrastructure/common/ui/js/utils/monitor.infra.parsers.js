@@ -14,7 +14,7 @@ define(
 
                 //Parser for controlnode Dashboard data
                 this.parseControlNodesDashboardData = function (result) {
-
+                    result = ifNull(result,[]);
                     var retArr = [];
                     $.each(result,function(idx,d) {
                         var obj = {};
@@ -184,6 +184,7 @@ define(
 
                 //Parser for vRouters data
                 this.parsevRoutersDashboardData = function (result) {
+                    result = ifNull(result,[]);
                     var retArr = [];
                     if(result.data != null) {
                         result = result.data;
@@ -371,7 +372,7 @@ define(
 
               //Parser for analytics node dashboard data
                 this.parseAnalyticsNodesDashboardData = function (result) {
-
+                    result = ifNull(result,[]);
                     var retArr = [];
                     $.each(result, function(idx, d) {
                         var obj = {};
@@ -482,6 +483,7 @@ define(
                 };
 
                 this.parseConfigNodesDashboardData = function (result) {
+                    result = ifNull(result,[]);
                     var retArr = [];
                     $.each(result,function(idx,d) {
                         var obj = {};
@@ -589,7 +591,7 @@ define(
 
                 //Parser for DBNode
                 this.parseDatabaseNodesDashboardData = function (result) {
-
+                    result = ifNull(result,[]);
                     var retArr = [];
                     $.each(result,function(idx,d) {
                         var obj = {};

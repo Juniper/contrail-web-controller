@@ -37,7 +37,6 @@ define([
                 }
             },
             cacheConfig : {
-                ucid: ctwl.CACHE_ANALYTICSNODE_DATABASEREADWRITE_CHARTS
             }
         };
 
