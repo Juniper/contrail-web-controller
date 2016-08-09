@@ -133,6 +133,7 @@ define([
             if(self.model().isValid(true, "userDefinedCounterValidation")) {
               newUserDefinedCounterConfig =
                     $.extend({}, true, self.model().attributes);
+              newUserDefinedCounterConfig['pattern'] = newUserDefinedCounterConfig['pattern'].toString().trim();
               ctwu.deleteCGridData(newUserDefinedCounterConfig);
                 //Fetch the current global-system-config
               var deferredObj = $.Deferred();
@@ -147,15 +148,18 @@ define([
                        currentUserDefinedCounterList.push(newUserDefinedCounterConfig);
                    }
                    else{
+                       var found = false;
                        for (var i = 0; i < currentUserDefinedCounterList.length; i++) {
                            if (currentUserDefinedCounterList[i]['name'] ==
                                newUserDefinedCounterConfig['name']) {
+                               found = true;
                                currentUserDefinedCounterList[i]['pattern'] =
                                    newUserDefinedCounterConfig['pattern'];
-                           } else {
-                               currentUserDefinedCounterList.
-                                   push(newUserDefinedCounterConfig);
                            }
+                       }
+                       if (!found) {
+                           currentUserDefinedCounterList.
+                               push(newUserDefinedCounterConfig);
                        }
                    }
                    self.configureUserDefinedCounter(callbackObj,
