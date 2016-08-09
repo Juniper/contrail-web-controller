@@ -1056,7 +1056,7 @@ define([
                     newPortData.service_health_check_refs[0].to = healthCheckArr[0].split(":");
                     newPortData.service_health_check_refs[0].uuid = healthCheckArr[1];
                 } else {
-                    newPortData.service_health_checks_refs = [];
+                    newPortData.service_health_check_refs = [];
                 }
 
          //QoS
