@@ -99,7 +99,9 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'mon-infra-controller-dashboard': ctWebDir + '/monitor/infrastructure/dashboard/ui/js/views/ControllerDashboardView',
 
             'controller-init': ctWebDir + '/common/ui/js/controller.init',
-            'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module'
+            'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
+
+            'monitor-infra-databasenode-cpu-mem-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodeCPUMemChartModel'
         }
     } else if(env == "prod") {
         return {
