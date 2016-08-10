@@ -44,6 +44,11 @@ define(['contrail-list-model'], function(ContrailListModel) {
                                 if(!fetchedContrailListModel.error) {
                                     contrailListModel.setData(data);
                                 }
+                                if (contrailListModel.ucid != null) {
+                                    cowch.setData2Cache(contrailListModel.ucid, {
+                                        listModel: fetchedContrailListModel
+                                    });
+                                }
                             },
                             dataParser : monitorInfraParsers.parsevRoutersDashboardData,
                         },
