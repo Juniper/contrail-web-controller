@@ -4,17 +4,24 @@
 .mon-infra-chart g.nv-barsWrap g.nv-group {
     fill-opacity: 1 !important;
 }
-#analytics-nodes-chart .contrail-legend text,  #config-nodes-chart .contrail-legend text{
+#analytics-nodes-chart .contrail-legend text, 
+#database-nodes-chart .contrail-legend text, 
+#config-nodes-chart .contrail-legend text{
     font: normal 11px Open Sans;
     opacity: 1;
 }
-#analytics-nodes-chart .contrail-chart-title text, #config-nodes-chart .contrail-chart-title text  {
+#analytics-nodes-chart .contrail-chart-title text, 
+#config-nodes-chart .contrail-chart-title text  {
     font-size: 11px;
 }
-#config-nodes-chart, #analytics-nodes-chart{
+#config-nodes-chart, 
+#analytics-nodes-chart, 
+#database-nodes-chart{
     margin-top:15px !important;
 }
-#config-nodes-chart .chart-container g.main text.axis-label, #config-nodes-donutchart-section g.contrail-chart-title text, #config-nodes-linebarchart .nv-axislabel{
+#config-nodes-chart .chart-container g.main text.axis-label, 
+#config-nodes-donutchart-section g.contrail-chart-title text, 
+#config-nodes-linebarchart .nv-axislabel{
     text-anchor:middle !important;
     font-weight:600 !important;
     font-size:11px !important;
@@ -25,12 +32,21 @@
 #config-nodes-linebarchart{
     width:43% !important;
 }
-#analytics-chart-sandesh-stackedbarchart-id .chart-container g.main text.axis-label, #analytics-chart-queries-stackedbarchart-id .chart-container g.main text.axis-label, #analytics-chart-database-read-stackedbarchart-id .chart-container g.main text.axis-label,  #analytics-chart-database-write-stackedbarchart-id .chart-container g.main text.axis-label{
+#analytics-chart-sandesh-stackedbarchart-id .chart-container g.main text.axis-label, 
+#analytics-chart-queries-stackedbarchart-id .chart-container g.main text.axis-label, 
+#analytics-chart-database-read-stackedbarchart-id .chart-container g.main text.axis-label,  
+#analytics-chart-database-write-stackedbarchart-id .chart-container g.main text.axis-label,
+#database-nodes-disk-sapce-scatter-chart .chart-container g.main text.axis-label,
+#database-nodes-cpu-line-chart text.nv-axislabel,
+#database-nodes-mem-line-chart text.nv-axislabel{
     text-anchor:middle;
     font-weight:600;
     font-size:11px !important;
 }
 #analytics-nodes-chart .chartMargin{
     margin:0 10px 0 10px !important;
+}
+#database-nodes-chart .chartMargin{
+    margin:0 10px -15px 10px !important;
 }
 /******Config Node chart and Analytics node chart Ends here****/
