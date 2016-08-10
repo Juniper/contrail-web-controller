@@ -1374,10 +1374,18 @@ define([
                     })
                 }
                 var ipDeferredObj = $.Deferred();
+                var footerlinks = [];
+                if (type == 'ApiServer') {
+                    footerlinks.push({
+                        name:'documentation',
+                        onClick: function () {
+                                    window.open('/documentation/contrail_openapi.html');
+                              }
+                      });
+                }
                 self.getReachableIpFromList(ipPortList,
                                             ipDeferredObj);
                 ipDeferredObj.done (function (res){
-                    var footerlinks = [];
                     if (res != null) {
                         footerlinks.push({
                           name:'introspect',
