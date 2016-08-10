@@ -2305,6 +2305,68 @@ define(
                     var ret = ifNotNumeric(cpu,noCpuText)
                     return ret;
                 }
+
+                self.getDBNodeCPUdata = function(respData, grpKey, timeKey, dataKey){
+                    var parsedData = [],
+                        cf = crossfilter(respData),
+                        groupDim = cf.dimension(function(d) { return d[grpKey];}),
+                        tsDim = cf.dimension(function (d) {return d[timeKey];}),
+                        buckets = self.bucketizeConfigNodeStats(respData),
+                        colorCodes = monitorInfraUtils.getMonitorInfraNodeColors(groupDim.group().all().length),
+                        colorCodes = colorCodes.slice(0, groupDim.group().all().length),
+                        i, j,
+                        timestampExtent,
+                        nodeGrp,
+                        dataGrp,
+                        dataGrpMap = {},
+                        dataGrpArr = [], 
+                        arrLen = 0,
+                        dataCnt = 0,
+                        lineDataMap = {},
+                        grpCountsArr = [],
+                        grpCountsMap = {}; 
+
+                    nodeGrp =  groupDim.group().all();
+                    arrLen = nodeGrp.length;
+
+                    for(j = 0; j < arrLen; j++) {
+                        lineData = {};
+                        lineData['key'] = nodeGrp[j]['key'];
+                        lineData['values'] = [];
+                        lineData['color'] = colorCodes[j];
+                        lineData['colorCodes'] = colorCodes;
+                        lineDataMap[nodeGrp[j]['key']] = lineData;
+                    }
+
+                    for(i in buckets){
+                        timestampExtent = buckets[i]['timestampExtent'];
+                        tsDim.filter(timestampExtent);
+                        dataGrp = groupDim.group().reduceSum(function (d) {
+                            return d[dataKey];
+                        });
+                        
+                        grpCountsArr = groupDim.group().reduceCount().all();
+                        arrLen = grpCountsArr.length;
+                        for (j = 0; j < arrLen; j++) {
+                            grpCountsMap[grpCountsArr[j]['key']] = grpCountsArr[j]['value'];
+                        }
+
+                        dataGrpArr = dataGrp.top(Infinity);
+                        arrLen = dataGrpArr.length;
+                        for(j = 0; j < arrLen; j++){
+                            if(lineDataMap[dataGrpArr[j]['key']])
+                                lineDataMap[dataGrpArr[j]['key']]['values'].push(
+                                        {x: Math.round(i/1000), 
+                                            y: dataGrpArr[j]['value'] / grpCountsMap[dataGrpArr[j]['key']]});
+                        }
+                    }
+                    
+                    for(i in lineDataMap){
+                        parsedData.push(lineDataMap[i]);
+                    }
+                    
+                    return parsedData;
+                };
             };
 
             return MonInfraParsers;
