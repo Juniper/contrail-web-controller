@@ -23,7 +23,7 @@ define(
                                     ctwl.DATABASENODE_SUMMARY_CHART_ID,
                                 title : ctwl.DATABASENODE_SUMMARY_TITLE,
                                 app : cowc.APP_CONTRAIL_CONTROLLER,
-                                view : "DatabaseNodeScatterChartView",
+                                view : "DatabaseNodeSummaryChartsView",
                                 viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
                                 viewConfig: {
                                     widgetConfig: {
