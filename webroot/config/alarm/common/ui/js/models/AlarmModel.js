@@ -14,7 +14,7 @@ define([
         defaultConfig: {
             name: null,
             display_name: null,
-            alarm_severity: 4, //Default minor severity
+            alarm_severity: 2, //Default minor severity
             uve_keys: {
                 uve_key: []
             },
@@ -81,10 +81,23 @@ define([
                         } else if (vars == "") {
                             vars = [];
                         }
+                        var operation = andRuleObj.operation()();
+                            operationArr = operation.split(cowc.DROPDOWN_VALUE_SEPARATOR),
+                            operand2 = andRuleObj.operand2()(),
+                            operand2Obj = {};
+                        if (operationArr[1] == 'uve_attribute') {
+                            operand2Obj = {
+                                uve_attribute: operand2
+                            }
+                        } else if (operationArr[1] == 'json_value') {
+                            operand2Obj = {
+                                json_value: operand2
+                            }
+                        }
                         andRulePostObjArr.push({
                             operand1: andRuleObj.operand1()(),
-                            operand2: andRuleObj.operand2()(),
-                            operation: andRuleObj.operation()(),
+                            operand2: operand2Obj,
+                            operation: operationArr[0],
                             variables: vars
                         });
                     }
