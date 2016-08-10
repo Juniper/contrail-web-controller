@@ -8,7 +8,8 @@ define(
                 _, ContrailView, ConfigNodeListModel) {
             var ConfigNodeListView = ContrailView.extend({
                 render : function() {
-                    this.renderView4Config(this.$el, null,
+                    var configNodeListModel = new ConfigNodeListModel();
+                    this.renderView4Config(this.$el, configNodeListModel,
                             getConfigNodeListViewConfig());
                 }
             });
