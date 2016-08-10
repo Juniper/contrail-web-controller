@@ -156,8 +156,7 @@ define([
         subscribePeerModelChangeEvents: function(peerModel) {
             peerModel.__kb.view_model.model().on('change:user_created_auth_key_type',
                 function(model, newValue){
-                     var currPeer = self.getCurrentPeer(
-                         this.attributes.peerName);
+                     var currPeer = self.getCurrentPeer(model.cid);
                     if(newValue === 'none') {
                         currPeer.user_created_auth_key('');
                         currPeer.disableAuthKey(true);
@@ -201,11 +200,11 @@ define([
             data.model().collection.remove(kbInterface.model());
         },
 
-        getCurrentPeer: function(name){
+        getCurrentPeer: function(id){
             var model;
             var peers = this.model().attributes['peers'].toJSON();
             for(var i = 0; i < peers.length; i++) {
-                if(peers[i].peerName() === name) {
+                if(peers[i].model().cid === id) {
                     model = peers[i];
                     break;
                 }
