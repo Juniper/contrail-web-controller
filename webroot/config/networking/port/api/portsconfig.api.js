@@ -1393,6 +1393,15 @@ function getReadDelVMICb (err, vmiData, request, appData, callback)
         updateDataObjArrWithRefObj (DataObjectArr, subnetRef, currentVMIRef,
                              urlRef, "DELETE", appData);
     }
+    //BGP as a Service Reference
+    var bgpaasBackRefs = commonUtils.getValueByJsonPath(vmiData,
+            "virtual-machine-interface;bgp_as_a_service_back_refs",
+            null, false);
+    if(bgpaasBackRefs) {
+        urlRef = "bgp-as-a-service";
+        updateDataObjArrWithRefObj(DataObjectArr, bgpaasBackRefs, currentVMIRef,
+                urlRef, "DELETE", appData);
+    }
     //Instance IP
     if ('instance_ip_back_refs' in vmiData['virtual-machine-interface']) {
         fixedipPoolRef = vmiData['virtual-machine-interface']['instance_ip_back_refs'];
