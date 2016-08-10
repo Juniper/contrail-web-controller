@@ -200,7 +200,7 @@ define([
                             disabled: isDisable,
                             placeholder: 'Enter Route Table Name',
                             path: 'display_name',
-                            class: 'span9',
+                            class: 'col-xs-9',
                             dataBindValue: 'display_name',
                             placeHolder: 'Security Group Name',
                         }
@@ -218,20 +218,21 @@ define([
                         view: 'FormEditableGridView',
                         viewConfig: {
                             path: 'routes',
+                            class: 'col-xs-12',
                             collection: 'routes',
                             validation: 'rtTableRoutesValidation',
                             templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
-                            class: "span12",
+                            class: "col-xs-12",
                             columns: getRouteTableColViewConfigs(),
                             rowActions: [
                                 { onClick: "function() { $root.addRtTable($data, this); }",
-                                  iconClass: 'icon-plus'},
+                                  iconClass: 'fa fa-plus'},
                                 { onClick: "function() { $root.deleteRtTable($data, this); }",
-                                  iconClass: 'icon-minus'},
+                                  iconClass: 'fa fa-minus'},
                             ],
                             gridActions: [
                                 { onClick: "function() { $root.addRtTable(); }",
-                                  iconClass: 'icon-plus',
+                                  iconClass: 'fa fa-plus',
                                   buttonTitle: ''}
                             ]
                         }

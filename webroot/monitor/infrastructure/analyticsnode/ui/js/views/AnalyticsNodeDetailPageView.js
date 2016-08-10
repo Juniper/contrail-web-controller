@@ -114,7 +114,7 @@ define([
             templateGeneratorConfig: {
                 columns: [
                     {
-                        class: 'span12',
+                        class: 'col-xs-12',
                         rows: [
                             {
                                 title: 'Analytics Node',

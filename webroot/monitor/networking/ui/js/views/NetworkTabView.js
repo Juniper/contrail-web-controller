@@ -162,7 +162,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     rows: [
                                         {
                                             title: ctwl.TITLE_NETWORK_DETAILS,
@@ -203,7 +203,7 @@ define([
                                     ]
                                 },
                                 {
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     rows: [
                                         {
                                             title: ctwl.TITLE_TRAFFIC_DETAILS,
@@ -243,7 +243,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     rows: [
                                         {
                                             title: ctwl.TITLE_VRF_STATS,

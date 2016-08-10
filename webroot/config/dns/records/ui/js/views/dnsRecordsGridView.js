@@ -129,7 +129,7 @@ define([
                     },
                     errorGettingData: {
                         type: 'error',
-                        iconClasses: 'icon-warning',
+                        iconClasses: 'fa fa-warning',
                         text: 'Error in getting DNS Records.'
                     }
                 }
@@ -176,7 +176,7 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'span6',
+                            class: 'col-xs-6',
                             rows: [{
                                 title: "DNS Records",
                                 templateGenerator: 'BlockListTemplateGenerator',
@@ -272,7 +272,7 @@ define([
         var headerActionConfig = [{
             "type": "link",
             "title": ctwl.TITLE_DNS_RECORD_MULTI_DELETE,
-            "iconClass": 'icon-trash',
+            "iconClass": 'fa fa-trash',
             "linkElementId": 'btnActionDelDNS',
             "onClick": function() {
 
@@ -297,7 +297,7 @@ define([
         }, {
             "type": "link",
             "title": ctwl.TITLE_CREATE_DNS_RECORD,
-            "iconClass": "icon-plus",
+            "iconClass": "fa fa-plus",
             "onClick": function() {
                 var dnsRecordsModel = new DnsRecordsModel();
                 dnsRecordsModel.dnsServerData = viewConfig.dnsServerData;

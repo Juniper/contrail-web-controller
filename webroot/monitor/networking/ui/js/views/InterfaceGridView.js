@@ -139,7 +139,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     rows: [
                                         {
                                             title: ctwl.TITLE_INTERFACE_DETAILS,
@@ -217,7 +217,7 @@ define([
                                     ]
                                 },
                                 {
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     rows: [
                                         {
                                             title: ctwl.TITLE_TRAFFIC_DETAILS,

@@ -254,13 +254,13 @@ define([
                                                 }
                                             }
                                         },
-                                        class: "span6"
+                                        class: "col-xs-6"
                                     }
                                 },{
                                     elementId: 'vrouter_routes_radio',
                                     view: "FormRadioButtonView",
                                     viewConfig: {
-                                        class: 'span6',
+                                        class: 'col-xs-6',
                                         path:'route_type',
                                         dataBindValue:'route_type',
                                         elementConfig: {

@@ -162,7 +162,7 @@ define([
                                 view: 'FormInputView',
                                 viewConfig: {
                                     path: 'name',
-                                    class: 'span4',
+                                    class: 'col-xs-4',
                                     dataBindValue: 'name',
                                     disabled: disableOnEdit
                                 }
@@ -172,7 +172,7 @@ define([
                                 view: "FormDropdownView",
                                 viewConfig: {
                                     path : 'virtual_router_type',
-                                    class: 'span4',
+                                    class: 'col-xs-4',
                                     dataBindValue : 'virtual_router_type',
                                     elementConfig : {
                                         dataTextField : "text",
@@ -193,7 +193,7 @@ define([
                                 view: 'FormInputView',
                                 viewConfig: {
                                     path: 'virtual_router_ip_address',
-                                    class: 'span4',
+                                    class: 'col-xs-4',
                                     dataBindValue: 'virtual_router_ip_address'
                                 }
                             }

@@ -77,7 +77,7 @@ define([
                                     elementId: 'where', view: "FormTextAreaView",
                                     viewConfig: {
                                         path: 'where', dataBindValue: 'where',
-                                        class: "span5", placeHolder: "*",
+                                        class: "col-xs-5", placeHolder: "*",
                                         editPopupConfig: {
                                             renderEditFn: function() {
                                                 self.renderWhere();
@@ -90,7 +90,7 @@ define([
                                     viewConfig: {
                                         path: 'time_range',
                                         dataBindValue: 'time_range',
-                                        class: "span2",
+                                        class: "col-xs-2",
                                         elementConfig: {
                                             dataTextField: "text",
                                             dataValueField: "id",
@@ -104,7 +104,7 @@ define([
                                         style: 'display: none;',
                                         path: 'from_time',
                                         dataBindValue: 'from_time',
-                                        class: "span2",
+                                        class: "col-xs-2",
                                         elementConfig:
                                             getFromTimeElementConfig('from_time', 'to_time'),
                                         visible: "time_range() == -1"
@@ -116,7 +116,7 @@ define([
                                         style: 'display: none;',
                                         path: 'to_time',
                                         dataBindValue: 'to_time',
-                                        class: "span2",
+                                        class: "col-xs-2",
                                         elementConfig:
                                             getToTimeElementConfig('from_time', 'to_time'),
                                         visible: "time_range() == -1"
@@ -125,7 +125,7 @@ define([
                                     elementId: 'limit', view: "FormDropdownView",
                                     viewConfig: {
                                         path: 'limit',
-                                        dataBindValue: 'limit', class: "span1",
+                                        dataBindValue: 'limit', class: "col-xs-1",
                                         elementConfig: {
                                             dataTextField: "text",
                                             dataValueField: "id",

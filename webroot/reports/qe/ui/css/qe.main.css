@@ -1,16 +1,10 @@
+/* Copyright (c) 2016 Juniper Networks, Inc. All rights reserved. */
+
 textarea[name="select"] {
     max-height: 100px !important;
 }
 .select-label {
     width: 100%; text-overflow: ellipsis; overflow-x: hidden;
-}
-.advanced-options-link{
-    font-size:10px;
-    color:#999;
-    cursor:pointer;
-}
-.advanced-options-link:hover{
-    color:#3182bd;
 }
 .where-textarea, .filter-textarea {
     padding-right: 30px;
@@ -64,10 +58,10 @@ textarea[name="select"] {
 .or-clause-item .new-or-text {
     padding: 0 5px;
 }
-.or-clause-item .icon-remove{
+.or-clause-item .fa-remove{
     color:#aaa;
 }
-.and-clause-item .icon-remove{
+.and-clause-item .fa-remove{
     font-size:11px;
 }
 a.selectAllLink{
@@ -101,10 +95,10 @@ a.selectAllLink:hover {
 .or-clause-collection .or-clause:first-child .or-text {
     visibility: hidden;
 }
-.or-clause-collection > .or-clause.row-fluid > .span1 {
+.or-clause-collection > .or-clause.row-fluid > .col-xs-1 {
     width: 3%;
 }
-.or-clause-collection > .or-clause.row-fluid > .span10 {
+.or-clause-collection > .or-clause.row-fluid > .col-xs-10 {
     width: 89.2%;
 }
 .or-clause-collection .or-text {
@@ -112,7 +106,7 @@ a.selectAllLink:hover {
     color: #000;
     padding: 10px 0 0;
     font-weight: normal;
-    float: right;
+    text-align: center;
 }
 .or-clause-collection .or-clause-text {
     padding: 5px 10px;

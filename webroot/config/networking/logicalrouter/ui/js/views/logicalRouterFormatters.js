@@ -50,13 +50,13 @@ define([
                dc["virtual_machine_interface_refs"].length > 0) {
                 var vmi = dc["virtual_machine_interface_refs"];
                 var vmi_len = vmi.length;
-                var interfaceDetailStr = "<table class='span12'>";
+                var interfaceDetailStr = "<table class='col-xs-12'>";
                 interfaceDetailStr +=
-                              "<tr><th class='span3'><label>UUID</label></th>";
+                              "<tr><th class='col-xs-3'><label>UUID</label></th>";
                 interfaceDetailStr +=
-                              "<th class='span3'><label>Network</label></th>";
+                              "<th class='col-xs-3'><label>Network</label></th>";
                 interfaceDetailStr +=
-                              "<th class='span3'><label>IP</label></th></tr>";
+                              "<th class='col-xs-3'><label>IP</label></th></tr>";
 
                 for(var inc = 0 ; inc < vmi_len ;inc++){
                     if("virtual_network_refs" in vmi[inc]){

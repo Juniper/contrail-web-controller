@@ -153,7 +153,7 @@ define([
                                         dataBindValue: "name",
                                         label: "Name",
                                         placeholder: "Enter Analyzer Name",
-                                        class: "span6"
+                                        class: "col-xs-6"
                                     }
                                 },
                                 {
@@ -164,7 +164,7 @@ define([
                                         path: "service_instance_properties.interface_list[0].virtual_network",
                                         dataBindValue: "service_instance_properties().interface_list[0].virtual_network",
                                         label: "Virtual Network",
-                                        class: "span6",
+                                        class: "col-xs-6",
                                         elementConfig : {
                                             placeholder: "Select Virtual Network",
                                             dataValueField: "value",
@@ -184,7 +184,7 @@ define([
                                         path: "user_created_associate_networks",
                                         dataBindValue: "user_created_associate_networks",
                                         label: "Associate Networks",
-                                        class: "span12",
+                                        class: "col-xs-12",
                                         elementConfig : {
                                             placeholder: "Select Networks",
                                             dataValueField: "value",
@@ -303,13 +303,13 @@ define([
                                                {
                                                    onClick: "function() {\
                                                    $root.addRule(); }",
-                                                   iconClass: 'icon-plus'
+                                                   iconClass: 'fa fa-plus'
                                                },
                                                {
                                                    onClick: "function() {\
                                                    $root.deleteRule($data, this)\
                                                    ;}",
-                                                   iconClass: 'icon-minus'
+                                                   iconClass: 'fa fa-minus'
                                                }
                                            ],
                                            gridActions: [

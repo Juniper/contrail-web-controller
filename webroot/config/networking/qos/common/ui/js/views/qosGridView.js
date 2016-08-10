@@ -142,7 +142,7 @@ define([
         if(viewConfig && viewConfig.isGlobal) {
             var dropdownActions = [
                 {
-                    "iconClass": "icon-plus",
+                    "iconClass": "fa fa-plus",
                     "title": "Add",
                     "readOnly" : true
                 },
@@ -186,14 +186,14 @@ define([
             createTemplate = {
                     "type": "dropdown",
                     "title": ctwl.TITLE_CREATE_QOS,
-                    "iconClass": "icon-plus",
+                    "iconClass": "fa fa-plus",
                     "linkElementId": 'btnCreateQOS',
                     "actions": dropdownActions };
         } else {
             createTemplate = {
                     "type" : "link",
                     "title" : ctwl.TITLE_CREATE_QOS,
-                    "iconClass" : "icon-plus",
+                    "iconClass" : "fa fa-plus",
                     "onClick" : function() {
                         var gridObj = $(gridElId).data('contrailGrid'),
                             gridData = gridObj._dataView.getItems(),
@@ -216,7 +216,7 @@ define([
             {
                 "type" : "link",
                 "title" : ctwl.TITLE_QOS_MULTI_DELETE,
-                "iconClass": 'icon-trash',
+                "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnDeleteQOS',
                 "onClick" : function() {
                     var gridObj = $(gridElId).data('contrailGrid'),

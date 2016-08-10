@@ -410,7 +410,7 @@ define([
                             path: 'policyName',
                             label:'Policy Name',
                             dataBindValue: 'policyName',
-                            class: "span6"}
+                            class: "col-xs-6"}
                     }]
                 },{
                     columns: [{
@@ -420,16 +420,17 @@ define([
                         viewConfig: {
                             label:"Policy Rule(s)",
                             path: "PolicyRules",
+                            class: 'col-xs-12',
                             validation: 'ruleValidation',
                             templateId: cowc.TMPL_COLLECTION_HEADING_VIEW,
                             collection: "PolicyRules",
                             rows:[{
                                rowActions: [
                                    {onClick: "function() { $root.addRule(); }",
-                                   iconClass: 'icon-plus'},
+                                   iconClass: 'fa fa-plus'},
                                    {onClick:
                                    "function() { $root.deleteRules($data, this); }",
-                                    iconClass: 'icon-minus'}
+                                    iconClass: 'fa fa-minus'}
                                ],
                             columns: [
                                 {
@@ -552,7 +553,7 @@ define([
                                     view:
                                         "FormHierarchicalDropdownView",
                                     name: 'Destination',
-                                    class: "span2",
+                                    class: "col-xs-2",
                                     width: 200,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
@@ -664,7 +665,7 @@ define([
                                      width: 100,
                                      viewConfig: {
                                          colSpan: "10",
-                                         class: "span10",
+                                         class: "col-xs-10",
                                          placeholder:"Select a service to apply...",
                                          //visible: "$root.showService",
                                          visible: "apply_service_check()",

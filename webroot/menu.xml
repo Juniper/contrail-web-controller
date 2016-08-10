@@ -20,7 +20,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <css>contrail.controller.css</css>
                 </resource>
             </resources>
-            <iconClass>icon-bar-chart</iconClass>
+            <iconClass>fa fa-bar-chart-o</iconClass>
             <items>
                 <item>
                     <label>Infrastructure</label>
@@ -31,7 +31,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <css>monitor.infra.css</css>
                         </resource>
                     </resources>
-                    <iconClass>icon-desktop</iconClass>
+                    <iconClass>menu-icon fa fa-desktop</iconClass>
                     <access>
                         <roles>
                             <role>cloudAdmin</role>
@@ -159,7 +159,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 </item>
                 <item>
                     <label>Networking</label>
-                    <iconClass>icon-sitemap</iconClass>
+                    <iconClass>menu-icon fa fa-sitemap</iconClass>
                     <resources>
                         <resource>
                             <rootDir>/monitor/networking/ui</rootDir>
@@ -225,7 +225,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <name>debug</name>
                     <label>Debug</label>
-                    <iconClass>icon-puzzle-piece</iconClass>
+                    <iconClass>menu-icon fa fa-puzzle-piece</iconClass>
                     <access>
                         <orchModels>
                             <model>openstack</model>
@@ -278,7 +278,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <name>alarms</name>
                     <label>Alarms</label>
                     <hash>mon_alarms</hash>
-                    <iconClass>icon-bell-alt</iconClass>
+                    <iconClass>menu-icon fa fa-bell</iconClass>
                     <resources>
                         <resource>
                             <rootDir>.</rootDir>
@@ -312,7 +312,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <css>contrail.controller.css</css>
                 </resource>
             </resources>
-            <iconClass>icon-wrench</iconClass>
+            <iconClass>fa fa-wrench</iconClass>
             <items>
                 <item>
                     <label>Infrastructure</label>
@@ -327,7 +327,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </orchModels>
                         <accessFn>hideInFederatedvCenter</accessFn>
                     </access>
-                    <iconClass>icon-desktop</iconClass>
+                    <iconClass>menu-icon fa fa-desktop</iconClass>
                     <items>
                         <!--
                                     <item>
@@ -473,7 +473,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>vcenter</model>
                         </orchModels>
                     </access>
-                    <iconClass>icon-tasks</iconClass>
+                    <iconClass>menu-icon fa fa-tasks</iconClass>
                     <resources>
                         <resource>
                             <rootDir>/common/ui</rootDir>
@@ -521,7 +521,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>vcenter</model>
                         </orchModels>
                     </access>
-                    <iconClass>icon-sitemap</iconClass>
+                    <iconClass>menu-icon fa fa-sitemap</iconClass>
                     <items>
                         <item>
                             <label>Networks</label>
@@ -725,7 +725,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>vcenter</model>
                         </orchModels>
                     </access>
-                    <iconClass>icon-link</iconClass>
+                    <iconClass>menu-icon fa fa-link</iconClass>
                     <items>
                         <item>
                             <label>Service Templates</label>
@@ -811,7 +811,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>vcenter</model>
                         </orchModels>
                     </access>
-                    <iconClass>icon-globe</iconClass>
+                    <iconClass>menu-icon fa fa-globe</iconClass>
                     <items>
                         <item>
                             <label>Servers</label>
@@ -859,7 +859,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>openstack</model>
                         </orchModels>
                     </access>
-                    <iconClass>icon-user</iconClass>
+                    <iconClass>menu-icon fa fa-user</iconClass>
                     <items>
                         <item>
                             <label>Domain</label>
@@ -906,7 +906,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>openstack</model>
                         </orchModels>
                     </access>
-                    <iconClass>icon-bell-alt</iconClass>
+                    <iconClass>menu-icon fa fa-bell</iconClass>
                     <items>
                         <item>
                             <label>Project</label>
@@ -940,7 +940,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <name>configEditor</name>
                     <label>Config Editor</label>
                     <hash>config_editor</hash>
-                    <iconClass>icon-code</iconClass>
+                    <iconClass>menu-icon fa fa-code</iconClass>
                     <resources>
                         <resource>
                             <rootDir>/config/configEditor/ui</rootDir>
@@ -998,7 +998,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <css>contrail.controller.css</css>
                 </resource>
             </resources>
-            <iconClass>icon-cog</iconClass>
+            <iconClass>fa fa-cog</iconClass>
             <access>
                 <roles>
                     <role>cloudAdmin</role>
@@ -1013,7 +1013,7 @@ and need to add the iconClass tag wherever we need to show some icons
             <items>
                 <item>
                     <label>Config DB</label>
-                    <iconClass>icon-contrail-config-db</iconClass>
+                    <iconClass>menu-icon icon-contrail-config-db</iconClass>
                     <init>/setting/configdb/ui/js/cdb.init.js</init>
                     <items>
                         <item>
@@ -1059,7 +1059,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 </item>
                 <item>
                     <label>Introspect</label>
-                    <iconClass>icon-code</iconClass>
+                    <iconClass>menu-icon fa fa-code</iconClass>
                     <resources>
                         <resource>
                             <rootDir>setting/introspect/ui</rootDir>
@@ -1123,7 +1123,7 @@ and need to add the iconClass tag wherever we need to show some icons
         <item>
             <label>Query</label>
             <name>query</name>
-            <iconClass>icon-search</iconClass>
+            <iconClass>fa fa-search</iconClass>
             <resources>
                 <resource>
                     <rootDir>/common/ui</rootDir>
@@ -1148,8 +1148,9 @@ and need to add the iconClass tag wherever we need to show some icons
             <items>
                 <item>
                     <label>Flows</label>
-                    <iconClass>icon-exchange</iconClass>
+                    <iconClass>menu-icon fa fa-exchange</iconClass>
                     <init>/reports/qe/ui/js/qe.init.js</init>
+                    <help>http://www.juniper.net/techpubs/en_US/contrail3.0/topics/task/configuration/monitoring-flow-vnc.html</help>
                     <items>
                         <item>
                             <hash>query_flow_series</hash>
@@ -1182,7 +1183,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 </item>
                 <item>
                     <label>Logs</label>
-                    <iconClass>icon-contrail-system-logs</iconClass>
+                    <iconClass>menu-icon icon-contrail-system-logs</iconClass>
                     <init>/reports/qe/ui/js/qe.init.js</init>
                     <items>
                         <item>
@@ -1216,7 +1217,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 </item>
                 <item>
                     <label>Statistics</label>
-                    <iconClass>icon-contrail-system-stats</iconClass>
+                    <iconClass>menu-icon icon-contrail-system-stats</iconClass>
                     <init>/reports/qe/ui/js/qe.init.js</init>
                     <items>
                         <item>

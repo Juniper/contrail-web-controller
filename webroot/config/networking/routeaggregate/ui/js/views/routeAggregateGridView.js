@@ -163,7 +163,7 @@ define([
 	            {
                     "type" : "link",
 	                "title" : ctwl.TITLE_ROUTE_AGGREGATE_MULTI_DELETE,
-	                "iconClass": 'icon-trash',
+	                "iconClass": 'fa fa-trash',
                     "linkElementId": 'btnDeleteRouteAggregate',
 	                "onClick" : function() {
 	                    var routeAggregateModel = new RouteAggregateModel();
@@ -189,7 +189,7 @@ define([
 	            {
 	                "type" : "link",
 	                "title" : ctwl.TITLE_ADD_ROUTE_AGGREGATE,
-	                "iconClass" : "icon-plus",
+	                "iconClass" : "fa fa-plus",
 	                "onClick" : function() {
 	                    var routeAggregateModel = new RouteAggregateModel();
 	                    routeAggregateEditView.model = routeAggregateModel;
@@ -219,7 +219,7 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'span6',
+                            class: 'col-xs-6',
                             rows: [{
                                 title: 'Details',
                                 templateGenerator: 'BlockListTemplateGenerator',

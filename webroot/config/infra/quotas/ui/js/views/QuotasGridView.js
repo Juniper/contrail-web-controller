@@ -118,7 +118,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.TITLE_EDIT_QUOTAS,
-                "iconClass": 'icon-edit',
+                "iconClass": 'fa fa-pencil-square-o',
                 "onClick": function() {
                     var configData = $(gridElId).data('configObj');
                     var dataItem = configData[0]['quota'];

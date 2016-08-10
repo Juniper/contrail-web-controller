@@ -216,7 +216,7 @@ define([
                            "");
             if(dhcpVals != "" && dhcpVals.length > 0){
                 var dhcp_length = dhcpVals.length;
-                dhcp = "<table width='100%'><thead><tr><th class='span4'>Code</th><th class='span4'>Value</th><th class='span4'>Value in Bytes</th></tr></thead><tbody>"
+                dhcp = "<table width='100%'><thead><tr><th class='col-xs-4'>Code</th><th class='col-xs-4'>Value</th><th class='col-xs-4'>Value in Bytes</th></tr></thead><tbody>"
                 for(var i = 0; i < dhcp_length;i++) {
                     var dhcpVal = dhcpVals[i];
                     dhcp += "<tr><td>";
@@ -343,7 +343,7 @@ define([
                           []);
             if(portBindingData.length > 0) {
                 var portBinding_length = portBindingData.length;
-                portBinding = "<table width='100%'><thead><tr><th class='span5'>Key</th><th class='span7'>Value</th></tr></thead>"
+                portBinding = "<table width='100%'><thead><tr><th class='col-xs-5'>Key</th><th class='col-xs-7'>Value</th></tr></thead>"
                 for(var i = 0; i < portBinding_length;i++) {
                     var portBindingVal = portBindingData[i];
                     portBinding += "<tbody><tr><td>";

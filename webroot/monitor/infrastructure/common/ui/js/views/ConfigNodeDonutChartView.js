@@ -26,7 +26,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                         elementId: ctwl.CONFIGNODE_SUMMARY_DONUTCHART_ONE_ID,
                         view: 'DonutChartView',
                         viewConfig: {
-                            class: 'span6',
+                            class: 'col-xs-6',
                             parseFn: function (response) {
                                 return monitorInfraParsers
                                     .parseConfigNodeRequestForDonutChart(
@@ -49,7 +49,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                         elementId: ctwl.CONFIGNODE_SUMMARY_DONUTCHART_TWO_ID,
                         view: 'DonutChartView',
                         viewConfig: {
-                            class: 'span6',
+                            class: 'col-xs-6',
                             parseFn: function (response) {
                                 return monitorInfraParsers
                                     .parseConfigNodeRequestForDonutChart(

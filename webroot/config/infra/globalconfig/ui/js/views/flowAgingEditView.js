@@ -110,11 +110,11 @@ define([
                                 view: 'FormEditableGridView',
                                 viewConfig: {
                                     path: 'flowAgingTimeout',
+                                    class: 'col-xs-12',
                                     collection: 'flowAgingTimeout',
                                     validation: 'flowAgingTimeoutValidation',
                                     templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                     label: '',
-                                    class: '',
                                     columns: [{
                                         elementId: 'protocol',
                                         name: 'Protocol',
@@ -167,11 +167,11 @@ define([
                                         {onClick: "function() {\
                                             $root.addFlowAgingTuple();\
                                         }",
-                                        iconClass: 'icon-plus'},{
+                                        iconClass: 'fa fa-plus'},{
                                         onClick: "function() {\
                                             $root.deleteFlowAgingTuple($data, this);\
                                         }",
-                                        iconClass: 'icon-minus'
+                                        iconClass: 'fa fa-minus'
                                     }],
                                     gridActions: [{
                                         onClick: "function() {\

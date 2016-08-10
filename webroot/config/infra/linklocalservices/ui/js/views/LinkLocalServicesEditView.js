@@ -166,7 +166,7 @@ define([
                                 viewConfig: {
                                     disabled: isDisable,
                                     path: 'linklocal_service_name',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'linklocal_service_name',
                                     elementConfig: {
                                         placeholder: 'Service Name',
@@ -191,7 +191,7 @@ define([
                                 view: 'FormInputView',
                                 viewConfig: {
                                     path: 'linklocal_service_ip',
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     dataBindValue: 'linklocal_service_ip'
                                 }
                             },
@@ -200,7 +200,7 @@ define([
                                 view: 'FormInputView',
                                 viewConfig: {
                                     path: 'linklocal_service_port',
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     dataBindValue: 'linklocal_service_port'
                                 }
                             }
@@ -213,7 +213,7 @@ define([
                                 view: "FormDropdownView",
                                 viewConfig: {
                                     path : 'lls_fab_address_ip',
-                                    class: 'span3',
+                                    class: 'col-xs-3',
                                     dataBindValue : 'lls_fab_address_ip',
                                     elementConfig : {
                                         allowClear: true,
@@ -233,7 +233,7 @@ define([
                                     collection: 'ipFabAddresses',
                                     validation: "fabAddressValidation",
                                     templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
-                                    class: "span5",
+                                    class: "col-xs-5",
                                     columns: [{
                                         elementId: 'ip_fabric_service_ip',
                                         name: 'Fabric IP',
@@ -247,9 +247,9 @@ define([
                                     }],
                                     rowActions: [
                                          {onClick: "function() { $root.addAddress(); }",
-                                         iconClass: 'icon-plus'},
+                                         iconClass: 'fa fa-plus'},
                                         {onClick: "function() { $root.deleteAddress($data, this); }",
-                                         iconClass: 'icon-minus'}
+                                         iconClass: 'fa fa-minus'}
                                     ],
                                     gridActions: [
                                         {onClick: "function() { addAddress(); }", buttonTitle: ""}
@@ -262,7 +262,7 @@ define([
                                 viewConfig: {
                                     visible: 'showDNS',
                                     path: 'ip_fabric_DNS_service_name',
-                                    class: "span5",
+                                    class: "col-xs-5",
                                     dataBindValue: 'ip_fabric_DNS_service_name'
                                 }
                             },
@@ -271,7 +271,7 @@ define([
                                 view: 'FormInputView',
                                 viewConfig: {
                                     path: 'ip_fabric_service_port',
-                                    class: 'span4',
+                                    class: 'col-xs-4',
                                     dataBindValue: 'ip_fabric_service_port'
                                 }
                             }

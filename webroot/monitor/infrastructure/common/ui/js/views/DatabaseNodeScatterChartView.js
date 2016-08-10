@@ -134,7 +134,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                    actions : [{
                        type : 'link',
                        text : 'View',
-                       iconClass : 'icon-external-link',
+                       iconClass : 'fa fa-external-link',
                        callback : onScatterChartClick
                    }]
                },
@@ -151,7 +151,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                    title : 'Node Color',
                    items : [ {
                        text : 'Disk space usage warning',
-                       labelCssClass : 'icon-circle warning',
+                       labelCssClass : 'fa-circle warning',
                        events : {
                            click : function(
                                    event) {
@@ -161,7 +161,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                        text : infraAlertMsgs['UVE_MISSING'] + ' or ' +
                        infraAlertMsgs['NTP_UNSYNCED_ERROR'] + ' or ' +
                        'Disk space usage exceeds threshold',
-                       labelCssClass : 'icon-circle error',
+                       labelCssClass : 'fa-circle error',
                        events : {
                            click : function(
                                    event) {

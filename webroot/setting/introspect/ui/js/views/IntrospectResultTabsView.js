@@ -30,7 +30,7 @@ define([
             contrail.ajaxHandler({
                 url: url, cache: true, dataType: 'xml'
             }, function() {
-                self.$el.html('<p class="padding-10-0"><i class="icon-spin icon-spinner"></i> Loading Results.</p>');
+                self.$el.html('<p class="padding-10-0"><i class="fa fa-spin fa fa-spinner"></i> Loading Results.</p>');
             }, function (xml) {
                 var x2js = new xml2json(),
                     json = x2js.xml2json(xml),

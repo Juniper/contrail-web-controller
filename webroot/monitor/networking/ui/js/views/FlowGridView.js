@@ -92,7 +92,7 @@ define([
         var headerActionConfig = [
             {
                 type: 'checked-multiselect',
-                iconClass: 'icon-filter',
+                iconClass: 'fa fa-filter',
                 placeholder: ctwl.TITLE_FILTER_BY_PROTOCOL,
                 elementConfig: {
                     elementId: ctwl.PROJECT_FILTER_PROTOCOL_MULTISELECT_ID,
@@ -100,9 +100,9 @@ define([
                     dataValueField: 'id',
                     noneSelectedText: ctwl.TITLE_FILTER_PROTOCOL,
                     filterConfig: {
-                        placeholder: ctwl.TITLE_FILTER_BY_PROTOCOL,
+                        placeholder: ctwl.TITLE_FILTER_BY_PROTOCOL
                     },
-                    minWidth: 100,
+                    minWidth: 160,
                     height: 150,
                     emptyOptionText: 'No Protocol found',
                     data: [{

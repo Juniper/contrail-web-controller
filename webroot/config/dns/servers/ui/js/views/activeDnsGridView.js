@@ -16,10 +16,10 @@ define([
             self.renderView4Config(self.$el, self.model,
                 getActiveDnsGridViewConfig(pagerOptions), null, null, null,
                 function() {
-                    $(gridElId).find("i.icon-forward").parent().click(function(){
+                    $(gridElId).find("i.fa-forward").parent().click(function(){
                         onNextClick(currentDNSServer);
                     });
-                    $(gridElId).find("i.icon-backward").parent().click(function(){
+                    $(gridElId).find("i.fa-backward").parent().click(function(){
                         onPrevClick(currentDNSServer);
                     });
                 }
@@ -96,8 +96,8 @@ define([
                     text: "Active DNS Database"
                 },
                 customControls: [
-                    '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
-                    '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                    '<a class="widget-toolbar-icon"><i class="fa fa-forward"></i></a>',
+                    '<a class="widget-toolbar-icon"><i class="fa fa-backward"></i></a>',
                 ]
             },
 
@@ -120,7 +120,7 @@ define([
                     },
                     errorGettingData: {
                         type: 'error',
-                        iconClasses: 'icon-warning',
+                        iconClasses: 'fa fa-warning',
                         text: 'Error in getting Active DNS Records.'
                     }
                 }
@@ -174,7 +174,7 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'span6',
+                            class: 'col-xs-6',
                             rows: [{
                                 title: 'Details',
                                 templateGenerator: 'BlockListTemplateGenerator',

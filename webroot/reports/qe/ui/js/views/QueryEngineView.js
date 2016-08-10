@@ -63,7 +63,7 @@ define([
                                         viewConfig: {
                                             header: {
                                                 title: cowl.TITLE_QUERY,
-                                                iconClass: "icon-search"
+                                                iconClass: "fa fa-search"
                                             },
                                             controls: {
                                                 top: {
@@ -104,7 +104,7 @@ define([
                                         viewConfig: {
                                             header: {
                                                 title: cowl.TITLE_QUERY,
-                                                iconClass: "icon-search"
+                                                iconClass: "fa fa-search"
                                             },
                                             controls: {
                                                 top: {
@@ -145,7 +145,7 @@ define([
                                         viewConfig: {
                                             header: {
                                                 title: cowl.TITLE_QUERY,
-                                                iconClass: "icon-search"
+                                                iconClass: "fa fa-search"
                                             },
                                             controls: {
                                                 top: {
@@ -186,7 +186,7 @@ define([
                                         viewConfig: {
                                             header: {
                                                 title: cowl.TITLE_QUERY,
-                                                iconClass: "icon-search"
+                                                iconClass: "fa fa-search"
                                             },
                                             controls: {
                                                 top: {
@@ -227,7 +227,7 @@ define([
                                         viewConfig: {
                                             header: {
                                                 title: cowl.TITLE_QUERY,
-                                                iconClass: "icon-search"
+                                                iconClass: "fa fa-search"
                                             },
                                             controls: {
                                                 top: {

@@ -161,7 +161,7 @@ define([
             {
                 "type" : "link",
                 "title" : ctwl.TITLE_ALARM_RULE_MULTI_DELETE,
-                "iconClass": 'icon-trash',
+                "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnDeleteAlarm',
                 "onClick" : function() {
                     var gridObj = $(gridElId).data('contrailGrid'),
@@ -182,7 +182,7 @@ define([
             {
                 "type" : "link",
                 "title" : ctwl.TITLE_CREATE_ALARM_RULE,
-                "iconClass" : "icon-plus",
+                "iconClass" : "fa fa-plus",
                 "onClick" : function() {
                     var gridObj = $(gridElId).data('contrailGrid'),
                         alarmModel = new AlarmModel();
@@ -212,21 +212,21 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'row-fluid',
+                            class: 'row',
                             rows: [{
                                 title: 'Details',
                                 templateGenerator:
                                     'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [{
-                                    valueClass:'span10',
-                                    keyClass: 'span2',
+                                    valueClass:'col-xs-10',
+                                    keyClass: 'col-xs-2',
                                     key: "name",
                                     templateGenerator: "TextGenerator",
                                     label: "Name",
                                 },{
                                     key: "id_perms.created",
-                                    valueClass:'span10',
-                                    keyClass: 'span2',
+                                    valueClass:'col-xs-10',
+                                    keyClass: 'col-xs-2',
                                     templateGenerator: "TextGenerator",
                                     label: "Enabled",
                                     templateGeneratorConfig: {
@@ -234,8 +234,8 @@ define([
                                     }
                                 },{
                                     key: "id_perms.description",
-                                    valueClass:'span10',
-                                    keyClass: 'span2',
+                                    valueClass:'col-xs-10',
+                                    keyClass: 'col-xs-2',
                                     templateGenerator: "TextGenerator",
                                     label: "Description",
                                     templateGeneratorConfig: {
@@ -243,8 +243,8 @@ define([
                                     }
                                 },{
                                     key: "alarm_severity",
-                                    valueClass:'span10',
-                                    keyClass: 'span2',
+                                    valueClass:'col-xs-10',
+                                    keyClass: 'col-xs-2',
                                     templateGenerator: "TextGenerator",
                                     label: "Severity",
                                     templateGeneratorConfig: {
@@ -252,8 +252,8 @@ define([
                                     }
                                 },{
                                     key: "uve_keys",
-                                    valueClass:'span10',
-                                    keyClass: 'span2',
+                                    valueClass:'col-xs-10',
+                                    keyClass: 'col-xs-2',
                                     templateGenerator: "TextGenerator",
                                     label: "UVE Keys",
                                     templateGeneratorConfig: {
@@ -261,8 +261,8 @@ define([
                                     }
                                 },{
                                     key: "alarm_rules",
-                                    valueClass:'span10',
-                                    keyClass: 'span2',
+                                    valueClass:'col-xs-10',
+                                    keyClass: 'col-xs-2',
                                     templateGenerator: "TextGenerator",
                                     label: "Rules",
                                     templateGeneratorConfig: {

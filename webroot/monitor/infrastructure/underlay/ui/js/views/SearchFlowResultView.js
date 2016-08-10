@@ -95,9 +95,9 @@ define([
                             var graphModel = underlayUtils.getUnderlayGraphModel();
                             graphModel.lastInteracted = new Date().getTime();
                             $("#" +ctwc.UNDERLAY_SEARCHFLOW_TAB_ID
-                                + "-results  div.grid-canvas div.slick-cell i.icon-spinner")
-                                .toggleClass('icon-cog icon-spinner icon-spin');
-                            $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
+                                + "-results  div.grid-canvas div.slick-cell i.fa-spinner")
+                                .toggleClass('fa-cog fa-spinner fa-spin');
+                            $(targetElement).toggleClass('fa-cog fa-spinner fa-spin');
                             var gridId = '#' + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-results";
                             var dataItem = $(gridId).data('contrailGrid')
                                 ._grid.getDataItem(rowIndex);
@@ -117,7 +117,7 @@ define([
                             underlayUtils.showUnderlayPaths(dataItem, graphModel, deferredObj);
                             deferredObj.always(function (resetLoading) {
                                 if(resetLoading) {
-                                    $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
+                                    $(targetElement).toggleClass('fa-cog fa-spinner fa-spin');
                                 }
                             });
                         }
@@ -152,7 +152,7 @@ define([
         var headerActionConfig = [
             {
                 type: 'checked-multiselect',
-                iconClass: 'icon-filter',
+                iconClass: 'fa fa-filter',
                 placeholder: 'Filter Flows',
                 elementConfig: {
                     elementId: 'flowsFilterMultiselect',
@@ -173,11 +173,11 @@ define([
                                      {
                                          id:"mappable",
                                          text:"Mappable",
-                                         iconClass:'icon-download-alt'
+                                         iconClass:'fa fa-download'
                                      },{
                                          id:"unmappable",
                                          text:"Unmappable",
-                                         iconClass:'icon-download-alt'
+                                         iconClass:'fa fa-download'
                                      },
                                  ]
                              }

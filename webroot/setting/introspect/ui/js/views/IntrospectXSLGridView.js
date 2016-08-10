@@ -19,7 +19,7 @@ define([
                 url: 'xsl/main.xsl',
                 dataType: 'xml'
             }, function() {
-                self.$el.html('<p class="padding-10-0"><i class="icon-spin icon-spinner"></i> Loading Results.</p>');
+                self.$el.html('<p class="padding-10-0"><i class="fa fa-spin fa fa-spinner"></i> Loading Results.</p>');
             }, function(xsl) {
                 var xsltProcessor = new XSLTProcessor(),
                     resultDocument;

@@ -16,7 +16,7 @@ define([
                 null, null, function (traceFlowResultView) {
                 flowKeyStack = [];
                 var isPrevClicked = false;
-                $("#"+ctwc.TRACEFLOW_RESULTS_GRID_ID).find('i.icon-forward')
+                $("#"+ctwc.TRACEFLOW_RESULTS_GRID_ID).find('i.fa-forward')
                     .parent().click(function () {
                         var vRouterDetails = getSelectedVrouterDetails(self.model);
                         var url = monitorInfraConstants.monitorInfraUrls.VROUTER_FLOWS
@@ -34,7 +34,7 @@ define([
                         }
                         fetchvRouterFlowRecords(url, traceFlowResultView);
                 });
-                $("#"+ctwc.TRACEFLOW_RESULTS_GRID_ID).find('i.icon-backward')
+                $("#"+ctwc.TRACEFLOW_RESULTS_GRID_ID).find('i.fa-backward')
                     .parent().click(function () {
                      var vRouterDetails = getSelectedVrouterDetails(self.model);
                      var url = monitorInfraConstants.monitorInfraUrls.VROUTER_FLOWS
@@ -160,8 +160,8 @@ define([
             underlayGraphModel = underlayUtils.getUnderlayGraphModel();
         if (formModel.traceflow_radiobtn_name() == 'vRouter') {
             customControls = [
-                '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
-                '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                '<a class="widget-toolbar-icon"><i class="fa fa-forward"></i></a>',
+                '<a class="widget-toolbar-icon"><i class="fa fa-backward"></i></a>',
             ];
             var selectedVrouter = formModel.vrouter_dropdown_name();
             if(selectedVrouter == "") {
@@ -192,8 +192,8 @@ define([
         }
         function resetLoadingIcon () {
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID
-                + " div.grid-canvas div.slick-cell i.icon-spinner")
-                .toggleClass('icon-cog icon-spinner icon-spin');
+                + " div.grid-canvas div.slick-cell i.fa-spinner")
+                .toggleClass('fa-cog fa-spinner fa-spin');
         }
         var gridElementConfig = {
             header: {
@@ -223,7 +223,7 @@ define([
                             var graphModel = underlayUtils.getUnderlayGraphModel();
                             graphModel.lastInteracted = new Date().getTime();
                             resetLoadingIcon();
-                            $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
+                            $(targetElement).toggleClass('fa-cog fa-spinner fa-spin');
                             $("#"+gridId + " div.selected-slick-row").each(
                                     function(idx,obj){
                                         $(obj).removeClass('selected-slick-row');
@@ -236,7 +236,7 @@ define([
                             deferredObj.always(function (resetLoading) {
                                 if (resetLoading) {
                                     $(targetElement)
-                                        .toggleClass('icon-cog icon-spinner icon-spin');
+                                        .toggleClass('fa-cog fa-spinner fa-spin');
                                 }
                             });
                         }
@@ -247,7 +247,7 @@ define([
                             var graphModel = underlayUtils.getUnderlayGraphModel();
                             graphModel.lastInteracted = new Date().getTime();
                             resetLoadingIcon();
-                            $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
+                            $(targetElement).toggleClass('fa-cog fa-spinner fa-spin');
                             $("#"+gridId + " div.selected-slick-row").each(
                                     function(idx,obj){
                                         $(obj).removeClass('selected-slick-row');
@@ -260,7 +260,7 @@ define([
                             deferredObj.always(function (resetLoading) {
                                 if (resetLoading) {
                                     $(targetElement)
-                                        .toggleClass('icon-cog icon-spinner icon-spin');
+                                        .toggleClass('fa-cog fa-spinner fa-spin');
                                 }
                             });
                         }
@@ -290,7 +290,7 @@ define([
         var headerActionConfig = [
               {
                   type: 'checked-multiselect',
-                  iconClass: 'icon-filter',
+                  iconClass: 'fa fa-filter',
                   placeholder: 'Filter Flows',
                   elementConfig: {
                       elementId: 'traceflowsFilterMultiselect',
@@ -311,11 +311,11 @@ define([
                                        {
                                            id:"traceable",
                                            text:"Traceable",
-                                           iconClass:'icon-download-alt'
+                                           iconClass:'fa fa-download'
                                        },{
                                            id:"untraceable",
                                            text:"Untraceable",
-                                           iconClass:'icon-download-alt'
+                                           iconClass:'fa fa-download'
                                        }
                                    ]
                                }

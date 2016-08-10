@@ -102,7 +102,7 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'span6',
+                            class: 'col-xs-6',
                             rows: [{
                                 title: ctwl.SEC_GRP_DETAILS,
                                 templateGenerator: 'BlockListTemplateGenerator',
@@ -229,7 +229,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.TITLE_DEL_SEC_GRP,
-                "iconClass": 'icon-trash',
+                "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnActionDelSecGrp',
                 "onClick": function() {
                      var secGrpModel = new SecGrpModel();
@@ -250,7 +250,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.TITLE_CREATE_SEC_GRP,
-                "iconClass": 'icon-plus',
+                "iconClass": 'fa fa-plus',
                 "onClick": function() {
                     var projFqn = [getCookie('domain'),
                         getCookie('project')];

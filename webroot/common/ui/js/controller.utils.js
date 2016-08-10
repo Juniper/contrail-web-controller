@@ -21,7 +21,7 @@ define([
                             templateGeneratorConfig: {
                                 columns: [
                                     {
-                                        class: 'span6',
+                                        class: 'col-xs-6',
                                         rows: [
                                             {
                                                 title: ctwl.TITLE_INSTANCE_DETAILS,
@@ -51,7 +51,7 @@ define([
                                         ]
                                     },
                                     {
-                                        class: 'span6',
+                                        class: 'col-xs-6',
                                         rows: [
                                             {
                                                 title: ctwl.TITLE_CPU_MEMORY_INFO,

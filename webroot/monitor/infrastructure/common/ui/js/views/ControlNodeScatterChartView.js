@@ -121,7 +121,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                    actions : [ {
                        type : 'link',
                        text : 'View',
-                       iconClass : 'icon-external-link',
+                       iconClass : 'fa fa-external-link',
                        callback : onScatterChartClick
                    } ]
                },
@@ -142,7 +142,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                            infraAlertMsgs['CONFIG_IP_MISMATCH'] + ' or ' +
                            infraAlertMsgs['IFMAP_DOWN'] + ' or ' +
                            infraAlertMsgs['NTP_UNSYNCED_ERROR'],
-                       labelCssClass : 'icon-circle error',
+                       labelCssClass : 'fa-circle error',
                        events : {
                            click : function(
                                    event) {
@@ -151,7 +151,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                    },{
                        text : 'XMPP peer down or BGP peer down ' +
                            infraAlertMsgs['BGP_CONFIG_MISMATCH'],
-                       labelCssClass : 'icon-circle warning',
+                       labelCssClass : 'fa-circle warning',
                        events : {
                            click : function(
                                    event) {

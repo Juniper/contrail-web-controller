@@ -168,7 +168,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.CFG_VN_TITLE_DELETE,
-                "iconClass": "icon-trash",
+                "iconClass": "fa fa-trash",
                 "linkElementId": "linkVNDelete",
                 "onClick": function () {
                     var gridElId = '#' + ctwl.CFG_VN_GRID_ID;
@@ -186,7 +186,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.CFG_VN_TITLE_CREATE,
-                "iconClass": "icon-plus",
+                "iconClass": "fa fa-plus",
                 "onClick": function () {
                     var vnModel = new VNCfgModel();
                     vnCfgEditView.model = vnModel;
@@ -239,7 +239,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     rows: [
                                         {
                                             title: ctwl.CFG_VN_TITLE_DETAILS,

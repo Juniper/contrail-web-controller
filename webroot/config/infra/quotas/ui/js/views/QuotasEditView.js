@@ -73,7 +73,7 @@ define([
                                 viewConfig: {
                                     label: 'Virtual Networks',
                                     path: 'virtual_network',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'virtual_network',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -99,7 +99,7 @@ define([
                                 viewConfig: {
                                     path: 'subnet',
                                     label: 'Subnets',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'subnet',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -125,7 +125,7 @@ define([
                                 viewConfig: {
                                     label: 'Ports',
                                     path: 'virtual_machine_interface',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'virtual_machine_interface',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -151,7 +151,7 @@ define([
                                 viewConfig: {
                                     label: 'Floating IPs',
                                     path : 'floating_ip',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue : 'floating_ip',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -177,7 +177,7 @@ define([
                                 viewConfig: {
                                     label: 'Floating IP Pools',
                                     path: 'floating_ip_pool',
-                                    class: "span12",
+                                    class: "col-xs-12",
                                     dataBindValue: 'floating_ip_pool',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -203,7 +203,7 @@ define([
                                 viewConfig: {
                                     label: 'Policies',
                                     path: 'network_policy',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'network_policy',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -229,7 +229,7 @@ define([
                                 viewConfig: {
                                     label: 'Routers',
                                     path: 'logical_router',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'logical_router',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -255,7 +255,7 @@ define([
                                 viewConfig: {
                                     label: 'Network IPAMs',
                                     path: 'network_ipam',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'network_ipam',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -281,7 +281,7 @@ define([
                                 viewConfig: {
                                     label: 'Service Instances',
                                     path: 'service_instance',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'service_instance',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -307,7 +307,7 @@ define([
                                 viewConfig: {
                                     label: 'Security Groups',
                                     path: 'security_group',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'security_group',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -333,7 +333,7 @@ define([
                                 viewConfig: {
                                     label: 'Security Group Rules',
                                     path: 'security_group_rule',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'security_group_rule',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -359,7 +359,7 @@ define([
                                 viewConfig: {
                                     label: 'Loadbalancer Pools',
                                     path: 'loadbalancer_pool',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'loadbalancer_pool',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -385,7 +385,7 @@ define([
                                 viewConfig: {
                                     label: 'Loadbalancer Members',
                                     path: 'loadbalancer_member',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'loadbalancer_member',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -411,7 +411,7 @@ define([
                                 viewConfig: {
                                     label: 'Loadbalancer Health Monitors',
                                     path: 'loadbalancer_healthmonitor',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'loadbalancer_healthmonitor',
                                     elementConfig: {
                                         placeholder: 'Not Set',
@@ -437,7 +437,7 @@ define([
                                 viewConfig: {
                                     label: 'Virtual IPs',
                                     path: 'virtual_ip',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'virtual_ip',
                                     elementConfig: {
                                         placeholder: 'Not Set',

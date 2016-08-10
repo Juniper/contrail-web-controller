@@ -187,7 +187,7 @@ define([
                                     placeHolder: ctwl.ENTER_NAME,
                                     path: 'name',
                                     dataBindValue: 'name',
-                                    class: "span6"}
+                                    class: "col-xs-6"}
                     },
                     {
                         elementId: 'enable',
@@ -195,7 +195,7 @@ define([
                         viewConfig: {path: 'id_perms.enable',
                                      label: "Admin State",
                                      dataBindValue: 'id_perms().enable',
-                                     class: "span6",
+                                     class: "col-xs-6",
                         elementConfig:{allowClear: true,
                                        dataTextField: "text",
                                        dataValueField: "value",
@@ -211,7 +211,7 @@ define([
                         viewConfig: {path: 'extNetworkUUID',
                                      label: "External Gateway",
                                      dataBindValue: 'extNetworkUUID',
-                                     class: "span6",
+                                     class: "col-xs-6",
                         elementConfig:{placeholder: ctwl.SELECT_EXT_GATEWAY,
                                        dataTextField: "text",
                                        dataValueField: "value",
@@ -225,7 +225,7 @@ define([
                                      label: "SNAT",
                                      path: 'checkSNAT',
                                      dataBindValue: 'checkSNAT',
-                                     class: "span6"}
+                                     class: "col-xs-6"}
                     }]
                 },{
                     columns: [{
@@ -235,7 +235,7 @@ define([
                         viewConfig: {path: 'connectedNetwork',
                                      label: "Connected Networks",
                                      dataBindValue: 'connectedNetwork',
-                                     class: "span12",
+                                     class: "col-xs-12",
                         elementConfig:{allowClear: true,
                                        placeholder: ctwl.SELECT_CONN_NET,
                                        dataTextField: "text",
@@ -261,6 +261,7 @@ define([
                                         view: "FormEditableGridView",
                                         viewConfig: {
                                             path : 'user_created_configured_route_target_list',
+                                            class: 'col-xs-12',
                                             validation:
                                            'routeTargetModelConfigValidations',
                                            templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -302,11 +303,11 @@ define([
                                                 {onClick: "function() {\
                                                     $root.addRouteTarget('user_created_configured_route_target_list');\
                                                     }",
-                                                 iconClass: 'icon-plus'},
+                                                 iconClass: 'fa fa-plus'},
                                                 {onClick: "function() {\
                                                     $root.deleteRouteTarget($data, this);\
                                                    }",
-                                                 iconClass: 'icon-minus'}
+                                                 iconClass: 'fa fa-minus'}
                                             ],
                                             gridActions: [
                                                 {onClick: "function() {\

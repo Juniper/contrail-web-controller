@@ -194,7 +194,7 @@ define([
 	            {
                     "type" : "link",
 	                "title" : ctwl.TITLE_BGP_AS_A_SERVICE_MULTI_DELETE,
-	                "iconClass": 'icon-trash',
+	                "iconClass": 'fa fa-trash',
                     "linkElementId": 'btnDeleteBGPAsAService',
 	                "onClick" : function() {
 	                    var bgpAsAServiceModel = new BGPAsAServiceModel();
@@ -220,7 +220,7 @@ define([
 	            {
 	                "type" : "link",
 	                "title" : ctwl.TITLE_ADD_BGP_AS_A_SERVICE,
-	                "iconClass" : "icon-plus",
+	                "iconClass" : "fa fa-plus",
 	                "onClick" : function() {
 	                    var bgpAsAServiceModel = new BGPAsAServiceModel();
 	                    bgpAsAServiceEditView.model = bgpAsAServiceModel;
@@ -251,7 +251,7 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'span6',
+                            class: 'col-xs-6',
                             rows: [{
                                 title: 'Details',
                                 templateGenerator: 'BlockListTemplateGenerator',

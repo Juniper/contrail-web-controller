@@ -146,7 +146,7 @@ define([
                                     viewConfig: {
                                         label: 'Type',
                                         path: 'type',
-                                        class: 'span3',
+                                        class: 'col-xs-3',
                                         dataBindValue: 'type',
                                         elementConfig: {
                                             defaultValue: 'Any',
@@ -173,7 +173,7 @@ define([
                                         label: 'Name',
                                         path: 'name',
                                         dataBindValue: 'name',
-                                        class: "span6",
+                                        class: "col-xs-6",
                                     }
                                 }]
                         },{
@@ -184,7 +184,7 @@ define([
                                         label: 'Network',
                                         path: 'network',
                                         dataBindValue: 'network',
-                                        class: "span3",
+                                        class: "col-xs-3",
                                     }
                                 },{
                                     elementId: 'mac',
@@ -193,7 +193,7 @@ define([
                                         label: 'Mac',
                                         path: 'mac',
                                         dataBindValue: 'mac',
-                                        class: "span3",
+                                        class: "col-xs-3",
                                     }
                                 },{
                                     elementId: 'ip_address',
@@ -202,7 +202,7 @@ define([
                                         label: 'IP Address',
                                         path: 'ip_address',
                                         dataBindValue: 'ip_address',
-                                        class: "span3",
+                                        class: "col-xs-3",
                                     }
                                 }]
                         },{
@@ -212,7 +212,7 @@ define([
                                     view: "FormButtonView",
                                     viewConfig: {
                                         label: "Search",
-                                        iconClass: "icon-search",
+                                        iconClass: "fa fa-search",
                                         class: 'display-inline-block margin-0-10-0-0',
                                         elementConfig: {
                                             btnClass: 'btn-primary'

@@ -107,7 +107,7 @@ define(['underscore'], function (_) {
                             templateGeneratorConfig: {
                                 columns: [
                                     {
-                                        class: 'span6',
+                                        class: 'col-xs-6',
                                         rows: [
                                             {
                                                 title: contrail.format('{0} ( {1} )',

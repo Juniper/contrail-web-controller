@@ -276,7 +276,7 @@ define([
         var dropdownActions;
         dropdownActions = [
             {
-                "iconClass": "icon-plus",
+                "iconClass": "fa fa-plus",
                 "title": ctwl.PHYSICAL_ROUTER_ADD,
                 "readOnly" : true
             },
@@ -362,7 +362,7 @@ define([
             {
                 "type" : "link",
                 "title" : ctwl.TITLE_PHYSICAL_ROUTER_MULTI_DELETE,
-                "iconClass" : "icon-trash",
+                "iconClass" : "fa fa-trash",
                 "linkElementId": 'btnDeletePhysicalRouter',
                 "onClick" : function() {
                     var pRouterModel = new PhysicalRouterModel();
@@ -388,7 +388,7 @@ define([
             {
                 "type": "dropdown",
                 "title": ctwl.TITLE_ADD_PHYSICAL_ROUTER,
-                "iconClass": "icon-plus",
+                "iconClass": "fa fa-plus",
                 "linkElementId": 'btnAddPhysicalRouter',
                 "actions": dropdownActions
             }
@@ -406,7 +406,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     rows: [
                                         prProperties(),
                                         prNetconfSettings(),
