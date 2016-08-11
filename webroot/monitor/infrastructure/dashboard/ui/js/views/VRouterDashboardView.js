@@ -86,7 +86,7 @@ define(
                             title: ctwl.VROUTER_SUMMARY_TITLE,
                             view: "BarChartInfoView",
                             viewConfig: {
-                                // class:'span3',
+                                // class:'col-xs-3',
                                 width: '135px',
                                 config:[{
                                     field:'instCnt',
@@ -108,7 +108,7 @@ define(
                             title: ctwl.VROUTER_SUMMARY_TITLE,
                             view: "VRouterScatterChartView",
                             viewConfig : {
-                                // class: 'span9'
+                                // class: 'col-xs-9'
                                 'margin-left': '160px',
                                 cfDataSource : cfgObj['cfDataSource']
                             },

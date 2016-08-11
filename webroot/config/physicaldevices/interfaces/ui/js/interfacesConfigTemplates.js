@@ -17,7 +17,7 @@ define([
                             path: "type",
                             dataBindValue: "type",
                             disabled: disableId,
-                            class: "span3",
+                            class: "col-xs-3",
                             elementConfig:{
                                 dataTextField: "text",
                                 dataValueField: "value",
@@ -32,7 +32,7 @@ define([
                             disabled: disableId,
                             path: "name",
                             dataBindValue: "name",
-                            class: "span3"
+                            class: "col-xs-3"
                         }
                     },
                     {
@@ -43,7 +43,7 @@ define([
                             path: "user_created_physical_interface",
                             dataBindValue: "user_created_physical_interface",
                             visible : "showPhysicalInterfaceRefs",
-                            class: "span6",
+                            class: "col-xs-6",
                             elementConfig:{
                                 dataTextField: "text",
                                 dataValueField: "value",
@@ -68,7 +68,7 @@ define([
                             dataBindValue: "parent_type",
                             disabled: disableId,
                             visible : "showLogicalInfProp",
-                            class: "span3",
+                            class: "col-xs-3",
                             elementConfig:{
                                 dataTextField: "text",
                                 dataValueField: "value",
@@ -85,7 +85,7 @@ define([
                             dataBindValue: "parent",
                             disabled: disableId,
                             visible : "showParent",
-                            class: "span3",
+                            class: "col-xs-3",
                             elementConfig:{
                                 dataTextField: "text",
                                 dataValueField: "value",
@@ -161,7 +161,7 @@ define([
                                 path: ctwl.LOGICAL_INF_TYPE,
                                 dataBindValue: ctwl.LOGICAL_INF_TYPE,
                                 disabled: disableId,
-                                class: "span12",
+                                class: "col-xs-12",
                                 elementConfig:{
                                     allowClear: true,
                                     dataTextField: "text",
@@ -183,7 +183,7 @@ define([
                                 placeholder : '0',
                                 dataBindValue: ctwl.VLAN,
                                 disabled: disableId,
-                                class: "span12"
+                                class: "col-xs-12"
                             }
                         }
                     ]
@@ -197,7 +197,7 @@ define([
                                 path: "user_created_virtual_network",
                                 dataBindValue: "user_created_virtual_network",
                                 label : 'Virtual Network',
-                                class: "span12",
+                                class: "col-xs-12",
                                 elementConfig:{
                                     allowClear: true,
                                     dataTextField: "text",
@@ -301,7 +301,7 @@ define([
                                                 onClick: "function() {\
                                                 $root.deleteServer($data, this)\
                                                 ;}",
-                                                iconClass: 'icon-minus'
+                                                iconClass: 'fa fa-minus'
                                             }
                                         ],
                                         gridActions: [
@@ -335,7 +335,7 @@ define([
                                         label : 'Subnet',
                                         path: "user_created_subnet",
                                         dataBindValue: "user_created_subnet",
-                                        class: "span12"
+                                        class: "col-xs-12"
                                     }
                                 }
                             ]
@@ -360,7 +360,7 @@ define([
                                         label : "Clear Ports",
                                         path: "clearPorts",
                                         dataBindValue: "clearPorts",
-                                        class: "span12"
+                                        class: "col-xs-12"
                                     }
                                 }
                             ]

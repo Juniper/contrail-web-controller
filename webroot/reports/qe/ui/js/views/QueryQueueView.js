@@ -149,7 +149,7 @@ define([
                         linkElementId: cowl.QE_DELETE_MULTIPLE_QUERY_QUEUE_CONTROL_ID,
                         disabledLink: true,
                         title: cowl.TITLE_DELETE_ALL_QUERY_QUEUE,
-                        iconClass: 'icon-trash',
+                        iconClass: 'fa fa-trash',
                         onClick: function (event, gridContainer, key) {
                             var gridCheckedRows = $(gridContainer).data('contrailGrid').getCheckedRows(),
                                 queryIds = $.map(gridCheckedRows, function(rowValue, rowKey) {
@@ -205,7 +205,7 @@ define([
             templateGeneratorConfig: {
                 columns: [
                     {
-                        class: 'span6',
+                        class: 'col-xs-6',
                         rows: [
                             {
                                 templateGenerator: 'BlockListTemplateGenerator',
@@ -265,7 +265,7 @@ define([
                         ]
                     },
                     {
-                        class: 'span6',
+                        class: 'col-xs-6',
                         rows: [
                             {
                                 templateGenerator: 'BlockListTemplateGenerator',
@@ -334,7 +334,7 @@ define([
         if(status != "error") {
             actionCell.push({
                 title: cowl.TITLE_VIEW_QUERY_RESULT,
-                iconClass: 'icon-list-alt',
+                iconClass: 'fa fa-list-alt',
                 onClick: function(rowIndex){
                     var queryQueueItem = queryQueueListModel.getItem(rowIndex);
                     viewQueryResultAction (queryQueueItem, queryQueueView, queueColorMap, 'queue');
@@ -344,7 +344,7 @@ define([
 
             actionCell.push({
                 title: cowl.TITLE_MODIFY_QUERY,
-                iconClass: 'icon-pencil',
+                iconClass: 'fa fa-pencil',
                 onClick: function(rowIndex){
                     var queryQueueItem = queryQueueListModel.getItem(rowIndex);
                     queryQueueItem.queryReqObj.formModelAttrs.time_range = -1;
@@ -358,7 +358,7 @@ define([
             }
             actionCell.push({
                 title: cowl.TITLE_VIEW_QUERY_ERROR,
-                iconClass: 'icon-exclamation-sign',
+                iconClass: 'fa fa-exclamation-circle',
                 onClick: function(rowIndex){
                     //TODO - create info modal
                     showInfoWindow(errorMessage, cowl.TITLE_ERROR);
@@ -369,7 +369,7 @@ define([
         if(queryFormTimeRange !== null && queryFormTimeRange != -1) {
             actionCell.push({
                 title: cowl.  TITLE_RERUN_QUERY,
-                iconClass: 'icon-repeat',
+                iconClass: 'fa fa-repeat',
                 onClick: function(rowIndex){
                     var queryQueueItem = queryQueueListModel.getItem(rowIndex);
                     loadQueryFormPage(queryFormModelData, cowc.QUERY_TYPE_RERUN)
@@ -379,7 +379,7 @@ define([
 
         actionCell.push({
             title: cowl.TITLE_DELETE_QUERY,
-            iconClass: 'icon-trash',
+            iconClass: 'fa fa-trash',
             onClick: function(rowIndex){
                 showDeleteQueueModal(queryQueueView, queryQueueType, [queryId], queueColorMap)
             }
@@ -532,7 +532,7 @@ define([
         return [{
             elementId: queryQueueResultGridTabId,
             title: 'Result',
-            iconClass: 'icon-table',
+            iconClass: 'fa fa-table',
             view: "SectionView",
             tabConfig: {
                 activate: function(event, ui) {
@@ -609,7 +609,7 @@ define([
                     actionCell: [
                         {
                             title: 'Analyze Session',
-                            iconClass: 'icon-external-link-sign',
+                            iconClass: 'fa fa-external-link-square',
                             onClick: qewgc.getOnClickSessionAnalyzer(self, queryFormAttributes.queryId, queryFormAttributes.formModelAttrs)
                         }
                     ]
@@ -658,7 +658,7 @@ define([
         queryResultChartTabViewConfig.push({
             elementId: queryQueueResultChartTabId,
             title: 'Chart',
-            iconClass: 'icon-bar-chart',
+            iconClass: 'fa fa-bar-chart-o',
             view: "SectionView",
             tabConfig: {
                 activate: function (event, ui) {
@@ -689,7 +689,7 @@ define([
                             {
                                 elementId: queryResultChartId,
                                 title: cowl.TITLE_CHART,
-                                iconClass: 'icon-bar-chart',
+                                iconClass: 'fa fa-bar-chart-o',
                                 view: "QueryResultLineChartView",
                                 viewConfig: {
                                     queryId: queryId,

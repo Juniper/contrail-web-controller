@@ -73,7 +73,7 @@ define([
                                 viewConfig: {
                                     path: 'autonomous_system',
                                     dataBindValue: 'autonomous_system',
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     placeholder: 'Enter BGP ASN Value'
                                 }
                             },
@@ -84,7 +84,7 @@ define([
                                     label: 'Enable iBGP Auto Mesh',
                                     path: 'ibgp_auto_mesh',
                                     dataBindValue: 'ibgp_auto_mesh',
-                                    class: 'span6'
+                                    class: 'col-xs-6'
                                 }
                             }
                         ]
@@ -139,10 +139,10 @@ define([
                     view: 'FormEditableGridView',
                     viewConfig: {
                         path: 'ipFabricSubnets',
+                        class: 'col-xs-12',
                         collection: 'ipFabricSubnets',
                         validation: 'ipFabricSubnetsValidation',
                         templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
-                        class: "span12",
                         columns: [{
                             elementId: 'ip_fabric_subnets',
                             name: 'Subnet',
@@ -158,14 +158,14 @@ define([
                         }],
                         rowActions: [
                             { onClick: "function() { $root.addSubnet(); }",
-                              iconClass: 'icon-plus'},
+                              iconClass: 'fa fa-plus'},
                             { onClick:
                                 "function() {$root.deleteSubnet($data, this); }",
-                              iconClass: 'icon-minus'}
+                              iconClass: 'fa fa-minus'}
                         ],
                         gridActions: [
                             { onClick: "function() { $root.addSubnet(); }",
-                              iconClass: 'icon-plus'}
+                              iconClass: 'fa fa-plus'}
                         ],
                     }
                 }
@@ -189,7 +189,7 @@ define([
                                 placeholder : "0 - 600 (0)",
                                 dataBindValue: "graceful_restart_params()." +
                                     "graceful_restart_time",
-                                class: "span6"
+                                class: "col-xs-6"
                             }
                         },
                         {
@@ -203,7 +203,7 @@ define([
                                 dataBindValue:
                                     "graceful_restart_params()." +
                                     "long_lived_graceful_restart_time",
-                                class: "span6"
+                                class: "col-xs-6"
                             }
                         }
                     ]
@@ -220,7 +220,7 @@ define([
                                 placeholder : '0 - 600 (30)',
                                 dataBindValue: "graceful_restart_params()." +
                                     "end_of_rib_receive_time",
-                                class: "span6"
+                                class: "col-xs-6"
                             }
                         }
                     ]

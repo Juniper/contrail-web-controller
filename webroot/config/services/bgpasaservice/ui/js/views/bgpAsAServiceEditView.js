@@ -119,7 +119,7 @@ define([
                                         path: "display_name",
                                         dataBindValue: "display_name",
                                         label: "Name",
-                                        class: "span6"
+                                        class: "col-xs-6"
                                     }
                                 },{
                                     elementId: "autonomous_system",
@@ -129,7 +129,7 @@ define([
                                         path: "autonomous_system",
                                         dataBindValue: "autonomous_system",
                                         label : "Autonomous System",
-                                        class: "span6"
+                                        class: "col-xs-6"
                                     }
                                 }
                             ]
@@ -143,7 +143,7 @@ define([
                                         label: "Address Family",
                                         dataBindValue: "bgpaas_session_attributes().address_families.family",
                                         path: "bgpaas_session_attributes.address_families.family",
-                                        class: "span12",
+                                        class: "col-xs-12",
                                         elementConfig: {
                                             placeholder: "Select Address Family",
                                             dataTextField: "text",
@@ -163,7 +163,7 @@ define([
                                         path: "user_created_virtual_machine_interface",
                                         dataBindValue: "user_created_virtual_machine_interface",
                                         label : "Virtual Machine Interface(s)",
-                                        class: "span12",
+                                        class: "col-xs-12",
                                         elementConfig: {
                                             placeholder: "Select Interface(s)",
                                             dataTextField: "text",
@@ -201,7 +201,7 @@ define([
                                                         path: "bgpaas_ip_address",
                                                         dataBindValue: "bgpaas_ip_address",
                                                         label : "IP Address",
-                                                        class: "span6"
+                                                        class: "col-xs-6"
                                                     }
                                                 }
                                             ]},{
@@ -213,7 +213,7 @@ define([
                                                     label: "Hold Time",
                                                     dataBindValue: "bgpaas_session_attributes().hold_time",
                                                     path: "bgpaas_session_attributes.hold_time",
-                                                    class: "span6"
+                                                    class: "col-xs-6"
                                                 }
                                             },{
                                                 elementId: "loop_count",
@@ -223,7 +223,7 @@ define([
                                                     label: "Loop Count",
                                                     dataBindValue: "bgpaas_session_attributes().loop_count",
                                                     path: "bgpaas_session_attributes.loop_count",
-                                                    class: "span6"
+                                                    class: "col-xs-6"
                                                 }
                                             }]},{
                                             columns: [{
@@ -234,7 +234,7 @@ define([
                                                         templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                         dataBindValue: "bgpaas_session_attributes().admin_down",
                                                         path: "bgpaas_session_attributes.admin_down",
-                                                        class: "span6",
+                                                        class: "col-xs-6",
                                                     }
                                                 },{
                                                 elementId: "as_override",
@@ -244,7 +244,7 @@ define([
                                                     templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                     dataBindValue: "bgpaas_session_attributes().as_override",
                                                     path: "bgpaas_session_attributes.as_override",
-                                                    class: "span6",
+                                                    class: "col-xs-6",
                                                 }
                                             }]},{
                                             columns: [{
@@ -255,7 +255,7 @@ define([
                                                         templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                         dataBindValue: "bgpaas_ipv4_mapped_ipv6_nexthop",
                                                         path: "bgpaas_ipv4_mapped_ipv6_nexthop",
-                                                        class: "span6",
+                                                        class: "col-xs-6",
                                                     }
                                                 },{
                                                 elementId: "bgpaas_suppress_route_advertisement",
@@ -265,7 +265,7 @@ define([
                                                     templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                     dataBindValue: "bgpaas_suppress_route_advertisement",
                                                     path: "bgpaas_suppress_route_advertisement",
-                                                    class: "span6",
+                                                    class: "col-xs-6",
                                                 }
                                             }]}/*,{
                                             columns : [{
@@ -277,7 +277,7 @@ define([
                                                             dataBindValue:
                                                                 'user_created_auth_key_type',
                                                             label : 'Authentication Mode',
-                                                            class: 'span6',
+                                                            class: 'col-xs-6',
                                                             elementConfig : {
                                                                 dataTextField :
                                                                 'text',
@@ -298,7 +298,7 @@ define([
                                                             dataBindValue:
                                                             'user_created_auth_key',
                                                             label : 'Authentication Key',
-                                                            class: 'span6'
+                                                            class: 'col-xs-6'
                                                         }
                                                 }]
                                             }*/]

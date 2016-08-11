@@ -195,7 +195,7 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'span8',
+                            class: 'col-xs-8',
                             rows: [{
                                 title: ctwl.SVC_APPLIANCE_DETAILS,
                                 templateGenerator: 'BlockListTemplateGenerator',
@@ -228,7 +228,7 @@ define([
                                         key: 'service_template',
                                         label: 'Service Template',
                                         templateGenerator: 'TextGenerator',
-                                        valueClass: 'span8',
+                                        valueClass: 'col-xs-8',
                                         templateGeneratorConfig: {
                                             formatter: 'svcTemplateFormatter'
                                         }
@@ -355,7 +355,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.TITLE_DEL_SVC_APPLIANCE,
-                "iconClass": 'icon-trash',
+                "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnActionDelSecGrp',
                 "onClick": function() {
                      var svcApplianceModel = new SvcApplianceModel();
@@ -375,7 +375,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.TITLE_CREATE_SVC_APPLIANCE,
-                "iconClass": 'icon-plus',
+                "iconClass": 'fa fa-plus',
                 "onClick": function() {
                     var svcApplianceModel = new SvcApplianceModel({
                         service_template: viewConfig.svcApplData.svcApplSetSvcTmpl

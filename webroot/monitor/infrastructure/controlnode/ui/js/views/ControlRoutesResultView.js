@@ -95,7 +95,7 @@ define([
         var headerActionConfig = [
             {
                 type: 'checked-multiselect',
-                iconClass: 'icon-filter',
+                iconClass: 'fa fa-filter',
                 placeholder: 'Filter Routes',
                 elementConfig: {
                     elementId: 'routeFilterMultiselect',
@@ -172,8 +172,8 @@ define([
                     text: 'Routes'
                 },
                 customControls : [
-                                  '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
-                                  '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                                  '<a class="widget-toolbar-icon"><i class="fa fa-forward"></i></a>',
+                                  '<a class="widget-toolbar-icon"><i class="fa fa-backward"></i></a>',
                               ],
                 defaultControls: {
                     collapseable: false,

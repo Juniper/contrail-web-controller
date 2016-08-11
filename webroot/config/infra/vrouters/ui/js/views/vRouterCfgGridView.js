@@ -121,7 +121,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.CFG_VROUTER_TITLE_MULTI_DELETE,
-                "iconClass": "icon-trash",
+                "iconClass": "fa fa-trash",
                 "linkElementId": "linkvRouterDelete",
                 "onClick": function () {
                     var gridElId = '#' + ctwl.CFG_VROUTER_GRID_ID;
@@ -138,7 +138,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.CFG_VROUTER_TITLE_CREATE,
-                "iconClass": "icon-plus",
+                "iconClass": "fa fa-plus",
                 "onClick": function () {
                     vRouterCfgEditView.model = new VRouterCfgModel();
                     vRouterCfgEditView.renderAddvRouterCfg({
@@ -187,7 +187,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     rows: [
                                         {
                                             title: ctwl.CFG_VROUTER_TITLE_DETAILS,

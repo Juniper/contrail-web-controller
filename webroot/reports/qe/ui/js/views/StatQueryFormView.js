@@ -120,14 +120,14 @@ define([
                                 {
                                     elementId: 'time_range', view: "FormDropdownView",
                                     viewConfig: {
-                                        path: 'time_range', dataBindValue: 'time_range', class: "span3",
+                                        path: 'time_range', dataBindValue: 'time_range', class: "col-xs-3",
                                         elementConfig: {dataTextField: "text", dataValueField: "id", data: cowc.TIMERANGE_DROPDOWN_VALUES}}
                                 },
                                 {
                                     elementId: 'from_time', view: "FormDateTimePickerView",
                                     viewConfig: {
                                         style: 'display: none;',
-                                        path: 'from_time', dataBindValue: 'from_time', class: "span3",
+                                        path: 'from_time', dataBindValue: 'from_time', class: "col-xs-3",
                                         elementConfig: qewu.getFromTimeElementConfig('from_time', 'to_time'),
                                         visible: "time_range() == -1"
                                     }
@@ -136,7 +136,7 @@ define([
                                     elementId: 'to_time', view: "FormDateTimePickerView",
                                     viewConfig: {
                                         style: 'display: none;',
-                                        path: 'to_time', dataBindValue: 'to_time', class: "span3",
+                                        path: 'to_time', dataBindValue: 'to_time', class: "col-xs-3",
                                         elementConfig: qewu.getToTimeElementConfig('from_time', 'to_time'),
                                         visible: "time_range() == -1"
                                     }
@@ -152,7 +152,7 @@ define([
                                         path: 'table_name',
                                         dataBindValue: 'table_name',
                                         dataBindOptionList: 'table_name_data_object',
-                                        class: "span6",
+                                        class: "col-xs-6",
                                         elementConfig: {
                                             defaultValueId: 0, allowClear: false, placeholder: cowl.QE_SELECT_STAT_TABLE,
                                             dataTextField: "name", dataValueField: "name",
@@ -169,7 +169,7 @@ define([
                                 {
                                     elementId: 'select', view: "FormTextAreaView",
                                     viewConfig: {
-                                        path: 'select', dataBindValue: 'select', class: "span9",
+                                        path: 'select', dataBindValue: 'select', class: "col-xs-9",
                                         editPopupConfig: {
                                             renderEditFn: function(event) {
                                                 var tableName = self.model.table_name();
@@ -182,7 +182,7 @@ define([
                                     elementId: 'time-granularity-section',
                                     view: "FormCompositeView",
                                     viewConfig: {
-                                        class: "span3",
+                                        class: "col-xs-3",
                                         style: 'display: none;',
                                         path: 'time_granularity',
                                         label: 'Time Granularity',
@@ -194,7 +194,7 @@ define([
                                                     label: false,
                                                     path: 'time_granularity',
                                                     dataBindValue: 'time_granularity',
-                                                    class: "span4",
+                                                    class: "col-xs-4",
                                                     elementConfig: {min: 1}
                                                 }
                                             },
@@ -205,7 +205,7 @@ define([
                                                     path: 'time_granularity_unit',
                                                     dataBindValue: 'time_granularity_unit',
                                                     dataBindOptionList: 'getTimeGranularityUnits()',
-                                                    class: "span4",
+                                                    class: "col-xs-4",
                                                     elementConfig: {}
                                                 }
                                             }
@@ -223,7 +223,7 @@ define([
                                 {
                                     elementId: 'where', view: "FormTextAreaView",
                                     viewConfig: {
-                                        path: 'where', dataBindValue: 'where', class: "span9", placeHolder: "*",
+                                        path: 'where', dataBindValue: 'where', class: "col-xs-9", placeHolder: "*",
                                         editPopupConfig: {
                                             renderEditFn: function() {
                                                 self.renderWhere({className: cowc.QE_MODAL_CLASS_700});
@@ -241,7 +241,7 @@ define([
                                 {
                                     elementId: 'filters', view: "FormTextAreaView",
                                     viewConfig: {
-                                        path: 'filters', dataBindValue: 'filters', class: "span9",
+                                        path: 'filters', dataBindValue: 'filters', class: "col-xs-9",
                                         label: cowl.TITLE_QE_FILTER,
                                         editPopupConfig: {
                                             renderEditFn: function() {
@@ -261,7 +261,10 @@ define([
                                     elementId: 'advanced_options', view: "FormTextView",
                                     viewConfig: {
                                         text: 'getAdvancedOptionsText()',
-                                        class: "advanced-options-link",
+                                        class: "col-xs-6 margin-0-0-10",
+                                        elementConfig : {
+                                            class: "advanced-options-link"
+                                        },
                                         click: 'toggleAdvancedFields'
                                     }
                                 }
@@ -272,7 +275,7 @@ define([
                                 {
                                     elementId: 'run_query', view: "FormButtonView", label: "Run Query",
                                     viewConfig: {
-                                        class: 'display-inline-block margin-5-10-0-0',
+                                        class: 'display-inline-block margin-0-0-0-15',
                                         disabled: 'is_request_in_progress()',
                                         elementConfig: {
                                             btnClass: 'btn-primary'
@@ -283,7 +286,7 @@ define([
                                     elementId: 'reset_query', view: "FormButtonView", label: "Reset",
                                     viewConfig: {
                                         label: "Reset",
-                                        class: 'display-inline-block margin-5-10-0-0',
+                                        class: 'display-inline-block margin-0-0-0-15',
                                         elementConfig: {
                                             onClick: "reset"
                                         }
@@ -314,7 +317,7 @@ define([
         return {
             elementId: queryResultGridId,
             title: cowl.TITLE_RESULTS,
-            iconClass: 'icon-table',
+            iconClass: 'fa fa-table',
             view: 'QueryResultGridView',
             tabConfig: {
                 activate: function (event, ui) {
@@ -343,7 +346,7 @@ define([
         statChartTabViewConfig.push({
             elementId: queryResultChartId,
             title: cowl.TITLE_CHART,
-            iconClass: 'icon-bar-chart',
+            iconClass: 'fa fa-bar-chart-o',
             view: "QueryResultLineChartView",
             tabConfig: {
                 activate: function (event, ui) {

@@ -121,7 +121,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                    actions : [{
                        type : 'link',
                        text : 'View',
-                       iconClass : 'icon-external-link',
+                       iconClass : 'fa fa-external-link',
                        callback : onScatterChartClick
                    }]
                },
@@ -139,7 +139,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                    items : [{
                        text : infraAlertMsgs['UVE_MISSING']+ ' or ' +
                            infraAlertMsgs['NTP_UNSYNCED_ERROR'],
-                       labelCssClass : 'icon-circle error',
+                       labelCssClass : 'fa fa-circle error',
                        events : {
                            click : function(
                                event) {

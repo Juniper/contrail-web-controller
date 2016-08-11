@@ -171,7 +171,7 @@ define([
                                 view: 'FormInputView',
                                 viewConfig: {
                                     path: 'name',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'name',
                                     disabled: disableOnEdit
                                 }
@@ -186,7 +186,7 @@ define([
                                 viewConfig: {
                                     //path : 'network_ipam_mgmt.ipam_dns_method',
                                     path : 'user_created_dns_method',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue :
                                         'user_created_dns_method',
                                     label: 'DNS Method',
@@ -217,7 +217,7 @@ define([
                                     visible: "user_created_dns_method() == 'virtual-dns-server'",
                                     path :
                                     'network_ipam_mgmt.ipam_dns_server.virtual_dns_server_name',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue :
                                     'network_ipam_mgmt().ipam_dns_server.virtual_dns_server_name',
                                     elementConfig : {
@@ -275,11 +275,11 @@ define([
                                                          {onClick: "function() {\
                                                              $root.addTenantDNS();\
                                                              }",
-                                                             iconClass: 'icon-plus'},
+                                                             iconClass: 'fa fa-plus'},
                                                          {onClick: "function() {\
                                                              $root.deleteTenantDNS($data, this);\
                                                             }",
-                                                          iconClass: 'icon-minus'}
+                                                          iconClass: 'fa fa-minus'}
                                                      ],
                                                      gridActions: [
                                                          {onClick: "function() {\
@@ -304,7 +304,7 @@ define([
                             viewConfig: {
                                 label: 'NTP Server IP',
                                 path : 'user_created.ntp_server',
-                                class: 'span12',
+                                class: 'col-xs-12',
                                 dataBindValue : 'user_created().ntp_server',
                                 placeholder: 'Enter NTP Server IP'
                            }
@@ -321,7 +321,7 @@ define([
                                 label:'Domain Name',
                                 path : 'user_created.domain_name',
                                 visible: "user_created_dns_method() != 'virtual-dns-server'",
-                                class: 'span12',
+                                class: 'col-xs-12',
                                 dataBindValue : 'user_created().domain_name',
                                 placeholder: 'Enter domain name'
                            }

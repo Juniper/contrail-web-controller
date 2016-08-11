@@ -148,7 +148,7 @@ define([
                             elementId: 'display_name',
                             view: "FormInputView",
                             viewConfig: {
-                                class: "span6",
+                                class: "col-xs-6",
                                 placeholder: "Enter Rule Name",
                                 disabled: isDisable,
                                 path: 'display_name',
@@ -159,7 +159,7 @@ define([
                             elementId: 'severity',
                             view: "FormDropdownView",
                             viewConfig: {
-                                class: "span6",
+                                class: "col-xs-6",
                                 path: 'alarm_severity',
                                 label: 'Severity',
                                 dataBindValue: 'alarm_severity',
@@ -201,7 +201,7 @@ define([
                             elementId: 'uve_keys',
                             view: "FormMultiselectView",
                             viewConfig: {
-                                class: "span6",
+                                class: "col-xs-6",
                                 path: 'uve_keys.uve_key',
                                 label: "UVE Keys",
                                 dataBindValue: 'uve_keys().uve_key',
@@ -235,7 +235,7 @@ define([
                             elementId: 'enable',
                             view: "FormCheckboxView",
                             viewConfig: {
-                                class: "span6",
+                                class: "col-xs-6",
                                 path: 'id_perms.enable',
                                 label: "Enabled",
                                 dataBindValue: 'id_perms().enable',
@@ -248,7 +248,7 @@ define([
                         columns: [{ elementId: 'description',
                             view: "FormTextAreaView",
                             viewConfig: {
-                                class: "span12",
+                                class: "col-xs-12",
                                 path: 'id_perms.description',
                                 label: "Description",
                                 dataBindValue: 'id_perms().description',
@@ -261,6 +261,7 @@ define([
                             viewConfig: {
                                 label: "Rule",
                                 collection: 'orRules()',
+                                class: 'col-xs-12',
                                 templateId: cowc.TMPL_QUERY_OR_COLLECTION_VIEW,
                                 accordionable: true,
                                 accordionConfig: {
@@ -270,11 +271,11 @@ define([
                                     {
                                         rowActions: [
                                             {
-                                                onClick: 'addOrRuleAtIndex()', iconClass: 'icon-plus',
+                                                onClick: 'addOrRuleAtIndex()', iconClass: 'fa fa-plus',
                                                 viewConfig: {width: 20}
                                             },
                                             {
-                                                onClick: "deleteOrRule()", iconClass: 'icon-remove',
+                                                onClick: "deleteOrRule()", iconClass: 'fa fa-remove',
                                                 viewConfig: {width: 20}
                                             },
                                         ],
@@ -289,11 +290,11 @@ define([
                                                         {
                                                             rowActions: [
                                                                 {
-                                                                    onClick: "deleteRule()", iconClass: 'icon-remove',
+                                                                    onClick: "deleteRule()", iconClass: 'fa fa-remove',
                                                                     viewConfig: {width: 20}
                                                                 },
                                                                 {
-                                                                    onClick: "addRuleAtIndex()", iconClass: 'icon-plus',
+                                                                    onClick: "addRuleAtIndex()", iconClass: 'fa fa-plus',
                                                                     viewConfig: {width: 20}
                                                                 }
                                                             ],

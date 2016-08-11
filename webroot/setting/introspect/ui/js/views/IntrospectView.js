@@ -60,7 +60,7 @@ define([
                         viewConfig: {
                             header: {
                                 title: cowl.get(value) + ' ' + ctwl.TITLE_INTROSPECT,
-                                iconClass: "icon-search"
+                                iconClass: "fa fa-search"
                             },
                             controls: {
                                 top: {

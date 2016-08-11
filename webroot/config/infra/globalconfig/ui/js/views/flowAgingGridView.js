@@ -71,7 +71,7 @@ define([
                     },
                     errorGettingData: {
                         type: 'error',
-                        iconClasses: 'icon-warning',
+                        iconClasses: 'fa fa-warning',
                         text: 'Error in getting Flow Aging.'
                     }
                 }
@@ -107,7 +107,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.TITLE_EDIT_FLOW_AGING,
-                "iconClass": 'icon-edit',
+                "iconClass": 'fa fa-pencil-square-o',
                 "onClick": function() {
                     var ajaxConfig = {
                         url : "/api/tenants/config/get-config-details",

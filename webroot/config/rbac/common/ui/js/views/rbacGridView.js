@@ -123,7 +123,7 @@ define([
             {
                 "type" : "link",
                 "title" : "Insert After",
-                "iconClass" : "icon-plus",
+                "iconClass" : "fa fa-plus",
                 "onClick" : function(rowIndex) {
                     var gridObj = $(gridElId).data('contrailGrid'),
                         gridData = gridObj._dataView.getItems(),
@@ -172,7 +172,7 @@ define([
             {
                 "type" : "link",
                 "title" : ctwl.TITLE_RBAC_MULTI_DELETE,
-                "iconClass": 'icon-trash',
+                "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnDeleteRBAC',
                 "onClick" : function() {
                     var gridObj = $(gridElId).data('contrailGrid'),
@@ -202,7 +202,7 @@ define([
             {
                 "type" : "link",
                 "title" : ctwl.TITLE_CREATE_RBAC,
-                "iconClass" : "icon-plus",
+                "iconClass" : "fa fa-plus",
                 "onClick" : function() {
                     var gridObj = $(gridElId).data('contrailGrid'),
                         gridData = gridObj._dataView.getItems(),

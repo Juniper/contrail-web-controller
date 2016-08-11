@@ -26,7 +26,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                                                 "Config Name",
                                             dataBindValue: "display_name",
                                             label: "Name",
-                                            class: "span6"
+                                            class: "col-xs-6"
                                         }
                                     },
                                     {
@@ -41,7 +41,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                                                 "default_forwarding_class_id",
                                             label:
                                                 "Default Forwarding Class ID",
-                                            class: "span6"
+                                            class: "col-xs-6"
                                         }
                                     }
                                 ]
@@ -145,6 +145,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                 view: "FormEditableGridView",
                 viewConfig: {
                     path : 'dscp_entries_fc_pair',
+                    class: 'col-xs-12',
                     validation:
                    'dscpValidations',
                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -157,11 +158,11 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                         {onClick: "function() {\
                             $root.addDSCPEntry();\
                             }",
-                         iconClass: 'icon-plus'},
+                         iconClass: 'fa fa-plus'},
                         {onClick: "function() {\
                             $root.deleteDSCPEntry($data, this);\
                            }",
-                         iconClass: 'icon-minus'}
+                         iconClass: 'fa fa-minus'}
                     ],
                     gridActions: [
                         {onClick: "function() {\
@@ -179,6 +180,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                 view: "FormEditableGridView",
                 viewConfig: {
                     path : 'vlan_priority_entries_fc_pair',
+                    class: 'col-xs-12',
                     validation:
                    'vlanValidations',
                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -191,11 +193,11 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                         {onClick: "function() {\
                             $root.addVlanPriorityEntry();\
                             }",
-                         iconClass: 'icon-plus'},
+                         iconClass: 'fa fa-plus'},
                         {onClick: "function() {\
                             $root.deleteVlanPriorityEntry($data, this);\
                            }",
-                         iconClass: 'icon-minus'}
+                         iconClass: 'fa fa-minus'}
                     ],
                     gridActions: [
                         {onClick: "function() {\
@@ -213,6 +215,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                 view: "FormEditableGridView",
                 viewConfig: {
                     path : 'mpls_exp_entries_fc_pair',
+                    class: 'col-xs-12',
                     validation:
                    'mplsValidations',
                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -225,11 +228,11 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                         {onClick: "function() {\
                             $root.addMPLSExpEntry();\
                             }",
-                         iconClass: 'icon-plus'},
+                         iconClass: 'fa fa-plus'},
                         {onClick: "function() {\
                             $root.deleteMPLSExpEntry($data, this);\
                            }",
-                         iconClass: 'icon-minus'}
+                         iconClass: 'fa fa-minus'}
                     ],
                     gridActions: [
                         {onClick: "function() {\

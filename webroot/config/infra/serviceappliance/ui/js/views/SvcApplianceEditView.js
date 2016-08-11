@@ -119,7 +119,7 @@ define([
                             path: 'service_appliance_user_credentials.username',
                             placeholder: 'Enter User Name',
                             label: 'User Name',
-                            class: 'span6',
+                            class: 'col-xs-6',
                             dataBindValue:
                                     'service_appliance_user_credentials().username',
                         }
@@ -130,7 +130,7 @@ define([
                         viewConfig: {
                             path:
                                 'service_appliance_user_credentials.password',
-                            class: 'span6',
+                            class: 'col-xs-6',
                             placeholder: 'Enter Password',
                             label: 'Password',
                             type: 'password',
@@ -159,7 +159,7 @@ define([
                             collection: 'svcApplProperties',
                             validation: 'svcApplPropValidation',
                             templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
-                            class: 'span12',
+                            class: 'col-xs-12',
                             columns: [{
                                 elementId: 'key',
                                 name: 'Key',
@@ -186,9 +186,9 @@ define([
                             }],
                             rowActions: [
                                  {onClick: "function() { $root.addKeyValuePair(); }",
-                                 iconClass: 'icon-plus'},
+                                 iconClass: 'fa fa-plus'},
                                 {onClick: "function() { $root.deleteKeyValuePair($data, this); }",
-                                 iconClass: 'icon-minus'}
+                                 iconClass: 'fa fa-minus'}
                             ],
                             gridActions: [
                                 {onClick: "function() { addKeyValuePair(); }",
@@ -227,6 +227,7 @@ define([
                         view: "FormEditableGridView",
                         viewConfig: {
                             path : 'interfaces',
+                            class: 'col-xs-12',
                             validation: 'svcApplInterfaceValidation',
                             templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                             collection: 'interfaces',
@@ -289,7 +290,7 @@ define([
                                     placeholder: 'Enter Service Appliance Name',
                                     label: 'Service Appliance',
                                     path: 'display_name',
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     dataBindValue: 'display_name',
                                 }
                             },
@@ -300,7 +301,7 @@ define([
                                     label: 'IP Address',
                                     placeholder: 'xxx.xxx.xxx.xxx',
                                     path: 'service_appliance_ip_address',
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     dataBindValue:
                                             'service_appliance_ip_address'
                                 }
@@ -316,7 +317,7 @@ define([
                                     label: 'Service Appliance Set',
                                     disabled: true,
                                     path: 'service_appliance_set',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'service_appliance_set'
                                 }
                             }
@@ -331,7 +332,7 @@ define([
                                     label: 'Service Template',
                                     disabled: true,
                                     path: 'service_template',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue: 'service_template'
                                 }
                             }

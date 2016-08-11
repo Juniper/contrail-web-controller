@@ -104,7 +104,7 @@ define([
                             {
                                 type: 'link',
                                 text: 'View',
-                                iconClass: 'icon-external-link',
+                                iconClass: 'fa fa-external-link',
                                 callback: onScatterChartClick
                             }
                         ],

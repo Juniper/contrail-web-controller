@@ -146,7 +146,7 @@ define([
                                     view : "FormRadioButtonView",
                                     viewConfig : {
                                         label : '',
-                                        class : 'span3',
+                                        class : 'col-xs-3',
                                         path : 'traceflow_radiobtn_name',
                                         dataBindValue : 'traceflow_radiobtn_name',
                                         elementConfig: {
@@ -164,7 +164,7 @@ define([
                                     viewConfig : {
                                         label : 'Virtual Router',
                                         visible : 'showvRouter',
-                                        class : 'span4',
+                                        class : 'col-xs-4',
                                         path : 'vrouter_dropdown_name',
                                         dataBindValue : 'vrouter_dropdown_name',
                                         elementConfig : {
@@ -183,7 +183,7 @@ define([
                                    viewConfig : {
                                        label : 'Virtual Machine',
                                        visible : 'showInstance',
-                                       class : 'span4',
+                                       class : 'col-xs-4',
                                        path : 'instance_dropdown_name',
                                        dataBindValue : 'instance_dropdown_name',
                                        elementConfig : {

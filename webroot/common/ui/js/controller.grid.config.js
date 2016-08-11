@@ -239,7 +239,7 @@ define([
                                     useServerTime: true
                                 }
                             })
-                        }
+                        };
                         return lazyAjaxConfig;
                     },
                     successCallback: function (response, contrailListModel) {
@@ -267,7 +267,7 @@ define([
         this.getAcknowledgeAction = function (onClickFunction, divider) {
             return {
                 title: ctwl.TITLE_ACKNOWLEDGE,
-                iconClass: 'icon-check-sign',
+                iconClass: 'fa fa-check-square',
                 width: 80,
                 disabled:true,
                 divider: contrail.checkIfExist(divider) ? divider : false,
@@ -277,7 +277,7 @@ define([
         this.getAlertHistoryAction = function (onClickFunction, divider) {
             return {
                 title: ctwl.TITLE_ALARM_HISTORY,
-                iconClass: 'icon-th',
+                iconClass: 'fa fa-th',
                 width: 80,
                 divider: contrail.checkIfExist(divider) ? divider : false,
                 onClick: onClickFunction
@@ -286,7 +286,7 @@ define([
         this.getEditConfig = function (title, onClickFunction, divider) {
             return {
                 title: title,
-                iconClass: 'icon-edit',
+                iconClass: 'fa fa-pencil-square-o',
                 width: 80,
                 divider: contrail.checkIfExist(divider) ? divider : false,
                 onClick: onClickFunction
@@ -295,7 +295,7 @@ define([
         this.getDeleteConfig = function (title, onClickFunction, divider) {
             return {
                 title: title,
-                iconClass: 'icon-trash',
+                iconClass: 'fa fa-trash',
                 width: 80,
                 divider: contrail.checkIfExist(divider) ? divider : false,
                 onClick: onClickFunction
@@ -304,7 +304,7 @@ define([
         this.getEditAction = function (onClickFunction, title, divider) {
             return {
                 title: title,
-                iconClass: 'icon-edit',
+                iconClass: 'fa fa-pencil-square-o',
                 width: 80,
                 divider: contrail.checkIfExist(divider) ? divider : false,
                 onClick: onClickFunction
@@ -313,7 +313,7 @@ define([
         this.getListAction = function (onClickFunction, title, divider) {
             return {
                 title: title,
-                iconClass: 'icon-list-alt',
+                iconClass: 'fa fa-list-alt',
                 width: 80,
                 divider: contrail.checkIfExist(divider) ? divider : false,
                 onClick: onClickFunction
@@ -322,7 +322,7 @@ define([
         this.getDeleteAction = function (onClickFunction, divider) {
             return {
                 title: ctwl.TITLE_DELETE_CONFIG,
-                iconClass: 'icon-trash',
+                iconClass: 'fa fa-trash',
                 width: 80,
                 divider: contrail.checkIfExist(divider) ? divider : false,
                 onClick: onClickFunction

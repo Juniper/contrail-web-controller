@@ -226,7 +226,7 @@ define([
 	            {
                     "type" : "link",
 	                "title" : ctwl.TITLE_PACKET_CAPTURE_MULTI_DELETE,
-	                "iconClass": 'icon-trash',
+	                "iconClass": 'fa fa-trash',
                     "linkElementId": 'btnDeletePacketCapture',
 	                "onClick" : function() {
 	                    var packetCaptureModel = new PacketCaptureModel();
@@ -252,7 +252,7 @@ define([
 	            {
 	                "type" : "link",
 	                "title" : ctwl.TITLE_ADD_PACKET_CAPTURE,
-	                "iconClass" : "icon-plus",
+	                "iconClass" : "fa fa-plus",
 	                "onClick" : function() {
                         analyzerImageCheck(function(){
 	                        var packetCaptureModel = new PacketCaptureModel();
@@ -284,7 +284,7 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'span12',
+                            class: 'col-xs-12',
                             rows: [{
                                 title: 'Details',
                                 templateGenerator: 'BlockListTemplateGenerator',

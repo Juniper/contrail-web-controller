@@ -22,7 +22,7 @@ define([
                     viewConfig: {
                         header: {
                             title: 'Traffic Statistics',
-                            iconClass: 'icon-spinner icon-spin'
+                            iconClass: 'fa fa-spinner fa-spin'
                         },
                         controls: {
                             top: {

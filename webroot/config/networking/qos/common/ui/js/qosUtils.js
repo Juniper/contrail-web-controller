@@ -13,7 +13,7 @@
                          templateGenerator: 'ColumnSectionTemplateGenerator',
                          templateGeneratorConfig: {
                              columns: [{
-                                 class: 'span6',
+                                 class: 'col-xs-6',
                                  rows: [{
                                      title: 'Details',
                                      templateGenerator:

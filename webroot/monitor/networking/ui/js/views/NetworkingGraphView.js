@@ -205,14 +205,14 @@ define([
             },
             custom: {
                 resize: {
-                    iconClass: 'icon-resize-full',
+                    iconClass: 'fa fa-expand',
                     title: 'Resize',
                     events: {
                         click: function (e, self, controlPanelSelector) {
-                            $(self).find('i').addClass('icon-spin icon-spinner');
+                            $(self).find('i').addClass('fa fa-spin fa-spinner');
                             setTimeout(function () {
-                                $(self).find('i').removeClass('icon-spin icon-spinner');
-                                $(self).find('i').toggleClass('icon-resize-full').toggleClass('icon-resize-small');
+                                $(self).find('i').removeClass('fa-spin fa-spinner');
+                                $(self).find('i').toggleClass('fa-expand').toggleClass('fa-compress');
                                 adjustGraphDimension(configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId, false);
                                 $(connectedSelectorId).panzoom('reset');
                                 $(controlPanelSelector).find('.control-panel-item').removeClass('disabled');
@@ -224,7 +224,7 @@ define([
                 realign: {
                     iconClass: function (graphView) {
                         var rankDir = graphView.model.rankDir;
-                        return ((rankDir == ctwc.GRAPH_DIR_TB) ? 'icon-align-left' : 'icon-align-center');
+                        return ((rankDir == ctwc.GRAPH_DIR_TB) ? 'fa fa-bars fa-rotate-90' : 'fa fa-bars');
                     },
                     title: 'Change Direction',
                     events: {
@@ -233,16 +233,16 @@ define([
                                 connectedGraphModel = connectedGraphView.model;
 
                             setLoadingScreen(connectedGraphModel);
-                            if ($(self).find('i').hasClass('icon-align-left')) {
-                                $(self).find('i').removeClass('icon-align-left').toggleClass('icon-spin icon-spinner');
+                            if ($(self).find('i').hasClass('fa-rotate-90')) {
+                                $(self).find('i').removeClass('fa-rotate-90').toggleClass('fa-spin fa-spinner');
                                 setTimeout(function () {
                                     connectedGraphModel.reLayoutGraph(ctwc.GRAPH_DIR_LR);
                                     //Hack to set width for Webkit browser
                                     var width = $(connectedSelectorId + ' svg').attr('width');
                                     $(connectedSelectorId + ' svg').attr('width', width);
                                 }, 200)
-                            } else if ($(self).find('i').hasClass('icon-align-center')) {
-                                $(self).find('i').removeClass('icon-align-center').toggleClass('icon-spin icon-spinner');
+                            } else if ($(self).find('i').hasClass('fa-bars')) {
+                                $(self).find('i').removeClass('fa-bars').toggleClass('fa-spin fa-spinner');
                                 setTimeout(function () {
                                     connectedGraphModel.reLayoutGraph(ctwc.GRAPH_DIR_TB);
                                     var width = $(connectedSelectorId + ' svg').attr('width');
@@ -253,7 +253,7 @@ define([
                     }
                 },
                 search: {
-                    iconClass: 'icon-search',
+                    iconClass: 'fa fa-search',
                     title: 'Search',
                     events: {
                         click: function (e, self, controlPanelSelector) {
@@ -314,7 +314,7 @@ define([
                     }
                 },
                 refresh: {
-                    iconClass: 'icon-repeat',
+                    iconClass: 'fa fa-repeat',
                     title: 'Refresh',
                     events: {
                         click: function (e, self, controlPanelSelector) {
@@ -322,8 +322,8 @@ define([
                                 connectedGraphModel = connectedGraphView.model;
 
                             setLoadingScreen(connectedGraphModel);
-                            if ($(self).find('i').hasClass('icon-repeat')) {
-                                $(self).find('i').removeClass('icon-repeat').toggleClass('icon-spin icon-spinner');
+                            if ($(self).find('i').hasClass('fa-repeat')) {
+                                $(self).find('i').removeClass('fa-repeat').toggleClass('fa-spin fa-spinner');
                                 connectedGraphView.refreshData();
                             }
                         }
@@ -472,7 +472,7 @@ define([
          */
         if ((!contrail.checkIfExist(configGraph) || contrail.checkIfExist($(configSelectorId).data('graph-size'))) &&
             (!contrail.checkIfExist(connectedGraph) || contrail.checkIfExist($(connectedSelectorId).data('graph-size')))) {
-            var resizeFlag = ($(selectorId).parents('.visualization-container').find('.icon-resize-small').is(':visible')),
+            var resizeFlag = ($(selectorId).parents('.visualization-container').find('.fa-compress').is(':visible')),
                 tabHeight = resizeFlag ? 140 : 510, //TODO - move to constants
                 minHeight = 275,
                 availableHeight = window.innerHeight - tabHeight,
@@ -505,8 +505,8 @@ define([
             }
 
             if (initResizeFlag && ((actualGraphHeight - adjustedHeight) > 20)) {
-                $(selectorId).parents('.visualization-container').find('.icon-resize-full')
-                    .removeClass('icon-resize-full').addClass('icon-resize-small');
+                $(selectorId).parents('.visualization-container').find('.fa-expand')
+                    .removeClass('fa-expand').addClass('fa fa-compress');
 
                 adjustedHeight = window.innerHeight - 140;
             }
@@ -558,9 +558,9 @@ define([
             removeHighlight4AllElements();
         }
 
-        if (!$(selectorId).find('.refresh i').hasClass('icon-repeat')) {
+        if (!$(selectorId).find('.refresh i').hasClass('fa-repeat')) {
             setTimeout(function () {
-                $(selectorId).find('.refresh i').removeClass('icon-spin icon-spinner').addClass('icon-repeat');
+                $(selectorId).find('.refresh i').removeClass('fa-spin fa-spinner').addClass('fa fa-repeat');
             }, 200);
         }
     }

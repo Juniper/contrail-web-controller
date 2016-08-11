@@ -195,7 +195,7 @@ define([
                             {
                                 elementId: 'ip_address', view: "FormDropdownView",
                                 viewConfig: {
-                                    path: 'ip_address', class: "span4",
+                                    path: 'ip_address', class: "col-xs-4",
                                     dataBindValue: 'ip_address',
                                     dataBindOptionList: "ip_address_option_list()",
                                     elementConfig: {
@@ -206,7 +206,7 @@ define([
                             {
                                 elementId: 'module', view: "FormDropdownView",
                                 viewConfig: {
-                                    path: 'module', class: "span4",
+                                    path: 'module', class: "col-xs-4",
                                     dataBindValue: 'module', dataBindOptionList: "module_option_list()",
                                     elementConfig: {
                                         dataTextField: "text", dataValueField: "id",
@@ -219,7 +219,7 @@ define([
                             {
                                 elementId: 'module_introspect', view: "FormDropdownView",
                                 viewConfig: {
-                                    path: 'module_introspect', class: "span4",
+                                    path: 'module_introspect', class: "col-xs-4",
                                     label: 'Introspect',
                                     dataBindValue: 'module_introspect', dataBindOptionList: "module_introspect_option_list()",
                                     elementConfig: {
@@ -252,7 +252,7 @@ define([
                 }
                 row['columns'].push({
                     elementId: elementName, view: "FormInputView",
-                    viewConfig: {path: elementName, dataBindValue: elementName, class: "span4"}
+                    viewConfig: {path: elementName, dataBindValue: elementName, class: "col-xs-4"}
                 });
 
                 i++;
@@ -265,7 +265,7 @@ define([
                     elementId: 'submit-introspect' + introspectNode + '-' + introspectPort,
                     view: "FormButtonView", label: "Submit",
                     viewConfig: {
-                        class: 'display-inline-block margin-5-10-0-0',
+                        class: 'display-inline-block margin-0-0-0-15',
                         label: 'Submit',
                         elementConfig: {
                             btnClass: 'btn-primary'

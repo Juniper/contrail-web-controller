@@ -17,7 +17,7 @@ define([
                             label : "Version",
                             path: "user_created_version",
                             dataBindValue:"user_created_version",
-                            class: "span12",
+                            class: "col-xs-12",
                             elementConfig: {
                                     dataObj : ctwc.SNMP_VERSION_DATA
                             }
@@ -42,7 +42,7 @@ define([
                                          label : "Community",
                                          path: "physical_router_snmp_credentials.v2_community",
                                          dataBindValue: "physical_router_snmp_credentials().v2_community",
-                                         class: "span12"
+                                         class: "col-xs-12"
                                      }
                                  },
                              ]
@@ -70,7 +70,7 @@ define([
                                         label : "Authentication Protocol",
                                         path: "physical_router_snmp_credentials().v3_authentication_protocol",
                                         dataBindValue: "physical_router_snmp_credentials().v3_authentication_protocol",
-                                        class: "span6"
+                                        class: "col-xs-6"
                                     }
                                 },
                                 {
@@ -81,7 +81,7 @@ define([
                                         path: "physical_router_snmp_credentials().v3_authentication_password",
                                         type: "password",
                                         dataBindValue: "physical_router_snmp_credentials().v3_authentication_password",
-                                        class: "span6"
+                                        class: "col-xs-6"
                                     }
                                 }
                             ]
@@ -106,7 +106,7 @@ define([
                                         label : "Privacy Protocol",
                                         path: "physical_router_snmp_credentials().v3_privacy_protocol",
                                         dataBindValue: "physical_router_snmp_credentials().v3_privacy_protocol",
-                                        class: "span6"
+                                        class: "col-xs-6"
                                     }
                                  },
                                 {
@@ -117,7 +117,7 @@ define([
                                         path: "physical_router_snmp_credentials().v3_privacy_password",
                                         type: "password",
                                         dataBindValue: "physical_router_snmp_credentials().v3_privacy_password",
-                                        class: "span6"
+                                        class: "col-xs-6"
                                     }
                                 }
                             ]
@@ -141,7 +141,7 @@ define([
                                          label : "Security Engine Id",
                                          path: "physical_router_snmp_credentials().v3_security_engine_id",
                                          dataBindValue:"physical_router_snmp_credentials().v3_security_engine_id",
-                                         class: "span12"
+                                         class: "col-xs-12"
                                      }
                                 }
                             ]
@@ -155,7 +155,7 @@ define([
                                         label : "Context",
                                         path: "physical_router_snmp_credentials().v3_context",
                                         dataBindValue: "physical_router_snmp_credentials().v3_context",
-                                        class: "span12"
+                                        class: "col-xs-12"
                                     }
                                 }
                             ]
@@ -169,7 +169,7 @@ define([
                                         label : "Context Engine Id",
                                         path: "physical_router_snmp_credentials().v3_context_engine_id",
                                         dataBindValue: "physical_router_snmp_credentials().v3_context_engine_id",
-                                        class: "span12"
+                                        class: "col-xs-12"
                                     }
                                 }
                             ]
@@ -183,7 +183,7 @@ define([
                                         label : "Engine Id",
                                         path: "physical_router_snmp_credentials().v3_engine_id",
                                         dataBindValue: "physical_router_snmp_credentials().v3_engine_id",
-                                        class: "span12"
+                                        class: "col-xs-12"
                                     }
                                 }
                             ]
@@ -197,7 +197,7 @@ define([
                                         label : "Engine Boots",
                                         path: "physical_router_snmp_credentials.v3_engine_boots",
                                         dataBindValue: "physical_router_snmp_credentials().v3_engine_boots",
-                                        class: "span12"
+                                        class: "col-xs-12"
                                     }
                                 }
                             ]
@@ -211,7 +211,7 @@ define([
                                         label : "Engine Time",
                                         path: "physical_router_snmp_credentials.v3_engine_time",
                                         dataBindValue: "physical_router_snmp_credentials().v3_engine_time",
-                                        class: "span12"
+                                        class: "col-xs-12"
                                     }
                                 }
                             ]
@@ -231,7 +231,7 @@ define([
                            placeholder: "161",
                            path: "physical_router_snmp_credentials().local_port",
                            dataBindValue: "physical_router_snmp_credentials().local_port",
-                           class: "span12"
+                           class: "col-xs-12"
                        }
                    }
                 ]
@@ -247,7 +247,7 @@ define([
                             label : "Timeout (secs)",
                             path: "physical_router_snmp_credentials.timeout",
                             dataBindValue: "physical_router_snmp_credentials().timeout",
-                            class: "span12"
+                            class: "col-xs-12"
                         }
                     }
                 ]
@@ -263,7 +263,7 @@ define([
                             label : "Retries",
                             path: "physical_router_snmp_credentials.retries",
                             dataBindValue: "physical_router_snmp_credentials().retries",
-                            class: "span12"
+                            class: "col-xs-12"
                         }
                     }
                 ]
@@ -288,7 +288,7 @@ define([
                                         label : "Security Name",
                                         path: "physical_router_snmp_credentials().v3_security_name",
                                         dataBindValue: "physical_router_snmp_credentials().v3_security_name",
-                                        class: "span12"
+                                        class: "col-xs-12"
                                     }
                                 }
                             ]
@@ -302,7 +302,7 @@ define([
                                         label : "Security Level",
                                         path: "user_created_security_level",
                                         dataBindValue: "user_created_security_level",
-                                        class: "span12",
+                                        class: "col-xs-12",
                                         elementConfig:{
                                             allowClear: true,
                                             dataTextField: "text",
@@ -391,12 +391,12 @@ define([
                              {
                                     onClick: "function() {\
                                     $root.addPort(); }",
-                                    iconClass: 'icon-plus'
+                                    iconClass: 'fa fa-plus'
                                 },
                                 {
                                     onClick: "function() {\
                                     $root.deletePort($data, this); }",
-                                    iconClass: 'icon-minus'
+                                    iconClass: 'fa fa-minus'
                                 }
                             ],
                             gridActions: [
@@ -436,7 +436,7 @@ define([
                             label : "SNMP Monitored",
                             path: "snmpMntd",
                             dataBindValue: "snmpMntd",
-                            class: "span12"
+                            class: "col-xs-12"
                         }
                     }
                 ]
@@ -452,7 +452,7 @@ define([
                             label : "TOR Agent(s)",
                             path: "user_created_torAgent1",
                             dataBindValue: "user_created_torAgent1",
-                            class: "span6",
+                            class: "col-xs-6",
                             elementConfig:{
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_TOR_AGENT_NAME,
@@ -472,7 +472,7 @@ define([
                             label : "",
                             path: "user_created_torAgent2",
                             dataBindValue: "user_created_torAgent2",
-                            class: "span6",
+                            class: "col-xs-6",
                             elementConfig:{
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_TOR_AGENT_NAME,
@@ -498,7 +498,7 @@ define([
                             label: "TSN(s)",
                             path: "user_created_tsn1",
                             dataBindValue: "user_created_tsn1",
-                            class: "span6",
+                            class: "col-xs-6",
                             elementConfig:{
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_TSN_NAME,
@@ -518,7 +518,7 @@ define([
                             label : "",
                             path: "user_created_tsn2",
                             dataBindValue: "user_created_tsn2",
-                            class: "span6",
+                            class: "col-xs-6",
                             elementConfig:{
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_TSN_NAME,
@@ -545,7 +545,7 @@ define([
                             disabled: disableId,
                             path: "name",
                             dataBindValue: "name",
-                            class: "span12"
+                            class: "col-xs-12"
                         }
                     }
                 ]
@@ -561,7 +561,7 @@ define([
                             label: "Vendor",
                             path: "physical_router_vendor_name",
                             dataBindValue: "physical_router_vendor_name",
-                            class: "span6"
+                            class: "col-xs-6"
                         }
                     },
                     {
@@ -571,7 +571,7 @@ define([
                             label : "Model",
                             path: "physical_router_product_name",
                             dataBindValue: "physical_router_product_name",
-                            class: "span6"
+                            class: "col-xs-6"
                         }
                     }
                 ]
@@ -587,7 +587,7 @@ define([
                             label : "Management IP",
                             path: "physical_router_management_ip",
                             dataBindValue: "physical_router_management_ip",
-                            class: "span6"
+                            class: "col-xs-6"
                         }
                     },
                     {
@@ -597,7 +597,7 @@ define([
                             label : "VTEP Address",
                             path: "physical_router_dataplane_ip",
                             dataBindValue: "physical_router_dataplane_ip",
-                            class: "span6"
+                            class: "col-xs-6"
                         }
                     }
                 ]
@@ -619,7 +619,7 @@ define([
                                         label : "Type",
                                         path: "virtualRouterType",
                                         dataBindValue: "virtualRouterType",
-                                        class: "span12",
+                                        class: "col-xs-12",
                                         elementConfig:{
                                             allowClear: true,
                                             dataTextField: "text",
@@ -667,7 +667,7 @@ define([
                                         label : "Netconf Managed",
                                         path: "physical_router_vnc_managed",
                                         dataBindValue: "physical_router_vnc_managed",
-                                        class: "span12"
+                                        class: "col-xs-12"
                                     }
                                 }
                             ]
@@ -681,7 +681,7 @@ define([
                                         label : "Username",
                                         path: "physical_router_user_credentials().username",
                                         dataBindValue: "physical_router_user_credentials().username",
-                                        class: "span6"
+                                        class: "col-xs-6"
                                     }
                                 },
                                 {
@@ -692,7 +692,7 @@ define([
                                         path: "physical_router_user_credentials().password",
                                         type: "password",
                                         dataBindValue: "physical_router_user_credentials().password",
-                                        class: "span6"
+                                        class: "col-xs-6"
                                     }
                                 }
                             ]

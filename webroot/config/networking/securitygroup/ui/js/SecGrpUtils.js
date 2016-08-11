@@ -310,6 +310,7 @@ define([
                     elementId: 'secGrpRules',
                     view: 'SectionView',
                     viewConfig: {
+                        class: 'col-xs-12',
                         rows: [{
                             columns: [{
                                 elementId: 'rules',
@@ -457,12 +458,12 @@ define([
                                         onClick: "function() {\
                                             $root.addSecGrpRule();\
                                         }",
-                                        iconClass: 'icon-plus'
+                                        iconClass: 'fa fa-plus'
                                     },{
                                         onClick: "function() {\
                                             $root.deleteSecGrpRules($data, this);\
                                         }",
-                                        iconClass: 'icon-minus'
+                                        iconClass: 'fa fa-minus'
                                     }],
                                     gridActions: [{
                                         onClick: "function() {\

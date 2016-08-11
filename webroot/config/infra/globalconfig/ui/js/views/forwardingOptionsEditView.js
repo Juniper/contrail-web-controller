@@ -18,7 +18,7 @@ define([
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT),
                 editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
                 self = this;
-            cowu.createModal({'modalId': modalId, 'className': 'modal-400',
+            cowu.createModal({'modalId': modalId, 'className': 'modal-560',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 self.model.configureForwardingOptions({
@@ -74,7 +74,7 @@ define([
                                     path: 'forwarding_mode',
                                     dataBindValue:
                                         'forwarding_mode',
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     elementConfig: {
                                         dataTextField : "text",
                                         dataValueField : "id",
@@ -91,7 +91,7 @@ define([
                                 viewConfig: {
                                     path: 'flow_export_rate',
                                     dataBindValue: 'flow_export_rate',
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     placeholder: 'Flow export rate' +
                                             ' in number'
                                 }
@@ -108,7 +108,7 @@ define([
                                     path: 'vxlan_network_identifier_mode',
                                     dataBindValue:
                                         'vxlan_network_identifier_mode',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     elementConfig: {
                                         dataObj: [
                                             {'label': 'Auto Configured',
@@ -128,10 +128,11 @@ define([
                                 view: 'FormEditableGridView',
                                 viewConfig: {
                                     path: 'encapPriorityOrders',
+                                    class: 'col-xs-12',
                                     collection: 'encapPriorityOrders',
                                     validation: 'encapPriorityOrdersValidation',
                                     templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
-                                    class: "span12",
+                                    class: "col-xs-12",
                                     columns: [{
                                         elementId: 'encapsulation_priorities',
                                         name: 'Encapsulation Priority Order',
@@ -157,13 +158,13 @@ define([
                                     }],
                                     rowActions: [
                                         { onClick: "function() { $root.addEncapPriOrders($data, true); }",
-                                          iconClass: 'icon-plus'},
+                                          iconClass: 'fa fa-plus'},
                                         { onClick: "function() {$root.deleteEncapPriOrders($data, this); }",
-                                          iconClass: 'icon-minus'}
+                                          iconClass: 'fa fa-minus'}
                                     ],
                                     gridActions: [{
                                         onClick: "function() { $root.addEncapPriOrders($data, false); }",
-                                        iconClass: 'icon-plus'
+                                        iconClass: 'fa fa-plus'
                                     }]
                                 }
                             }
@@ -177,7 +178,7 @@ define([
                                 viewConfig: {
                                     label: 'ECMP Hashing Fields',
                                     path: 'ecmp_hashing_include_fields',
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     dataBindValue:
                                             'ecmp_hashing_include_fields',
                                     elementConfig: {

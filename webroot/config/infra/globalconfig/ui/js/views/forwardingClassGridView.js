@@ -169,7 +169,7 @@ define([
             {
                 "type" : "link",
                 "title" : ctwl.TITLE_FORWARDING_CLASS_MULTI_DELETE,
-                "iconClass": 'icon-trash',
+                "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnDeleteForwardingClass',
                 "onClick" : function() {
                     var gridObj = $(gridElId).data('contrailGrid'),
@@ -196,7 +196,7 @@ define([
             {
                 "type" : "link",
                 "title" : ctwl.TITLE_CREATE_FORWARDING_CLASS,
-                "iconClass" : "icon-plus",
+                "iconClass" : "fa fa-plus",
                 "onClick" : function() {
                     var gridObj = $(gridElId).data('contrailGrid'),
                         gridData = gridObj._dataView.getItems(),
@@ -224,7 +224,7 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'span6',
+                            class: 'col-xs-6',
                             rows: [{
                                 title: 'Details',
                                 templateGenerator:

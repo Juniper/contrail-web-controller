@@ -274,13 +274,13 @@ define([
             {
                 "type": "dropdown",
                 "title": ctwl.TITLE_DELETE_CONFIG,
-                "iconClass": "icon-trash",
+                "iconClass": "fa fa-trash",
                 "actions": dropdownActions
             },
             {
                 "type" : "link",
                 "title" : ctwl.TITLE_ADD_INTERFACE,
-                "iconClass" : "icon-plus",
+                "iconClass" : "fa fa-plus",
                 "onClick" : function() {
                     var interfacesModel = new InterfacesModel();
                     interfacesModel.interfaceData = self.interfaceData;
@@ -314,7 +314,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     rows: [
                                         {
                                             title : ctwl.INF_PROPERTIES,

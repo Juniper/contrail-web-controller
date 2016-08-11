@@ -33,7 +33,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                             dataBindValue:
                                             'bgp_router_parameters().port',
                                             label : 'BGP Port',
-                                            class: 'span6'
+                                            class: 'col-xs-6'
                                         }
                                     },
                                     {
@@ -45,7 +45,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                             dataBindValue:
                                             'bgp_router_parameters().source_port',
                                             label : 'Source Port',
-                                            class: 'span6'
+                                            class: 'col-xs-6'
                                         }
                                     }
                                 ]
@@ -63,7 +63,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                             dataBindValue:
                                             'bgp_router_parameters().hold_time',
                                             label : 'Hold Time (seconds)',
-                                            class: 'span6'
+                                            class: 'col-xs-6'
                                         }
                                     },
                                     {
@@ -73,7 +73,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                             path: "user_created_admin_state",
                                             dataBindValue: "user_created_admin_state",
                                             label: "Admin State",
-                                            class: "span6"
+                                            class: "col-xs-6"
                                         }
                                     }
                                 ]
@@ -89,7 +89,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                             dataBindValue:
                                                 'user_created_auth_key_type',
                                             label : 'Authentication Mode',
-                                            class: 'span6',
+                                            class: 'col-xs-6',
                                             elementConfig : {
                                                 dataTextField :
                                                 'text',
@@ -110,7 +110,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                             dataBindValue:
                                             'user_created_auth_key',
                                             label : 'Authentication Key',
-                                            class: 'span6'
+                                            class: 'col-xs-6'
                                         }
                                     }
                                 ]
@@ -126,7 +126,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                         dataBindValue:
                                         'user_created_physical_router',
                                         label : 'Physical Router',
-                                        class: 'span6',
+                                        class: 'col-xs-6',
                                         elementConfig : {
                                             dataTextField :
                                             'text',
@@ -199,12 +199,12 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                         rowActions: [
                                             {
                                                 onClick: "function() { $root.addPeer(); }",
-                                                iconClass: 'icon-plus'
+                                                iconClass: 'fa fa-plus'
                                             },
                                             {
                                                 onClick: "function() {\
                                                 $root.deletePeer($data, this); }",
-                                                iconClass: 'icon-minus'
+                                                iconClass: 'fa fa-minus'
                                             }
                                         ],
                                         columns: [
@@ -333,6 +333,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                                     view: "FormEditableGridView",
                                                     viewConfig: {
                                                         path: "family_attrs",
+                                                        class: 'col-xs-12',
                                                         collection: "family_attrs()",
                                                         validation: "familyAttrValidation",
                                                         templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -381,13 +382,13 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                                             {
                                                                 onClick: "function() {\
                                                                 ($parent.addFamilyAttrs())($root,$parentContext.$index, $data, $rawData); }",
-                                                                iconClass: 'icon-plus'
+                                                                iconClass: 'fa fa-plus'
                                                             },
                                                             {
                                                                 onClick: "function() {\
                                                                 ($parent.deleteFamilyAttrs())($data, this)\
                                                                 ;}",
-                                                                iconClass: 'icon-minus'
+                                                                iconClass: 'fa fa-minus'
                                                             }
                                                         ],
                                                         gridActions: [

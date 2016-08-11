@@ -16,9 +16,9 @@ define([
             self.barChartViews = [];
             //Create the base container
             self.$el.append($('<div/>',{
-                class:'row-fluid'
+                class:'row'
             }));
-            self.$el.find('div.row-fluid').append($('<div/>',{
+            self.$el.find('div.row').append($('<div/>',{
                 class:'charts vrouter-cf'
             }));
             self.vRouterListModel = getValueByJsonPath(self,'attributes;viewConfig;vRouterListModel',null,false);
@@ -71,7 +71,7 @@ define([
             for(var i=0;i<crossFilterCfg.length;i++) {
                 var currCfg = crossFilterCfg[i];
                 self.$el.find('.charts').append($('<div/>',{
-                    class:'chart span4'
+                    class:'chart col-xs-4'
                 }));
                 self.$el.find('.charts .chart:last').append($('<div/>',{
                     class:'title',

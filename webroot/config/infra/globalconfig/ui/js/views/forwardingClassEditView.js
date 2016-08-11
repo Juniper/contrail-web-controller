@@ -121,7 +121,7 @@ define([
                             viewConfig: {
                                 label: 'Forwarding Class',
                                 path : 'forwarding_class_id',
-                                class: 'span6',
+                                class: 'col-xs-6',
                                 disabled: disableOnEdit,
                                 dataBindValue : 'forwarding_class_id',
                                 placeholder: 'Enter Forwarding Class ID'
@@ -133,7 +133,7 @@ define([
                             viewConfig: {
                                 label: 'DSCP bits',
                                 path : 'forwarding_class_dscp',
-                                class: 'span6',
+                                class: 'col-xs-6',
                                 dataBindValue : 'forwarding_class_dscp',
                                 elementConfig: {
                                     dataTextField: "text",
@@ -154,7 +154,7 @@ define([
                             viewConfig: {
                                 label: 'MPLS EXP bits',
                                 path : 'forwarding_class_mpls_exp',
-                                class: 'span6',
+                                class: 'col-xs-6',
                                 dataBindValue : 'forwarding_class_mpls_exp',
                                 elementConfig: {
                                     dataTextField: "text",
@@ -173,7 +173,7 @@ define([
                             viewConfig: {
                                 label: 'VLAN Priority bits',
                                 path : 'forwarding_class_vlan_priority',
-                                class: 'span6',
+                                class: 'col-xs-6',
                                 dataBindValue :
                                     'forwarding_class_vlan_priority',
                                 elementConfig: {

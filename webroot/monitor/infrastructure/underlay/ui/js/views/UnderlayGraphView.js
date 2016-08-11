@@ -1583,7 +1583,7 @@ define([
                         }
                         actions.push({
                             text: 'Configure',
-                            iconClass: 'icon-cog'
+                            iconClass: 'fa fa-cog'
                         });
                         ifLength = 
                         getValueByJsonPath(node.attributes.more_attributes(),"ifTable", []).length;
@@ -1664,7 +1664,7 @@ define([
 
                         actions.push({
                             text: 'Configure',
-                            iconClass: 'icon-cog'
+                            iconClass: 'fa fa-cog'
                         });
 
                         var tooltipContent = [{
@@ -1839,7 +1839,7 @@ define([
                         }];
                         return tooltipContentTmpl({
                             info: data,
-                            iconClass: 'icon-resize-horizontal'
+                            iconClass: 'fa fa-arrows-h'
                         });
                     }
                 }
@@ -2115,7 +2115,7 @@ define([
                   actionsCallback[actionKey].callback();
                   $(".vis-network-tooltip").popover("hide");
             });
-            $('.popover').find('i.icon-remove').on('click', function() {
+            $('.popover').find('i.fa-remove').on('click', function() {
                   $(".vis-network-tooltip").popover("hide");
             });
             $(".vis-network-tooltip").css({
@@ -2220,14 +2220,14 @@ define([
                     "id"    : "rearrange",
                     "style" : style + " top:130px; ",
                     "title" : "Reset Layout",
-                    "class" : "icon-align-center",
+                    "class" : "fa fa-align-center",
                     "click" : function(params) {
                         self.rearrangeHandler(params, self);
                     }
                 },
                 "refresh": {
                     "id"    : "refresh",
-                    "class" : "icon-repeat",
+                    "class" : "fa fa-repeat",
                     "style" : style + " top:170px; ",
                     "title" : "Refresh",
                     "click" : function(params) {

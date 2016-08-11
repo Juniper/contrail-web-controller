@@ -174,7 +174,7 @@ define([
 	            {
                     "type" : "link",
 	                "title" : ctwl.TITLE_BGP_MULTI_DELETE,
-	                "iconClass": 'icon-trash',
+	                "iconClass": 'fa fa-trash',
                     "linkElementId": 'btnDeleteBGP',
 	                "onClick" : function() {
 	                    var bgpModel = new BGPModel();
@@ -201,7 +201,7 @@ define([
 	            {
 	                "type" : "link",
 	                "title" : ctwl.TITLE_ADD_BGP,
-	                "iconClass" : "icon-plus",
+	                "iconClass" : "fa fa-plus",
 	                "onClick" : function() {
 	                    var bgpModel = new BGPModel();
                         subscribeModelChangeEvents(bgpModel);
@@ -308,7 +308,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span12',
+                                    class: 'col-xs-12',
                                     rows: [
                                         {
                                             title: ctwl.TITLE_BGP_DETAILS,

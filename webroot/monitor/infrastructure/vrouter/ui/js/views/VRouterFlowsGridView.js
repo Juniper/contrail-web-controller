@@ -176,8 +176,8 @@ define([
                     text: 'Flows'
                 },
                 customControls : [
-                        '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
-                        '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                        '<a class="widget-toolbar-icon"><i class="fa fa-forward"></i></a>',
+                        '<a class="widget-toolbar-icon"><i class="fa fa-backward"></i></a>',
                     ],
                 defaultControls: {
                     collapseable: false,

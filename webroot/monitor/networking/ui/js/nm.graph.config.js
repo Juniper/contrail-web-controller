@@ -25,7 +25,7 @@ define([
 
                         actions.push({
                             text: 'Configure',
-                            iconClass: 'icon-cog'
+                            iconClass: 'fa fa-cog'
                         });
 
                         return tooltipContent({
@@ -77,7 +77,7 @@ define([
 
                         actions.push({
                             text: 'Configure',
-                            iconClass: 'icon-cog'
+                            iconClass: 'fa fa-cog'
                         });
 
                         return tooltipContent({
@@ -124,7 +124,7 @@ define([
 
                         actions.push({
                             text: 'Configure',
-                            iconClass: 'icon-cog'
+                            iconClass: 'fa fa-cog'
                         });
 
                         return tooltipContent({
@@ -182,13 +182,13 @@ define([
 
                         actions.push({
                             text: 'Configure',
-                            iconClass: 'icon-cog'
+                            iconClass: 'fa fa-cog'
                         });
 
                         if (!$(element).hasClassSVG('ZoomedElement') && !ctwu.isServiceVN(networkFQN)) {
                             actions.push({
                                 text: 'View',
-                                iconClass: 'icon-external-link'
+                                iconClass: 'fa fa-external-link'
                             });
                         }
 
@@ -250,14 +250,14 @@ define([
 
                         actions.push({
                             text: 'Configure',
-                            iconClass: 'icon-cog'
+                            iconClass: 'fa fa-cog'
                         });
 
                         return tooltipContentTmpl({
                             info: [
                                 {label: 'Status', value: viewElement.attributes.nodeDetails['status']}
                             ],
-                            iconClass: 'icon-check-empty icon-rotate-45 icn-service-instance',
+                            iconClass: 'fa fa-square-o icon-rotate-45 icn-service-instance',
                             actions: actions
                         });
                     },
@@ -298,7 +298,7 @@ define([
 
                         actions.push({
                             text: 'View',
-                            iconClass: 'icon-external-link'
+                            iconClass: 'fa fa-external-link'
                         });
 
                         tooltipContent = {
@@ -425,7 +425,7 @@ define([
                             }
                         }
 
-                        return tooltipContentTmpl({info: data, iconClass: 'icon-resize-horizontal'});
+                        return tooltipContentTmpl({info: data, iconClass: 'fa-arrows-h'});
                     },
                     dimension: { width: 400 }
                 }

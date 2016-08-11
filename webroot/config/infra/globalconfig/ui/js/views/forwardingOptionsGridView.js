@@ -74,7 +74,7 @@ define([
                     },
                     errorGettingData: {
                         type: 'error',
-                        iconClasses: 'icon-warning',
+                        iconClasses: 'fa fa-warning',
                         text: 'Error in getting Forwarding Options.'
                     }
                 }
@@ -109,7 +109,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.TITLE_EDIT_FORWARDING_OPTIONS,
-                "iconClass": 'icon-edit',
+                "iconClass": 'fa fa-pencil-square-o',
                 "onClick": function() {
                     var ajaxConfig = {
                         url : "/api/tenants/config/get-config-details",

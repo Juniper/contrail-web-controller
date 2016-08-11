@@ -44,6 +44,7 @@ define([
             var instanceUUID = viewConfig['instanceUUID'];
             var networkFQN = viewConfig['networkFQN'];
             var instanceDetailsUrl = ctwc.get(ctwc.URL_INSTANCE_DETAIL, instanceUUID);
+
             return [
                     {
                         elementId: ctwl.INSTANCE_DETAILS_ID,
@@ -505,7 +506,7 @@ define([
                 controlPanelConfig: {
                     filter: {
                         enable: true,
-                        iconClass: 'icon-filter',
+                        iconClass: 'fa fa-filter',
                         title: 'Filter',
                         viewConfig: getControlPanelFilterConfig()
                     },
@@ -755,7 +756,7 @@ define([
                             templateGeneratorConfig: {
                                 columns: [
                                     {
-                                        class: 'span6',
+                                        class: 'col-xs-6',
                                         rows: [{
                                             title: ctwl.TITLE_INSTANCE_DETAILS,
                                             templateGenerator:
@@ -784,7 +785,7 @@ define([
                                        }]
                                     },
                                     {
-                                        class: 'span6',
+                                        class: 'col-xs-6',
                                         rows: [{
                                             title: ctwl.TITLE_CPU_MEMORY_INFO,
                                             templateGenerator: 'BlockListTemplateGenerator',
@@ -816,7 +817,7 @@ define([
                             templateGeneratorConfig: {
                                 columns: [
                                     {
-                                        class: 'span12',
+                                        class: 'col-xs-12',
                                         rows: [{
                                             title: 'Interface Details',
                                             key: 'value.UveVirtualMachineAgent.interface_details',
@@ -987,14 +988,14 @@ define([
                     items: [
                         {
                             text: 'Source Port',
-                            labelCssClass: 'icon-circle default',
+                            labelCssClass: 'fa fa-circle default',
                             events: {
                                 click: function (event) {}
                             }
                         },
                         {
                             text: 'Destination Port',
-                            labelCssClass: 'icon-circle medium',
+                            labelCssClass: 'fa fa-circle medium',
                             events: {
                                 click: function (event) {}
                             }
@@ -1007,7 +1008,7 @@ define([
                     items: [
                         {
                             text: 'Flow Count',
-                            labelCssClass: 'icon-circle',
+                            labelCssClass: 'fa fa-circle',
                             events: {
                                 click: function (event) {}
                             }

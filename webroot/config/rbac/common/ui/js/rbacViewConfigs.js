@@ -25,7 +25,7 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                                             placeholder:
                                                 "Enter Object Name or * (All)",
                                             label: "Object",
-                                            class: "span6"
+                                            class: "col-xs-6"
                                         }
                                     },
                                     {
@@ -39,7 +39,7 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                                                 "* (All)",
                                             dataBindValue: "rule_field",
                                             label: "Property",
-                                            class: "span6"
+                                            class: "col-xs-6"
                                         }
                                     }
                                 ]
@@ -71,6 +71,7 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                 view: "FormEditableGridView",
                 viewConfig: {
                     path : 'rule_perms',
+                    class: 'col-xs-12',
                     validation:
                    'rbacRulePermsValidations',
                    templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -128,11 +129,11 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                         {onClick: "function() {\
                             $root.addRulePerm();\
                             }",
-                         iconClass: 'icon-plus'},
+                         iconClass: 'fa fa-plus'},
                         {onClick: "function() {\
                             $root.deleteRulePerm($data, this);\
                            }",
-                         iconClass: 'icon-minus'}
+                         iconClass: 'fa fa-minus'}
                     ],
                     gridActions: [
                         {onClick: "function() {\

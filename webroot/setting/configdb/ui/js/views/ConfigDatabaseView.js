@@ -371,7 +371,7 @@ define([
                     },
                     error: {
                         type       : 'error',
-                        iconClasses: 'icon-warning',
+                        iconClasses: 'fa fa-warning',
                         text       : ctwm.CASSANDRA_ERROR
                     }
                 }

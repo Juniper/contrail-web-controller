@@ -181,7 +181,7 @@ define([
                       maxWidth: 30,
                       formatter: function (r, c, v, cd, dc) {
                           if(contrail.checkIfExist(dc.raw_json) && !contrail.checkIfKeyExistInObject(false, dc.raw_json.value, 'UveVirtualMachineAgent')) {
-                              return '<i class="icon-warning-sign red" title="Instance data is available in config but not available in analytics."></i>';
+                              return '<i class="fa fa-exclamation-triangle red" title="Instance data is available in config but not available in analytics."></i>';
                           } else {
                               return '';
                           }

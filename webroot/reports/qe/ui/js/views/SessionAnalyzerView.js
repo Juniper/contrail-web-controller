@@ -456,7 +456,7 @@ define([
 
             if (badgeColorKey !== null) {
                 badgeElement.data('color_key', badgeColorKey);
-                badgeElement.addClass('icon-badge-color-' + badgeColorKey);
+                badgeElement.addClass('fa icon-badge-color-' + badgeColorKey);
                 chartEnableKeys[badgeColorKey] = dc.key;
                 lineChartModel.setData(formatChartData(modelMap, formModelAttrs, chartEnableKeys));
             }
@@ -485,7 +485,7 @@ define([
                 resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: { allow: false },
                 formatter: function(r, c, v, cd, dc){
                     return ['<span class="label-icon-badge label-icon-badge-' , dc.key , ' icon-badge-color-' , r ,
-                        ' " data-color_key="' , r , '"><i class="icon-sign-blank"></i></span>'].join("");
+                        ' " data-color_key="' , r , '"><i class="fa fa-square"></i></span>'].join("");
                 },
                 events: {
                     onClick: function(e, dc) {

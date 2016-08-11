@@ -210,7 +210,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span6',
+                                    class: 'col-xs-6',
                                     rows: [
                                         {
                                             title: ctwl.LINK_LOCAL_SERVICE_DETAILS,
@@ -256,7 +256,7 @@ define([
             {
                 "type": "link",
                 "title": ctwl.TITLE_DEL_LLS,
-                "iconClass": 'icon-trash',
+                "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnActionDelLLS',
                 "onClick": function() {
                     var rowIndexes =
@@ -282,7 +282,7 @@ define([
              {
                 "type": "link",
                 "title": ctwl.TITLE_CREATE_LLS,
-                "iconClass": "icon-plus",
+                "iconClass": "fa fa-plus",
                 "onClick": function () {
                     var gridData =
                         $(gridElId).data('contrailGrid')._dataView.getItems();

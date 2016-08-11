@@ -149,7 +149,7 @@ define([
                     actionCell: [
                                     {
                                         title: "Start Packet Capture",
-                                        iconClass: "icon-list-alt",
+                                        iconClass: "fa fa-list-alt",
                                         onClick: function(rowIndex){
                                             var rowData =
                                                 $('#' + ctwl.VROUTER_INTERFACES_GRID_ID).

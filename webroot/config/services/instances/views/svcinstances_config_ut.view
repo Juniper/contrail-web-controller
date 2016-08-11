@@ -5,24 +5,24 @@
 <script type="text/x-handlebars-template" id="grid-search-toolbar-template">
     <div class="widget-header grid-widget-header">
         <h4 class="smaller">
-            #= (data['showLoading'] == true) ? '<i class="icon-spinner icon-spin blue bigger-125" style=""></i>' : ""#
+            #= (data['showLoading'] == true) ? '<i class="fa fa-spinner icon-spin blue bigger-125" style=""></i>' : ""#
             #= data['widgetGridTitle'] #
         </h4>
         # if(data['collapseable'] == true){ #
         <div class="widget-toolbar pull-right">
             <a class="widget-toolbar-icon" data-action="collapse">
-                <i class="collapse-icon icon-chevron-up"></i>
+                <i class="collapse-icon fa fa-chevron-up"></i>
             </a>
         </div>
         #}#
         <div class="widget-toolbar pull-right widget-toolbar-search">
             <a class="widget-toolbar-icon link-searchbox" #= data['showSearchbox'] == true ? 'style="display:none;" ' : '' # data-action="search">
-                <i class="icon-search"></i>
+                <i class="fa fa-search"></i>
             </a>
             <span class="input-searchbox #= data['showSearchbox'] == false ? 'hide' : '' #">
                 <span class="input-icon">
                     <input type="text" placeholder="#= data['searchPlaceholder']#" class="input-medium input-grid-search" id="#= data['searchTextSelectorId'] #">
-                    <i class="widget-toolbar-icon icon-search" data-action="search"></i>
+                    <i class="widget-toolbar-icon fa fa-search" data-action="search"></i>
                 </span>
             </span>
         </div>

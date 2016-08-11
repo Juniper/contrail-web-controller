@@ -373,9 +373,9 @@ define([
             return {
                 rowActions: [
                     {onClick: "function() {$root.addPortTuple();}",
-                     iconClass: 'icon-plus'},
+                     iconClass: 'fa fa-plus'},
                     {onClick: "deletePortTuple()",
-                     iconClass: 'icon-minus'}
+                     iconClass: 'fa fa-minus'}
                 ],
                 columns: [{
                     elementId: 'portTupleDisplayName',
@@ -399,6 +399,7 @@ define([
                     viewConfig: {
                         colSpan: '2',
                         path: 'portTupleInterfaces',
+                        class: 'col-xs-12',
                         collection: 'portTupleInterfaces()',
                         validation: 'portTupleInterfacesValidation',
                         templateId: cowc.TMP_EDITABLE_GRID_VIEW,
@@ -612,6 +613,7 @@ define([
                             view: 'FormEditableGridView',
                             viewConfig: {
                                 path: 'svcHealtchChecks',
+                                class: 'col-xs-12',
                                 collection: 'svcHealtchChecks',
                                 validation: 'svcHealtchChecksValidation',
                                 templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -660,13 +662,13 @@ define([
                                     onClick: "function() {\
                                         $root.addPropSvcHealthChk();\
                                     }",
-                                    iconClass: 'icon-plus'
+                                    iconClass: 'fa fa-plus'
                                 },
                                 {
                                     onClick: "function() {\
                                         $root.deleteSvcInstProperty($data, this);\
                                     }",
-                                    iconClass: 'icon-minus'
+                                    iconClass: 'fa fa-minus'
                                 }],
                                 gridActions: [{
                                     onClick: "function() {\
@@ -693,6 +695,7 @@ define([
                             view: 'FormEditableGridView',
                             viewConfig: {
                                 path: 'intfRtTables',
+                                class: 'col-xs-12',
                                 collection: 'intfRtTables',
                                 validation: 'intfRtTablesValidation',
                                 templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -742,13 +745,13 @@ define([
                                     onClick: "function() {\
                                         $root.addPropIntfRtTable();\
                                     }",
-                                    iconClass: 'icon-plus'
+                                    iconClass: 'fa fa-plus'
                                 },
                                 {
                                     onClick: "function() {\
                                         $root.deleteSvcInstProperty($data, this);\
                                     }",
-                                    iconClass: 'icon-minus'
+                                    iconClass: 'fa fa-minus'
                                 }],
                                 gridActions: [{
                                     onClick: "function() {\
@@ -775,6 +778,7 @@ define([
                             view: 'FormEditableGridView',
                             viewConfig: {
                                 path: 'staticRoutes',
+                                class: 'col-xs-12',
                                 collection: 'staticRoutes',
                                 validation: 'staticRoutesValidation',
                                 templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -834,13 +838,13 @@ define([
                                     onClick: "function() {\
                                         $root.addPropStaticRtTable();\
                                     }",
-                                    iconClass: 'icon-plus'
+                                    iconClass: 'fa fa-plus'
                                 },
                                 {
                                     onClick: "function() {\
                                         $root.deleteSvcInstProperty($data, this);\
                                     }",
-                                    iconClass: 'icon-minus'
+                                    iconClass: 'fa fa-minus'
                                 }],
                                 gridActions: [{
                                     onClick: "function() {\
@@ -868,6 +872,7 @@ define([
                             view: 'FormEditableGridView',
                             viewConfig: {
                                 path: 'rtPolicys',
+                                class: 'col-xs-12',
                                 collection: 'rtPolicys',
                                 validation: 'rtPolicysValidation',
                                 templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -917,13 +922,13 @@ define([
                                     onClick: "function() {\
                                         $root.addPropRtPolicy();\
                                     }",
-                                    iconClass: 'icon-plus'
+                                    iconClass: 'fa fa-plus'
                                 },
                                 {
                                     onClick: "function() {\
                                         $root.deleteSvcInstProperty($data, this);\
                                     }",
-                                    iconClass: 'icon-minus'
+                                    iconClass: 'fa fa-minus'
                                 }],
                                 gridActions: [{
                                     onClick: "function() {\
@@ -949,6 +954,7 @@ define([
                         view: 'FormEditableGridView',
                             viewConfig: {
                                 path: "allowedAddressPairCollection",
+                                class: 'col-xs-12',
                                 validation: 'allowedAddressPairValidations',
                                 templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                 collection: "allowedAddressPairCollection",
@@ -1001,12 +1007,12 @@ define([
                                 }],
                                 rowActions: [{
                                  onClick: "function() { $root.addAAP(); }",
-                                iconClass: 'icon-plus',
+                                iconClass: 'fa fa-plus',
                                 },
                                 {
                                     onClick:
                                     "function() { $root.deleteSvcInstProperty($data, this);}",
-                                     iconClass: 'icon-minus'
+                                     iconClass: 'fa fa-minus'
                                 }],
                                 gridActions: [{
                                     onClick: "function() { addAAP(); }",
@@ -1033,6 +1039,7 @@ define([
                             view: 'FormEditableGridView',
                             viewConfig: {
                                 path: 'rtAggregates',
+                                class: 'col-xs-12',
                                 collection: 'rtAggregates',
                                 validation: 'rtAggregatesValidation',
                                 templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
@@ -1082,13 +1089,13 @@ define([
                                     onClick: "function() {\
                                         $root.addPropRtAggregate();\
                                     }",
-                                    iconClass: 'icon-plus'
+                                    iconClass: 'fa fa-plus'
                                 },
                                 {
                                     onClick: "function() {\
                                         $root.deleteSvcInstProperty($data, this);\
                                     }",
-                                    iconClass: 'icon-minus'
+                                    iconClass: 'fa fa-minus'
                                 }],
                                 gridActions: [{
                                     onClick: "function() {\
