@@ -45,7 +45,7 @@ define([
                        $(contentContainer).find('.copy-config-object').on('click',ConfigObjectListUtils.getCopiedContent);
                    },function(error){
                        contrail.showErrorMsg(error.responseText);
-                   }); 
+                   });
             },
             loadObjList: function(){
                 var rowJson = ConfigObjectListUtils.formatJSON2HTML(configList, 10, undefined, true);
