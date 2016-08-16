@@ -1,0 +1,312 @@
+.jsonSchema{
+    color:#3182bd;
+    padding-top:6px;
+}
+.config-parent-border{
+    border-top: 1px solid #ccc;
+}
+.config-parent-border .word-break-all{
+   margin-top:4px;
+}
+.config-parent-border:HOVER{
+  color:#3182bd;
+  cursor:pointer;
+  background:#FBFBFB;
+}
+button.btn.btn-mini.json-editor-btn-collapse,
+button.btn.btn-mini.json-editor-btn-expand,
+button.btn.btn-mini.json-editor-btn-add,
+button.btn.btn-mini.json-editor-btn-edit,
+button.btn.btn-mini.json-editor-btn-movedown.movedown,
+button.btn.btn-mini.json-editor-btn-moveup.moveup,
+button.btn.btn-mini.json-editor-btn-trash,
+button.btn.btn-mini.json-editor-btn-plus{
+
+    background-color: white !important;
+    padding: 0px;
+    border: none;
+    color: #585858 !important;
+    font-size: 13px;
+}
+button.btn.btn-mini.json-editor-btn-collapse{
+  font-size:12px !important;
+}
+button.btn.btn-mini.json-editor-btn-trash,
+button.btn.btn-mini.json-editor-btn-copy,
+button.btn.btn-mini.json-editor-btn-create{
+    background-color: white !important;
+    padding: 0px;
+    border: none;
+    color: #585858 !important;
+    font-size: 14px;
+}
+button.btn.btn-mini.json-editor-btn-trash:hover,
+button.btn.btn-mini.json-editor-btn-trash:focus{
+    display: inline;
+}
+button.btn.btn-mini.json-editor-btn-collapse:active,
+button.btn.btn-mini.json-editor-btn-collapse:hover,
+button.btn.btn-mini.json-editor-btn-collapse:focus,
+button.btn.btn-mini.json-editor-btn-edit:active,
+button.btn.btn-mini.json-editor-btn-edit:hover,
+button.btn.btn-mini.json-editor-btn-edit:focus,
+button.btn.btn-mini.json-editor-btn-add:active,
+button.btn.btn-mini.json-editor-btn-add:hover,
+button.btn.btn-mini.json-editor-btn-add:focus,
+button.btn.btn-mini.json-editor-btn-expand:active,
+button.btn.btn-mini.json-editor-btn-expand:hover,
+button.btn.btn-mini.json-editor-btn-expand:focus,
+button.btn.btn-mini.json-editor-btn-trash:active,
+button.btn.btn-mini.json-editor-btn-trash:focus,
+button.btn.btn-mini.json-editor-btn-plus:active,
+button.btn.btn-mini.json-editor-btn-plus:hover,
+button.btn.btn-mini.json-editor-btn-plus:focus,
+button.btn.btn-mini.json-editor-btn-copy:focus,
+button.btn.btn-mini.json-editor-btn-copy:hover,
+button.btn.btn-mini.json-editor-btn-copy:active,
+button.btn.btn-mini.json-editor-btn-create:hover,
+button.btn.btn-mini.json-editor-btn-create:active,
+button.btn.btn-mini.json-editor-btn-create:focus,
+button.btn.btn-mini.json-editor-update-json:focus,
+button.btn.btn-mini.json-editor-update-json:hover,
+button.btn.btn-mini.json-editor-update-json:active{
+    border: none !important;
+    outline: none !important;
+}
+
+#editorContainer .well,
+#editorContainer .well-small{
+   padding: 0px !important;
+   background-color: white;
+   box-shadow: none;
+   border: 0px;
+}
+#editorContainer .container-fluid{
+  padding-left:10px !important;
+  margin-left: 8px;
+  border-left: 1px dotted #e4e4e4;
+}
+#editorContainer .container-fluid .row-fluid{
+  padding-left:5px !important;
+}
+#editorContainer .container-fluid .row-fluid div h3 {
+  margin-top: -6px;
+  margin-bottom: -1px;
+  font-size: 14px;
+  margin-left: 5px;
+}
+#editorContainer .container-fluid .row-fluid div[data-schematype="boolean"] div{
+  margin-bottom: 2px !important;
+  margin-top:-5px;
+}
+#editorContainer .container-fluid .row-fluid div h3 > span{
+  margin-left: 6px;
+}
+#editorContainer .container-fluid .row-fluid div[data-schematype="string"] .btn-group{
+   display:none;
+}
+#editorContainer .container-fluid .row-fluid div[data-schematype="array"] .well-small{
+       margin-top: -5px;
+}
+#editorContainer .container-fluid .row-fluid div[data-schematype="array"] > div > div{
+      padding-left:13px;
+      border-left: 1px dotted #e4e4e4;
+}
+#editorContainer .container-fluid .row-fluid div[data-schematype="array"] > div{
+      margin-left:8px;
+}
+#editorContainer .container-fluid .row-fluid div[data-schematype="array"]{
+    margin-bottom:-5px;
+}
+#editorContainer .container-fluid .row-fluid div[data-schematype="array"] .well-small > div[class="btn-group"]{
+  display:none;
+}
+#editorContainer .container-fluid .row-fluid div[data-schematype="boolean"] div div label input{
+  margin-top: -4px;
+  margin-left: 8px;
+}
+#editorContainer .control-group{
+  margin-left:4px;
+  margin-bottom:7px;
+}
+button.btn.btn-mini.json-editor-btn-Add,
+button.btn.btn-mini.json-editor-btn-save{
+    background-color: #599AC9 !important;
+    border-color: #599AC9 !important;
+}
+button.btn.btn-mini.json-editor-btn-Add{
+   margin-left:4px;
+}
+.deleteChildLevel{
+  display:none;
+}
+h3:HOVER .deleteChildLevel{
+display:inline;
+}
+.controls:HOVER .deleteChildLevel{
+display:inline;
+}
+button.btn.btn-mini.json-editor-btn-delete.delete,
+button.btn.btn-mini.json-editor-btn-delete,
+button.btn.btn-mini.json-editor-btn-cancel{
+    background-color: #E48782 !important;
+    border-color: #E48782 !important;
+}
+div[data-schemaid="root"] > h3 {
+    display:none;
+}
+div[data-schemaid="root"] > .well-small > .container-fluid {
+    margin-left: -20px !important;
+    border-left: 0px !important;
+}
+span.hyperlink.value.string:hover{
+  text-decoration: underline;
+}
+.copy-config-object span:hover,
+.create-config-object span:hover,
+.reset-object span:hover,
+.save-config-object span:hover,
+.save-form-object span:hover,
+.reset-config-form span:hover,
+.cancel-config-edit span:hover,
+.object-basic-view span:hover,
+.cancel-config-form span:hover,
+.config-object-edit span:hover,
+.config-jSon-form-edit span:hover{
+   text-decoration: underline;
+   cursor: pointer;
+}
+.cancel-config-edit span,
+.save-config-object span,
+.object-basic-view span,
+.save-form-object span,
+.cancel-config-form span,
+.reset-config-form span{
+  color:#3182bd !important;text-shadow: 0 0 0 white !important;font-family: 'Open Sans';font-size: 13px;margin-left: 5px;
+}
+#editorContainer label{
+    font-weight: normal !important;
+    font-size:13px !important;
+    padding-right: 20px;
+}
+.cancel-config-edit span,
+.save-config-object span,
+.object-basic-view span{
+  color:#3182bd !important;text-shadow: 0 0 0 white !important;font-family: 'Open Sans';font-size: 13px;margin-left: 5px;
+}
+.reset-config-form{
+   float:right;margin-right: 10px;
+}
+.config-icon-position .update-config-object{
+   color:#3182bd !important;text-shadow: 0 0 0 white !important;font-family: 'Open Sans';font-size: 13px;
+}
+button.btn.btn-mini.json-editor-update-json{
+    background-color: white !important;
+    padding: 0px;
+    border: none;
+    font-size: 13px;
+}
+#jsonTextArea{
+   width:100%;font-family: monospace;resize:none;
+}
+.config-icon-position{
+  float:left;padding-left: 8px;border-left: 1px dotted #cccccc;padding-right: 8px;
+}
+.cancel-form-icon-postion{
+  float:left;padding-right: 8px;
+}
+button.update-config-object.button.btn.btn-mini.json-editor-update-json.hide-header-icon:hover{
+  text-decoration: underline;
+}
+.config-editor-header{
+  margin-top:6px;height:25px;margin-bottom:5px;
+}
+.copy-config-object{
+   float:left;padding-right:8px;
+}
+.cancel-config-form{
+   float:right;
+}
+#jsonContainer.underlay-container:before {
+    content: "\f141";
+    text-decoration: inherit;
+    speak: none;
+    position: absolute;
+    margin-left: 49.5%;
+    bottom: -9px;
+    font-family: FontAwesome;
+    color: #858585;
+    display:none;
+}
+#jsonContainer.underlay-container:after {
+    content: "\f142";
+    text-decoration: inherit;
+    speak: none;
+    position: absolute;
+    right: -5px;
+    top: 50%;
+    font-family: FontAwesome;
+    color: #858585;
+}
+#editorContainer .select2-container{
+    margin-top: 9px !important;
+    margin-right: 2px;
+}
+.adjustConfigContent{
+   padding-right: 0px !important;
+   padding-bottom: 0px !important;
+}
+.object-json-view::-webkit-scrollbar-thumb,
+.config-scroll-color::-webkit-scrollbar-thumb {
+  background-color: white !important;
+}
+.object-json-view{
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+#jsonEditorContainer{
+  overflow-y: scroll;
+  overflow-x: hidden;
+  width:100%;float:right;
+  padding-left:8px;
+}
+#editorContainer .addPropertyHolder button.btn.btn-mini.json-editor-btn-{
+    background: #599ac9 !important;
+    width: 40px;
+    height: 29px;
+    border: 0px;
+}
+#hiddenTextArea{
+        border-style: none;
+        border-color: Transparent;
+        overflow: auto;
+        outline: none;
+        height:0px;
+        resize: none;
+        color:white !important;
+        background: white !important;
+        padding: 1px !important;
+        margin-top: -3px;
+}
+#hiddenTextArea:link,
+#hiddenTextArea:visited,
+#hiddenTextArea:hover,
+#hiddenTextArea:active,
+#hiddenTextArea:focus{
+    border: 0px;
+    box-shadow: inset 0 0px 0px white !important;
+    color: white !important;
+    background: white !important;
+}
+.hide-header-icon{
+  display: none;
+}
+.showConfigIcon{
+  display: block;
+}
+.error-font-weight{
+  font-weight:bold;
+}
+.config-text{
+  color: #3182bd;
+}

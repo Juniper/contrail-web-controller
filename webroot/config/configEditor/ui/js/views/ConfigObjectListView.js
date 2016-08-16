@@ -25,7 +25,7 @@ define([
                           try{
                                var data = JSON.parse(document.getElementById('jsonTextArea').value);
                                var model = { data : [{ data : data, reqUrl: '/'+ Object.keys(configList)[0]}]};
-                               self.model.addEditConfigData (data, '/'+ Object.keys(configList)[0], false, 
+                               self.model.addEditConfigData (data, '/'+ Object.keys(configList)[0], false,
                                        {
                                            init: function () {
                                            },
@@ -45,7 +45,7 @@ define([
                        $(contentContainer).find('.copy-config-object').on('click',ConfigObjectListUtils.getCopiedContent);
                    },function(error){
                        contrail.showErrorMsg(error.responseText);
-                   }); 
+                   });
             },
             loadObjList: function(){
                 var rowJson = ConfigObjectListUtils.formatJSON2HTML(configList, 10, undefined, true);

@@ -33,5 +33,5 @@ function ConfigEditorLoader() {
             hashParams: hashObj,
             'function': renderFn
         });
-    };  
+    }; 
 }
