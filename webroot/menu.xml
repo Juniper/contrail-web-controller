@@ -946,6 +946,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <rootDir>/config/configEditor/ui</rootDir>
                             <js>configEditor.main.js</js>
                             <template>config.editor.tmpl</template>
+                            <css>ConfigEditor.css</css>
                             <class>configEditorLoader</class>
                             <function>render</function>
                             <searchStrings>Config Editor</searchStrings>
