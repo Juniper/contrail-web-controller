@@ -2,7 +2,6 @@
  * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 var configEditorLoader = new ConfigEditorLoader();
-
 function ConfigEditorLoader() {
     this.load = function(paramObject) {
         var self = this,
@@ -11,7 +10,6 @@ function ConfigEditorLoader() {
             pathEditorView = ctBaseDir + '/config/configEditor/ui/js/views/ConfigEditorView.js',
             renderFn = paramObject['function'],
             loadingStartedDefObj = paramObject['loadingStartedDefObj'];
-
         if(self.configEditorView == null) {
             require([pathEditorView], function(ConfigEditorView){
                 self.configEditorView = new ConfigEditorView();
@@ -33,5 +31,5 @@ function ConfigEditorLoader() {
             hashParams: hashObj,
             'function': renderFn
         });
-    };  
+    };
 }
