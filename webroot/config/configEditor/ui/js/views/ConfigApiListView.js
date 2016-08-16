@@ -15,9 +15,11 @@ define([
                 $(contentContainer).html(template);
                 self.getConfigApiList();
                 $(contentContainer).find('.copy-config-object').on('click', function() {
+                    $('#hiddenTextArea').removeClass('hideCopyContent');
                     document.getElementById('hiddenTextArea').select();
                     document.execCommand('copy');
                     contrail.successMsg(ctwc.COPIED_MSG);
+                    $('#hiddenTextArea').addClass('hideCopyContent');
                 });
              },
              getConfigApiList : function (){
