@@ -48,7 +48,7 @@ define([
         configureUserDefinedCounter : function (callbackObj,
                 currentGlobalSystemConfigData,currentUserDefinedCounterList) {
             //Call the configure function in the parent model
-            var userDefinedCountersData = {};
+            var userDefinedCountersData = {}, putData = {};
             userDefinedCountersData['global-system-config'] = {};
             userDefinedCountersData['global-system-config']['user_defined_log_statistics'] = {};
             if ((null != currentUserDefinedCounterList) &

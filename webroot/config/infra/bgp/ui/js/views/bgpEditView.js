@@ -86,6 +86,8 @@ define([
                     self.bgpRenderView4Config(options);
                 },
                 function(error) {
+                    $("#" + modalId).modal('hide');
+                    showInfoWindow(error.responseText, error.statusText);
                 }
             );
         },

@@ -367,6 +367,10 @@ define([
                 self.svcInstanceDataObj.svcInstTmplts = svcTmplObjsByFqn;
                 self.renderView4Config(self.$el, self.contrailListModel,
                            getSvcInstViewConfig(self.svcInstanceDataObj));
+            },
+            failureCallback: function(error, contrailListModel) {
+                self.renderView4Config(self.$el, self.contrailListModel,
+                        getSvcInstViewConfig(self.svcInstanceDataObj));
             }
         },
         {
