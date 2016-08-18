@@ -19,9 +19,20 @@ define(['underscore', 'contrail-view',
             self.$el.html(anlyticsTemplate);
             if (self.model != null) {
                 var callBackExecuted = false;
-                self.model.onDataUpdate.subscribe(function (e, obj) {
-                    if (self.model.isPrimaryRequestInProgress() == false
-                            && callBackExecuted == false) {
+                // Data loaded from cache
+                if (self.model.loadedFromCache) {
+                    renderCharts();
+                // Ajax call completed
+                } else if (!self.model.loadedFromCache && !self.model.isPrimaryRequestInProgress()){
+                    renderCharts();
+                // Ajax call is in progress, so subscribe for dataupdate
+                } else {
+                    self.model.onDataUpdate.subscribe(function (e, obj) {
+                        renderCharts();
+                    });
+                }
+                function renderCharts() {
+                    if (callBackExecuted == false) {
                         callBackExecuted = true;
                         if(self.model.loadedFromCache) {
                             var cacheObj = cowch.getDataFromCache(ctwl.CACHE_ANALYTICSNODE),
@@ -52,8 +63,8 @@ define(['underscore', 'contrail-view',
 
                         self.renderView4Config(bottomleftColumn,  databseReadWritemodel,
                                 getAnalyticsNodeDatabaseWriteChartViewConfig(colorMap));}
-                });
-            }
+                }
+           }
         }
     });
    function getAnalyticsNodeSandeshChartViewConfig(colorMap) {
