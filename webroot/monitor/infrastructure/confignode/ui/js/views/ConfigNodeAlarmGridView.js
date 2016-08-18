@@ -38,7 +38,7 @@ define([
     function parseAlarms(response) {
         var alarmsObj = {};
         alarmsObj =  coreAlarmUtils.wrapUVEAlarms('config-node',hostname,
-                getValueByJsonPath(response,'configNode;UVEAlarms',[]));
+                getValueByJsonPath(response,'UVEAlarms',[]));
         return coreAlarmParsers.alarmDataParser(alarmsObj);
     }
 
