@@ -40,7 +40,7 @@ define([
     function parseAlarms(response) {
         var alarmsObj = {};
         alarmsObj =  coreAlarmUtils.wrapUVEAlarms('database-node',hostname,
-                getValueByJsonPath(response,'databaseNode;UVEAlarms',[]));
+                getValueByJsonPath(response,'UVEAlarms',[]));
         return coreAlarmParsers.alarmDataParser(alarmsObj);
     }
 
