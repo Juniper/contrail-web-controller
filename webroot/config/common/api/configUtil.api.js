@@ -646,7 +646,7 @@ function updateConfigObject (req, res, appData)
 function createOrUpdateConfigObject (body, type, appData, callback)
 {
     var dataObjArr = [];
-    var data = body['data'];
+    var data = commonUtils.getValueByJsonPath(body, 'data', [], false);
     var reqCnt = data.length;
     var dataObjArr = [];
     for (var i = 0; i < reqCnt; i++) {
