@@ -31,6 +31,9 @@ define(['underscore', 'contrail-view'], function(_, ContrailView) {
                            loadChartInChunks: false,
                            cfDataSource : self.cfDataSource,
                            chartOptions: {
+                               sortFn:function(data){
+                                   return data.reverse();
+                               },
                                doBucketize: true,
                                xLabel: ctwl.TITLE_CPU,
                                yLabel: 'Memory (MB)',
