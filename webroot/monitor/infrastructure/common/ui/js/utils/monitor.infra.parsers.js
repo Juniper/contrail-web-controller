@@ -26,7 +26,7 @@ define(
                         }
                         var memCpuUsage = getValueByJsonPath(d,
                                 'value;NodeStatus;process_mem_cpu_usage;contrail-control',{});
-                        obj['x'] = parseInt(getValueByJsonPath(memCpuUsage,'cpu_share'));
+                        obj['x'] = parseFloat(getValueByJsonPath(memCpuUsage,'cpu_share'));
                         obj['y'] = parseInt(getValueByJsonPath(memCpuUsage,'mem_res'))/1024;
                         obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
                         obj['memory'] = formatBytes(obj['y'] * 1024 * 1024);
@@ -377,7 +377,7 @@ define(
                         var obj = {};
                         var memCpuUsage = getValueByJsonPath(d,
                                 'value;NodeStatus;process_mem_cpu_usage;contrail-collector',{});
-                        obj['x'] = parseInt(getValueByJsonPath(memCpuUsage,'cpu_share'));
+                        obj['x'] = parseFloat(getValueByJsonPath(memCpuUsage,'cpu_share'));
                         obj['y'] = parseInt(getValueByJsonPath(memCpuUsage,'mem_res'))/1024;
                         obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
                         obj['memory'] = formatBytes(obj['y'] * 1024 * 1024);
@@ -490,7 +490,7 @@ define(
                         for (var key in memCpuUsage) {
                             if (memCpuUsage.hasOwnProperty(key) && key.indexOf('contrail-api') != -1) {
                                 var memcpu = memCpuUsage[key];
-                                cpu += parseInt(getValueByJsonPath(memcpu,'cpu_share'),0);
+                                cpu += parseFloat(getValueByJsonPath(memcpu,'cpu_share'),0);
                                 mem += parseInt(getValueByJsonPath(memcpu,'mem_res'),0)/1024;
                             }
                           }
