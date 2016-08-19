@@ -1715,7 +1715,7 @@ define(
                                 var rawJson = currPath;
                                 if(j == 0)
                                     paths.push({
-                                        mac: mac,
+                                        prefix: mac,
                                         searchMac: mac,
                                         path: currPath,
                                         src_vrf: srcVRF,
@@ -1723,7 +1723,7 @@ define(
                                     });
                                 else
                                     paths.push({
-                                        mac: '',
+                                        prefix: mac,
                                         searchMac: mac,
                                         path: currPath,
                                         src_vrf: srcVRF,
@@ -1916,7 +1916,7 @@ define(
                     response = getValueByJsonPath(response,"__AclResp_list;AclResp;acl_list;list;AclSandeshData");
                     //Loop through ACLs
                     if(response != null){
-                        if(!(response instanceof Array)) {
+                        if(!(response instanceof Array)){
                             response = [response];
                         }
                         for (var i = 0; i < response.length; i++) {

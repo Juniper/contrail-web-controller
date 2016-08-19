@@ -117,20 +117,6 @@ define([
                 }
             }
 
-            function constructvRouterMulticastURL() {
-                var selectedVrf = self.model.vrf_name();
-                var mcIndex = getIndexForType(selectedVrf,'mcast');
-                var urlParams = {
-                    ip : monitorInfraUtils.getIPOrHostName(viewConfig),
-                    introspectPort : introspectPort,
-                    vrfindex: mcIndex
-                }
-                return {
-                    url: monitorInfraConstants.monitorInfraUrls['VROUTER_MCAST_ROUTES'],
-                    params:urlParams
-                }
-            }
-
             function constructvRouterUnicast6RouteURL(initialSelection) {
                 var selectedVrf = self.model.vrf_name();
                 var ucIndex = getIndexForType(selectedVrf,'ucast6');
@@ -147,7 +133,6 @@ define([
             var constructURLMap = {
                 l2: constructvRouterL2RouteURL,
                 ucast: constructvRouterUnicastRouteURL,
-                mcast: constructvRouterMulticastURL,
                 ucast6: constructvRouterUnicast6RouteURL
             };
             var urlObj  = constructURLMap[self.model.route_type()](viewConfig);
@@ -161,7 +146,6 @@ define([
                 };
             var routeParseMap = {
                 'ucast' : monitorInfraParsers.parseVRouterUnicastRoutesData,
-                'mcast' : monitorInfraParsers.parseVRouterMulticastRoutesData,
                 'ucast6' : monitorInfraParsers.parseVRouterIPv6RoutesData,
                 'l2'    : monitorInfraParsers.parseVRouterL2RoutesData
             };
@@ -242,10 +226,9 @@ define([
                                                         $.each(vrfs,function(idx,vrfXmlObj){
                                                             var name = $(vrfXmlObj.getElementsByTagName('name')[0]).text();
                                                             var ucIndex = $(vrfXmlObj.getElementsByTagName('ucindex')[0]).text();
-                                                            var mcIndex = $(vrfXmlObj.getElementsByTagName('mcindex')[0]).text();
                                                             var l2Index = $(vrfXmlObj.getElementsByTagName('l2index')[0]).text();
                                                             var uc6Index = $(vrfXmlObj.getElementsByTagName('uc6index')[0]).text();
-                                                            var value = "ucast=" + ucIndex + "&&mcast=" + mcIndex + "&&l2=" + l2Index + "&&ucast6=" + uc6Index;
+                                                            var value = "ucast=" + ucIndex + "&&l2=" + l2Index + "&&ucast6=" + uc6Index;
                                                             ret.push({text:name,id:value});
                                                         });
                                                         self.renderQueryResult(viewConfig);
@@ -267,8 +250,6 @@ define([
                                             dataObj: [
                                             {'label': 'Unicast',
                                              'value': 'ucast'},
-                                            {'label': 'Multicast',
-                                             'value': 'mcast'},
                                             {'label': 'L2',
                                              'value': 'l2'},
                                             {'label': 'Unicast 6',

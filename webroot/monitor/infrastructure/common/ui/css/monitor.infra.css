@@ -34,3 +34,9 @@
     margin:0 10px 0 10px !important;
 }
 /******Config Node chart and Analytics node chart Ends here****/
+
+/******VRouter Radio Button Css Starts Here****/
+#vrouter_routes_radio .form-element .ace-lbl {
+  margin-right: 15px;
+}
+/******VRouter Radio Button Css Ends Here****/
