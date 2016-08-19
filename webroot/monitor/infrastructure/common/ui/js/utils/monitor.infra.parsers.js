@@ -1716,6 +1716,7 @@ define(
                                 if(j == 0)
                                     paths.push({
                                         mac: mac,
+                                        prefix: 'Mac',
                                         searchMac: mac,
                                         path: currPath,
                                         src_vrf: srcVRF,
@@ -1724,6 +1725,7 @@ define(
                                 else
                                     paths.push({
                                         mac: '',
+                                        prefix: 'Mac',
                                         searchMac: mac,
                                         path: currPath,
                                         src_vrf: srcVRF,

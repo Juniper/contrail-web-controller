@@ -57,35 +57,6 @@ define([
                                     }
                                 }
                             ];
-            var multicastRouteColums = [
-                                {
-                                    field:"dispPrefix",
-                                    id:"Prefix",
-                                    name:"Source / Group",
-                                    searchFn:function(d){
-                                        return d['prefix'];
-                                    },
-                                    minWidth:150
-                                },
-                                {
-                                    field:"next_hop",
-                                    id:"next_hop",
-                                    name:"Next hop Type",
-                                    formatter:function(r,c,v,cd,dc){
-                                        return monitorInfraParsers.getNextHopType(dc);
-                                    },
-                                    minWidth:100
-                                },
-                                {
-                                    field:"label",
-                                    id:"label",
-                                    name:"Next hop details",
-                                    minWidth:200,
-                                    formatter:function(r,c,v,cd,dc){
-                                        return monitorInfraParsers.getNextHopDetailsForMulticast(dc);
-                                    }
-                                }
-                            ];
             var l2RouteColumns = [
                                 {
                                     field:"mac",
@@ -146,7 +117,6 @@ define([
                             ];
             var routeColumnMap = {
                 'ucast' : unicastRouteColumns,
-                'mcast' : multicastRouteColums,
                 'ucast6' : unicast6RouteColums,
                 'l2'    : l2RouteColumns
             };
