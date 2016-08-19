@@ -31,6 +31,9 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                        viewConfig : {
                            loadChartInChunks : true,
                            chartOptions : {
+                               sortFn:function(data){
+                                   return data.reverse();
+                               },
                                xLabel : 'Available Space (GB)',
                                yLabel : 'Used Space (GB)',
                                forceX : [ 0, 1 ],

@@ -32,6 +32,9 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                        viewConfig : {
                            loadChartInChunks : true,
                            chartOptions : {
+                               sortFn:function(data){
+                                   return data.reverse();
+                               },
                                xLabel : ctwl.TITLE_CPU,
                                yLabel : 'Memory (MB)',
                                margin: {top:10},
