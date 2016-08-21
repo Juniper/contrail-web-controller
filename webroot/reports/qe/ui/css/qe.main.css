@@ -6,6 +6,22 @@ textarea[name="select"] {
 .select-label {
     width: 100%; text-overflow: ellipsis; overflow-x: hidden;
 }
+
+.select-aggregate-header {
+    border-bottom: 1px solid #EEEEEE;
+    padding: 5px 0;
+}
+
+.select-aggregate-link {
+    border-bottom: 1px solid #EEEEEE;
+    padding: 3px 0;
+}
+.select-aggregate-header h4 {
+    margin: 0;
+}
+.select-aggregate-body {
+    padding: 8px 0;
+}
 .where-textarea, .filter-textarea {
     padding-right: 30px;
     resize: none;
