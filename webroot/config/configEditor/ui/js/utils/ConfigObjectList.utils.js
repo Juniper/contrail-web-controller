@@ -17,18 +17,21 @@ define([
              template.find(".object-basic-view").hide();
              template.find(".cancel-config-edit").hide();
              template.find(".reset-object").hide();
+             template.find(".config-jSon-form-edit").hide();
          }
          self.getCopiedContent = function(){
+             $('#hiddenTextArea').removeClass('hide-header-icon');
              document.getElementById('hiddenTextArea').select();
              document.execCommand('copy');
              contrail.successMsg(ctwc.COPIED_MSG);
+             $('#hiddenTextArea').addClass('hide-header-icon');
          }
          self.setContentInTextArea = function(model) {
              document.getElementById('hiddenTextArea').value = '';
              document.getElementById('hiddenTextArea').value = JSON.stringify(model,null,2); 
          }
          self.setTextAreaHeight = function(configJson, template){
-             var textAreaHeight = self.getWindowHeight() - 15;
+             var textAreaHeight = self.getWindowHeight() - 23;
              template.find("#jsonTextArea").css({"height": textAreaHeight});
              var text = ctwc.TEXT_AREA_PLACEHOLDER + Object.keys(configJson)[0].slice(0,-1);
              template.find("#jsonTextArea").attr("placeholder",text);
@@ -116,7 +119,15 @@ define([
                              if(hrefClick && (key === 'href' || key === 'parent_href')){
                                  output += '<span class="hyperlink value ' + typeof val + '"onclick=getClickedHref("' + val +'")>' + val + '</span>';
                              }else{
-                                 output += '<span class="value ' + typeof val + '">' + val + '</span>';
+                                 if(typeof val === 'number'){
+                                     output += '<span class="value config-number">' + val + '</span>';
+                                 }else if(typeof val === 'boolean'){
+                                     output += '<span class="value config-boolean">' + val + '</span>';
+                                 }else if(typeof val === 'string'){
+                                     output += '<span class="value ' + typeof val + '">'+'"' + val +'"'+ '</span>';
+                                 }else{
+                                     output += '<span class="value ' + typeof val + '">' + val + '</span>';
+                                 }
                              }
                          }
                          output += '</li>';
