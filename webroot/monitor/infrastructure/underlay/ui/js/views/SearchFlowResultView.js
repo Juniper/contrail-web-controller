@@ -19,7 +19,7 @@ define([
                 serverCurrentTime = resultJSON['serverUTCTime'];
             }).always(function() {
                 self.renderView4Config(self.$el, null,
-                    self.getViewConfig(serverCurrentTime))
+                    self.getViewConfig(serverCurrentTime));
             });
         },
 
@@ -131,6 +131,9 @@ define([
                                 .getUnderlayGraphModel();
                             return underlayParsers
                                 .parseUnderlayFlowRecords(response, graphModel.getVirtualRouters());
+                        },
+                        successCallback: function() {
+                            $("#applySearchFlowsFilter").click();
                         }
                     }
                 }
@@ -149,77 +152,43 @@ define([
         return gridElementConfig;
     };
     function getHeaderActionConfig() {
-        var headerActionConfig = [
-            {
-                type: 'checked-multiselect',
-                iconClass: 'fa fa-filter',
-                placeholder: 'Filter Flows',
-                elementConfig: {
-                    elementId: 'flowsFilterMultiselect',
-                    dataTextField: 'text',
-                    dataValueField: 'id',
-                    selectedList: 1,
-                    noneSelectedText: 'Filter Flows',
-                    filterConfig: {
-                        placeholder: 'Search Filter'
-                    },
-                    minWidth: 150,
-                    height: 205,
-                    data: [
-                             {
-                                 id: "filterFlows",
-                                 text:"Filter Flows",
-                                 children: [
-                                     {
-                                         id:"mappable",
-                                         text:"Mappable",
-                                         iconClass:'fa fa-download'
-                                     },{
-                                         id:"unmappable",
-                                         text:"Unmappable",
-                                         iconClass:'fa fa-download'
-                                     },
-                                 ]
-                             }
-                    ],
-                    click: applyFlowsFilter,
-                    optgrouptoggle: applyFlowsFilter,
-                    control: false
+        var headerActionConfig = [{
+            "type": "link",
+            "title": 'Show all flows',
+            "linkElementId": "applySearchFlowsFilter",
+            "iconClass": "fa fa-filter disabled",
+            "onClick": function () {
+                var gridElId =
+                '#' + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-results";
+                var applyFilter =
+                    $("#applySearchFlowsFilter").find('i').hasClass("disabled") ?
+                        true : false;
+                if(true == applyFilter) {
+                    $("#applySearchFlowsFilter").prop("title", "Show all flows");
+                    $("#applySearchFlowsFilter").find("i").css("color", "#000");
+                } else {
+                    $("#applySearchFlowsFilter").prop("title", "Show filtered flows");
+                    $("#applySearchFlowsFilter").find("i").css("color", "#898989");
                 }
+                $(gridElId).data('contrailGrid')._dataView.setFilterArgs({
+                    applyFilter: applyFilter
+                });
+                $(gridElId).data('contrailGrid')._dataView.
+                    setFilter(flowsGridFilter);
+                $("#applySearchFlowsFilter").find('i').toggleClass("disabled");
             }
-        ];
+        }];
         return headerActionConfig;
     }
 
-    function applyFlowsFilter(event, ui) {
-        var checkedRows = $('#flowsFilterMultiselect').data('contrailCheckedMultiselect').getChecked();
-        var gridElId = '#' + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-results";
-        $(gridElId).data('contrailGrid')._dataView.setFilterArgs({
-            checkedRows: checkedRows
-        });
-        $(gridElId).data('contrailGrid')._dataView.setFilter(flowsGridFilter);
-    };
-
     function flowsGridFilter(item, args) {
-        var excludeNetworks =
-            ['__UNKNOWN__', 'default-domain:default-project:ip-fabric'],
-            mappable = false,
-            unmappable = false;
-        var checkedRows = args.checkedRows;
-        $.each(checkedRows, function (checkedRowKey, checkedRowValue) {
-            var checkedRowValueObj = $.parseJSON(unescape($(checkedRowValue).val()));
-            if (checkedRowValueObj['value'] == 'mappable') {
-                mappable = true;
-            } else if (checkedRowValueObj['value'] == 'unmappable') {
-                unmappable = true;
-            }
-        });
-        if ((checkedRows.length == 0) ||
-             (mappable == true && unmappable == true)) {
+        var applyFilter = args.applyFilter;
+        if(applyFilter == false)
             return true;
-        } else {
-            var keysToCheck = ['sourceip', 'destip',
-                'vrouter_ip', 'other_vrouter_ip', 'sourcevn', 'destvn'],
+        var excludeNetworks =
+                ['__UNKNOWN__', 'default-domain:default-project:ip-fabric'],
+            keysToCheck = ['sourceip', 'destip', 'vrouter_ip',
+                'other_vrouter_ip', 'sourcevn', 'destvn'],
                 keysToCheckLen = keysToCheck.length,
                 allKeysExists = true;
             for (var i = 0; i < keysToCheckLen; i++) {
@@ -228,13 +197,13 @@ define([
                     break;
                 }
             }
-            if (allKeysExists && excludeNetworks.indexOf(item['sourcevn']) == -1
-                && excludeNetworks.indexOf(item['destvn']) == -1) {
-                return (mappable && true);
+            if (allKeysExists &&
+                excludeNetworks.indexOf(item['sourcevn']) == -1 &&
+                excludeNetworks.indexOf(item['destvn']) == -1) {
+                return true;
             } else {
-                return (unmappable || false);
+                return false;
             }
-        }
     };
     return SearchFlowResultView;
 });

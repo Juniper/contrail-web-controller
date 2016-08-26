@@ -328,6 +328,46 @@ define(['underscore'], function (_) {
             computeNodes = graphModel.getVirtualRouters();
             return [
                 {
+                    field:"sip",
+                    name:"Source IP",
+                    minWidth:100,
+                    formatter:function(r,c,v,cd,dc) {
+                        return self.parseDestination(dc['sip']);
+                    }
+                },{
+                    field:"src_port",
+                    name:"Source Port",
+                    minWidth:40
+                },{
+                    field:"src_vn",
+                    name:"Source Network",
+                    minWidth:110,
+                    formatter: function (r,c,v,cd,dc) {
+                        var srcVN = dc['src_vn'] != null ? dc['src_vn'] :
+                            noDataStr;
+                        return formatVN(srcVN);
+                    }
+                },{
+                    field:"dip",
+                    name:"Destination IP",
+                    minWidth:100,
+                    formatter:function(r,c,v,cd,dc) {
+                        return self.parseDestination(dc['dip']);
+                    }
+                },{
+                    field:"dst_port",
+                    name:"Destination Port",
+                    minWidth:40
+                },{
+                    field:"dst_vn",
+                    name:"Destination Network",
+                    minWidth:110,
+                    formatter: function (r,c,v,cd,dc) {
+                        var destVN = dc['dst_vn'] != null ? dc['dst_vn'] :
+                            noDataStr;
+                        return formatVN(destVN);
+                    }
+                },{
                     field:'peer_vrouter',
                     name:"Encapsulation Endpoint",
                     minWidth:170,
@@ -336,7 +376,7 @@ define(['underscore'], function (_) {
                                         return (getValueByJsonPath(value.attributes.model().attributes,
                                             'more_attributes;VrouterAgent;self_ip_list;0','-') == dc['peer_vrouter']);
                                    });
-                        if(name && name.length == 1) {
+                        if(name && name.length >= 1) {
                             name = name[0].attributes.name();
                         }
                         if(name && name.trim() == "")
@@ -349,50 +389,10 @@ define(['underscore'], function (_) {
                 },{
                     field:"protocol",
                     name:"Protocol",
-                    minWidth:40,
+                    minWidth:30,
                     formatter:function(r,c,v,cd,dc){
                         return formatProtocol(dc['protocol']);
                     }
-                },{
-                    field:"src_vn",
-                    name:"Source Network",
-                    minWidth:110,
-                    formatter: function (r,c,v,cd,dc) {
-                        var srcVN = dc['src_vn'] != null ? dc['src_vn'] :
-                            noDataStr;
-                        return formatVN(srcVN);
-                    }
-                },{
-                    field:"sip",
-                    name:"Source IP",
-                    minWidth:60,
-                    formatter:function(r,c,v,cd,dc) {
-                        return self.parseDestination(dc['sip']);
-                    }
-                },{
-                    field:"src_port",
-                    name:"Source Port",
-                    minWidth:50
-                },{
-                    field:"dst_vn",
-                    name:"Destination Network",
-                    minWidth:110,
-                    formatter: function (r,c,v,cd,dc) {
-                        var destVN = dc['dst_vn'] != null ? dc['dst_vn'] :
-                            noDataStr;
-                        return formatVN(destVN);
-                    }
-                },{
-                    field:"dip",
-                    name:"Destination IP",
-                    minWidth:60,
-                    formatter:function(r,c,v,cd,dc) {
-                        return self.parseDestination(dc['dip']);
-                    }
-                },{
-                    field:"dst_port",
-                    name:"Destination Port",
-                    minWidth:50
                 },{
                     field:"stats_bytes",
                     name:"Bytes/Pkts",
@@ -411,25 +411,6 @@ define(['underscore'], function (_) {
         self.getTraceFlowVMGridColumns = function () {
             return [
                     {
-                        field: 'formattedVrouter',
-                        name: "Virtual Router",
-                        minWidth:170,
-                    }, {
-                        field: 'formattedOtherVrouter',
-                        name: "Encapsulation Endpoint",
-                        minWidth:170,
-                    }, {
-                        field:"protocol",
-                        name:"Protocol",
-                        minWidth:40,
-                        formatter:function(r,c,v,cd,dc){
-                            return formatProtocol(dc['protocol']);
-                        }
-                    },{
-                        field:"formattedSrcVN",
-                        name:"Source Network",
-                        minWidth:110,
-                    },{
                         field:"sourceip",
                         name:"Source IP",
                         minWidth:100,
@@ -439,7 +420,26 @@ define(['underscore'], function (_) {
                     },{
                         field:"sport",
                         name:"Source Port",
-                        minWidth:50
+                        minWidth:40
+                    },{
+                        field:"formattedSrcVN",
+                        name:"Source Network",
+                        minWidth:110,
+                    },{
+                        field: 'formattedVrouter',
+                        name: "Virtual Router",
+                        minWidth:170,
+                    },{
+                        field:"destip",
+                        name:"Destination IP",
+                        minWidth:100,
+                        formatter:function(r,c,v,cd,dc) {
+                            return self.parseDestination(dc['destip']);
+                        }
+                    },{
+                        field:"dport",
+                        name:"Destination Port",
+                        minWidth:40
                     },{
                         field:"formattedDestVN",
                         name:"Destination Network",
@@ -450,16 +450,16 @@ define(['underscore'], function (_) {
                             return formatVN(destVN);
                         }
                     },{
-                        field:"destip",
-                        name:"Destination IP",
-                        minWidth:60,
-                        formatter:function(r,c,v,cd,dc) {
-                            return self.parseDestination(dc['destip']);
-                        }
+                        field: 'formattedOtherVrouter',
+                        name: "Encapsulation Endpoint",
+                        minWidth:170,
                     },{
-                        field:"dport",
-                        name:"Destination Port",
-                        minWidth:50
+                        field:"protocol",
+                        name:"Protocol",
+                        minWidth:30,
+                        formatter:function(r,c,v,cd,dc){
+                            return formatProtocol(dc['protocol']);
+                        }
                     },{
                         field:"agg-bytes",
                         name:"Bytes/Pkts",
@@ -478,25 +478,6 @@ define(['underscore'], function (_) {
         self.getSearchFlowGridColumns = function () {
             return [
                 {
-                    field: 'formattedVrouter',
-                    name: "Virtual Router",
-                    minWidth:160,
-                },{
-                    field: 'formattedOtherVrouter',
-                    name: "Encapsulation Endpoint",
-                    minWidth:160,
-                },{
-                    field:"protocol",
-                    name:"Protocol",
-                    minWidth:40,
-                    formatter:function(r,c,v,cd,dc){
-                        return formatProtocol(dc['protocol']);
-                    }
-                },{
-                    field:"formattedSrcVN",
-                    name:"Source Network",
-                    minWidth:110,
-                },{
                     field:"sourceip",
                     name:"Source IP",
                     minWidth:100,
@@ -506,16 +487,15 @@ define(['underscore'], function (_) {
                 },{
                     field:"sport",
                     name:"Source Port",
-                    minWidth:50
+                    minWidth:40
                 },{
-                    field:"formattedDestVN",
-                    name:"Destination Network",
+                    field:"formattedSrcVN",
+                    name:"Source Network",
                     minWidth:110,
-                    formatter: function (r,c,v,cd,dc) {
-                        var destVN = dc['destvn'] != null ? dc['destvn'] :
-                            noDataStr;
-                        return formatVN(destVN);
-                    }
+                },{
+                    field: 'formattedVrouter',
+                    name: "Virtual Router",
+                    minWidth:170,
                 },{
                     field:"destip",
                     name:"Destination IP",
@@ -526,7 +506,27 @@ define(['underscore'], function (_) {
                 },{
                     field:"dport",
                     name:"Destination Port",
-                    minWidth:50
+                    minWidth:40
+                },{
+                    field:"formattedDestVN",
+                    name:"Destination Network",
+                    minWidth:110,
+                    formatter: function (r,c,v,cd,dc) {
+                        var destVN = dc['destvn'] != null ? dc['destvn'] :
+                            noDataStr;
+                        return formatVN(destVN);
+                    }
+                },{
+                    field: 'formattedOtherVrouter',
+                    name: "Encapsulation Endpoint",
+                    minWidth:170,
+                },{
+                    field:"protocol",
+                    name:"Protocol",
+                    minWidth:30,
+                    formatter:function(r,c,v,cd,dc){
+                        return formatProtocol(dc['protocol']);
+                    }
                 },{
                     field:"stats_bytes",
                     name:"Bytes/Pkts",
@@ -823,12 +823,13 @@ define(['underscore'], function (_) {
                 currentPage = currentUrlHashObj.p,
                 currentParams = currentUrlHashObj.q;
                 var params = {};
+                params.action = 'Map Flow';
                 params.srcIP = data.sourceip;
                 params.destIP = data.destip;
                 params.srcVN = data.sourcevn;
                 params.destVN = data.destvn;
-                params.sport = data.sport;
-                params.dport = data.dport;
+                params.srcPort = data.sport;
+                params.destPort = data.dport;
                 params.protocol = data.protocol;
                 params.startAt = data.startAt;
                 if(data.direction_ing === 0) {
@@ -868,22 +869,22 @@ define(['underscore'], function (_) {
                                 }
                                 return;
                             }
-                            graphModel.model().attributes.underlayPathReqObj = params;
+                            graphModel.underlayPathReqObj(params);
                             graphModel.model().attributes.flowPath.set({
                                 'nodes': ifNull(response['nodes'], []),
-                                'links': ifNull(response['links'], [])
+                                'edges': ifNull(response['links'], [])
                             }, {silent:true});
                             graphModel.model().attributes.flowPath.trigger('change:nodes');
                             if (ifNull(response['nodes'], []).length == 0 ||
                                 ifNull(response['links'], []).length == 0) {
                             } else {
-                                self.addUnderlayFlowInfoToBreadCrumb({
+                                /*self.addUnderlayFlowInfoToBreadCrumb({
                                     action: 'Map Flow',
                                     sourceip: params['srcIP'],
                                     destip: params['destIP'],
                                     sport: params['sport'],
                                     dport: params['dport']
-                                });
+                                });*/
                             }
                             $('html,body').animate({scrollTop:0}, 500);
                         }).fail (function () {
@@ -894,10 +895,24 @@ define(['underscore'], function (_) {
                                 }
                                 return;
                             }
-                            showInfoWindow('Error in fetching details','Error');
-                        }).always (function (ajaxObj, state, error) {
+                            var postData =
+                            graphModel.underlayPathReqObj();
+                            showInfoWindow(
+                                "Error in mapping flow from [" +
+                                postData.srcIP + "]:" + postData.srcPort +
+                                " to [" + postData.destIP + "]:" +
+                                postData.destPort, "Error");
+                            //showInfoWindow('Error in fetching details','Error');
+                        }).always (function (response, state, ajaxObj) {
                             if(state == 'timeout') {
-                                showInfoWindow('Timeout in fetching details','Error');
+                                var postData =
+                                graphModel.underlayPathReqObj();
+                                showInfoWindow(
+                                    "Timeout in mapping flow from [" +
+                                    postData.srcIP + "]:" + postData.srcPort +
+                                    " to [" + postData.destIP + "]:" +
+                                    postData.destPort, "Timeout");
+                                //showInfoWindow('Timeout in fetching details','Error');
                             }
                             if(deferredObj != null) {
                                 deferredObj.resolve(true);

@@ -32,6 +32,8 @@ define([
                             $("#" + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-widget").data('widget-action').collapse();
                             self.renderQueryResult();
                         });
+                        $("#" + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-widget").data('widget-action').collapse();
+                        self.renderQueryResult();
             });
 
             if (widgetConfig !== null) {

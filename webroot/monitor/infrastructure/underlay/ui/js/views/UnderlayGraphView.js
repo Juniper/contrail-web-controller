@@ -7,100 +7,118 @@ define([
     'monitor/infrastructure/underlay/ui/js/underlay.utils'
 ], function(_, ContrailView, underlayUtils) {
     var UnderlayGraphView = ContrailView.extend({
-        network: null,
-        model : null,
-        underlayPathIds: {
-            nodes: [],
-            links: []
-        },
-        duplicatePathsDrawn: false,
-        //stabilized: false,
-        tooltipConfigWidth: 0,
-        tooltipConfigHeight: 0,
-        cursorPosition: {},
-        DIMLIGHT: "dimlight",
-        HIGHLIGHT: "highlight",
-        ERROR: "error",
-        DEFAULT: "default",
-        style: {
-            default: {
-                color: "rgba(85,85,85,.9)"
-            },
-            defaultDimlight: {
-                color: "rgba(85,85,85,0.5)"
-            },
-            defaultSelected: {
-                color: "rgba(73,138,185,1)"
-            },
-            selectedDimlight: {
-                color: "rgba(73,138,185,0.5)"
-            },
-            errorNode: {
-                color: "rgba(185,74,72,1)"
-            },
-            linkDefault: {
-                color: "rgba(57,57,57,.6)"
-            },
-            flowPathDefault: {
-                color: "rgba(0,150,136,.8)" //teal
-
-            },
-            flowPathDimlight: {
-                color: "rgba(0,150,136,.5)" //teal
-            }
-        },
-        visOptions: {
-            autoResize: true,
-            clickToUse: false,
-            interaction: {
-                navigationButtons: true,
-                hover: true,
-                keyboard: false,
-                selectConnectedEdges: false,
-                hoverConnectedEdges: false,
-                zoomView: false
-            },
-            physics: {
-                stabilization: {
-                    iterations: 1000
-                }
-            },
-            layout: {
-                hierarchical: {
-                    direction: 'UD',
-                    sortMethod: 'directed',
-                    levelSeparation: 100,
-                },
-                improvedLayout: true
-            },
-            nodes: {
-                shape: 'image',
-                size: 20,
-                color: {
-                    background: 'white'
-                },
-                font: {
-                    face : 'Arial, helvetica, sans-serif',
-                    size: 10,
-                    color: '#333',
-                    strokeColor: '#333',
-                    strokeWidth: 0.4
-                },
-                labelHighlightBold: true
-            },
-            edges: {
-                width: 2,
-                color: "rgba(57,57,57,.6)",
-                smooth: {
-                    enabled: true,
-                    type: "cubicBezier",
-                    forceDirection: "horizontal",
-                    roundness: .7 //not to be used with dynamic
-                }
-            }
+        initVars: function() {
+            var self                  = this;
+            self.network              = null,
+            self.model                = null,
+            self.doubleClickTime      = 0,
+            self.threshold            = 300,
+            self.levelExpand          = {
+                                        "tor" : false,
+                                        "virtual-router": false,
+                                        "virtual-machine": false
+                                    },
+            self.elementMap           = {
+                                        "nodes": {},
+                                        "edges": {}
+                                    },
+            self.underlayPathIds      = {
+                                        "nodes": [],
+                                        "edges": []
+                                    },
+            self.lastDblClickedType   = "",
+            self.dblClickedType       = "",
+            self.lastAddedElements    = {
+                                        "nodes": [],
+                                        "edges": []
+                                    },
+            self.toBeDupedElements   = {
+                                        "nodes": [],
+                                        "edges": []
+                                    },
+            self.stabilized          = false,
+            self.tooltipConfigWidth  = 0,
+            self.tooltipConfigHeight = 0,
+            self.cursorPosition      = {},
+            self.DIMLIGHT            = "dimlight",
+            self.HIGHLIGHT           = "highlight",
+            self.ERROR               = "error",
+            self.DEFAULT             = "default",
+            self.style               = {
+                                    default: {
+                                        color: "rgba(85,85,85,.9)"
+                                    },
+                                    defaultDimlight: {
+                                        color: "rgba(85,85,85,0.5)"
+                                    },
+                                    defaultSelected: {
+                                        color: "rgba(73,138,185,1)"
+                                    },
+                                    selectedDimlight: {
+                                        color: "rgba(73,138,185,0.5)"
+                                    },
+                                    errorNode: {
+                                        color: "rgba(185,74,72,1)"
+                                    },
+                                    flowPathDefault: {
+                                        color: "rgba(0,150,136,.8)" //teal
+                                    },
+                                    flowPathDimlight: {
+                                        color: "rgba(0,150,136,.5)" //teal
+                                    }
+                                },
+            self.visOptions          = {
+                                    autoResize: true,
+                                    clickToUse: false,
+                                    interaction: {
+                                        navigationButtons: true,
+                                        hover: true,
+                                        keyboard: false,
+                                        selectConnectedEdges: false,
+                                        hoverConnectedEdges: false,
+                                        zoomView: false
+                                    },
+                                    layout: {
+                                        hierarchical: {
+                                            direction: 'UD',
+                                            sortMethod: 'directed',
+                                            levelSeparation: 100
+                                        },
+                                        improvedLayout: true
+                                    },
+                                    nodes: {
+                                        shape: 'image',
+                                        size: 20,
+                                        color: {
+                                            background: 'white'
+                                        },
+                                        font: {
+                                            face :
+                                                'Arial, helvetica, sans-serif',
+                                            size: 10,
+                                            color: '#333',
+                                            strokeColor: '#333',
+                                            strokeWidth: 0.4
+                                        },
+                                        labelHighlightBold: true
+                                    },
+                                    edges: {
+                                        width: 2,
+                                        color: "rgba(57,57,57,.6)",
+                                        smooth: {
+                                            enabled: true,
+                                            type: "cubicBezier",
+                                            forceDirection: "horizontal",
+                                            roundness: .7
+                                        }
+                                    }
+                                }
+            self.attributes.viewConfig.model.flowPath().model().
+                set({'nodes': [], 'edges': []}, {silent:true});
         },
         enableFreeflow: function(contrailVisView) {
-            contrailVisView.setOptions({physics:{enabled: false}, layout: {hierarchical: {enabled:false}}});
+            contrailVisView.setOptions({physics:{enabled: false},
+                layout: {hierarchical: {enabled:false}}});
         },
         resetTooltip: function() {
             $(".vis-network-tooltip").popover('destroy');
@@ -109,10 +127,13 @@ define([
         },
         removeUnderlayEffects: function() {
             underlayUtils.removeUndelrayFlowInfoFromBreadCrumb();
-            //Removing the selected row styling in trace flow and map flow results.
+            //Removing the selected row styling in
+            //trace flow and map flow results.
             $("#" + ctwc.TRACEFLOW_RESULTS_GRID_ID+
-                " div.slick-row.selected-slick-row").removeClass('selected-slick-row');
-            $("#searchFlow-results div.slick-row.selected-slick-row").removeClass('selected-slick-row');
+                " div.slick-row.selected-slick-row").
+                removeClass('selected-slick-row');
+            $("#searchFlow-results div.slick-row.selected-slick-row").
+                removeClass('selected-slick-row');
             this.clearFlowPath();
         },
         render: function() {
@@ -121,9 +142,18 @@ define([
                 contrail.getTemplate4Id(ctwl.TMPL_UNDERLAY_GRAPH_VIEW),
                 selectorId = '#' + ctwl.UNDERLAY_GRAPH_ID;
                 graphModel = self.attributes.viewConfig.model;
+            self.initVars();
             self.$el.html(graphTemplate());
-            $("#" + ctwl.TOP_CONTENT_CONTAINER).addClass("underlay-container");
-            $("#" + ctwl.TOP_CONTENT_CONTAINER).css('border-bottom', '8px solid #fafafa');
+            $(document).on("mousemove",function(e){
+                self.cursorPosition = {
+                    x: e.pageX,
+                    y: e.pageY
+                }
+            });
+            $("#" + ctwl.TOP_CONTENT_CONTAINER).
+                addClass("underlay-container");
+            $("#" + ctwl.TOP_CONTENT_CONTAINER).
+                css('border-bottom', '8px solid #fafafa');
             $('#' + ctwl.TOP_CONTENT_CONTAINER).resizable({
                 handles: 's',
                 minHeight: 260,
@@ -134,7 +164,8 @@ define([
                         parent.height() - ui.element.outerHeight(),
                         divTwo = $('#' + ctwl.BOTTOM_CONTENT_CONTAINER),
                         divTwoHeight = (remainingSpace -
-                            (divTwo.outerHeight() - divTwo.height()))/parent.height()*100+"%";
+                            (divTwo.outerHeight() -
+                                divTwo.height()))/parent.height()*100+"%";
                     divTwo.height(divTwoHeight);
                     _network.setSize(
                         ui.element.outerWidth() + "px",
@@ -145,34 +176,13 @@ define([
             });
             $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel', graphModel);
             self.model = graphModel;
-            /*self.model.__kb.view_model.model().on("change:topologyChanged", function (updatedGraphModel) {
-                self.populateModelAndAddToGraph(updatedGraphModel.attributes);
-            });*/
-            _.each(self.model.nodesCollection.models, function(model){
-                _.each(self.getNodeChangeEventsConfig(), function(eventName) {
-                    model.attributes.model().on(eventName, function() {
-                        var params = arguments;
-                        var nodeModel = self.model.getNode(params[0].attributes.id);
-                        if(nodeModel && nodeModel.length == 1) {
-                            nodeModel = nodeModel[0];
-                        }
-                        self.network.updateNode(nodeModel);
-                    });
-                });
-            });
-            _.each(self.model.edgesCollection.models, function(model){
-                _.each(self.getEdgeChangeEventsConfig(), function(eventName) {
-                    model.attributes.model().on(eventName, function() {
-                        var params = arguments;
-                        var edgeModel = self.model.getEdge(params[0].attributes.id);
-                        if(edgeModel && edgeModel.length == 1) {
-                            edgeModel = edgeModel[0];
-                        }
-                        self.network.updateEdge(edgeModel);
-                    });
-                });
-            })
+            self.initModelEvents();
             $('body').on("click", '#flow-info span.reset', function () {
+                self.model.underlayPathReqObj({});
+                layoutHandler.setURLHashParams({}, {
+                    p: 'mon_infra_underlay',
+                    merge: false
+                });
                 self.removeUnderlayPathIds();
                 self.removeUnderlayEffects();
                 self.resetTopology({
@@ -184,539 +194,619 @@ define([
             self.renderView4Config($(ctwl.UNDERLAY_GRAPH_ID),
                  null, self.getContrailVisViewConfig(ctwl.UNDERLAY_GRAPH_ID),
                  null, null, null, function (underlayGraphView) {
-                    underlayGraphView.network = underlayGraphView.childViewMap[ctwl.UNDERLAY_GRAPH_ID];
+                    underlayGraphView.network =
+                        underlayGraphView.childViewMap[ctwl.UNDERLAY_GRAPH_ID];
                     underlayGraphView.populateModelAndAddToGraph();
                     window.view = underlayGraphView;
+                    $(".vis-zoomExtends").off().on("click", function(args) {
+                        self.zoomHandler(args,self);
+                    });
+                    $('canvas').on("mousewheel", function(e) {
+                        var scrollTo = (e.originalEvent.wheelDelta * -1) +
+                            $('body').scrollTop();
+                        $('body').scrollTop(scrollTo);
+                    });
                  });
 
-            /*var resetTopo = $('<div style="display:inline-block; width:15px; height:15px; background-image:none; top:170px; right:10px; position:absolute; background-color:#f9f9f9; border:1px solid #efefef; color:#777; font-family:FontAwesome; font-size:15px; z-index:1; padding: 7px 7px; line-height:normal; background-position:2px 2px; cursor:pointer; background-repeat:no-repeat" title="Reset Topology"><i class="icon-play-circle" /></div>');
-            $(resetTopo).on("click", function(){
-                self.resetTopology({
-                    resetBelowTabs: true,
-                    restorePosition: false
-                });
-                self.removeUnderlayEffects();
-            });
-            $('.vis-navigation').append(resetTopo);*/
-
             // Drawing the underlay path and trace flow for a given flow
-            graphModel.flowPath().model().on('change:nodes', function(){
+            graphModel.flowPath().model().on('change:nodes', function() {
                 var nodes = graphModel.flowPath().model().attributes["nodes"];
-                var links = graphModel.flowPath().model().attributes["links"];
-                if(nodes.length <=0 || links.length <= 0){
-                    graphModel.flowPath().model().set('nodes',graphModel.flowPath().model()._previousAttributes.nodes, {silent: true});
-                    graphModel.flowPath().model().set('links',graphModel.flowPath().model()._previousAttributes.links, {silent: true});
-                    showInfoWindow("Cannot find the underlay path for selected flow", "Info");
+                var edges = graphModel.flowPath().model().attributes["edges"];
+                if(nodes.length <= 0 || edges.length <= 0) {
+                    graphModel.flowPath().model().set('nodes',
+                        graphModel.flowPath().model().
+                        _previousAttributes.nodes, {silent: true});
+                    graphModel.flowPath().model().set('edges',
+                        graphModel.flowPath().model()
+                        ._previousAttributes.edges, {silent: true});
+                    var postData =
+                    graphModel.underlayPathReqObj();
+                    showInfoWindow(
+                        "Unable to " + postData.action + " from [" +
+                        postData.srcIP + "]:" + postData.srcPort +
+                        " to [" + postData.destIP + "]:" +
+                        postData.destPort, "Info");
                     return false;
                 }
-                if(_.isEqual(graphModel.flowPath().model()._previousAttributes.nodes,
+                if(_.isEqual(graphModel.flowPath().model().
+                    _previousAttributes.nodes,
                     graphModel.flowPath().model().attributes.nodes) &&
-                    _.isEqual(graphModel.flowPath().model()._previousAttributes.links,
-                    graphModel.flowPath().model().attributes.links))
+                    _.isEqual(graphModel.flowPath().model().
+                    _previousAttributes.edges,
+                    graphModel.flowPath().model().attributes.edges))
                     return false;
-                self.removeUnderlayPathIds();
-                var elementMap = graphModel.elementMap();
-                var adjList = graphModel.prepareData(null, graphModel.tree());
-
-                var nodeNames = [];
-                var vRouters = {};
-                var pRouters = {};
-                var vms = {};
-                var flowPathLinks = {};
-                for(var i=0; i<nodes.length; i++) {
-                    nodeNames.push(nodes[i].name);
-                    if(nodes[i].node_type == ctwc.VROUTER) {
-                        vRouters[nodes[i].name] = {};
-                    } else if(nodes[i].node_type == ctwc.PROUTER) {
-                        pRouters[nodes[i].name] = {};
-                    } else if(nodes[i].node_type == ctwc.VIRTUALMACHINE) {
-                        vms[nodes[i].name] = {};
-                    }
-                }
-
-                if(JSON.stringify(pRouters) == "{}") {
-                    //no prouters, look for vrouters
-                    if(JSON.stringify(vRouters) == "{}") {
-                        //no vrouters, look for vms
-                        if(JSON.stringify(vms) == "{}") {
-                            //no vms, nothing to plot. return
-                            return;
-                        } else {
-                            //no prouters/vrouters, only vms.
-                            //deduce parents(vrouters) of vms,
-                            //then parents(tors) of vrouters
-                            var tors = graphModel.getToRs();
-                            for(var i=0; i<tors.length; i++) {
-                                var tor = tors[i];
-                                var torName = tor.attributes.name();
-                                var vRouters = tor.attributes.children;
-                                for(var virtualRouterName in vRouters) {
-                                    var virtualMachines = vRouters[virtualRouterName].children;
-                                    for(var virtualMachineName in virtualMachines) {
-                                        if(vms.hasOwnProperty(virtualMachineName)) {
-                                            if(!vms[virtualMachineName].hasOwnProperty('parent')) {
-                                                vms[virtualMachineName].parent = virtualRouterName;
-                                                var link = virtualMachineName + "<->" +
-                                                    virtualRouterName;
-                                                var altLink = virtualRouterName + "<->" +
-                                                    virtualMachineName;
-                                                if(!flowPathLinks.hasOwnProperty(link))
-                                                    flowPathLinks[link] = {};
-                                                if(!flowPathLinks.hasOwnProperty(altLink))
-                                                    flowPathLinks[altLink] = {};
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        //no prouters, but vrouters exists
-                        //look for parents(tors) for vrouters
-                        var tors = graphModel.getToRs();
-                        for(var i=0; i<tors.length; i++) {
-                            var tor = tors[i];
-                            var torName = tor.attributes.name();
-                            var virtualRouters = tor.attributes.children;
-                            for(var virtualRouterName in virtualRouters) {
-                                if(vRouters.hasOwnProperty(virtualRouterName)) {
-                                    if(!vRouters[virtualRouterName].hasOwnProperty('parent')) {
-                                        vRouters[virtualRouterName].parent = torName;
-                                        var link = torName + "<->" + virtualRouterName;
-                                        var altLink = virtualRouterName + "<->" + torName;
-                                        if(!flowPathLinks.hasOwnProperty(link))
-                                            flowPathLinks[link] = {};
-                                        if(!flowPathLinks.hasOwnProperty(altLink))
-                                            flowPathLinks[altLink] = {};
-                                        if(JSON.stringify(vms) !== "{}") {
-                                            var vrModels = self.model.getVirtualRouters();
-                                            for(var j=0; j<vrModels.length; j++) {
-                                                if(vrModels[j].attributes.name() ==
-                                                    virtualRouterName) {
-                                                    var virtualMachines = vrModels[j].attributes.children;
-                                                    for(var virtualMachineName in virtualMachines) {
-                                                        if(vms.hasOwnProperty(virtualMachineName)) {
-                                                            if(!vms[virtualMachineName].hasOwnProperty('parent')) {
-                                                                vms[virtualMachineName].parent = virtualRouterName;
-                                                                var link = virtualMachineName + "<->" +
-                                                                    virtualRouterName;
-                                                                var altLink = virtualRouterName + "<->" +
-                                                                    virtualMachineName;
-                                                                if(!flowPathLinks.hasOwnProperty(link))
-                                                                    flowPathLinks[link] = {};
-                                                                if(!flowPathLinks.hasOwnProperty(altLink))
-                                                                    flowPathLinks[altLink] = {};
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    //prouters exists, plot
-                    //firstLevelNodes could be spines or cores
-                    var firstLevelNodes = graphModel.firstLevelNodes();
-                    var firstLevelNode = graphModel.firstLevelNode();
-
-                    for(var k=0; k<firstLevelNodes.length; k++) {
-                        var tors = {};
-                        if(firstLevelNode == "coreswitch") {
-                            var spines = firstLevelNodes[k].attributes.children;
-                            for(var spine in spines) {
-                                var children = spines[spine].children;
-                                for(var child in children) {
-                                    tors[child] = children[child];
-                                }
-                            }
-                        } else if(firstLevelNode == "spine") {
-                            tors = firstLevelNodes[k].attributes.children;
-                        } else if(firstLevelNode == "tor") {
-                            tors = firstLevelNodes;
-                        }
-                        //var tors = firstLevelNodes[k].attributes.children;
-                        for(var torName in tors) {
-                            var virtualRouters = tors[torName].children;
-                            for(var virtualRouterName in virtualRouters) {
-                                if(JSON.stringify(vRouters) !== "{}") {
-                                    if(vRouters.hasOwnProperty(virtualRouterName)) {
-                                        if(!vRouters[virtualRouterName].hasOwnProperty('parent') &&
-                                            pRouters.hasOwnProperty(torName)) {
-                                            vRouters[virtualRouterName].parent = torName;
-                                            var link = torName + "<->" + virtualRouterName;
-                                            var altLink = virtualRouterName + "<->" + torName;
-                                            if(!flowPathLinks.hasOwnProperty(link))
-                                                flowPathLinks[link] = {};
-                                            if(!flowPathLinks.hasOwnProperty(altLink))
-                                                flowPathLinks[altLink] = {};
-                                            if(JSON.stringify(vms) !== "{}") {
-                                                var vrModels = self.model.getVirtualRouters();
-                                                for(var j=0; j<vrModels.length; j++) {
-                                                    if(vrModels[j].attributes.name() ==
-                                                        virtualRouterName) {
-                                                        var virtualMachines = vrModels[j].attributes.children;
-                                                        for(var virtualMachineName in virtualMachines) {
-                                                            if(vms.hasOwnProperty(virtualMachineName)) {
-                                                                if(!vms[virtualMachineName].hasOwnProperty('parent')) {
-                                                                    vms[virtualMachineName].parent = virtualRouterName;
-                                                                    var link = virtualMachineName + "<->" +
-                                                                        virtualRouterName;
-                                                                    var altLink = virtualRouterName + "<->" +
-                                                                        virtualMachineName;
-                                                                    if(!flowPathLinks.hasOwnProperty(link))
-                                                                        flowPathLinks[link] = {};
-                                                                    if(!flowPathLinks.hasOwnProperty(altLink))
-                                                                        flowPathLinks[altLink] = {};
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                for (var i = 0; i < links.length; i++) {
-                    var endpoints = links[i].endpoints;
-                    var endpoint0 = endpoints[0];
-                    var endpoint1 = endpoints[1];
-                    var link = endpoint0 + "<->" + endpoint1;
-                    var altLink = endpoint1 + "<->" + endpoint0;
-                    if(!flowPathLinks.hasOwnProperty(link))
-                        flowPathLinks[link] = {};
-                    if(!flowPathLinks.hasOwnProperty(altLink))
-                        flowPathLinks[altLink] = {};
-                }
-
-                graphModel.adjacencyList(adjList);
-                var childElementsArray = self.createElementsFromAdjacencyList();
-                childElementsArray = _.uniq(childElementsArray,
-                    function(x) {
-                        return x.attributes.model().attributes.element_id
-                    });
-
-                for(var i=0; i<childElementsArray.length; i++) {
-                    var childEl = childElementsArray[i];
-                    if(childEl.attributes.hasOwnProperty('name')) {
-                        //node element
-                        var childName = childEl.attributes.name();
-                        var node_type = childEl.attributes.node_type();
-                        if(node_type == ctwc.PROUTER)
-                            //all physical routers are part of topology
-                            continue;
-
-                        switch(node_type) {
-                            case ctwc.VROUTER:
-                                if(!vRouters.hasOwnProperty(childName)) {
-                                    for(var virtualMachineName in vms) {
-                                        if(vms[virtualMachineName].parent != childName) {
-                                            //childElementsArray[i] = null;
-                                            childElementsArray.splice(i,1);
-                                            i--;
-                                            break;
-                                        }
-                                    }
-                                }
-                            break;
-                            case ctwc.VIRTUALMACHINE:
-                                if(!vms.hasOwnProperty(childName)) {
-                                    //childElementsArray[i] = null;
-                                    childElementsArray.splice(i,1);
-                                    i--;
-                                }
-                            break;
-                        }
-                    } else if(childEl.attributes.hasOwnProperty("arrows")){
-                        var link_type = childEl.attributes.link_type();
-                        if(link_type == "pr-pr")
-                            continue;
-                        var endpoints = childEl.attributes.endpoints();
-                        var endpoint0 = endpoints[0];
-                        var endpoint1 = endpoints[1];
-                        var link = endpoint0 + "<->" + endpoint1;
-                        var altLink = endpoint1 + "<->" + endpoint0;
-                        if(!(flowPathLinks.hasOwnProperty(link) &&
-                            flowPathLinks.hasOwnProperty(altLink))) {
-                            if(link_type == "pr-vr" || link_type == "vr-pr") {
-                                if(vRouters.hasOwnProperty(endpoint0) ||
-                                    vRouters.hasOwnProperty(endpoint1))
-                                    continue;
-                            }
-                            //childElementsArray[i] = null;
-                            childElementsArray.splice(i,1);
-                            i--;
-                        }
-                    }
-                }
-
-                //childElementsArray = childElementsArray.filter(function(n){ return n != undefined });
-                self.addElementsToGraph(childElementsArray, false);
-                self.markErrorNodes();
-                $(".popover").popover().hide();
-                if(links.length > 0)
-                    self.addDimlightToConnectedElements();
-                for (var i = 0; i < links.length; i++) {
-                    var endpoints = links[i].endpoints;
-                    var endpoint0 = endpoints[0];
-                    var endpoint1 = endpoints[1];
-                    var linkName = endpoint0 + "<->" + endpoint1;
-                    var altLinkName = endpoint1 + "<->" + endpoint0;
-                    var link = elementMap.link[linkName];
-                    var existingLink = null;
-                    var parentNodeExists = elementMap.node[endpoint0];
-                    var childNodeExists = elementMap.node[endpoint1];
-                    var parentNode = null;
-                    var childNode = null;
-                    if(null !== parentNodeExists && typeof parentNodeExists !== "undefined")
-                        parentNode = self.network.getNode(elementMap.node[endpoint0]);
-                    else {
-                        parentNode = jsonPath(graphModel.nodes, '$[?(@.name=="' +
-                            endpoint0 + '")]');
-                        if (false !== parentNode && parentNode.length === 1) {
-                            parentNode = parentNode[0];
-                            var parentName = parentNode.name;
-                            var parentNodeType = parentNode.node_type;
-                            var currentEl = self.createNode(parentNode);
-                            graphModel.connectedElements.push(currentEl);
-                            var currentElId = currentEl.id;
-                            elementMap.node[parentName] = currentElId;
-                        }
-                    }
-                    if(null !== childNodeExists && typeof childNodeExists !== "undefined")
-                        childNode = self.network.getNode(elementMap.node[endpoint1]);
-                    else {
-                        childNode = jsonPath(graphModel.nodes, '$[?(@.name=="' +
-                            endpoint0 + '")]');
-                        if (false !== childNode && childNode.length === 1) {
-                            childNode = childNode[0];
-                            var childName = childNode.name;
-                            var childNodeType = childNode.node_type;
-                            var currentEl = self.createNode(childNode);
-                            graphModel.connectedElements.push(currentEl);
-                            var currentElId = currentEl.id;
-                            elementMap.node[childName] = currentElId;
-                        }
-                    }
-                }
-                // When the underlay path is same for earlier flow and
-                // current flow change events are not triggering so we need to
-                // reset the nodes and links to empty array once the path is plotted.
-                graphModel.elementMap(elementMap);
-                graphModel.adjacencyList(graphModel.underlayAdjacencyList());
+                self.showFlowPath(nodes, edges);
+                return true;
             });
         },
-        duplicatePaths: function(eventName, contrailVisView) {
+        initModelEvents: function() {
+            var self = this,
+                nodesCollection = self.model.nodesCollection,
+                edgesCollection = self.model.edgesCollection,
+                nodeModelEvents = self.getNodeChangeEventsConfig(),
+                edgeModelEvents = self.getEdgeChangeEventsConfig();
+
+            self.initModelEventsByType(nodesCollection.models,
+                nodeModelEvents, "node");
+            self.initModelEventsByType(edgesCollection.models,
+                edgeModelEvents, "edge");
+        },
+        initModelEventsByType: function(models, events, type) {
             var self = this;
-            var nodes = self.model.flowPath().model().attributes.nodes;
-            var links = self.model.flowPath().model().attributes.links;
-            var network = contrailVisView;
-            if(nodes.length > 0 && links.length > 0 &&
-                self.duplicatePathsDrawn == false) {
-                self.duplicatePathsDrawn = true;
-                if(self.underlayPathIds.nodes.length > 0) {
-                    _.each(self.underlayPathIds.nodes, function(id, idx) {
-                        network.removeNode(id);
+            _.each(models, function(model) {
+                _.each(events, function(eventName) {
+                    model.attributes.model().on(eventName, function() {
+                        var params = arguments,
+                            model = {};
+                        if(type == "node") {
+                            model = self.model.getNodeByElementId(
+                                params[0].attributes.id);
+                            if(null != model) {
+                                self.network.updateNode(model);
+                            }
+                        } else if(type == "edge") {
+                            model = self.model.getEdgeByElementId(
+                                params[0].attributes.id);
+                            if(null != model) {
+                                self.network.updateEdge(model);
+                            }
+                        } else {
+                            return;
+                        }
                     });
-                }
-                if(self.underlayPathIds.links.length > 0) {
-                    _.each(self.underlayPathIds.links, function(id, idx) {
-                        network.removeEdge(id);
-                    });
-                }
-                self.underlayPathIds = {
-                    nodes:[],
-                    links:[]
-                }
-                var dupNodes = {}, dupLinks = {};
-                var underlayPathIds = {
-                    nodes: [],
-                    links: []
-                };
-
-                var elementMap = self.model.elementMap();
-                for (var i = 0; i < links.length; i++) {
-                    var endpoints = links[i].endpoints;
-                    var endpoint0 = endpoints[0];
-                    var endpoint1 = endpoints[1];
-                    var linkName = endpoint0 + "<->" + endpoint1;
-                    var altLinkName = endpoint1 + "<->" + endpoint0;
-                    var link = elementMap.link[linkName];
-                    var existingLink = network.getEdge(link);
-
-                    var parentNode = null, childNode = null;
-                    if(existingLink == null || typeof existingLink == "undefined")
-                        continue;
-                    if(existingLink.from == elementMap.node[endpoint0]) {
-                        parentNode = network.getNode(elementMap.node[endpoint0]);
-                        childNode = network.getNode(elementMap.node[endpoint1]);
-                    } else {
-                        parentNode = network.getNode(elementMap.node[endpoint1]);
-                        childNode = network.getNode(elementMap.node[endpoint0]);
+                });
+            });
+        },
+        showFlowPath: function (nodes, edges) {
+            var self = this,
+                nodesCollection = self.model.nodesCollection,
+                edgesCollection = self.model.edgesCollection,
+                notProuterNodeModels = [],
+                notProuterNodeNames = [],
+                notPRPREdgeModels = [],
+                notPRPREdgeNames = [],
+                toBeDupedNodeIds = [],
+                toBeDupedEdgeIds = [],
+                vrvrNodes = [],
+                vrvrNodeIds = [],
+                allNodeNames = [],
+                allNodeNameTypes = [],
+                allEdgeNamesDir = [],
+                allEdgeNames = [];
+            self.toBeDupedElements = {
+                "nodes": [],
+                "edges": []
+            };
+            self.removeUnderlayPathIds();
+            for(var i=0; i<nodes.length; i++) {
+                var node = nodes[i];
+                allNodeNames.push(node["name"]);
+                allNodeNameTypes.push(node["name"] + "<->" + node["node_type"]);
+                var nodeModel = self.model.getNodeByName(node["name"]);
+                if(null != nodeModel) {
+                    if(node["node_type"] != "physical-router") {
+                        notProuterNodeModels.push(nodeModel);
+                        notProuterNodeNames.push(node["name"]);
                     }
-                    if(parentNode == null || childNode == null)
-                        continue;
-                    var parentId = parentNode.id;
-                    var childId = childNode.id;
-                    var parentNodeType = parentNode.node_type;
-                    var childNodeType = childNode.node_type;
-                    var link_type = parentNodeType.split("-")[0][0] +
-                        parentNodeType.split("-")[1][0] + '-' +
-                        childNodeType.split("-")[0][0] +
-                        childNodeType.split("-")[1][0];
+                    toBeDupedNodeIds.push(
+                        nodeModel.attributes.element_id());
+                }
+            }
+            //These two variables are populated only when
+            //there is a vr-vr edge is present in the
+            //trace/map flow response.
+            var fromVRouterNodeEdgeModels = [],
+                toVRouterNodeEdgeModels = [];
+            for(var i=0; i<edges.length; i++) {
+                var endpoints = edges[i].endpoints;
+                allEdgeNames.push(endpoints[0] + "<->" + endpoints[1]);
+                allEdgeNames.push(endpoints[1] + "<->" + endpoints[0]);
+                allEdgeNamesDir.push(endpoints[0] + "<->" + endpoints[1]);
+                var fromModel = self.model.getNodeByName(endpoints[0]);
+                var toModel = self.model.getNodeByName(endpoints[1]);
+                if(null == fromModel || null == toModel)
+                    continue;
+                var fromNodeType = fromModel.attributes.node_type();
+                var toNodeType = toModel.attributes.node_type();
+                var edgeType = fromNodeType.split("-")[0][0] +
+                    fromNodeType.split("-")[1][0] + '-' +
+                    toNodeType.split("-")[0][0] +
+                    toNodeType.split("-")[1][0];
+                if(edgeType == "vr-vr") {
+                    fromVRouterNodeEdgeModels =
+                        _.filter(edgesCollection.models,
+                        function(edgeModel) {
+                            return ((edgeModel.attributes.model().
+                            attributes.endpoints[0] == endpoints[0] ||
+                            edgeModel.attributes.model().
+                            attributes.endpoints[0] == endpoints[1]) &&
+                            ($.inArray(self.getEdgeType(edgeModel),
+                                ["pr-vr", "vr-pr"]) != -1));
+                    });
+                    toVRouterNodeEdgeModels =
+                        _.filter(edgesCollection.models,
+                        function(edgeModel) {
+                            return ((edgeModel.attributes.model().
+                            attributes.endpoints[1] == endpoints[0] ||
+                            edgeModel.attributes.model().
+                            attributes.endpoints[1] == endpoints[1]) &&
+                            ($.inArray(self.getEdgeType(edgeModel),
+                                ["pr-vr", "vr-pr"]) != -1))
+                    });
+                } else {
+                    var fromOrToEdgeModel =
+                        _.filter(edgesCollection.models,
+                        function(edgeModel) {
+                            return ((edgeModel.attributes.model().
+                            attributes.endpoints[0] == endpoints[0] &&
+                            edgeModel.attributes.model().
+                            attributes.endpoints[1] == endpoints[1]) ||
+                            (edgeModel.attributes.model().
+                            attributes.endpoints[0] == endpoints[1] &&
+                            edgeModel.attributes.model().
+                            attributes.endpoints[1] == endpoints[0]));
+                    });
+                    if(fromOrToEdgeModel && fromOrToEdgeModel.length == 1) {
+                        fromOrToEdgeModel = fromOrToEdgeModel[0];
+                        var edgeName =
+                            endpoints[0] + "<->" + endpoints[1],
+                            altEdgeName =
+                            endpoints[1] + "<->" + endpoints[0];
+
+                        if($.inArray(edgeName, notPRPREdgeNames) != -1 ||
+                            $.inArray(altEdgeName, notPRPREdgeNames) != -1)
+                            continue; //edge already present in the list
+
+                        if(edgeType !== "pr-pr") {
+                            notPRPREdgeModels.push(fromOrToEdgeModel);
+                            notPRPREdgeNames.push(edgeName);
+                            notPRPREdgeNames.push(altEdgeName);
+                        }
+                        var arrowPosition = "";
+                        var edgeEndpoints =
+                            fromOrToEdgeModel.attributes.endpoints();
+                        if(edgeEndpoints[0] ==
+                            fromModel.attributes.name()) {
+                            arrowPosition = "to";
+                        } else {
+                            arrowPosition = "from";
+                        }
+                        toBeDupedEdgeIds.push({
+                            id: fromOrToEdgeModel.attributes.element_id(),
+                            arrowPosition: arrowPosition
+                        });
+                        if($.inArray(endpoints[0],
+                            notProuterNodeNames) == -1 &&
+                            fromModel.attributes.node_type() !=
+                            "physical-router") {
+                            notProuterNodeModels.push(fromModel);
+                            notProuterNodeNames.push(endpoints[0]);
+                        }
+                        if($.inArray(endpoints[1],
+                            notProuterNodeNames) == -1 &&
+                            toModel.attributes.node_type() !=
+                            "physical-router") {
+                            notProuterNodeModels.push(toModel);
+                            notProuterNodeNames.push(endpoints[1]);
+                        }
+                    }
+                }
+            }
+            var postData = self.model.underlayPathReqObj();
+            delete postData["interval"];
+            delete postData["maxAttempts"];
+            delete postData["startAt"];
+            var queryParams = {
+                "path" : {
+                    "nodes": allNodeNameTypes.join(","),
+                    "edges": allEdgeNamesDir.join(","),
+                    "postData": postData
+                }
+            };
+            layoutHandler.setURLHashParams(queryParams, {
+                p: 'mon_infra_underlay',
+                merge: false
+            });
+            var vrprLink = [];
+            _.each(edgesCollection.models, function(edgeModel) {
+                //only pr-vr edges are to be found out.
+                var fromModel = self.model.getNodeByElementId(
+                    edgeModel.attributes.from())
+                var toModel = self.model.getNodeByElementId(
+                    edgeModel.attributes.to());
+                if(null == fromModel || null == toModel)
+                    return true;
+                var fromNodeType = fromModel.attributes.node_type();
+                var toNodeType = toModel.attributes.node_type();
+                var edgeType = fromNodeType.split("-")[0][0] +
+                    fromNodeType.split("-")[1][0] + '-' +
+                    toNodeType.split("-")[0][0] +
+                    toNodeType.split("-")[1][0];
+
+                if(edgeType == "pr-vr" || edgeType == "vr-pr") {
+                    var fromName = fromModel.attributes.name(),
+                        toName   = toModel.attributes.name(),
+                        edgeName = fromName + "<->" + toName,
+                        altEdgeName = toName + "<->" + fromName;
+                    //edge already in the list of models to be duplicated
+                    //so dont add it again.
+                    if($.inArray(edgeName, notPRPREdgeNames) != -1 ||
+                        $.inArray(altEdgeName, notPRPREdgeNames) != -1)
+                        return true;
+
+                    //both nodes are not part of the flow path
+                    //so dont add the edge.
+                    if($.inArray(fromName, allNodeNames) == -1 &&
+                        $.inArray(toName, allNodeNames) == -1)
+                        return true;
 
                     var arrowPosition = "";
-                    //todo: move elementMap to underlaygraphview.
-                    if(graphModel.elementMap().node[endpoint0] == parentId) {
-                        arrowPosition = "to";
-                    } else {
-                        arrowPosition = "from";
+                    //add vr-pr/pr-vr edge model
+                    if(edgeType.split("-")[0] == "vr") {
+                        if($.inArray(fromName, notProuterNodeNames) != -1) {
+                            if($.inArray(fromName, vrprLink) != -1)
+                                return true;
+                            notPRPREdgeModels.push(edgeModel);
+                            notPRPREdgeNames.push(edgeName);
+                            notPRPREdgeNames.push(altEdgeName);
+                            arrowPosition = "from";
+                            vrprLink.push(fromName);
+                        }
+                    } else if(edgeType.split("-")[1] == "vr") {
+                        if($.inArray(toName, notProuterNodeNames) != -1) {
+                            if($.inArray(toName, vrprLink) != -1)
+                                return true;
+                            notPRPREdgeModels.push(edgeModel);
+                            notPRPREdgeNames.push(edgeName);
+                            notPRPREdgeNames.push(altEdgeName);
+                            arrowPosition = "to";
+                            vrprLink.push(toName);
+                        }
                     }
-
-                    var parentNodeElement = network.findNode(parentId);
-                    parentNodeElement = parentNodeElement[0];
-                    var childNodeElement = network.findNode(childId);
-                    childNodeElement = childNodeElement[0];
-                    var newParentNode = null, newChildNode = null;
-
-                    if(dupNodes.hasOwnProperty(parentNode.name)) {
-                        newParentNode = dupNodes[parentNode.name].data;
+                    if($.inArray(edgeName, allEdgeNames) == -1 &&
+                        $.inArray(altEdgeName, allEdgeNames) == -1) {
+                        //edge is not part of the flow path
+                        //so dont duplicate the edge.
                     } else {
-                        var newParentNodeModel = self.model.addNode({
-                            chassis_type: parentNode.chassis_type,
-                            errorMsg: parentNode.errorMsg,
-                            mgmt_ip: parentNode.mgmt_ip,
-                            more_attributes: parentNode.more_attributes,
-                            name: parentNode.name,
-                            node_type: parentNode.node_type,
-                            parent: parentNode.parent
+                        //edge is part of the flow path
+                        //so duplicate the edge.
+                        toBeDupedEdgeIds.push({
+                            id: edgeModel.attributes.element_id(),
+                            arrowPosition: arrowPosition
                         });
-                        newParentNode = self.createNode(self.model.nodesCollection.last());
-                        newParentNode.attributes.model().set({"x":parentNodeElement.x-7}, {"silent":true});
-                        newParentNode.attributes.model().set({"y":parentNodeElement.y-7}, {"silent":true});
-                        newParentNode.attributes.model().set("hidden",true);
-                        network.addNode(newParentNode);
-                        dupNodes[parentNode.name] = {};
-                        if($.inArray(newParentNode.attributes.element_id(),
-                            underlayPathIds.nodes) == -1)
-                            underlayPathIds.nodes.push(newParentNode.attributes.element_id());
-                        dupNodes[parentNode.name]["id"]= newParentNode.attributes.element_id();
-                        dupNodes[parentNode.name]["data"]= newParentNode;
                     }
-
-                    if(dupNodes.hasOwnProperty(childNode.name)) {
-                        newChildNode = dupNodes[childNode.name].data;
-                    } else {
-                        var newChildNodeModel = self.model.addNode({
-                            chassis_type: childNode.chassis_type,
-                            errorMsg: childNode.errorMsg,
-                            mgmt_ip: childNode.mgmt_ip,
-                            more_attributes: childNode.more_attributes,
-                            name: childNode.name,
-                            node_type: childNode.node_type,
-                            parent: childNode.parent
-                        });
-                        newChildNode = self.createNode(self.model.nodesCollection.last());
-                        newChildNode.attributes.model().set({"x":childNodeElement.x-7}, {"silent":true});
-                        newChildNode.attributes.model().set({"y":childNodeElement.y-7}, {"silent":true});
-                        newChildNode.attributes.model().set("hidden",true);
-                        dupNodes[childNode.name] = {};
-                        network.addNode(newChildNode);
-                        dupNodes[childNode.name]["id"]= newChildNode.attributes.element_id();
-                        dupNodes[childNode.name]["data"]= newChildNode;
-                        if($.inArray(newChildNode.attributes.element_id(),
-                            underlayPathIds.nodes) == -1)
-                            underlayPathIds.nodes.push(newChildNode.attributes.element_id());
-                    }
-                    var linkModel = _.filter(network.caller.model.edgesCollection.models, function(edge) {
-                        var fromId =
-                            edge.attributes.from();
-                        var toId =
-                            edge.attributes.to();
-                        return (fromId == parentId &&
-                            toId == childId);
-
-                    });
-                    if(linkModel && linkModel.length > 0) {
-                        linkModel = linkModel[0];
-                    } else {
-                        continue;
-                    }
-                    var newLinkModel = self.model.addEdge({
-                        link_type: linkModel.attributes.link_type(),
-                        endpoints: linkModel.attributes.endpoints(),
-                        more_attributes: linkModel.attributes.more_attributes()
-                    });
-                    newLinkModel.from(newParentNode.attributes.element_id());
-                    newLinkModel.to(newChildNode.attributes.element_id());
-                    var newLink = self.createLink(self.model.edgesCollection.last(),
-                        link_type,
-                        newParentNode.attributes.element_id(),
-                        newChildNode.attributes.element_id(),
-                        arrowPosition, eventName);
-                    var currentLinkId = newLink.attributes.element_id();
-                    network.addEdge(newLink);
-                    if($.inArray(currentLinkId, underlayPathIds.links) == -1)
-                        underlayPathIds.links.push(currentLinkId);
-                    dupLinks[parentNode.name + "<->" + 
-                        childNode.name] = currentLinkId;
-                    dupLinks[childNode.name + "<->" + 
-                        parentNode.name] = currentLinkId;
                 }
-                self.underlayPathIds = underlayPathIds;
+            });
+
+            //When there is a vr-vr edge is present in the
+            //trace/map flow response, we are supposed to find
+            //edges to respective ToRs and there can be multiple
+            //edges to ToRs. Find most opt edges and see if they
+            //are already in the list of edges to be duplicated.
+            if(fromVRouterNodeEdgeModels.length > 0 ||
+                toVRouterNodeEdgeModels.length > 0) {
+                var additionalEdges = [];
+                if(fromVRouterNodeEdgeModels.length > 0)
+                    additionalEdges.push(fromVRouterNodeEdgeModels[0]);
+                if(toVRouterNodeEdgeModels.length > 0)
+                    additionalEdges.push(toVRouterNodeEdgeModels[0]);
+
+                _.each(additionalEdges, function(edgeModel) {
+                    var fromModel = self.model.getNodeByElementId(
+                        edgeModel.attributes.from());
+                    var toModel = self.model.getNodeByElementId(
+                        edgeModel.attributes.to());
+                    if(null == fromModel || null == toModel)
+                        return true;
+                    var edgeName = fromModel.attributes.name() +
+                        "<->" + toModel.attributes.name();
+                    var altEdgeName = fromModel.attributes.name() +
+                        "<->" + toModel.attributes.name();
+
+                    if($.inArray(edgeName, notPRPREdgeNames) == -1 ||
+                        $.inArray(altEdgeName, notPRPREdgeNames) == -1) {
+                        notPRPREdgeNames.push(edgeName);
+                        notPRPREdgeNames.push(altEdgeName);
+                        notPRPREdgeModels.push(edgeModel);
+                    }
+                });
             }
+            self.toBeDupedElements = {
+                "nodes": toBeDupedNodeIds,
+                "edges": toBeDupedEdgeIds
+            };
+            if(toBeDupedNodeIds.length > 0 &&
+                toBeDupedEdgeIds.length > 0) {
+                setTimeout(function(){
+                    underlayUtils.addUnderlayFlowInfoToBreadCrumb({
+                        action: postData['action'],
+                        sourceip: postData['srcIP'],
+                        destip: postData['destIP'],
+                        sport: postData['srcPort'],
+                        dport: postData['destPort']
+                    });
+                }, 300);
+            } else {
+                layoutHandler.setURLHashParams({}, {
+                    p: 'mon_infra_underlay',
+                    merge: false
+                });
+            }
+
+            self.addElementsToNetwork(notProuterNodeModels,
+                notPRPREdgeModels, null, true, false,
+                self.toBeDupedElements);
+        },
+        getEdgeType: function(edgeModel) {
+            var self = this,
+                nodesCollection = self.model.nodesCollection;
+            var fromModel =
+                self.model.getNodeByElementId(edgeModel.attributes.from());
+            var toModel =
+                self.model.getNodeByElementId(edgeModel.attributes.to());
+            if(null == fromModel || null == toModel)
+                return "";
+            var fromNodeType = fromModel.attributes.node_type();
+            var toNodeType = toModel.attributes.node_type();
+            var edgeType = fromNodeType.split("-")[0][0] +
+                fromNodeType.split("-")[1][0] + '-' +
+                toNodeType.split("-")[0][0] +
+                toNodeType.split("-")[1][0];
+            return edgeType;
+        },
+        duplicatePaths: function(toBeDupedNodeIds, toBeDupedEdgeIds) {
+            var self = this,
+                network = self.network,
+                dupNodes = []
+                dupNodeIds = [],
+                dupEdges = [],
+                dupEdgeIds = [],
+                mapOrigNodeToDupNode = {};
+
+            //duplicateNodes
+            for(var i=0; i<toBeDupedNodeIds.length; i++) {
+                var origNodeModel =
+                    self.model.getNodeByElementId(toBeDupedNodeIds[i]);
+                var origNodeElement =
+                    self.network.network.findNode(toBeDupedNodeIds[i])
+                if(null == origNodeModel)
+                    continue;
+                origNodeModel.attributes.image(
+                    self.getImage(
+                        origNodeModel.attributes.chassis_type(),
+                        self.DEFAULT));
+                origNodeModel = origNodeModel.attributes.model().attributes;
+
+                if(origNodeElement && origNodeElement.length == 1 &&
+                    origNodeElement[0] != undefined) {
+                    origNodeElement = origNodeElement[0];
+                } else {
+                    continue;
+                }
+
+                self.model.addNode({
+                    chassis_type: origNodeModel.chassis_type,
+                    errorMsg: origNodeModel.errorMsg,
+                    mgmt_ip: origNodeModel.mgmt_ip,
+                    more_attributes: origNodeModel.more_attributes,
+                    name: origNodeModel.name,
+                    node_type: origNodeModel.node_type
+                });
+                var dupNode =
+                    self.createNode(self.model.nodesCollection.last());
+                dupNode.attributes.model().attributes.x = origNodeElement.x-7;
+                dupNode.attributes.model().attributes.y = origNodeElement.y-7;
+                dupNode.attributes.model().attributes.hidden = true;
+                dupNodes.push(dupNode);
+                mapOrigNodeToDupNode[toBeDupedNodeIds[i]] = {
+                    id: dupNode.attributes.element_id()
+                };
+                dupNodeIds.push(dupNode.attributes.element_id());
+            }
+            if(dupNodes.length > 0)
+                network.addNode(dupNodes);  //add to network;
+
+            for(var i=0; i<toBeDupedEdgeIds.length; i++) {
+                var origEdgeModel =
+                    self.model.getEdgeByElementId(toBeDupedEdgeIds[i].id);
+                if(null == origEdgeModel)
+                    continue;
+                origEdgeModel = origEdgeModel.attributes.model().attributes;
+                var dupEdgeModel = self.model.addEdge({
+                    link_type: origEdgeModel.link_type,
+                    endpoints: origEdgeModel.endpoints,
+                    more_attributes: origEdgeModel.more_attributes
+                });
+                dupEdgeModel.from(mapOrigNodeToDupNode[origEdgeModel.from].id);
+                dupEdgeModel.to(mapOrigNodeToDupNode[origEdgeModel.to].id);
+                var dupEdge = self.createEdge(
+                    self.model.edgesCollection.last(),
+                    origEdgeModel.link_type,
+                    mapOrigNodeToDupNode[origEdgeModel.from].id,
+                    mapOrigNodeToDupNode[origEdgeModel.to].id,
+                    toBeDupedEdgeIds[i].arrowPosition);
+                var currentEdgeId = dupEdge.attributes.element_id();
+                dupEdges.push(dupEdge);
+                dupEdgeIds.push(currentEdgeId);
+            }
+            if(dupEdges.length > 0)
+                network.addEdge(dupEdges);
+            self.underlayPathIds = {
+                nodes: dupNodeIds,
+                edges: dupEdgeIds
+            };
         },
         clearFlowPath: function() {
             graphModel.flowPath().model().set('nodes',[], {silent: true});
-            graphModel.flowPath().model().set('links',[], {silent: true});
+            graphModel.flowPath().model().set('edges',[], {silent: true});
         },
-        expandNodes: function (params, contrailVisView) {
-            var self = contrailVisView.caller;
-            var _network = contrailVisView.network;
-            var graphModel = self.model;
-            var dblClickedElement = (_network.findNode(params.nodes[0]))[0];
-            var nodeDetails = dblClickedElement.options;
-            var elementType = dblClickedElement.options.node_type;
+        expandNodes: function(params, contrailVisView) {
+            var self = contrailVisView.caller,
+                _network = contrailVisView.network,
+                graphModel = self.model,
+                dblClickedElement = (_network.findNode(params.nodes[0]))[0],
+                nodeDetails = dblClickedElement.options,
+                elementType = nodeDetails["node_type"];
+            self.clickedType = nodeDetails['chassis_type'];
+            self.toBeDupedElements = {
+                "nodes": [],
+                "edges": []
+            };
+            var queryParams = {
+                name: nodeDetails.name,
+                selected: nodeDetails.name,
+                expanded: true
+            };
             switch (elementType) {
                 case ctwc.PROUTER:
                     var chassis_type = nodeDetails['chassis_type'];
                     if (chassis_type === "tor") {
+                        self.lastDblClickedType = self.dblClickedType;
+                        self.dblClickedType = "tor";
+                        var children = self.model.
+                            getChildModels(dblClickedElement.options.model);
+                        if(self.lastDblClickedType == "tor") {
+                            if(self.lastAddedElements &&
+                                self.lastAddedElements.
+                                    hasOwnProperty("nodes") &&
+                                self.lastAddedElements.
+                                    hasOwnProperty("edges")) {
+                                if(self.lastAddedElements.nodes.length > 0 ||
+                                    self.lastAddedElements.edges.length > 0) {
+                                    self.removeElementsFromNetwork(
+                                        self.lastAddedElements.nodes,
+                                        self.lastAddedElements.edges);
+                                    self.lastAddedElements = {
+                                        "nodes": [],
+                                        "edges": []
+                                    };
+                                }
+                            }
+
+                            if(self.underlayPathIds &&
+                                self.underlayPathIds.nodes &&
+                                self.underlayPathIds.nodes.length > 0) {
+                                self.addElementsToNetwork(children.nodes,
+                                    children.edges, dblClickedElement, true);
+                                self.lastAddedElements = {
+                                    "nodes": children.nodes,
+                                    "edges": children.edges
+                                };
+                            } else {
+                                self.addElementsToNetwork(children.nodes,
+                                    children.edges, dblClickedElement);
+                                if(children.nodes.length > 0 ||
+                                    children.edges.length > 0) {
+                                    self.lastAddedElements = {
+                                        "nodes": children.nodes,
+                                        "edges": children.edges
+                                    };
+                                }
+                            }
+                        } else if(self.lastDblClickedType == ctwc.VROUTER) {
+                            if(self.lastAddedElements &&
+                                self.lastAddedElements.
+                                    hasOwnProperty("nodes") &&
+                                self.lastAddedElements.
+                                    hasOwnProperty("edges") &&
+                                (self.lastAddedElements.nodes.length > 0 ||
+                                self.lastAddedElements.edges.length > 0)) {
+                                self.removeElementsFromNetwork(
+                                    self.lastAddedElements.nodes,
+                                    self.lastAddedElements.edges);
+                                self.lastAddedElements = {
+                                    "nodes": [],
+                                    "edges": []
+                                };
+                            }
+                            self.addElementsToNetwork(children.nodes,
+                                children.edges, dblClickedElement, true);
+                            if(children.nodes.length > 0 ||
+                                children.edges.length > 0) {
+                                self.lastAddedElements = {
+                                    "nodes": children.nodes,
+                                    "edges": children.edges
+                                };
+                            }
+                        } else if(self.lastDblClickedType == "") {
+                            if(self.lastAddedElements &&
+                                self.lastAddedElements.
+                                    hasOwnProperty("nodes") &&
+                                self.lastAddedElements.
+                                    hasOwnProperty("edges")) {
+                                if(self.lastAddedElements.nodes.length > 0 ||
+                                    self.lastAddedElements.edges.length > 0) {
+                                    self.removeElementsFromNetwork(
+                                        self.lastAddedElements.nodes,
+                                        self.lastAddedElements.edges);
+                                    self.lastAddedElements = {
+                                        "nodes": [],
+                                        "edges": []
+                                    };
+                                }
+                            }
+                            if(self.underlayPathIds &&
+                                self.underlayPathIds.nodes &&
+                                self.underlayPathIds.nodes.length > 0) {
+                                self.addElementsToNetwork(children.nodes,
+                                    children.edges, dblClickedElement, true);
+                                self.lastAddedElements = {
+                                    "nodes": children.nodes,
+                                    "edges": children.edges
+                                };
+                            } else {
+                                if(self.dblClickedType == "tor") {
+                                    self.addElementsToNetwork(children.nodes,
+                                        children.edges,
+                                        dblClickedElement, true);
+                                } else {
+                                    self.addElementsToNetwork(children.nodes,
+                                        children.edges,
+                                        dblClickedElement);
+                                }
+                                if(children.nodes.length > 0 ||
+                                    children.edges.length > 0) {
+                                    self.lastAddedElements = {
+                                        "nodes": children.nodes,
+                                        "edges": children.edges
+                                    };
+                                }
+                            }
+                        }
+
                         graphModel.selectedElement().model().set({
                         'nodeType': ctwc.PROUTER,
                         'nodeDetail': nodeDetails});
-                        var children = dblClickedElement.options.model.attributes.children;
-                        var adjList = _.clone(
-                            graphModel.underlayAdjacencyList());
-                        var childrenName = [];
-                        _.each(children, function(child) {
-                            childrenName.push(child.name());
-                            adjList[child.name()] = [];
-                        });
-                        if (childrenName.length > 0) {
-                            adjList[nodeDetails['name']] = childrenName;
-                            graphModel.adjacencyList(adjList);
-                            self.removeUnderlayEffects();
-                            self.removeUnderlayPathIds();
-                            var childElementsArray = 
-                            self.createElementsFromAdjacencyList(graphModel);
-                            self.addElementsToGraph(childElementsArray, null, dblClickedElement);
-                            self.markErrorNodes();
-                            self.addDimlightToConnectedElements();
-                            var thisNode = [nodeDetails];
-                            self.addHighlightToNodesAndLinks(thisNode, childElementsArray, graphModel);
-                            var graphData = contrailVisView.getData();
-                        }
-                    } else {
+                        self.removeUnderlayPathIds();
+                        self.removeUnderlayEffects();
+                        self.markErrorNodes();
+                        self.addDimlightToConnectedElements();
+                        var thisNode = [nodeDetails];
+                        self.addHighlightToNodesAndEdges(thisNode, graphModel);
+                    }
+                    else {
                         if(self.underlayPathIds.nodes.length > 0 ||
-                                self.underlayPathIds.links.length > 0) {
+                                self.underlayPathIds.edges.length > 0) {
                                 self.removeUnderlayPathIds();
                                 self.removeUnderlayEffects();
                                 self.resetTopology({
@@ -726,106 +816,203 @@ define([
                         }
                     break;
                 case ctwc.VROUTER:
+                    var parentModels =
+                    self.model.getParentModels(dblClickedElement.options.model);
+                    if(parentModels != undefined &&
+                        parentModels.nodes.length > 0) {
+                        if(parentModels.nodes.length == 1) {
+                            var parentNodeModels = parentModels.nodes[0];
+                            var parentName =
+                            parentNodeModels.attributes.name();
+                            queryParams.parent = parentName;
+                        } else {
+                            var parentEdgeIds =
+                                _network.getConnectedEdges(
+                                    nodeDetails["element_id"]);
+                            if(parentEdgeIds.length == 1 &&
+                                parentEdgeIds[0] != undefined) {
+                                var parentEdgeModel =
+                                self.model.getEdgeByElementId(parentEdgeIds[0]);
+                                if(parentEdgeModel.attributes.from() ==
+                                    nodeDetails["element_id"]) {
+                                    parentNodeModel =
+                                    self.model.getNodeByElementId(
+                                        parentEdgeModel.attributes.to());
+                                } else if(parentEdgeModel.attributes.to() ==
+                                    nodeDetails["element_id"]) {
+                                    parentNodeModel =
+                                    self.model.getNodeByElementId(
+                                        parentEdgeModel.attributes.from());
+                                }
+                                if(null != parentNodeModel) {
+                                    var parentName =
+                                    parentNodeModel.attributes.name();
+                                    queryParams.parent = parentName;
+                                }
+                            } else {
+                                var parentEdgeModels = parentModels.edges;
+                                if(parentEdgeModels != undefined &&
+                                    parentEdgeModels.length > 0) {
+                                    _.each(parentEdgeModels,
+                                        function(edgeModel) {
+                                        var parentNodeModel = null;
+                                        var edgeId =
+                                            edgeModel.attributes.element_id();
+                                        if(edgeModel.attributes.from() ==
+                                            nodeDetails["element_id"]) {
+                                            parentNodeModel =
+                                            self.model.getNodeByElementId(
+                                                edgeModel.attributes.to());
+                                        } else if(edgeModel.attributes.to() ==
+                                            nodeDetails["element_id"]) {
+                                            parentNodeModel =
+                                            self.model.getNodeByElementId(
+                                                edgeModel.attributes.from());
+                                        }
+                                        if(null != parentNodeModel) {
+                                            queryParams.parent =
+                                            parentNodeModel.attributes.name();
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    self.lastDblClickedType = self.dblClickedType;
+                    self.dblClickedType = ctwc.VROUTER;
+                    var children = self.model.
+                        getChildModels(dblClickedElement.options.model);
+                    if(self.lastDblClickedType == ctwc.VROUTER) {
+                        if(self.lastAddedElements &&
+                            self.lastAddedElements.hasOwnProperty("nodes") &&
+                            self.lastAddedElements.hasOwnProperty("edges")) {
+                            if(self.lastAddedElements.nodes.length > 0 ||
+                                self.lastAddedElements.edges.length > 0) {
+                                self.removeElementsFromNetwork(
+                                    self.lastAddedElements.nodes,
+                                    self.lastAddedElements.edges);
+                                self.lastAddedElements = {
+                                    "nodes": [],
+                                    "edges": []
+                                };
+
+                            }
+                        }
+                    }
+                    if(self.underlayPathIds &&
+                        self.underlayPathIds.nodes &&
+                        self.underlayPathIds.nodes.length > 0) {
+                        self.addElementsToNetwork(children.nodes,
+                            children.edges, dblClickedElement, true);
+                        self.lastAddedElements = {
+                            "nodes": children.nodes,
+                            "edges": children.edges
+                        };
+                    } else {
+                        self.addElementsToNetwork(children.nodes,
+                            children.edges, dblClickedElement);
+                        if(children.nodes.length > 0 ||
+                            children.edges.length > 0) {
+                            self.lastAddedElements = {
+                                "nodes": children.nodes,
+                                "edges": children.edges
+                            };
+                        }
+                    }
+                    self.removeUnderlayPathIds();
+                    self.removeUnderlayEffects();
                     graphModel.selectedElement().model().set({
                     'nodeType': ctwc.VROUTER,
                     'nodeDetail': nodeDetails});
-                    var parentNode = null;
-                    $.each(_network.getConnectedEdges(params.nodes[0]), function(idx, edge_id) {
-                        var connectedNodes = _network.getConnectedNodes(edge_id);
-                        var connectedNode0 = contrailVisView.getNode(connectedNodes[0]);
-                        var connectedNode1 = contrailVisView.getNode(connectedNodes[1]);
-                        if(connectedNode0 && connectedNode0.node_type == ctwc.PROUTER) {
-                            parentNode = connectedNode0;
-                        } else if (connectedNode1 && 
-                            connectedNode1.node_type == ctwc.PROUTER) {
-                            parentNode = connectedNode1;
-                        }
-                    });
-
-                    var siblings = []; //vrouter siblings
-                    if(parentNode != null) {
-                        siblings = graphModel.getChildren(parentNode.name,
-                        ctwc.VROUTER, graphModel.nodesCollection,
-                        graphModel.edgesCollection);
-                    } else {
-                        var parentName = dblClickedElement.options.parent[0];
-                        if(parentName) {
-                            siblings = graphModel.getChildren(parentName, ctwc.VROUTER,
-                            graphModel.nodesCollection, graphModel.edgesCollection);
-                            parentNode =
-                            self.network.getNode(self.model.elementMap().node[parentName]);
-                        }
-
-                    }
-                    /*var children = graphModel.getChildren(nodeDetails.name,
-                        ctwc.VIRTUALMACHINE, graphModel.nodesCollection,
-                        graphModel.edgesCollection);*/
-                    var children = dblClickedElement.options.model.attributes.children;
-                    var newAdjList = {};
-                    var oldAdjList = {};
-                    if(self.underlayPathIds.nodes.length > 0 ||
-                        self.underlayPathIds.links.length > 0) {
-                        newAdjList = _.clone(graphModel.underlayAdjacencyList());
-                        oldAdjList = _.clone(graphModel.underlayAdjacencyList());
-                    }
-                    else {
-                        newAdjList = _.clone(graphModel.adjacencyList());
-                        oldAdjList = _.clone(graphModel.adjacencyList());
-                    }
-                    if (siblings.length > 0) {
-                        var siblingName = [];
-                        for (var i = 0; i < siblings.length; i++) {
-                            siblingName.push(siblings[i].attributes.name());
-                            newAdjList[siblings[i].attributes.name()] = [];
-                        }
-                        newAdjList[parentNode['name']] = siblingName;
-                        oldAdjList = _.clone(newAdjList);
-                        oldAdjList[parentNode['name']] = [];
-                    }
-                    var childrenName = [];
-                    _.each(children, function(child) {
-                        childrenName.push(child.name());
-                        newAdjList[child.name()] = [];
-                    });
-                    if(childrenName.length > 0)
-                        newAdjList[nodeDetails['name']] = childrenName;
-                    graphModel.adjacencyList(newAdjList);
-                    self.removeUnderlayEffects();
-                    self.removeUnderlayPathIds();
-                    var childElementsArray = self.createElementsFromAdjacencyList();
-                    self.addElementsToGraph(childElementsArray, null, dblClickedElement);
+                    self.markErrorNodes();
                     self.addDimlightToConnectedElements();
                     var thisNode = [nodeDetails];
-                    self.addHighlightToNodesAndLinks(thisNode, childElementsArray, graphModel);
-                    self.markErrorNodes();
-                    graphModel.adjacencyList(oldAdjList);
+                    self.addHighlightToNodesAndEdges(thisNode, graphModel);
+                    break;
+                case ctwc.VIRTUALMACHINE:
+                    var parentModels =
+                    self.model.getParentModels(dblClickedElement.options.model);
+                    if(parentModels != undefined &&
+                        parentModels.nodes.length > 0) {
+                        if(parentModels.nodes.length == 1) {
+                            var parentNodeModel = parentModels.nodes[0];
+                            var parentName =
+                            parentNodeModel.attributes.name();
+                            queryParams.parent = parentName;
+                            var gParentModels =
+                                self.model.getParentModels(
+                                    parentNodeModel);
+                            if(gParentModels != undefined &&
+                                gParentModels.nodes.length > 0) {
+                                if(gParentModels.nodes.length == 1 &&
+                                    gParentModels.nodes[0] != undefined) {
+                                    var gParentNodeModel =
+                                        gParentModels.nodes[0];
+                                    var gParentName =
+                                        gParentNodeModel.attributes.name();
+                                    queryParams.gparent = gParentName;
+                                }
+                            }
+                        } else {
+                            var parentEdgeModels = parentModels.edges;
+                            if(parentEdgeModels != undefined &&
+                                parentEdgeModels.length > 0) {
+                                _.each(parentEdgeModels, function(edgeModel) {
+                                    var edgeId =
+                                        edgeModel.attributes.element_id();
+                                    var edgeEl =
+                                        self.network.network.findNode(edgeId);
+                                    if(null == edgeEl)
+                                        return true;
+                                    if(edgeModel.attributes.from() ==
+                                        nodeDetails["element_id"]) {
+                                        var parentNodeModel =
+                                        self.model.getNodeByElementId(
+                                            edgeModel.attributes.to());
+                                        if(null != parentNodeModel) {
+                                            queryParams.parent =
+                                            parentNodeModel.attributes.name();
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
                     break;
             }
-        },
+            layoutHandler.setURLHashParams(queryParams, {
+                p: 'mon_infra_underlay',
+                merge: false
+            });
 
-        createLink: function(link, link_type, srcId, tgtId, arrowPosition, eventName) {
+        },
+        createEdge: function(edge, edge_type, srcId, tgtId,
+            arrowPosition, eventName) {
             var self = this;
-            link.attributes.link_type(link_type);
+            edge.attributes.link_type(edge_type);
             if(arrowPosition == "from" ||
                 arrowPosition == "to") {
                 if(self.network.network.getSelectedNodes().length > 0 ||
                     self.network.network.getSelectedEdges().length > 0) {
                     if(eventName == "dragEnd")
-                        link.attributes.color(self.style.flowPathDefault.color);
+                        edge.attributes.color(
+                            self.style.flowPathDefault.color);
                     else
-                        link.attributes.color(self.style.flowPathDimlight.color);
+                        edge.attributes.color(
+                            self.style.flowPathDimlight.color);
                 } else {
-                    link.attributes.color(self.style.flowPathDefault.color);
+                    edge.attributes.color(
+                        self.style.flowPathDefault.color);
                 }
                 if(arrowPosition == "to") {
-                    link.attributes.arrows({
+                    edge.attributes.arrows({
                         to : {
                             enabled : true,
                             scaleFactor: .6
                         }
                     });
                 } else if(arrowPosition == "from") {
-                    link.attributes.arrows({
+                    edge.attributes.arrows({
                         from : {
                             enabled : true,
                             scaleFactor: .6
@@ -833,21 +1020,24 @@ define([
                     });
                 }
             }
-            var tooltipConfig = self.getUnderlayTooltipConfig()['link'];
-            var title = tooltipConfig.title(link);
-            var content = tooltipConfig.content(link);
-            var tooltipTmpl = contrail.getTemplate4Id(cowc.TMPL_UNDERLAY_ELEMENT_TOOLTIP)
+            var tooltipConfig = self.getUnderlayTooltipConfig()['edge'];
+            var title = tooltipConfig.title(edge);
+            var content = tooltipConfig.content(edge);
+            var tooltipTmpl =
+                contrail.getTemplate4Id(cowc.TMPL_UNDERLAY_ELEMENT_TOOLTIP)
             var tooltip = tooltipTmpl({
                 title: title,
                 content: content
             });
-            var dummydiv = $( '<div id=' + link.attributes.element_id() +' style="display:block;visibility:hidden"/>');
+            var dummydiv = $( '<div id=' + edge.attributes.element_id() +
+                ' style="display:block;visibility:hidden"/>');
             $('body').append(dummydiv)
             dummydiv.append($(_.unescape(tooltip)));
-            link.attributes.tooltip(tooltip);
-            link.attributes.tooltipConfig({
+            edge.attributes.tooltip(tooltip);
+            edge.attributes.tooltipConfig({
                 title       : title,
                 content     : content,
+                data        : edge,
                 dimension   : {
                     width   : $(dummydiv).find('.popover').width(),
                     height  : $(dummydiv).find('.popover').height()
@@ -857,7 +1047,7 @@ define([
             $(dummydiv).remove();
             dummydiv = $();
             delete dummydiv;
-            return link;
+            return edge;
         },
 
         createNode: function(node) {
@@ -869,18 +1059,21 @@ define([
             var tooltipConfig = this.getUnderlayTooltipConfig()[node_type];
             var title = tooltipConfig.title(node);
             var content = tooltipConfig.content(node);
-            var tooltipTmpl = contrail.getTemplate4Id(cowc.TMPL_UNDERLAY_ELEMENT_TOOLTIP)
+            var tooltipTmpl =
+                contrail.getTemplate4Id(cowc.TMPL_UNDERLAY_ELEMENT_TOOLTIP)
             var tooltip = tooltipTmpl({
                 title: title,
                 content: content
             });
-            var dummydiv = $( '<div id=' + node.attributes.element_id() +' style="display:block;visibility:hidden"/>');
+            var dummydiv = $( '<div id=' + node.attributes.element_id() +
+                ' style="display:block;visibility:hidden"/>');
             $('body').append(dummydiv)
             dummydiv.append($(_.unescape(tooltip)));
             node.attributes.tooltip(tooltip);
             node.attributes.tooltipConfig({
                 title           : title,
                 content         : content,
+                data            : node,
                 actionsCallback : tooltipConfig.actionsCallback,
                 dimension: {
                     width: $(dummydiv).find('.popover').width(),
@@ -894,234 +1087,468 @@ define([
             delete dummydiv;
             return node;
         },
-        createElementsFromAdjacencyList: function() {
-            var elements = [];
-            var linkElements = [];
-            var self = this;
-            var network = self.network;
-            var underlayGraphModel = self.model;
-            //var adjacencyList = underlayGraphModel.adjacencyList();
-            var adjacencyList = underlayGraphModel.model().attributes.adjacencyList
-            var conElements = underlayGraphModel.connectedElements();
-            var nodesCollection = underlayGraphModel.nodesCollection;
-            var elMap = underlayGraphModel.elementMap();
-            _.each(adjacencyList, function(edges, parentElementLabel) {
-                if (null !== elMap["node"][parentElementLabel] &&
-                    typeof elMap["node"][parentElementLabel] !== "undefined") {
-                    var el = network.getNode(elMap["node"][parentElementLabel]);
-                    if (null !== el && typeof el !== "undefined") {
-                        var el = underlayGraphModel.getNode(el.id);
-                        if(el && el.length == 1) {
-                            elements.push(el[0]);
-                            return;
-                        }
-                    } else {
-                        el = _.filter(nodesCollection.models, function(node) {
-                            return (node.attributes.element_id() ==
-                                elMap["node"][parentElementLabel]);
-                        });
-                        if (el && el.length === 1) {
-                            elements.push(el[0]);
-                            return;
+        removeElementsFromNetwork: function(nodeModels, edgeModels) {
+            var self = this,
+                graphModel = self.model,
+                network = self.network,
+                edgeElements = [],
+                nodeElements = [];
+            _.each(nodeModels, function(nodeModel, idx) {
+                nodeElements.push(nodeModel.attributes.element_id());
+            });
+
+            //remove old edges
+            _.each(edgeModels, function(edgeModel, idx) {
+                edgeElements.push(edgeModel.attributes.element_id());
+            });
+            if(nodeElements.length > 0) {
+                network.removeNode(nodeElements);
+            }
+            if(edgeElements.length > 0) {
+                network.removeEdge(edgeElements);
+            }
+        },
+        addElementsToNetwork: function(nodeModels, edgeModels,
+            dblClickedElement, removeOther, restorePosition,
+            toBeDupedElements) {
+            var self = this,
+                graphModel = self.model,
+                elMap = self.elementMap,
+                network = self.network,
+                removedEdges = [],
+                removedNodes = [],
+                existingEdgeElements = [],
+                newEdgeElements = [],
+                existingNodes = [],
+                newNodeElements = [],
+                nodeIdsInNetwork = network.getNodeIds(),
+                edgeIdsInNetwork = network.getEdgeIds(),
+                mapPositions = {},
+                options = self.visOptions;
+
+            if(self.stabilized == true) {
+                options.physics = {
+                    "enabled" : false,
+                    "stabilization" : {
+                        "fit": false
+                    }
+                };
+            } else {
+                options.physics = {
+                    "enabled" : true,
+                    "stabilization" : {
+                        "fit": true
+                    }
+                };
+            }
+            self.network.setOptions(options);
+            var underlayNodes = self.model.getUnderlayNodes();
+            var underlayNodePositions = {};
+            var removedNodeIds = [];
+            if(removeOther == true) {
+                //remove all nodes except prouters
+                _.each(nodeIdsInNetwork, function(nodeId, idx) {
+                    var nodeInNetwork = network.getNode(nodeId);
+                    if(null != nodeInNetwork &&
+                        typeof nodeInNetwork != "undefined") {
+                        if(nodeInNetwork.node_type !=
+                            "physical-router") {
+                            if(dblClickedElement &&
+                                dblClickedElement.id == nodeId) {
+                                if(self.model.flowPath().model().
+                                    attributes.nodes && self.model.flowPath().
+                                    model().attributes.nodes.length > 0) {
+                                } else {
+                                    removedNodes.push(nodeInNetwork);
+                                    removedNodeIds.push(nodeId);
+                                }
+                            } else {
+                                removedNodes.push(nodeInNetwork);
+                                removedNodeIds.push(nodeId);
+                            }
                         }
                     }
-                }
-                var parentNode = _.filter(nodesCollection.models, function(node) { 
-                    return (node.attributes.name() == parentElementLabel &&
-                        !(node.attributes.model().attributes.hasOwnProperty("hidden")));
-                    });
-                if (false !== parentNode && parentNode.length === 1) {
-                    parentNode = parentNode[0];
-                    var parentName = parentNode.attributes.name();
-                    var parentNodeType = parentNode.attributes.node_type();
-                    elements.push(self.createNode(parentNode));
-                    var currentEl = elements[elements.length - 1];
-                    conElements.push(currentEl);
-                    var currentElId = currentEl.attributes.element_id();
-                    elMap.node[parentName] = currentElId;
-                }
-            });
+                });
 
-            _.each(adjacencyList, function(edges, parentElementLabel) {
-                var parentNode = _.filter(nodesCollection.models, function(node) { 
-                    return (node.attributes.name() == parentElementLabel &&
-                        !(node.attributes.model().attributes.hasOwnProperty("hidden")));
-                    });
-                if (false !== parentNode && parentNode.length === 1) {
-                    parentNode = parentNode[0];
-                    var parentNodeType = parentNode.attributes.node_type();
-                    var parentId = elMap.node[parentNode.attributes.name()];
-                    var edgesCollection = self.model.edgesCollection;
-                    _.each(edges, function(childElementLabel) {
-                        if (null !== elMap["link"][parentElementLabel + "<->" + childElementLabel] &&
-                            typeof elMap["link"][parentElementLabel + "<->" + childElementLabel] !== "undefined") {
-                            var linkEl = network.getEdge(elMap["link"][parentElementLabel + "<->" + childElementLabel]);
-                            if (null !== linkEl && typeof linkEl !== "undefined") {
-                                linkElements.push(linkEl.model);
-                                return;
+                //remove all edges except prouter-prouter
+                _.each(edgeIdsInNetwork, function(edgeId, idx) {
+                    var edgeInNetwork = network.getEdge(edgeId);
+                    if(null != edgeInNetwork &&
+                        typeof edgeInNetwork != "undefined") {
+                        if(edgeInNetwork.link_type != "pr-pr") {
+                            var fromId = edgeInNetwork.from;
+                            var toId = edgeInNetwork.to;
+                            if(dblClickedElement &&
+                                (dblClickedElement.id == fromId ||
+                                dblClickedElement.id == toId)) {
+                                if(self.model.flowPath().model().
+                                    attributes.nodes && self.model.flowPath().
+                                    model().attributes.nodes.length > 0) {
+                                } else {
+                                    removedEdges.push(edgeInNetwork);
+                                }
                             } else {
-                                var cLabel = childElementLabel;
-                                linkEl = _.filter(conElements, function(el) { 
-                                    if(el.attributes.hasOwnProperty("arrows")) {
-                                        //looking for link
-                                        var lName = [parentElementLabel,
-                                            cLabel].join("<-->");
-                                        var altName = [cLabel,
-                                            parentElementLabel].join("<-->");
-                                        var ep = el.attributes.endpoints().join("<-->");
-                                        return ( lName == ep || altName == ep);
-                                    }
-                                });
-                                if (typeof linkEl === "object" &&
-                                    linkEl.length === 1) {
-                                    linkElements.push(linkEl[0]);
-                                    return;
-                                }
+                                removedEdges.push(edgeInNetwork);
                             }
                         }
-                        var childNode = _.filter(nodesCollection.models, function(node) { 
-                            return (node.attributes.name() == childElementLabel &&
-                                !(node.attributes.model().attributes.hasOwnProperty("hidden")));
-                        });
-                        if (false !== childNode && childNode.length === 1) {
-                            childNode = childNode[0];
-                            var childNodeType = childNode.attributes.node_type();
-                            var childId = elMap.node[childNode.attributes.name()];
-                            var link_type = parentNodeType.split("-")[0][0] +
-                                parentNodeType.split("-")[1][0] + '-' +
-                                childNodeType.split("-")[0][0] +
-                                childNodeType.split("-")[1][0];
-                            var linkModels = _.filter(edgesCollection.models, function(edge) { 
-                                var fromId = 
-                                    edge.attributes.from();
-                                var toId = 
-                                    edge.attributes.to();
-                                return ((fromId == parentId &&
-                                    toId == childId) ||
-                                    (fromId == childId &&
-                                    toId == parentId));
-
-                            });
-
-                            for (var i = 0; i < linkModels.length; i++) {
-                                var linkModel = linkModels[i].attributes;
-                                var endpoints = linkModel.endpoints();
-                                var linkName = parentElementLabel +
-                                    "<->" + childElementLabel;
-                                var altLinkName = childElementLabel +
-                                    "<->" + parentElementLabel;
-                                if ((null == elMap["link"][linkName] &&
-                                        typeof elMap["link"][linkName] == "undefined") &&
-                                    null == elMap["link"][altLinkName] &&
-                                    typeof elMap["link"][altLinkName] == "undefined") {
-                                    linkElements.push(self.createLink(
-                                        linkModels[i], link_type, parentId, childId));
-                                    var currentLink =
-                                        linkElements[linkElements.length - 1];
-                                    var currentLinkId = currentLink.attributes.element_id();
-                                    conElements.push(currentLink);
-                                    elMap.link[linkName] = currentLinkId;
-                                    elMap.link[altLinkName] = currentLinkId;
-                                }
+                    }
+                });
+            }
+            if(removedNodes.length > 0) {
+                network.removeNode(removedNodes);
+            }
+            if(removedEdges.length > 0) {
+                network.removeEdge(removedEdges);
+            }
+            if(restorePosition != false) {
+                _.each(underlayNodes, function(nodeModel, idx) {
+                    var underlayNodeId =
+                        elMap["nodes"][nodeModel.attributes.name()];
+                    if(null != underlayNodeId &&
+                        typeof underlayNodeId != "undefined") {
+                        var nodeInNetwork = network.findNode(underlayNodeId);
+                        if(null != nodeInNetwork &&
+                            typeof nodeInNetwork != "undefined" &&
+                            nodeInNetwork.length == 1 &&
+                            nodeInNetwork[0] != undefined) {
+                            nodeInNetwork = nodeInNetwork[0];
+                            underlayNodePositions[underlayNodeId] = {};
+                            underlayNodePositions[underlayNodeId] = {
+                                x: nodeInNetwork.x,
+                                y: nodeInNetwork.y
                             }
                         }
-                    });
-                }
-            });
-
-            var edgesCollection = underlayGraphModel.edgesCollection;
-            for(var i=0; i<edgesCollection.models.length; i++) {
-                var edgeModel = edgesCollection.models[i]
-                var link = edgeModel.attributes;
-                var endpoints = link.endpoints();
-                var endpoint0 = endpoints[0];
-                var endpoint1 = endpoints[1];
-                var linkName = endpoint0 + "<->" + endpoint1;
-                var altLinkName = endpoint1 + "<->" + endpoint0;
-                var endpoint0Node = underlayGraphModel.getNode(link.from());
-                if(endpoint0Node && endpoint0Node.length == 1) {
-                    endpoint0Node = endpoint0Node[0];
-                } else
-                    continue;
-                var endpoint1Node = underlayGraphModel.getNode(link.to());
-                if(endpoint1Node && endpoint1Node.length == 1) {
-                    endpoint1Node = endpoint1Node[0];
-                } else
-                    continue;
-                var endpoint0NodeId = endpoint0Node.attributes.element_id();
-                var endpoint1NodeId = endpoint1Node.attributes.element_id();
-                var endpoint0NodeType = endpoint0Node.attributes.node_type();
-                var endpoint1NodeType = endpoint1Node.attributes.node_type();
-                var link_type = endpoint0NodeType.split("-")[0][0] +
-                    endpoint0NodeType.split("-")[1][0] + '-' +
-                    endpoint1NodeType.split("-")[0][0] +
-                    endpoint1NodeType.split("-")[1][0];
-                if(link_type !== "pr-pr")
-                    continue;
-                if(null != elMap["node"] && typeof elMap["node"] !== "undefined") {
-                    if(null != elMap["node"][endpoint0] && typeof elMap["node"][endpoint0] !== "undefined" &&
-                        null != elMap["node"][endpoint1] && typeof elMap["node"][endpoint1] !== "undefined" &&
-                        null != adjacencyList[endpoint0] && typeof adjacencyList[endpoint0] !== "undefined" &&
-                        null != adjacencyList[endpoint1] && typeof adjacencyList[endpoint1] !== "undefined") {
-                        if(null == elMap["link"][linkName] && typeof elMap["link"][linkName] === "undefined" &&
-                            null == elMap["link"][altLinkName] && typeof elMap["link"][altLinkName] === "undefined") {
-                            var linkModel =
-                                _.filter(network.caller.model.edgesCollection.models,
-                                function(edge) {
-                                    var fromId = edge.attributes.from();
-                                    var toId = edge.attributes.to();
-                                    return ((fromId == endpoint0NodeId &&
-                                        toId == endpoint1NodeId));
-                                });
-                            if(linkModel && linkModel.length == 1) {
-                                linkModel = linkModel[0];
-                            } else {
-                                continue;
-                            }
-                            var newLink = self.createLink(linkModel,
-                                link_type, endpoint0NodeId, endpoint1NodeId);
-                            var currentLinkId = newLink.attributes.element_id();
-                            linkElements.push(newLink);
-                            var currentLink =
-                                linkElements[linkElements.length - 1];
-                            conElements.push(currentLink);
-                            elMap.link[linkName] = currentLinkId;
-                            elMap.link[altLinkName] = currentLinkId;
-                        } else {
-                            var el = _.filter(linkElements, function(linkEl) {
-                                return (linkEl.attributes.element_id() == elMap.link[linkName]);
-                            });
-                            var linkEl = self.network.getEdge(elMap.link[linkName]);
-                            if(el.length == 0 && null != linkEl) {
-                                var linkModel = self.model.getEdge(elMap.link[linkName]);
-                                if(linkModel && linkModel.length == 1) {
-                                    linkModel = linkModel[0];
-                                    linkElements.push(linkModel);
-                                }
-                            } else
-                                continue;
+                    }
+                });
+                _.each(nodeIdsInNetwork, function(id, idx) {
+                    if(!underlayNodePositions.hasOwnProperty(id) &&
+                        ($.inArray(id, removedNodeIds) == -1)) {
+                        var nodeInNetwork = network.findNode(id);
+                        if(null != nodeInNetwork &&
+                            typeof nodeInNetwork != "undefined" &&
+                            nodeInNetwork.length == 1 &&
+                            nodeInNetwork[0] != undefined) {
+                            nodeInNetwork = nodeInNetwork[0];
+                            mapPositions[id] = {};
+                            mapPositions[id] = {
+                                x: nodeInNetwork.x,
+                                y: nodeInNetwork.y
+                            };
+                            var existingNode =
+                                self.model.getNodeByElementId(id);
+                            if(null != existingNode)
+                                existingNodes.push(existingNode);
                         }
+                    }
+                });
+            }
+            //add new nodes
+            var nodeModelsLen = nodeModels.length,
+                dblClickedElementX = 0,
+                dblClickedElementY = 0,
+                childStartX = 0,
+                nodeSep = 100;
+
+            if(null != dblClickedElement && typeof
+                dblClickedElement != "undefined") {
+                dblClickedElementX =
+                    dblClickedElement.x;
+                dblClickedElementY =
+                    dblClickedElement.y;
+                if(nodeModelsLen % 2 == 0) {
+                    //Even number of children.
+                    var halfChildren = nodeModelsLen/2;
+                    if(halfChildren == 1) {
+                        childStartX = dblClickedElementX - 50;
                     } else {
-                        continue;
+                        childStartX = dblClickedElementX -
+                        (halfChildren * nodeSep) + dblClickedElementX/2;
                     }
                 } else {
-                    continue;
+                    //Odd number of children.
+                    //To be distributed 100px apart.
+                    var halfChildren = Math.floor(nodeModelsLen/2);
+                    childStartX = dblClickedElementX - (halfChildren * nodeSep);
                 }
             }
+            _.each(nodeModels, function(nodeModel, idx) {
+                var currentEl = nodeModel;
+                if (null == elMap["nodes"][nodeModel.attributes.name()] &&
+                    typeof elMap["nodes"][nodeModel.attributes.name()]
+                        == "undefined") {
+                    currentEl = self.createNode(nodeModel);
+                    elMap.nodes[nodeModel.attributes.name()] =
+                        currentEl.attributes.element_id();
+                }
+                if(null != dblClickedElement && typeof
+                    dblClickedElement != "undefined") {
+                    currentEl.attributes.model().set(
+                        {"x": childStartX + (idx * nodeSep)},
+                        {"silent":true});
+                    currentEl.attributes.model().set(
+                        {"y":dblClickedElementY +
+                        (self.visOptions.
+                            layout.hierarchical.levelSeparation)},
+                        {"silent":true});
+                }
+                newNodeElements.push(currentEl);
+            });
 
-            underlayGraphModel.elementMap(elMap);
-            underlayGraphModel.connectedElements(conElements);
-            // Links must be added after all the elements. This is because when the links
-            // are added to the graph, link source/target
-            // elements must be in the graph already.
-            return elements.concat(linkElements);
+            //add new edges
+            _.each(edgeModels, function(edgeModel, idx) {
+                var fromNodeId = edgeModel.attributes.from(),
+                    toNodeId = edgeModel.attributes.to(),
+                    fromNodeModel = self.model.getNodeByElementId(fromNodeId),
+                    toNodeModel = self.model.getNodeByElementId(toNodeId);
+                if(null == fromNodeModel || null == toNodeModel)
+                    return true;
+
+                var fromName = fromNodeModel.attributes.name(),
+                    toName = toNodeModel.attributes.name(),
+                    edgeName = fromName + "<->" + toName,
+                    altEdgeName = toName + "<->" + fromName,
+                    edge_type =
+                    fromNodeModel.attributes.node_type().split("-")[0][0] +
+                    fromNodeModel.attributes.node_type().split("-")[1][0] +'-'+
+                    toNodeModel.attributes.node_type().split("-")[0][0] +
+                    toNodeModel.attributes.node_type().split("-")[1][0];
+
+                if (null !== elMap["edges"][edgeName] &&
+                    typeof elMap["edges"][edgeName] !== "undefined" &&
+                    null !== elMap["edges"][altEdgeName] &&
+                    typeof elMap["edges"][altEdgeName] !== "undefined") {
+                    var edgeInNetwork =
+                        network.getEdge(elMap["edges"][altEdgeName]);
+                    if(null == edgeInNetwork ||
+                        typeof edgeInNetwork == "undefined")
+                        newEdgeElements.push(edgeModel);
+                } else {
+                    newEdgeElements.push(self.createEdge(
+                        edgeModel, edge_type, fromNodeId, toNodeId));
+                    var currentEl = newEdgeElements[newEdgeElements.length - 1];
+                    elMap.edges[edgeName] = currentEl.attributes.element_id();
+                    elMap.edges[altEdgeName] =
+                        currentEl.attributes.element_id();
+                }
+            });
+            if(null != toBeDupedElements &&
+                typeof toBeDupedElements != "undefined") {
+                if(null != toBeDupedElements.nodes &&
+                    typeof toBeDupedElements.nodes != "undefined" &&
+                    toBeDupedElements.nodes.length > 0) {
+                    var prvrEdges =
+                    _.filter(edgeModels, function(edgeModel, idx) {
+                        var edge_type = self.getEdgeType(edgeModel);
+                        return (edge_type == "pr-vr" || edge_type == "vr-pr");
+                    });
+                    _.each(prvrEdges, function(edgeModel, idx) {
+                        var fromNodeId = edgeModel.attributes.from(),
+                            toNodeId = edgeModel.attributes.to(),
+                            fromNodeModel =
+                                self.model.getNodeByElementId(fromNodeId),
+                            toNodeModel =
+                                self.model.getNodeByElementId(toNodeId);
+                        if(null == fromNodeModel || null == toNodeModel)
+                            return true;
+
+                        var fromName = fromNodeModel.attributes.name(),
+                            toName = toNodeModel.attributes.name(),
+                            edgeName = fromName + "<->" + toName,
+                            altEdgeName = toName + "<->" + fromName,
+                            edge_type =
+                            fromNodeModel.attributes.node_type().
+                                split("-")[0][0] +
+                            fromNodeModel.attributes.node_type().
+                                split("-")[1][0] + '-' +
+                            toNodeModel.attributes.node_type().
+                                split("-")[0][0] +
+                            toNodeModel.attributes.node_type().
+                                split("-")[1][0];
+
+                        if(edge_type == "pr-vr") {
+                            toNodeModel.attributes.model().attributes.x =
+                            fromNodeModel.attributes.model().attributes.x;
+                            toNodeModel.attributes.model().attributes.y =
+                            fromNodeModel.attributes.model().attributes.y + 100;
+                        } else if(edge_type == "vr-pr") {
+                            fromNodeModel.attributes.model().attributes.x =
+                            toNodeModel.attributes.model().attributes.x;
+                            fromNodeModel.attributes.model().attributes.y =
+                            toNodeModel.attributes.model().attributes.y + 100;
+                        }
+                    });
+                    var vrvmEdges =
+                    _.filter(edgeModels, function(edgeModel, idx) {
+                        var edge_type = self.getEdgeType(edgeModel);
+                        return (edge_type == "vr-vm" || edge_type == "vm-vr");
+                    });
+                    var vrvmEdgesLen = vrvmEdges.length;
+                    _.each(vrvmEdges, function(edgeModel, idx) {
+                        var fromNodeId = edgeModel.attributes.from(),
+                            toNodeId = edgeModel.attributes.to(),
+                            fromNodeModel =
+                                self.model.getNodeByElementId(fromNodeId),
+                            toNodeModel =
+                                self.model.getNodeByElementId(toNodeId);
+                        if(null == fromNodeModel || null == toNodeModel)
+                            return true;
+                        var fromName = fromNodeModel.attributes.name(),
+                            toName = toNodeModel.attributes.name(),
+                            edgeName = fromName + "<->" + toName,
+                            altEdgeName = toName + "<->" + fromName,
+                            edge_type =
+                            fromNodeModel.attributes.node_type().
+                                split("-")[0][0] +
+                            fromNodeModel.attributes.node_type().
+                                split("-")[1][0] + '-' +
+                            toNodeModel.attributes.node_type().
+                                split("-")[0][0] +
+                            toNodeModel.attributes.node_type().
+                                split("-")[1][0];
+
+                        if(edge_type == "vr-vm") {
+                            if(vrvmEdgesLen == 1)
+                                toNodeModel.attributes.model().attributes.x =
+                                fromNodeModel.attributes.model().attributes.x;
+                            toNodeModel.attributes.model().attributes.y =
+                            fromNodeModel.attributes.model().attributes.y + 100;
+                        } else if(edge_type == "vm-vr") {
+                            if(vrvmEdgesLen == 1)
+                                fromNodeModel.attributes.model().attributes.x =
+                                toNodeModel.attributes.model().attributes.x;
+                            fromNodeModel.attributes.model().attributes.y =
+                            toNodeModel.attributes.model().attributes.y + 100;
+                        }
+                    });
+                }
+            }
+            if(newNodeElements.length > 0) {
+                network.addNode(newNodeElements);
+            }
+            if(newEdgeElements.length > 0) {
+                network.addEdge(newEdgeElements);
+            }
+            _.each(underlayNodes, function(nodeModel) {
+                var nodeId =
+                    nodeModel.attributes.element_id();
+                var nodeElement = network.network.findNode(nodeId);
+                if(underlayNodePositions.hasOwnProperty(nodeId) &&
+                    nodeElement && nodeElement.length == 1 &&
+                    nodeElement[0] != undefined) {
+                    nodeElement = nodeElement[0];
+                    nodeElement.x = underlayNodePositions[nodeId].x;
+                    nodeElement.y = underlayNodePositions[nodeId].y;
+                }
+            });
+            if(existingNodes.length > 0) {
+                if(restorePosition != false) {
+                    _.each(existingNodes, function(nodeModel) {
+                        var nodeId =
+                            nodeModel.attributes.element_id();
+                        if(mapPositions.hasOwnProperty(nodeId)) {
+                            nodeModel.attributes.model().attributes.x =
+                                mapPositions[nodeId].x;
+                            nodeModel.attributes.model().attributes.y =
+                                mapPositions[nodeId].y;
+                        }
+                    });
+                }
+                network.updateNode(existingNodes);
+            }
+            if(existingEdgeElements.length > 0) {
+                network.updateEdge(existingEdgeElements);
+            }
+            if(restorePosition != false) {
+                if(null != Object.keys(underlayNodePositions)[0] &&
+                    typeof Object.keys(underlayNodePositions)[0] !=
+                    "undefined") {
+                    network.updateNode(underlayNodes);
+                }
+            }
+            if(null == dblClickedElement ||
+                typeof dblClickedElement == "undefined")
+                network.setData(null, options);
+            if((self.model.flowPath().model().attributes["nodes"] &&
+                graphModel.flowPath().model().attributes["nodes"].length > 0) ||
+                removeOther == true) {
+                var underlayNodePositions =
+                    ifNull(self.underlayNodePositions, {});
+                _.each(underlayNodes, function(nodeModel) {
+                    var nodeId =
+                        nodeModel.attributes.element_id();
+                    var nodeElement = network.network.findNode(nodeId);
+                    if(underlayNodePositions.hasOwnProperty(nodeId) &&
+                        nodeElement && nodeElement.length == 1 &&
+                        nodeElement[0] != undefined) {
+                        nodeElement = nodeElement[0];
+                        nodeElement.x = underlayNodePositions[nodeId].x;
+                        nodeElement.y = underlayNodePositions[nodeId].y;
+                    }
+                });
+            }
+            if(toBeDupedElements && toBeDupedElements.nodes.length > 0 &&
+                toBeDupedElements.edges.length > 0) {
+                self.addDimlightToConnectedElements();
+                self.duplicatePaths(toBeDupedElements.nodes,
+                    toBeDupedElements.edges);
+            }
+            if(null != dblClickedElement &&
+                typeof dblClickedElement != "undefined") {
+                var networkFit = false;
+                if(self.lastDblClickedType == "") {
+                    networkFit = true;
+                } else if(self.lastDblClickedType == "tor") {
+                    if(self.dblClickedType != "tor") {
+                        networkFit = true;
+                    } else {
+                        if(nodeModelsLen == 0) {
+                            networkFit = true;
+                        }
+                    }
+                } else if(self.lastDblClickedType == ctwc.VROUTER) {
+                    if(self.dblClickedType != ctwc.VROUTER) {
+                        networkFit = true;
+                    } else {
+                        if(nodeModelsLen == 0) {
+                            networkFit = true;
+                        }
+                    }
+                }
+                if(nodeModelsLen == 0) {
+                    self.dblClickedType = "";
+                    //networkFit = false;
+                }
+                if(//networkFit == true &&
+                    self.levelExpand.hasOwnProperty(self.dblClickedType) &&
+                    self.levelExpand[self.dblClickedType] == false) {
+                    self.levelExpand[self.dblClickedType] = true;
+                    self.network.network.fit();
+                }
+            }
+            if(self.stabilized == true) {
+                self.enableFreeflow(self.network);
+                //self.saveAsSVG();
+            }
+        },
+        saveAsSVG: function() {
+            var self = this;
+            var sourceCanvas =
+                self.network.network.canvas.frame.canvas;
+            var img_dataurl = sourceCanvas.toDataURL("image/svg+xml");
+            console.log(img_dataurl)
         },
         populateModelAndAddToGraph: function() {
             var self = this;
             $('#' + ctwl.GRAPH_LOADING_ID).hide();
-            var elements = this.createElementsFromAdjacencyList();
+            var underlayNodes = self.model.getUnderlayNodes(),
+                underlayEdges = self.model.getUnderlayEdges();
+            var elements = underlayNodes.concat(underlayEdges);
             if (elements.length > 0) {
-                this.addElementsToGraph(elements);
+                var hashEls =
+                    self.handleHashParams(underlayNodes, underlayEdges);
+                underlayNodes = underlayNodes.concat(hashEls["nodes"]);
+                underlayEdges = underlayEdges.concat(hashEls["edges"]);
+                self.addElementsToNetwork(underlayNodes, underlayEdges);
                 this.markErrorNodes();
             } else {
                 var notFoundTemplate =
@@ -1133,258 +1560,240 @@ define([
                         defaultNavLinks: false,
                         title: ctwm.NO_PHYSICALDEVICES
                     });
-                $("#"+ctwl.UNDERLAY_GRAPH_ID).html(notFoundTemplate(notFoundConfig));
+                $("#"+ctwl.UNDERLAY_GRAPH_ID).
+                    html(notFoundTemplate(notFoundConfig));
             }
-        },
-
-        addElementsToGraph: function(elements, restorePosition, dblClickedElement) {
-            var self = this;
-            var network = this.network;
-            var nodeIds = network.getNodeIds(); //all existing nodes
-            var edgeIds = network.getEdgeIds(); //all existing edges
-            var mapPositions = {};
-            //all elements to be added/removed to/from graph.
-            var newElementIds = [];
-            _.each(elements, function(el){
-                newElementIds.push(el.attributes.element_id());
-            });
-            var dblClickedElementName = "";
-            if(dblClickedElement)
-                dblClickedElementName =
-                dblClickedElement.options.name;
-            //Set hierarchical layout.
-            _.each(nodeIds, function(id, idx) {
-                if(newElementIds.indexOf(id) == -1) {
-                    //node already existing in graph but has to be removed.
-                    network.removeNode(id);
-                } else {
-                    if(false !== restorePosition) {
-                        //by default all the nodes' (already existing in graph)
-                        //positions are restored, unless otherwise set to 'false'
-                        //explicitly.
-                        var node = network.findNode(id);
-                        if(node && node.length == 1) {
-                            node = node[0];
-                            //dont remember old position in following cases.
-                            //when flowpath is drawn
-                            //when drawing children of multiple parents
-                            var parentName = ifNull(node.options.parent, "");
-                            if(dblClickedElementName == "" ||
-                                parentName.indexOf(dblClickedElementName) == -1) {
-                                mapPositions[id] = {};
-                                mapPositions[id] = {
-                                    x: node.x,
-                                    y: node.y
-                                }
-                            } else {
-                                //remove node who have multiple parents.
-                                network.removeNode(id);
-                            }
-                        }
-                    }
-                }
-            });
-            _.each(edgeIds, function(id, idx) {
-                if(newElementIds.indexOf(id) == -1) {
-                    //edge already existing in graph but has to be removed.
-                    network.removeEdge(id);
-                }
-            });
-            for (var i = 0; i < elements.length; i++) {
-                if (elements[i].attributes.hasOwnProperty('from') &&
-                    elements[i].attributes.hasOwnProperty('to')) {
-                    //its an edge
-                    //check if already exists
-                    if (network.getEdgeIds().indexOf(elements[i].attributes.element_id()) == -1) {
-                        try {
-                            //add edge if not present in the graph already.
-                            network.addEdge(elements[i]);
-                        } catch (e) {
-
-                        }
-                    }
-                } else {
-                    //its a node
-                    //check if already exists.
-                    if (network.getNodeIds().indexOf(elements[i].attributes.element_id()) == -1) {
-                        //Couldnt find the node in dataset.
-                        //trying to add it direcly under parent.
-                        try {
-                            var parent = elements[i].attributes.model().attributes.parent;
-                            if(parent) {
-                                if(parent.length > 1 && null !== dblClickedElement &&
-                                    typeof dblClickedElement !== "undefined") {
-                                    //element has more than one parent.
-                                    //find which parent to add this under.
-                                    if(parent.indexOf(dblClickedElement.options.name) !== -1) {
-                                        parent =
-                                        parent[parent.indexOf(dblClickedElement.options.name)];
-                                    }
-                                } else if(parent.length == 1) {
-                                    //element has one parent.
-                                    parent = parent[0];
-                                } else {
-                                    parent = parent[0];
-                                }
-                                //find parent element id from model data.
-                                var parentElId =
-                                    this.model.elementMap().node[parent];
-                                if(null !== parentElId &&
-                                    typeof parentElId !== "undefined") {
-                                    //if parent element id from model data exists,
-                                    //find in nodeDataSet.
-                                    var parentEl =
-                                    network.getNode(parentElId);
-                                    if(parentEl && !isNaN(parentEl.x) &&
-                                        !isNaN(parentEl.y)) {
-                                        //if the parent element has valid x,y positions
-                                        //add this element diretly under the parent.
-                                        elements[i].set({"x": parentEl.x}, {"silent":true});
-                                        elements[i].set({"y": parentEl.y +
-                                        (this.visOptions.layout.hierarchical
-                                            .levelSeparation-20)});
-                                    } else {
-                                        //if nodeDataSet doesnt have parent element
-                                        //still it is possible to find it in graph.
-                                        //find it in graph.
-                                        parentEl = this.network.findNode(parentElId);
-                                        if(parentEl && parentEl.length == 1 &&
-                                            JSON.stringify(mapPositions) !== "{}") {
-                                            //found in graph.
-                                            parentEl = parentEl[0];
-                                            //check x, y positions are valid.
-                                            if(parentEl && !isNaN(parentEl.x) &&
-                                                !isNaN(parentEl.y)) {
-                                                //if valid x, y, then add direclty
-                                                //under this parent.
-                                                elements[i].set({"x": parentEl.x}, {"silent":true});
-                                                elements[i].set({"y": parentEl.y +
-                                                (this.visOptions.layout.hierarchical
-                                                    .levelSeparation-20)});
-                                            }
-                                            //if no, layout takes care the position
-                                            //which is usually 0,0
-                                        }
-                                    }
-                                }
-                            }
-                            //add to nodedataset.
-                            //by this time, the new element is positioned mostly
-                            //directly under parent or it is set to 0,0 by layout
-                            network.addNode(elements[i]);
-                        } catch (e) {
-
-                        }
-                    }
-                }
-            }
-            var updatedNodes = [];
-            if(false !== restorePosition) {
-                //restore old positions, if found earlier.
-                _.each(mapPositions, function(position, id) {
-                    for (var i = 0; i < elements.length; i++) {
-                        var elModel = elements[i].attributes;
-                        if (elModel.element_id() == id) {
-                            elModel.model().set({"x":position.x}, {"silent":true});
-                            elModel.model().set({"y":position.y});
-                            updatedNodes.push(id);
-                            continue;
-                        }
-                    }
-                });
-            }
-            var newElements = [];
-            var newParentElement = null;
-            if(updatedNodes.length > 0) {
-                for(var i=0; i<newElementIds.length; i++) {
-                    if($.inArray(newElementIds[i], updatedNodes) == -1) {
-                        if(network.getEdge(newElementIds[i]) == null) {
-                            var newlyAddedElement = elements[i];
-                            if(elements[i].attributes.model().attributes.parent != null &&
-                                elements[i].attributes.model().attributes.parent.length > 0) {
-                                var parent = elements[i].attributes.model().attributes.parent;
-                                if(parent.length == 1) {
-                                    parent = parent[0];
-                                } else {
-                                    parent = parent[parent.indexOf(dblClickedElementName)];
-                                }
-                                if(parent) {
-                                    var parentEl =
-                                        network.getNode(this.model.elementMap().node[parent]);
-                                    if(parentEl) {
-                                        newParentElement = parentEl;
-                                        newElements.push(elements[i]);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if(newParentElement !== null) {
-                var len = newElements.length * this.visOptions.layout.hierarchical.levelSeparation;
-                var startPos = newParentElement.x - (len/2);
-                if(!isNaN(startPos)) {
-                    for(var i=0; i<newElements.length; i++) {
-                        newElements[i].attributes.model().set({
-                            "x": startPos + ((i+1)*50) + (i*30)}, {"silent":true});
-                        newElements[i].attributes.model().set({
-                            "y": newParentElement.y + this.visOptions.layout.hierarchical.levelSeparation});
-                        if(network.getNode(newElements[i].attributes.element_id()) == null)
-                            network.addNode(newElements[i]);
-                        else
-                            network.updateNode(newElements[i]);
-                    }
-                }
-
-            }
-            network.setData(null, this.visOptions);
         },
 
         markErrorNodes: function() {
             var graphModel = this.model;
             var errorNodes = graphModel.getErrorNodes();
-            var elementMap = graphModel.elementMap();
-            var elementMapNodes = ifNull(elementMap['node'], {});
+            var elementMapNodes = ifNull(this.elementMap['nodes'], {});
             if (!$.isArray(errorNodes)) {
                 errorNodes = [errorNodes];
             }
             var errorNodesLen = errorNodes.length;
             for (var i = 0; i < errorNodesLen; i++) {
-                if (elementMapNodes[errorNodes[i].attributes.name()] != null) {
-                    //var node = this.model.getNode(elementMapNodes[errorNodes[i].attributes.name()]);
+                if (null != elementMapNodes[errorNodes[i].attributes.name()]) {
                     var node = errorNodes[i];
                     node.attributes.image(this.getImage("unknown", this.ERROR));
                 }
             }
         },
+        handleHashParams: function(underlayNodes, underlayEdges) {
+            var self = this,
+                hashParams = layoutHandler.getURLHashParams(),
+                hashNodes = [],
+                hashEdges = [];
 
+            if(hashParams.hasOwnProperty("name")) {
+                //hash has a node to be selected
+                var hashNodeName = hashParams.name;
+                var nodeModel = self.model.getNodeByName(hashNodeName);
+                if(null != nodeModel) {
+                    //node found
+                    var chassis_type = nodeModel.attributes.chassis_type();
+                    switch (chassis_type) {
+                        case "coreswitch":
+                        case "spine":
+                        case "tor":
+                            if(hashParams.hasOwnProperty("expanded") &&
+                                "true" == ""+hashParams["expanded"]) {
+                                var childModels =
+                                self.model.getChildModels(nodeModel);
+                                if(childModels.hasOwnProperty("nodes") &&
+                                    childModels["nodes"].length > 0) {
+                                    hashNodes =
+                                    hashNodes.concat(childModels["nodes"]);
+                                }
+                                if(childModels.hasOwnProperty("edges") &&
+                                    childModels["edges"].length > 0) {
+                                    //network.updateEdge(childModels["edges"]);
+                                    hashEdges =
+                                    hashEdges.concat(childModels["edges"]);
+                                }
+                                if(self.lastAddedElements != undefined) {
+                                    if(self.lastAddedElements.nodes !=
+                                        undefined) {
+                                        self.lastAddedElements.nodes =
+                                        self.lastAddedElements.nodes.
+                                            concat(hashNodes);
+                                    }
+                                    if(self.lastAddedElements.edges !=
+                                        undefined) {
+                                        self.lastAddedElements.edges =
+                                        self.lastAddedElements.edges.
+                                            concat(hashEdges);
+                                    }
+                                }
+                                self.dblClickedType = "tor";
+                            }
+                            break;
+                        case "virtual-router":
+                            hashNodes.push(nodeModel);
+                            if(hashParams.hasOwnProperty("parent")) {
+                                var parentModel =
+                                self.model.getNodeByName(hashParams["parent"]);
+                                if(null != parentModel) {
+                                    var parentEdgeModel =
+                                    self.model.getEdgeByEndpoints(
+                                        hashParams["parent"],
+                                        hashParams["name"]);
+                                    if(null != parentEdgeModel) {
+                                        hashEdges.push(parentEdgeModel);
+                                    }
+                                    var siblingModels =
+                                    self.model.getChildModels(parentModel);
+                                    if(siblingModels.hasOwnProperty("nodes")) {
+                                        _.each(siblingModels["nodes"],
+                                            function(sibModel) {
+                                            if(sibModel.attributes.name() !=
+                                                hashNodeName) {
+                                                hashNodes.push(sibModel);
+                                            }
+                                        });
+                                        if(siblingModels.
+                                            hasOwnProperty("edges")) {
+                                            _.each(siblingModels["edges"],
+                                                function(sibEdgeModel) {
+                                                if(sibEdgeModel.attributes.
+                                                    element_id() !=
+                                                    parentEdgeModel.attributes.
+                                                    element_id()) {
+                                                    hashEdges.push(
+                                                        sibEdgeModel);
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+
+                            }
+                            if(hashParams.hasOwnProperty("expanded") &&
+                                "true" == ""+hashParams["expanded"]) {
+                                var childModels =
+                                self.model.getChildModels(nodeModel);
+                                if(childModels.hasOwnProperty("nodes") &&
+                                    childModels["nodes"].length > 0) {
+                                    hashNodes =
+                                    hashNodes.concat(childModels["nodes"]);
+                                    if(self.lastAddedElements != undefined) {
+                                        if(self.lastAddedElements.nodes !=
+                                            undefined)
+                                            self.lastAddedElements.nodes =
+                                            self.lastAddedElements.nodes.
+                                            concat(childModels["nodes"]);
+                                        self.dblClickedType = ctwc.VROUTER;
+                                    }
+                                }
+                                if(childModels.hasOwnProperty("edges") &&
+                                    childModels["edges"].length > 0) {
+                                    hashEdges =
+                                    hashEdges.concat(childModels["edges"]);
+                                    if(self.lastAddedElements != undefined) {
+                                        if(self.lastAddedElements.edges !=
+                                            undefined)
+                                            self.lastAddedElements.edges =
+                                            self.lastAddedElements.edges.
+                                            concat(childModels["edges"]);
+                                        self.dblClickedType = ctwc.VROUTER;
+                                    }
+                                }
+                            }
+                            break;
+                        case "virtual-machine":
+                            hashNodes.push(nodeModel);
+                            if(hashParams.hasOwnProperty("parent")) {
+                                var parentModel =
+                                self.model.getNodeByName(hashParams["parent"]);
+                                if(null != parentModel) {
+                                    hashNodes.push(parentModel);
+                                    var parentEdgeModel =
+                                    self.model.getEdgeByEndpoints(
+                                        hashParams["parent"],
+                                        hashParams["name"]);
+                                    if(null != parentEdgeModel) {
+                                        hashEdges.push(parentEdgeModel);
+                                    }
+                                    var siblingModels =
+                                    self.model.getChildModels(parentModel);
+                                    if(siblingModels.hasOwnProperty("nodes")) {
+                                        _.each(siblingModels["nodes"],
+                                            function(sibModel) {
+                                            if(sibModel.attributes.name() !=
+                                                hashNodeName) {
+                                                hashNodes.push(sibModel);
+                                            }
+                                        });
+                                        if(siblingModels.
+                                            hasOwnProperty("edges")) {
+                                            _.each(siblingModels["edges"],
+                                                function(sibEdgeModel) {
+                                                if(sibEdgeModel.attributes.
+                                                    element_id() !=
+                                                    parentEdgeModel.attributes.
+                                                    element_id()) {
+                                                    hashEdges.push(
+                                                        sibEdgeModel);
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                                if(hashParams.hasOwnProperty("gparent")) {
+                                    var parentModel =
+                                    self.model.getNodeByName(
+                                        hashParams["gparent"]);
+                                    if(null != parentModel) {
+                                        var parentEdgeModel =
+                                        self.model.getEdgeByEndpoints(
+                                            hashParams["gparent"],
+                                            hashParams["parent"]);
+                                        if(null != parentEdgeModel) {
+                                            hashEdges.push(parentEdgeModel);
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+            return {
+                nodes: hashNodes,
+                edges: hashEdges
+            };
+        },
         removeUnderlayPathIds: function() {
             var network = this.network;
             var graphModel = this.model;
-            var elementMap = graphModel.elementMap();
             var pathIds = this.underlayPathIds;
             var edgeIds = network.getEdgeIds();
             var edges = [];
-            if(pathIds && pathIds.hasOwnProperty('links')) {
-                for (var i = 0; i < pathIds.links.length; i++) {
-                    graphModel.edgesCollection.remove(
-                        graphModel.getEdge(pathIds.links[i])[0]);
-                    network.removeEdge(pathIds.links[i]);
+            if(pathIds && pathIds.hasOwnProperty('edges')) {
+                for (var i = 0; i < pathIds.edges.length; i++) {
+                    var edgeToRemove =
+                    graphModel.getEdgeByElementId(pathIds.edges[i]);
+                    if(null != edgeToRemove) {
+                        graphModel.edgesCollection.remove(edgeToRemove);
+                        network.removeEdge(pathIds.edges[i]);
+                    }
                 }
             }
             if(pathIds && pathIds.hasOwnProperty('nodes')) {
                 for (var i = 0; i < pathIds.nodes.length; i++) {
-                    graphModel.nodesCollection.remove(
-                        graphModel.getNode(pathIds.nodes[i])[0]);
-                    network.removeNode(pathIds.nodes[i]);
+                    var nodeToRemove =
+                        graphModel.getNodeByElementId(pathIds.nodes[i]);
+                    if(null != nodeToRemove) {
+                        graphModel.nodesCollection.remove(nodeToRemove);
+                        network.removeNode(pathIds.nodes[i]);
+                    }
                 }
             }
             this.underlayPathIds = {
                 nodes: [],
-                links: []
+                edges: []
             };
-            this.duplicatePathsDrawn = false;
         },
         addDimlightToConnectedElements: function() {
             var network = this.network;
@@ -1393,19 +1802,17 @@ define([
             var edgeIds = network.getEdgeIds();
             var nodes = [];
             var mapPositions = {};
-            var flowPathEdges = this.underlayPathIds.links;
+            var flowPathEdges = this.underlayPathIds.edges;
             for (var i = 0; i < nodeIds.length; i++) {
-                var node = _.filter(_this.model.nodesCollection.models,function(node){
-                    return (node.attributes.element_id() == nodeIds[i]);
-                });
-                if(node && node.length == 1)
-                    node = node[0];
-                else
+                var node = _this.model.getNodeByElementId(nodeIds[i]);
+                if(null == node)
                     continue;
                 var nodeEl = network.findNode(nodeIds[i]);
-                if(nodeEl && nodeEl.length == 1) {
+                if(nodeEl && nodeEl.length == 1 &&
+                    nodeEl[0] != undefined) {
                     nodeEl = nodeEl[0];
-                    node.attributes.model().set({"x": nodeEl.x}, {"silent": true})
+                    node.attributes.model().set({"x": nodeEl.x},
+                        {"silent": true})
                     node.attributes.model().set({"y": nodeEl.y})
                     mapPositions[nodeIds[i]] = {};
                     mapPositions[nodeIds[i]] = {
@@ -1413,31 +1820,32 @@ define([
                         y: nodeEl.y
                     }
                 }
-                node.attributes.image(_this.getImage(node.attributes.chassis_type(), _this.DIMLIGHT));
+                if(node.attributes.chassis_type() == "unknown")
+                    node.attributes.image("/img/router-error-dimlight.svg");
+                else
+                    node.attributes.image(
+                        _this.getImage(
+                            node.attributes.chassis_type(), _this.DIMLIGHT));
                 nodes.push(node);
             }
 
             _.each(mapPositions, function(position, id) {
                 for (var i = 0; i < nodes.length; i++) {
                     if (nodes[i].attributes.element_id() == id) {
-                        //nodes[i].attributes.model().set({"x": position.x},{"silent": true});
-                        //nodes[i].attributes.model().set({"y": position.y});
                         continue;
                     }
                 }
             });
 
             for (var i = 0; i < edgeIds.length; i++) {
-                var edge = _.filter(_this.model.edgesCollection.models,function(edge){
-                    return (edge.attributes.element_id() == edgeIds[i]);
-                });
-                if(edge && edge.length == 1) {
-                    edge = edge[0];
-
+                var edge = _this.model.getEdgeByElementId(edgeIds[i]);
+                if(null != edge) {
                     if($.inArray(edgeIds[i], flowPathEdges) == -1) {
-                        edge.attributes.model().set("color", _this.style.defaultDimlight.color);
+                        edge.attributes.model().set("color",
+                            _this.style.defaultDimlight.color);
                     } else {
-                        edge.attributes.model().set("color", _this.style.flowPathDimlight.color);
+                        edge.attributes.model().set("color",
+                            _this.style.flowPathDimlight.color);
                     }
                 }
             }
@@ -1449,16 +1857,16 @@ define([
             var nodeIds = network.getNodeIds();
             var edgeIds = network.getEdgeIds();
             var nodes = [];
-            var flowPathEdges = self.underlayPathIds.links;
+            var flowPathEdges = self.underlayPathIds.edges;
             var mapPositions = {};
 
             for (var i = 0; i < nodeIds.length; i++) {
-                var nodeModel = self.model.getNode(nodeIds[i]);
+                var nodeModel =
+                    self.model.getNodeByElementId(nodeIds[i]);
                 var nodeEl = network.findNode(nodeIds[i]);
                 if(nodeEl && nodeEl.length == 1 &&
-                    nodeModel && nodeModel.length == 1) {
+                    nodeEl[0] != undefined && null != nodeModel) {
                     nodeEl = nodeEl[0];
-                    nodeModel = nodeModel[0];
                 }
                 else
                     continue;
@@ -1473,20 +1881,24 @@ define([
                             this.DIMLIGHT));
                 }
                 else {
-                    nodeModel.attributes.image(
-                        this.getImage(nodeModel.attributes.chassis_type(),
-                            this.DEFAULT));
+                    if(nodeModel.attributes.chassis_type() == "unknown")
+                        nodeModel.attributes.image("/img/router-error.svg");
+                    else
+                        nodeModel.attributes.image(
+                            this.getImage(nodeModel.attributes.chassis_type(),
+                                this.DEFAULT));
                 }
                 nodes.push(nodeModel);
             }
-            self.markErrorNodes();
             if(restorePosition == false) {
+                network.updateNode(nodes);
                 return;
             }
             _.each(mapPositions, function(position, id) {
                 for (var i = 0; i < nodes.length; i++) {
                     if (nodes[i].id == id) {
-                        node.attributes.model().set({"x":position.x}, {"silent": true});
+                        node.attributes.model().set({"x":position.x},
+                            {"silent": true});
                         node.attributes.model().set({"y":position.y});
                         continue;
                     }
@@ -1494,26 +1906,28 @@ define([
             });
             var edges = [];
             for (var i = 0; i < edgeIds.length; i++) {
-                var edge = self.model.getEdge(edgeIds[i]);
-                if(edge && edge.length == 1)
-                    edge = edge[0];
-                else
+                var edge = self.model.getEdgeByElementId(edgeIds[i]);
+                if(null == edge)
                     continue;
                 if($.inArray(edgeIds[i], flowPathEdges) == -1) {
                     edge.attributes.color(self.style.defaultDimlight.color);
                 } else {
                     if(network.network.getSelectedNodes().length > 0 ||
                         network.network.getSelectedEdges().length > 0) {
-                        edge.attributes.color(self.style.flowPathDimlight.color);
+                        edge.attributes.color(
+                            self.style.flowPathDimlight.color);
                     } else {
-                        edge.attributes.color(self.style.flowPathDefault.color);
+                        edge.attributes.color(
+                            self.style.flowPathDefault.color);
                     }
                 }
                 edges.push(edge);
             }
-        },        
-        addHighlightToNodesAndLinks: function(nodes, els, graphModel) {
-            var elMap = graphModel.elementMap();
+            network.updateNode(nodes);
+            network.updateEdge(edges);
+        },
+        addHighlightToNodesAndEdges: function(nodes, graphModel) {
+            var elMap = this.elementMap;
             var errorNodes = graphModel.getErrorNodes();
             var _this = this;
             if (typeof nodes == "object" && nodes.length > 0) {
@@ -1522,40 +1936,41 @@ define([
                     var node = nodes[i],
                         name = node.name;
                     nodeNames.push(name);
-                    var node_model_id = jsonPath(elMap, '$.node[' + node.name + ']');
-                    if (false !== node_model_id && typeof node_model_id === "object" &&
-                        node_model_id.length === 1 && errorNodes.indexOf(name) == -1) {
+                    var node_model_id =
+                        jsonPath(elMap, '$.nodes[' + node.name + ']');
+                    if (false !== node_model_id &&
+                        typeof node_model_id === "object" &&
+                        node_model_id.length === 1 &&
+                        errorNodes.indexOf(name) == -1) {
                         node_model_id = node_model_id[0];
                         _this.addHighlightToNode(node_model_id);
                     }
                 }
 
-                $.each(elMap.link, function(link, link_id) {
-                    var endpoints = link.split("<->");
+                $.each(elMap.edges, function(edge, edge_id) {
+                    var endpoints = edge.split("<->");
                     var endpoint0 = endpoints[0];
                     var endpoint1 = endpoints[1];
                     if (nodeNames.indexOf(endpoint0) !== -1 &&
                         nodeNames.indexOf(endpoint1) !== -1) {
-                        _this.addHighlightToLink(link_id);
+                        _this.addHighlightToEdge(edge_id);
                     }
                 });
             }
         },
 
         addHighlightToNode: function(node_model_id) {
-            var clickedElement = this.model.getNode(node_model_id);
-            if(clickedElement && clickedElement.length == 1)
-                clickedElement = clickedElement[0];
-            else
+            var clickedElement = this.model.getNodeByElementId(node_model_id);
+            if(null == clickedElement)
                 return;
-            clickedElement.attributes.image(this.getImage(clickedElement.attributes.chassis_type(), this.HIGHLIGHT));
+            clickedElement.attributes.image(
+                this.getImage(clickedElement.attributes.chassis_type(),
+                    this.HIGHLIGHT));
         },
 
-        addHighlightToLink: function(link_model_id) {
-            var clickedElement = this.model.getEdge(link_model_id);
-            if(clickedElement && clickedElement.length == 1)
-                clickedElement = clickedElement[0];
-            else
+        addHighlightToEdge: function(edge_model_id) {
+            var clickedElement = this.model.getEdgeByElementId(edge_model_id);
+            if(null == clickedElement)
                 return;
             clickedElement.attributes.color(this.style.defaultSelected.color);
         },
@@ -1568,6 +1983,9 @@ define([
                 contrail.getTemplate4Id(cowc.TMPL_ELEMENT_TOOLTIP_CONTENT);
             return {
                 "physical-router": {
+                    data: function(node) {
+                        return node;
+                    },
                     title: function(node) {
                         return tooltipTitleTmpl({
                             name: node.attributes.name(),
@@ -1585,13 +2003,14 @@ define([
                             text: 'Configure',
                             iconClass: 'fa fa-cog'
                         });
-                        ifLength = 
-                        getValueByJsonPath(node.attributes.more_attributes(),"ifTable", []).length;
+                        ifLength =
+                        getValueByJsonPath(node.attributes.more_attributes(),
+                            "ifTable", []).length;
                         tooltipLblValues.push({
                             label: 'Name',
                             value: node.attributes.name()
                         });
-                        if (node.attributes.errorMsg() != null) {
+                        if (null != node.attributes.errorMsg()) {
                             tooltipLblValues.push({
                                 label: 'Events',
                                 value: node.attributes.errorMsg()
@@ -1637,6 +2056,9 @@ define([
                     }
                 },
                 "virtual-router": {
+                    data: function(node) {
+                        return node;
+                    },
                     title: function(node) {
                         return tooltipTitleTmpl({
                             name: node.attributes.name(),
@@ -1646,18 +2068,22 @@ define([
                     content: function(node) {
                         var graphModel =
                             $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
-                        var actions = [], instances = graphModel.getVirtualMachines(),
+                        var actions = [],
+                            instances = graphModel.getVirtualMachines(),
                             ip = monitorInfraConstants.noDataStr;
                         var vms = 0,
                             name = node.attributes.name();
                         if(name.length <= 0)
                             name = "-";
-                        var ipArr = getValueByJsonPath(node.attributes.more_attributes(), 'VrouterAgent;self_ip_list', []);
+                        var ipArr = getValueByJsonPath(
+                            node.attributes.more_attributes(),
+                            'VrouterAgent;self_ip_list', []);
                         if (ipArr.length > 0) {
                             ip = ipArr.join(',');
                         }
                         for (var i = 0; i < instances.length; i++) {
-                            if (instances[i].attributes.more_attributes().vrouter === name) {
+                            if (instances[i].attributes.
+                                more_attributes().vrouter === name) {
                                 vms++;
                             }
                         }
@@ -1666,7 +2092,14 @@ define([
                             text: 'Configure',
                             iconClass: 'fa fa-cog'
                         });
-
+                        actions.push({
+                            text: 'Map Flow',
+                            iconClass: 'icon-exchange'
+                        });
+                        actions.push({
+                            text: 'Trace Flow',
+                            iconClass: 'icon-exchange'
+                        });
                         var tooltipContent = [{
                             label: 'Name',
                             value: name
@@ -1694,10 +2127,38 @@ define([
                         });
 
                         actions.push({
-                            callback: function() {
+                            callback: function(underlayGraphView) {
                                 graphModel.selectedElement().model().set({
                                     'nodeType': ctwc.VROUTER,
-                                    'nodeDetail': node});
+                                    'nodeDetail':
+                                    node.data()["bs.popover"].
+                                    options.data.attributes.
+                                    model().attributes});
+                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:0});
+                                $("#run_query").find("button").click();
+                                graphModel.selectedElement().model().set({
+                                    'nodeType': '',
+                                    'nodeDetail': {}},{silent:true});
+                            }
+                        });
+                        actions.push({
+                            callback: function(underlayGraphView) {
+                                graphModel.selectedElement().model().set({
+                                    'nodeType': ctwc.VROUTER,
+                                    'nodeDetail':
+                                    node.data()["bs.popover"].
+                                    options.data.attributes.
+                                    model().attributes});
+                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:1});
+                                underlayGraphView.rootView.viewMap.
+                                    traceflow_radiobtn_name.model.
+                                    traceflow_radiobtn_name('vRouter');
+                                underlayGraphView.rootView.viewMap.
+                                    vrouter_dropdown_name.model.
+                                    vrouter_dropdown_name(
+                                        node.data()["bs.popover"].
+                                        options.data.attributes.
+                                        model().attributes.name);
                                 graphModel.selectedElement().model().set({
                                     'nodeType': '',
                                     'nodeDetail': {}},{silent:true});
@@ -1707,6 +2168,9 @@ define([
                     }
                 },
                 "virtual-machine": {
+                    data: function(node) {
+                        return node;
+                    },
                     title: function(node) {
                         var virtualMachineName =
                         getValueByJsonPath(node.attributes.more_attributes(),
@@ -1729,23 +2193,40 @@ define([
                         var fip_addr = "";
                         var fip_addr_arr = [];
                         for (var i = 0; i < instances.length; i++) {
-                            if (instances[i].attributes.name() === instanceUUID) {
-                                var attributes = ifNull(instances[i].attributes.more_attributes(), {}),
+                            if (instances[i].attributes.name()
+                                === instanceUUID) {
+                                var attributes =
+                                    ifNull(instances[i].attributes.
+                                        more_attributes(), {}),
                                     ipArr = [],
                                     vnArr = [];
-                                var interfaceList = ctwu.getDataBasedOnSource(ifNull(attributes['interface_list'], []));
+                                var interfaceList =
+                                    ctwu.getDataBasedOnSource(
+                                    ifNull(attributes['interface_list'], []));
                                 label = "Name";
                                 instanceName = attributes['vm_name'];
                                 for (var j = 0; j < interfaceList.length; j++) {
-                                    if (interfaceList[j]['virtual_network'] != null)
-                                        vnArr.push(interfaceList[j]['virtual_network']);
-                                    if (interfaceList[j]['ip6_active'] && interfaceList[j]['ip6_address'] != '0.0.0.0')
-                                        ipArr.push(interfaceList[j]['ip6_address']);
-                                    else if (interfaceList[j]['ip_address'] != '0.0.0.0')
-                                        ipArr.push(interfaceList[j]['ip_address']);
-                                    fip_addr_arr = getValueByJsonPath(interfaceList[j], "floating_ips", []);
-                                    if (fip_addr != "") fip_addr += ", ";
-                                    fip_addr += _.pluck(fip_addr_arr, 'ip_address').join(', ');
+                                    if (interfaceList[j]['virtual_network']
+                                        != null)
+                                        vnArr.push(
+                                        interfaceList[j]['virtual_network']);
+                                    if (interfaceList[j]['ip6_active'] &&
+                                        interfaceList[j]['ip6_address'] !=
+                                        '0.0.0.0')
+                                        ipArr.push(
+                                            interfaceList[j]['ip6_address']);
+                                    else if (interfaceList[j]['ip_address'] !=
+                                        '0.0.0.0')
+                                        ipArr.push(
+                                            interfaceList[j]['ip_address']);
+                                    fip_addr_arr =
+                                    getValueByJsonPath(
+                                        interfaceList[j], "floating_ips", []);
+                                    if (fip_addr != "")
+                                        fip_addr += ", ";
+                                    fip_addr +=
+                                    _.pluck(fip_addr_arr,
+                                        'ip_address').join(', ');
                                 }
                                 if (ipArr.length > 0)
                                     vmIp = ipArr.join();
@@ -1756,8 +2237,13 @@ define([
                         }
                         if ("" == instanceName)
                             instanceName = node.attributes.name();
+                        actions.push({
+                            text: 'Trace Flow',
+                            iconClass: 'icon-exchange'
+                        });
                         tooltipContent = {
-                            iconClass: 'icon-contrail-virtual-machine font-size-30',
+                            iconClass:
+                                'icon-contrail-virtual-machine font-size-30',
                             actions: actions
                         };
                         tooltipLblValues = [{
@@ -1789,16 +2275,45 @@ define([
                         }
                         tooltipContent['info'] = tooltipLblValues;
                         return tooltipContentTmpl(tooltipContent);
+                    },
+                    actionsCallback: function(node) {
+                        var actions = [];
+                        actions.push({
+                            callback: function(underlayGraphView) {
+                                graphModel.selectedElement().model().set({
+                                    'nodeType': ctwc.VIRTUALMACHINE,
+                                    'nodeDetail':
+                                    node.data()["bs.popover"].
+                                    options.data.attributes.
+                                    model().attributes});
+                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:1});
+                                underlayGraphView.rootView.viewMap.
+                                    traceflow_radiobtn_name.model.
+                                    traceflow_radiobtn_name('instance');
+                                underlayGraphView.rootView.viewMap.
+                                    instance_dropdown_name.model.
+                                    instance_dropdown_name(
+                                        node.data()["bs.popover"].
+                                        options.data.attributes.
+                                        model().attributes.name);
+                                graphModel.selectedElement().model().set({
+                                    'nodeType': '',
+                                    'nodeDetail': {}},{silent:true});
+                            }
+                        });
+                        return actions;
                     }
                 },
-                link: {
-                    title: function(link) {
-                        var graphModel = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
-                        var instances = graphModel.getVirtualMachines(graphModel.nodes());
+                edge: {
+                    title: function(edge) {
+                        var graphModel =
+                            $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
+                        var instances =
+                            graphModel.getVirtualMachines(graphModel.nodes());
                         var instanceName1 = "";
                         var instanceName2 = "";
-                        var endpoint1 = link.attributes.endpoints()[0];
-                        var endpoint2 = link.attributes.endpoints()[1];
+                        var endpoint1 = edge.attributes.endpoints()[0];
+                        var endpoint2 = edge.attributes.endpoints()[1];
                         for (var i = 0; i < instances.length; i++) {
                             var instanceAttrs = instances[i].attributes;
                             if (instanceAttrs.name() === endpoint1) {
@@ -1815,26 +2330,34 @@ define([
                             instanceName2 = endpoint2;
 
                         return tooltipTitleTmpl({
-                            name: instanceName1 + ctwc.LINK_CONNECTOR_STRING + instanceName2,
+                            name: instanceName1 + ctwc.LINK_CONNECTOR_STRING +
+                                instanceName2,
                             type: ctwl.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK
                         });
                     },
-                    content: function(link) {
+                    content: function(edge) {
                         var local_interfaces = [];
                         var remote_interfaces = [];
-                        if (link.attributes.more_attributes() && "-" !== link.attributes.more_attributes() &&
-                            link.attributes.more_attributes().length > 0) {
-                            var moreAttrs = link.attributes.more_attributes();
+                        if (edge.attributes.more_attributes() &&
+                            "-" !== edge.attributes.more_attributes() &&
+                            edge.attributes.more_attributes().length > 0) {
+                            var moreAttrs = edge.attributes.more_attributes();
                             for (var i = 0; i < moreAttrs.length; i++) {
-                                local_interfaces.push(" "+moreAttrs[i].local_interface_name + " (" + moreAttrs[i].local_interface_index + ")");
-                                remote_interfaces.push(" "+moreAttrs[i].remote_interface_name + " (" + moreAttrs[i].remote_interface_index + ")");
+                                local_interfaces.push(
+                                    " " + moreAttrs[i].local_interface_name +
+                                    " (" + moreAttrs[i].local_interface_index +
+                                    ")");
+                                remote_interfaces.push(
+                                    " " + moreAttrs[i].remote_interface_name +
+                                    " (" + moreAttrs[i].remote_interface_index +
+                                    ")");
                             }
                         }
                         data = [{
-                            label: link.attributes.endpoints()[0],
+                            label: edge.attributes.endpoints()[0],
                             value: local_interfaces
                         }, {
-                            label: link.attributes.endpoints()[1],
+                            label: edge.attributes.endpoints()[1],
                             value: remote_interfaces
                         }];
                         return tooltipContentTmpl({
@@ -1849,29 +2372,21 @@ define([
         resetTopology: function(options) {
             var self = this;
             var underlayGraphModel = self.model;
-            //this.removeUnderlayPathIds();
+            self.toBeDupedElements = {
+                "nodes": [],
+                "edges": []
+            };
             var restorePosition = options.restorePosition;
-            this.resetConnectedElements(restorePosition);
-            var adjList = _.clone(underlayGraphModel.underlayAdjacencyList());
-            underlayGraphModel.adjacencyList(adjList);
-            self.network.setOptions(self.visOptions);
-            var childElementsArray =
-                this.createElementsFromAdjacencyList(underlayGraphModel);
-            this.addElementsToGraph(childElementsArray, restorePosition);
+            self.addElementsToNetwork([], [], null, true, false);
+            self.resetConnectedElements(restorePosition);
             this.markErrorNodes();
             if (options['resetBelowTabs'] == true) {
                 underlayUtils.removeUnderlayTabs(
-                    this.rootView.viewMap[ctwc.UNDERLAY_TABS_VIEW_ID]);
+                    self.rootView.viewMap[ctwc.UNDERLAY_TABS_VIEW_ID]);
             }
             underlayGraphModel.selectedElement().model().set({
                 'nodeType': '',
                 'nodeDetail': {}});
-
-            //self.enableFreeflow();
-        },
-
-        clearHighlightedConnectedElements: function() {
-            this.markErrorNodes();
         },
 
         getImage: function(chassis_type, state) {
@@ -1906,37 +2421,73 @@ define([
                 "blurNode"                      : self.blurNodeHandler,
                 "dragStart"                     : self.dragStartHandler,
                 "dragEnd"                       : self.dragEndHandler,
-                "stabilized"                    : self.stabilizedHandler,
-                "stabilizationIterationsDone"   : self.stabilizationIterationsDoneHandler
+                "stabilized"                    : self.stabilizedHandler
             };
         },
+        zoomHandler: function(params, graphView) {
+            var self = graphView;
+            self.levelExpand = {
+                            "tor" : false,
+                            "virtual-router": false,
+                            "virtual-machine": false
+                            }
+            self.rearrangeHandler({}, self);
+        },
         clickHandler: function(params, contrailVisView) {
+            var t0 = new Date();
             var parameters = params;
+            var self = contrailVisView.caller;
+            var _network = contrailVisView.network;
+            if (params.nodes.length == 1) {
+                self.addDimlightToConnectedElements();
+                var clickedElement =
+                    _network.canvas.body.nodes[params.nodes[0]];
+                var node = self.model.getNodeByElementId(params.nodes[0]);
+                if(null == node || clickedElement == undefined)
+                    return;
+                var chassis_type = clickedElement.options.chassis_type;
+                node.attributes.image(
+                    self.getImage(chassis_type, self.HIGHLIGHT));
+            } else if (params.edges.length == 1) {
+                self.addDimlightToConnectedElements();
+                var clickedElement =
+                    _network.canvas.body.edges[params.edges[0]];
+                var edge = self.model.getEdgeByElementId(params.edges[0]);
+                if(null == edge || clickedElement == undefined)
+                    return;
+                edge.attributes.color(self.style.defaultSelected.color);
+                var targetElement = clickedElement.to;
+                var sourceElement = clickedElement.from;
+                var endpoints = [sourceElement['options']['name'],
+                    targetElement['options']['name']];
+                self.addHighlightToNodesAndEdges(
+                    [targetElement['options'], sourceElement['options']],
+                    graphModel);
+            } else if (params.edges.length == 0 && params.nodes.length == 0) {
+                $(".vis-network-tooltip").popover("hide");
+            }
+            if(t0 - self.doubleClickTime > self.threshold) {
             timeout = setTimeout(function() {
+                var self = contrailVisView.caller;
+                    if (t0 - self.doubleClickTime > self.threshold) {
                 if($("#resetTopologyModal").is(":visible")) {
                     return;
                 }
                 var params = parameters;
-                var self = contrailVisView.caller;
                 var network = contrailVisView;
                 var _network = network.network;
                 if (params.nodes.length == 1) {
-                    var clickedElement = _network.canvas.body.nodes[params.nodes[0]];
-                    //self.resetConnectedElements();
-                    self.addDimlightToConnectedElements();
-                    var node = self.model.getNode(params.nodes[0]);
-                    if(node && node.length == 1)
-                        node = node[0];
-                    else
+                    var clickedElement =
+                        _network.canvas.body.nodes[params.nodes[0]];
+                    var node =
+                        self.model.getNodeByElementId(params.nodes[0]);
+                    if(null == node)
                         return;
                     var elementType = clickedElement.options.node_type;
-                    var chassis_type = clickedElement.options.chassis_type;
-                    node.attributes.image(self.getImage(chassis_type, self.HIGHLIGHT));
-
                     switch (elementType) {
                         case ctwc.PROUTER:
                             var nodeDetails = clickedElement.options;
-                            if (nodeDetails['more_attributes']['ifTable'] == '-')
+                            if (nodeDetails['more_attributes']['ifTable'] =='-')
                                 nodeDetails['more_attributes']['ifTable'] = [];
                                 graphModel.selectedElement().model().set({
                                     'nodeType': ctwc.PROUTER,
@@ -1964,77 +2515,202 @@ define([
                                 'nodeDetail': {}},{silent:true});
                             break;
                     }
+                    var newQueryParams = {
+                        selected: clickedElement.options.name
+                    };
+                    var oldQueryParams = layoutHandler.getURLHashParams();
+                    if(oldQueryParams.hasOwnProperty("expanded"))
+                        newQueryParams["expanded"] = true;
+                    if(oldQueryParams.hasOwnProperty("tab") &&
+                        oldQueryParams["tab"].hasOwnProperty("underlayTabs") &&
+                        contrailVisView.manual == true) {
+                        newQueryParams["tab"] = {
+                            "underlayTabs":
+                                oldQueryParams["tab"]["underlayTabs"]
+                        };
+                    }
+                    if(oldQueryParams.hasOwnProperty("path") &&
+                        oldQueryParams["path"].hasOwnProperty("nodes") &&
+                        oldQueryParams["path"].hasOwnProperty("edges") &&
+                        oldQueryParams["path"].hasOwnProperty("postData") &&
+                        oldQueryParams["path"]["postData"]
+                            .hasOwnProperty("action") &&
+                        oldQueryParams["path"]["postData"]
+                            .hasOwnProperty("srcIP") &&
+                        oldQueryParams["path"]["postData"]
+                            .hasOwnProperty("destIP") &&
+                        oldQueryParams["path"]["postData"]
+                            .hasOwnProperty("srcPort") &&
+                        oldQueryParams["path"]["postData"]
+                            .hasOwnProperty("destPort")) {
+                        newQueryParams["path"] = oldQueryParams["path"];
+                    }
+                    if(oldQueryParams.hasOwnProperty("name"))
+                        newQueryParams["name"] = oldQueryParams["name"];
+                    if(contrailVisView.manual == true) {
+                        newQueryParams["name"] = clickedElement.options.name;
+                    }
+                    if(oldQueryParams.hasOwnProperty("parent"))
+                        newQueryParams["parent"] = oldQueryParams["parent"];
+                    if(oldQueryParams.hasOwnProperty("gparent"))
+                        newQueryParams["gparent"]=oldQueryParams["gparent"];
+
+                    layoutHandler.setURLHashParams(newQueryParams, {
+                        p: 'mon_infra_underlay',
+                        merge: false
+                    });
                 } else if (params.edges.length == 1) {
                     var data = {};
-                    var clickedElement = _network.canvas.body.edges[params.edges[0]];
-                    self.addDimlightToConnectedElements();
-                    var edge = self.model.getEdge(params.edges[0]);
-                    if(edge && edge.length == 1)
-                        edge = edge[0];
-                    else
-                        return;
-                    edge.attributes.color(self.style.defaultSelected.color);
+                    var clickedElement =
+                        _network.canvas.body.edges[params.edges[0]];
                     var targetElement = clickedElement.to;
                     var sourceElement = clickedElement.from;
                     var endpoints = [sourceElement['options']['name'],
                         targetElement['options']['name']];
-                    self.addHighlightToNodesAndLinks(
+                    self.addHighlightToNodesAndEdges(
                         [targetElement['options'],
                         sourceElement['options']],
-                        null,
                         graphModel);
-                    var linkDetail = {};
-                    linkDetail['endpoints'] = endpoints;
-                    linkDetail['sourceElement'] = sourceElement['options'];
-                    linkDetail['targetElement'] = targetElement['options'];
+                    var edgeDetail = {};
+                    edgeDetail['endpoints'] = endpoints;
+                    edgeDetail['sourceElement'] = sourceElement['options'];
+                    edgeDetail['targetElement'] = targetElement['options'];
                     graphModel.selectedElement().model().set({
                         'nodeType': ctwc.UNDERLAY_LINK,
-                        'nodeDetail': linkDetail});
+                        'nodeDetail': edgeDetail});
                     graphModel.selectedElement().model().set({
                         'nodeType': '',
                         'nodeDetail': {}},{silent:true});
-
-                } else if (params.edges.length == 0 && params.nodes.length == 0) {
-                    $(".vis-network-tooltip").popover("hide");
+                    var queryParams = {
+                        endpoints: endpoints.join("|")
+                    };
+                    layoutHandler.setURLHashParams(queryParams, {
+                        p: 'mon_infra_underlay',
+                        merge: false
+                    });
                 }
-                timeout = null;
-            }, 300);
+                }
+                self.doubleClickTime = 0;
+            }, self.threshold);
+            }
         },
-        blurNodeHandler: function(params, contrailVisView){
+        blurNodeHandler: function(params, contrailVisView) {
             var self = contrailVisView.caller;
             self.resetTooltip();
         },
         dragStartHandler: function(params, contrailVisView) {
             var self = contrailVisView.caller;
-            self.duplicatePathsDrawn = false;
-            //self.stabilized = true;
             self.resetTooltip();
             self.removeUnderlayPathIds();
         },
-        dragEndHandler: function(params, contrailVisView){
+        dragEndHandler: function(params, contrailVisView) {
             var self = contrailVisView.caller;
             self.resetTooltip();
-            //self.stabilized = false;
-            self.duplicatePaths("dragEnd", contrailVisView);
+            self.duplicatePaths(self.toBeDupedElements.nodes,
+                self.toBeDupedElements.edges);
         },
-        stabilizedHandler: function(params, contrailVisView){
+        stabilizedHandler: function(params, contrailVisView) {
             var self = contrailVisView.caller;
-            self.duplicatePaths("stabilized", contrailVisView);
+            self.saveUnderlayNodePositions();
             self.enableFreeflow(contrailVisView);
-
-            /*if(self.stabilized == false) {
-                self.duplicatePaths("stabilized");
-                self.enableFreeflow();
-                self.network.fit();
+            var hashParams = layoutHandler.getURLHashParams();
+            if(self.stabilized == false) {
                 self.stabilized = true;
+                if(hashParams.hasOwnProperty("path")) {
+                    var edges = [],
+                        nodes = [];
+                    if(hashParams["path"].hasOwnProperty("nodes") &&
+                        hashParams["path"].hasOwnProperty("edges") &&
+                        hashParams["path"]["nodes"].length > 0 &&
+                        hashParams["path"]["edges"].length > 0) {
+                        var nodeSplit = hashParams["path"]["nodes"].split(","),
+                            edgeSplit = hashParams["path"]["edges"].split(","),
+                            postData = hashParams["path"]["postData"];
+                        graphModel.underlayPathReqObj(postData);
+                        for(var i=0; i<nodeSplit.length; i++) {
+                            var node_type_split = nodeSplit[i].split("<->");
+                            nodes.push({
+                                name: node_type_split[0],
+                                node_type: node_type_split[1]
+                            });
+                        }
+                        for(var i=0; i<edgeSplit.length; i++) {
+                            edges.push({
+                                endpoints: edgeSplit[i].split("<->")
+                            });
+                        }
+                        underlayUtils.addUnderlayFlowInfoToBreadCrumb({
+                            action: postData['action'],
+                            sourceip: postData['srcIP'],
+                            destip: postData['destIP'],
+                            sport: postData['srcPort'],
+                            dport: postData['destPort']
+                        });
+                        graphModel.flowPath().model().set('nodes', nodes,
+                            {silent: true});
+                        graphModel.flowPath().model().set('edges', edges,
+                            {silent: true});
+                        graphModel.flowPath().model().trigger('change:nodes');
+                    }
+                }
+                if(hashParams.hasOwnProperty("selected")) {
+                    //hash has a node to be selected
+                    var hashNodeName = hashParams.selected;
+                    var nodeModel = self.model.getNodeByName(hashNodeName);
+                    if(null != nodeModel) {
+                        //node found, handle click
+                        self.clickHandler({
+                            nodes: [nodeModel.attributes.element_id()],
+                            edges: []
+                        }, {
+                            network: self.network.network,
+                            caller: self,
+                            manual: true
+                        });
+                    }
+                }
+                if(hashParams.hasOwnProperty("endpoints")) {
+                    //hash has a node to be selected
+                    var hashEndpoints = hashParams.endpoints.split("|");
+                    var edgeModel =
+                        self.model.getEdgeByEndpoints(hashEndpoints[0],
+                            hashEndpoints[1]);
+                    if(null != edgeModel) {
+                        //node found, handle click
+                        self.clickHandler({
+                            nodes: [],
+                            edges: [edgeModel.attributes.element_id()]
+                        }, {
+                            network: self.network.network,
+                            caller: self,
+                            manual: true
+                        });
+                    }
+                }
             }
-            //self.enableFreeflow();*/
+            self.stabilized = true;
+            //self.initTest();
         },
-        stabilizationIterationsDoneHandler: function(params, contrailVisView){
-            var self = contrailVisView.caller;
-            //self.duplicatePaths("stabilized");
-            //self.stabilized = false;
-            self.enableFreeflow(contrailVisView);
+        saveUnderlayNodePositions: function() {
+            var self = this;
+            var underlayNodes = self.model.getUnderlayNodes();
+            var underlayNodePositions = {};
+            _.each(underlayNodes, function(nodeModel) {
+                var nodeElement =
+                self.network.network.
+                    findNode(nodeModel.attributes.element_id());
+                if(nodeElement && nodeElement.length == 1 &&
+                    nodeElement[0] != undefined) {
+                    nodeElement = nodeElement[0];
+                    if(null != nodeElement) {
+                        underlayNodePositions[nodeElement.id] = {
+                            x: nodeElement.x,
+                            y: nodeElement.y
+                        }
+                    }
+                }
+            });
+            self.underlayNodePositions = underlayNodePositions;
         },
         showPopupHandler: function(params, contrailVisView) {
             var self = contrailVisView.caller;
@@ -2043,39 +2719,59 @@ define([
             var _network = contrailVisView.network;
             var tooltipConfig = null;
             var hoveredElement = _network.canvas.body.nodes[elementId];
-            if(!hoveredElement) { //not a node. check if edges with elementId present.
+            if(!hoveredElement) {
+                //not a node. check if edges with elementId present.
                 hoveredElement = _network.body.data.edges._data[elementId];
                 tooltipConfig = hoveredElement.tooltipConfig;
                 if(!hoveredElement || !tooltipConfig)
-                    return;   //return if not a node or edge or no tooltip config
+                    return; //return if not a node or edge or no tooltip config
             } else {
                 tooltipConfig = hoveredElement.options.tooltipConfig;
             }
 
             self.tooltipConfigWidth = tooltipConfig.dimension.width;
             self.tooltipConfigHeight = tooltipConfig.dimension.height;
-            var ttPosition = $(".vis-network-tooltip").offset();
-            var cursorPosition =
-            _network.canvasToDOM({
-                x:hoveredElement.x,
-                y:hoveredElement.y
-            });
-            var visContainerPosition = $('.vis-network').offset();
-            cursorPosition.x = cursorPosition.x + visContainerPosition.left;
-            cursorPosition.y = cursorPosition.y + visContainerPosition.top;
-            var diffPosition = {
-                left: cursorPosition.x-20,
-                top: cursorPosition.y
-            };
-            $('.popover').remove();
-            $(".vis-network-tooltip").offset(diffPosition);
+            var ttPosition = $(".vis-network-tooltip").position();
+            var cursorPosition = {};
+            if(isNaN(hoveredElement.x) &&
+                isNaN(hoveredElement.y)) {
+                cursorPosition = _network.DOMtoCanvas({
+                    x:self.cursorPosition.x,
+                    y:self.cursorPosition.y
+                });
+                var diffPosition = {
+                    left: cursorPosition.x,
+                    top: cursorPosition.y
+                };
+                $(".vis-network-tooltip").popover("destroy");
+                $(".vis-network-tooltip").position(diffPosition);
+            } else {
+                cursorPosition = _network.canvasToDOM({
+                    x:hoveredElement.x,
+                    y:hoveredElement.y
+                });
+                var visContainerPosition = $('.vis-network').offset();
+                cursorPosition.x = cursorPosition.x + visContainerPosition.left;
+                cursorPosition.y = cursorPosition.y + visContainerPosition.top;
+                var diffPosition = {
+                    left: cursorPosition.x-20,
+                    top: cursorPosition.y
+                };
+                $(".vis-network-tooltip").popover("destroy");
+                $(".vis-network-tooltip").offset(diffPosition);
+            }
+
             var tt = $(".vis-network-tooltip").popover({
                 trigger: 'hover',
                 html: true,
                 animation: false,
+                data: tooltipConfig.data,
                 placement: function (context, src) {
                     //src is div.vis-network-tooltip
                     //context is div.popover
+                    $(context).off().on("mouseleave", function(e) {
+                        self.resetTooltip();
+                    });
                     var srcOffset = $(src).offset(),
                         srcWidth = $(src)[0].getBoundingClientRect().width,
                         bodyWidth = $('body').width(),
@@ -2088,18 +2784,20 @@ define([
                         'max-width': tooltipWidth + 'px'
                     });
                     $(context).addClass('popover-tooltip');
-
+                    /*if(this.options.data.attributes.
+                        hasOwnProperty('endpoints'))
+                        return 'left';*/
                     if (srcOffset.left > tooltipWidth) {
                         return 'left';
-                    } else if (bodyWidth - (srcOffset.left) - srcWidth > tooltipWidth){
+                    } else if (bodyWidth - (srcOffset.left) -
+                        srcWidth > tooltipWidth) {
                         return 'right';
-                    } else if (srcOffset.top > bodyHeight / 2){
+                    } else if (srcOffset.top > bodyHeight / 2) {
                          return 'top';
                     } else {
                         return 'bottom';
                     }
                 },
-
                 title: function () {
                     return tooltipConfig.title;
                 },
@@ -2112,7 +2810,7 @@ define([
             $('.popover').find('.btn').on('click', function() {
                 var actionKey = $(this).data('action'),
                   actionsCallback = tooltipConfig.actionsCallback(tt);
-                  actionsCallback[actionKey].callback();
+                  actionsCallback[actionKey].callback(self);
                   $(".vis-network-tooltip").popover("hide");
             });
             $('.popover').find('i.fa-remove').on('click', function() {
@@ -2126,22 +2824,21 @@ define([
                 'box-shadow': '0px 0px rgba(255, 255, 255, 0)',
                 'fill': 'transparent'
             });
+            $("#" + ctwl.BOTTOM_CONTENT_CONTAINER).on("hover", function(e) {
+                self.resetTooltip();
+            });
         },
-
         doubleClickHandler: function(params, contrailVisView) {
-            if (timeout) {
-                clearTimeout(timeout);
-                timeout = null;
-            }
-
-            $(".vis-network-tooltip").popover("hide");
             var self = contrailVisView.caller;
+            self.doubleClickTime = new Date();
+            $(".vis-network-tooltip").popover("hide");
             if (params.nodes.length == 1) {
-                if(getCookie('nodeDoubleClick') != "true" &&
+                if(getCookie('nodeDoubleClick')+"" != "true" &&
                     (self.underlayPathIds.nodes.length > 0 ||
-                    self.underlayPathIds.links.length > 0)) {
+                    self.underlayPathIds.edges.length > 0)) {
                     var textTemplate =
-                    contrail.getTemplate4Id("monitor-infra-topology-reset-template");
+                    contrail.getTemplate4Id(
+                        "monitor-infra-topology-reset-template");
                     cowu.createModal({
                         'modalId': 'resetTopologyModal',
                         'className': 'modal-500',
@@ -2149,10 +2846,16 @@ define([
                         'btnName': 'Confirm',
                         'body': textTemplate(),
                         'onSave': function () {
+                            if($("#remember-reset-topology").prop("checked") ==
+                                true)
+                                setCookie('nodeDoubleClick', true);
                             self.expandNodes(params, contrailVisView);
                             $("#resetTopologyModal").modal('hide');
                         },
                         'onCancel': function () {
+                            if($("#remember-reset-topology").prop("checked") ==
+                                true)
+                                setCookie('nodeDoubleClick', true);
                             $("#resetTopologyModal").modal('hide');
                         }
                     });
@@ -2160,75 +2863,117 @@ define([
                     self.expandNodes(params, contrailVisView);
                 }
             } else if(params.nodes.length == 0 && params.edges.length == 0) {
-                self.resetConnectedElements();
+                /*self.resetConnectedElements();
                 underlayUtils.removeUnderlayTabs(
-                    self.rootView.childViewMap[ctwl.UNDERLAY_TOPOLOGY_PAGE_ID].childViewMap[ctwc.UNDERLAY_TABS_VIEW_ID]
-                );
+                    self.rootView.childViewMap[ctwl.UNDERLAY_TOPOLOGY_PAGE_ID].
+                    childViewMap[ctwc.UNDERLAY_TABS_VIEW_ID]
+                );*/
             }
         },
         refreshHandler: function(e, underlayGraphView) {
             var self = underlayGraphView;
+            self.removeUnderlayPathIds();
+            self.removeUnderlayEffects();
+            self.toBeDupedElements = {
+                "nodes": [],
+                "edges": []
+            };
+            self.clearData();
             self.attributes.viewConfig.listModel.refreshData();
+        },
+        clearData: function() {
+            var self = this;
+            //Empty network graph;
+            self.clearNetwork();
+            self.clearModels();
+        },
+        clearModels: function() {
+            var self = this,
+                model = self.model,
+                nodesCollection = model.nodesCollection,
+                edgesCollection = model.edgesCollection;
+            nodesCollection.reset(null);
+            edgesCollection.reset(null);
+        },
+        clearNetwork: function() {
+            var self = this,
+                network = self.network;
+            var nodeIdsInNetwork = network.getNodeIds(),
+                edgeIdsInNetwork = network.getEdgeIds(),
+                removedNodes = [],
+                removedEdges = [];
+            _.each(nodeIdsInNetwork, function(nodeId, idx) {
+                var nodeInNetwork = network.getNode(nodeId);
+                if(null != nodeInNetwork &&
+                    typeof nodeInNetwork != "undefined") {
+                    removedNodes.push(nodeInNetwork);
+                }
+            });
+
+            _.each(edgeIdsInNetwork, function(edgeId, idx) {
+                var edgeInNetwork = network.getEdge(edgeId);
+                if(null != edgeInNetwork &&
+                    typeof edgeInNetwork != "undefined") {
+                    removedEdges.push(edgeInNetwork);
+                }
+            });
+            if(removedNodes.length > 0) {
+                network.removeNode(removedNodes);
+            }
+            if(removedEdges.length > 0) {
+                network.removeEdge(removedEdges);
+            }
+            self.elementMap["nodes"] = {};
+            self.elementMap["edges"] = {};
+            self.stabilized = false;
         },
         rearrangeHandler: function(e, underlayGraphView) {
             var self = underlayGraphView;
             var network = self.network;
             var nodeIds = network.getNodeIds();
             var nodes = [];
-            _.each(nodeIds, function(id, idx) {
-                if($.inArray(id, self.underlayPathIds.nodes) == -1) {
-                    var node = network.findNode(id);
-                    if(node && node.length == 1) {
-                        node = node[0];
-                        node.x = 0;
-                        node.y = 0;
-                        nodes.push(node);
+            if(graphModel.flowPath().model().attributes["nodes"].length > 0 ||
+                graphModel.flowPath().model().attributes["edges"].length > 0) {
+                var nodes = graphModel.flowPath().model().attributes["nodes"];
+                var edges = graphModel.flowPath().model().attributes["edges"];
+                self.showFlowPath(nodes, edges);
+                self.enableFreeflow(network);
+            } else {
+                _.each(nodeIds, function(id, idx) {
+                    if($.inArray(id, self.underlayPathIds.nodes) == -1) {
+                        var node = network.findNode(id);
+                        if(node && node.length == 1 &&
+                            node[0] != undefined) {
+                            node = node[0];
+                            node.x = 0;
+                            node.y = 0;
+                            nodes.push(node);
+                        }
                     }
+                });
+                if(nodes.length > 0) {
+                    var options = self.visOptions;
+                    options.physics = {
+                        "enabled" : true,
+                        "stabilization" : {
+                            "fit": true
+                        }
+                    };
+                    network.setOptions(options);
+                    network.setData();
                 }
-            });
-            if(nodes.length > 0) {
-                network.setOptions(self.visOptions);
-                network.setData();
-                self.duplicatePathsDrawn = false;
             }
         },
         getNavigationsConfig: function() {
             var self = this;
-            var style = 'display             : inline-block; ' +
-                        'width               : 15px; ' +
-                        'height              : 15px; ' +
-                        'right               : 10px; '+
-                        'position            : absolute; ' +
-                        'border              : 1px solid #efefef; ' +
-                        'color               : #777; ' +
-                        'font-family         : FontAwesome; ' +
-                        'font-size           : 15px; ' +
-                        'z-index             : 1; ' +
-                        'padding             : 7px 7px; ' +
-                        'cursor              : pointer; ' +
-                        'line-height         : normal; ' +
-                        'background-image    : none; ' +
-                        'background-color    : #f9f9f9; ' +
-                        'background-repeat   : no-repeat; ' +
-                        'background-position : 2px 2px; ';
-
             //Zoom-in/out/reset always appears.
             //There are additional navigations required on map
-            //Increase 40 pixels for 'top'
+            //For each items in navConfig, increase 40 pixels
+            //starting at '130px', specifiy as a class name in CSS.
             var navConfig = {
-                "rearrange": {
-                    "id"    : "rearrange",
-                    "style" : style + " top:130px; ",
-                    "title" : "Reset Layout",
-                    "class" : "fa fa-align-center",
-                    "click" : function(params) {
-                        self.rearrangeHandler(params, self);
-                    }
-                },
                 "refresh": {
                     "id"    : "refresh",
-                    "class" : "fa fa-repeat",
-                    "style" : style + " top:170px; ",
+                    "class" : "vis-refresh",
                     "title" : "Refresh",
                     "click" : function(params) {
                         self.refreshHandler(params, self);
@@ -2265,7 +3010,15 @@ define([
             return [
                 "change:color"
             ];
-        }
+        },
+        /*initTest: function() {
+            var self = this;
+            require([
+                'monitor/infrastructure/underlay/ui/js/hardcodeTestWrapper'
+                ], function(hardcodeTestWrapper) {
+                hardcodeTestWrapper.initTest(self);
+            });
+        }*/
     });
 
     return UnderlayGraphView;

@@ -27,8 +27,7 @@ define([
                         self.setData(modelData, contrailListModel);
                     },
                     failureCallback: function(underlayGraphModel) {
-                        var xhr = underlayGraphModel.errorList[0],
-                            notFoundTemplate =
+                        var notFoundTemplate =
                             contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
                             notFoundConfig =
                             $.extend(true, {}, cowc.DEFAULT_CONFIG_ERROR_PAGE, {
@@ -49,7 +48,7 @@ define([
                             };
                         },
                         successCallback: function(modelData, contrailListModel, originalResponse) {
-                            if(modelData[0].rawData.topoloyChanged == true) {
+                            if(modelData[0].rawData.topologyChanged == true) {
                                 self.setData(modelData, contrailListModel);
                             }
                         },

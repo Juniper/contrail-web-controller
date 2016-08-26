@@ -152,13 +152,14 @@ define([
                             // onAllViewsRenderComplete callback is executed when
                             // all the tabs are rendered hence interface click
                             // handler is bind in the interface tabs callback
+                            $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
                             $("#details .intfCnt").click(function (e) {
                                 e.preventDefault();
                                 $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:3});
                             })
                         }
         );
-        $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+        //$("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
     }
 
     function showVRouterTabs (nodeDetails, underlayTabView) {
@@ -169,9 +170,11 @@ define([
         vRouterParams['isUnderlayPage'] = true;
         var vRouterTabConfig = ctwvc.getVRouterDetailsPageTabs(vRouterParams);
         underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
-            ctwc.UNDERLAY_TAB_ID, vRouterTabConfig
+            ctwc.UNDERLAY_TAB_ID, vRouterTabConfig, null, null, function(){
+                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+            }
         );
-        $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+        //$("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
     }
 
     function showVMTabs (nodeDetails, underlayTabView) {
@@ -217,9 +220,10 @@ define([
                 instanceUUID);
         underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].modelMap = modelMap;
         underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
-            ctwc.UNDERLAY_TAB_ID, instanceTabConfig, null, modelMap, null
+            ctwc.UNDERLAY_TAB_ID, instanceTabConfig, null, modelMap, function(){
+                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+            }
         );
-        $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
     }
 
     function showLinkTrafficStatistics (linkDetails, underlayTabView) {
