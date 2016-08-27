@@ -78,7 +78,7 @@ define([
                    },
                    renderOnActivate: true
                }
-           },{
+           }/*,{
                elementId: 'rbac_global_tab',
                title: 'RBAC',
                view: "rbacGlobalListView",
@@ -93,7 +93,7 @@ define([
                    },
                    renderOnActivate: true
                }
-           },{
+           }*/,{
                elementId: 'fc_global_tab',
                title: 'Forwarding Classes',
                view: "forwardingClassListView",
