@@ -24,6 +24,7 @@ var authApi          = require(process.mainModule.exports["corePath"] + '/src/se
 var configApiServer  = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
 var configUtils      = require(process.mainModule.exports["corePath"] + 
                                '/src/serverroot/common/configServer.utils');
+var async            = require('async');
 
 /**
  * Bail out if called directly as "nodejs projectconfig.api.js"
@@ -49,6 +50,112 @@ function listProjects (request, response, appData)
         commonUtils.handleJSONResponse(err, response, projList);
     });
 }
+
+/**
+ * @listAllProjects
+ * public function
+ * 1. URL /api/tenants/config/all-projects
+ * 2. Gets list of projects for the user, domain support
+ *    to be added
+ */
+function listAllProjects (request, response, appData)
+{
+    var dataObjArr = [], i, keystoneProj, keystoneProjLen, apiProj,
+        apiProjLen, projList = [], tempProjMap = {};
+    dataObjArr.push({type :"keystone", request: request, appData: appData});
+    dataObjArr.push({type : "api", request: request, appData: appData});
+    async.map(dataObjArr, getAllProjectAsync, function(error, projData) {
+        console.log("PROJECT_DATA", JSON.stringify(projData));
+        if (projData[0].error && projData[1].error) {
+            commonUtils.handleJSONResponse(projData[0].error, response, null);
+            return;
+        }
+        keystoneProj = projData[0].data;
+        keystoneProjLen = keystoneProj['projects'].length;
+        apiProj = projData[1].data;
+        apiProjLen = apiProj['projects'].length;
+        for (i = 0; i < keystoneProjLen; i++) {
+            var keystoneProjFQN = keystoneProj["projects"][i]["fq_name"].join(":");
+            tempProjMap[keystoneProjFQN] =
+                keystoneProj["projects"][i];
+        }
+        for (i = 0; i < apiProjLen; i++) {
+            var apiProjFQN = apiProj["projects"][i]["fq_name"].join(":");
+            if (tempProjMap[apiProjFQN] == null) {
+                keystoneProj["projects"].push(apiProj["projects"][i]);
+            }
+        }
+        commonUtils.handleJSONResponse(null, response, keystoneProj);
+    });
+};
+
+function getAllProjectAsync (dataObj, callback)
+{
+     if(dataObj.type === "keystone") {
+         authApi.getProjectList(dataObj.request, dataObj.appData,
+                                function(error, keystoneData) {
+             callback(null, {error: error, data: keystoneData});
+         });
+     } else {
+         configApiServer.apiGet("/projects", dataObj.appData,
+                                function(error, configData) {
+             callback(null, {error: error, data: configData});
+         });
+     }
+};
+
+/**
+ * @listAllDomains
+ * public function
+ * 1. URL /api/tenants/config/all-projects
+ * 2. Gets list of projects for the user, domain support
+ *    to be added
+ */
+function listAllDomains (request, response, appData)
+{
+    var dataObjArr = [], i, keystoneDomain, keystoneDomainLen, apiDomain,
+        apiDomainLen, domainList = [], tempDomainMap = {};
+    dataObjArr.push({type :"keystone", request: request, appData: appData});
+    dataObjArr.push({type : "api", request: request, appData: appData});
+    async.map(dataObjArr, getAllDomainAsync, function(error, domainData) {
+        if (domainData[0].error && domainData[1].error) {
+            commonUtils.handleJSONResponse(domainData[0].error, response, null);
+            return;
+        }
+        keystoneDomain = domainData[0].data;
+        keystoneDomainLen = keystoneDomain['domains'].length;
+        apiDomain = domainData[1].data;
+        apiDomainLen = apiDomain['projects'].length;
+        for (i = 0; i < keystoneDomainLen; i++) {
+            var keystoneDomainFQN =
+                keystoneDomain["domains"][i]["fq_name"].join(":");
+            tempDomainMap[keystoneDomainFQN] =
+                keystoneDomain["domains"][i];
+        }
+        for (i = 0; i < apiDomainLen; i++) {
+            var apiDomainFQN = apiDomain["domains"][i]["fq_name"].join(":");
+            if (tempDomainMap[apiDomainFQN] == null) {
+                keystoneDomain["domains"].push(apiProj["domains"][i]);
+            }
+        }
+        commonUtils.handleJSONResponse(null, response, keystoneDomain);
+    });
+};
+
+function getAllDomainAsync (dataObj, callback)
+{
+     if(dataObj.type === "keystone") {
+         authApi.getDomainList(dataObj.request, dataObj.appData,
+                                function(error, keystoneData) {
+             callback(null, {error: error, data: keystoneData});
+         });
+     } else {
+         configApiServer.apiGet("/domains", dataObj.appData,
+                                function(error, configData) {
+             callback(null, {error: error, data: configData});
+         });
+     }
+};
 
 /**
  * @listDomainsCb
@@ -183,4 +290,6 @@ function isEmpty(obj) {
 
 exports.listDomains  = listDomains;
 exports.listProjects = listProjects;
+exports.listAllProjects = listAllProjects;
+exports.listAllDomains = listAllDomains;
 exports.getProjectByParameter   = getProjectByParameter;

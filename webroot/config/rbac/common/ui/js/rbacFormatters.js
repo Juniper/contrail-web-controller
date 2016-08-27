@@ -159,6 +159,29 @@
                });
                return rolesArry;
            };
+
+           self.formatProjectData =  function(response) {
+               var projects = getValueByJsonPath(response, "projects", []),
+                   projectDS = [];
+               _.each(projects, function(project){
+                   projectDS.push({
+                       text:project.fq_name[0] + ":" + project.fq_name[1],
+                       value: project.fq_name[0] + ":" +
+                           project.fq_name[1]})
+               });
+               return projectDS;
+           };
+
+           self.formatDomainData =  function(response) {
+               var domains = getValueByJsonPath(response, "domains", []),
+                   domainDS = [];
+               _.each(domains, function(domain){
+                   domainDS.push({
+                       text:domain.fq_name[0],
+                       value: project.fq_name[0]})
+               });
+               return domainDS;
+           };
      };
 
      this.ObjPropFormatter = function(v, dc) {

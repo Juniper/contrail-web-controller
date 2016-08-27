@@ -16,6 +16,50 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                             {
                                 columns: [
                                     {
+                                        elementId: "domain",
+                                        view: "FormInputView",
+                                        viewConfig: {
+                                            disabled: disableId,
+                                            path: "domain",
+                                            dataBindValue: "domain",
+                                            placeholder:
+                                                "Enter Domain",
+                                            label: "Domain",
+                                            class: "col-xs-6",
+                                            visible: "showDomain",
+                                        }
+                                    },
+                                    {
+                                        elementId: "project",
+                                        view: "FormComboboxView",
+                                        viewConfig: {
+                                            disabled: disableId,
+                                            path: "project",
+                                            placeholder:
+                                                "Select Project",
+                                            dataBindValue: "project",
+                                            label: "Project",
+                                            class: "col-xs-6",
+                                            visible: "showProject",
+                                            elementConfig: {
+                                                placeholder:
+                                                    "Enter or Select Project FQN",
+                                                dataTextField: "text",
+                                                dataValueField: "value",
+                                                dataSource: {
+                                                    type: "remote",
+                                                    requestType: "get",
+                                                    url: "/api/tenants/config/all-projects",
+                                                    parse: rbacFormatters.formatProjectData
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                columns: [
+                                    {
                                         elementId: "rule_object",
                                         view: "FormInputView",
                                         viewConfig: {
