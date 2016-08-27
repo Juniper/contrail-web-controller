@@ -12,7 +12,9 @@ define([
         defaultConfig: {
             "rule_object": null,
             "rule_field": null,
-            "rule_perms": []
+            "rule_perms": [],
+            "domain": null,
+            "project": null
         },
 
         formatModelConfig: function(modelConfig) {
