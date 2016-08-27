@@ -5,17 +5,17 @@
 define([
     'underscore',
     'contrail-view',
-    'config/rbac/common/ui/js/models/rbacModel',
+    'config/infra/rbac/ui/js/models/rbacModel',
     'config/rbac/common/ui/js/views/rbacEditView',
     'config/rbac/common/ui/js/rbacFormatters',
     'config/rbac/common/ui/js/rbacUtils'
 ], function(_, ContrailView, RBACModel,
     RBACEditView, RBACFormatters, RBACUtils) {
-    var self, gridElId = '#' + ctwc.RBAC_GRID_ID, gridObj,
+    var self, gridElId = '#' + ctwc.RBAC_DOMAIN_GRID_ID, gridObj,
         rbacEditView = new RBACEditView(),
         rbacFormatters = new RBACFormatters(),
         rbacUtils = new RBACUtils();
-    var rbacGridView = ContrailView.extend({
+    var rbacDomainGridView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -26,15 +26,14 @@ define([
                 getRBACGridViewConfig(viewConfig));
         }
     });
-
+    
     function showHideModelAttrs(model) {
         model.showDomain = ko.computed(function(){
-            return false;
+            return true;
         }, model);
-
         model.showProject = ko.computed(function(){
             return false;
-        }, model);
+        }, model);        
     };
 
     function getRBACGridViewConfig (viewConfig) {
@@ -48,7 +47,7 @@ define([
                     {
                         columns: [
                             {
-                                elementId: ctwc.RBAC_GRID_ID,
+                                elementId: ctwc.RBAC_DOMAIN_GRID_ID,
                                 view: "GridView",
                                 viewConfig: {
                                     elementConfig:
@@ -74,10 +73,10 @@ define([
                 options: {
                     checkboxSelectable: {
                         onNothingChecked: function(e){
-                            $('#btnDeleteRBAC').addClass('disabled-link');
+                            $('#btnDeleteDomainRBAC').addClass('disabled-link');
                         },
                         onSomethingChecked: function(e){
-                            $('#btnDeleteRBAC').
+                            $('#btnDeleteDomainRBAC').
                                 removeClass('disabled-link');
                         }
                     },
@@ -100,7 +99,7 @@ define([
                     }
                 }
             },
-            columnHeader: rbacUtils.rbacGridColumns(rbacFormatters)
+            columnHeader: rbacUtils.rbacDomainGridColumns(rbacFormatters)
         };
         return gridElementConfig;
     };
@@ -124,10 +123,11 @@ define([
                         },
                         mode : ctwl.EDIT_ACTION,
                         gridData: gridData,
-                        rowIndex: rowIndex,
+                        rowIndex: dataItem.subIndex,
                         configData: rbacUtils.getConfigData(viewConfig),
                         isProject: viewConfig.isProject,
-                        isGlobal: viewConfig.isGlobal
+                        isGlobal: viewConfig.isGlobal,
+                        isDomain: viewConfig.isDomain
                     }
                 );
             }, "Edit"),
@@ -138,6 +138,7 @@ define([
                 "onClick" : function(rowIndex) {
                     var gridObj = $(gridElId).data('contrailGrid'),
                         gridData = gridObj._dataView.getItems(),
+                        dataItem = gridObj._dataView.getItem(rowIndex),
                         rbacModel = new RBACModel();
                     rbacEditView.model = rbacModel;
                     showHideModelAttrs(rbacModel);
@@ -148,11 +149,12 @@ define([
                             },
                             mode : "insert",
                             gridData: gridData,
-                            rowIndex: rowIndex,
+                            rowIndex: dataItem.subIndex,
                             configData:
                                 rbacUtils.getConfigData(viewConfig),
                             isProject: viewConfig.isProject,
-                            isGlobal: viewConfig.isGlobal
+                            isGlobal: viewConfig.isGlobal,
+                            isDomain: viewConfig.isDomain
                         }
                     );
                 }
@@ -173,6 +175,9 @@ define([
                       gridData: gridData,
                       configData: rbacUtils.getConfigData(viewConfig),
                       rowIndexes: [rowIndex],
+                      isProject: viewConfig.isProject,
+                      isGlobal: viewConfig.isGlobal,
+                      isDomain: viewConfig.isDomain                      
                   }
               );
         })];
@@ -185,7 +190,7 @@ define([
                 "type" : "link",
                 "title" : ctwl.TITLE_RBAC_MULTI_DELETE,
                 "iconClass": 'fa fa-trash',
-                "linkElementId": 'btnDeleteRBAC',
+                "linkElementId": 'btnDeleteDomainRBAC',
                 "onClick" : function() {
                     var gridObj = $(gridElId).data('contrailGrid'),
                         gridData = gridObj._dataView.getItems(),
@@ -205,7 +210,10 @@ define([
                                 gridData: gridData,
                                 configData:
                                     rbacUtils.getConfigData(viewConfig),
-                                rowIndexes: rowIndexes
+                                rowIndexes: rowIndexes,
+                                isProject: viewConfig.isProject,
+                                isGlobal: viewConfig.isGlobal,
+                                isDomain: viewConfig.isDomain                                
                             }
                         );
                     }
@@ -232,7 +240,8 @@ define([
                             configData:
                                 rbacUtils.getConfigData(viewConfig),
                             isProject: viewConfig.isProject,
-                            isGlobal: viewConfig.isGlobal
+                            isGlobal: viewConfig.isGlobal,
+                            isDomain: viewConfig.isDomain
                         }
                     );
                 }
@@ -241,6 +250,6 @@ define([
         return headerActionConfig;
     };
 
-    return rbacGridView;
+    return rbacDomainGridView;
 });
 

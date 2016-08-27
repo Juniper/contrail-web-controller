@@ -11,11 +11,11 @@ define([
     'config/rbac/common/ui/js/rbacUtils'
 ], function(_, ContrailView, RBACModel,
     RBACEditView, RBACFormatters, RBACUtils) {
-    var self, gridElId = '#' + ctwc.RBAC_GRID_ID, gridObj,
+    var self, gridElId = '#' + ctwc.RBAC_GLOBAL_GRID_ID, gridObj,
         rbacEditView = new RBACEditView(),
         rbacFormatters = new RBACFormatters(),
         rbacUtils = new RBACUtils();
-    var rbacGridView = ContrailView.extend({
+    var rbacGlobalGridView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -26,16 +26,16 @@ define([
                 getRBACGridViewConfig(viewConfig));
         }
     });
-
+    
     function showHideModelAttrs(model) {
         model.showDomain = ko.computed(function(){
             return false;
         }, model);
-
+        
         model.showProject = ko.computed(function(){
             return false;
-        }, model);
-    };
+        }, model);        
+    };   
 
     function getRBACGridViewConfig (viewConfig) {
         return {
@@ -48,7 +48,7 @@ define([
                     {
                         columns: [
                             {
-                                elementId: ctwc.RBAC_GRID_ID,
+                                elementId: ctwc.RBAC_GLOBAL_GRID_ID,
                                 view: "GridView",
                                 viewConfig: {
                                     elementConfig:
@@ -100,9 +100,21 @@ define([
                     }
                 }
             },
-            columnHeader: rbacUtils.rbacGridColumns(rbacFormatters)
+            columnHeader: getGridColumns(viewConfig)
         };
         return gridElementConfig;
+    };
+    
+    function getGridColumns (viewConfig) {
+        var rbacGridColumns;
+        if(viewConfig.isDomain === true){
+            rbacGridColumns = rbacUtils.rbacDomainGridColumns(rbacFormatters);
+        } else if(viewConfig.isProject === true) {
+            rbacGridColumns = rbacUtils.rbacProjectGridColumns(rbacFormatters);
+        } else {
+            rbacGridColumns = rbacUtils.rbacGridColumns(rbacFormatters);
+        }
+        return rbacGridColumns;
     };
 
     function getRowActionConfig(viewConfig) {
@@ -241,6 +253,6 @@ define([
         return headerActionConfig;
     };
 
-    return rbacGridView;
+    return rbacGlobalGridView;
 });
 

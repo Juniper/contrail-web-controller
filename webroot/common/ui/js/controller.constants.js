@@ -794,6 +794,7 @@ define([
         this.RBAC_GLOBAL_PAGE_ID = "config-rbac-global-list";
         this.CONFIG_RBAC_GLOBAL_SECTION_ID = "config-rbac-global-section";
         this.CONFIG_RBAC_GLOBAL_ID = "config-rbac-global";
+        this.RBAC_GLOBAL_TAB_ID = "config-rbac-tab";
 
         this.RBAC_DOMAIN_PAGE_ID = "config-rbac-domain-list";
         this.CONFIG_RBAC_DOMAIN_SECTION_ID = "config-rbac-domain-section";
@@ -812,6 +813,10 @@ define([
                                     {text: "Delete", value: "D"}];
         this.RBAC_ALL_ROLES = "All Roles (*)";
         this.RBAC_PREFIX_ID = "rbac";
+
+        this.RBAC_GLOBAL_GRID_ID = "rbac-global-grid";
+        this.RBAC_DOMAIN_GRID_ID = "rbac-domain-grid";
+        this.RBAC_PROJECT_GRID_ID = "rbac-project-grid";
 
         /* Config Alarm Rule Constants */
         this.ALARM_PREFIX_ID = "configalarm";
