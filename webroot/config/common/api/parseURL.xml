@@ -33,6 +33,12 @@
         <callback>projectconfigapi.listProjects</callback>
     </item>
     <item>
+        <url>/api/tenants/config/all-projects</url>
+        <method>get</method>
+        <feature>projectconfig</feature>
+        <callback>projectconfigapi.listAllProjects</callback>
+    </item>
+    <item>
         <url>/api/tenants/config/projects/:domain</url>
         <method>get</method>
         <feature>projectconfig</feature>
@@ -49,6 +55,12 @@
         <method>get</method>
         <feature>projectconfig</feature>
         <callback>projectconfigapi.listDomains</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/all-domains</url>
+        <method>get</method>
+        <feature>projectconfig</feature>
+        <callback>projectconfigapi.listAllDomains</callback>
     </item>
     <item>
         <url>/api/tenants/config/delete</url>
