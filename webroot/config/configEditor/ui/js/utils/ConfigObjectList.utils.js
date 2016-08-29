@@ -44,15 +44,16 @@ define([
              return outerHeight - pageHeader - breadCrum - 107;
          }
          self.hideIconForNewConfigObj = function(template){
+             template.find('.refresh-container').hide();
              template.find('.create-config-object').hide();
              template.find(".save-config-object").show();
-             $("#page-content").addClass('adjustConfigContent');
-             template.find("#jsonTextArea").css({'width':'99%'});
+             template.find("#jsonTextArea").css({'width':'100%'});
              template.find(".cancel-config-edit").show();
              template.find(".object-text-area-view").show();
              template.find(".object-json-view").hide();
          }
          self.showIconsAfterCancel = function(template){
+             template.find('.refresh-container').show();
              template.find(".cancel-config-edit").hide();
              template.find(".object-text-area-view").hide();
              template.find(".object-json-view").show();
@@ -61,6 +62,7 @@ define([
              document.getElementById('jsonTextArea').value = '';
          }
          self.showIconsAfterSave = function(template){
+             template.find('.refresh-container').show();
              template.find(".cancel-config-edit").hide();;
              template.find(".object-text-area-view").hide();
              template.find(".object-json-view").show();

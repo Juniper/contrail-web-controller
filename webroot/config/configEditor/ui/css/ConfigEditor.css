@@ -220,6 +220,7 @@ button.update-config-object.button.btn.btn-mini.json-editor-update-json.hide-hea
 }
 .config-editor-header{
   margin-top:6px;height:25px;margin-bottom:5px;
+  width:99.5%;
 }
 .copy-config-object{
    float:left;padding-right:8px;
@@ -251,10 +252,6 @@ button.update-config-object.button.btn.btn-mini.json-editor-update-json.hide-hea
 #editorContainer .select2-container{
     margin-top: 9px !important;
     margin-right: 2px;
-}
-.adjustConfigContent{
-   padding-right: 0px !important;
-   padding-bottom: 0px !important;
 }
 .object-json-view::-webkit-scrollbar-thumb,
 .config-scroll-color::-webkit-scrollbar-thumb {
@@ -315,4 +312,13 @@ button.update-config-object.button.btn.btn-mini.json-editor-update-json.hide-hea
 }
 .config-boolean{
    color: firebrick;
+}
+.config-edit-refresh{
+   padding: 4px 9px;
+   background-color: #f9f9f9;
+   border: 1px solid #efefef;
+   font-size: 15px;
+   margin-top: -3px;
+   margin-right: -11px;
+   cursor: pointer;
 }

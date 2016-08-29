@@ -12,6 +12,7 @@ define([
             $('#hiddenTextArea').addClass('hide-header-icon');
         }
         self.hideHeaderIcons = function(template){
+            template.find('.refresh-container').show();
             template.find('.create-config-object').hide();
             template.find('.cancel-config-edit').hide();
             template.find('.reset-object').hide();
@@ -29,21 +30,22 @@ define([
         }
         self.setTextAreaHeight = function(configJson){
             var textAreaHeight = self.getWindowHeight() + 3;
-            $("#jsonTextArea").css({"height": textAreaHeight,"width":"99%"});
+            $("#jsonTextArea").css({"height": textAreaHeight,"width":"100%"});
             document.getElementById('jsonTextArea').value = '';
             document.getElementById('jsonTextArea').value = JSON.stringify(configJson,null,2);
         }
         self.hideIconsForObjectEdit = function(template){
+            template.find('.refresh-container').hide();
             template.find('.config-object-edit').hide();
             template.find(".reset-object").show();
             template.find(".save-config-object").show();
-            $("#page-content").addClass('adjustConfigContent');
             template.find(".cancel-config-edit").show();
             template.find(".object-text-area-view").show();
             template.find(".object-json-view").hide();
             template.find(".config-jSon-form-edit").hide();
         }
         self.showIconsAfterCancel = function(template){
+            template.find('.refresh-container').show();
             template.find(".reset-object").hide();
             template.find(".cancel-config-edit").hide();
             template.find(".object-text-area-view").hide();
@@ -158,13 +160,12 @@ define([
             template.find("#jsonTextArea").css({"height": textAreaHeight});
         }
         self.showSchemaRelatedIcons = function(template,model){
-            $("#page-content").addClass('adjustConfigContent');
-            if(template.find(".object-basic-view").css('display') == 'block' && template.find(".save-config-object").css('display') == 'block'){
+           if(template.find(".object-basic-view").css('display') == 'block' && template.find(".save-config-object").css('display') == 'block'){
                 document.getElementById('jsonTextArea').value = '';
                 document.getElementById('jsonTextArea').value = JSON.stringify(model,null,2);
                 template.find(".save-config-object").hide();
                 template.find(".update-config-object").show();
-                document.getElementById('jsonTextArea').style.width = '98.7%';
+                document.getElementById('jsonTextArea').style.width = '100%';
             }
             template.find('.config-object-edit').hide();
             template.find("#jsonContainer").css('width', '0%');
@@ -186,10 +187,10 @@ define([
             }
         }
         self.cancelSchemaBasedForm = function(template){
+            template.find('.refresh-container').show();
             template.find('.config-object-edit').show();
             template.find(".object-json-view").css({"height": "auto"});
             template.find("#jsonEditorContainer").css({"height": "auto"});
-            $("#page-content").removeClass('adjustConfigContent');
             template.find("#jsonContainer").show();
             template.find("#editorContainer").hide();
             template.find("#editorContainer").css('width','0%');

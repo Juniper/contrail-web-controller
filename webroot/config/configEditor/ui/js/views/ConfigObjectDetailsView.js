@@ -19,6 +19,7 @@ define([
             self.$el.html(configListTmpl);
             ConfigObjectDetailUtils.hideHeaderIcons($(contentContainer));
             self.loadConfigObject(viewConfig);
+            $(contentContainer).find('.config-edit-refresh').on('click', function(){self.refreshObjectDetails(viewConfig)});
             $(contentContainer).find('.config-object-edit').on('click',self.editObject);
             $(contentContainer).find('#jsonTextArea').removeClass('config-scroll-color');
             $(contentContainer).find('.cancel-config-edit').on('click',function(){self.cancelEditor(viewConfig)});
@@ -79,6 +80,23 @@ define([
              },function(error){
                  contrail.showErrorMsg(error.responseText);
              });
+          },
+          refreshObjectDetails: function(viewConfig){
+              var options = {type:viewConfig.hashParams.objName+'/'+viewConfig.hashParams.uuid};
+              var ajaxConfig = {
+                      url: ctwc.URL_GET_CONFIG_DETAILS,
+                      type:'POST',
+                      data:ConfigObjectListUtils.getPostDataForGet(options)
+                  }; 
+              contrail.ajaxHandler(ajaxConfig, null, function(json){
+                  configList = json[0];
+                  var getHtmlFormatJson = ConfigObjectListUtils.formatJSON2HTML(configList, 10, undefined, true);
+                  $(contentContainer).find('.object-json-view').empty();
+                  $(contentContainer).find('.object-json-view').append(getHtmlFormatJson);
+                  ConfigObjectDetailUtils.setContentInTextArea(configList);
+              },function(error){
+                  contrail.showErrorMsg(error.responseText);
+              });
           },
           loadBreadcrumb: function(viewConfig){
               var parentLabel;
