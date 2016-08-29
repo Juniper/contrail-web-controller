@@ -14,11 +14,14 @@ define([
                 self.viewConfig = this.attributes.viewConfig;
                 contrail.ajaxHandler(ConfigObjectListUtils.getObjListUrl(self.viewConfig), null, function(model) {
                        configList = model[0];
+                       var parentKey = ConfigObjectListUtils.parseParentJsonKeyToLabel(Object.keys(configList)[0]);
                        pushBreadcrumb([{label:Object.keys(configList)[0],href:''}]);
                        var template = contrail.getTemplate4Id(ctwc.CONFIG_EDITOR_TEMPLATE);
                        self.$el.html(template);
+                       $(contentContainer).find('#object-header-title').text(parentKey);
                        ConfigObjectListUtils.hideHeaderIcons($(contentContainer));
                        self.loadObjList();
+                       $(contentContainer).find('.config-edit-refresh').on('click', self.refreshConfigObjectList);
                        $(contentContainer).find('.create-config-object').on('click',self.createNewConfigObj);
                        $(contentContainer).find('.cancel-config-edit').on('click',self.cancelConfigEditor);
                        $(contentContainer).find('.save-config-object').on('click',function(){
@@ -30,7 +33,7 @@ define([
                                            init: function () {
                                            },
                                            success: function () {
-                                               self.refreshConfigObjList();
+                                               self.updateObjList();
                                            },
                                            error: function (error) {
                                                contrail.showErrorMsg(error.responseText);
@@ -47,6 +50,16 @@ define([
                        contrail.showErrorMsg(error.responseText);
                    }); 
             },
+            refreshConfigObjectList: function(){
+                $('.config-edit-refresh').children().removeClass('fa fa-repeat').addClass('fa fa-spin fa fa-spinner');
+                contrail.ajaxHandler(ConfigObjectListUtils.getObjListUrl(self.viewConfig), null, function(model){
+                      configList = model[0];
+                      self.loadObjList();
+                      $('.config-edit-refresh').children().removeClass('fa fa-spin fa fa-spinner').addClass('fa fa-repeat');
+                    },function(error){
+                      contrail.showErrorMsg(error.responseText);
+                });
+            },
             loadObjList: function(){
                 var rowJson = ConfigObjectListUtils.formatJSON2HTML(configList, 10, undefined, true);
                 $(contentContainer).find('.object-json-view').empty();
@@ -61,7 +74,7 @@ define([
                 ConfigObjectListUtils.showIconsAfterCancel($(contentContainer));
                 contrail.hideErrorPopup();
             },
-            refreshConfigObjList: function(){
+            updateObjList: function(){
                 contrail.ajaxHandler(ConfigObjectListUtils.getObjListUrl(self.viewConfig), null, function(model) {
                     configList = model;
                     self.loadObjList();

@@ -16,7 +16,6 @@ define([
              template.find(".config-object-edit").hide();
              template.find(".object-basic-view").hide();
              template.find(".cancel-config-edit").hide();
-             template.find(".reset-object").hide();
              template.find(".config-jSon-form-edit").hide();
          }
          self.getCopiedContent = function(){
@@ -29,6 +28,14 @@ define([
          self.setContentInTextArea = function(model) {
              document.getElementById('hiddenTextArea').value = '';
              document.getElementById('hiddenTextArea').value = JSON.stringify(model,null,2); 
+         }
+         self.parseParentJsonKeyToLabel = function(key){
+             var splitedKey = key.split('-'); var strStack = [];
+             for(var i = 0; i < splitedKey.length; i++){
+                 var captilizeStr = splitedKey[i].charAt(0).toUpperCase() + splitedKey[i].slice(1);
+                 strStack.push(captilizeStr);
+             }
+             return strStack.join(' ');
          }
          self.setTextAreaHeight = function(configJson, template){
              var textAreaHeight = self.getWindowHeight() - 23;
@@ -44,15 +51,16 @@ define([
              return outerHeight - pageHeader - breadCrum - 107;
          }
          self.hideIconForNewConfigObj = function(template){
+             template.find('.refresh-container').hide();
              template.find('.create-config-object').hide();
              template.find(".save-config-object").show();
-             $("#page-content").addClass('adjustConfigContent');
-             template.find("#jsonTextArea").css({'width':'99%'});
+             template.find("#jsonTextArea").css({'width':'100%'});
              template.find(".cancel-config-edit").show();
              template.find(".object-text-area-view").show();
              template.find(".object-json-view").hide();
          }
          self.showIconsAfterCancel = function(template){
+             template.find('.refresh-container').show();
              template.find(".cancel-config-edit").hide();
              template.find(".object-text-area-view").hide();
              template.find(".object-json-view").show();
@@ -61,6 +69,7 @@ define([
              document.getElementById('jsonTextArea').value = '';
          }
          self.showIconsAfterSave = function(template){
+             template.find('.refresh-container').show();
              template.find(".cancel-config-edit").hide();;
              template.find(".object-text-area-view").hide();
              template.find(".object-json-view").show();
@@ -99,7 +108,7 @@ define([
              }
              if(formatDepth == 0){
                  output += '<i class="node-' + currentDepth + ' fa fa-plus expander"></i> ' + objType.startTag + '<ul data-depth="' + currentDepth + '" class="node-' + currentDepth + ' node hide raw">' + 
-                             JSON.stringify(jsonObj) + '</ul><span class="node-' + currentDepth + ' collapsed expander"> ... </span>' + objType.endTag;
+                             JSON.stringify(jsonObj) + '</ul><span class="node-' + currentDepth + ' collapsed expander"> ... </span>' + objType.endTag + '<span class="hideSeperatedComma">,</span>';
              }
              else {
                  output += '<i class="node-' + currentDepth + ' fa fa-minus collapser"></i> ' + objType.startTag + '<ul data-depth="' + currentDepth + '" class="node-' + currentDepth + ' node">';
@@ -117,23 +126,23 @@ define([
                          }
                          else {
                              if(hrefClick && (key === 'href' || key === 'parent_href')){
-                                 output += '<span class="hyperlink value ' + typeof val + '"onclick=getClickedHref("' + val +'")>' + val + '</span>';
+                                 output += '<span class="hyperlink value ' + typeof val + '"onclick=getClickedHref("' + val +'")>'+'"' + val +'"'+ '</span><span class="hideSeperatedComma">,</span>';
                              }else{
                                  if(typeof val === 'number'){
-                                     output += '<span class="value config-number">' + val + '</span>';
+                                     output += '<span class="value config-number">' + val + '</span><span class="hideSeperatedComma">,</span>';
                                  }else if(typeof val === 'boolean'){
-                                     output += '<span class="value config-boolean">' + val + '</span>';
+                                     output += '<span class="value config-boolean">' + val + '</span><span class="hideSeperatedComma">,</span>';
                                  }else if(typeof val === 'string'){
-                                     output += '<span class="value ' + typeof val + '">'+'"' + val +'"'+ '</span>';
+                                     output += '<span class="value ' + typeof val + '">'+'"' + val +'"'+ '</span><span class="hideSeperatedComma">,</span>';
                                  }else{
-                                     output += '<span class="value ' + typeof val + '">' + val + '</span>';
+                                     output += '<span class="value ' + typeof val + '">' + val + '</span><span class="hideSeperatedComma">,</span>';
                                  }
                              }
                          }
                          output += '</li>';
                      }
                  });
-                 output += '</ul><span class="node-' + currentDepth + ' collapsed hide expander"> ... </span>' + objType.endTag;
+                 output += '</ul><span class="node-' + currentDepth + ' collapsed hide expander"> ... </span>' + objType.endTag + '<span class="hideSeperatedComma">,</span>';
              }
              return output;
          }
