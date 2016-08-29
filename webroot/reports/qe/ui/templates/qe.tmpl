@@ -10,7 +10,7 @@
         </div>
         <div class="row" data-bind="visible: select_data_object().requestState() == cowc.DATA_REQUEST_STATE_SUCCESS_NOT_EMPTY">
             <div class="row">
-                <a class="pull-right selectAllLink " data-bind="text: (select_data_object().checked_fields().length == 0) ? 'Select All' : 'Clear All', click: select_data_object().on_select_all"></a>
+                <a class="pull-right selectAllLink " data-bind="text: select_data_object().isSelectChecked($root) ? 'Clear All' : 'Select All', click: select_data_object().on_select_all"></a>
             </div>
 
             {{#IfCompare specialQueryPrefix true operator='=='}}
@@ -31,7 +31,7 @@
                             </div>
                             <div data-bind="if: 'Time Range' != '{{this}}'" >
                                 <div class="col-xs-6 select-aggregate-link">
-                                    <a class="pull-right selectAllLink " data-bind="text: select_data_object().getSelectAggregateStatus($root,'{{this}}')  == 0 ? 'Select {{this}}' : 'Clear {{this}}', click: function() { select_data_object().on_select_aggregate($root, '{{this}}',event) }"></a>
+                                    <a class="pull-right selectAllLink " data-bind="text: select_data_object().isSelectAggregateChecked($root,'{{this}}') ? 'Clear {{this}}' : 'Select {{this}}', click: function() { select_data_object().on_select_aggregate($root, '{{this}}',event) }"></a>
                                 </div>
                             </div>
                              <div class="col-xs-12 row-3n select-aggregate-body" data-bind="foreach: select_data_object().select_fields()">
@@ -41,7 +41,7 @@
                                              <div class="col-xs-1">
                                                  <input type="checkbox"
                                                     data-bind="
-                                                    name: name, value: name, checked: $root.select_data_object().checked_fields,
+                                                    name: name, value: name, checked: $root.select_data_object().checked_map()[name],
                                                     click: function(data, event) { return $root.select_data_object().on_select($root, data, event); },
                                                     enable: $root.select_data_object().enable_map()[name]()"
                                                     class="ace-input"
@@ -65,11 +65,11 @@
                             <div class="row">
                                 <div class="col-xs-1">
                                     <input type="checkbox"
-                                           data-bind="
-                                name: name, value: name, checked: $root.select_data_object().checked_fields,
-                                click: function(data, event) { return $root.select_data_object().on_select($root, data, event); },
-                                enable: $root.select_data_object().enable_map()[name]()"
-                                           class="ace-input"
+                                        data-bind="
+                                        name: name, value: name, checked: $root.select_data_object().checked_map()[name],
+                                        click: function(data, event) { return $root.select_data_object().on_select($root, data, event); },
+                                        enable: $root.select_data_object().enable_map()[name]()"
+                                       class="ace-input"
                                     />
                                     <span class="ace-lbl"></span>
                                 </div>
