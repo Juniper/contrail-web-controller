@@ -21,6 +21,10 @@ define([
                     contrail.successMsg(ctwc.COPIED_MSG);
                     $('#hiddenTextArea').addClass('hide-header-icon');
                 });
+                $(contentContainer).find('.config-edit-refresh').on('click', function() {
+                    $('.config-edit-refresh').children().removeClass('fa fa-repeat').addClass('fa fa-spin fa fa-spinner');
+                    self.getConfigApiList();
+                });
              },
              getConfigApiList : function (){
                  var self = this;
@@ -42,8 +46,9 @@ define([
                          result.links = collectionObj;
                          self.setApiListInHiddenArea(result);
                          var json = ConfigObjectListUtils.formatJSON2HTML(result, 5, undefined, true);
-                         var hrefContainer = $(contentContainer).find('.config-href-container');
-                         hrefContainer.append(json);
+                         $(contentContainer).find('.config-href-container').empty();
+                         $(contentContainer).find('.config-href-container').append(json);
+                         $('.config-edit-refresh').children().removeClass('fa fa-spin fa fa-spinner').addClass('fa fa-repeat');
                   },function(error){
                       contrail.showErrorMsg(error.responseText);
                   });

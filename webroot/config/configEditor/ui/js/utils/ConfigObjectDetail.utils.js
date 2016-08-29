@@ -4,6 +4,14 @@ define([
     var ConfigObjectDetailUtils = function () {
         var self = this;
         self.previousObj = [];
+        self.modelLayout = '<div id="config-error-container" class="alert-error clearfix">'+
+                           '<div id="config-msg-container"><span class="error-font-weight">Error : </span><span id="config-error-msg-container"></span></div>'+
+                           '<div id="error-remove-icon"><button id="remove-error-popup" class="btn btn-mini"><i class="fa fa-remove"></i></button></div></div>'+
+                           '<div id="editorContainer"><div class="json-editor-form-view-header">'+
+                           '<div><input type="radio" name="switchFormJson" id="configFormMode" checked="true"></input><label>Form</label><input type="radio" name="switchFormJson" id="configJsonMode"></input><label>JSON</label></div></div>'+
+                           '<div id="jsonEditorContainer"></div><div id="rawJsonEdit" style="display:none;"><textarea id="rawJsonTextArea" spellcheck="false"></textarea></div>'+
+                           '</div>';
+        self.unDeletableProp = ['Uuid','Href','Fq Name','Owner','Creator','Created','Last Modified','Timer','Parent Uuid'];
         self.getCopiedContent = function(){
             $('#hiddenTextArea').removeClass('hide-header-icon');
             document.getElementById('hiddenTextArea').select();
@@ -12,45 +20,21 @@ define([
             $('#hiddenTextArea').addClass('hide-header-icon');
         }
         self.hideHeaderIcons = function(template){
+            template.find('.refresh-container').show();
             template.find('.create-config-object').hide();
             template.find('.cancel-config-edit').hide();
-            template.find('.reset-object').hide();
         }
         self.hideTextAreaAfterSave = function(template){
-            template.find(".save-config-object").hide();
             template.find(".object-text-area-view").hide();
             template.find(".object-json-view").show();
-            template.find('.config-object-edit').show();
+            template.find(".object-json-view").css('width','100%');
             template.find(".config-jSon-form-edit").show();
+            template.find("#jsonContainer").css('width', '100%');
+            template.find("#jsonContainer").show();
         }
         self.setContentInTextArea = function(model) {
             document.getElementById('hiddenTextArea').value = '';
             document.getElementById('hiddenTextArea').value = JSON.stringify(model,null,2); 
-        }
-        self.setTextAreaHeight = function(configJson){
-            var textAreaHeight = self.getWindowHeight() + 3;
-            $("#jsonTextArea").css({"height": textAreaHeight,"width":"99%"});
-            document.getElementById('jsonTextArea').value = '';
-            document.getElementById('jsonTextArea').value = JSON.stringify(configJson,null,2);
-        }
-        self.hideIconsForObjectEdit = function(template){
-            template.find('.config-object-edit').hide();
-            template.find(".reset-object").show();
-            template.find(".save-config-object").show();
-            $("#page-content").addClass('adjustConfigContent');
-            template.find(".cancel-config-edit").show();
-            template.find(".object-text-area-view").show();
-            template.find(".object-json-view").hide();
-            template.find(".config-jSon-form-edit").hide();
-        }
-        self.showIconsAfterCancel = function(template){
-            template.find(".reset-object").hide();
-            template.find(".cancel-config-edit").hide();
-            template.find(".object-text-area-view").hide();
-            template.find(".object-json-view").show();
-            template.find(".save-config-object").hide();
-            template.find('.config-object-edit').show();
-            template.find(".config-jSon-form-edit").show();
         }
         self.getWindowHeight = function(){
             var outerHeight = window.outerHeight;
@@ -58,26 +42,26 @@ define([
             var breadCrum = $("#breadcrumbs").height();
             return outerHeight - pageHeader - breadCrum - 133;
         }
-        self.modelBeforeSaved = function(model){
+        self.updateKeyValueBeforeSave = function(model){
             for (var i in model) {
                 if (typeof model[i] === 'object' && model[i] !== null && model[i].constructor !== Array) {
-                       self.modelBeforeSaved(model[i]);
+                       self.updateKeyValueBeforeSave(model[i]);
                 }else if( model[i] !== null && model[i].constructor === Array){
                     for(var j = 0; j < model[i].length;){
                         if(model[i][j] === ''){
                             model[i].splice(j,1);
                          }else if(typeof model[i][j] === 'object'){
-                            self.modelBeforeSaved(model[i][j]);
+                            self.updateKeyValueBeforeSave(model[i][j]);
                             j++;
                         }else{
                             j++;
                         }
                     }
                 }else if(typeof model[i] === 'string' || typeof model[i] === 'number'){
-                    if(i === 'fq_name'){
+                    if(i === 'Fq Name'){
                         var fqName = model[i].split(':');
                         model[i] = fqName;
-                    }else if(i === 'to'){
+                    }else if(i === 'To'){
                         var to = model[i].split(':');
                         model[i] = to;
                     }
@@ -85,24 +69,79 @@ define([
             }
           return model;
         }
-        self.setJsonOrder =  function(json, configJson) {
-            var orderJson = {},unorderJson = {};
-            var updatedJson = json[Object.keys(json)[0]];
-            var oldJson = getValueByJsonPath(configJson,Object.keys(configJson)[0]);
-            for(var i in oldJson){
-                for(var j in updatedJson){
-                    if(i === j){
-                        orderJson[j] = updatedJson[j];
-                    }else if(!oldJson.hasOwnProperty(j)){
-                        unorderJson[j] = updatedJson[j];
+        self.changeJsonKeyUpperToLower = function(model,count){
+            var key,preKeyValue;
+            for (var i in model) {
+                if(typeof model[i] === 'object' && model[i] !== null && model[i].constructor !== Array) {
+                       var oldModel = model[i];
+                       if(count == 0){
+                          key = self.parseParentKeyUpperToLower(i);
+                       }else{
+                          key = self.parseJsonKeyUpperToLower(i);
+                       }
+                       count++;
+                       model[key] = oldModel;
+                       delete model[i];
+                       self.changeJsonKeyUpperToLower(oldModel, count);
+                }else if( model[i] !== null && model[i].constructor === Array){
+                      if(typeof model[i][0] === 'object'){
+                        preKeyValue = model[i];
+                        key = self.parseJsonKeyUpperToLower(i);
+                        model[key] = preKeyValue;
+                        delete model[i];
+                        for(var j = 0; j < preKeyValue.length; j++){
+                            self.changeJsonKeyUpperToLower(preKeyValue[j]);
+                        }
+                      }else if(model[i].length == 0){
+                        preKeyValue = model[i];
+                        key= self.parseJsonKeyUpperToLower(i);
+                        model[key] = preKeyValue;
+                        delete model[i];
+                      }else{
+                        preKeyValue = model[i];
+                        key= self.parseJsonKeyUpperToLower(i);
+                        model[key] = preKeyValue;
+                        delete model[i];
                     }
+                }else{
+                    key = self.parseJsonKeyUpperToLower(i);
+                    model[key] = model[i];
+                    delete model[i];
                 }
             }
-            for(var k in unorderJson){
-                orderJson[k] = unorderJson[k];
+          return model;
+        }
+        self.parseJsonKeyLowerToUpper = function(key){
+            var splitedKey = key.split('_'); var strStack = [];
+            for(var i = 0; i < splitedKey.length; i++){
+                var captilizeStr = splitedKey[i].charAt(0).toUpperCase() + splitedKey[i].slice(1);
+                strStack.push(captilizeStr);
             }
-            json[Object.keys(json)[0]] = orderJson;
-            return json;
+            return strStack.join(' ');
+        }
+        self.parseParentKeyLowerToUpper = function(key){
+            var splitedKey = key.split('-'); var strStack = [];
+            for(var i = 0; i < splitedKey.length; i++){
+                var captilizeStr = splitedKey[i].charAt(0).toUpperCase() + splitedKey[i].slice(1);
+                strStack.push(captilizeStr);
+            }
+            return strStack.join(' ');
+        }
+        self.parseJsonKeyUpperToLower = function(key){
+            var splitedKey = key.split(' '); var strStack = [];
+            for(var i = 0; i < splitedKey.length; i++){
+                var captilizeStr = splitedKey[i].charAt(0).toLowerCase() + splitedKey[i].slice(1);
+                strStack.push(captilizeStr);
+            }
+            return strStack.join('_');
+        }
+        self.parseParentKeyUpperToLower = function(key){
+            var splitedKey = key.split(' '); var strStack = [];
+            for(var i = 0; i < splitedKey.length; i++){
+                var captilizeStr = splitedKey[i].charAt(0).toLowerCase() + splitedKey[i].slice(1);
+                strStack.push(captilizeStr);
+            }
+            return strStack.join('-');
         }
         self.getChildKeyOfSchema = function(model,order){
             var obj ={};
@@ -114,27 +153,36 @@ define([
             }
             for(var i in model){
                 if(model[i] === null){
-                    obj.properties[i] = {type: 'string'};
+                    var objVal = {type: 'string'};
+                    var key = self.parseJsonKeyLowerToUpper(i);
+                    obj.properties[key] = objVal;
                 }else if(typeof model[i] === 'string' || typeof model[i] === 'number'){
-                    obj.properties[i] = {type: typeof model[i]};
+                    var objVal = {type: typeof model[i]};
+                    var key = self.parseJsonKeyLowerToUpper(i);
+                    obj.properties[key] = objVal;
                 }else if(typeof model[i] === 'object' && model[i].constructor !== Array){
-                    obj.properties[i] = 'nextObj';
+                    var key = self.parseJsonKeyLowerToUpper(i);
+                    obj.properties[key] = 'nextObj';
                     self.previousObj.push(obj);
                     self.getChildKeyOfSchema(model[i]);
                  }else if(model[i].constructor === Array){
                     if(typeof model[i][0] === 'object'){
-                        obj.properties[i] = {type:'array',items: 'nextObj'};
+                        var key = self.parseJsonKeyLowerToUpper(i);
+                        obj.properties[key] = {type:'array',items: 'nextObj'};
                         self.previousObj.push(obj);
                         self.getChildKeyOfSchema(model[i][0]);
                     }else{
                         if(i === 'to'){
-                            obj.properties[i] = {type:'string'};
+                            var key = self.parseJsonKeyLowerToUpper(i);
+                            obj.properties[key] = {type:'string'};
                         }else{
-                            obj.properties[i] = {type:'array',items:{type:'string'}};
+                            var key = self.parseJsonKeyLowerToUpper(i);
+                            obj.properties[key] = {type:'array',items:{type:'string'}};
                         }
                     }
                 }else if(typeof model[i] === 'boolean'){
-                    obj.properties[i] = {type: 'boolean',format: 'checkbox'}
+                    var key = self.parseJsonKeyLowerToUpper(i);
+                    obj.properties[key] = {type: 'boolean',format: 'checkbox'}
                 }
             }
             if(self.previousObj.length !== 0){
@@ -151,55 +199,30 @@ define([
                 return obj;
             }
         }
-        self.setContainerScrollHeight = function(template){
-            var textAreaHeight = self.getWindowHeight() - 5;
-            template.find(".object-json-view").css({"height": self.getWindowHeight()});
-            template.find("#jsonEditorContainer").css({"height": self.getWindowHeight()});
-            template.find("#jsonTextArea").css({"height": textAreaHeight});
-        }
-        self.showSchemaRelatedIcons = function(template,model){
-            $("#page-content").addClass('adjustConfigContent');
-            if(template.find(".object-basic-view").css('display') == 'block' && template.find(".save-config-object").css('display') == 'block'){
-                document.getElementById('jsonTextArea').value = '';
-                document.getElementById('jsonTextArea').value = JSON.stringify(model,null,2);
-                template.find(".save-config-object").hide();
-                template.find(".update-config-object").show();
-                document.getElementById('jsonTextArea').style.width = '98.7%';
-            }
-            template.find('.config-object-edit').hide();
-            template.find("#jsonContainer").css('width', '0%');
-            template.find("#jsonContainer").hide();
-            template.find("#editorContainer").css('width','100%');
-            template.find(".object-json-view").css({'width':'100%'});
-            template.find("#editorContainer").show();
-            template.find(".cancel-config-edit").show();
-        }
-        self.setScrollHeight = function(){
-            var jsonContainerHeight;
-            jsonContainerHeight = $(".pre-format-JSON2HTML").height();
-            if(jsonContainerHeight == 0){
-                jsonContainerHeight = $("#jsonTextArea")[0].scrollHeight;
-            }
-            var editorContainerHeight = $('[data-schemaid="root"]').height();
-            if(jsonContainerHeight > editorContainerHeight){
-                $('[data-schemaid="root"]').css({'height':jsonContainerHeight});
-            }
-        }
         self.cancelSchemaBasedForm = function(template){
-            template.find('.config-object-edit').show();
+            template.find('.refresh-container').show();
             template.find(".object-json-view").css({"height": "auto"});
-            template.find("#jsonEditorContainer").css({"height": "auto"});
-            $("#page-content").removeClass('adjustConfigContent');
             template.find("#jsonContainer").show();
-            template.find("#editorContainer").hide();
-            template.find("#editorContainer").css('width','0%');
             template.find("#jsonContainer").css('width', '100%');
             template.find(".object-json-view").css('width','100%');
             template.find(".object-text-area-view").hide();
             template.find(".object-json-view").show();
-            template.find(".cancel-config-edit").hide();
             template.find(".object-basic-view").hide();
             template.find(".update-config-object").hide();
+        }
+        self.showConfigErrorMsg = function(msg){
+            var errorHolder = $("#config-error-msg-container");
+            errorHolder.empty();
+            errorHolder.text(msg);
+            $('.modal-body').scrollTop(0);
+            var errorContainer = $("#config-error-container");
+            errorContainer.fadeIn(500);
+            $("#remove-error-popup").on('click',function(){
+                $("#config-error-container").css('display','none');
+            });
+        }
+        self.hideErrorPopup = function(){
+            $("#config-error-container").css('display','none');
         }
     };
     return new ConfigObjectDetailUtils;

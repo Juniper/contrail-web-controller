@@ -942,6 +942,7 @@ define([
         this.CONFIG_EDITOR_TEMPLATE = 'config-editor-template';
         this.CONFIG_HASH_PATH = '/#p=config_editor&q[objName]=';
         this.TEXT_AREA_PLACEHOLDER = 'Copy / Paste JSON data for ';
+        this.MODAL_CONFIG_EDITOR_CONTAINER = 'json-editor-form-view';
 
         this.MULTISELECT_VALUE_SEPARATOR = ";;";
     };

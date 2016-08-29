@@ -3,9 +3,17 @@
 <script type="text/x-handlebars-template" id="config-editor-href-container">
     <textarea id='hiddenTextArea' class="hide-header-icon"></textarea>
     <div class="config-editor-header">
-        <div class="copy-config-object">
-            <button class="button btn btn-mini json-editor-btn-copy"><i class="fa fa-files-o"></i></button>
-            <span class="config-text">Copy</span>
+        <div class="config-link-title">
+           <span>Links</span>
+        </div>
+        <div class="refresh-container config-editor-headerIcon-align pull-right">
+            <div class="config-edit-refresh refresh" data-action="refresh" title="Refresh"><i class="fa fa-repeat"></i></div>
+        </div>
+         <!-- <div class="search-config-object config-editor-headerIcon-align pull-right">
+            <button class="button btn btn-mini json-editor-btn-copy" title="Search"><i class="fa fa-search"></i></button>
+        </div>-->
+         <div class="copy-config-object config-editor-headerIcon-align pull-right">
+            <button class="button btn btn-mini json-editor-btn-copy" title="Copy"><i class="fa fa-files-o"></i></button>
         </div>
     </div>
     <div class="config-href-container"></div>
@@ -14,52 +22,34 @@
        <textarea id='hiddenTextArea' class="hide-header-icon"></textarea>
        <div id="jsonContainer" class="row-fluid margin-0-0-5" style="width:100%;float:left;">
             <div class="config-editor-header">
-                <div class="copy-config-object">
-                    <button class="button btn btn-mini json-editor-btn-copy" title="Copy Raw JSON"><i class="fa fa-files-o"></i></button>
-                    <span class="config-text">Copy</span>
+                <div class="config-link-title">
+                    <span id="object-header-title">Links</span>
                 </div>
-                <div class="create-config-object config-icon-position">
+                <div class="refresh-container config-editor-headerIcon-align pull-right">
+                  <div class="config-edit-refresh refresh" data-action="refresh" title="Refresh"><i class="fa fa-repeat"></i></div>
+                </div>
+                <div class="cancel-config-edit config-editor-headerIcon-align pull-right">
+                    <button class="button btn btn-mini json-editor-btn-create" title="Cancel"><i class="fa fa-times"></i></button>
+                </div>
+                <div class="save-config-object config-editor-headerIcon-align pull-right hide-header-icon">
+                    <button class="button btn btn-mini json-editor-btn-create" title="Save JSON"><i class="fa fa-floppy-o"></i></button>
+                </div>
+                <!-- <div class="search-config-object config-editor-headerIcon-align pull-right">
+                  <button class="button btn btn-mini json-editor-btn-copy" title="Search"><i class="fa fa-search"></i></button>
+                </div>-->
+                <div class="copy-config-object config-editor-headerIcon-align pull-right">
+                  <button class="button btn btn-mini json-editor-btn-copy" title="Copy"><i class="fa fa-files-o"></i></button>
+                </div>
+                <div class="create-config-object config-editor-headerIcon-align pull-right"">
                     <button class="button btn btn-mini json-editor-btn-create" title="Create Config"><i class="fa fa-plus"></i></button>
-                    <span class="config-text">Create</span>
                 </div>
-                <div  class="config-object-edit config-icon-position">
-                    <button class="button btn btn-mini json-editor-btn-create" title="Raw JSON Edit"><i class="fa fa-pencil-square-o"></i></button>
-                    <span class="config-text">Raw JSON Edit</span>
-                </div>
-                <div  class="config-jSon-form-edit config-icon-position">
-                    <button class="button btn btn-mini json-editor-btn-create" title="Form Edit"><i class="fa fa-wpforms"></i></button>
-                    <span class="config-text">Form Edit</span>
-                </div>
-                <div class="config-icon-position">
-                    <button class="cancel-config-edit button btn btn-mini json-editor-btn-create" title="Cancel"><i class="fa fa-times"></i><span>Cancel</span></button>
-                    <button class="object-basic-view button btn btn-mini json-editor-btn-create hide-header-icon"><i class="icon-list"></i></button>
-                </div>
-                <div class="config-icon-position">
-                    <button class="save-config-object button btn btn-mini json-editor-btn-create hide-header-icon" title="Save JSON"><i class="fa fa-floppy-o"></i><span>Save</span></button>
-                    <button class="update-config-object button btn btn-mini json-editor-btn-create hide-header-icon" title="Update JSON" >Update JSON</button>
-                </div>
-                <div class="reset-object config-icon-position">
-                    <button class="button btn btn-mini json-editor-btn-create" title="Reset JSON"><i class="fa fa-undo"></i></button>
-                    <span class="config-text">Reset</span>
+                <div  class="config-jSon-form-edit config-editor-headerIcon-align pull-right">
+                    <button class="button btn btn-mini json-editor-btn-create" title="Form Edit"><i class="fa fa-pencil-square-o"></i></button>
                 </div>
             </div>
             <div class='object-json-view scroll-container row-fluid'></div>  
             <div class='object-text-area-view scroll-container row-fluid hide-header-icon'>
                 <textarea id='jsonTextArea' class="scroll-container config-scroll-color" spellcheck='false'></textarea> 
             </div>
-        </div>
-        <div id="editorContainer" class="row-fluid margin-0-0-5 hide-header-icon" style="width:50.35%;float:right;">
-            <div class="config-editor-header">
-                <div class="cancel-form-icon-postion">
-                    <button class="cancel-config-form button btn btn-mini json-editor-btn-create" title="Cancel"><i class="fa fa-times"></i><span>Cancel</span></button>
-                </div>
-               <div class="config-icon-position">
-                    <button class="save-form-object button btn btn-mini json-editor-btn-create" title="Save"><i class="fa fa-floppy-o"></i><span>Save</span></button>
-               </div>
-               <div class="config-icon-position">
-                    <button class="reset-config-form button btn btn-mini json-editor-btn-create" title="Reset"><i class="fa fa-undo"></i><span class="config-text">Reset</span></button>
-               </div>
-           </div>
-            <div id="jsonEditorContainer" class="scroll-container row-fluid margin-0-0-5"></div>
-       </div>
+        </div> 
 </script>
