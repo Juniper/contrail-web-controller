@@ -652,6 +652,15 @@ define([
         this.TITLE_EDIT_LLS = 'Edit Link Local Service';
         this.LINK_LOCAL_SERVICE_DETAILS = 'Link Local Service Details';
 
+        /* RBAC labels */
+        this.TITLE_RBAC = 'API Access';
+        this.TITLE_CREATE_RBAC = 'Create API Access';
+        this.TITLE_DEL_RBAC = 'Delete API Access';
+        this.TITLE_RBAC_MULTI_DELETE =
+            "Delete API Access";
+        this.TITLE_EDIT_RBAC = 'Edit API Access';
+        this.TITLE_INSERT_RBAC = 'Insert API Access';
+
         //Physical Routers labels
         this.CONFIG_PHYSICAL_ROUTERS_PAGE_ID = "config-physical-routers-page";
         this.CONFIG_PHYSICAL_ROUTERS_LIST_ID = "config-physical-routers-list";
