@@ -16,10 +16,10 @@ module.exports = function (grunt) {
         {pattern: 'contrail-web-core/webroot/dist/assets/**/!(tests)/*.js', included: false},
 
         {pattern: 'contrail-web-core/webroot/assets/**/*.css', included: false},
-        {pattern: 'contrail-web-core/webroot/css/**/*.css', included: false},
-        {pattern: 'contrail-web-core/webroot/css/**/*.ttf', included: false},
-        {pattern: 'contrail-web-core/webroot/css/**/*.woff', included: false},
-        {pattern: 'contrail-web-core/webroot/css/**/*.svg', included: false},
+        {pattern: 'contrail-web-core/webroot/common/ui/css/**/*.css', included: false},
+        {pattern: 'contrail-web-core/webroot/common/ui/css/**/*.ttf', included: false},
+        {pattern: 'contrail-web-core/webroot/common/ui/css/**/*.woff', included: false},
+        {pattern: 'contrail-web-core/webroot/common/ui/css/**/*.svg', included: false},
         {pattern: 'contrail-web-core/webroot/test/ui/**/*.css', included: false},
 
         {pattern: 'contrail-web-core/webroot/assets/**/*.woff', included: false},
@@ -27,9 +27,9 @@ module.exports = function (grunt) {
         {pattern: 'contrail-web-core/webroot/assets/**/*.svg', included: false},
 
         {pattern: 'contrail-web-core/webroot/img/**/*.png', included: false},
-        {pattern: 'contrail-web-core/webroot/css/**/*.png', included: false},
+        {pattern: 'contrail-web-core/webroot/common/ui/css/**/*.png', included: false},
         {pattern: 'contrail-web-core/webroot/assets/**/*.png', included: false},
-        {pattern: 'contrail-web-core/webroot/css/**/*.gif', included: false},
+        {pattern: 'contrail-web-core/webroot/common/ui/css/**/*.gif', included: false},
         {pattern: 'contrail-web-core/webroot/assets/**/*.map', included: false},
 
         //Everything except library test suites and test files.
@@ -54,7 +54,7 @@ module.exports = function (grunt) {
 
         {pattern: 'contrail-web-core/webroot/js/**/*.js', included: false},
         {pattern: 'contrail-web-core/webroot/dist/js/**/*.js', included: false},
-        {pattern: 'contrail-web-core/webroot/templates/*.tmpl', included: false},
+        {pattern: 'contrail-web-core/webroot/common/ui/templates/*.tmpl', included: false},
 
         {pattern: 'contrail-web-controller/webroot/**/test/**/*.mock.data.js', included: false},
         {pattern: 'contrail-web-controller/webroot/**/test/**/*.unit.test.suite.js', included: false}
