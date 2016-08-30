@@ -72,7 +72,9 @@ define([
                                             document.getElementById(modalId));
                             kbValidation.bind(self,{collection:
                                   self.model.model().attributes.PolicyRules});
-                   });
+                            //permissions
+                            ctwu.bindPermissionsValidation(self);
+                   }, null, true);
                    return;
                }
            );
@@ -350,6 +352,7 @@ define([
             elementId: cowu.formatElementId(
                             [prefixId, ctwl.TITLE_EDIT_POLICY]),
             view: "SectionView",
+            title: "Policy", //permissions
             viewConfig:{
             rows: [{
                     columns: [{

@@ -223,7 +223,7 @@ define([
                 }), pRouterModel);
                 physicalRouterEditView.model = pRouterModel;
                 physicalRouterEditView.renderEditPhysicalRouter(
-                    {"title": title, checkedRows: checkedRow,
+                    {"title": ctwl.EDIT, checkedRows: checkedRow,
                         callback: function () {
                             var dataView =
                                 $('#' + ctwl.PHYSICAL_ROUTERS_GRID_ID).
@@ -293,7 +293,7 @@ define([
                     showHideModelAttrs(physicalRouterModel);
                     physicalRouterEditView.model = physicalRouterModel;
                     physicalRouterEditView.renderAddOVSDBManagedToR(
-                        {"title": ctwl.TITLE_OVSDB_MANAGED_TOR,
+                        {"title": ctwl.CREATE,
                             callback: function () {
                                 var dataView =
                                     $('#' + ctwl.PHYSICAL_ROUTERS_GRID_ID).
@@ -311,7 +311,7 @@ define([
                     showHideModelAttrs(physicalRouterModel);
                     physicalRouterEditView.model = physicalRouterModel;
                     physicalRouterEditView.renderAddNetconfMngdPR(
-                        {"title": ctwl.TITLE_NETCONF_MANAGED_TOR,
+                        {"title": ctwl.CREATE,
                             callback: function () {
                                 var dataView =
                                     $('#' + ctwl.PHYSICAL_ROUTERS_GRID_ID).
@@ -328,7 +328,7 @@ define([
                     var physicalRouterModel = new PhysicalRouterModel();
                     physicalRouterEditView.model = physicalRouterModel;
                     physicalRouterEditView.renderAddCPERouter(
-                        {"title": ctwl.TITLE_CPE_ROUTER,
+                        {"title": ctwl.CREATE,
                             callback: function () {
                                 var dataView =
                                     $('#' + ctwl.PHYSICAL_ROUTERS_GRID_ID).
@@ -351,7 +351,7 @@ define([
                     }), physicalRouterModel);
                     physicalRouterEditView.model = physicalRouterModel;
                     physicalRouterEditView.renderAddPhysicalRouter(
-                        {"title": ctwl.TITLE_ADD_PHYSICAL_ROUTER,
+                        {"title": ctwl.CREATE,
                             callback: function () {
                                 var dataView =
                                     $('#' + ctwl.PHYSICAL_ROUTERS_GRID_ID).
@@ -415,7 +415,9 @@ define([
                                     rows: [
                                         prProperties(),
                                         prNetconfSettings(),
-                                        snmpSettings()
+                                        snmpSettings(),
+                                        //permissions
+                                        ctwu.getRBACPermissionExpandDetails()
                                     ]
                                 }
                             ]

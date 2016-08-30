@@ -141,7 +141,7 @@ define([
                 "onClick": function () {
                     vRouterCfgEditView.model = new VRouterCfgModel();
                     vRouterCfgEditView.renderAddvRouterCfg({
-                                              "title": ctwl.CFG_VROUTER_TITLE_CREATE,
+                                              "title": ctwl.CREATE,
                                               callback: function () {
                     $('#' + ctwl.CFG_VROUTER_GRID_ID).data("contrailGrid")._dataView.refreshData();
                     }});
@@ -157,7 +157,7 @@ define([
             dataView = $('#' + ctwl.CFG_VROUTER_GRID_ID).data("contrailGrid")._dataView;
             vRouterCfgEditView.model = new VRouterCfgModel(dataView.getItem(rowIndex));
             vRouterCfgEditView.renderEditvRouterCfg({
-                                  "title": ctwl.CFG_VROUTER_TITLE_EDIT,
+                                  "title": ctwl.EDIT,
                                   callback: function () {
                                       dataView.refreshData();
             }});
@@ -220,7 +220,9 @@ define([
                                                     }
                                                 }
                                             ]
-                                        }
+                                        },
+                                        //permissions
+                                        ctwu.getRBACPermissionExpandDetails()
                                     ]
                                 }
                             ]

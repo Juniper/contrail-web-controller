@@ -204,7 +204,7 @@ define([
 
                     addModelAttr(svcTemplateCfgEditView.model);
                     svcTemplateCfgEditView.renderAddSvcTemplateCfg({
-                              "title": ctwl.CFG_SVC_TEMPLATE_TITLE_CREATE,
+                              "title": ctwl.CREATE,
                               callback: function () {
                     $('#' +
                     ctwl.CFG_SVC_TEMPLATE_GRID_ID).data("contrailGrid")._dataView.refreshData();
@@ -357,7 +357,9 @@ define([
                                                     }
                                                 },
                                             ]
-                                        }
+                                        },
+                                        //permissions
+                                        ctwu.getRBACPermissionExpandDetails()
                                     ]
                                 }
                             ]

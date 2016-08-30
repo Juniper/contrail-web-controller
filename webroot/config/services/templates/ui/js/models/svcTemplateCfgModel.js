@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/services/templates/ui/js/models/svcTemplateInterfaceModel'
-], function (_, ContrailModel, SvcTemplateInterfaceModel) {
-    var svcTemplateCfgModel = ContrailModel.extend({
+], function (_, ContrailConfigModel, SvcTemplateInterfaceModel) {
+    var svcTemplateCfgModel = ContrailConfigModel.extend({
 
         defaultConfig: {
             'name': null,
@@ -60,7 +60,8 @@ define([
                 getValueByJsonPath(modelConfig,
                                    'service_template_properties;version', 1);
             modelConfig['interfaces'] = ifCollectionModel;
-
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
 
@@ -442,7 +443,9 @@ define([
                 key: 'interfaces',
                 type: cowc.OBJECT_TYPE_COLLECTION,
                 getValidation: 'svcTemplateInterfaceConfigValidations'
-            }];
+            },
+            //permissions
+            ctwu.getPermissionsValidation()];
             if (this.isDeepValid(validationList)) {
 
                 var newSvcTemplateCfgData = $.extend(true, {}, self.model().attributes);
@@ -517,6 +520,10 @@ define([
                     newSvcTemplateCfgData['service_template_properties']['service_scaling']
                         = null;
                 }
+
+                //permissions
+                this.updateRBACPermsAttrs(newSvcTemplateCfgData);
+
                 ctwu.deleteCGridData(newSvcTemplateCfgData);
                 delete newSvcTemplateCfgData.id_perms;
                 delete newSvcTemplateCfgData.interfaces;

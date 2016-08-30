@@ -4,18 +4,18 @@
 
 define([
     'underscore',
-    'contrail-model',
+    'contrail-config-model',
     'config/networking/networks/ui/js/models/subnetModel',
     'config/networking/networks/ui/js/models/hostRouteModel',
     'config/networking/networks/ui/js/models/routeTargetModel',
     'config/networking/networks/ui/js/models/fipPoolModel',
     'config/networking/networks/ui/js/models/subnetDNSModel',
     'config/networking/networks/ui/js/views/vnCfgFormatters'
-], function (_, ContrailModel, SubnetModel, HostRouteModel,
+], function (_, ContrailConfigModel, SubnetModel, HostRouteModel,
             RouteTargetModel, FipPoolModel,SubnetDNSModel, VNCfgFormatters) {
     var formatVNCfg = new VNCfgFormatters();
 
-    var vnCfgModel = ContrailModel.extend({
+    var vnCfgModel = ContrailConfigModel.extend({
 
         defaultConfig: {
             'name': '',
@@ -110,6 +110,9 @@ define([
             this.readSRIOV(modelConfig);
             this.readEcmpHashing(modelConfig);
             this.readProperties(modelConfig);
+
+            //permissions
+            this.formatRBACPermsModelConfig(modelConfig);
 
             return modelConfig;
         },
@@ -863,7 +866,9 @@ define([
                                 key: 'user_created_import_route_targets',
                                 type: cowc.OBJECT_TYPE_COLLECTION,
                                 getValidation: 'routeTargetModelConfigValidations'
-                              }
+                              },
+                              //permissions
+                              ctwu.getPermissionsValidation()
                              ];
 
             var that = this;
@@ -896,6 +901,9 @@ define([
                 this.getRouteTargets(newVNCfgData);
                 this.getSRIOV(newVNCfgData);
                 this.getEcmpHashing(newVNCfgData);
+
+                //permissions
+                this.updateRBACPermsAttrs(newVNCfgData);
 
                 if (!isVCenter()) {
                     delete newVNCfgData.pVlanId;

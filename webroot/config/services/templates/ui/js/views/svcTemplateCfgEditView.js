@@ -56,7 +56,9 @@ define([
                     Knockback.applyBindings(self.model, document.getElementById(modalId));
                     kbValidation.bind(self,
                         {collection: self.model.model().attributes.interfaces});
-                                   });
+                    //permissions
+                    ctwu.bindPermissionsValidation(self);
+                                   }, null, true);
         },
 
         renderMultiDeleteSvcTemplateCfg: function(options) {
@@ -104,7 +106,7 @@ define([
         var svcTemplateCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
                                             ctwl.CFG_SVC_TEMPLATE_TITLE_CREATE]),
-            title: ctwl.CFG_SVC_TEMPLATE_TITLE_CREATE,
+            title: "Service Template",
             view: "SectionView",
             viewConfig: {
                 rows: [

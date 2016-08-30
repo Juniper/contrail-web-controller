@@ -192,7 +192,7 @@ define([
                         'true' ?  true : false;
                 interfacesEditView.model.clearPorts(isClearPorts);
                 interfacesEditView.renderAddEditInterface(
-                    {"title": title, checkedRow: checkedRow,
+                    {"title": ctwl.EDIT, checkedRow: checkedRow,
                         callback: function () {
                             var dataView =
                                 $('#' + ctwl.INTERFACES_GRID_ID).
@@ -290,7 +290,7 @@ define([
                     showHideModelAttrs(interfacesModel);
                     interfacesEditView.model = interfacesModel;
                     interfacesEditView.renderAddEditInterface(
-                        {"title": ctwl.TITLE_ADD_INTERFACE,
+                        {"title": ctwl.CREATE,
                             callback: function () {
                                 var dataView =
                                     $('#' + ctwl.INTERFACES_GRID_ID).
@@ -400,7 +400,9 @@ define([
                                                    }
                                                 }
                                             ]
-                                        }
+                                        },
+                                        //permissions
+                                        ctwu.getRBACPermissionExpandDetails()
                                     ]
                                 }
                             ]

@@ -17,7 +17,7 @@ var configJsonModifyObj = {
             'router_external', 'id_perms:enable',
             'flood_unknown_unicast', 'multi_policy_service_chains_enabled',
             'route_table_refs', 'provider_properties',
-            'ecmp_hashing_include_fields'],
+            'ecmp_hashing_include_fields', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name'],
         'subType': {
             'project': {
@@ -28,7 +28,7 @@ var configJsonModifyObj = {
     },
     'network-ipam': {
         'isConfig': true,
-        'optFields': ['network_ipam_mgmt', 'virtual_DNS_refs'],
+        'optFields': ['network_ipam_mgmt', 'virtual_DNS_refs', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'security-group': {
@@ -36,7 +36,7 @@ var configJsonModifyObj = {
         'preProcessCB': {
             'applyOnOldJSON': modifySecurityGroupConfigData,
         },
-        'optFields': ['security_group_entries', 'configured_security_group_id'],
+        'optFields': ['security_group_entries', 'configured_security_group_id', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'logical-router': {
@@ -48,22 +48,24 @@ var configJsonModifyObj = {
         'optFields': [
             'virtual_machine_interface_refs',
             'virtual_network_refs',
-            'configured_route_target_list'
+            'configured_route_target_list',
+            'perms2'
         ],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'virtual-DNS': {
         'isConfig': true,
-        'mandateFields': ['fq_name', 'uuid', 'display_name', 'virtual_DNS_data']
+        'mandateFields': ['fq_name', 'uuid', 'display_name', 'virtual_DNS_data',
+                          'perms2']
     },
     'virtual-DNS-record': {
         'isConfig': true,
         'mandateFields': ['fq_name', 'uuid', 'display_name',
-                          'virtual_DNS_record_data']
+                          'virtual_DNS_record_data', 'perms2']
     },
     'service-instance': {
         'isConfig': true,
-        'optFields': ['service_instance_properties'],
+        'optFields': ['service_instance_properties', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'bgp-as-a-service': {
@@ -71,12 +73,12 @@ var configJsonModifyObj = {
         'preProcessCB': {
             'applyOnOldJSON': modifyConfigDataByAttrHref,
         },
-        'optFields': ['bgpaas_session_attributes', 'autonomous_system', 'bgpaas_ip_address', 'virtual_machine_interface_refs'],
+        'optFields': ['bgpaas_session_attributes', 'autonomous_system', 'bgpaas_ip_address', 'virtual_machine_interface_refs', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'physical-interface': {
         'isConfig': true,
-        'optFields': ['physical_interface_refs'],
+        'optFields': ['physical_interface_refs', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'logical-interface': {
@@ -84,7 +86,7 @@ var configJsonModifyObj = {
         'preProcessCB': {
             'applyOnOldJSON': modifyConfigDataByAttrHref,
         },
-        'optFields': ['virtual_machine_interface_refs'],
+        'optFields': ['virtual_machine_interface_refs', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'global-system-config': {
@@ -104,23 +106,23 @@ var configJsonModifyObj = {
         'isConfig': true,
         'optFields': ['service_appliance_ip_address',
             'service_appliance_user_credentials',
-            'service_appliance_properties', 'physical_interface_refs'],
+            'service_appliance_properties', 'physical_interface_refs', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'service-appliance-set': {
         'isConfig': true,
         'optFields': ['service_appliance_ha_mode', 'service_appliance_driver',
-            'service_appliance_set_properties'],
+            'service_appliance_set_properties', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'route-table': {
         'isConfig': true,
-        'optFields': ['routes'],
+        'optFields': ['routes', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'interface-route-table': {
         'isConfig': true,
-        'optFields': ['interface_route_table_routes'],
+        'optFields': ['interface_route_table_routes', 'perms2'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'physical-topology': {

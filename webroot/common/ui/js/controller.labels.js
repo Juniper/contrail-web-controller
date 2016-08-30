@@ -651,6 +651,9 @@ define([
         this.TITLE_DEL_LLS = 'Delete Link Local Service';
         this.TITLE_EDIT_LLS = 'Edit Link Local Service';
         this.LINK_LOCAL_SERVICE_DETAILS = 'Link Local Service Details';
+        
+        this.EDIT = "Edit";
+        this.CREATE = "Create";
 
         /* RBAC labels */
         this.TITLE_RBAC = 'API Access';
