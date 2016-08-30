@@ -74,6 +74,12 @@ define([
                            field:"ip_addr",
                            name:"IP Address",
                            minWidth:100,
+                           exportConfig: {
+                               allow: true,
+                               advFormatter: function(d) {
+                                   return d['ip_addr'];
+                               }
+                           },
                            formatter:function(r,c,v,cd,dc) {
                                var ipColumnContent = '',breakStmt = false;
                                if(dc['ip_addr'] != '0.0.0.0') {
@@ -101,6 +107,12 @@ define([
                            //template:cellTemplate({cellText:'#= disp_vm_name #', name:'instance', tooltip:true}),
                            formatter:function(r,c,v,cd,dc) {
                               return cellTemplateLinks({cellText:'disp_vm_name',name:'name',rowData:dc});
+                           },
+                           exportConfig: {
+                               allow: true,
+                               advFormatter: function(d) {
+                                   return d['disp_vm_name'];
+                               }
                            },
                            events: {
                               onClick: function(e,dc) {
