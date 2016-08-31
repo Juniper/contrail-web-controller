@@ -271,6 +271,14 @@ and need to add the iconClass tag wherever we need to show some icons
                     <label>Alarms</label>
                     <hash>mon_alarms</hash>
                     <iconClass>icon-bell-alt</iconClass>
+                    <access>
+                        <roles>
+                            <role>cloudAdmin</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                        </orchModels>
+                    </access>
                     <resources>
                         <resource>
                             <rootDir>.</rootDir>
@@ -460,7 +468,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <hash>config_pd</hash>
                     <access>
                         <roles>
-                            <role>member</role>
+                            <role>cloudAdmin</role>
                         </roles>
                         <orchModels>
                             <model>openstack</model>
