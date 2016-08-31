@@ -14,9 +14,9 @@ define([
     'monitor-infra-parsers',
     'controller-init'
 ], function (MonitorInfraTmpls, MonitorInfraUtils, MonitorInfraConstants, MonitorInfraParsers) {
+    $("body").append(MonitorInfraTmpls);
+
     monitorInfraConstants = new MonitorInfraConstants;
     monitorInfraUtils = new MonitorInfraUtils;
     monitorInfraParsers = new MonitorInfraParsers;
-    
-    $("body").append(MonitorInfraTmpls);
 });
