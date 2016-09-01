@@ -201,17 +201,21 @@ define([
                     var fixedIPobj = fixedipList[i];
                     var fixedIP_obj = {};
                     fixedIP_obj.subnetDataSource = [];
-                    var val = JSON.stringify(
-                              {"subnet_uuid":fixedIPobj.fixedip.subnet_uuid});
-                    fixedIP_obj.subnetDataSource.push({'text':'',
-                                        'value':val})
-                    fixedIP_obj.fixedIp = fixedIPobj.fixedip.ip;
-                    fixedIP_obj.subnet_uuid = fixedIPobj.fixedip.subnet_uuid;
-                    fixedIP_obj.uuid = fixedIPobj.uuid;
-                    fixedIP_obj.disableFIP = true;
-                    fixedIP_obj.visibleSubnet = false;
-                    var fixedIPModel = new FixedIPModel(fixedIP_obj);
-                    fixedIPModels.push(fixedIPModel);
+                    var fixedIP = getValueByJsonPath(fixedIPobj,
+                        "fixedip", null, false);
+                    if(fixedIP !== null) {
+                        var val = JSON.stringify(
+                                  {"subnet_uuid":fixedIP.subnet_uuid});
+                        fixedIP_obj.subnetDataSource.push({'text':'',
+                                            'value':val})
+                        fixedIP_obj.fixedIp = fixedIP.ip;
+                        fixedIP_obj.subnet_uuid = fixedIP.subnet_uuid;
+                        fixedIP_obj.uuid = fixedIPobj.uuid;
+                        fixedIP_obj.disableFIP = true;
+                        fixedIP_obj.visibleSubnet = false;
+                        var fixedIPModel = new FixedIPModel(fixedIP_obj);
+                        fixedIPModels.push(fixedIPModel);
+                    }
                 }
             }
             var fixedIPCollectionModel = new Backbone.Collection(fixedIPModels);

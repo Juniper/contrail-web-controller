@@ -66,7 +66,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.TITLE_RBAC
+                    text: ctwl.TITLE_GLOBAL_RBAC
                 },
                 advanceControls: getHeaderActionConfig(viewConfig)
             },
