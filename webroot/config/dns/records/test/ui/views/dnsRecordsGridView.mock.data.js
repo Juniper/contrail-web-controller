@@ -17,7 +17,7 @@
          },
          dnsServerListMockData : [
            {
-             "to": [
+             "fq_name": [
                "default-domain",
                "s1"
              ],
