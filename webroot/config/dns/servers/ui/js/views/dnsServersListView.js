@@ -17,7 +17,7 @@ define(
                             url: ctwc.URL_GET_CONFIG_DETAILS,
                             type: "POST",
                             data: JSON.stringify({data: [{type: "virtual-DNSs",
-                            parent_id: domainUUID, fields: ["network_ipam_back_refs"]}]})
+                            /*parent_id: domainUUID,*/ fields: ["network_ipam_back_refs"]}]})
                         },
                         dataParser: self.dnsServerDataParser
                     }

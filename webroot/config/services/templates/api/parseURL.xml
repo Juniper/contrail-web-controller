@@ -21,7 +21,7 @@
                                                  listServiceTemplateImages
     -->
     <item>
-        <url>/api/tenants/config/service-templates/:id</url>
+        <url>/api/tenants/config/service-templates</url>
         <method>get</method>
         <feature>stconfig</feature>
         <callback>stconfigapi.listServiceTemplates</callback>
