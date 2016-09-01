@@ -335,6 +335,22 @@ and need to add the iconClass tag wherever we need to show some icons
                                     </item>
                                     -->
                         <item>
+                            <label>RBAC</label>
+                            <hash>config_infra_rbac</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/infra/rbac/ui</rootDir>
+                                    <js>rbac.main.js</js>
+                                    <class>configRBACPageLoader</class>
+                                    <function>renderRBAC</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure RBAC</searchStrings>
+                        </item>
+                        <item>
                             <label>Global Config</label>
                             <hash>config_infra_gblconfig</hash>
                             <resources>
@@ -849,7 +865,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
-                <item>
+                <!--<item>
                     <label>RBAC</label>
                     <access>
                         <roles>
@@ -895,7 +911,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>RBAC Project</searchStrings>
                         </item>
                     </items>
-                </item>
+                </item>-->
                 <item>
                     <label>Alarms</label>
                     <access>
