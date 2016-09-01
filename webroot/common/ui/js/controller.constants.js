@@ -771,6 +771,7 @@ define([
         this.URL_GET_SERVICE_TEMPLATE_IMAGES = "/api/tenants/config/service-template-images";
 
         /* common config url constants */
+        this.URL_GET_CONFIG_OBJECTS = "/api/tenants/config/get-config-objects";
         this.URL_GET_CONFIG_DETAILS = "/api/tenants/config/get-config-details";
         this.URL_CREATE_CONFIG_OBJECT = "/api/tenants/config/create-config-object";
         this.URL_UPDATE_CONFIG_OBJECT = "/api/tenants/config/update-config-object";

@@ -17,7 +17,7 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                                 columns: [
                                     {
                                         elementId: "domain",
-                                        view: "FormComboboxView",
+                                        view: "FormDropdownView",
                                         viewConfig: {
                                             disabled: disableId,
                                             path: "domain",
@@ -28,8 +28,9 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                                             class: "col-xs-6",
                                             visible: "showDomain",
                                             elementConfig: {
+                                                defaultValueId : 0,
                                                 placeholder:
-                                                    "Enter or Select Domain FQN",
+                                                    "Select Domain FQN",
                                                 dataTextField: "text",
                                                 dataValueField: "value",
                                                 dataSource: {
@@ -43,7 +44,7 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                                     },
                                     {
                                         elementId: "project",
-                                        view: "FormComboboxView",
+                                        view: "FormDropdownView",
                                         viewConfig: {
                                             disabled: disableId,
                                             path: "project",
@@ -54,8 +55,9 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                                             class: "col-xs-6",
                                             visible: "showProject",
                                             elementConfig: {
+                                                defaultValueId : 0,
                                                 placeholder:
-                                                    "Enter or Select Project FQN",
+                                                    "Select Project FQN",
                                                 dataTextField: "text",
                                                 dataValueField: "value",
                                                 dataSource: {

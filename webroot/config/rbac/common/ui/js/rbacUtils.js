@@ -135,9 +135,14 @@
              var configData = getValueByJsonPath(options,
                      "configData", []), actConfigData = {};
              if(options.isDomain === true) {
-                 var domain = attr.domain;
+                 var domain = attr.domain, domainValue, domainName, domainId;
                  for(var i = 0; i < configData.length; i++) {
-                     if(configData[i]["api-access-list"].fq_name[0] === domain) {
+                     domainTxt = getValueByJsonPath(configData[i],
+                             "api-access-list;fq_name;0", {}, false),
+                     domainId = getValueByJsonPath(configData[i],
+                             "api-access-list;parent_uuid", "", false);
+                     domainValue = domainTxt + ":" + domainId;
+                     if(domainValue === domain) {
                          actConfigData = configData[i];
                          break;
                      }
@@ -147,8 +152,10 @@
                  for(var i = 0; i < configData.length; i++) {
                      var apiAccess = getValueByJsonPath(configData[i],
                              "api-access-list", {}, false),
+                         projectId = getValueByJsonPath(configData[i],
+                             "api-access-list;parent_uuid", "", false),
                          fqnId = apiAccess.fq_name[0] + ":" +
-                             apiAccess.fq_name[1];
+                             apiAccess.fq_name[1] + ":" + projectId;
 
                      if(fqnId === project) {
                          actConfigData = configData[i];
@@ -160,7 +167,7 @@
          };
 
          this.configAllRBAC = function(model, callbackObj, options) {
-             var ajaxConfig = {}, ajaxMethod, returnFlag = false,
+             var self = this, ajaxConfig = {}, ajaxMethod, returnFlag = false,
              putData, rbacPostData, gridData, rowsCnt, dataLen, mode,
              defaultAALName = "default-api-access-list",
              rbacRuleObj, attr, uuid,
@@ -180,114 +187,117 @@
              ];
              if (model.isDeepValid(validations)) {
                  attr = model.model().attributes;
-                 /*gridData = getValueByJsonPath(options, "gridData", []);
-                 _.each(gridData, function(row){
-                     delete row.domain;
-                     delete row.project;
-                 });*/
-                 rowIndex = getValueByJsonPath(options, "rowIndex");
-                 mode = getValueByJsonPath(options, "mode", "");
-                 putData = this.getActualConfigData(attr, options);
-                 uuid =
-                     getValueByJsonPath(putData, "api-access-list;uuid",
-                                        null);
-                 rbacRuleObj = {
-                                   rule_object: (attr.rule_object &&
-                                           attr.rule_object.trim()) ?
-                                           attr.rule_object.trim() : "*",
-                                   rule_field:
-                                       (attr.rule_field &&
-                                           attr.rule_field.trim()) ?
-                                           attr.rule_field.trim(): "*",
-                                   rule_perms: model.getRulePerms(attr)
-                               };
-                 if (null == uuid) {
-                     gridData = [];
-                     if(options.isProject) {
-                         parentType = "project";
-                         project = attr.project.split(":");
-                         fqName.push(project[0]);
-                         fqName.push(project[1]);
-                     } else if(options.isGlobal) {
-                         parentType = "global-system-config";
-                         fqName.push("default-global-system-config");
-                     } else if(options.isDomain) {
-                         parentType = "domain";
-                         domain = attr.domain;
-                         fqName.push(domain);
-                     }
-                     fqName.push(defaultAALName);
-                     putData = {};
-                     putData["api-access-list"] = {};
-                     putData["api-access-list"]["parent_type"] = parentType;
-                     putData["api-access-list"]["fq_name"] = fqName;
-                     putData["api-access-list"]["display_name"] =
-                         defaultAALName;
-                     putData["api-access-list"]["api_access_list_entries"] = {};
-                     putData["api-access-list"]["api_access_list_entries"]
-                         ["rbac_rule"] = [];
-                 }
-
-                 if (mode === ctwl.CREATE_ACTION) {
-                     /* Add */
-                     //gridData.push(rbacRuleObj);
-                     putData["api-access-list"]["api_access_list_entries"]
-                         ["rbac_rule"].push(rbacRuleObj);
-                 } else if(mode === ctwl.EDIT_ACTION) {
-                     /* Edit */
-                     /*putData["api-access-list"]["api_access_list_entries"]
-                         ['rbac_rule'] = gridData;*/
-                     putData["api-access-list"]["api_access_list_entries"]
-                         ['rbac_rule'][rowIndex] = rbacRuleObj;
-                } else if(mode === "insert") {
-                     /* Insert a rbac rule next to current row */
-                     //gridData.splice(rowIndex + 1, 0, rbacRuleObj);
-                     putData["api-access-list"]["api_access_list_entries"]
-                     ["rbac_rule"].splice(rowIndex + 1, 0, rbacRuleObj);
-                 }
-                 dataLen =
-                     putData["api-access-list"]["api_access_list_entries"]
-                     ['rbac_rule'].length;
-                 for (var i = 0; i < dataLen; i++) {
-                     ctwu.deleteCGridData(
+                 self.getConfigObject(attr, options, function(){
+                     rowIndex = getValueByJsonPath(options, "rowIndex");
+                     mode = getValueByJsonPath(options, "mode", "");
+                     putData = self.getActualConfigData(attr, options);
+                     uuid =
+                         getValueByJsonPath(putData, "api-access-list;uuid",
+                                            null);
+                     rbacRuleObj = {
+                                       rule_object: (attr.rule_object &&
+                                               attr.rule_object.trim()) ?
+                                               attr.rule_object.trim() : "*",
+                                       rule_field:
+                                           (attr.rule_field &&
+                                               attr.rule_field.trim()) ?
+                                               attr.rule_field.trim(): "*",
+                                       rule_perms: model.getRulePerms(attr)
+                                   };
+                     if (null == uuid) {
+                         gridData = [];
+                         if(options.isProject) {
+                             parentType = "project";
+                             project = attr.project ?
+                                     attr.project.split(":") : [];
+                             if(project.length === 3) {
+                                 fqName.push(project[0]);
+                                 fqName.push(project[1]);
+                             }
+                         } else if(options.isGlobal) {
+                             parentType = "global-system-config";
+                             fqName.push("default-global-system-config");
+                         } else if(options.isDomain) {
+                             parentType = "domain";
+                             domain = attr.domain ? attr.domain.split(":") : [];
+                             if(domain.length === 2) {
+                                 fqName.push(domain[0]);
+                             }
+                         }
+                         fqName.push(defaultAALName);
+                         putData = {};
+                         putData["api-access-list"] = {};
+                         putData["api-access-list"]["parent_type"] = parentType;
+                         putData["api-access-list"]["fq_name"] = fqName;
+                         putData["api-access-list"]["display_name"] =
+                             defaultAALName;
                          putData["api-access-list"]["api_access_list_entries"]
-                             ['rbac_rule'][i]);
-                 }
-                 _.each(putData["api-access-list"]["api_access_list_entries"]
-                         ["rbac_rule"], function(item){
-                     delete item.domain;
-                     delete item.project;
-                     delete item.subIndex;
-                 });
-
-                 if(null == uuid) {
-                     rbacPostData = {"data":[{"data": putData,
-                                 "reqUrl": "/api-access-lists"}]};
-                     ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
-                 } else {
-                     rbacPostData = {"data":[{"data": putData,
-                                 "reqUrl": "/api-access-list/" +
-                                 uuid}]};
-                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
-                 }
-
-                 ajaxConfig.type  = "POST";
-                 ajaxConfig.data  = JSON.stringify(rbacPostData);
-
-                 contrail.ajaxHandler(ajaxConfig, function () {
-                     if (contrail.checkIfFunction(callbackObj.init)) {
-                         callbackObj.init();
+                             = {};
+                         putData["api-access-list"]["api_access_list_entries"]
+                             ["rbac_rule"] = [];
                      }
-                 }, function (response) {
-                     if (contrail.checkIfFunction(callbackObj.success)) {
-                         callbackObj.success();
+
+                     if (mode === ctwl.CREATE_ACTION) {
+                         /* Add */
+                         //gridData.push(rbacRuleObj);
+                         putData["api-access-list"]["api_access_list_entries"]
+                             ["rbac_rule"].push(rbacRuleObj);
+                     } else if(mode === ctwl.EDIT_ACTION) {
+                         /* Edit */
+                         /*putData["api-access-list"]["api_access_list_entries"]
+                             ['rbac_rule'] = gridData;*/
+                         putData["api-access-list"]["api_access_list_entries"]
+                             ['rbac_rule'][rowIndex] = rbacRuleObj;
+                    } else if(mode === "insert") {
+                         /* Insert a rbac rule next to current row */
+                         //gridData.splice(rowIndex + 1, 0, rbacRuleObj);
+                         putData["api-access-list"]["api_access_list_entries"]
+                         ["rbac_rule"].splice(rowIndex + 1, 0, rbacRuleObj);
                      }
-                     returnFlag = true;
-                 }, function (error) {
-                     if (contrail.checkIfFunction(callbackObj.error)) {
-                         callbackObj.error(error);
+                     dataLen =
+                         putData["api-access-list"]["api_access_list_entries"]
+                         ['rbac_rule'].length;
+                     for (var i = 0; i < dataLen; i++) {
+                         ctwu.deleteCGridData(
+                             putData["api-access-list"]["api_access_list_entries"]
+                                 ['rbac_rule'][i]);
                      }
-                     returnFlag = false;
+                     _.each(putData["api-access-list"]["api_access_list_entries"]
+                             ["rbac_rule"], function(item){
+                         delete item.domain;
+                         delete item.project;
+                         delete item.subIndex;
+                     });
+
+                     if(null == uuid) {
+                         rbacPostData = {"data":[{"data": putData,
+                                     "reqUrl": "/api-access-lists"}]};
+                         ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
+                     } else {
+                         rbacPostData = {"data":[{"data": putData,
+                                     "reqUrl": "/api-access-list/" +
+                                     uuid}]};
+                         ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
+                     }
+
+                     ajaxConfig.type  = "POST";
+                     ajaxConfig.data  = JSON.stringify(rbacPostData);
+
+                     contrail.ajaxHandler(ajaxConfig, function () {
+                         if (contrail.checkIfFunction(callbackObj.init)) {
+                             callbackObj.init();
+                         }
+                     }, function (response) {
+                         if (contrail.checkIfFunction(callbackObj.success)) {
+                             callbackObj.success();
+                         }
+                         returnFlag = true;
+                     }, function (error) {
+                         if (contrail.checkIfFunction(callbackObj.error)) {
+                             callbackObj.error(error);
+                         }
+                         returnFlag = false;
+                     });
                  });
              } else {
                  if (contrail.checkIfFunction(callbackObj.error)) {
@@ -296,6 +306,30 @@
                  }
              }
              return returnFlag;
+         };
+
+         this.getConfigObject = function(attr, options, callback) {
+             var domainId, projectId, postObj = {};
+             postObj["data"] = [];
+             if(options.isDomain) {
+                 domainId = attr.domain && attr.domain.split(":").length === 2 ?
+                         attr.domain.split(":")[1] : "";
+                 postObj["data"].push({type: "domain", uuid: domainId})
+             } else if(options.isProject){
+                 projectId = attr.project &&
+                         attr.project.split(":").length === 3 ?
+                         attr.project.split(":")[2] : "";
+                 postObj["data"].push({type: "project", uuid: projectId})
+             }
+             contrail.ajaxHandler({url: ctwc.URL_GET_CONFIG_OBJECTS,
+                 type: "POST", data: JSON.stringify(postObj)}, null,
+                 function(){
+                     callback();
+                 },
+                 function(){
+                     callback();
+                 }
+             );
          };
 
          this.deleteRBAC = function(callbackObj, options) {
@@ -523,27 +557,28 @@
              return {
                  columns: [
                     {
+                        field: "domain",
+                        name: "Domain",
+                        sortable: false,
+                        formatter: rbacFormatters.formatDomain
+                    },
+                    {
                          field: "rule_object",
                          name: "Object.Property",
-                         sortable: true,
+                         sortable: false,
                          formatter: rbacFormatters.objPropFormatter
                      },
                      {
                          field: "role_name",
                          name: "Role",
-                         sortable: true,
+                         sortable: false,
                          formatter: rbacFormatters.roleFormatter
                      },
                      {
                          field: "role_crud",
                          name: "Access",
-                         sortable: true,
+                         sortable: false,
                          formatter: rbacFormatters.accessFormatter
-                     },
-                     {
-                         field: "domain",
-                         name: "Domain",
-                         sortable: true
                      }
                  ]
              };
@@ -554,27 +589,28 @@
              return {
                  columns: [
                     {
+                        field: "project",
+                        name: "Project",
+                        sortable: false,
+                        formatter: rbacFormatters.formatProject
+                    },
+                    {
                          field: "rule_object",
                          name: "Object.Property",
-                         sortable: true,
+                         sortable: false,
                          formatter: rbacFormatters.objPropFormatter
                      },
                      {
                          field: "role_name",
                          name: "Role",
-                         sortable: true,
+                         sortable: false,
                          formatter: rbacFormatters.roleFormatter
                      },
                      {
                          field: "role_crud",
                          name: "Access",
-                         sortable: true,
+                         sortable: false,
                          formatter: rbacFormatters.accessFormatter
-                     },
-                     {
-                         field: "project",
-                         name: "Project",
-                         sortable: true
                      }
                  ]
              };

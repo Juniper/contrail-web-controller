@@ -65,7 +65,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.TITLE_RBAC
+                    text: ctwl.TITLE_PROJECT_RBAC
                 },
                 advanceControls: getHeaderActionConfig(viewConfig)
             },
@@ -139,7 +139,7 @@ define([
                     var gridObj = $(gridElId).data('contrailGrid'),
                         gridData = gridObj._dataView.getItems(),
                         dataItem = gridObj._dataView.getItem(rowIndex),
-                        rbacModel = new RBACModel();
+                        rbacModel = new RBACModel({project: dataItem.project});
                     rbacEditView.model = rbacModel;
                     showHideModelAttrs(rbacModel);
                     rbacEditView.renderAddEditRBAC(

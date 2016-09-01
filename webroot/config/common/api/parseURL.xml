@@ -81,6 +81,12 @@
         <callback>configUtilapi.getConfigList</callback>
     </item>
     <item>
+        <url>/api/tenants/config/get-config-objects</url>
+        <method>post</method>
+        <feature>configUtil</feature>
+        <callback>configUtilapi.getConfigObjects</callback>
+    </item>
+    <item>
         <url>/api/tenants/config/create-config-object</url>
         <method>post</method>
         <feature>configUtil</feature>
