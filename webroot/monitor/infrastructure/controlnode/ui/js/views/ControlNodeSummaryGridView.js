@@ -96,6 +96,13 @@ define(
                        searchFn:function(d) {
                            return monitorInfraUtils.getNodeStatusContentForSummayPages(d,'text');
                        },
+                       exportConfig: {
+                           allow: true,
+                           advFormatter: function(dc) {
+                               return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,
+                                   'text');
+                           }
+                       },
                        sortable:{
                            sortBy: function (d) {
                                return monitorInfraUtils.getNodeStatusContentForSummayPages(d,'text');

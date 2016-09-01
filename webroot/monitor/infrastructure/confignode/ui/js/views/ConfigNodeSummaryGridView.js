@@ -110,8 +110,7 @@ define(
                        exportConfig: {
                            allow: true,
                            advFormatter: function(dc) {
-                               return
-                                   monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'text');
+                               return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'text');
                            }
                        },
                        sortable:{

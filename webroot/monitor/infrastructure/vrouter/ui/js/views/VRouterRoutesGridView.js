@@ -25,7 +25,6 @@ define([
                         cowu.addGridGrouping ('vrouter_routes-results', gridGroupingOpt);
                     });
         },
-
         getViewConfig: function (attributes) {
             var viewConfig = attributes.viewConfig,
                 hostname = viewConfig['hostname'],
@@ -57,6 +56,12 @@ define([
                                     minWidth:200,
                                     formatter:function(r,c,v,cd,dc){
                                         return monitorInfraParsers.getNextHopDetails(dc);
+                                    },
+                                    exportConfig: {
+                                        allow: true,
+                                        advFormatter: function(dc) {
+                                            return $(monitorInfraParsers.getNextHopDetails(dc)).text();
+                                        }
                                     }
                                 }
                             ];
@@ -77,6 +82,12 @@ define([
                                     minWidth:200,
                                     formatter:function(r,c,v,cd,dc){
                                         return monitorInfraParsers.getNextHopDetailsForL2(dc);
+                                    },
+                                    exportConfig: {
+                                        allow: true,
+                                        advFormatter: function(dc) {
+                                            return $(monitorInfraParsers.getNextHopDetails(dc)).text();
+                                        }
                                     }
                                 }
                             ];
@@ -106,6 +117,12 @@ define([
                                     minWidth:200,
                                     formatter:function(r,c,v,cd,dc){
                                         return monitorInfraParsers.getNextHopDetails(dc);
+                                    },
+                                    exportConfig: {
+                                        allow: true,
+                                        advFormatter: function(dc) {
+                                            return $(monitorInfraParsers.getNextHopDetails(dc)).text();
+                                        }
                                     }
                                 }
                             ];
