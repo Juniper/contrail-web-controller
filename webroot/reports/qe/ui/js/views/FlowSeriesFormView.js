@@ -133,7 +133,8 @@ define([
                                 {
                                     elementId: 'time_range', view: "FormDropdownView",
                                     viewConfig: {
-                                        path: 'time_range', dataBindValue: 'time_range', class: "col-xs-3", help: 'reports/qe/flows/flow_series/time_range',
+                                        path: 'time_range', dataBindValue: 'time_range', class: "col-xs-3",
+                                        help: {target: 'modal', content: 'reports/qe/flows/flow_series/time_range'},
                                         elementConfig: {dataTextField: "text", dataValueField: "id", data: cowc.TIMERANGE_DROPDOWN_VALUES}}
                                 },
                                 {
@@ -160,11 +161,15 @@ define([
                             columns: [
                                 {
                                     elementId: 'select', view: "FormTextAreaView",
-                                    viewConfig: {path: 'select', dataBindValue: 'select', class: "col-xs-9", help: 'reports/qe/flows/flow_series/select', editPopupConfig: {
-                                        renderEditFn: function() {
-                                            self.renderSelect({className: cowc.QE_MODAL_CLASS_700});
+                                    viewConfig: {
+                                        path: 'select', dataBindValue: 'select', class: "col-xs-9",
+                                        help: {target: 'modal', content: 'reports/qe/flows/flow_series/select'},
+                                        editPopupConfig: {
+                                            renderEditFn: function() {
+                                                self.renderSelect({className: cowc.QE_MODAL_CLASS_700});
+                                            }
                                         }
-                                    }}
+                                    }
                                 },
                                 {
                                     elementId: 'time-granularity-section',

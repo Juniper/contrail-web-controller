@@ -4,6 +4,7 @@
 
 define([
     'underscore',
+    'contrail-common',
     'controller-constants',
     'controller-labels',
     'controller-utils',
@@ -11,8 +12,9 @@ define([
     'controller-grid-config',
     'controller-graph-config',
     'controller-parsers',
-    'controller-view-config',
-], function (_, Constants, Labels, Utils, Messages, GridConfig, GraphConfig, Parsers, ViewConfig) {
+    'controller-view-config'
+], function (_, Contrail, Constants, Labels, Utils, Messages, GridConfig, GraphConfig, Parsers, ViewConfig) {
+    contrail = new Contrail();
     ctwc = new Constants();
     ctwl = new Labels();
     ctwu = new Utils;
