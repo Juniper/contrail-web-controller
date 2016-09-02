@@ -657,6 +657,9 @@ define([
 
         /* RBAC labels */
         this.TITLE_RBAC = 'API Access';
+        this.TITLE_GLOBAL_RBAC = 'Global API Access';
+        this.TITLE_DOMAIN_RBAC = 'Domain API Access';
+        this.TITLE_PROJECT_RBAC = 'Project API Access';
         this.TITLE_CREATE_RBAC = 'Create API Access';
         this.TITLE_DEL_RBAC = 'Delete API Access';
         this.TITLE_RBAC_MULTI_DELETE =

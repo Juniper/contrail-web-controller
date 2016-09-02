@@ -50,14 +50,21 @@ define([
                     "api-access-list;api_access_list_entries;rbac_rule",
                     [], false),
                     projectFQN = getValueByJsonPath(item,
-                            "api-access-list;fq_name", [], false);
+                            "api-access-list;fq_name", [], false),
+                    projectId = getValueByJsonPath(item,
+                            "api-access-list;parent_uuid", "", false);
                 projectFQN = projectFQN.length === 3 ?
-                        projectFQN[0] + ":" + projectFQN[1] : "";
+                        projectFQN[0] + ":" + projectFQN[1] +
+                        ":" + projectId : "";
                 _.each(tempRules, function(rule, index){
                     rule.project = projectFQN;
                     rule.subIndex = index;
                     rbacRules.push(rule);
                 });
+            });
+            //sort the items by domain name
+            rbacRules = _(rbacRules).sortBy(function(rbacRule){
+                return rbacRule.project;
             });
             return rbacRules;
         },

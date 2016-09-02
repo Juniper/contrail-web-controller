@@ -167,7 +167,7 @@
                    projectDS.push({
                        text:project.fq_name[0] + ":" + project.fq_name[1],
                        value: project.fq_name[0] + ":" +
-                           project.fq_name[1]})
+                           project.fq_name[1] + ":" + project.uuid})
                });
                return projectDS;
            };
@@ -178,9 +178,25 @@
                _.each(domains, function(domain){
                    domainDS.push({
                        text:domain.fq_name[0],
-                       value: domain.fq_name[0]})
+                       value: domain.fq_name[0] + ":" + domain.uuid})
                });
                return domainDS;
+           };
+
+           self.formatDomain = function(r, c, v, cd, dc) {
+               var domain = getValueByJsonPath(dc, "domain", "", false);
+               domain = domain.split(":")[0];
+               return domain;
+           };
+
+           self.formatProject = function(r, c, v, cd, dc) {
+               var project = getValueByJsonPath(dc, "project", "", false),
+                   projArry;
+               projArry = project.split(":");
+               if(projArry.length === 3) {
+                   project = projArry[0] + ":" + projArry[1];
+               }
+               return project;
            };
      };
 
