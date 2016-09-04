@@ -216,13 +216,20 @@ function listDomains (request, response, appData)
             commonUtils.handleJSONResponse(error, response, data);
         });
     } else {
-        getDomainsFromIdentityManager(request, appData, function(error, data) {
-            if (null != error) {
-                commonUtils.handleJSONResponse(error, response, domains);
-                return;
+        var domainObj =
+            commonUtils.getValueByJsonPath(request,
+                                           'session;last_token_used;project;domain',
+                                           null, false);
+        var domains = {};
+        if ((null != domainObj) && (null != domainObj.id)) {
+            domains =
+            {   domains: [{
+                    uuid: commonUtils.convertUUIDToString(domainObj.id),
+                    fq_name: [domainObj.name]
+                }]
             }
-            commonUtils.handleJSONResponse(error, response, data);
-        });
+        }
+        commonUtils.handleJSONResponse(null, response, domains);
     }
 }
 
