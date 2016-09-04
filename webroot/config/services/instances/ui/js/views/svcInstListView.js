@@ -339,6 +339,10 @@ define([
                            null, function() {
                     $(gridElId).data('svcInstTmplts', svcTmplObjsByFqn);
                 });
+            },
+            failureCallback: function(error, contrailListModel) {
+                self.renderView4Config(self.$el, self.contrailListModel,
+                        getSvcInstViewConfig());
             }
         },
         {
