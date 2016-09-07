@@ -63,7 +63,7 @@ define([
                 });
             });
             return actRulePerms;
-        },
+        }/*,
 
         validations: {
             rbacValidations: {
@@ -72,7 +72,7 @@ define([
                     msg : "Object is Required"
                 }
             }
-        }
+        }*/
     });
 
     return rbacRulesModel;

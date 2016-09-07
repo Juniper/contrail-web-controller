@@ -17,8 +17,8 @@ define([
                 remote: {
                     ajaxConfig: {
                         //Change this after Domain Bread Crumb is implemented
-                        url: ctwc.get(ctwc.URL_CFG_SVC_TEMPLATE_DETAILS) + "/" +
-                            viewConfig.domainSelectedValueData.value,
+                        url: ctwc.get(ctwc.URL_CFG_SVC_TEMPLATE_DETAILS)/* + "/" +
+                            viewConfig.domainSelectedValueData.value*/,
                         type: "GET"
                     },
                     dataParser: ctwp.svcTemplateCfgDataParser

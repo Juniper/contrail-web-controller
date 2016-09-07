@@ -45,14 +45,14 @@ if (!module.parent)
  */
 function listServiceTemplates(request, response, appData) 
 {
-    var domainId = null;
+    //var domainId = null;
     var requestParams = url.parse(request.url, true);
 
-    domainId = request.param('id');
+    //domainId = request.param('id');
 
     var svcTmplUrl = '/service-templates?detail=true&' +
-        'fields=service_template_properties,service_instance_back_refs&' +
-        'parent_id=' + domainId;
+        'fields=service_template_properties,service_instance_back_refs&'/* +
+        'parent_id=' + domainId*/;
     configApiServer.apiGet(svcTmplUrl, appData,
         function (error, data) {
         if ((null != error) || (null == data) ||

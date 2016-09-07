@@ -26,6 +26,9 @@ var configUtils      = require(process.mainModule.exports["corePath"] +
                                '/src/serverroot/common/configServer.utils');
 var async            = require('async');
 
+var defaultDomainId = "default",
+    defaultDomainName = "default-domain";
+
 /**
  * Bail out if called directly as "nodejs projectconfig.api.js"
  */
@@ -209,7 +212,10 @@ function listDomains (request, response, appData)
     }
     if (('v2.0' == request.session.authApiVersion) ||
         (null == request.session.authApiVersion)) {
-        isDomainListFromApiServer = true;
+        domains.domains.push({uuid: defaultDomainId,
+            fq_name: [defaultDomainName]});
+        commonUtils.handleJSONResponse(null, response, domains);
+        return;
     }
     if (true == isDomainListFromApiServer) {
         configUtils.getDomainsFromApiServer(appData, function(error, data) {
@@ -222,11 +228,20 @@ function listDomains (request, response, appData)
                                            null, false);
         var domains = {};
         if ((null != domainObj) && (null != domainObj.id)) {
-            domains =
-            {   domains: [{
-                    uuid: commonUtils.convertUUIDToString(domainObj.id),
-                    fq_name: [domainObj.name]
-                }]
+            if(domainObj.id === defaultDomainId) {
+                domains =
+                {   domains: [{
+                        uuid: domainObj.id,
+                        fq_name: [defaultDomainName]
+                    }]
+                }
+            } else {
+                domains =
+                {   domains: [{
+                        uuid: commonUtils.convertUUIDToString(domainObj.id),
+                        fq_name: [domainObj.name]
+                    }]
+                }
             }
         }
         commonUtils.handleJSONResponse(null, response, domains);
