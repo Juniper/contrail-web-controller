@@ -50,7 +50,7 @@
     margin:0 10px 0 10px !important;
 }
 #database-nodes-chart .chartMargin{
-    margin:0 10px -15px 10px !important;
+    margin:0 10px -20px 10px !important;
 }
 #config-nodes-donutchart-one .nvd3-svg{
     margin-left:20%;
@@ -62,3 +62,71 @@
   margin-right: 15px;
 }
 /******VRouter Radio Button Css Ends Here****/
+.percentile {
+    background: #f6f6f6;
+    padding: 8px 0px;
+    color: #787878;
+    font-family: "Open Sans";
+    font-size: 11px;
+    margin-left: 62px;
+    margin-right: 10px;
+    padding: 10px;
+    vertical-align: middle;
+}
+.percentile dl, .percentile dt, .percentile dd {
+    float: left;
+}
+dl.progress-percentage {
+    margin: 0px;
+}
+dl.progress-percentage.green .progress-bar {
+    background-color: #7dc48a;
+}
+dl.progress-percentage.green dd {
+    color: #7dc48a;
+}
+dl.progress-percentage.red .progress-bar {
+    background-color: #e48782;
+}
+dl.progress-percentage.red dd {
+    color: #e48782;
+}
+dl.progress-percentage dd {
+    padding-left: 5px;
+}
+.progress-bar {
+    box-shadow: none;
+}
+.percentile .progress {
+    margin: 0px;
+    width: 43px;
+    height: 12px;
+    border: 1px solid #d5d5d5;
+    border-radius: 0;
+    vertical-align: text-bottom;
+    box-shadow: none;
+    margin-top: 2px;
+}
+.percentile label.generator {
+    font-weight: 600;
+    color: #787878 !important;
+    padding-right: 0px !important;
+    margin: 0px;
+}
+.percentile>label.generator i {
+    font-size: 15px;
+    padding-right: 5px;
+}
+.percentile .value {
+    text-align: right;
+    padding: 0px 5px;
+}
+.percentile .value>span {
+    background: #599ac9;
+    color: white;
+    padding: 1px 10px;
+    margin-left: 5px;
+    font-size: 13px;
+}
+/******Percentile CSS ends here****/
+

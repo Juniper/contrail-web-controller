@@ -58,3 +58,40 @@
         </div>
     </div>
 </script>
+<script type="text/x-handlebars-template" id="percentile-text-view-template">
+<div class="percentile row">
+    <label class="generator"><i class="fa fa-pie-chart"></i>95th Percentile - Messages (per min)</label>
+    <div class="pull-right">
+        <div class="value pull-left" >Count<span>{{{this.percentileMessagesobjVal}}}</span></div>
+        <div class="value pull-left">Size<span>{{{this.percentileSizeobjVal}}}</span></div>
+    </div>
+    </div>
+</div>
+</script>
+<script type="text/x-handlebars-template" id="percentile-bar-view-template">
+  <div class="percentile row">
+    <label class="generator"><i class="fa fa-database"></i> Disk Utilization</label>
+    <div class="pull-right">
+    {{#each this}}
+      <div class="value pull-left" >
+        <div class="value pull-left">{{{this.name}}}</div>
+      {{#IfCompare this.formattedUsedValue 85 operator='>'}}
+      <dl class="progress-percentage red">
+        <dt class="progress">
+          <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{{this.formattedUsedPercentage}}};"> </div>
+        </dt>
+        <dd>{{{this.formattedUsedPercentage}}}</dd>
+      </dl>
+      {{else}}
+       <dl class="progress-percentage green">
+        <dt class="progress">
+          <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{{this.formattedUsedPercentage}}};"> </div>
+        </dt>
+        <dd>{{{this.formattedUsedPercentage}}}</dd>
+      </dl>
+       {{/IfCompare}}
+      </div>
+      {{/each}}
+  </div>
+</div>
+</script>
