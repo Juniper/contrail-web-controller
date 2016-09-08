@@ -695,6 +695,19 @@ define(
 
                 };
 
+                self.percentileAnalyticsNodeSummaryChart = function (chartModel) {
+                    var percentileSizeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(msg_info.bytes);95', '-');
+                    var percentileMessagesobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(msg_info.messages);95', '-');
+                    percentileMessagesobjVal = Math.round(percentileMessagesobjVal);
+                    var parsedData = [];
+                    var formatBytespercentileSizeVal = formatBytes(percentileSizeobjVal);
+                    parsedData.push({
+                        percentileMessagesobjVal: percentileMessagesobjVal,
+                        percentileSizeobjVal: formatBytespercentileSizeVal
+                    });
+                    return parsedData;
+                };
+                
                 this.parseConfigNodeResponseStackedChartData = function (apiStats, colorFn) {
                     var cf = crossfilter(apiStats);
                     var buckets = cowu.bucketizeStats(apiStats, {
