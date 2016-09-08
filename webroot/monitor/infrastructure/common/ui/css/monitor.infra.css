@@ -62,3 +62,36 @@
   margin-right: 15px;
 }
 /******VRouter Radio Button Css Ends Here****/
+/******Percentile CSS starts here****/
+.percentile{
+    background:#f6f6f6;
+    padding:8px 0px;
+    color:#787878;
+    font-family: "Open Sans";
+    font-size:11px;
+    margin-left:62px;
+    margin-right:10px;
+    padding:10px;
+    }
+.percentile:after{clear:both;}
+.percentile label.generator{
+    font-weight:600;
+    vertical-align:text-top;
+    color:#787878 !important;
+    padding-right:0px !important;
+    margin:0px;
+}
+.percentile>label.generator i{
+    font-size:15px;
+    padding-right:5px;
+}
+.percentile .value{
+    text-align:right; padding:0px 5px;
+    }
+.percentile .value>span{
+    background:#599ac9;
+    color:white;
+    padding:1px 10px;
+    margin-left:5px;
+    font-size:13px;}
+/******Percentile CSS ends here****/
