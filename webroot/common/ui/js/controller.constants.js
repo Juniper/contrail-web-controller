@@ -213,8 +213,9 @@ define([
         this.TOP_IN_LAST_MINS = 10;
         this.NUM_DATA_POINTS_FOR_FLOW_SERIES = 120;
         this.LINK_CONNECTOR_STRING = " --- ";
-
-
+        //percentile constants
+        this.PERCENTILE_TEXT_VIEW_TEMPLATE = "percentile-text-view-template";
+        this.PERCENTILE_BAR_VIEW_TEMPLATE = "percentile-bar-view-template";
         // Config DB constants
         this.TMPL_CDB_ITEM_DELETE = "cdb-delete-item-template";
         this.DELETE_KEY_TYPE = "delete-key";

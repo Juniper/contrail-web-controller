@@ -11,9 +11,12 @@ define(['underscore', 'contrail-view',
         render : function (){
             var self = this,
                 anlyticsTemplate = contrail.getTemplate4Id(cowc.TMPL_4COLUMN__2ROW_CONTENT_VIEW),
+                percentileWrapperTemplate = contrail.getTemplate4Id(
+                        cowc.TMPL_1COLUMN__1ROW_CONTENT_VIEW),
                 databaseNodeList = [];
 
-            self.$el.html(anlyticsTemplate);
+            self.$el.append(anlyticsTemplate);
+            self.$el.append(percentileWrapperTemplate({cssClass: 'percentileWrapper col-xs-6 col-xs-offset-6'}));
             if (self.model != null) {
                 var callBackExecuted = false;
                 // Data loaded from cache
@@ -46,6 +49,7 @@ define(['underscore', 'contrail-view',
                             toprightCoulmn = self.$el.find(".top-container .right-column"),
                             bottomleftColumn = self.$el.find(".bottom-container .left-column"),
                             bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
+                            bottomRow = self.$el.find(".percentileWrapper"),
                             dbCPUMemModel = new DatabaseNodeCPUMemModel(),
                             dbUsageModel = new DatabaseUsageModel(),
                             colorMap = monitorInfraUtils.constructNodeColorMap(databaseNodeList);
@@ -61,6 +65,8 @@ define(['underscore', 'contrail-view',
 
                         self.renderView4Config(toprightCoulmn,  dbUsageModel,
                                 getDBPendingCompactionsViewConfig(colorMap));
+
+                        self.renderView4Config(bottomRow, self.model,getPercentileBarViewConfig());
                     }
                 }
             }
@@ -308,6 +314,19 @@ define(['underscore', 'contrail-view',
                }]
            }
        }
+    }
+
+    function getPercentileBarViewConfig() {
+        return {
+                elementId :ctwl.DATABASENODE_PERCENTILE_BAR_VIEW,
+                title : '',
+                view : "PercentileBarView",
+                viewPathPrefix:
+                    ctwl.DATABASENODE_VIEWPATH_PREFIX,
+                app : cowc.APP_CONTRAIL_CONTROLLER,
+                viewConfig : {
+                }
+        }
     }
 
     function getLegend(data, container, chart, colorMap){
