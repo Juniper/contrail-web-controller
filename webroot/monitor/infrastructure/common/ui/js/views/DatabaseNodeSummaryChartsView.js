@@ -12,14 +12,18 @@ define(['underscore', 'contrail-view',
         render : function (){
             var self = this,
                 anlyticsTemplate = contrail.getTemplate4Id(cowc.TMPL_4COLUMN__2ROW_CONTENT_VIEW),
+                percentileWrapperTemplate = contrail.getTemplate4Id(
+                        cowc.TMPL_1COLUMN__1ROW_CONTENT_VIEW),
                 viewConfig = self.attributes.viewConfig,
                 colorFn = viewConfig['colorFn'];
 
-            self.$el.html(anlyticsTemplate);
+            self.$el.append(anlyticsTemplate);
+            self.$el.append(percentileWrapperTemplate({cssClass: 'percentileWrapper col-xs-6 col-xs-offset-6'}));
             var topleftColumn = self.$el.find(".top-container .left-column"),
             toprightCoulmn = self.$el.find(".top-container .right-column"),
             bottomleftColumn = self.$el.find(".bottom-container .left-column"),
             bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
+            bottomRow = self.$el.find(".percentileWrapper"),
             dbCPUMemModel = new DatabaseNodeCPUMemModel();
             dbUsageModel = new DatabaseUsageModel();
 
@@ -34,6 +38,8 @@ define(['underscore', 'contrail-view',
 
             self.renderView4Config(toprightCoulmn,  dbUsageModel,
                 getDBPendingCompactionsViewConfig(colorFn));
+
+            self.renderView4Config(bottomRow, self.model,getPercentileBarViewConfig());
         }
     });
 
@@ -217,6 +223,19 @@ define(['underscore', 'contrail-view',
                }]
            }
        }
+    }
+
+    function getPercentileBarViewConfig() {
+        return {
+                elementId :ctwl.DATABASENODE_PERCENTILE_BAR_VIEW,
+                title : '',
+                view : "PercentileBarView",
+                viewPathPrefix:
+                    ctwl.DATABASENODE_VIEWPATH_PREFIX,
+                app : cowc.APP_CONTRAIL_CONTROLLER,
+                viewConfig : {
+                }
+        }
     }
 
     function xCPUChartFormatter(xValue, tickCnt) {
