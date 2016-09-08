@@ -277,7 +277,9 @@ define([
                                 return $.ajax({
                                             type:"GET",
                                             url:'/api/tenants/get-project-role?id=' +
-                                                selectedValueData['value']
+                                                selectedValueData['value'] +
+                                                '&project=' +
+                                                selectedValueData['name']
                                         });
                             } else {
                                 var defObj = $.Deferred();
