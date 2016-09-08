@@ -389,6 +389,8 @@ define([
         this.CACHE_ANALYTICSNODE_QUERIES_CHARTS = 'cache-analyticsnode-queries-charts';
         this.CACHE_ANALYTICSNODE_DATABASEREADWRITE_CHARTS = 'cache-analyticsnode-databsereadwrite-charts';
         this.CACHE_DATABASE_USAGE_CHARTS = 'cache-databse-usage-charts';
+        this.ANALYTICS_CHART_PERCENTILE_SECTION_ID = "analytics-chart-percentile-section-id";
+        this.ANALYTICS_CHART_PERCENTILE_TEXT_VIEW = "analytics-chart-percentile-text-view";
         //Config node labels
         this.CONFIGNODE_VIEWPATH_PREFIX = 'monitor/infrastructure/confignode/ui/js/views/';
         this.CONFIGNODE_SUMMARY_PAGE_ID = 'monitor-config-nodes';
