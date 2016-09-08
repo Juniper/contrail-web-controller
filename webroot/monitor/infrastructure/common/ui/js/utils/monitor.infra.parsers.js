@@ -791,6 +791,42 @@ define(
                     }
                     return parsedData;
                 };
+                
+                self.percentileAnalyticsNodeSummaryChart = function (chartModel) {
+                    var cf = crossfilter(chartModel);
+                    var parsedData = [];
+                    var groupDim = cf.dimension(function(d) { return d["name"];});
+                    var percent = "95";
+                    percent = parseInt(percent);
+                    
+                    var totalResMessages = groupDim.group().reduceSum(
+                            function (d) {
+                                return d['SUM(msg_info.messages)'];
+                            });
+                    var totalResSize = groupDim.group().reduceSum(
+                            function (d) {
+                                return d['SUM(msg_info.bytes)'];
+                            });
+                    function calculatePercentile(totalResParam){
+                        var totalResParamArr = totalResParam.top(Infinity);
+                        totalResParamArr = _.sortBy(totalResParamArr, 'value');
+                        var lengthResParam = totalResParamArr.length;
+                        var value = (lengthResParam*percent)/100;
+                        var posResParam = Math.floor(value)-1;
+                        var percentileParamobj = totalResParamArr[posResParam];
+                        var percentileParamobjVal = percentileParamobj['value'];
+                        return Math.round(percentileParamobjVal/120);
+            
+                    };
+                    var percentileMessagesobjVal = calculatePercentile(totalResMessages);
+                    var percentileSizeobjVal = calculatePercentile(totalResSize);
+                    var formatBytespercentileSizeVal = formatBytes(percentileSizeobjVal);
+                    parsedData.push({
+                        percentileMessagesobjVal: percentileMessagesobjVal,
+                        percentileSizeobjVal: formatBytespercentileSizeVal
+                    });
+                    return parsedData;
+                };
 
                 self.parseDatabaseUsageData = function (dbstats, chartViewModel, key) {
                     var cf = crossfilter(dbstats);
