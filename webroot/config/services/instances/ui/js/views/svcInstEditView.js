@@ -123,11 +123,11 @@ define([
                     },
                     {
                         'type': 'route-aggregates'
-                    }/*,
+                    },
                     {
                         'type': 'virtual-networks',
                         'filters': 'is_shared==true'
-                    }*/]}
+                    }]}
                 });
             if ((null != setVNList) && (setVNList.length > 0)) {
                 multArrFlag = true;
