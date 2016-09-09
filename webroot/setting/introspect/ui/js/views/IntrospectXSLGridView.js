@@ -16,7 +16,7 @@ define([
                 xmlData = viewConfig.xmlData;
 
             contrail.ajaxHandler({
-                url: 'xsl/main.xsl',
+                url: 'common/ui/xsl/main.xsl',
                 dataType: 'xml'
             }, function() {
                 self.$el.html('<p class="padding-10-0"><i class="fa fa-spin fa fa-spinner"></i> Loading Results.</p>');

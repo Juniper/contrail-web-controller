@@ -1175,7 +1175,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <label>Flows</label>
                     <iconClass>menu-icon fa fa-exchange</iconClass>
                     <init>/reports/qe/ui/js/qe.init.js</init>
-                    <help>http://www.juniper.net/techpubs/en_US/contrail3.0/topics/task/configuration/monitoring-flow-vnc.html</help>
+                    <help>http://www.opencontrail.org/opencontrail-analytics-query-api/</help>
                     <items>
                         <item>
                             <hash>query_flow_series</hash>

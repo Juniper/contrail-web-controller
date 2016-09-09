@@ -129,8 +129,19 @@ define([
                                         label: 'Active Table',
                                         path: 'table_name',
                                         dataBindValue: 'table_name',
-                                        dataBindOptionList: 'table_name_data_object',
+                                        dataBindOptionList: 'table_name_data_object().data',
                                         class: "col-xs-6",
+                                        disabled: 'table_name_data_object().data.length === 0',
+                                        dataState: {
+                                            fetching: {
+                                                visible: 'table_name_data_object().status === "' + cowc.DATA_REQUEST_STATE_FETCHING + '"',
+                                                text: 'Fetching Data'
+                                            },
+                                            error: {
+                                                visible: 'table_name_data_object().status === "' + cowc.DATA_REQUEST_STATE_ERROR + '"',
+                                                text: 'Error in Fetching Data'
+                                            }
+                                        },
                                         elementConfig: {
                                             defaultValueId: 0, allowClear: false, placeholder: cowl.QE_SELECT_OBJECT_TABLE,
                                             dataTextField: "name", dataValueField: "name",
@@ -230,7 +241,7 @@ define([
                                         label: "Reset",
                                         class: 'display-inline-block margin-0-0-0-15',
                                         elementConfig: {
-                                            onClick: "reset"
+                                            onClick: "function(data, event) { reset(data, event, true, true); }"
                                         }
                                     }
                                 }

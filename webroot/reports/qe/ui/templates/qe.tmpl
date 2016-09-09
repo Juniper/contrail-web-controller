@@ -3,10 +3,14 @@
 <script type="text/x-handlebars-template" id="query-select-popup-template">
     <form id="{{queryPrefix}}-select-popup-form" onsubmit="return false;">
         <div class="row" data-bind="visible: select_data_object().requestState() == cowc.DATA_REQUEST_STATE_FETCHING">
-            <i class="fa fa-spinner fa-spin"></i> Fetching..
+            <div class="col-xs-12">
+                <i class="fa fa-spinner fa-spin"></i> Fetching..
+            </div>
         </div>
         <div class="row" data-bind="visible: select_data_object().requestState() == cowc.DATA_REQUEST_STATE_SUCCESS_EMPTY">
-            <p>Select Fields not found for this table. Please select a valid table name.</p>
+            <div class="col-xs-12">
+                <p>Select Fields not found for this table. Please select a valid table name.</p>
+            </div>
         </div>
         <div class="row" data-bind="visible: select_data_object().requestState() == cowc.DATA_REQUEST_STATE_SUCCESS_NOT_EMPTY">
             <div class="row">

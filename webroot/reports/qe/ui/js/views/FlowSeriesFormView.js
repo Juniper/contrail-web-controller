@@ -279,7 +279,7 @@ define([
                                         label: "Reset",
                                         class: 'display-inline-block margin-0-0-0-15',
                                         elementConfig: {
-                                            onClick: "reset"
+                                            onClick: "function(data, event) {reset(data, event, true, false);}"
                                         }
                                     }
                                 }
