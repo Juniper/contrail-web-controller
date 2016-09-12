@@ -316,10 +316,11 @@ module.exports = function (grunt) {
                         pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/InstanceViewTrafficStatistics.test.js',
                         included: false
                     },
-                    {
-                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/InstanceViewCPUMemory.test.js',
-                        included: false
-                    }
+                    //Commenting out since this chart will be moved to new D3 line bar chart.
+                    // {
+                    //     pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/InstanceViewCPUMemory.test.js',
+                    //     included: false
+                    // }
                 ],
                 preprocessors: {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
