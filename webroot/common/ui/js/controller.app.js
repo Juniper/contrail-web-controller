@@ -100,8 +100,9 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
 
             'controller-init': ctWebDir + '/common/ui/js/controller.init',
             'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
-
-            'monitor-infra-databasenode-cpu-mem-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodeCPUMemChartModel'
+            //Monitor Infra databasenodes
+            'monitor-infra-databasenode-cpu-mem-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodeCPUMemChartModel',
+            'monitor-infra-databasenode-pending-compact-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodePendingCompactionChartModel'
         }
     } else if(env == "prod") {
         return {
@@ -123,7 +124,10 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             //Monitor Infra analytics charts
             'monitor-infra-analytics-sandesh-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeSandeshChartModel',
             'monitor-infra-analytics-queries-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeQueriesModel',
-            'monitor-infra-analytics-database-read-write-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeDatabaseWriteReadModel'
+            'monitor-infra-analytics-database-read-write-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeDatabaseWriteReadModel',
+            //Monitor Infra databasenodes
+            'monitor-infra-databasenode-cpu-mem-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodeCPUMemChartModel',
+            'monitor-infra-databasenode-pending-compact-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodePendingCompactionChartModel'
         }
     }
 };

@@ -4,8 +4,10 @@
 
 define(['underscore', 'contrail-view',
        'monitor-infra-databasenode-cpu-mem-model',
-       'monitor-infra-analytics-database-usage-model'],
-       function(_, ContrailView, DatabaseNodeCPUMemModel, DatabaseUsageModel){
+       'monitor-infra-analytics-database-usage-model',
+       'monitor-infra-databasenode-pending-compact-model'],
+       function(_, ContrailView, DatabaseNodeCPUMemModel, DatabaseUsageModel,
+    	DatabaseNodePendingCompactionModel){
 
     var DatabaseNodesSummaryChartsView = ContrailView.extend({
         render : function (){
@@ -48,6 +50,7 @@ define(['underscore', 'contrail-view',
                             bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
                             dbCPUMemModel = new DatabaseNodeCPUMemModel(),
                             dbUsageModel = new DatabaseUsageModel(),
+                            dbPendingCompaction = new DatabaseNodePendingCompactionModel();
                             colorMap = monitorInfraUtils.constructNodeColorMap(databaseNodeList);
 
                         self.renderView4Config(topleftColumn,  dbCPUMemModel,
@@ -59,7 +62,7 @@ define(['underscore', 'contrail-view',
                         self.renderView4Config(bottomrightCoulmn,  dbUsageModel,
                                 getDBDiskSpaceUsageViewConfig(colorMap));
 
-                        self.renderView4Config(toprightCoulmn,  dbUsageModel,
+                        self.renderView4Config(toprightCoulmn,  dbPendingCompaction,
                                 getDBPendingCompactionsViewConfig(colorMap));
                     }
                 }
@@ -166,12 +169,12 @@ define(['underscore', 'contrail-view',
 
     function getDBDiskSpaceUsageViewConfig(colorMap){
         return {
-            elementId : ctwl.DATABASENODE_MEM_SHARE_LINE_CHART_SEC_ID,
+            elementId : ctwl.DATABASENODE_DISK_SPACE_USAGE_LINE_CHART_SEC_ID,
             view : "SectionView",
             viewConfig : {
                 rows : [{
                     columns : [{
-                        elementId : ctwl.DATABASENODE_MEM_SHARE_LINE_CHART_ID,
+                        elementId : ctwl.DATABASENODE_DISK_SPACE_USAGE_LINE_CHART_ID,
                         view : "LineWithFocusChartView",
                         viewConfig: {
                             class: 'mon-infra-chart chartMargin',
@@ -214,12 +217,12 @@ define(['underscore', 'contrail-view',
 
     function getDBPendingCompactionsViewConfig(colorMap){
         return {
-            elementId : ctwl.DATABASENODE_DISK_SPACE_USAGE_SCATTER_CHART_SEC_ID,
+            elementId : ctwl.DATABASENODE_PENDING_COMPACTION_SCATTER_CHART_SEC_ID,
             view : "SectionView",
             viewConfig : {
                 rows : [{
                     columns : [ {
-                        elementId : ctwl.DATABASENODE_DISK_SPACE_USAGE_SCATTER_CHART_ID,
+                        elementId : ctwl.DATABASENODE_PENDING_COMPACTION_SCATTER_CHART_ID,
                         view : "StackedBarChartWithFocusView",
                         viewConfig : {
                             class: 'mon-infra-chart chartMargin',
@@ -257,8 +260,8 @@ define(['underscore', 'contrail-view',
                                                 label: 'Time',
                                                 value: time
                                             },{
-                                                label: 'Disk Space Usage',
-                                                value: formatBytes(ifNull(data['perNodeDBUsage'], 0))
+                                                label: 'Compact Task Data',
+                                                value: formatBytes(ifNull(data['compTaskData'], 0))
                                             }]
                                         };
                                     }
@@ -300,8 +303,8 @@ define(['underscore', 'contrail-view',
                                 }
                             },
                             parseFn: function (response, chartViewModel) {
-                                return monitorInfraParsers.parseDatabaseUsageData(response,
-                                    chartViewModel, 'database_usage.disk_space_used_1k');
+                                return monitorInfraParsers.getDBNodePendingCompactions(response,
+                                		chartViewModel, 'name', 'T=', 'MAX(cassandra_compaction_task.pending_compaction_tasks)');
                             }
                        }
                    }]
