@@ -18,7 +18,7 @@ define([
               "from_time_utc": Date.now() - (2 * 60 * 60 * 1000),
               "to_time": Date.now(),
               "to_time_utc": Date.now(),
-              "select": "Source, T, MAX(database_usage.analytics_db_size_1k)",
+              "select": "Source, T, MAX(database_usage.analytics_db_size_1k), database_usage.disk_space_used_1k",
               "time_granularity_unit": "secs",
               "limit": "150000"
             },
@@ -36,6 +36,8 @@ define([
                     $.each(stats, function(idx, obj) {
                         obj['MAX(database_usage.analytics_db_size_1k)'] =
                             ifNull(obj['MAX(database_usage.analytics_db_size_1k)'],0) * 1024; //Converting KB to Bytes
+                        obj['database_usage.disk_space_used_1k'] =
+                            ifNull(obj['database_usage.disk_space_used_1k'],0) * 1024; //Converting KB to Bytes
                     });
                     listModel.queryJSON = response['queryJSON'];
                     return stats;

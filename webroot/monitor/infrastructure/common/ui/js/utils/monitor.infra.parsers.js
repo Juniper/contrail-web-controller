@@ -2432,6 +2432,65 @@ define(
 
                     return parsedData;
                 };
+
+                self.getDBNodePendingCompactions = function(response, chartViewModel, grpKey, timeKey, dataKey){
+                	var cf = crossfilter(response),
+	                	parsedData = [],
+	                	groupDim = cf.dimension(function(d) { return d[grpKey];}),
+	                	colorCodes = monitorInfraUtils.getMonitorInfraNodeColors(groupDim.group().all().length),
+	                	buckets = monitorInfraParsers.bucketizeConfigNodeStats(response, null, null, chartViewModel.queryJSON, timeKey),
+	                	tsDim = cf.dimension(function(d) { return d[timeKey];}),
+	                	reqCntData = null,
+	                	i = null,
+	                	timestampExtent = null,
+	                	y0 = 0, 
+	                	counts = [],
+	                	compTaskData = null,
+	                	compTaskDataArr = [],
+	                	arrLen = 0,
+	                	j = 0,
+	                	totalCnt = 0,
+	                	compTaskDataMap = {};
+	
+	                for(i  in buckets){
+	                	y0 = 0;
+	                	timestampExtent = buckets[i]['timestampExtent'];
+	                	tsDim.filter(timestampExtent);
+	                	counts = [];
+	                	reqCntData = groupDim.group().all();
+	                	compTaskData = groupDim.group().reduceSum(
+	                		function (d) {
+	                			return d[dataKey];
+	                    });
+	                	compTaskDataArr = compTaskData.top(Infinity);
+	                	arrLen = compTaskDataArr.length;
+	                	totalCnt = 0;
+	                    for (j = 0; j < arrLen; j++) {
+	                    	totalCnt += compTaskDataArr[j]['value'];
+	                    	compTaskDataMap[compTaskDataArr[j]['key']] =
+	                    		compTaskDataArr[j]['value'];
+	                    }
+	                    for(j = 0; j < arrLen; j++) {
+	                        counts.push({
+	                            name: reqCntData[j]['key'],
+	                            color: colorCodes[j],
+	                            nodeReqCnt: reqCntData[j]['value'],
+	                            compTaskData: compTaskDataMap[reqCntData[j]['key']],
+	                            time: contrail.format('{0}', new XDate((timestampExtent[0]/1000)).toString('HH:mm')),
+	                            y0:y0,
+	                            y1:y0 += compTaskDataMap[reqCntData[j]['key']]
+	                        });
+	                    }
+	                    parsedData.push({
+	                        colorCodes: colorCodes,
+	                        counts: counts,
+	                        total: totalCnt,
+	                        timestampExtent: timestampExtent,
+	                        date: new Date(i / 1000)
+	                    });
+	                }
+	            	return parsedData;
+                };
             };
 
             return MonInfraParsers;
