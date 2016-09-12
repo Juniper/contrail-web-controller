@@ -630,8 +630,10 @@ define([
         this.DATABASENODE_CPU_SHARE_LINE_CHART_ID = 'database-nodes-cpu-line-chart';
         this.DATABASENODE_MEM_SHARE_LINE_CHART_SEC_ID = 'database-nodes-mem-line-chart-section';
         this.DATABASENODE_MEM_SHARE_LINE_CHART_ID = 'database-nodes-mem-line-chart';
-        this.DATABASENODE_DISK_SPACE_USAGE_SCATTER_CHART_SEC_ID = 'database-nodes-disk-sapce-scatter-chart-section';
-        this.DATABASENODE_DISK_SPACE_USAGE_SCATTER_CHART_ID = 'database-nodes-disk-sapce-scatter-chart';
+        this.DATABASENODE_DISK_SPACE_USAGE_LINE_CHART_SEC_ID = 'database-nodes-disk-space-usage-line-chart-section';
+        this.DATABASENODE_DISK_SPACE_USAGE_LINE_CHART_ID = 'database-nodes-disk-space-usage-line-chart';
+        this.DATABASENODE_PENDING_COMPACTION_SCATTER_CHART_SEC_ID = 'database-nodes-pending-compaction-scatter-chart-section';
+        this.DATABASENODE_PENDING_COMPACTION_SCATTER_CHART_ID = 'database-nodes-pending-compaction-scatter-chart';
 
         //Analytics node labels
         this.ANALYTICSNODE_VIEWPATH_PREFIX =
