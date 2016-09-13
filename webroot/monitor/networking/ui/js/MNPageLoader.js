@@ -64,10 +64,6 @@ define([
                     }
                     break;
 
-                case 'renderInterfaces':
-                    this.mnView.renderInterfaceList({hashParams: hashParams});
-                    break;
-
                 case 'renderFlows':
                     if (hashParams.view == "list") {
                         this.mnView.renderFlowList({hashParams: hashParams});
@@ -88,8 +84,6 @@ define([
                     renderFn = "renderProjects"
                 } else if (currPageQueryStr.type == "instance"){
                     renderFn = "renderInstances"
-                } else if (currPageQueryStr.type == "interface"){
-                    renderFn = "renderInterfaces"
                 } else if (currPageQueryStr.type == "flow"){
                     renderFn = "renderFlows"
                 }

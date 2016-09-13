@@ -159,10 +159,8 @@ define([
 
         this.UCID_ALL_VN_LIST = this.UCID_PREFIX_MN_LISTS + "all-virtual-networks";
         this.UCID_ALL_VM_LIST = this.UCID_PREFIX_MN_LISTS + "all-virtual-machines";
-        this.UCID_COOKIE_DOMAIN_VN_LIST = this.UCID_PREFIX_MN_LISTS +
-            this.COOKIE_DOMAIN + ":virtual-networks";
-        this.UCID_COOKIE_DOMAIN_PROJECT_LIST = this.UCID_PREFIX_MN_LISTS +
-            this.COOKIE_DOMAIN + ":projects";
+        this.UCID_COOKIE_DOMAIN_VN_LIST = this.UCID_PREFIX_MN_LISTS + this.COOKIE_DOMAIN + ":virtual-networks";
+        this.UCID_COOKIE_DOMAIN_PROJECT_LIST = this.UCID_PREFIX_MN_LISTS + this.COOKIE_DOMAIN + ":projects";
 
         this.UCID_BC_ALL_DOMAINS = this.UCID_PREFIX_BREADCRUMB + ':all-domains';
         this.UCID_BC_ALL_SA_SETS = this.UCID_PREFIX_BREADCRUMB + ':all-sa-sets';
