@@ -422,15 +422,14 @@ function readVirtualDNSRecords(vdnRecordsObj, callback) {
 }
 
 function listVirtualDNSs(req, res, appData) {
-    var domain = req.param('id');
-    var dnsUrl = '/domain/' + domain;
+    var dnsUrl = '/virtual-DNSs';
     configApiServer.apiGet(dnsUrl, appData, function(err, data) {
         if ((null != err) || (null == data)) {
             commonUtils.handleJSONResponse(err, res, data);
             return;
         }
         var vdnsList = commonUtils.getValueByJsonPath(data,
-            'domain;virtual_DNSs', []);
+            'virtual-DNSs', []);
         commonUtils.handleJSONResponse(null, res, vdnsList);
     });
 }
