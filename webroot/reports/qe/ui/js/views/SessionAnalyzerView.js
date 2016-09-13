@@ -135,8 +135,11 @@ define([
                                 top: false,
                                 right: {
                                     custom: {
-                                        filterChart: {
+                                        filterY: {
                                             enable: true,
+                                            iconClass: 'fa fa-filter',
+                                            title: 'Filter',
+                                            events: cowu.getFilterEvent(),
                                             viewConfig: getLineChartFilterConfig(queryId, aggregateSelectFields, saResultChartId)
                                         }
                                     }
@@ -344,6 +347,7 @@ define([
 
     function getLineChartFilterConfig(queryId, aggregateSelectFields, saLineChartId) {
         var filterConfig = {
+            groupType: '1-cols',
             groups: [
                 {
                     id: 'by-node-color-sa-' + queryId,
