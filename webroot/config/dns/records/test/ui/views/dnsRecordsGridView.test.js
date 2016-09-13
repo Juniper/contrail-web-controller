@@ -24,7 +24,7 @@ define([
             body: JSON.stringify(TestMockdata.dnsRecordsDomainMockData)
         }));
         responses.push(cotr.createFakeServerResponse({
-            url : /\/api\/tenants\/config\/list-virtual-DNSs\/07fbaa4b-c7b8-4f3d-996e-9d8b1830b288.*$/,
+            url : /\/api\/tenants\/config\/list-virtual-DNSs.*$/,
             body: JSON.stringify(TestMockdata.dnsServerListMockData)
         }));
         responses.push(cotr.createFakeServerResponse({
