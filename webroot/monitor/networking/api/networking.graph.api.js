@@ -829,8 +829,10 @@ function getNetworkConnectedGraph(req, res, appData) {
 
 function processNetworkConnectedGraph(fqName, networkData, appData, callback) {
     var resultJSON = [], vnFound = true,
-        configVN = networkData[2]['virtual-networks'],
-        configSI = networkData[3]['service-instances'];
+        configVN = commonUtils.getValueByJsonPath(networkData,
+                '2;virtual-networks', []),
+        configSI = commonUtils.getValueByJsonPath(networkData,
+                '3;service-instances', []);
 
     try {
         var vnUVE = networkData[0]['value'],
@@ -918,8 +920,10 @@ function getProjectConnectedGraph(req, res, appData) {
 
 function processProjectConnectedGraph(fqName, projectData, appData, callback) {
     var resultJSON = [], vnFound = true,
-        configVN = projectData[2]['virtual-networks'],
-        configSI = projectData[3]['service-instances'];
+        configVN = commonUtils.getValueByJsonPath(projectData,
+                '2;virtual-networks', []),
+        configSI = commonUtils.getValueByJsonPath(projectData,
+                '3;service-instances',[]);
 
     try {
         var vnUVE = projectData[0]['value'];
