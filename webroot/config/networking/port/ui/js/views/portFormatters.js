@@ -150,7 +150,11 @@ define([
                     if(instanceIP != "") {
                         instanceIP += "<br>";
                     }
-                    instanceIP += instIP[i]["fixedip"]["ip"];
+                    var ip = getValueByJsonPath(instIP[i],
+                        "fixedip;ip", null, false);
+                    if(ip !== null) {
+                        instanceIP += ip;
+                    }
                 }
 
             } else {
