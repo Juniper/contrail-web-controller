@@ -19,6 +19,7 @@ define(
                         colorFn = nodeColorMapping.getNodeColorMap;
                     this.renderView4Config(this.$el, controlNodeListModel,
                             getControlNodeListViewConfig(colorFn));
+                    cowu.addPageRefresh(this);
                 }
             });
 

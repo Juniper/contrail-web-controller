@@ -19,6 +19,7 @@ define(
                             var self = this;
                             var cfDataSource = new CFDataSource();
                             var vRouterUIListModel = new ContrailListModel({data:[]});
+                            self.models = [vRouterUIListModel];
                             self.cfDataSource = cfDataSource;
                             function onUpdatevRouterListModel() {
                                 cfDataSource.updateData(self.model.getItems());

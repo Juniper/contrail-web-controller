@@ -13,6 +13,8 @@ define(
                 var self = this;
                 var vRouterListModel = new VRouterListModel();
                 self.vRouterListModel = vRouterListModel;
+                //add the same model to models for use by refresh
+                self.models = [vRouterListModel];
                 //ListModel that is kept in sync with crossFilter
                 var vRouterUIListModel = new ContrailListModel({data:[]});
                 var cfDataSource = new CFDataSource();
@@ -96,6 +98,7 @@ define(
                             onUpdatevRouterListModel();
                         }
                     });
+                cowu.addPageRefresh(this);
             }
         });
 
