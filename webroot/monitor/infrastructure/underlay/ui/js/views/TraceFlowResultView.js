@@ -274,6 +274,9 @@ define([
                                 traceFlowRemoteConfig['dataParser'](response);
                             return parsedResponse['data'] != null ?
                                 parsedResponse['data'] : parsedResponse;
+                        },
+                        successCallback: function() {
+                            $("#applyTraceFlowsFilter").click();
                         }
                     }
                 }
@@ -287,100 +290,66 @@ define([
     };
 
     function getHeaderActionConfig(selectedElement) {
-        var headerActionConfig = [
-              {
-                  type: 'checked-multiselect',
-                  iconClass: 'fa fa-filter',
-                  placeholder: 'Filter Flows',
-                  elementConfig: {
-                      elementId: 'traceflowsFilterMultiselect',
-                      dataTextField: 'text',
-                      dataValueField: 'id',
-                      selectedList: 1,
-                      noneSelectedText: 'Filter Flows',
-                      filterConfig: {
-                          placeholder: 'Search Filter'
-                      },
-                      minWidth: 150,
-                      height: 205,
-                      data: [
-                               {
-                                   id: "filterFlows",
-                                   text:"Filter Flows",
-                                   children: [
-                                       {
-                                           id:"traceable",
-                                           text:"Traceable",
-                                           iconClass:'fa fa-download'
-                                       },{
-                                           id:"untraceable",
-                                           text:"Untraceable",
-                                           iconClass:'fa fa-download'
-                                       }
-                                   ]
-                               }
-                      ],
-                      click: function () {
-                          applyFlowsFilter(selectedElement);
-                      },
-                      optgrouptoggle: applyFlowsFilter,
-                      control: false
-                  }
-              }
-        ];
+        var headerActionConfig = [{
+            "type": "link",
+            "title": 'Show all flows',
+            "linkElementId": "applyTraceFlowsFilter",
+            "iconClass": "fa fa-filter disabled",
+            "onClick": function () {
+                var gridElId = '#'+ctwc.TRACEFLOW_RESULTS_GRID_ID;
+                var applyFilter =
+                    $("#applyTraceFlowsFilter").find('i').hasClass("disabled") ?
+                        true : false;
+                if(true == applyFilter) {
+                    $("#applyTraceFlowsFilter").prop("title", "Show all flows");
+                    $("#applyTraceFlowsFilter").find("i").css("color", "#000");
+                } else {
+                    $("#applyTraceFlowsFilter").prop("title", "Show filtered flows");
+                    $("#applyTraceFlowsFilter").find("i").css("color", "#898989");
+                }
+                $(gridElId).data('contrailGrid')._dataView.setFilterArgs({
+                    applyFilter: applyFilter,
+                    selectedEntity: selectedElement
+                });
+                $(gridElId).data('contrailGrid')._dataView.
+                    setFilter(flowsGridFilter);
+                $("#applyTraceFlowsFilter").find('i').toggleClass("disabled");
+            }
+        }];
         return headerActionConfig;
     }
 
-    function applyFlowsFilter(selectedElement) {
-        var checkedRows = $('#traceflowsFilterMultiselect').data('contrailCheckedMultiselect').getChecked();
-        var gridElId = '#'+ctwc.TRACEFLOW_RESULTS_GRID_ID;
-        $(gridElId).data('contrailGrid')._dataView.setFilterArgs({
-            checkedRows: checkedRows,
-            selectedEntity: selectedElement
-        });
-        $(gridElId).data('contrailGrid')._dataView.setFilter(
-                function (item, args) {
-                    var checkedRows = args.checkedRows,
-                        traceable = false,
-                        untraceable = false,
-                        allKeysExists = true;
-                    $.each(checkedRows, function (checkedRowKey, checkedRowValue) {
-                        var checkedRowValueObj = $.parseJSON(unescape($(checkedRowValue).val()));
-                        if (checkedRowValueObj['value'] == 'traceable') {
-                            traceable = true;
-                        } else if (checkedRowValueObj['value'] == 'untraceable') {
-                            untraceable = true;
-                        }
-                    });
-                    var selectedEntity = args.selectedEntity;
-                    var keysToCheck = ['sourceip', 'destip',
-                           'vrouter_ip', 'other_vrouter_ip', 'sourcevn', 'destvn'];
-                       var excludeNetworks =
-                           ['__UNKNOWN__', 'default-domain:default-project:ip-fabric'];
-                       var srcVN = 'sourcevn', dstVN = 'destvn';
-                       if (selectedEntity == 'vRouter') {
-                           keysToCheck =
-                               ['sip', 'dip','peer_vrouter', 'src_vn', 'dst_vn'];
-                           srcVN = 'src_vn', dstVN = 'dst_vn';
-                       }
-                       var keysToCheckLen = keysToCheck.length;
-                       if ((checkedRows.length == 0) || (traceable == true && untraceable == true)) {
-                           return true;
-                       } else {
-                           for (var i = 0; i < keysToCheckLen; i++) {
-                               if (_.result(item, keysToCheck[i]) == null) {
-                                   allKeysExists = false;
-                               }
-                           }
-                           if (allKeysExists &&
-                               excludeNetworks.indexOf(item[srcVN]) == -1 &&
-                               excludeNetworks.indexOf(item[dstVN]) == -1) {
-                               return (traceable && true);
-                           } else {
-                               return (untraceable || false);
-                           }
-                       }
-                });
+    function flowsGridFilter(item, args) {
+        var applyFilter = args.applyFilter;
+        if(applyFilter == false)
+            return true;
+        var selectedEntity = args.selectedEntity,
+            excludeNetworks =
+                ['__UNKNOWN__', 'default-domain:default-project:ip-fabric'],
+            keysToCheck = ['sourceip', 'destip', 'vrouter_ip', 'other_vrouter_ip',
+                'sourcevn', 'destvn'],
+            srcVN = 'sourcevn',
+            dstVN = 'destvn',
+            allKeysExists = true;
+            if (selectedEntity == 'vRouter') {
+                keysToCheck =
+                    ['sip', 'dip','peer_vrouter', 'src_vn', 'dst_vn'];
+                srcVN = 'src_vn', dstVN = 'dst_vn';
+            }
+            keysToCheckLen = keysToCheck.length;
+            for (var i = 0; i < keysToCheckLen; i++) {
+                if (_.result(item, keysToCheck[i]) == null) {
+                    allKeysExists = false;
+                    break;
+                }
+            }
+            if (allKeysExists &&
+                excludeNetworks.indexOf(item[srcVN]) == -1 &&
+                excludeNetworks.indexOf(item[dstVN]) == -1) {
+                return true;
+            } else {
+                return false;
+            }
     };
 
     function getSelectedVrouterDetails (traceFlowFormModel) {
@@ -689,19 +658,19 @@ define([
                 graphModel.underlayPathReqObj(postData);
                 graphModel.flowPath().model().set({
                     'nodes': ifNull(response['nodes'], []),
-                    'links': ifNull(response['links'], [])
+                    'edges': ifNull(response['links'], [])
                 },{silent: true});
                 graphModel.flowPath().model().trigger('change:nodes');
                 if (ifNull(response['nodes'], []).length == 0 ||
                     ifNull(response['links'], []).length == 0) {
                 } else {
-                    underlayUtils.addUnderlayFlowInfoToBreadCrumb({
+                    /*underlayUtils.addUnderlayFlowInfoToBreadCrumb({
                         action: postData['action'],
                         sourceip: postData['srcIP'],
                         destip: postData['destIP'],
                         sport: postData['srcPort'],
                         dport: postData['destPort']
-                    });
+                    });*/
                 }
             }
             if(typeof response != 'string')
@@ -714,11 +683,20 @@ define([
                 }
                 return;
             }
+            var postData = graphModel.underlayPathReqObj();
+            var statusMsg = "";
             if(status == 'timeout') {
-                showInfoWindow('Timeout in fetching details','Error');
+                statusMsg = "Timeout";
+                //showInfoWindow('Timeout in fetching details','Error');
             } else if (status != 'success') {
-                showInfoWindow('Error in fetching details','Error');
+                statusMsg = "Error";
+                //showInfoWindow('Error in fetching details','Error');
             }
+            showInfoWindow(
+                statusMsg + " in tracing flow from [" +
+                postData.srcIP + "]:" + postData.srcPort +
+                " to [" + postData.destIP + "]:" +
+                postData.destPort, statusMsg);
         }).always(function () {
             if(deferredObj != null) {
                 deferredObj.resolve(true);

@@ -39,11 +39,11 @@ define(['underscore'], function (_) {
                     nodes[i].chassis_type = nodes[i].node_type;
                 }
             }
-            var links = ifNull(response['links'], []);
+            var edges = ifNull(response['links'], []);
             var modelData = [{
                 id                  : $.now(),
                 nodes               : nodes,
-                links               : links,
+                edges               : edges,
                 uveMissingNodes     : uveMissingNodes,
                 configMissingNodes  : configMissingNodes,
                 rawData             : response

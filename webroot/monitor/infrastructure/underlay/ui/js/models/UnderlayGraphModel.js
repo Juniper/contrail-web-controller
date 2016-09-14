@@ -2,28 +2,22 @@
  * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['underscore', 'backbone', 'contrail-model', 'vis-node-model', 'vis-edge-model'],
+define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
+    'vis-edge-model'],
     function(_, Backbone, ContrailModel, VisNodeModel, VisEdgeModel) {
     var UnderlayGraphModel = ContrailModel.extend({
         defaultConfig : {
-          nodes                 : [],
-          links                 : [],
           nodesCollection       : null,
           edgesCollection       : null,
-          elementMap            : { node: {}, link: {} },
-          tree                  : null,
-          adjacencyList         : null,
-          underlayAdjacencyList : null,
-          connectedElements     : [],
           underlayPathReqObj    : {},
           lastInteracted        : null,
           selectedElement       : new Backbone.Model({
-                                    nodeType: '',
-                                    nodeDetail: {}
+                                    "nodeType": "",
+                                    "nodeDetail": {}
                                     }),
           flowPath              : new Backbone.Model({
-                                    nodes: [],
-                                    links: []
+                                    "nodes": [],
+                                    "edges": []
                                     }),
           topologyChanged       : false
         },
@@ -31,7 +25,7 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model', 'vis-edge-
         formatModelConfig: function (modelConfig) {
             var self = this,
                 modelConfigNodes    = modelConfig["nodes"],
-                modelConfigEdges    = modelConfig["links"],
+                modelConfigEdges    = modelConfig["edges"],
                 nodeModels          = [],
                 edgeModels          = [],
                 bbCollectionNodes   = null,
@@ -50,7 +44,8 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model', 'vis-edge-
                         modelConfigEdge.endpoints.sort().join(","));
                 });
                 if(existingEdge.length == 0)
-                    edgeModels.push(new VisEdgeModel(modelConfigEdge, bbCollectionNodes));
+                    edgeModels.push(new VisEdgeModel(modelConfigEdge,
+                        bbCollectionNodes));
             });
             bbCollectionEdges = new Backbone.Collection(edgeModels);
             self.edgesCollection = bbCollectionEdges;
@@ -63,49 +58,17 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model', 'vis-edge-
 
             var vRouterMap = {};
             $.each(vRouters, function(idx, obj){
-                vRouterMap[obj.attributes.name()] = obj.attributes.model().attributes;
+                vRouterMap[obj.attributes.name()] =
+                obj.attributes.model().attributes;
             });
             modelConfig.vRouterMap = vRouterMap;
 
             var vmMap = {};
             $.each(vms, function(idx, obj){
-                vmMap[obj.attributes.name()] = obj.attributes.model().attributes;
+                vmMap[obj.attributes.name()] =
+                obj.attributes.model().attributes;
             });
             modelConfig.vmMap = vmMap;
-            var firstLevelNodes = [],
-                tmpTree = {},
-                tree = {};
-
-            for(var i=0; i<self.nodesCollection.models.length; i++) {
-                tmpTree[self.nodesCollection.models[i].attributes.name()] =
-                    self.nodesCollection.models[i].attributes;
-            }
-            if(cores.length > 0) {
-               firstLevelNodes = cores;
-               modelConfig.firstLevelNode = "coreswitch";
-            } else {
-               if(spines.length > 0) {
-                   firstLevelNodes = spines;
-                   modelConfig.firstLevelNode = "spine";
-               } else {
-                   if(tors.length > 0) {
-                       firstLevelNodes = tors;
-                       modelConfig.firstLevelNode = "tor";
-                   }
-               }
-            }
-            modelConfig.firstLevelNodes = firstLevelNodes;
-            self.parseTree(firstLevelNodes, tree, tmpTree, 
-                null, self.nodesCollection, self.edgesCollection);
-            var first = tmpTree[Object.keys(tmpTree)[0]];
-            if(null != first && first.hasOwnProperty("name")) {
-                $.each(tmpTree, function (elementKey, elementValue) {
-                    tree[elementKey] = elementValue;
-                });
-            }
-            modelConfig.tree = tree;
-            modelConfig.adjacencyList = self.prepareData('tor', modelConfig.tree);
-            modelConfig.underlayAdjacencyList = modelConfig.adjacencyList;
             return modelConfig;
         },
         addNode: function(nodeConfig) {
@@ -116,7 +79,8 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model', 'vis-edge-
         },
         addEdge: function(edgeConfig) {
             var self = this;
-            var newEdgeModel = new VisEdgeModel(edgeConfig, self.nodesCollection);
+            var newEdgeModel =
+                new VisEdgeModel(edgeConfig, self.nodesCollection);
             self.edgesCollection.add(newEdgeModel);
             return newEdgeModel;
         },
@@ -156,78 +120,113 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model', 'vis-edge-
                 return (node.attributes.chassis_type() == "unknown");
                 });
         },
-        getNode: function(id) {
-            return _.filter(this.nodesCollection.models, function(node) {
-                return (node.attributes.element_id() == id)
+        getNodeByName: function(name) {
+            var self = this,
+                nodesCollection = self.nodesCollection;
+            var nodeModel =
+                _.filter(nodesCollection.models, function(nodeModel) {
+                    return (nodeModel.attributes.name() == name);
                 });
+            if(nodeModel && nodeModel.length == 1) {
+                return nodeModel[0];
+            } else {
+                return null;
+            }
         },
-        getEdge: function(id) {
+        getNodeByElementId: function(id) {
+            var nodeModel =
+                _.filter(this.nodesCollection.models, function(node) {
+                    return (node.attributes.element_id() == id)
+                });
+            if(nodeModel && nodeModel.length == 1) {
+                return nodeModel[0];
+            } else {
+                return null;
+            }
+        },
+        getEdgeByEndpoints: function(endpoint1, endpoint2) {
+            var self = this,
+                edgesCollection = self.edgesCollection;
+            var edgesModel =
+                _.filter(edgesCollection.models, function(edgeModel) {
+                    var fromId = edgeModel.attributes.from(),
+                        toId = edgeModel.attributes.to(),
+                        fromModel = self.getNodeByElementId(fromId),
+                        toModel = self.getNodeByElementId(toId);
+                    if(null == fromModel || null == toModel)
+                        return true;
+                    var from = fromModel.attributes.name(),
+                        to = toModel.attributes.name();
+                    return ((from == endpoint1 && to == endpoint2) ||
+                        (from == endpoint2 && to == endpoint1));
+                });
+            if(edgesModel && edgesModel.length == 1) {
+                return edgesModel[0];
+            } else {
+                return null;
+            }
+        },
+        getEdgeByElementId: function(id) {
+            var edgeModel =
+                _.filter(this.edgesCollection.models, function(edge) {
+                    return (edge.attributes.element_id() == id)
+                });
+            if(edgeModel && edgeModel.length == 1) {
+                return edgeModel[0];
+            } else {
+                return null;
+            }
+        },
+        getUnderlayNodes: function() {
+            return this.getCores().concat(
+                        this.getSpines().concat(
+                            this.getToRs())).concat(
+                                this.getErrorNodes());
+        },
+        getUnderlayEdges: function() {
+            var self = this;
             return _.filter(this.edgesCollection.models, function(edge) {
-                return (edge.attributes.element_id() == id)
-                });
-        },
-        prepareData : function (stopAt, tree) {
-            var treeModel = tree;
-            var adjList = {};
-            for(var prop in treeModel) {
-              if(treeModel.hasOwnProperty(prop)) {
-                  this.prepareDG(prop, treeModel[prop], adjList, stopAt);
-            }
-            }
-            return adjList;
-        },
-
-        prepareDG : function (prop, propObj, adjList, stopAt) {
-            if ( typeof prop === "undefined" || null === prop ||
-                {} === prop || false === prop)
-                return;
-            adjList[prop] = [];
-            if(propObj.hasOwnProperty("children")) {
-                var children = propObj["children"];
-                for(var child in children) {
-                    if(null === stopAt || typeof stopAt === "undefined" ||
-                        (typeof stopAt === "string" &&
-                        stopAt.trim() === "") ||
-                        (typeof stopAt === "string" &&
-                        propObj.chassis_type() !== stopAt)) {
-                        adjList[prop][adjList[prop].length] = child;
-                        this.prepareDG(child, children[child], adjList, stopAt);
-                    }
+                var edge_type = edge.attributes.link_type();
+                if(null == edge_type || typeof edge_type == "undefined") {
+                    var fromNodeModel =
+                        self.getNodeByElementId(edge.attributes.from());
+                    var toNodeModel =
+                        self.getNodeByElementId(edge.attributes.to());
+                    if(null == fromNodeModel || null == toNodeModel)
+                        return false;
+                    var fromNodeType = fromNodeModel.attributes.node_type();
+                    var toNodeType = toNodeModel.attributes.node_type();
+                    edge_type = fromNodeType.split("-")[0][0] +
+                        fromNodeType.split("-")[1][0] + '-' +
+                        toNodeType.split("-")[0][0] +
+                        toNodeType.split("-")[1][0];
                 }
-            }
+                return (edge_type == "pr-pr");
+            });
         },
-
-        parseTree : function (parents, tree, tmpTree, parent, nodesCollection, edgesCollection) {
-            if(null !== parents && false !== parents &&
-                typeof parents === "object" && parents.length > 0) {
-                for(var i=0; i<parents.length; i++) {
-                    var parentAttrs = parents[i].attributes;
-                    if(tmpTree.hasOwnProperty(parentAttrs.name())) {
-                        delete tmpTree[parentAttrs.name()];
-                    }
-                    var parent_chassis_type = parentAttrs.chassis_type();
-                    var children_chassis_type =
-                        this.getChildChassisType(parent_chassis_type);
-                    tree[parentAttrs.name()] = parentAttrs;
-                    tree[parentAttrs.name()].model().set("parent", []);
-                    if($.inArray(parent, 
-                        tree[parentAttrs.name()].model().attributes.parent == -1))
-                        tree[parentAttrs.name()].model().attributes.parent.push(parent);
-                    var children =
-                        this.getChildren(parentAttrs.name(), children_chassis_type,
-                            nodesCollection, edgesCollection);
-
-                    tree[parentAttrs.name()]["children"] = {};
-                    this.parseTree(children,
-                      tree[parentAttrs.name()]["children"],
-                        tmpTree, parentAttrs.name(), nodesCollection, edgesCollection);
-                }
-            }
-            return tree;
+        getParentChassisType : function(child_chassis_type) {
+            child_chassis_type =
+                ifNull(child_chassis_type, "unknown");
+            return {
+                "coreswitch"        : "",
+                "spine"             : "coreswitch",
+                "tor"               : "spine",
+                "virtual-router"    : "tor",
+                "virtual-machine"   : "virtual-router",
+                "unknown"           : ""
+            }[child_chassis_type];
         },
-
         getChildChassisType : function (parent_chassis_type) {
-          switch (parent_chassis_type) {
+            parent_chassis_type =
+                ifNull(parent_chassis_type, "unknown");
+            return {
+                "coreswitch"        : "spine",
+                "spine"             : "tor",
+                "tor"               : "virtual-router",
+                "virtual-router"    : "virtual-machine",
+                "unknown"           : ""
+            }[parent_chassis_type];
+          /*switch (parent_chassis_type) {
               case "coreswitch":
                   return "spine";
                 case "spine":
@@ -238,86 +237,82 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model', 'vis-edge-
                     return "virtual-machine";
                 case "unknown":
                     return "";
-            }
+            }*/
         },
-
-        getChildren : function (parent, child_type, nodesCollection, edgesCollection) {
-            if(null == parent || typeof parent === "undefined" || false == parent ||
-                typeof parent === "object")
-                return [];
-            if(typeof parent === "string" && "" === parent.trim())
-              return [];
-            if(null == child_type || typeof child_type === "undefined" ||
-                false == child_type || typeof child_type === "object")
-                return [];
-            if(typeof child_type === "string" && "" === child_type.trim())
-                return [];
-            parent = parent.trim();
-            child_type = child_type.trim();
-            //var nodes = modelConfigNodes;
-            //var links = modelConfigEdges;
-            //fix
-            var srcPoint = _.filter(edgesCollection.models, function(edge) {
-                return (edge.attributes.endpoints()[0] == parent)
-                });
-            var dstPoint = _.filter(edgesCollection.models, function(edge) {
-                return (edge.attributes.endpoints()[1] == parent)
-                });
-            /*var srcPoint = jsonPath(links,
-                '$[?(@.endpoints[0]=="' + parent + '")]');
-            var dstPoint = jsonPath(links,
-                '$[?(@.endpoints[1]=="' + parent + '")]');*/
-            var children = [], childNodes = [];
-            if(false !== srcPoint && srcPoint.length > 0) {
-                for(var i=0; i<srcPoint.length; i++) {
-                    var sp = srcPoint[i].attributes.endpoints();
-                    //var otherEndNode =
-                        //jsonPath(nodes, '$[?(@.name=="' + sp[1] + '")]');
-                    var otherEndNode = _.filter(nodesCollection.models, function(node) {
-                        return (node.attributes.name() == sp[1])
-                        });
-                    if(false !== otherEndNode && otherEndNode.length == 1 &&
-                        otherEndNode[0].attributes.chassis_type() == child_type) {
-                        children.push(otherEndNode[0].attributes.name());
+        getParentModels: function(nodeModel) {
+            var self = this,
+                nodeChassisType = nodeModel.attributes.chassis_type(),
+                parentChassisType = self.getParentChassisType(nodeChassisType),
+                nodeId = nodeModel.attributes.element_id(),
+                parentNodeModels = [],
+                parentEdgeModels = [];
+            _.each(this.edgesCollection.models, function(edge) {
+                var fromNodeModel =
+                    self.getNodeByElementId(edge.attributes.from()),
+                    toNodeModel =
+                    self.getNodeByElementId(edge.attributes.to());
+                if(null == fromNodeModel || null == toNodeModel)
+                    return false;
+                if(edge.attributes.from() == nodeId) {
+                    if(fromNodeModel.attributes.chassis_type() ==
+                        nodeChassisType &&
+                        toNodeModel.attributes.chassis_type() ==
+                        parentChassisType) {
+                        parentNodeModels.push(toNodeModel);
+                        parentEdgeModels.push(edge);
+                    }
+                } else if(edge.attributes.to() == nodeId) {
+                    if(toNodeModel.attributes.chassis_type() ==
+                        nodeChassisType &&
+                        fromNodeModel.attributes.chassis_type() ==
+                        parentChassisType) {
+                        parentNodeModels.push(fromNodeModel);
+                        parentEdgeModels.push(edge);
                     }
                 }
-            }
-            if(false !== dstPoint && dstPoint.length > 0) {
-                for(var i=0; i<dstPoint.length; i++) {
-                    var sp = dstPoint[i].attributes.endpoints();
-                    //var otherEndNode =
-                    //    jsonPath(nodes, '$[?(@.name=="' + sp[0] + '")]');
-                    var otherEndNode = _.filter(nodesCollection.models, function(node) {
-                        return (node.attributes.name() == sp[0])
-                        });
-                    if(false !== otherEndNode && otherEndNode.length == 1 &&
-                        otherEndNode[0].attributes.chassis_type() == child_type) {
-                        children.push(otherEndNode[0].attributes.name());
+            });
+            return { "nodes": parentNodeModels, "edges": parentEdgeModels };
+        },
+        getChildModels: function(nodeModel) {
+            var self = this,
+                nodeChassisType = nodeModel.attributes.chassis_type(),
+                childChassisType = self.getChildChassisType(nodeChassisType),
+                nodeId = nodeModel.attributes.element_id(),
+                childNodeModels = [],
+                childEdgeModels = [];
+            _.each(this.edgesCollection.models, function(edge) {
+                var fromNodeModel =
+                    self.getNodeByElementId(edge.attributes.from()),
+                    toNodeModel =
+                    self.getNodeByElementId(edge.attributes.to());
+                if(null == fromNodeModel || null == toNodeModel)
+                    return false;
+                if(edge.attributes.from() == nodeId) {
+                    if(fromNodeModel.attributes.chassis_type() ==
+                        nodeChassisType &&
+                        toNodeModel.attributes.chassis_type() ==
+                        childChassisType) {
+                        childNodeModels.push(toNodeModel);
+                        childEdgeModels.push(edge);
+                    }
+                } else if(edge.attributes.to() == nodeId) {
+                    if(toNodeModel.attributes.chassis_type() ==
+                        nodeChassisType &&
+                        fromNodeModel.attributes.chassis_type() ==
+                        childChassisType) {
+                        childNodeModels.push(fromNodeModel);
+                        childEdgeModels.push(edge);
                     }
                 }
-            }
-            children = children.unique();
-            for(var i=0; i<children.length; i++) {
-                //var childNode = jsonPath(nodes,
-                //    '$[?(@.name=="' + children[i] + '")]');
-                var childNode = _.filter(nodesCollection.models, function(node) {
-                    return (node.attributes.name() == children[i])
-                    });
-                if(null !== childNode  && false !== childNode &&
-                    typeof childNode === "object" &&
-                    childNode.length == 1) {
-                    childNode = childNode[0];
-                    childNodes.push(childNode);
-                }
-            }
-            return childNodes;
+            });
+            return { "nodes": childNodeModels, "edges": childEdgeModels };
         },
-
         checkIPInVrouterList: function (data) {
             var vRouterList = this.getVirtualRouters();
             for(var i = 0; i < ifNull(vRouterList,[]).length; i++) {
                 var vRouterData = vRouterList[i];
-                var vRouterIPs = getValueByJsonPath(vRouterData.attributes.model().attributes,
+                var vRouterIPs =
+                getValueByJsonPath(vRouterData.attributes.model().attributes,
                 'more_attributes;VrouterAgent;self_ip_list',[]);
                 if(vRouterIPs.indexOf(data['nodeIP']) > -1) {
                   return true;

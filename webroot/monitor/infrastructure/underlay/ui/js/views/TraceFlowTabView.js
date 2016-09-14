@@ -35,12 +35,38 @@ define([
                                     .append("<div id='"+ctwc.TRACEFLOW_RESULTS_GRID_ID+"'></div>");
                                 $('input[type=radio][name=traceflow_radiobtn_name]')
                                     .on('change',function (e) {
-                                        if(e.srcElement.value == "instance" &&
-                                            vMachinesLen > 0) {
-                                            self.renderTraceFlowResult();
-                                        } else if(e.srcElement.value == "vRouter" &&
-                                            vRouterLen > 0) {
-                                            self.renderTraceFlowResult();
+                                        if(e.srcElement.value == "instance") {
+                                            if(vMachinesLen > 0) {
+                                                self.renderTraceFlowResult();
+                                            } else {
+                                                if($("#" +
+                                                    ctwc.TRACEFLOW_RESULTS_GRID_ID).
+                                                    data('contrailGrid') != null) {
+                                                    $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID
+                                                        + "-header").find('h4').
+                                                        text("No Virtual Machines Found");
+                                                    $("#" +
+                                                    ctwc.TRACEFLOW_RESULTS_GRID_ID).
+                                                    data('contrailGrid').
+                                                    showGridMessage('empty');
+                                                }
+                                            }
+                                        } else if(e.srcElement.value == "vRouter") {
+                                            if(vRouterLen > 0) {
+                                                self.renderTraceFlowResult();
+                                            } else {
+                                                if($("#" +
+                                                    ctwc.TRACEFLOW_RESULTS_GRID_ID).
+                                                    data('contrailGrid') != null) {
+                                                    $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID
+                                                        + "-header").find('h4').
+                                                        text("No Virtual Machines Found");
+                                                    $("#" +
+                                                    ctwc.TRACEFLOW_RESULTS_GRID_ID).
+                                                    data('contrailGrid').
+                                                    showGridMessage('empty');
+                                                }
+                                            }
                                         }
                                     });
                                 Knockback.applyBindings(self.model,
@@ -48,6 +74,8 @@ define([
                                     ctwc.UNDERLAY_TRACEFLOW_TAB_ID));
                                 if(vRouterLen > 0)
                                     self.renderTraceFlowResult();
+                                $("#" + ctwc.UNDERLAY_TRACEFLOW_TAB_ID + "-widget").
+                                    data('widget-action').collapse();
                     });
                     var widgetConfig = viewConfig['widgetConfig'];
                     if (widgetConfig !== null) {
@@ -87,7 +115,7 @@ define([
                                 flowCount = 'No'
                             }
                             vRoutersCombobox.push({
-                                text:contrail.format('{0} ({1}, {2} Flows)',
+                                text:contrail.format('{0} ({1})  {2} Flows',
                                     vRouterData['name'],
                                     getValueByJsonPath(vRouterData,
                                         'more_attributes;VrouterAgent;self_ip_list;0','-'),
@@ -97,7 +125,7 @@ define([
                         });
                     } else {
                         vRoutersCombobox.push({
-                            text: "No virtual routers found",
+                            text: "No Virtual Routers found",
                             id: "no_vrouter_found"
                         });
                     }
@@ -131,7 +159,7 @@ define([
                         });
                     } else {
                         instComboboxData.push({
-                            text: "No virtual machines found",
+                            text: "No Virtual Machines found",
                             id: "no_vm_found"
                         });
                     }

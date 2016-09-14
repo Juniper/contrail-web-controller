@@ -155,20 +155,24 @@
 
 div.vis-network div.vis-navigation div.vis-button{
     background-color:#f9f9f9;
-    background-image:none;
     border: 1px solid #efefef;
     -moz-border-radius: 0px;
     border-radius:0px;
     color: #777;
-    width: 15px;
-    height: 15px;
     font-family: FontAwesome;
     font-size:15px;
     position: absolute;
     z-index: 1;
-    padding:7px 7px;
-    vertical-align:center;
+    padding:8px 10px;
+    vertical-align:middle;
     line-height: normal;
+}
+div.vis-refresh {
+    top: 130px;
+    right: 10px;
+}
+div.vis-refresh:before{
+    content: "\f01e";
 }
 
 div.vis-network div.vis-navigation div.vis-button:hover{
