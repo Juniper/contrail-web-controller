@@ -42,7 +42,6 @@ define([
                 }
             },
             cacheConfig : {
-                ucid: ctwl.CACHE_DATABASE_USAGE_CHARTS
             }
         };
         var listModel = new ContrailListModel(listModelConfig)
