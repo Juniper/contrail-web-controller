@@ -32,13 +32,9 @@
 #config-nodes-linebarchart{
     width:43% !important;
 }
-#analytics-chart-sandesh-stackedbarchart-id .chart-container g.main text.axis-label,
-#analytics-chart-queries-stackedbarchart-id .chart-container g.main text.axis-label,
-#analytics-chart-database-read-stackedbarchart-id .chart-container g.main text.axis-label,
-#analytics-chart-database-write-stackedbarchart-id .chart-container g.main text.axis-label,
-#database-nodes-disk-sapce-scatter-chart .chart-container g.main text.axis-label,
-#database-nodes-cpu-line-chart text.nv-axislabel,
-#database-nodes-mem-line-chart text.nv-axislabel{
+
+.mon-infra-chart .chart-container g.main text.axis-label,
+.mon-infra-chart text.nv-axislabel{
     text-anchor:middle;
     font-weight:600;
     font-size:11px !important;

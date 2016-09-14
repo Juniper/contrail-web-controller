@@ -4,70 +4,40 @@
 
 define(['underscore', 'contrail-view',
        'monitor-infra-databasenode-cpu-mem-model',
-       'monitor-infra-analytics-database-usage-model'],
-       function(_, ContrailView, DatabaseNodeCPUMemModel, DatabaseUsageModel){
+       'monitor-infra-analytics-database-usage-model',
+       'legend-view'],
+       function(_, ContrailView, DatabaseNodeCPUMemModel, DatabaseUsageModel, LegendView){
 
     var DatabaseNodesSummaryChartsView = ContrailView.extend({
         render : function (){
             var self = this,
                 anlyticsTemplate = contrail.getTemplate4Id(cowc.TMPL_4COLUMN__2ROW_CONTENT_VIEW),
-                databaseNodeList = [];
+                viewConfig = self.attributes.viewConfig,
+                colorFn = viewConfig['colorFn'];
 
             self.$el.html(anlyticsTemplate);
-            if (self.model != null) {
-                var callBackExecuted = false;
-                // Data loaded from cache
-                if (self.model.loadedFromCache) {
-                    renderCharts();
-                // Ajax call completed
-                } else if (!self.model.loadedFromCache
-                    && !self.model.isPrimaryRequestInProgress()){
-                    renderCharts();
-                }else {
-                    // Ajax call is in progress, so subscribe for dataupdate
-                    self.model.onDataUpdate.subscribe(function (e, obj) {
-                        renderCharts();
-                    });
-                }
+            var topleftColumn = self.$el.find(".top-container .left-column"),
+            toprightCoulmn = self.$el.find(".top-container .right-column"),
+            bottomleftColumn = self.$el.find(".bottom-container .left-column"),
+            bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
+            dbCPUMemModel = new DatabaseNodeCPUMemModel();
+            dbUsageModel = new DatabaseUsageModel();
 
-                function renderCharts(){
-                    if (callBackExecuted == false) {
-                        callBackExecuted = true;
-                        if(self.model.loadedFromCache) {
-                            var cacheObj = cowch.getDataFromCache(ctwl.CACHE_DATABASENODE),
-                            cacheListModel = getValueByJsonPath(cacheObj, 'dataObject;listModel');
-                            if (cacheListModel != null) {
-                                databaseNodeList = cacheListModel.getItems();
-                            }
-                        } else {
-                            databaseNodeList = self.model.getItems();
-                        }
-                        var topleftColumn = self.$el.find(".top-container .left-column"),
-                            toprightCoulmn = self.$el.find(".top-container .right-column"),
-                            bottomleftColumn = self.$el.find(".bottom-container .left-column"),
-                            bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
-                            dbCPUMemModel = new DatabaseNodeCPUMemModel(),
-                            dbUsageModel = new DatabaseUsageModel(),
-                            colorMap = monitorInfraUtils.constructNodeColorMap(databaseNodeList);
+            self.renderView4Config(topleftColumn,  dbCPUMemModel,
+                getCPUShareChartViewConfig(colorFn));
 
-                        self.renderView4Config(topleftColumn,  dbCPUMemModel,
-                                getCPUShareChartViewConfig(colorMap));
+            self.renderView4Config(bottomleftColumn,  dbCPUMemModel,
+                getMemShareChartViewConfig(colorFn));
 
-                        self.renderView4Config(bottomleftColumn,  dbCPUMemModel,
-                                getMemShareChartViewConfig(colorMap));
+            self.renderView4Config(bottomrightCoulmn,  dbUsageModel,
+                getDBDiskSpaceUsageViewConfig(colorFn));
 
-                        self.renderView4Config(bottomrightCoulmn,  dbUsageModel,
-                                getDBDiskSpaceUsageViewConfig(colorMap));
-
-                        self.renderView4Config(toprightCoulmn,  dbUsageModel,
-                                getDBPendingCompactionsViewConfig(colorMap));
-                    }
-                }
-            }
+            self.renderView4Config(toprightCoulmn,  dbUsageModel,
+                getDBPendingCompactionsViewConfig(colorFn));
         }
     });
 
-    function getCPUShareChartViewConfig(colorMap){
+    function getCPUShareChartViewConfig(colorFn){
         return {
             elementId : ctwl.DATABASENODE_CPU_SHARE_LINE_CHART_SEC_ID,
             view : "SectionView",
@@ -79,15 +49,20 @@ define(['underscore', 'contrail-view',
                         viewConfig: {
                             class: 'mon-infra-chart chartMargin',
                             chartOptions : {
-                                colorMap: colorMap,
                                 brush: false,
                                 height: 240,
                                 xAxisLabel: '',
                                 yAxisLabel: 'CPU Share (%)',
+                                groupBy: 'name',
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                bucketSize: monitorInfraConstants.STATS_BUCKET_DURATION,
+                                yFieldOperation: 'average',
+                                colors: colorFn,
+                                title: ctwl.DATABASENODE_SUMMARY_TITLE,
                                 axisLabelDistance : 0,
                                 margin: {
                                     left: 60,
-                                    top: 35,
+                                    top: 20,
                                     right: 15,
                                     bottom: 35
                                 },
@@ -100,14 +75,8 @@ define(['underscore', 'contrail-view',
                                 },
                                 xFormatter: xCPUChartFormatter,
                                 showLegend: true,
-                                legendFn: function(data, container, chart){
-                                    return getLegend(data, container, chart, colorMap)
-                                },
-                                defaultZeroLineDisplay: true
-                            },
-                            parseFn: function(respData){
-                                return monitorInfraParsers.getDBNodeCPUdata(respData,
-                                    'name', 'T=', 'MAX(process_mem_cpu_usage.cpu_share)');
+                                defaultZeroLineDisplay: true,
+                                legendView: LegendView
                             }
                         }
                     }]
@@ -116,7 +85,7 @@ define(['underscore', 'contrail-view',
         };
     }
 
-    function getMemShareChartViewConfig(colorMap){
+    function getMemShareChartViewConfig(colorFn){
         return {
             elementId : ctwl.DATABASENODE_MEM_SHARE_LINE_CHART_SEC_ID,
             view : "SectionView",
@@ -128,15 +97,20 @@ define(['underscore', 'contrail-view',
                         viewConfig: {
                             class: 'mon-infra-chart chartMargin',
                             chartOptions : {
-                                colorMap: colorMap,
                                 brush: false,
                                 height: 240,
                                 xAxisLabel: '',
                                 yAxisLabel: 'Memory',
+                                groupBy: 'name',
+                                yField: 'MAX(process_mem_cpu_usage.mem_res)',
+                                bucketSize: monitorInfraConstants.STATS_BUCKET_DURATION,
+                                yFieldOperation: 'average',
+                                colors: colorFn,
+                                title: ctwl.DATABASENODE_SUMMARY_TITLE,
                                 axisLabelDistance : 0,
                                 margin: {
                                     left: 60,
-                                    top: 35,
+                                    top: 20,
                                     right: 15,
                                     bottom: 50
                                 },
@@ -148,15 +122,9 @@ define(['underscore', 'contrail-view',
                                 },
                                 xFormatter: xCPUChartFormatter,
                                 showLegend:true,
-                                legendFn: function(data, container, chart){
-                                    return getLegend(data, container, chart, colorMap)
-                                },
-                                defaultZeroLineDisplay: true
+                                defaultZeroLineDisplay: true,
+                                legendView: LegendView
                             },
-                            parseFn: function(respData){
-                                return monitorInfraParsers.getDBNodeCPUdata(respData,
-                                    'name', 'T=', 'MAX(process_mem_cpu_usage.mem_res)');
-                            }
                         }
                     }]
                 }]
@@ -164,27 +132,32 @@ define(['underscore', 'contrail-view',
         };
     }
 
-    function getDBDiskSpaceUsageViewConfig(colorMap){
+    function getDBDiskSpaceUsageViewConfig(colorFn){
         return {
-            elementId : ctwl.DATABASENODE_MEM_SHARE_LINE_CHART_SEC_ID,
+            elementId : ctwl.DATABASENODE_DISK_SPACE_USAGE_CHART_SEC_ID,
             view : "SectionView",
             viewConfig : {
                 rows : [{
                     columns : [{
-                        elementId : ctwl.DATABASENODE_MEM_SHARE_LINE_CHART_ID,
+                        elementId : ctwl.DATABASENODE_DISK_SPACE_USAGE_CHART_ID,
                         view : "LineWithFocusChartView",
                         viewConfig: {
                             class: 'mon-infra-chart chartMargin',
                             chartOptions : {
-                                colorMap: colorMap,
                                 brush: false,
                                 height: 240,
                                 xAxisLabel: '',
                                 yAxisLabel: 'Disk Space Usage',
+                                groupBy: 'Source',
+                                yField: 'MAX(database_usage.disk_space_used_1k)',
+                                yFieldOperation: 'average',
+                                bucketSize: monitorInfraConstants.STATS_BUCKET_DURATION,
+                                colors: colorFn,
+                                title: ctwl.DATABASENODE_SUMMARY_TITLE,
                                 axisLabelDistance : 0,
                                 margin: {
                                     left: 60,
-                                    top: 35,
+                                    top: 20,
                                     right: 15,
                                     bottom: 50
                                 },
@@ -196,15 +169,9 @@ define(['underscore', 'contrail-view',
                                 },
                                 xFormatter: xCPUChartFormatter,
                                 showLegend:true,
-                                legendFn: function(data, container, chart){
-                                    return getLegend(data, container, chart, colorMap)
-                                },
-                                defaultZeroLineDisplay: true
+                                defaultZeroLineDisplay: true,
+                                legendView: LegendView
                             },
-                            parseFn: function(respData){
-                                return monitorInfraParsers.getDBNodeCPUdata(respData,
-                                    'Source', 'T', 'database_usage.disk_space_used_1k');
-                            }
                         }
                     }]
                 }]
@@ -212,123 +179,43 @@ define(['underscore', 'contrail-view',
         };
     }
 
-    function getDBPendingCompactionsViewConfig(colorMap){
+    function getDBPendingCompactionsViewConfig(colorFn){
         return {
-            elementId : ctwl.DATABASENODE_DISK_SPACE_USAGE_SCATTER_CHART_SEC_ID,
+            elementId : ctwl.DATABASENODE_COMPACTIONS_CHART_SEC_ID,
             view : "SectionView",
             viewConfig : {
                 rows : [{
                     columns : [ {
-                        elementId : ctwl.DATABASENODE_DISK_SPACE_USAGE_SCATTER_CHART_ID,
+                        elementId : ctwl.DATABASENODE_COMPACTIONS_CHART_ID,
                         view : "StackedBarChartWithFocusView",
                         viewConfig : {
                             class: 'mon-infra-chart chartMargin',
                             chartOptions:{
-                                colorMap: colorMap,
-                                brush: false,
+                                colors: colorFn,
                                 height: 255,
+                                groupBy: 'Source',
+                                yField: 'MAX(database_usage.disk_space_used_1k)',
                                 xAxisLabel: '',
                                 yAxisLabel: 'Pending Compactions',
+                                title: ctwl.DATABASENODE_SUMMARY_TITLE,
                                 yAxisOffset: 25,
                                 yAxisFormatter: function (d) {
                                     return formatBytes(d, true);
                                 },
-                                axisLabelFontSize: 11,
                                 tickPadding: 8,
                                 margin: {
                                     left: 55,
-                                    top: 35,
+                                    top: 20,
                                     right: 15,
                                     bottom: 55
                                 },
-                                bucketSize: monitorInfraConstants.CONFIGNODESTATS_BUCKET_DURATION/(1000 * 1000 * 60),//converting to minutes
-                                sliceTooltipFn: function (data) {
-                                    var tooltipConfig = {},
-                                    time = data['time'];
-                                    if(data['name'] != monitorInfraConstants.CONFIGNODE_FAILEDREQUESTS_TITLE) {
-                                        tooltipConfig['title'] = {
-                                            name : data['name'],
-                                            type : ctwl.DATABASENODE_SUMMARY_TITLE
-                                        };
-
-                                        tooltipConfig['content'] = {
-                                            iconClass : false,
-                                            info : [{
-                                                label: 'Time',
-                                                value: time
-                                            },{
-                                                label: 'Disk Space Usage',
-                                                value: formatBytes(ifNull(data['perNodeDBUsage'], 0))
-                                            }]
-                                        };
-                                    }
-                                    var tooltipElementTemplate = contrail.getTemplate4Id(cowc.TMPL_ELEMENT_TOOLTIP),
-                                    tooltipElementTitleTemplate = contrail.getTemplate4Id(cowc.TMPL_ELEMENT_TOOLTIP_TITLE),
-                                    tooltipElementContentTemplate = contrail.getTemplate4Id(cowc.TMPL_ELEMENT_TOOLTIP_CONTENT),
-                                    tooltipElementObj, tooltipElementTitleObj, tooltipElementContentObj;
-                                    tooltipConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_ELEMENT_TOOLTIP, tooltipConfig);
-                                    tooltipElementObj = $(tooltipElementTemplate(tooltipConfig));
-                                    tooltipElementTitleObj = $(tooltipElementTitleTemplate(tooltipConfig.title));
-                                    tooltipElementContentObj = $(tooltipElementContentTemplate(tooltipConfig.content));
-                                    tooltipElementObj.css("position","relative");
-                                    tooltipElementObj.find('.popover-title').append(tooltipElementTitleObj);
-                                    tooltipElementObj.find('.popover-content').append(tooltipElementContentObj);
-                                    return $(tooltipElementObj).wrapAll('<div>').parent().html();
-                                },
-                                showLegend: true,
-                                legendFn: function (data, container, chart) {
-                                    if (container != null
-                                        && $(container).find('svg') != null
-                                        && data != null && data.length > 0) {
-
-                                        var colorCodes = data[0]['colorCodes'],
-                                            svg = $(container).find('svg'),
-                                            width = parseInt($(svg).css('width') || svg.getBBox()['width']),
-                                            legendWrap = d3.select($(svg)[0]).append('g')
-                                              .attr('class','legend-wrap')
-                                              .attr('transform','translate('+width+',0)');
-
-                                        monitorInfraUtils.addLegendToSummaryPageCharts({
-                                            container: legendWrap,
-                                            cssClass: 'contrail-legend-stackedbar',
-                                            data: colorCodes,
-                                            colors: colorCodes,
-                                            nodeColorMap: colorMap,
-                                            label: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                        });
-                                    }
-                                }
+                                bucketSize: monitorInfraConstants.STATS_BUCKET_DURATION,
+                                showControls: false,
                             },
-                            parseFn: function (response, chartViewModel) {
-                                return monitorInfraParsers.parseDatabaseUsageData(response,
-                                    chartViewModel, 'database_usage.disk_space_used_1k');
-                            }
                        }
                    }]
                }]
            }
-       }
-    }
-
-    function getLegend(data, container, chart, colorMap){
-        if (container != null && $(container).find('svg') != null
-           && data != null && data.length > 0) {
-            var colorCodes = data[0]['colorCodes'];
-            var svg = $(container).find('svg');
-            var width = parseInt($(svg).css('width') || svg.getBBox()['width']);
-            var legendWrap = d3.select($(svg)[0]).append('g')
-                  .attr('class','legend-wrap')
-                  .attr('transform','translate('+width+',0)')
-
-            monitorInfraUtils.addLegendToSummaryPageCharts({
-                container: legendWrap,
-                cssClass: 'contrail-legend-stackedbar',
-                data: colorCodes,
-                offset: 0,
-                colors: colorCodes,
-                nodeColorMap: colorMap,
-                label: ctwl.DATABASENODE_SUMMARY_TITLE,
-            });
        }
     }
 

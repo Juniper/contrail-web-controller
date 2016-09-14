@@ -7,16 +7,14 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
         render : function (){
             var self = this,
                 viewConfig = self.attributes.viewConfig;
-            this.renderView4Config(this.$el, this.model,
-                    getConfigNodeDonutChartViewConfig(ifNull(viewConfig.colorMap, {})), null, null, null, function () {
-                if (viewConfig['widgetConfig'] != null) {
-                    self.renderView4Config($(self.$el).find('.section-content'), self.model, viewConfig['widgetConfig'], null, null, null);
-                }
+                chartModel = self.model;
+            this.renderView4Config(this.$el, chartModel,
+                    getConfigNodeDonutChartViewConfig(ifNull(viewConfig.color, {})), null, null, null, function () {
             });
         }
     });
 
-    function getConfigNodeDonutChartViewConfig (colorMap) {
+    function getConfigNodeDonutChartViewConfig (color) {
         return {
             elementId: ctwl.CONFIGNODE_SUMMARY_DONUTCHART_SECTION_ID,
             view: 'SectionView',
@@ -30,7 +28,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                             parseFn: function (response) {
                                 return monitorInfraParsers
                                     .parseConfigNodeRequestForDonutChart(
-                                         response, ['GET'], colorMap);
+                                         response, ['GET'], color);
                             },
                             chartOptions: {
                                 height: 170,
@@ -53,7 +51,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                             parseFn: function (response) {
                                 return monitorInfraParsers
                                     .parseConfigNodeRequestForDonutChart(
-                                         response, ['POST', 'PUT', 'DELETE'], colorMap);
+                                         response, ['POST', 'PUT', 'DELETE'], color);
                             },
                             chartOptions: {
                                 height: 170,
@@ -64,7 +62,8 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                 showLabels: false,
                                 title: 'Writes',
                                 defaultDataStatusMessage: false,
-                                showEmptyDonut: true
+                                showEmptyDonut: true,
+                                showLegend: false,
                             },
                         }
                     }]
