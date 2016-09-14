@@ -14,6 +14,7 @@ define(
                     colorFn = nodeColorMapping.getNodeColorMap;
                     this.renderView4Config(this.$el, analyticsNodeListModel,
                             getAnalyticsNodeListViewConfig(colorFn));
+                    cowu.addPageRefresh(this);
                 }
             });
 

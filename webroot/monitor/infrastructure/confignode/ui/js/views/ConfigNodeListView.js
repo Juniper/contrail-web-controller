@@ -14,6 +14,7 @@ define(
 
                     this.renderView4Config(this.$el, configNodeListModel,
                             getConfigNodeListViewConfig(colorFn));
+                    cowu.addPageRefresh(this);
                 }
             });
 
