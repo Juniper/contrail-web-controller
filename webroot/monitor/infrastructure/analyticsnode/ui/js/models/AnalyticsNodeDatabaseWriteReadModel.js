@@ -18,7 +18,8 @@ define([
               "from_time_utc": Date.now() - (2 * 60 * 60 * 1000),
               "to_time": Date.now(),
               "to_time_utc": Date.now(),
-              "select": "Source,table_info.reads, table_info.writes, table_info.read_fails, table_info.write_fails,T",
+              "select": "Source,SUM(table_info.reads), SUM(table_info.writes), SUM(table_info.read_fails), SUM(table_info.write_fails),T=",
+              "time_granularity": 150,
               "time_granularity_unit": "secs",
               "limit": "150000"
             },

@@ -29,7 +29,7 @@ define([
 
         //Default feature ports
         this.ApiServerPort = '8082';
-        this.OpServerPort = '8081'; 
+        this.OpServerPort = '8081';
 
         this.excludeProcessList = ['contrail-config-nodemgr','contrail-analytics-nodemgr','contrail-control-nodemgr','contrail-snmp-collector','contrail-topology',
             'contrail-vrouter-nodemgr','openstack-nova-compute','contrail-svc-monitor','contrail-schema','contrail-discovery','contrail-zookeeper','redis-sentinel','contrail-device-manager'];
@@ -49,14 +49,9 @@ define([
 
         this.HOST_DPDK = 'HOST_DPDK';
 
-        //Color scheme for monitor infra nodes
-        this.SINGLE_NODE_COLOR = ['#adcfdc'];
-        this.THREE_NODE_COLOR = ['#a8c0d1', '#6f97ae', '#617683']
-        this.FIVE_NODE_COLOR = ['#819eb5', '#6b8295', '#876f8a', '#b2a198', '#eccc9b'];
+        this.STATS_BUCKET_DURATION = 2.5; //Minutes
 
         //Config Summary page Constants
-        this.CONFIGNODESTATS_BUCKET_DURATION = 150000000;
-        this.CONFIGNODE_COLORS = ['#b0c8c3', '#bf94e0', '#5d6e7e', '#b2a198', '#eccc9b'];
         this.CONFIGNODE_FAILEDREQUESTS_TITLE = 'Failed Requests';
         this.CONFIGNODE_FAILEDREQUESTS_COLOR = '#d95436';
         this.CONFIGNODE_RESPONSESIZE_COLOR = '#7f9d92';

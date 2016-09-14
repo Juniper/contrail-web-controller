@@ -3,18 +3,21 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view','monitor-infra-analyticsnode-model' ],
+        [ 'underscore', 'contrail-view','monitor-infra-analyticsnode-model',
+          'node-color-mapping'],
         function(
-                _, ContrailView, AnalyticsNodeListModel) {
+                _, ContrailView, AnalyticsNodeListModel, NodeColorMapping) {
             var AnalyticsNodeListView = ContrailView.extend({
                 render : function() {
                     var analyticsNodeListModel = new AnalyticsNodeListModel();
+                    nodeColorMapping = new NodeColorMapping(),
+                    colorFn = nodeColorMapping.getNodeColorMap;
                     this.renderView4Config(this.$el, analyticsNodeListModel,
-                            getAnalyticsNodeListViewConfig());
+                            getAnalyticsNodeListViewConfig(colorFn));
                 }
             });
 
-            function getAnalyticsNodeListViewConfig() {
+            function getAnalyticsNodeListViewConfig(colorFn) {
                 var viewConfig = {
                         rows : [
                             {
@@ -26,23 +29,7 @@ define(
                                     viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
                                     app : cowc.APP_CONTRAIL_CONTROLLER,
                                     viewConfig: {
-                                        widgetConfig: {
-                                            elementId: ctwc.ANALYTICSNODE_SUMMARY_CHART_ID + '-widget',
-                                            view: "WidgetView",
-                                            viewConfig: {
-                                                header: {
-                                                    title: ctwl.ANALYTICSNODE_SUMMARY_TITLE,
-                                                    // iconClass: "icon-search"
-                                                },
-                                                controls: {
-                                                    top: {
-                                                        default: {
-                                                            collapseable: true
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        colorFn: colorFn
                                     }
                                 }]
                             },{
@@ -55,7 +42,7 @@ define(
                                         ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
                                     app : cowc.APP_CONTRAIL_CONTROLLER,
                                     viewConfig : {
-
+                                        colorFn: colorFn
                                     }
                                 }]
                             }

@@ -6,6 +6,7 @@ define([
     'contrail-list-model'
 ], function (ContrailListModel) {
     var ConfigNodeListModel = function () {
+
         var vlRemoteList = [
             {
                 getAjaxConfig: function() {
