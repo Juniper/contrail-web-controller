@@ -11,6 +11,7 @@ define(
                     var databaseNodeListModel = new DatabaseNodeListModel();
                     this.renderView4Config(this.$el, databaseNodeListModel,
                             getDatabaseNodeListViewConfig());
+                    cowu.addPageRefresh(this);
                 }
             });
 

@@ -11,6 +11,7 @@ define(
                     var controlNodeListModel = new ControlNodeListModel();
                     this.renderView4Config(this.$el, controlNodeListModel,
                             getControlNodeListViewConfig());
+                    cowu.addPageRefresh(this);
                 }
             });
 

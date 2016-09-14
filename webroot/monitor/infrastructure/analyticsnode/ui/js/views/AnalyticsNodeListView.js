@@ -11,6 +11,7 @@ define(
                     var analyticsNodeListModel = new AnalyticsNodeListModel();
                     this.renderView4Config(this.$el, analyticsNodeListModel,
                             getAnalyticsNodeListViewConfig());
+                    cowu.addPageRefresh(this);
                 }
             });
 

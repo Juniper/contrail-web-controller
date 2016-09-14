@@ -11,6 +11,7 @@ define(
                     var configNodeListModel = new ConfigNodeListModel();
                     this.renderView4Config(this.$el, configNodeListModel,
                             getConfigNodeListViewConfig());
+                    cowu.addPageRefresh(this);
                 }
             });
 
