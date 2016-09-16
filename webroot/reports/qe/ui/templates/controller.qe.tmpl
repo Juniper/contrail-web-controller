@@ -1,0 +1,17 @@
+<!-- Copyright (c) 2014 Juniper Networks, Inc. All rights reserved. -->
+
+<script type="text/x-handlebars-template" id="session-analyzer-view-template">
+    <div id="qe-{{queryPrefix}}-container" class="row">
+        {{#if text}}
+        <div id="qe-{{queryPrefix}}-text-container" class="row">
+            <div id="qe-{{queryPrefix}}-text{{saQueryIdSuffix}}" class="row"></div>
+        </div>
+        {{/if}}
+        <div id="qe-{{queryPrefix}}-chart-container" class="margin-0 row">
+            <div id="qe-{{queryPrefix}}-result-chart{{saQueryIdSuffix}}"></div>
+        </div>
+        <div id="qe-{{queryPrefix}}-tab-container" class="margin-10-0-0">
+            <div id='qe-{{queryPrefix}}-result-tab{{saQueryIdSuffix}}'></div>
+        </div>
+    </div>
+</script>

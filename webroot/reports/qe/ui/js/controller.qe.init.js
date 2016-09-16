@@ -3,10 +3,10 @@
  */
 
 require([
-    'qe-module'
-], function () {
-    
-    var initJSpath = pkgBaseDir + '/reports/qe/ui/js/qe.init.js',
+    'qe-module',
+    'controller-qe-module'
+], function (_) {
+    var initJSpath = pkgBaseDir + '/reports/qe/ui/js/controller.qe.init.js',
         initStatus = contentHandler.initFeatureModuleMap[initJSpath],
         deferredObj = initStatus['deferredObj'];
 

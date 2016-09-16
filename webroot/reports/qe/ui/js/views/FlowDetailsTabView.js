@@ -7,8 +7,8 @@ define([
     'contrail-view',
     'knockback',
     'controller-basedir/reports/qe/ui/js/models/FlowSeriesFormModel',
-    'core-basedir/js/common/qe.utils'
-], function (_, ContrailView, Knockback, FlowSeriesFormModel,qewu) {
+    'core-basedir/reports/qe/ui/js/common/qe.utils'
+], function (_, ContrailView, Knockback, FlowSeriesFormModel, qeUtils) {
 
     var FormRecordDetailsTabView = ContrailView.extend({
         render: function (renderConfig) {
@@ -31,7 +31,7 @@ define([
                 }
             });
 
-            qewu.fetchServerCurrentTime(function(serverCurrentTime) {
+            qeUtils.fetchServerCurrentTime(function(serverCurrentTime) {
                 var timeRange = parseInt(queryFormModel.time_range()),
                     queryResultPostData;
 

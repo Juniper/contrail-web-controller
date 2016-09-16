@@ -7,8 +7,8 @@ define([
     'query-form-view',
     'knockback',
     'controller-basedir/reports/qe/ui/js/models/FlowSeriesFormModel',
-    'core-basedir/js/common/qe.utils',
-], function (_, QueryFormView, Knockback, FlowSeriesFormModel,qewu) {
+    'core-basedir/reports/qe/ui/js/common/qe.utils',
+], function (_, QueryFormView, Knockback, FlowSeriesFormModel, qeUtils) {
 
     var FlowSeriesFormView = QueryFormView.extend({
         render: function () {
@@ -42,7 +42,7 @@ define([
                     }
                 });
 
-               qewu.adjustHeight4FormTextarea(queryPrefix);
+               qeUtils.adjustHeight4FormTextarea(queryPrefix);
 
                 if (queryType === cowc.QUERY_TYPE_RERUN) {
                     self.renderQueryResult();
@@ -69,7 +69,7 @@ define([
             }
 
             queryFormModel.is_request_in_progress(true);
-            qewu.fetchServerCurrentTime(function(serverCurrentTime) {
+            qeUtils.fetchServerCurrentTime(function(serverCurrentTime) {
                 var timeRange = parseInt(queryFormModel.time_range()),
                     queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
 
@@ -142,7 +142,7 @@ define([
                                     viewConfig: {
                                         style: 'display: none;',
                                         path: 'from_time', dataBindValue: 'from_time', class: "col-xs-3",
-                                        elementConfig: qewu.getFromTimeElementConfig('from_time', 'to_time'),
+                                        elementConfig: qeUtils.getFromTimeElementConfig('from_time', 'to_time'),
                                         visible: "time_range() == -1"
                                     }
                                 },
@@ -151,7 +151,7 @@ define([
                                     viewConfig: {
                                         style: 'display: none;',
                                         path: 'to_time', dataBindValue: 'to_time', class: "col-xs-3",
-                                        elementConfig: qewu.getToTimeElementConfig('from_time', 'to_time'),
+                                        elementConfig: qeUtils.getToTimeElementConfig('from_time', 'to_time'),
                                         visible: "time_range() == -1"
                                     }
                                 }

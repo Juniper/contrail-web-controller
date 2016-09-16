@@ -5,10 +5,10 @@
 define([
     'underscore',
     'contrail-list-model',
-    'core-basedir/js/common/qe.utils',
+    'core-basedir/reports/qe/ui/js/common/qe.utils',
     'controller-basedir/reports/qe/ui/js/models/FlowSeriesFormModel',
-    'controller-basedir/reports/qe/ui/js/models/ContrailListModelGroup'
-], function (_, ContrailListModel, qewu, FlowSeriesFormModel, ContrailListModelGroup) {
+    'core-basedir/reports/qe/ui/js/models/ContrailListModelGroup'
+], function (_, ContrailListModel, qeUtils, FlowSeriesFormModel, ContrailListModelGroup) {
 
     var SessionAnalyzerModel = ContrailListModelGroup.extend({
 
@@ -21,7 +21,7 @@ define([
 
             ContrailListModelGroup.apply(self, arguments);
 
-            qewu.fetchServerCurrentTime(function(serverCurrentTime) {
+            qeUtils.fetchServerCurrentTime(function(serverCurrentTime) {
                 self.updateCurrentServerTime(serverCurrentTime);
             });
 
@@ -134,7 +134,7 @@ define([
 
         newQueryRequestPostData.async = false; //Setting async to false to block for the response.
         newQueryRequestPostData.formModelAttrs = newQueryFormAttributes;
-        newQueryRequestPostData.engQueryStr = qewu.getEngQueryStr(newQueryFormAttributes);
+        newQueryRequestPostData.engQueryStr = qeUtils.getEngQueryStr(newQueryFormAttributes);
         
         return newQueryRequestPostData;
     };

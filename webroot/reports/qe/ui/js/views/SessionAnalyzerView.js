@@ -6,17 +6,17 @@ define([
     'underscore',
     'contrail-view',
     'contrail-list-model',
-    'core-basedir/js/common/qe.utils',
-    'core-basedir/js/common/qe.grid.config',
+    'core-basedir/reports/qe/ui/js/common/qe.utils',
+    'core-basedir/reports/qe/ui/js/common/qe.grid.config',
     'controller-basedir/reports/qe/ui/js/models/SessionAnalyzerModel'
-], function (_, ContrailView, ContrailListModel, qewu, qewgc, SessionAnalyzerModel) {
+], function (_, ContrailView, ContrailListModel, qeUtils, qeGridConfig, SessionAnalyzerModel) {
     var SessionAnalyzerView = ContrailView.extend({
         render: function () {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 modelMap = contrail.handleIfNull(self.modelMap, {}),
                 queryType = viewConfig['queryType'],
-                saQueryId = contrail.handleIfNull(viewConfig.queryId, qewu.generateQueryUUID()),
+                saQueryId = contrail.handleIfNull(viewConfig.queryId, qeUtils.generateQueryUUID()),
                 saDataMap = cowc.MAP_SESSION_ANALYZER_DATA_KEY;
 
             self.selectedFlowRecord = viewConfig['selectedFlowRecord'];
@@ -103,7 +103,7 @@ define([
                 queryIdSuffix = '-' + queryId,
                 saResultChartId = cowl.QE_SESSION_ANALYZER_RESULT_CHART_ID + queryIdSuffix,
                 selectArray = saDataMap[cowc.SESSION_ANALYZER_KEY].queryRequestPostData.formModelAttrs.select.replace(/ /g, "").split(","),
-                aggregateSelectFields = qewu.getAggregateSelectFields(selectArray),
+                aggregateSelectFields = qeUtils.getAggregateSelectFields(selectArray),
                 chartAxesOptions = {};
 
             $.each(aggregateSelectFields, function (selectFieldKey, selectFieldValue) {
@@ -398,7 +398,7 @@ define([
     function formatChartData(modelMap, formModelAttrs, chartEnableKeys) {
         var chartListModel = modelMap[cowc.UMID_SA_SUMMARY_LIST_MODEL],
             selectArray = formModelAttrs.select.replace(/ /g, "").split(","),
-            aggregateSelectFields = qewu.getAggregateSelectFields(selectArray),
+            aggregateSelectFields = qeUtils.getAggregateSelectFields(selectArray),
             chartData = [];
 
         var chartModelItems = chartListModel.getItems();
@@ -412,7 +412,7 @@ define([
             item.values = itemValues;
 
             //Update the missing timestamps.
-            qewu.addChartMissingPoints(item, formModelAttrs, aggregateSelectFields);
+            qeUtils.addChartMissingPoints(item, formModelAttrs, aggregateSelectFields);
         });
 
         $.each(chartEnableKeys, function (colorKey, colorValue) {
@@ -470,7 +470,7 @@ define([
     function getSummaryGridConfig(modelMap, formModelAttrs, summaryRowOnClickFn, gridOptions) {
         var chartEnableKeys = _.clone(cowc.SESSION_ANALYZER_CHART_DATA_KEY), //will show all data in chart by default.
             selectArray = formModelAttrs.select.replace(/ /g, "").split(","),
-            saDefaultGridColumns = qewgc.getColumnDisplay4Grid(formModelAttrs.table_name, formModelAttrs.table_type, selectArray),
+            saDefaultGridColumns = qeGridConfig.getColumnDisplay4Grid(formModelAttrs.table_name, formModelAttrs.table_type, selectArray),
             saDefaultGridIds = ['sourcevn', 'destvn', 'sourceip', 'destip', 'sport', 'dport', 'protocol', 'direction_ing'],
             saSummaryGridColumns = [];
 
@@ -502,7 +502,7 @@ define([
 
         saSummaryGridColumns = summaryAddColumns.concat(saSummaryGridColumns)
 
-        return qewgc.getQueryGridConfig(null, saSummaryGridColumns, gridOptions);
+        return qeGridConfig.getQueryGridConfig(null, saSummaryGridColumns, gridOptions);
     };
 
     return SessionAnalyzerView;

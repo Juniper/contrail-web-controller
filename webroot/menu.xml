@@ -1174,14 +1174,14 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>Flows</label>
                     <iconClass>menu-icon fa fa-exchange</iconClass>
-                    <init>/reports/qe/ui/js/qe.init.js</init>
+                    <init>/reports/qe/ui/js/controller.qe.init.js</init>
                     <help>http://www.opencontrail.org/opencontrail-analytics-query-api/</help>
                     <items>
                         <item>
                             <hash>query_flow_series</hash>
                             <label>Flow Series</label>
                             <loader>
-                                <class>qePageLoader</class>
+                                <class>controllerQEPageLoader</class>
                                 <function>renderFlowSeries</function>
                             </loader>
                             <searchStrings>Query Flow Series</searchStrings>
@@ -1190,7 +1190,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>query_flow_record</hash>
                             <label>Flow Record</label>
                             <loader>
-                                <class>qePageLoader</class>
+                                <class>controllerQEPageLoader</class>
                                 <function>renderFlowRecord</function>
                             </loader>
                             <searchStrings>Query Flow Record</searchStrings>
@@ -1199,7 +1199,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>query_flow_queue</hash>
                             <label>Query Queue</label>
                             <loader>
-                                <class>qePageLoader</class>
+                                <class>controllerQEPageLoader</class>
                                 <function>renderFlowQueue</function>
                             </loader>
                             <searchStrings>Flow Query Queue</searchStrings>
@@ -1209,7 +1209,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>Logs</label>
                     <iconClass>menu-icon icon-contrail-system-logs</iconClass>
-                    <init>/reports/qe/ui/js/qe.init.js</init>
+                    <init>/reports/qe/ui/js/controller.qe.init.js</init>
                     <items>
                         <item>
                             <hash>query_log_system</hash>
@@ -1243,7 +1243,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>Statistics</label>
                     <iconClass>menu-icon icon-contrail-system-stats</iconClass>
-                    <init>/reports/qe/ui/js/qe.init.js</init>
+                    <init>/reports/qe/ui/js/controller.qe.init.js</init>
                     <items>
                         <item>
                             <hash>query_stat_query</hash>
@@ -1265,126 +1265,6 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
-                <!--
-                <item>
-                    <label>Old Queries</label>
-                    <iconClass>icon-sign-blank</iconClass>
-                    <items>
-                        <item>
-                            <hash>query_flow_series2</hash>
-                            <label>Flow Series</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>flow_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>flow_queries.js</js>
-                                    <class>flowSeriesObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Query Flow Series</searchStrings>
-                        </item>
-                        <item>
-                            <hash>query_flow_records2</hash>
-                            <label>Flow Records</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>flow_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>flow_queries.js</js>
-                                    <class>flowRecordsObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Query Flow Records</searchStrings>
-                        </item>
-                        <item>
-                            <hash>query_flow_queue2</hash>
-                            <label>Flow Query Queue</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>flow_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>flow_queries.js</js>
-                                    <class>flowQueryQueueObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Flow Query Queue</searchStrings>
-                        </item>
-                        <item>
-                            <hash>query_log_system2</hash>
-                            <label>System Logs</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>log_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>log_queries.js</js>
-                                    <class>systemLogsObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Query System Logs</searchStrings>
-                        </item>
-                        <item>
-                            <hash>query_log_object2</hash>
-                            <label>Object Logs</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>log_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>log_queries.js</js>
-                                    <class>objectLogsObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Query Object Logs</searchStrings>
-                        </item>
-                        <item>
-                            <hash>query_log_queue2</hash>
-                            <label>Logs Query Queue</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>log_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>log_queries.js</js>
-                                    <class>logQueryQueueObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Logs Query Queue</searchStrings>
-                        </item>
-                        <item>
-                            <hash>query_stat_query2</hash>
-                            <label>Stat Query</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>stat_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>stat_queries.js</js>
-                                    <class>statQueryObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Query Statistics</searchStrings>
-                        </item>
-                        <item>
-                            <hash>query_stat_queue2</hash>
-                            <label>Stat Query Queue</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>stat_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>stat_queries.js</js>
-                                    <class>statQueryQueueObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Statistic Query Queue</searchStrings>
-                        </item>
-                    </items>
-                </item>
-                -->
             </items>
         </item>
     </items>

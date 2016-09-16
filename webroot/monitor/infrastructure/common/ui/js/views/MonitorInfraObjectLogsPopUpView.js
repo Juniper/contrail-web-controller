@@ -8,8 +8,8 @@ define([
     'knockback',
     'query-form-view',
     'reports/qe/ui/js/models/ObjectLogsFormModel',
-    'core-basedir/js/common/qe.utils'
-],    function (_, ContrailView, Knockback, QueryFormView, ObjectLogsFormModel,qewu) {
+    'core-basedir/reports/qe/ui/js/common/qe.utils'
+],    function (_, ContrailView, Knockback, QueryFormView, ObjectLogsFormModel, qeUtils) {
     var MonitorInfrObjectLogsPopUpView = QueryFormView.extend({
         render : function (options) {
             var self = this;
@@ -47,7 +47,7 @@ define([
                                 where: whereClause
                             });
             queryFormModel.is_request_in_progress(true);
-            qewu.fetchServerCurrentTime(function(serverCurrentTime) {
+            qeUtils.fetchServerCurrentTime(function(serverCurrentTime) {
                 var timeRange = parseInt(queryFormModel.time_range()),
                     queryRequestPostData;
 

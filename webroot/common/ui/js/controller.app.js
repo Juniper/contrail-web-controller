@@ -5,7 +5,7 @@
 var ctwu, ctwc, cowch, ctwgc, ctwgrc, ctwl, ctwm, ctwp, ctwvc,
     nmwu, nmwgc, nmwgrc, nmwp, nmwvc, ctBuildDir, ctWebDir,
     monitorInfraConstants, monitorInfraUtils, monitorInfraParsers,
-    mnPageLoader,qePageLoader;
+    mnPageLoader,controllerQEPageLoader;
 
 /**
  * ctBaseDir: Apps Root directory.
@@ -66,7 +66,7 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
 
             'monitor-infra-module': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
             'nm-module': ctWebDir + '/monitor/networking/ui/js/nm.module',
-            'qe-module': ctWebDir + '/reports/qe/ui/js/qe.module',
+            'controller-qe-module': ctWebDir + '/reports/qe/ui/js/controller.qe.module',
 
             //TODO: Only commons controller level definations should be created in this file.
             /**
@@ -110,7 +110,7 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
 
             'monitor-infra-module': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
             'nm-module': ctWebDir + '/monitor/networking/ui/js/nm.module',
-            'qe-module': ctWebDir + '/reports/qe/ui/js/qe.module',
+            'controller-qe-module': ctWebDir + '/reports/qe/ui/js/controller.qe.module',
 
             //Need to list paths that are not part of bundles
             'searchflow-model': ctWebDir + '/monitor/infrastructure/underlay/ui/js/models/SearchFlowFormModel',

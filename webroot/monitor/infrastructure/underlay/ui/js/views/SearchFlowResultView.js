@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-view',
     'monitor/infrastructure/underlay/ui/js/underlay.utils',
-    'monitor/infrastructure/underlay/ui/js/underlay.parsers'
-], function (_, ContrailView, underlayUtils, underlayParsers) {
+    'monitor/infrastructure/underlay/ui/js/underlay.parsers',
+    'chart-utils'
+], function (_, ContrailView, underlayUtils, underlayParsers, chUtils) {
     var SearchFlowResultView = ContrailView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig,

@@ -6,13 +6,13 @@ define([
     'underscore',
     'knockout',
     'query-form-model',
-    'core-basedir/js/common/qe.model.config'
-], function (_, Knockout, QueryFormModel,qewmc) {
+    'core-basedir/reports/qe/ui/js/common/qe.model.config'
+], function (_, Knockout, QueryFormModel, qeModelConfig) {
     var SearchFlowFormModel = QueryFormModel.extend({
         defaultSelectFields: ['flow_class_id', 'direction_ing'],
 
         constructor: function (modelData) {
-            var defaultConfig = qewmc.getQueryModelConfig({
+            var defaultConfig = qeModelConfig.getQueryModelConfig({
                                     table_name: cowc.FLOW_RECORD_TABLE,
                                     limit: 5000,
                                     time_range: 600,
