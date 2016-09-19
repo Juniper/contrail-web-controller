@@ -775,6 +775,7 @@ define([
         this.URL_GET_CONFIG_DETAILS = "/api/tenants/config/get-config-details";
         this.URL_CREATE_CONFIG_OBJECT = "/api/tenants/config/create-config-object";
         this.URL_UPDATE_CONFIG_OBJECT = "/api/tenants/config/update-config-object";
+        this.URL_GET_ALL_PROJECTS = "/api/tenants/config/all-projects"
     };
 
     //str will be [0-9]+(m|h|s|d)
