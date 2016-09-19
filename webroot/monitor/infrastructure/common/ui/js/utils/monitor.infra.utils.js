@@ -1504,13 +1504,13 @@ define([
                             .html(htmlString);
                         $(leftColumnContainer)
                             .find('.widget-box')
-                            .find('.list-view').hide();
+                            .find('.list-view').hideElement();
                         $(leftColumnContainer)
                             .find('.widget-box')
-                            .find('.advanced-view').hide();
+                            .find('.advanced-view').hideElement();
                         $(leftColumnContainer)
                             .find('.widget-box')
-                            .find('.contrail-status-view').show();
+                            .find('.contrail-status-view').showElement();
                     }
                 });
             });
