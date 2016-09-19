@@ -24,7 +24,7 @@ define([
             body: JSON.stringify(TestMockdata.routeAggregateDomainsData)
         }));
         responses.push(cotr.createFakeServerResponse( {
-            url: /\/api\/tenants\/config\/projects\/default-domain.*$/,
+            url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS),
             body: JSON.stringify(TestMockdata.routeAggregatePojectsData)
         }));
         responses.push(cotr.createFakeServerResponse( {
