@@ -23,7 +23,7 @@ define([
             body: JSON.stringify(TestMockdata.bgpAsAServiceDomainsData)
         }));
         responses.push(cotr.createFakeServerResponse( {
-            url: /\/api\/tenants\/config\/projects\/default-domain.*$/,
+            url: /\/api\/tenants\/config\/all-projects.*$/,
             body: JSON.stringify(TestMockdata.bgpAsAServicePojectsData)
         }));
         responses.push(cotr.createFakeServerResponse( {
