@@ -85,7 +85,8 @@ define([
                     monitorInfraUtils.createNodeDetailsFooterLinks ({
                         parent : $('#left-column-container').parent(),
                         ipList : obj['ip'].split(','),
-                        introspectPort : '8089',
+                        introspectPort : monitorInfraConstants.OpServerIntrospectPort,
+                        featurePort : monitorInfraConstants.OpServerPort,
                         linkLabel : 'OpServer',
                         type : 'OpServer'
                     });
