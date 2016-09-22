@@ -11,7 +11,7 @@ define([
             var TraceFlowTabView = ContrailView.extend({
                 render : function() {
                     var self = this,
-                        viewConfig = this.attributes.viewConfig;
+                        viewConfig = this.attributes.viewConfig,
                         underlayGraphModel = viewConfig.viewConfig.model;
                     var traceFlowModel = new TraceFlowTabModel();
                     traceFlowModel.showvRouter = ko.computed((function() {
@@ -35,7 +35,8 @@ define([
                                     .append("<div id='"+ctwc.TRACEFLOW_RESULTS_GRID_ID+"'></div>");
                                 $('input[type=radio][name=traceflow_radiobtn_name]')
                                     .on('change',function (e) {
-                                        if(e.srcElement.value == "instance") {
+                                        var target = e.target || e.originalEvent.srcElement;
+                                        if(target.value == "instance") {
                                             if(vMachinesLen > 0) {
                                                 self.renderTraceFlowResult();
                                             } else {
@@ -51,7 +52,7 @@ define([
                                                     showGridMessage('empty');
                                                 }
                                             }
-                                        } else if(e.srcElement.value == "vRouter") {
+                                        } else if(target.value == "vRouter") {
                                             if(vRouterLen > 0) {
                                                 self.renderTraceFlowResult();
                                             } else {

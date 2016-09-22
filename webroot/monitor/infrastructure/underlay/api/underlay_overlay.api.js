@@ -1253,6 +1253,10 @@ function getUnderlayPath (req, res, appData)
     var srcVN = data['srcVN'];
     var destVN = data['destVN'];
     var nodeIP = data['nodeIP'];
+    if(data.hasOwnProperty("srcPort"))
+        data["sport"] = data['srcPort'];
+    if(data.hasOwnProperty("destPort"))
+        data["dport"] = data['destPort'];
     var nodeName = null;
     var tmppRouterListObjs = {};
 

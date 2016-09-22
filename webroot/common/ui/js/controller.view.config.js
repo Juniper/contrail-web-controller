@@ -434,7 +434,7 @@ define([
                                 $("#"+ ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid').refreshView();
                             }
                         },
-                        renderOnActivate: true
+                        renderOnActivate: false
                     }
                 }
             ];
