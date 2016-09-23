@@ -40,7 +40,7 @@ define([
             {
                 field: 'uuid',
                 name: 'UUID',
-                minWidth: 100
+                width: 100
             },
             {
                 field: 'vmName',
@@ -54,7 +54,7 @@ define([
                         return cowf.formatElementName({name: 'instance', value: dc['vmName'], cssClass: 'cell-hyperlink-blue'});
                     }
                 },
-                minWidth: 150,
+                width: 150,
                 searchable: true,
                 events: {
                     onClick: ctwu.onClickNetworkMonitorGrid
@@ -70,7 +70,7 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return cowf.formatElementName({name: 'vn', value: dc['vn'], cssClass: 'cell-hyperlink-blue'});
                 },
-                minWidth: 150,
+                width: 150,
                 searchable: true,
                 events: {
                     onClick: ctwu.onClickNetworkMonitorGrid
@@ -79,12 +79,12 @@ define([
             {
                 field: 'intfCnt',
                 name: 'Interfaces',
-                minWidth: 80
+                width: 80
             },
             {
                 field: 'fipCnt',
                 name: 'Floating IPs',
-                minWidth: 80
+                width: 80
             },
             {
                 field: 'vRouter',
@@ -92,7 +92,7 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return cowf.formatElementName({name: 'vRouter', value: dc['vRouter'], cssClass: 'cell-hyperlink-blue'});
                 },
-                minWidth: 100,
+                width: 100,
                 events: {
                     onClick: ctwu.onClickNetworkMonitorGrid
                 },
@@ -107,7 +107,7 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return ctwu.formatIPArray(dc['ip']);
                 },
-                minWidth: 150,
+                width: 110,
                 exportConfig: {
                     allow: true,
                     stdFormatter: false
@@ -119,12 +119,12 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return cowu.addUnits2Bytes(dc['inBytes60'], true) + ' / ' + cowu.addUnits2Bytes(dc['outBytes60'], true);
                 },
-                minWidth: 200
+                width: 200
             },
             {
                 field: '',
                 name: '',
-                minWidth: 30,
+                width: 30,
                 maxWidth: 30,
                 formatter: function (r, c, v, cd, dc) {
                     var errorMessage = '', instanceHealthCheckStatus = null;

@@ -117,7 +117,7 @@ define([
                            events: {
                               onClick: function(e,dc) {
                                 if(dc['vm_name'] != null && dc['vm_name'].trim() != '' && viewConfig['isUnderlayPage'] != true) {
-                                  ctwu.setInstanceURLHashParams(null, dc['vn_name'], dc['vm_uuid'], true);
+                                  ctwu.setInstanceURLHashParams(null, dc['vn_name'], dc['vm_uuid'], dc['vm_name'].trim(), true);
                                 }
                               }
                            },
