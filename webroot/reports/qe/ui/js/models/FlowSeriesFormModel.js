@@ -3,29 +3,29 @@
  */
 
 define([
-    'underscore',
-    'knockout',
-    'query-form-model',
-    'core-basedir/reports/qe/ui/js/common/qe.model.config'
-], function (_, Knockout, QueryFormModel, qeModelConfig) {
-    var FormSeriesFormModel = QueryFormModel.extend({
+    "lodash",
+    "query-form-model",
+    "core-basedir/reports/qe/ui/js/common/qe.model.config",
+    "core-constants"
+], function (_, QueryFormModel, qeModelConfig, coreConstants) {
+    var FlowSeriesFormModel = QueryFormModel.extend({
 
-        defaultSelectFields: ['flow_class_id', 'direction_ing'],
+        defaultSelectFields: ["flow_class_id", "direction_ing"],
 
-        constructor: function (modelData, queryReqConfig) {
+        constructor: function (modelConfig, queryReqConfig) {
             var defaultConfig = qeModelConfig.getQueryModelConfig({
-                table_name: cowc.FLOW_SERIES_TABLE,
-                table_type: cowc.QE_FLOW_TABLE_TYPE,
-                query_prefix: cowc.FS_QUERY_PREFIX,
-                select: cowc.DEFAULT_FS_SELECT_FIELDS
+                table_name: coreConstants.FLOW_SERIES_TABLE,
+                table_type: coreConstants.QE_FLOW_TABLE_TYPE,
+                query_prefix: coreConstants.FS_QUERY_PREFIX,
+                select: coreConstants.DEFAULT_FS_SELECT_FIELDS,
             });
 
-            modelData = $.extend(true, {}, defaultConfig, modelData);
+            var modelData = _.merge(defaultConfig, modelConfig);
             QueryFormModel.prototype.constructor.call(this, modelData, queryReqConfig);
 
             return this;
         }
     });
 
-    return FormSeriesFormModel;
+    return FlowSeriesFormModel;
 });
