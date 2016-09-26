@@ -13,12 +13,15 @@ define([
             "ibgp_auto_mesh": true,
             "ip_fabric_subnets": {
                 "subnet": []
-            }/*,
-            "graceful_restart_params": {
-                "graceful_restart_time": 0,
-                "long_lived_graceful_restart_time": 0,
-                "end_of_rib_receive_time": 30
-            }*/
+            },
+            "graceful_restart_parameters": {
+                "enable": false,
+                "restart_time": 60,
+                "long_lived_restart_time": 300,
+                "end_of_rib_timeout": 30,
+                "bgp_helper_enable": false,
+                "xmpp_helper_enable": false
+            }
         },
         validations: {
             bgpOptionsValidations: {
@@ -27,42 +30,42 @@ define([
                     if (isNaN(asn) || asn < 1 || asn > 65534) {
                         return "Enter ASN number between 1-65534";
                     }
-                }/*,
-                "graceful_restart_params.graceful_restart_time":
+                },
+                "graceful_restart_parameters.restart_time":
                 function(value, attr, finalObj) {
                     if(value) {
                         var gfRestartTime = Number(value);
                         if (isNaN(gfRestartTime) || gfRestartTime < 0 ||
-                                gfRestartTime > 600) {
+                                gfRestartTime > 4095) {
                             return "Enter Graceful Restart Time " +
-                                "between 0-600";
+                                "between 0-4095";
                         }
                     }
                 },
-                "graceful_restart_params.long_lived_graceful_restart_time":
+                "graceful_restart_parameters.long_lived_graceful_restart_time":
                 function(value, attr,
                         finalObj) {
                     if(value) {
                         var llgRestartTime = Number(value);
                         if (isNaN(llgRestartTime) || llgRestartTime < 0 ||
                                 llgRestartTime > 16777215) {
-                            return "Enter Long Lived Graceful Restart Time " +
+                            return "Enter LLGR Time " +
                                 "between 0-16777215";
                         }
                     }
                 },
-                "graceful_restart_params.end_of_rib_receive_time":
+                "graceful_restart_parameters.end_of_rib_timeout":
                  function(value, attr, finalObj) {
                     if(value) {
                         var endOfRIBReceiveTime = Number(value);
                         if (isNaN(endOfRIBReceiveTime) ||
                                 endOfRIBReceiveTime < 0 ||
-                                endOfRIBReceiveTime > 600) {
-                            return "Enter End of RIB Receive Time " +
-                                "between 0-600";
+                                endOfRIBReceiveTime > 4095) {
+                            return "Enter End of RIB Timeout " +
+                                "between 0-4095";
                         }
                     }
-                }*/
+                }
             }
         },
         formatModelConfig: function(modelConfig) {
@@ -111,7 +114,7 @@ define([
         configureBGPOptions: function (callbackObj) {
             var self = this, ajaxConfig = {}, returnFlag = false,
                 newBGPOptionsConfig, putData = {}, globalSysConfigData = {},
-                ipFabricSubnets, endOfRIBRecTime,
+                ipFabricSubnets, grTime, llgrTime, endOfRIBRecTime,
                 validations = [
                     {
                         key: null,
@@ -144,24 +147,54 @@ define([
                     Number(newBGPOptionsConfig['autonomous_system']);
 
                 //prepare graceful restart params post object
-                /*globalSysConfigData['global-system-config']
-                    ["graceful_restart_params"] = {};
                 globalSysConfigData['global-system-config']
-                ["graceful_restart_params"]["graceful_restart_time"] =
-                    Number(newBGPOptionsConfig["graceful_restart_params"]
-                    ["graceful_restart_time"]);
+                    ["graceful_restart_parameters"] = {};
+
+                //gr
+                grTime = getValueByJsonPath(newBGPOptionsConfig,
+                        "graceful_restart_parameters;restart_time", "");
+                grTime = grTime.toString().trim().length > 0 ?
+                        Number(grTime) : 60;
                 globalSysConfigData['global-system-config']
-                ["graceful_restart_params"]
-                ["long_lived_graceful_restart_time"] =
-                    Number(
-                    newBGPOptionsConfig["graceful_restart_params"]
-                    ["long_lived_graceful_restart_time"]);
-                endOfRIBRecTime = newBGPOptionsConfig["graceful_restart_params"]
-                                    ["end_of_rib_receive_time"];
-                endOfRIBRecTime = endOfRIBRecTime ? endOfRIBRecTime : 30;
+                ["graceful_restart_parameters"]["restart_time"] = grTime;
+
+                //llgr
+                llgrTime = getValueByJsonPath(newBGPOptionsConfig,
+                        "graceful_restart_parameters;long_lived_restart_time",
+                        "");
+                llgrTime = llgrTime.toString().trim().length > 0 ?
+                        Number(llgrTime) : 300;
                 globalSysConfigData['global-system-config']
-                ["graceful_restart_params"]["end_of_rib_receive_time"] =
-                    Number(endOfRIBRecTime);*/
+                ["graceful_restart_parameters"]["long_lived_restart_time"] =
+                    llgrTime;
+
+                //end of rib
+                endOfRIBRecTime = getValueByJsonPath(newBGPOptionsConfig,
+                        "graceful_restart_parameters;end_of_rib_timeout", "");
+                endOfRIBRecTime =
+                    endOfRIBRecTime.toString().trim().length > 0 ?
+                        Number(endOfRIBRecTime) : 30;
+                globalSysConfigData['global-system-config']
+                ["graceful_restart_parameters"]["end_of_rib_timeout"] =
+                    endOfRIBRecTime;
+
+                //enable
+                globalSysConfigData['global-system-config']
+                ["graceful_restart_parameters"]["enable"] =
+                    newBGPOptionsConfig["graceful_restart_parameters"]
+                         ["enable"];
+
+                //bgp helper enable
+                globalSysConfigData['global-system-config']
+                ["graceful_restart_parameters"]["bgp_helper_enable"] =
+                    newBGPOptionsConfig["graceful_restart_parameters"]
+                        ["bgp_helper_enable"];
+
+                //xmpp helper enable
+                globalSysConfigData['global-system-config']
+                ["graceful_restart_parameters"]["xmpp_helper_enable"] =
+                    newBGPOptionsConfig["graceful_restart_parameters"]
+                        ["xmpp_helper_enable"];
 
                 if (null != newBGPOptionsConfig['uuid']) {
                     globalSysConfigData['global-system-config']['uuid'] =

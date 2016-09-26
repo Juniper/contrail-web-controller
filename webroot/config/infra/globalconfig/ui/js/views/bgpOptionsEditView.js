@@ -106,7 +106,7 @@ define([
                                 ]
                             }
                         ]
-                    }/*,
+                    },
                     {
                         columns : [
                             {
@@ -117,7 +117,6 @@ define([
                                        elementId: "graceful_restart_section",
                                        title : "Graceful Restart",
                                        view : "SectionView",
-                                       active:false,
                                        viewConfig : {
                                            rows : gracefulRestartTimeSection()
                                        }
@@ -125,7 +124,7 @@ define([
                                 ]
                             }
                         ]
-                    }*/
+                    }
                 ]
             }
         }
@@ -176,51 +175,95 @@ define([
     function gracefulRestartTimeSection() {
         return [
                 {
-                    columns : [
-                        {
-                            elementId:
-                                "graceful_restart_time",
-                            view: "FormInputView",
-                            viewConfig: {
-                                path:
-                                    "graceful_restart_params." +
-                                    "graceful_restart_time",
-                                label : "Restart Time (seconds)",
-                                placeholder : "0 - 600 (0)",
-                                dataBindValue: "graceful_restart_params()." +
-                                    "graceful_restart_time",
-                                class: "col-xs-6"
-                            }
-                        },
-                        {
-                            elementId: "long_lived_graceful_restart_time",
-                            view: "FormInputView",
-                            viewConfig: {
-                                path: "graceful_restart_params." +
-                                    "long_lived_graceful_restart_time",
-                                label : "Long Lived Restart Time (seconds)",
-                                placeholder : "0 - 16777215 (0)",
-                                dataBindValue:
-                                    "graceful_restart_params()." +
-                                    "long_lived_graceful_restart_time",
-                                class: "col-xs-6"
+                    columns: [
+                    {
+                        elementId: 'enable',
+                        view: "FormCheckboxView",
+                        viewConfig : {
+                            path : 'graceful_restart_parameters.enable',
+                            class : "col-xs-4",
+                            label:'Enable',
+                            templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                            dataBindValue : 'graceful_restart_parameters().enable',
+                            elementConfig : {
+                                isChecked:false
                             }
                         }
+                    },
+                    {
+                        elementId: 'bgp_helper_enable',
+                        view: "FormCheckboxView",
+                        viewConfig : {
+                            path : 'graceful_restart_parameters.bgp_helper_enable',
+                            class : "col-xs-4",
+                            label:'BGP Helper Enable',
+                            templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                            dataBindValue :
+                                'graceful_restart_parameters().bgp_helper_enable',
+                            elementConfig : {
+                                isChecked:false
+                            }
+                        }
+                    },
+                    {
+                        elementId: 'xmpp_helper_enable',
+                        view: "FormCheckboxView",
+                        viewConfig : {
+                            path : 'graceful_restart_parameters.xmpp_helper_enable',
+                            class : "col-xs-4",
+                            label:'XMPP Helper Enable',
+                            templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                            dataBindValue :
+                                'graceful_restart_parameters().xmpp_helper_enable',
+                            elementConfig : {
+                                isChecked:false
+                            }
+                        }
+                    }
                     ]
                 },
                 {
                     columns : [
                         {
-                            elementId: "end_of_rib_receive_time",
+                            elementId:
+                                "restart_time",
                             view: "FormInputView",
                             viewConfig: {
-                                path: "graceful_restart_params." +
-                                    "end_of_rib_receive_time",
-                                label : "End of RIB Receive Time (seconds)",
-                                placeholder : '0 - 600 (30)',
-                                dataBindValue: "graceful_restart_params()." +
-                                    "end_of_rib_receive_time",
-                                class: "col-xs-6"
+                                path:
+                                    "graceful_restart_parameters." +
+                                    "restart_time",
+                                label : "Restart Time (seconds)",
+                                placeholder : "0 - 4095 (60)",
+                                dataBindValue: "graceful_restart_parameters()." +
+                                    "restart_time",
+                                class: "col-xs-4"
+                            }
+                        },
+                        {
+                            elementId: "long_lived_restart_time",
+                            view: "FormInputView",
+                            viewConfig: {
+                                path: "graceful_restart_parameters." +
+                                    "long_lived_restart_time",
+                                label : "LLGR Time (seconds)",
+                                placeholder : "0 - 16777215 (300)",
+                                dataBindValue:
+                                    "graceful_restart_parameters()." +
+                                    "long_lived_restart_time",
+                                class: "col-xs-4"
+                            }
+                        },
+                        {
+                            elementId: "end_of_rib_timeout",
+                            view: "FormInputView",
+                            viewConfig: {
+                                path: "graceful_restart_parameters." +
+                                    "end_of_rib_timeout",
+                                label : "End of RIB Timeout (seconds)",
+                                placeholder : '0 - 4095 (30)',
+                                dataBindValue: "graceful_restart_parameters()." +
+                                    "end_of_rib_timeout",
+                                class: "col-xs-4"
                             }
                         }
                     ]

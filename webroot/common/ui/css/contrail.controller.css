@@ -474,3 +474,7 @@ Added for severity bubble in config alarms
 #PolicyRules td.data-cell-service_instances .form-element.span10, #PolicyRules td.data-cell-mirror .select2-container.span10, #PolicyRules td.data-cell-QoS .select2-container.span10{margin-left:3px;}
 #PolicyRules th>a.editable-grid-add-link{
     margin-left:5px;}
+
+#graceful_restart_section input.ace-input[type=checkbox] + .ace-lbl::before {
+    margin-right: 10px;
+}
