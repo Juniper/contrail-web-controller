@@ -14,22 +14,27 @@
   background:#FBFBFB;
 }
 button.btn.btn-mini.json-editor-btn-collapse,
-button.btn.btn-mini.json-editor-btn-expand,
 button.btn.btn-mini.json-editor-btn-add,
 button.btn.btn-mini.json-editor-btn-edit,
 button.btn.btn-mini.json-editor-btn-movedown.movedown,
 button.btn.btn-mini.json-editor-btn-moveup.moveup,
 button.btn.btn-mini.json-editor-btn-trash,
 button.btn.btn-mini.json-editor-btn-plus{
-
     background-color: white !important;
     padding: 0px;
     border: none;
     color: #585858 !important;
     font-size: 13px;
 }
+button.btn.btn-mini.json-editor-btn-expand{
+    background-color: white !important;
+    padding: 0px;
+    border: none;
+    color: #585858 !important;
+    font-size: 14px;
+}
 button.btn.btn-mini.json-editor-btn-collapse{
-  font-size:12px !important;
+  font-size:14px !important;
 }
 button.btn.btn-mini.json-editor-btn-trash,
 button.btn.btn-mini.json-editor-btn-copy,
@@ -80,54 +85,50 @@ button.btn.btn-mini.json-editor-update-json:active{
    background-color: white;
    box-shadow: none;
    border: 0px;
+   min-height: 0px !important;
+   margin-bottom: 0px !important; 
 }
 #editorContainer .container-fluid{
-  padding-left:10px !important;
-  margin-left: 8px;
-  border-left: 1px dotted #e4e4e4;
+  padding-left:0px !important;
+  padding-right: 0px !important;
 }
 #editorContainer .container-fluid .row-fluid{
   padding-left:5px !important;
 }
 #editorContainer .container-fluid .row-fluid div h3 {
-  margin-top: -6px;
-  margin-bottom: -1px;
+  margin-bottom: 0px;
   font-size: 14px;
   margin-left: 5px;
 }
 #editorContainer .container-fluid .row-fluid div[data-schematype="boolean"] div{
-  margin-bottom: 2px !important;
+  margin-bottom: 12px !important;
   margin-top:-5px;
 }
 #editorContainer .container-fluid .row-fluid div h3 > span{
   margin-left: 6px;
 }
+#editorContainer .container-fluid .row-fluid div h3 div:first-child{
+  width:9px;
+}
 #editorContainer .container-fluid .row-fluid div[data-schematype="string"] .btn-group{
    display:none;
 }
-#editorContainer .container-fluid .row-fluid div[data-schematype="array"] .well-small{
-       margin-top: -5px;
-}
 #editorContainer .container-fluid .row-fluid div[data-schematype="array"] > div > div{
-      padding-left:13px;
-      border-left: 1px dotted #e4e4e4;
-}
-#editorContainer .container-fluid .row-fluid div[data-schematype="array"] > div{
-      margin-left:8px;
-}
-#editorContainer .container-fluid .row-fluid div[data-schematype="array"]{
-    margin-bottom:-5px;
+   padding-left:19px;
 }
 #editorContainer .container-fluid .row-fluid div[data-schematype="array"] .well-small > div[class="btn-group"]{
   display:none;
 }
-#editorContainer .container-fluid .row-fluid div[data-schematype="boolean"] div div label input{
-  margin-top: -4px;
-  margin-left: 8px;
+#editorContainer .container-fluid .row-fluid div[data-schematype="boolean"] div > div > label{
+   margin-top: -15px !important;
+   margin-left: 10px !important;
+}
+#editorContainer .container-fluid .row-fluid div[data-schematype="boolean"] div > div > button{
+    margin-top: -23px;
 }
 #editorContainer .control-group{
   margin-left:4px;
-  margin-bottom:7px;
+  margin-bottom:10px;
 }
 button.btn.btn-mini.json-editor-btn-Add,
 button.btn.btn-mini.json-editor-btn-save{
@@ -187,7 +188,6 @@ span.hyperlink.value.string:hover{
 #editorContainer label{
     font-weight: normal !important;
     font-size:13px !important;
-    padding-right: 20px;
 }
 .cancel-config-edit span,
 .save-config-object span,
@@ -207,7 +207,7 @@ button.btn.btn-mini.json-editor-update-json{
     font-size: 13px;
 }
 #jsonTextArea{
-   width:100%;font-family: monospace;resize:none;
+   width:100%;font-family: monospace;resize:none;margin-top: -6px;
 }
 .config-icon-position{
   float:left;padding-left: 8px;border-left: 1px dotted #cccccc;padding-right: 8px;
@@ -219,10 +219,15 @@ button.update-config-object.button.btn.btn-mini.json-editor-update-json.hide-hea
   text-decoration: underline;
 }
 .config-editor-header{
-  margin-top:6px;height:25px;margin-bottom:5px;
+  margin-top:6px;
+  height:27px;
+  margin-bottom:5px;
+  width:100%;
+  border-bottom: 1px solid #e5e5e5;
 }
-.copy-config-object{
-   float:left;padding-right:8px;
+.copy-config-object,.search-config-object,.create-config-object,.save-config-object,
+.config-jSon-form-edit{
+  border-right: 1px solid #e5e5e5;
 }
 .cancel-config-form{
    float:right;
@@ -252,10 +257,6 @@ button.update-config-object.button.btn.btn-mini.json-editor-update-json.hide-hea
     margin-top: 9px !important;
     margin-right: 2px;
 }
-.adjustConfigContent{
-   padding-right: 0px !important;
-   padding-bottom: 0px !important;
-}
 .object-json-view::-webkit-scrollbar-thumb,
 .config-scroll-color::-webkit-scrollbar-thumb {
   background-color: white !important;
@@ -265,10 +266,7 @@ button.update-config-object.button.btn.btn-mini.json-editor-update-json.hide-hea
   overflow-x: hidden;
 }
 #jsonEditorContainer{
-  overflow-y: scroll;
-  overflow-x: hidden;
   width:100%;float:right;
-  padding-left:8px;
 }
 #editorContainer .addPropertyHolder button.btn.btn-mini.json-editor-btn-{
     background: #599ac9 !important;
@@ -315,4 +313,100 @@ button.update-config-object.button.btn.btn-mini.json-editor-update-json.hide-hea
 }
 .config-boolean{
    color: firebrick;
+}
+.config-edit-refresh{
+   font-size: 15px;
+   cursor: pointer;
+}
+div#jsonEditorContainer > div > div.well > div > div > div > div > h3{
+  display:none;
+}
+.modelText{
+    height:1000px;
+    width:100%;
+    background:white;
+}
+.json-editor-form-view-header{
+    height:40px;
+    width:100%;
+    background:#f9f9f9;
+    border-bottom:1px solid #eeeeee;
+    margin-bottom:5px;
+    padding-top: 8px;
+    padding-left: 10px;
+}
+
+.json-editor-form-view-header div input{
+    width: 19px;
+    height: 17px;
+    cursor:pointer;
+}
+.json-editor-form-view-header div label{
+    color: #393939;
+    margin-left: 5px;
+    margin-top: -6px;
+    margin-right: 10px;
+}
+#rawJsonTextArea{
+    width: 100%;
+    height: 4500px;
+    border: 1px solid #e5e5e5;
+    resize: none;
+}
+.config-link-title{
+    float: left;
+    width: 50%;
+    font-size: 16px;
+    color: #599ac9;
+    margin-top: -2px;
+}
+.config-editor-headerIcon-align{
+    padding: 0px 9px 0px 9px;
+}
+.config-href-container .pre-format-JSON2HTML ul li:last-child > span.hideSeperatedComma{
+    display:none;
+}
+.object-json-view .pre-format-JSON2HTML ul li:last-child > span.hideSeperatedComma{
+    display:none;
+}
+.object-json-view .pre-format-JSON2HTML ul li:last-child > span.value >  span.hideSeperatedComma{
+    display:none;
+}
+.object-json-view .pre-format-JSON2HTML > span.hideSeperatedComma{
+    display:none;
+}
+.config-href-container .pre-format-JSON2HTML ul li:last-child > span.value >  span.hideSeperatedComma{
+    display:none;
+}
+.config-href-container .pre-format-JSON2HTML > span.hideSeperatedComma{
+    display:none;
+}
+#config-error-container{
+  display:none;
+  min-height:46px;
+  height: auto;
+  margin-bottom: 5px;
+  width: 100%;
+}
+#config-msg-container{
+   width:90%;
+   float:left;
+   padding-top: 14px;padding-left: 14px;padding-bottom: 9px;
+}
+#error-remove-icon{
+   width:5%;float:right;
+}
+#remove-error-popup{
+       background: transparent !important;
+       border: 0px;
+       color: #928484 !important;
+       font-size:18px;
+       margin-top: 12px !important;
+       margin-left:7px;
+}
+button.btn.btn-mini #remove-error-popup{
+ background: transparent !important;
+}
+button#remove-error-popup{
+  outline: none !important;
 }
