@@ -3,15 +3,15 @@
  */
 
 require([
-    'qe-module',
-    'controller-qe-module'
-], function (_) {
-    var initJSpath = pkgBaseDir + '/reports/qe/ui/js/controller.qe.init.js',
-        initStatus = contentHandler.initFeatureModuleMap[initJSpath],
-        deferredObj = initStatus['deferredObj'];
+    "qe-module",
+    "controller-qe-module"
+], function () {
+    var initJSpath = window.pkgBaseDir + "/reports/qe/ui/js/controller.qe.init.js",
+        initStatus = window.contentHandler.initFeatureModuleMap[initJSpath],
+        deferredObj = initStatus.deferredObj;
 
-    initStatus['isInProgress'] = false;
-    initStatus['isComplete'] = true;
+    initStatus.isInProgress = false;
+    initStatus.isComplete = true;
 
     if (contrail.checkIfExist(deferredObj)) {
         deferredObj.resolve();
