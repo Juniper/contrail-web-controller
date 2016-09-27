@@ -23,7 +23,7 @@
     -->
 
     <item>
-        <url>/api/tenants/config/list-virtual-DNSs/:id</url>
+        <url>/api/tenants/config/list-virtual-DNSs</url>
         <method>get</method>
         <feature>virtualdnsrecordsconfig</feature>
         <callback>virtualdnsrecordsconfigapi.listVirtualDNSs</callback>
