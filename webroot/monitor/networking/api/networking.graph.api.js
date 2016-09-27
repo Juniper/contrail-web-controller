@@ -829,8 +829,10 @@ function getNetworkConnectedGraph(req, res, appData) {
 
 function processNetworkConnectedGraph(fqName, networkData, appData, callback) {
     var resultJSON = [], vnFound = true,
-        configVN = networkData[2]['virtual-networks'],
-        configSI = networkData[3]['service-instances'];
+        configVN = commonUtils.getValueByJsonPath(networkData,
+                '2;virtual-networks', []),
+        configSI = commonUtils.getValueByJsonPath(networkData,
+                '3;service-instances', []);
 
     try {
         var vnUVE = networkData[0]['value'],
@@ -918,8 +920,10 @@ function getProjectConnectedGraph(req, res, appData) {
 
 function processProjectConnectedGraph(fqName, projectData, appData, callback) {
     var resultJSON = [], vnFound = true,
-        configVN = projectData[2]['virtual-networks'],
-        configSI = projectData[3]['service-instances'];
+        configVN = commonUtils.getValueByJsonPath(projectData,
+                '2;virtual-networks', []),
+        configSI = commonUtils.getValueByJsonPath(projectData,
+                '3;service-instances',[]);
 
     try {
         var vnUVE = projectData[0]['value'];
@@ -970,9 +974,12 @@ function getProjectConfigGraph(req, res, appData) {
 
 
 function processProjectConfigGraph(fqName, projectConfigData, appData, callback) {
-    var configNP = projectConfigData[0]['network-policys'],
-        configSG = projectConfigData[1]['security-groups'],
-        configIPAM = projectConfigData[2]['network-ipams'],
+    var configNP = commonUtils.getValueByJsonPath(projectConfigData,
+            "0;network-policys", [], false),
+        configSG = commonUtils.getValueByJsonPath(projectConfigData,
+            "1;security-groups", [], false),
+        configIPAM = commonUtils.getValueByJsonPath(projectConfigData,
+            "2;network-ipams", [], false),
         configGraphJSON = {};
 
     configGraphJSON['configData'] = {

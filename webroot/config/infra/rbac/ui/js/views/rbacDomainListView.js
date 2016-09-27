@@ -49,12 +49,18 @@ define([
                     "api-access-list;api_access_list_entries;rbac_rule",
                     [], false),
                     domainName = getValueByJsonPath(item,
-                            "api-access-list;fq_name;0", "", false);
+                            "api-access-list;fq_name;0", "", false),
+                    domainId = getValueByJsonPath(item,
+                            "api-access-list;parent_uuid", "", false);
                 _.each(tempRules, function(rule, index){
-                    rule.domain = domainName;
+                    rule.domain = domainName + ":" + domainId;
                     rule.subIndex = index;
                     rbacRules.push(rule);
                 });
+            });
+            //sort the items by domain name
+            rbacRules = _(rbacRules).sortBy(function(rbacRule){
+                return rbacRule.domain;
             });
             return rbacRules;
         },

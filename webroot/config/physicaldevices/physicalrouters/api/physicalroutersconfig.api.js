@@ -234,6 +234,7 @@ function getPhysicalRoutersWithIntfCount (request, response, appData)
              if ((null != error) || (null == data) || (null ==
                  data['physical-routers'])) {
                  commonUtils.handleJSONResponse(error, response, null);
+                 return;
              }
              getPhysicalInterfacesLogicalInterfaceCount(error,
                  data['physical-routers'], response, appData);

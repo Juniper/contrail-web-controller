@@ -343,6 +343,31 @@ function getConfigList (req, res, appData)
     });
 }
 
+function getConfigObjectsAsync (dataObj, callback)
+{
+    var appData = dataObj['appData'], uuid = dataObj['uuid'];
+    var url = '/' + dataObj['type'] + "/" + uuid;
+    configApiServer.apiGet(url, appData, function(err, data) {
+        callback(err, data);
+    });
+}
+
+function getConfigObjects (req, res, appData)
+{
+    var dataObjArr = [], postData = commonUtils.getValueByJsonPath(req,
+        "body;data", [], false),
+        reqCnt = postData.length, i;
+    for (i = 0; i < reqCnt; i++) {
+        dataObjArr[i] = {};
+        dataObjArr[i]['type'] = postData[i]['type'];
+        dataObjArr[i]['appData'] = appData;
+        dataObjArr[i]['uuid'] = postData[i]["uuid"];
+    }
+    async.map(dataObjArr, getConfigObjectsAsync, function(err, data) {
+        commonUtils.handleJSONResponse(err, res, data);
+    });
+}
+
 function deleteConfigObj (req, res, appData)
 {
     var configType = req.param('type');
@@ -669,6 +694,7 @@ exports.getConfigDetails = getConfigDetails;
 exports.createConfigObject = createConfigObject;
 exports.updateConfigObject = updateConfigObject;
 exports.getConfigList = getConfigList;
+exports.getConfigObjects = getConfigObjects;
 exports.deleteMultiObjectCB = deleteMultiObjectCB;
 exports.deleteConfigObj = deleteConfigObj;
 exports.deleteConfigObjCB = deleteConfigObjCB;
