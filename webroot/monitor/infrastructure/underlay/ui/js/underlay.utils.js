@@ -128,10 +128,10 @@ define(['underscore'], function (_) {
                                                     },{
                                                         key: 'intfCnt',
                                                         templateGenerator:
-                                                            'LinkGenerator',
+                                                            'TextGenerator',
                                                         valueClass: 'intfCnt',
                                                         templateGeneratorConfig: {
-                                                            formatter: 'link',
+                                                            formatter: 'underlay-link',
                                                             params: {}
                                                         }
                                                     },{
@@ -857,6 +857,7 @@ define(['underscore'], function (_) {
                 }
                 switch(currentPage) {
                     case 'mon_infra_underlay':
+                        graphModel.underlayPathReqObj(params);
                         $.ajax({
                             url: "/api/tenant/networking/underlay-path",
                             type    : "POST",
@@ -869,7 +870,6 @@ define(['underscore'], function (_) {
                                 }
                                 return;
                             }
-                            graphModel.underlayPathReqObj(params);
                             graphModel.model().attributes.flowPath.set({
                                 'nodes': ifNull(response['nodes'], []),
                                 'edges': ifNull(response['links'], [])
@@ -887,7 +887,8 @@ define(['underscore'], function (_) {
                                 });*/
                             }
                             $('html,body').animate({scrollTop:0}, 500);
-                        }).fail (function () {
+                        }).fail (function (xhr, state, err) {
+                            if(state !== 'timeout') {
                             if(params['startAt'] != null &&
                                 graphModel.lastInteracted > params['startAt']) {
                                 if (deferredObj != null) {
@@ -902,8 +903,9 @@ define(['underscore'], function (_) {
                                 postData.srcIP + "]:" + postData.srcPort +
                                 " to [" + postData.destIP + "]:" +
                                 postData.destPort, "Error");
+                            }
                             //showInfoWindow('Error in fetching details','Error');
-                        }).always (function (response, state, ajaxObj) {
+                        }).always (function (xhr, state, err) {
                             if(state == 'timeout') {
                                 var postData =
                                 graphModel.underlayPathReqObj();
@@ -941,10 +943,23 @@ define(['underscore'], function (_) {
             }
         };
 
-        self.removeUnderlayTabs = function (underlayTabView) {
+        self.removeUnderlayTabs = function (underlayTabView, deferredObj) {
             var tabCnt = $('#'+ctwc.UNDERLAY_TAB_ID +'> ul li:visible').length;
             for (var i = (tabCnt - 1); i >= 2; i--) {
                 underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].removeTab(i);
+            }
+            if(deferredObj != undefined) {
+                deferredObj.resolve()
+            }
+        };
+        self.tabsRendered = function(tabView, deferredObj) {
+            var allTabsRendered = false;
+            while(allTabsRendered == false) {
+                if(tabView.childViewMap[ctwc.UNDERLAY_TAB_ID].
+                    tabRendered.indexOf(false) == -1) {
+                    allTabsRendered = true;
+                    return true;
+                }
             }
         };
     }

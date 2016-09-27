@@ -29,7 +29,7 @@ define([
             graphModel = viewConfig.model;
             if(graphModel != null) {
                 underlayTabView.listenTo(viewConfig.model.selectedElement().model(),
-                    'change', function (selectedElement) {
+                    'change:nodeType', function (selectedElement) {
                    var nodeType = selectedElement['attributes']['nodeType'];
                    var nodeDetails = selectedElement['attributes']['nodeDetail'];
                    if(nodeType == ctwc.PROUTER) {
@@ -113,7 +113,9 @@ define([
 
     function showPRouterTabs (nodeDetails, underlayTabView) {
         var interfaceDetails = [];
-        underlayUtils.removeUnderlayTabs(underlayTabView);
+        var deferredObj = $.Deferred();
+        underlayUtils.removeUnderlayTabs(underlayTabView, deferredObj);
+        deferredObj.always(function (resetLoading) {
         var data = {
             hostName : ifNull(nodeDetails['name'],'-'),
             description: getValueByJsonPath(nodeDetails,
@@ -123,10 +125,6 @@ define([
             managementIP :
                 ifNull(nodeDetails['mgmt_ip'],'-'),
         };
-        // Rendering the details tab
-        underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
-            ctwc.UNDERLAY_TAB_ID,
-            [underlayUtils.getUnderlayDetailsTabViewConfig({data:data})]);
         for(var i = 0; i < getValueByJsonPath(nodeDetails,
             'more_attributes;ifTable',[]).length; i++ ) {
             var intfObj =
@@ -142,28 +140,33 @@ define([
             };
             interfaceDetails.push(rowObj);
         }
-        // Rendering the interfaces tab
+
+        // Rendering the details, interfaces tab
         underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
             ctwc.UNDERLAY_TAB_ID,
-            [underlayUtils.getUnderlayPRouterInterfaceTabViewConfig({
+            [underlayUtils.getUnderlayDetailsTabViewConfig({data:data}),
+            underlayUtils.getUnderlayPRouterInterfaceTabViewConfig({
                     hostName:data.hostName,
                     data: interfaceDetails
-                })], null, null, function () {
-                            // onAllViewsRenderComplete callback is executed when
-                            // all the tabs are rendered hence interface click
-                            // handler is bind in the interface tabs callback
-                            $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
-                            $("#details .intfCnt").click(function (e) {
-                                e.preventDefault();
-                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:3});
-                            })
-                        }
-        );
-        //$("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+                })
+            ], null, null, function() {
+                // onAllViewsRenderComplete callback is executed when
+                // all the tabs are rendered hence interface click
+                // handler is bind in the interface tabs callback
+                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+                $("#details .intfCnt").click(function (e) {
+                    e.preventDefault();
+                    $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:3});
+                })
+
+            });
+        });
     }
 
     function showVRouterTabs (nodeDetails, underlayTabView) {
-        underlayUtils.removeUnderlayTabs(underlayTabView);
+        var deferredObj = $.Deferred();
+        underlayUtils.removeUnderlayTabs(underlayTabView, deferredObj);
+        deferredObj.always(function(resetLoading){
         var vRouterParams =
             monitorInfraParsers.parseVRouterDetails(nodeDetails['more_attributes']);
         vRouterParams['hostname'] = nodeDetails['name'];
@@ -175,9 +178,13 @@ define([
             }
         );
         //$("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+        })
     }
 
     function showVMTabs (nodeDetails, underlayTabView) {
+        var deferredObj = $.Deferred();
+        underlayUtils.removeUnderlayTabs(underlayTabView, deferredObj);
+        deferredObj.always(function(resetLoading){
         var ip = [],vnList = [],intfLen = 0,vmName,
         instDetails = {},inBytes = 0,
         outBytes = 0;
@@ -207,7 +214,6 @@ define([
             instanceUUID: instanceUUID,
             networkFQN: vnList[0],
         };
-        underlayUtils.removeUnderlayTabs(underlayTabView);
         var instanceTabConfig =
             ctwvc.getInstanceDetailPageTabConfig(
                 instanceObj);
@@ -224,10 +230,13 @@ define([
                 $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
             }
         );
+        });
     }
 
     function showLinkTrafficStatistics (linkDetails, underlayTabView) {
-        underlayUtils.removeUnderlayTabs(underlayTabView);
+        var deferredObj = $.Deferred();
+        underlayUtils.removeUnderlayTabs(underlayTabView, deferredObj);
+        deferredObj.always(function(resetLoading){
         var viewConfig = {
             elementId:
                 ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID,
@@ -244,13 +253,15 @@ define([
                         $("#"+ ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid').refreshView();
                     }
                 },
-                renderOnActivate: true
+                renderOnActivate: false
             }
         };
         // Rendering the traffic statistics tab
         underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
-                ctwc.UNDERLAY_TAB_ID, [viewConfig]);
-        $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+                ctwc.UNDERLAY_TAB_ID, [viewConfig], null, null, function(){
+                    $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+                });
+        })
     }
 
     return UnderlayTabView;

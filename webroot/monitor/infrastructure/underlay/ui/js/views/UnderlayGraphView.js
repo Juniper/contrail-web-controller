@@ -76,6 +76,7 @@ define([
                                         keyboard: false,
                                         selectConnectedEdges: false,
                                         hoverConnectedEdges: false,
+                                        tooltipDelay: 1000,
                                         zoomView: false
                                     },
                                     layout: {
@@ -177,7 +178,7 @@ define([
             $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel', graphModel);
             self.model = graphModel;
             self.initModelEvents();
-            $('body').on("click", '#flow-info span.reset', function () {
+            $('body').off().on("click", '#flow-info span.reset', function () {
                 self.model.underlayPathReqObj({});
                 layoutHandler.setURLHashParams({}, {
                     p: 'mon_infra_underlay',
@@ -1580,189 +1581,175 @@ define([
                 }
             }
         },
-        handleHashParams: function(underlayNodes, underlayEdges) {
+        getSiblingNodesAndEdges: function(childName, parentName) {
             var self = this,
-                hashParams = layoutHandler.getURLHashParams(),
+                parentModel =
+                    self.model.getNodeByName(parentName),
+                childModel =
+                    self.model.getNodeByName(childName),
                 hashNodes = [],
                 hashEdges = [];
 
-            if(hashParams.hasOwnProperty("name")) {
-                //hash has a node to be selected
-                var hashNodeName = hashParams.name;
-                var nodeModel = self.model.getNodeByName(hashNodeName);
-                if(null != nodeModel) {
-                    //node found
-                    var chassis_type = nodeModel.attributes.chassis_type();
-                    switch (chassis_type) {
-                        case "coreswitch":
-                        case "spine":
-                        case "tor":
-                            if(hashParams.hasOwnProperty("expanded") &&
-                                "true" == ""+hashParams["expanded"]) {
-                                var childModels =
-                                self.model.getChildModels(nodeModel);
-                                if(childModels.hasOwnProperty("nodes") &&
-                                    childModels["nodes"].length > 0) {
-                                    hashNodes =
-                                    hashNodes.concat(childModels["nodes"]);
-                                }
-                                if(childModels.hasOwnProperty("edges") &&
-                                    childModels["edges"].length > 0) {
-                                    //network.updateEdge(childModels["edges"]);
-                                    hashEdges =
-                                    hashEdges.concat(childModels["edges"]);
-                                }
-                                if(self.lastAddedElements != undefined) {
-                                    if(self.lastAddedElements.nodes !=
-                                        undefined) {
-                                        self.lastAddedElements.nodes =
-                                        self.lastAddedElements.nodes.
-                                            concat(hashNodes);
-                                    }
-                                    if(self.lastAddedElements.edges !=
-                                        undefined) {
-                                        self.lastAddedElements.edges =
-                                        self.lastAddedElements.edges.
-                                            concat(hashEdges);
-                                    }
-                                }
-                                self.dblClickedType = "tor";
-                            }
-                            break;
-                        case "virtual-router":
-                            hashNodes.push(nodeModel);
-                            if(hashParams.hasOwnProperty("parent")) {
-                                var parentModel =
-                                self.model.getNodeByName(hashParams["parent"]);
-                                if(null != parentModel) {
-                                    var parentEdgeModel =
-                                    self.model.getEdgeByEndpoints(
-                                        hashParams["parent"],
-                                        hashParams["name"]);
-                                    if(null != parentEdgeModel) {
-                                        hashEdges.push(parentEdgeModel);
-                                    }
-                                    var siblingModels =
-                                    self.model.getChildModels(parentModel);
-                                    if(siblingModels.hasOwnProperty("nodes")) {
-                                        _.each(siblingModels["nodes"],
-                                            function(sibModel) {
-                                            if(sibModel.attributes.name() !=
-                                                hashNodeName) {
-                                                hashNodes.push(sibModel);
-                                            }
-                                        });
-                                        if(siblingModels.
-                                            hasOwnProperty("edges")) {
-                                            _.each(siblingModels["edges"],
-                                                function(sibEdgeModel) {
-                                                if(sibEdgeModel.attributes.
-                                                    element_id() !=
-                                                    parentEdgeModel.attributes.
-                                                    element_id()) {
-                                                    hashEdges.push(
-                                                        sibEdgeModel);
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
-
-                            }
-                            if(hashParams.hasOwnProperty("expanded") &&
-                                "true" == ""+hashParams["expanded"]) {
-                                var childModels =
-                                self.model.getChildModels(nodeModel);
-                                if(childModels.hasOwnProperty("nodes") &&
-                                    childModels["nodes"].length > 0) {
-                                    hashNodes =
-                                    hashNodes.concat(childModels["nodes"]);
-                                    if(self.lastAddedElements != undefined) {
-                                        if(self.lastAddedElements.nodes !=
-                                            undefined)
-                                            self.lastAddedElements.nodes =
-                                            self.lastAddedElements.nodes.
-                                            concat(childModels["nodes"]);
-                                        self.dblClickedType = ctwc.VROUTER;
-                                    }
-                                }
-                                if(childModels.hasOwnProperty("edges") &&
-                                    childModels["edges"].length > 0) {
-                                    hashEdges =
-                                    hashEdges.concat(childModels["edges"]);
-                                    if(self.lastAddedElements != undefined) {
-                                        if(self.lastAddedElements.edges !=
-                                            undefined)
-                                            self.lastAddedElements.edges =
-                                            self.lastAddedElements.edges.
-                                            concat(childModels["edges"]);
-                                        self.dblClickedType = ctwc.VROUTER;
-                                    }
-                                }
-                            }
-                            break;
-                        case "virtual-machine":
-                            hashNodes.push(nodeModel);
-                            if(hashParams.hasOwnProperty("parent")) {
-                                var parentModel =
-                                self.model.getNodeByName(hashParams["parent"]);
-                                if(null != parentModel) {
-                                    hashNodes.push(parentModel);
-                                    var parentEdgeModel =
-                                    self.model.getEdgeByEndpoints(
-                                        hashParams["parent"],
-                                        hashParams["name"]);
-                                    if(null != parentEdgeModel) {
-                                        hashEdges.push(parentEdgeModel);
-                                    }
-                                    var siblingModels =
-                                    self.model.getChildModels(parentModel);
-                                    if(siblingModels.hasOwnProperty("nodes")) {
-                                        _.each(siblingModels["nodes"],
-                                            function(sibModel) {
-                                            if(sibModel.attributes.name() !=
-                                                hashNodeName) {
-                                                hashNodes.push(sibModel);
-                                            }
-                                        });
-                                        if(siblingModels.
-                                            hasOwnProperty("edges")) {
-                                            _.each(siblingModels["edges"],
-                                                function(sibEdgeModel) {
-                                                if(sibEdgeModel.attributes.
-                                                    element_id() !=
-                                                    parentEdgeModel.attributes.
-                                                    element_id()) {
-                                                    hashEdges.push(
-                                                        sibEdgeModel);
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
-                                if(hashParams.hasOwnProperty("gparent")) {
-                                    var parentModel =
-                                    self.model.getNodeByName(
-                                        hashParams["gparent"]);
-                                    if(null != parentModel) {
-                                        var parentEdgeModel =
-                                        self.model.getEdgeByEndpoints(
-                                            hashParams["gparent"],
-                                            hashParams["parent"]);
-                                        if(null != parentEdgeModel) {
-                                            hashEdges.push(parentEdgeModel);
-                                        }
-                                    }
-                                }
-                            }
-                            break;
-                    }
+            if(null != parentModel) {
+                var siblingModels =
+                self.model.getChildModels(parentModel);
+                if(siblingModels.hasOwnProperty("nodes")) {
+                    if(siblingModels.nodes.length > 0)
+                        hashNodes =
+                        hashNodes.concat(siblingModels.nodes);
                 }
+                if(siblingModels.hasOwnProperty("edges")) {
+                    if(siblingModels.edges.length > 0)
+                        hashEdges =
+                        hashEdges.concat(siblingModels.edges);
+                }
+            } else if(undefined != childModel) {
+                hashNodes = hashNodes.concat(childModel);
             }
             return {
                 nodes: hashNodes,
                 edges: hashEdges
             };
+        },
+        handleHashParams: function(underlayNodes, underlayEdges) {
+            var self = this,
+                hashParams = layoutHandler.getURLHashParams(),
+                hashNodes = [],
+                hashEdges = [],
+                modelsToAdd = {
+                    nodes: [],
+                    edges: []
+                };
+
+            if(hashParams.hasOwnProperty("name")) {
+                //hash has a node to be selected
+                var hashNodeName = hashParams.name;
+                var nodeModel = self.model.getNodeByName(hashNodeName);
+                if(undefined == nodeModel)
+                    return modelsToAdd;
+
+                //node found
+                var chassis_type = nodeModel.attributes.chassis_type();
+                switch (chassis_type) {
+                    case "coreswitch":
+                    case "spine":
+                    case "tor":
+                        if(hashParams.hasOwnProperty("expanded") &&
+                            "true" == ""+hashParams["expanded"]) {
+                            var childModels =
+                            self.model.getChildModels(nodeModel);
+                            if(childModels.hasOwnProperty("nodes") &&
+                                childModels["nodes"].length > 0) {
+                                hashNodes =
+                                hashNodes.concat(childModels["nodes"]);
+                            }
+                            if(childModels.hasOwnProperty("edges") &&
+                                childModels["edges"].length > 0) {
+                                hashEdges =
+                                hashEdges.concat(childModels["edges"]);
+                            }
+                            if(self.lastAddedElements != undefined) {
+                                if(self.lastAddedElements.nodes !=
+                                    undefined) {
+                                    self.lastAddedElements.nodes =
+                                    self.lastAddedElements.nodes.
+                                        concat(hashNodes);
+                                }
+                                if(self.lastAddedElements.edges !=
+                                    undefined) {
+                                    self.lastAddedElements.edges =
+                                    self.lastAddedElements.edges.
+                                        concat(hashEdges);
+                                }
+                            }
+                            self.dblClickedType = "tor";
+                        }
+                        break;
+                    case "virtual-router":
+                        if(hashParams.hasOwnProperty("parent")) {
+                            var prName = hashParams["parent"];
+                            var vrName = hashNodeName;
+                            var models =
+                            self.getSiblingNodesAndEdges(vrName, prName);
+                            if(models.nodes.length > 0) {
+                                hashNodes =
+                                hashNodes.concat(models.nodes);
+                            }
+                            if(models.edges.length > 0) {
+                                hashEdges =
+                                hashEdges.concat(models.edges);
+                            }
+                        }
+                        if(hashParams.hasOwnProperty("expanded") &&
+                            "true" == ""+hashParams["expanded"]) {
+                            var childModels =
+                            self.model.getChildModels(nodeModel);
+                            if(childModels.hasOwnProperty("nodes") &&
+                                childModels["nodes"].length > 0) {
+                                hashNodes =
+                                hashNodes.concat(childModels["nodes"]);
+                                if(self.lastAddedElements != undefined) {
+                                    if(self.lastAddedElements.nodes !=
+                                        undefined)
+                                        self.lastAddedElements.nodes =
+                                        self.lastAddedElements.nodes.
+                                        concat(childModels["nodes"]);
+                                    self.dblClickedType = ctwc.VROUTER;
+                                }
+                            }
+                            if(childModels.hasOwnProperty("edges") &&
+                                childModels["edges"].length > 0) {
+                                hashEdges =
+                                hashEdges.concat(childModels["edges"]);
+                                if(self.lastAddedElements != undefined) {
+                                    if(self.lastAddedElements.edges !=
+                                        undefined)
+                                        self.lastAddedElements.edges =
+                                        self.lastAddedElements.edges.
+                                        concat(childModels["edges"]);
+                                    self.dblClickedType = ctwc.VROUTER;
+                                }
+                            }
+                        }
+                        break;
+                    case "virtual-machine":
+                        if(hashParams.hasOwnProperty("parent")) {
+                            var vrName = hashParams["parent"];
+                            var vmName = hashNodeName;
+                            var models =
+                            self.getSiblingNodesAndEdges(vmName, vrName);
+                            if(models.nodes.length > 0) {
+                                hashNodes =
+                                hashNodes.concat(models.nodes);
+                            }
+                            if(models.edges.length > 0) {
+                                hashEdges =
+                                hashEdges.concat(models.edges);
+                            }
+                            if(hashParams.hasOwnProperty("gparent")) {
+                                var prModel =
+                                self.model.getNodeByName(
+                                    hashParams["gparent"]);
+                                if(null != prModel) {
+                                    hashNodes =
+                                    hashNodes.concat(prModel);
+                                    var prvrEdgeModel =
+                                    self.model.getEdgeByEndpoints(
+                                        hashParams["gparent"],
+                                        hashParams["parent"]);
+                                    if(null != prvrEdgeModel) {
+                                        hashEdges =
+                                        hashEdges.concat(prvrEdgeModel);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+            modelsToAdd.nodes = hashNodes;
+            modelsToAdd.edges = hashEdges;
+            return modelsToAdd;
         },
         removeUnderlayPathIds: function() {
             var network = this.network;
@@ -2586,7 +2573,7 @@ define([
                     };
                     layoutHandler.setURLHashParams(queryParams, {
                         p: 'mon_infra_underlay',
-                        merge: false
+                        merge: true
                     });
                 }
                 }
@@ -2616,7 +2603,9 @@ define([
             var hashParams = layoutHandler.getURLHashParams();
             if(self.stabilized == false) {
                 self.stabilized = true;
-                if(hashParams.hasOwnProperty("path")) {
+                if(hashParams.hasOwnProperty("path") &&
+                    underlayUtils.tabsRendered(self.rootView.
+                        viewMap[ctwc.UNDERLAY_TABS_VIEW_ID])) {
                     var edges = [],
                         nodes = [];
                     if(hashParams["path"].hasOwnProperty("nodes") &&
@@ -2653,7 +2642,10 @@ define([
                         graphModel.flowPath().model().trigger('change:nodes');
                     }
                 }
-                if(hashParams.hasOwnProperty("selected")) {
+                if(hashParams.hasOwnProperty("selected") &&
+                    !hashParams.hasOwnProperty("endpoints") &&
+                    underlayUtils.tabsRendered(self.rootView.
+                        viewMap[ctwc.UNDERLAY_TABS_VIEW_ID])) {
                     //hash has a node to be selected
                     var hashNodeName = hashParams.selected;
                     var nodeModel = self.model.getNodeByName(hashNodeName);
@@ -2669,8 +2661,10 @@ define([
                         });
                     }
                 }
-                if(hashParams.hasOwnProperty("endpoints")) {
-                    //hash has a node to be selected
+                if(hashParams.hasOwnProperty("endpoints") &&
+                    underlayUtils.tabsRendered(self.rootView.
+                        viewMap[ctwc.UNDERLAY_TABS_VIEW_ID])) {
+                    //hash has a edge to be selected
                     var hashEndpoints = hashParams.endpoints.split("|");
                     var edgeModel =
                         self.model.getEdgeByEndpoints(hashEndpoints[0],
