@@ -3,18 +3,21 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view', 'monitor-infra-databasenode-model'],
+        [ 'underscore', 'contrail-view', 'monitor-infra-databasenode-model',
+          'node-color-mapping'],
         function(
-                _, ContrailView, DatabaseNodeListModel) {
+                _, ContrailView, DatabaseNodeListModel, NodeColorMapping) {
             var DatabaseNodeListView = ContrailView.extend({
                 render : function() {
-                    var databaseNodeListModel = new DatabaseNodeListModel();
+                    var databaseNodeListModel = new DatabaseNodeListModel(),
+                        nodeColorMapping = new NodeColorMapping(),
+                        colorFn = nodeColorMapping.getNodeColorMap;
                     this.renderView4Config(this.$el, databaseNodeListModel,
-                            getDatabaseNodeListViewConfig());
+                            getDatabaseNodeListViewConfig(colorFn));
                 }
             });
 
-            function getDatabaseNodeListViewConfig() {
+            function getDatabaseNodeListViewConfig(colorFn) {
                 var viewConfig = {
                     rows : [
                         {
@@ -26,23 +29,7 @@ define(
                                 view : "DatabaseNodeSummaryChartsView",
                                 viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
                                 viewConfig: {
-                                    widgetConfig: {
-                                        elementId: ctwc.DATABASENODE_SUMMARY_CHART_ID + '-widget',
-                                        view: "WidgetView",
-                                        viewConfig: {
-                                            header: {
-                                                title: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                                // iconClass: "icon-search"
-                                            },
-                                            controls: {
-                                                top: {
-                                                    default: {
-                                                        collapseable: true
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                                    colorFn: colorFn
                                 }
                             }]
                         },
@@ -56,7 +43,7 @@ define(
                                     ctwl.DATABASENODE_VIEWPATH_PREFIX,
                                 app : cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig : {
-
+                                    colorFn: colorFn
                                 }
                             }]
                         } ]

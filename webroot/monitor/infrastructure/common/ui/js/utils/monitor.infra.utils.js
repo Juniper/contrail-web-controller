@@ -2338,80 +2338,42 @@ define([
             );
         };
 
-        /*
-         * This function adds the legend to the component
-         * which accepts
-         * colors - checks the color object if it is not there
-         *          takes the color from the data
-         * cssClass - any custom css to the legend
-         * label - label for the legend
-         * clickFn - Handler for the click event
-         */
-        self.addLegendToSummaryPageCharts = function (options) {
-            var container = options['container'],
-                data = options['data'],
-                color = options['colors'],
-                offset = options['offset'] != null ? options['offset'] : 0,
-                label = options['label'],
-                cssClass = options['cssClass'] != null ? options['cssClass'] : 'contrail-legend',
-                dataLen = data.length,
-                nodeColorMap = options['nodeColorMap'],
-                clickFn = options['clickFn'];
-            if (color != null && !$.isArray(color)) {
-                color = [color];
-            }
-            if (nodeColorMap != null && !cowu.isEmptyObject(nodeColorMap)) {
-                color = _.values(nodeColorMap);
-                data = _.keys(nodeColorMap);
-                dataLen = data.length;
-            }
-            container.selectAll('g.'+cssClass)
-                .data(data)
-                .enter()
-                .append('g')
-                .attr('transform', function (d, i) {
-                    return 'translate('+ (- ((dataLen - i) * 20 + offset)) +', 0)';
-                }).attr('class', 'contrail-legend '+cssClass)
-                .append('rect')
-                .attr('width', 8)
-                .attr('height', 8)
-                .attr('fill', function (d, i) {
-                    return (color != null && color[i] != null) ? color[i] : d['color'];
-                })
-                .append('title')
-                .text(function (d){
-                    return d;
-                });
-            container.append('g')
-                .attr('transform', 'translate('+ (- ((dataLen * 20 + 10) + offset))+', 0)')
-                .attr('class', 'contrail-legend '+cssClass)
-                .append('text')
-                .attr('dy', 8)
-                .attr('text-anchor', 'end')
-                .text(label);
-        }
-        self.constructNodeColorMap = function (nodeList) {
-            nodeList = ifNull(nodeList, []);
-            nodeList = _.sortBy(nodeList, 'name');
-            var colors = self.getMonitorInfraNodeColors(nodeList.length);
-            var colorMap = {};
-            $.each(nodeList, function (idx, obj){
-                if (colorMap[obj['name']] == null && colors[idx] != null) {
-                    colorMap[obj['name']] = colors[idx];
+        self.getStatsModelConfig = function (statsConfig) {
+            var postData = {
+                "autoSort": true,
+                "async": false,
+                "formModelAttrs": {
+                  "table_type": "STAT",
+                  "query_prefix": "stat",
+                  "from_time": Date.now() - (2 * 60 * 60 * 1000),
+                  "from_time_utc": Date.now() - (2 * 60 * 60 * 1000),
+                  "to_time": Date.now(),
+                  "to_time_utc": Date.now(),
+                  "time_granularity_unit": "secs",
+                  "limit": "150000"
                 }
-            });
-            return colorMap;
-        }
-        self.getMonitorInfraNodeColors = function (nodeCnt) {
-            var colors = [];
-            if (nodeCnt == 1) {
-                colors = monitorInfraConstants.SINGLE_NODE_COLOR;
-            } else if (nodeCnt > 1 && nodeCnt <=3) {
-                colors = monitorInfraConstants.THREE_NODE_COLOR;
-            } else if (nodeCnt > 3 && nodeCnt <=5) {
-                colors = monitorInfraConstants.FIVE_NODE_COLOR;
             }
-            return colors.slice(0, nodeCnt);
+            if (statsConfig['tableName'] != null) {
+                postData['formModelAttrs']['table_name'] = statsConfig['tableName'];
+            }
+            if (statsConfig['select'] != null) {
+                postdData['formModelAttrs']['select'] = statsConfig['select'];
+            }
+            return {
+                remote : {
+                    ajaxConfig : {
+                        url : "/api/qe/query",
+                        type: 'POST',
+                        data: JSON.stringify(postdData)
+                    },
+                    dataParser : function (response) {
+                        return response['data'];
+                    }
+                },
+                cacheConfig : {
+                    ucid: statsConfig['cacheId']
+                }
+            }
         };
     };
     return MonitorInfraUtils;

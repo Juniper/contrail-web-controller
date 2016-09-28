@@ -3,19 +3,22 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view','monitor-infra-confignode-model' ],
+        [ 'underscore', 'contrail-view','monitor-infra-confignode-model', 'node-color-mapping'],
         function(
-                _, ContrailView, ConfigNodeListModel) {
+                _, ContrailView, ConfigNodeListModel, NodeColorMapping) {
             var ConfigNodeListView = ContrailView.extend({
                 render : function() {
-                    var configNodeListModel = new ConfigNodeListModel();
+                    var configNodeListModel = new ConfigNodeListModel(),
+                        nodeColorMapping = new NodeColorMapping(),
+                        colorFn = nodeColorMapping.getNodeColorMap;
+
                     this.renderView4Config(this.$el, configNodeListModel,
-                            getConfigNodeListViewConfig());
+                            getConfigNodeListViewConfig(colorFn));
                 }
             });
 
 
-            function getConfigNodeListViewConfig() {
+            function getConfigNodeListViewConfig(colorFn) {
                 var viewConfig = {
                     rows : [
                          {
@@ -28,7 +31,7 @@ define(
                                     ctwl.MONITOR_INFRA_VIEW_PATH,
                                 app : cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
-
+                                    colorFn: colorFn
                                 }
                                     } ]
                         },{
@@ -41,7 +44,7 @@ define(
                                     ctwl.CONFIGNODE_VIEWPATH_PREFIX,
                                 app : cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig : {
-
+                                    colorFn: colorFn
                                 }
                             } ]
                         } ]

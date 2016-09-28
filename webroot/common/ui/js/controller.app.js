@@ -97,7 +97,7 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'monitor-infra-utils': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/monitor.infra.utils',
             'monitor-infra-constants': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/monitor.infra.constants',
             'mon-infra-controller-dashboard': ctWebDir + '/monitor/infrastructure/dashboard/ui/js/views/ControllerDashboardView',
-
+            'node-color-mapping': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/NodeColorMapping',
             'controller-init': ctWebDir + '/common/ui/js/controller.init',
             'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
 
@@ -120,10 +120,14 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'controller-init': ctWebDir + '/common/ui/js/controller.init',
             'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
             'monitor-infra-analytics-database-usage-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/DatabaseUsageModel',
+            'node-color-mapping': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/NodeColorMapping',
             //Monitor Infra analytics charts
             'monitor-infra-analytics-sandesh-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeSandeshChartModel',
             'monitor-infra-analytics-queries-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeQueriesModel',
-            'monitor-infra-analytics-database-read-write-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeDatabaseWriteReadModel'
+            'monitor-infra-analytics-database-read-write-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeDatabaseWriteReadModel',
+
+            //Monitor Infra databasenodes
+            'monitor-infra-databasenode-cpu-mem-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodeCPUMemChartModel',
         }
     }
 };

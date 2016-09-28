@@ -380,10 +380,10 @@ define([
         this.ANALYTICS_CHART_DATABASE_WRITE_STACKEDBARCHART_ID = "analytics-chart-database-write-stackedbarchart-id";
         this.ANALYTICS_CHART_DATABASE_WRITE_LABEL = "DB Writes";
         this.ANALYTICS_CHART_FAILED_DATABASE_WRITES = "Failed DB Writes";
-        this.ANALYTICS_CHART_DATABASE_READ = "table_info.reads";
-        this.ANALYTICS_CHART_DATABASE_READ_FAILS = "table_info.read_fails";
-        this.ANALYTICS_CHART_DATABASE_WRITE = "table_info.writes";
-        this.ANALYTICS_CHART_DATABASE_WRITE_FAILS = "table_info.write_fails";
+        this.ANALYTICS_CHART_DATABASE_READ = "SUM(table_info.reads)";
+        this.ANALYTICS_CHART_DATABASE_READ_FAILS = "SUM(table_info.read_fails)";
+        this.ANALYTICS_CHART_DATABASE_WRITE = "SUM(table_info.writes)";
+        this.ANALYTICS_CHART_DATABASE_WRITE_FAILS = "SUM(table_info.write_fails)";
         this.ANALYTICS_NODES = 'Analytics Nodes';
         this.CACHE_ANALYTICSNODE_SANDESH_CHARTS = 'cache-analyticsnode-sandesh-charts';
         this.CACHE_ANALYTICSNODE_QUERIES_CHARTS = 'cache-analyticsnode-queries-charts';
@@ -629,8 +629,10 @@ define([
         this.DATABASENODE_CPU_SHARE_LINE_CHART_ID = 'database-nodes-cpu-line-chart';
         this.DATABASENODE_MEM_SHARE_LINE_CHART_SEC_ID = 'database-nodes-mem-line-chart-section';
         this.DATABASENODE_MEM_SHARE_LINE_CHART_ID = 'database-nodes-mem-line-chart';
-        this.DATABASENODE_DISK_SPACE_USAGE_SCATTER_CHART_SEC_ID = 'database-nodes-disk-sapce-scatter-chart-section';
-        this.DATABASENODE_DISK_SPACE_USAGE_SCATTER_CHART_ID = 'database-nodes-disk-sapce-scatter-chart';
+        this.DATABASENODE_DISK_SPACE_USAGE_CHART_SEC_ID = 'database-nodes-disk-sapce-chart-section';
+        this.DATABASENODE_DISK_SPACE_USAGE_CHART_ID = 'database-nodes-disk-sapce-chart';
+        this.DATABASENODE_COMPACTIONS_CHART_SEC_ID = 'database-nodes-compactions-chart-section';
+        this.DATABASENODE_COMPACTIONS_CHART_ID = 'database-nodes-compactions-chart';
 
         //Analytics node labels
         this.ANALYTICSNODE_VIEWPATH_PREFIX =
