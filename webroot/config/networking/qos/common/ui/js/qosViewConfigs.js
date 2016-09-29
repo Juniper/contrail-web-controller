@@ -109,7 +109,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                          view: 'FormComboboxView',
                          viewConfig: {
                              path : key,
-                             width: 250,
+                             width: 300,
                              dataBindValue : key +'()',
                              templateId:
                                  cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
@@ -127,13 +127,29 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                      {
                          elementId: fcId,
                          name: 'Forwarding Class ID',
-                         view: "FormInputView",
+                         view: "FormComboboxView",
                          viewConfig: {
-                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                             width: 250,
+                             templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
+                             width: 300,
                              path: fcId,
                              placeholder: "Enter Forwarding Class ID",
-                             dataBindValue: fcId + "()"
+                             dataBindValue: fcId + "()",
+                             elementConfig: {
+                                 dataTextField: "text",
+                                 dataValueField: "value",
+                                 placeholder:
+                                     "Enter or Select Forwarding Class ID",
+                                 dataSource: {
+                                     type: "remote",
+                                     requestType: "POST",
+                                     url: ctwc.URL_GET_CONFIG_DETAILS,
+                                     postData:
+                                         JSON.stringify({data:
+                                             [{type: "forwarding-classs"}]}),
+                                     parse:
+                                         qosFormatters.fcComboboxFormatter
+                                 }
+                             }
                          }
                      }
             ];

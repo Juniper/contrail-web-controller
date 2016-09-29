@@ -5,10 +5,12 @@
 define([
     'underscore',
     'contrail-view',
-    'knockback'
-], function (_, ContrailView, Knockback) {
+    'knockback',
+    'config/infra/globalconfig/ui/js/globalConfigFormatters'
+], function (_, ContrailView, Knockback, GlobalConfigFormatters) {
     var prefixId = ctwc.FORWARDING_CLASS_PREFIX_ID;
-    var modalId = 'configure-' + prefixId;
+    var modalId = 'configure-' + prefixId,
+        globalConfigFormatters = new GlobalConfigFormatters();
     var self;
     var forwardingClassEditView = ContrailView.extend({
         renderAddEditForwardingClass: function (options) {
@@ -188,7 +190,35 @@ define([
                                 }
                            }
                         }
-                    ]}
+                    ]},  {
+                    columns: [
+                        {
+                            elementId: 'qos_queue_refs',
+                            view: 'FormComboboxView',
+                            viewConfig: {
+                                label: 'QoS Queue',
+                                path : 'qos_queue_refs',
+                                class: 'col-xs-6',
+                                dataBindValue : 'qos_queue_refs',
+                                elementConfig: {
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    placeholder: 'Enter or Select QoS Queue',
+                                    dataSource: {
+                                        type: "remote",
+                                        requestType: "POST",
+                                        url: ctwc.URL_GET_CONFIG_DETAILS,
+                                        postData:
+                                            JSON.stringify({data:
+                                                [{type: "qos-queues"}]}),
+                                        parse:
+                                            globalConfigFormatters.
+                                            formatQoSQueueData
+                                    }
+                                }
+                           }
+                        }
+                     ]}
                 ]
             }
         }

@@ -169,6 +169,22 @@
               return gcUtils.getTextByValue(ctwc.QOS_MPLS_EXP_VALUES,
                       mpls);
           };
+
+          this.formatQoSQueueExp = function(r, c, v, cd, dc) {
+              return qosQueue = getValueByJsonPath(dc,
+                      "qos_queue_refs;0;to;2", "-");
+          };
+
+          this.formatQoSQueueData = function(result) {
+              var qosQueueDS = [], queueId,
+                  queues = getValueByJsonPath(result, "0;qos-queues", [], false);
+              _.each(queues, function(queue) {
+                  queueId = getValueByJsonPath(queue,
+                          "qos-queue;qos_queue_identifier", 0, false);
+                  qosQueueDS.push({text: queueId, value: queueId});
+              });
+              return qosQueueDS;
+          };
      };
      return globalConfigFormatters;
  });

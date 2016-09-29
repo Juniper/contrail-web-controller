@@ -254,7 +254,6 @@
 
               return fwdClassDataSrc;
           };
-
      };
 
      this.QOSTypeFormatter = function(v, dc) {

@@ -257,6 +257,13 @@ define([
                                     templateGeneratorConfig: {
                                         formatter: "FormatForwardingClassVLAN"
                                     }
+                                },{
+                                    key: "uuid",
+                                    templateGenerator: "TextGenerator",
+                                    label: "Associated QoS Queue",
+                                    templateGeneratorConfig: {
+                                        formatter: "FormatQoSQueueExp"
+                                    }
                                 }]
                             },
                             //permissions
@@ -286,6 +293,11 @@ define([
     this.FormatForwardingClassMPLS = function(v, dc) {
         return globalConfigFormatters.
         formatForwardingClassMPLS("", "", v, "", dc);
+    };
+
+    this.FormatQoSQueueExp = function(v, dc) {
+        return globalConfigFormatters.
+        formatQoSQueueExp("", "", v, "", dc);
     };
 
     return forwardingClassGridView;
