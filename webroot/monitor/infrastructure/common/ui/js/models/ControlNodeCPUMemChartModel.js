@@ -5,21 +5,20 @@
 define([
     'contrail-list-model'
 ], function (ContrailListModel) {
-    var DBNCPUMemChartsModel = function () {
+    var CNCPUMemChartsModel = function () {
         var queryPostData = {
                 "autoSort": true,
                 "async": false,
                 "formModelAttrs": {
-                  "table_name": "StatTable.NodeStatus.process_mem_cpu_usage",
+                  "table_name": "StatTable.ControlCpuState.cpu_info",
                   "table_type": "STAT",
                   "query_prefix": "stat",
                   "from_time": Date.now() - (2 * 60 * 60 * 1000),
                   "from_time_utc": Date.now() - (2 * 60 * 60 * 1000),
                   "to_time": Date.now(),
                   "to_time_utc": Date.now(),
-                  "select": "name, T=, "+
-                  "MAX(process_mem_cpu_usage.mem_res), MAX(process_mem_cpu_usage.cpu_share)",
-                  "where": "process_mem_cpu_usage.__key = cassandra",
+                  "select": "T=, name, MAX(cpu_info.cpu_share), MAX(cpu_info.mem_res)",
+                  "where": "cpu_info.module_id = contrail-control",
                   "time_granularity_unit": "secs",
                   "time_granularity": 150,
                   "limit": "150000"
@@ -41,6 +40,6 @@ define([
 
         return ContrailListModel(listModelConfig);
     };
-    return DBNCPUMemChartsModel;
+    return CNCPUMemChartsModel;
     }
 );

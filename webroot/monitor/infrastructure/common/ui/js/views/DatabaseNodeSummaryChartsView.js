@@ -5,8 +5,10 @@
 define(['underscore', 'contrail-view',
        'monitor-infra-databasenode-cpu-mem-model',
        'monitor-infra-analytics-database-usage-model',
+       'monitor-infra-databasenode-pending-compact-model',
        'legend-view'],
-       function(_, ContrailView, DatabaseNodeCPUMemModel, DatabaseUsageModel, LegendView){
+       function(_, ContrailView, DatabaseNodeCPUMemModel, DatabaseUsageModel,
+               PendingCompactionModel, LegendView){
 
     var DatabaseNodesSummaryChartsView = ContrailView.extend({
         render : function (){
@@ -24,22 +26,20 @@ define(['underscore', 'contrail-view',
             bottomleftColumn = self.$el.find(".bottom-container .left-column"),
             bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
             bottomRow = self.$el.find(".percentileWrapper"),
-            dbCPUMemModel = new DatabaseNodeCPUMemModel();
-            dbUsageModel = new DatabaseUsageModel();
+            dbCPUMemModel = new DatabaseNodeCPUMemModel(),
+            dbUsageModel = new DatabaseUsageModel(),
+            pendingCompactModel = new PendingCompactionModel();
 
-            self.renderView4Config(topleftColumn,  dbCPUMemModel,
-                getCPUShareChartViewConfig(colorFn));
-
+            self.renderView4Config(topleftColumn,  dbCPUMemModel, 
+                    getCPUShareChartViewConfig(colorFn));
             self.renderView4Config(bottomleftColumn,  dbCPUMemModel,
-                getMemShareChartViewConfig(colorFn));
-
+                    getMemShareChartViewConfig(colorFn));
             self.renderView4Config(bottomrightCoulmn,  dbUsageModel,
-                getDBDiskSpaceUsageViewConfig(colorFn));
-
-            self.renderView4Config(toprightCoulmn,  dbUsageModel,
-                getDBPendingCompactionsViewConfig(colorFn));
-
-            self.renderView4Config(bottomRow, self.model,getPercentileBarViewConfig());
+                    getDBDiskSpaceUsageViewConfig(colorFn));
+            self.renderView4Config(toprightCoulmn,  pendingCompactModel,
+                    getDBPendingCompactionsViewConfig(colorFn));
+            self.renderView4Config(bottomRow, self.model, 
+                    getPercentileBarViewConfig());
         }
     });
 
@@ -56,7 +56,7 @@ define(['underscore', 'contrail-view',
                             class: 'mon-infra-chart chartMargin',
                             chartOptions : {
                                 brush: false,
-                                height: 240,
+                                height: 225,
                                 xAxisLabel: '',
                                 yAxisLabel: 'CPU Share (%)',
                                 groupBy: 'name',
@@ -104,7 +104,7 @@ define(['underscore', 'contrail-view',
                             class: 'mon-infra-chart chartMargin',
                             chartOptions : {
                                 brush: false,
-                                height: 240,
+                                height: 225,
                                 xAxisLabel: '',
                                 yAxisLabel: 'Memory',
                                 groupBy: 'name',
@@ -124,10 +124,10 @@ define(['underscore', 'contrail-view',
                                 hideFocusChart: true,
                                 forceY: false,
                                 yFormatter : function(d){
-                                    return formatBytes(d * 1024, true);
+                                    return formatBytes(d * 1024, false);
                                 },
                                 xFormatter: xCPUChartFormatter,
-                                showLegend:true,
+                                showLegend: true,
                                 defaultZeroLineDisplay: true,
                                 legendView: LegendView
                             },
@@ -151,7 +151,7 @@ define(['underscore', 'contrail-view',
                             class: 'mon-infra-chart chartMargin',
                             chartOptions : {
                                 brush: false,
-                                height: 240,
+                                height: 225,
                                 xAxisLabel: '',
                                 yAxisLabel: 'Disk Space Usage',
                                 groupBy: 'Source',
@@ -174,7 +174,7 @@ define(['underscore', 'contrail-view',
                                     return formatBytes(d, true);
                                 },
                                 xFormatter: xCPUChartFormatter,
-                                showLegend:true,
+                                showLegend: true,
                                 defaultZeroLineDisplay: true,
                                 legendView: LegendView
                             },
@@ -198,16 +198,14 @@ define(['underscore', 'contrail-view',
                             class: 'mon-infra-chart chartMargin',
                             chartOptions:{
                                 colors: colorFn,
-                                height: 255,
-                                groupBy: 'Source',
-                                yField: 'MAX(database_usage.disk_space_used_1k)',
+                                height: 240,
+                                groupBy: 'name',
+                                yField: 'MAX(cassandra_compaction_task.pending_compaction_tasks)',
                                 xAxisLabel: '',
                                 yAxisLabel: 'Pending Compactions',
                                 title: ctwl.DATABASENODE_SUMMARY_TITLE,
                                 yAxisOffset: 25,
-                                yAxisFormatter: function (d) {
-                                    return formatBytes(d, true);
-                                },
+                                yAxisFormatter: d3.format('d'),
                                 tickPadding: 8,
                                 margin: {
                                     left: 55,
@@ -217,12 +215,14 @@ define(['underscore', 'contrail-view',
                                 },
                                 bucketSize: monitorInfraConstants.STATS_BUCKET_DURATION,
                                 showControls: false,
+                                showLegend: true,
+                                defaultZeroLineDisplay: true
                             },
                        }
                    }]
                }]
            }
-       }
+       };
     }
 
     function getPercentileBarViewConfig() {
