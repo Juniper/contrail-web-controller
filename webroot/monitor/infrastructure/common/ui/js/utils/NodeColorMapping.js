@@ -7,7 +7,7 @@ define(
        function(_) {
             var NodeColorMapping = function() {
                 var nodeColorMap = {};
-                
+
                 this.getNodeColorMap = function (hostNames) {
                     var self = this;
                     if (!$.isArray(hostNames)) {

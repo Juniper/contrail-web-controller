@@ -101,7 +101,14 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'controller-init': ctWebDir + '/common/ui/js/controller.init',
             'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
 
-            'monitor-infra-databasenode-cpu-mem-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodeCPUMemChartModel'
+            //Monitor Infra databasenodes
+            'monitor-infra-databasenode-cpu-mem-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodeCPUMemChartModel',
+            'monitor-infra-databasenode-pending-compact-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodePendingCompactionChartModel',
+
+            //Monitor Infra controlnodes
+            'monitor-infra-controlnode-sent-update-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeSentUpdatesModel',
+            'monitor-infra-controlnode-received-update-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeReceivedUpdatesModel',
+            'monitor-infra-controlnode-cpu-mem-chart-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeCPUMemChartModel'
         }
     } else if(env == "prod") {
         return {
@@ -128,6 +135,12 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
 
             //Monitor Infra databasenodes
             'monitor-infra-databasenode-cpu-mem-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodeCPUMemChartModel',
+            'monitor-infra-databasenode-pending-compact-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodePendingCompactionChartModel',
+
+            //Monitor Infra controlnodes
+            'monitor-infra-controlnode-sent-update-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeSentUpdatesModel',
+            'monitor-infra-controlnode-received-update-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeReceivedUpdatesModel',
+            'monitor-infra-controlnode-cpu-mem-chart-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeCPUMemChartModel'
         }
     }
 };
