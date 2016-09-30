@@ -3,25 +3,27 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view', 'monitor-infra-controlnode-model'],
+        [ 'underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-color-mapping'],
         function(
-                _, ContrailView, ControlNodeListModel) {
+                _, ContrailView, ControlNodeListModel, NodeColorMapping) {
             var ControlNodeListView = ContrailView.extend({
                 render : function() {
-                    var controlNodeListModel = new ControlNodeListModel();
+                    var controlNodeListModel = new ControlNodeListModel(),
+                        nodeColorMapping = new NodeColorMapping(),
+                        colorFn = nodeColorMapping.getNodeColorMap;
                     this.renderView4Config(this.$el, controlNodeListModel,
-                            getControlNodeListViewConfig());
+                            getControlNodeListViewConfig(colorFn));
                 }
             });
 
-            function getControlNodeListViewConfig() {
+            function getControlNodeListViewConfig(colorFn) {
                 var viewConfig = {
                     rows : [{
-                        columns : [{
+                        /*columns : [{
                             elementId :
                                 ctwl.CONTROLNODE_SUMMARY_CHART_ID,
                             title : ctwl.CONTROLNODE_SUMMARY_TITLE,
-                            view : "ControlNodeScatterChartView",
+                            view : "ControlNodeSummaryChartsView",
                             viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
                             app : cowc.APP_CONTRAIL_CONTROLLER,
                             viewConfig: {
@@ -43,16 +45,26 @@ define(
                                     }
                                 }
                             }
+                        }]*/
+                        columns : [{
+                            elementId : ctwl.CONTROLNODE_SUMMARY_CHART_ID,
+                            title : ctwl.CONTROLNODE_SUMMARY_TITLE,
+                            view : "ControlNodeSummaryChartsView",
+                            viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
+                            app : cowc.APP_CONTRAIL_CONTROLLER,
+                            viewConfig: {
+                                colorFn: colorFn
+                            }
                         }]
                     },{
                         columns : [{
-                            elementId :
-                                ctwl.CONTROLNODE_SUMMARY_GRID_ID,
+                            elementId : ctwl.CONTROLNODE_SUMMARY_GRID_ID,
                             title : ctwl.CONTROLNODE_SUMMARY_TITLE,
                             view : "ControlNodeSummaryGridView",
                             viewPathPrefix: ctwl.CONTROLNODE_VIEWPATH_PREFIX,
                             app : cowc.APP_CONTRAIL_CONTROLLER,
                             viewConfig : {
+                                colorFn: colorFn
                             }
                         }]
                     }]
