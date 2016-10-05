@@ -3,15 +3,16 @@
  */
 
 define([
-    'underscore',
-    'query-form-view',
-    'knockback',
-    'controller-basedir/reports/qe/ui/js/models/FlowRecordFormModel',
-    'core-basedir/reports/qe/ui/js/common/qe.utils'
-], function (_, QueryFormView, Knockback, FlowRecordFormModel, qeUtils) {
-
+    "knockback",
+    "validation",
+    "layout-handler",
+    "query-form-view",
+    "controller-basedir/reports/qe/ui/js/models/FlowRecordFormModel",
+    "core-basedir/reports/qe/ui/js/common/qe.utils"
+], function (kb, kbValidation, LayoutHandler, QueryFormView, FlowRecordFormModel, qeUtils) {
+    var layoutHandler = new LayoutHandler();
     var FlowRecordQueryView = QueryFormView.extend({
-        render: function () {
+        render: function() {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 modelMap = contrail.handleIfNull(self.modelMap, {}),
@@ -30,24 +31,27 @@ define([
             }
 
             self.model = new FlowRecordFormModel(queryFormAttributes);
-            self.$el.append(queryPageTmpl({queryPrefix: cowc.FR_QUERY_PREFIX }));
+            self.$el.append(queryPageTmpl({ queryPrefix: cowc.FR_QUERY_PREFIX }));
 
-            self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), cowc.KEY_RUN_QUERY_VALIDATION, null, modelMap, function () {
-                self.model.showErrorAttr(flowRecordId, false);
-                Knockback.applyBindings(self.model, document.getElementById(flowRecordId));
-                kbValidation.bind(self);
-                $("#run_query").on('click', function() {
-                    if (self.model.model().isValid(true, cowc.KEY_RUN_QUERY_VALIDATION)) {
+            self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(),
+                cowc.KEY_RUN_QUERY_VALIDATION, null, modelMap,
+                function() {
+                    self.model.showErrorAttr(flowRecordId, false);
+                    kb.applyBindings(self.model, document.getElementById(flowRecordId));
+                    kbValidation.bind(self);
+
+                    $("#run_query").on("click", function() {
+                        if (self.model.model().isValid(true, cowc.KEY_RUN_QUERY_VALIDATION)) {
+                            self.renderQueryResult();
+                        }
+                    });
+
+                    qeUtils.adjustHeight4FormTextarea(queryPrefix);
+
+                    if (queryType === cowc.QUERY_TYPE_RERUN) {
                         self.renderQueryResult();
                     }
                 });
-
-                qeUtils.adjustHeight4FormTextarea(queryPrefix);
-
-                if (queryType === cowc.QUERY_TYPE_RERUN) {
-                    self.renderQueryResult();
-                }
-            });
 
             if (widgetConfig !== null) {
                 self.renderView4Config($(queryFormId), self.model, widgetConfig, null, null, null);
@@ -65,20 +69,19 @@ define([
                 queryResultTabId = cowl.QE_FLOW_RECORD_TAB_ID;
 
             if (widgetConfig !== null) {
-                $(queryFormId).parents('.widget-box').data('widget-action').collapse();
+                $(queryFormId).parents(".widget-box").data("widget-action").collapse();
             }
 
             queryFormModel.is_request_in_progress(true);
             qeUtils.fetchServerCurrentTime(function(serverCurrentTime) {
-                var timeRange = parseInt(queryFormModel.time_range()),
-                    queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+                var queryRequestPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
 
                 self.renderView4Config($(queryResultId), self.model,
-                    getQueryResultTabViewConfig(self, queryRequestPostData, queryResultTabId), null, null, modelMap,
-                    function() {
+                    getQueryResultTabViewConfig(self, queryRequestPostData, queryResultTabId),
+                    null, null, modelMap, function() {
                         var queryResultListModel = modelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL];
 
-                        queryResultListModel.onAllRequestsComplete.subscribe(function () {
+                        queryResultListModel.onAllRequestsComplete.subscribe(function() {
                             queryFormModel.is_request_in_progress(false);
                         });
                     });
@@ -91,187 +94,200 @@ define([
                 childViewMap = self.childViewMap,
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
                 modelMap = contrail.handleIfNull(self.modelMap, {}),
-                selectedFlowRecord = contrail.checkIfExist(selectedFlowRecord) ? selectedFlowRecord : viewConfig['selectedFlowRecord'],
                 queryFormAttributes = self.model.getFormModelAttributes(),
                 queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FR_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
                 queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FR_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
                 queryResultTabsId = cowl.QE_FLOW_RECORD_TAB_ID,
                 queryResultTabsView = contrail.checkIfExist(childViewMap[queryResultTabsId]) ? childViewMap[queryResultTabsId] : null;
 
+            selectedFlowRecord = contrail.checkIfExist(selectedFlowRecord) ? selectedFlowRecord : viewConfig.selectedFlowRecord;
             if (widgetConfig !== null) {
-                $(queryFormId).parents('.widget-box').data('widget-action').collapse();
+                $(queryFormId).parents(".widget-box").data("widget-action").collapse();
             }
 
             // If Result Tab already exist, add new Tab else create tab view.
-            if (queryResultTabsView == null) {
+            if (!contrail.checkIfExist(queryResultTabsView)) {
                 self.renderView4Config($(queryResultId), null,
                     getSessionAnalyzerTabsViewConfig(queryResultTabsId, queryFormAttributes, selectedFlowRecord),
                     null, null, modelMap, null);
             } else {
-               queryResultTabsView.renderNewTab(queryResultTabsId,
-                   getSessionAnalyzerTabViewConfig(queryFormAttributes, selectedFlowRecord), true, modelMap, null);
+                queryResultTabsView.renderNewTab(queryResultTabsId,
+                    getSessionAnalyzerTabViewConfig(queryFormAttributes, selectedFlowRecord), true, modelMap, null);
             }
         },
 
-        getViewConfig: function () {
+        getViewConfig: function() {
             var self = this;
 
             return {
                 view: "SectionView",
                 viewConfig: {
-                    rows: [
-                        {
-                            columns: [
-                                {
-                                    elementId: 'time_range', view: "FormDropdownView",
-                                    viewConfig: {
-                                        path: 'time_range', dataBindValue: 'time_range', class: "col-xs-3",
-                                        elementConfig: {dataTextField: "text", dataValueField: "id", data: cowc.TIMERANGE_DROPDOWN_VALUES}}
-                                },
-                                {
-                                    elementId: 'from_time', view: "FormDateTimePickerView",
-                                    viewConfig: {
-                                        style: 'display: none;',
-                                        path: 'from_time', dataBindValue: 'from_time', class: "col-xs-3",
-                                        elementConfig: qeUtils.getFromTimeElementConfig('from_time', 'to_time'),
-                                        visible: "time_range() == -1"
-                                    }
-                                },
-                                {
-                                    elementId: 'to_time', view: "FormDateTimePickerView",
-                                    viewConfig: {
-                                        style: 'display: none;',
-                                        path: 'to_time', dataBindValue: 'to_time', class: "col-xs-3",
-                                        elementConfig: qeUtils.getToTimeElementConfig('from_time', 'to_time'),
-                                        visible: "time_range() == -1"
+                    rows: [{
+                        columns: [{
+                            elementId: "time_range",
+                            view: "FormDropdownView",
+                            viewConfig: {
+                                path: "time_range",
+                                dataBindValue: "time_range",
+                                class: "col-xs-3",
+                                elementConfig: { dataTextField: "text", dataValueField: "id", data: cowc.TIMERANGE_DROPDOWN_VALUES }
+                            }
+                        }, {
+                            elementId: "from_time",
+                            view: "FormDateTimePickerView",
+                            viewConfig: {
+                                style: "display: none;",
+                                path: "from_time",
+                                dataBindValue: "from_time",
+                                class: "col-xs-3",
+                                elementConfig: qeUtils.getFromTimeElementConfig("from_time", "to_time"),
+                                visible: "isTimeRangeCustom()"
+                            }
+                        }, {
+                            elementId: "to_time",
+                            view: "FormDateTimePickerView",
+                            viewConfig: {
+                                style: "display: none;",
+                                path: "to_time",
+                                dataBindValue: "to_time",
+                                class: "col-xs-3",
+                                elementConfig: qeUtils.getToTimeElementConfig("from_time", "to_time"),
+                                visible: "isTimeRangeCustom()"
+                            }
+                        }]
+                    }, {
+                        columns: [{
+                            elementId: "select",
+                            view: "FormTextAreaView",
+                            viewConfig: {
+                                path: "select",
+                                dataBindValue: "select",
+                                class: "col-xs-9",
+                                editPopupConfig: {
+                                    renderEditFn: function() {
+                                        self.renderSelect({ className: cowc.QE_MODAL_CLASS_700 });
                                     }
                                 }
-                            ]
-                        },
-                        {
-                            columns: [
-                                {
-                                    elementId: 'select', view: "FormTextAreaView",
-                                    viewConfig: {path: 'select', dataBindValue: 'select', class: "col-xs-9", editPopupConfig: {
-                                        renderEditFn: function() {
-                                            self.renderSelect({className: cowc.QE_MODAL_CLASS_700});
-                                        }
-                                    }}
-                                },
-                                {
-                                    elementId: 'time-granularity-section',
-                                    view: "FormCompositeView",
+                            }
+                        }, {
+                            elementId: "time-granularity-section",
+                            view: "FormCompositeView",
+                            viewConfig: {
+                                class: "col-xs-3",
+                                style: "display: none;",
+                                path: "time_granularity",
+                                label: "Time Granularity",
+                                visible: "isSelectTimeChecked()",
+                                childView: [{
+                                    elementId: "time_granularity",
+                                    view: "FormNumericTextboxView",
                                     viewConfig: {
-                                        class: "col-xs-3",
-                                        style: 'display: none;',
-                                        path: 'time_granularity',
-                                        label: 'Time Granularity',
-                                        visible: 'isSelectTimeChecked()',
-                                        childView: [
-                                            {
-                                                elementId: 'time_granularity', view: "FormNumericTextboxView",
-                                                viewConfig: {
-                                                    label: false,
-                                                    path: 'time_granularity',
-                                                    dataBindValue: 'time_granularity',
-                                                    class: "col-xs-6",
-                                                    elementConfig: {min: 1}
-                                                }
-                                            },
-                                            {
-                                                elementId: 'time_granularity_unit', view: "FormDropdownView",
-                                                viewConfig: {
-                                                    label: false,
-                                                    path: 'time_granularity_unit',
-                                                    dataBindValue: 'time_granularity_unit',
-                                                    dataBindOptionList: 'getTimeGranularityUnits()',
-                                                    class: "col-xs-4",
-                                                    elementConfig: {}
-                                                }
-                                            }
-                                        ]
+                                        label: false,
+                                        path: "time_granularity",
+                                        dataBindValue: "time_granularity",
+                                        class: "col-xs-6",
+                                        elementConfig: { min: 1 }
+                                    }
+                                }, {
+                                    elementId: "time_granularity_unit",
+                                    view: "FormDropdownView",
+                                    viewConfig: {
+                                        label: false,
+                                        path: "time_granularity_unit",
+                                        dataBindValue: "time_granularity_unit",
+                                        dataBindOptionList: "getTimeGranularityUnits()",
+                                        class: "col-xs-4",
+                                        elementConfig: {}
+                                    }
+                                }]
 
-                                    }
-                                }
-                            ]
+                            }
+                        }]
+                    }, {
+                        viewConfig: {
+                            visible: "show_advanced_options()"
                         },
-                        {
+                        columns: [{
+                            elementId: "where",
+                            view: "FormTextAreaView",
                             viewConfig: {
-                                visible: 'show_advanced_options()'
-                            },
-                            columns: [
-                                {
-                                    elementId: 'where', view: "FormTextAreaView",
-                                    viewConfig: {path: 'where', dataBindValue: 'where', class: "col-xs-9", placeHolder: "*", editPopupConfig: {
-                                        renderEditFn: function() {
-                                            self.renderWhere({className: cowc.QE_MODAL_CLASS_700});
-                                        }
-                                    }}
-                                },
-                                {
-                                    elementId: 'direction', view: "FormDropdownView",
-                                    viewConfig: {
-                                        path: 'direction', dataBindValue: 'direction', class: "col-xs-3",
-                                        elementConfig: {dataTextField: "text", dataValueField: "id", data: cowc.DIRECTION_DROPDOWN_VALUES}
+                                path: "where",
+                                dataBindValue: "where",
+                                class: "col-xs-9",
+                                placeHolder: "*",
+                                editPopupConfig: {
+                                    renderEditFn: function() {
+                                        self.renderWhere({ className: cowc.QE_MODAL_CLASS_700 });
                                     }
                                 }
-                            ]
-                        },
-                        {
+                            }
+                        }, {
+                            elementId: "direction",
+                            view: "FormDropdownView",
                             viewConfig: {
-                                visible: 'show_advanced_options()'
-                            },
-                            columns: [
-                                {
-                                    elementId: 'filters', view: "FormTextAreaView",
-                                    viewConfig: {path: 'filters', dataBindValue: 'filters', class: "col-xs-9", label: cowl.TITLE_QE_FILTER, editPopupConfig: {
-                                        renderEditFn: function() {
-                                            self.renderFilters({className: cowc.QE_MODAL_CLASS_700});
-                                        }
-                                    }}
-                                }
-                            ]
+                                path: "direction",
+                                dataBindValue: "direction",
+                                class: "col-xs-3",
+                                elementConfig: { dataTextField: "text", dataValueField: "id", data: cowc.DIRECTION_DROPDOWN_VALUES }
+                            }
+                        }]
+                    }, {
+                        viewConfig: {
+                            visible: "show_advanced_options()"
                         },
-                        {
-                            columns: [
-                                {
-                                    elementId: 'advanced_options', view: "FormTextView",
-                                    viewConfig: {
-                                        text: 'getAdvancedOptionsText()',
-                                        class: "col-xs-6 margin-0-0-10",
-                                        elementConfig : {
-                                            class: "advanced-options-link"
-                                        },
-                                        click: 'toggleAdvancedFields'
+                        columns: [{
+                            elementId: "filters",
+                            view: "FormTextAreaView",
+                            viewConfig: {
+                                path: "filters",
+                                dataBindValue: "filters",
+                                class: "col-xs-9",
+                                label: cowl.TITLE_QE_FILTER,
+                                editPopupConfig: {
+                                    renderEditFn: function() {
+                                        self.renderFilters({ className: cowc.QE_MODAL_CLASS_700 });
                                     }
                                 }
-                            ]
-                        },
-                        {
-                            columns: [
-                                {
-                                    elementId: 'run_query', view: "FormButtonView", label: "Run Query",
-                                    viewConfig: {
-                                        class: 'display-inline-block margin-0-0-0-15',
-                                        disabled: 'is_request_in_progress()',
-                                        elementConfig: {
-                                            btnClass: 'btn-primary'
-                                        }
-                                    }
+                            }
+                        }]
+                    }, {
+                        columns: [{
+                            elementId: "advanced_options",
+                            view: "FormTextView",
+                            viewConfig: {
+                                text: "getAdvancedOptionsText()",
+                                class: "col-xs-6 margin-0-0-10",
+                                elementConfig: {
+                                    class: "advanced-options-link"
                                 },
-                                {
-                                    elementId: 'reset_query', view: "FormButtonView", label: "Reset",
-                                    viewConfig: {
-                                        label: "Reset",
-                                        class: 'display-inline-block margin-0-0-0-15',
-                                        elementConfig: {
-                                            onClick: "function(data, event) {reset(data, event, true, false);}"
-                                        }
-                                    }
+                                click: "toggleAdvancedFields"
+                            }
+                        }]
+                    }, {
+                        columns: [{
+                            elementId: "run_query",
+                            view: "FormButtonView",
+                            label: "Run Query",
+                            viewConfig: {
+                                class: "display-inline-block margin-0-0-0-15",
+                                disabled: "is_request_in_progress()",
+                                elementConfig: {
+                                    btnClass: "btn-primary"
                                 }
-                            ]
-                        }
-                    ]
+                            }
+                        }, {
+                            elementId: "reset_query",
+                            view: "FormButtonView",
+                            label: "Reset",
+                            viewConfig: {
+                                label: "Reset",
+                                class: "display-inline-block margin-0-0-0-15",
+                                elementConfig: {
+                                    onClick: "function(data, event) {reset(data, event, true, false);}"
+                                }
+                            }
+                        }]
+                    }]
                 }
             };
         }
@@ -286,32 +302,31 @@ define([
                 tabs: [getQueryResultGridViewConfig(self, queryRequestPostData, queryResultTabsId)]
             }
         };
-    };
+    }
 
     function getQueryResultGridViewConfig(self, queryRequestPostData) {
-        var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID, actionCell = [];
+        var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID,
+            actionCell = [];
 
         if (qeUtils.enableSessionAnalyzer(null, queryRequestPostData.formModelAttrs)) {
-            actionCell = [
-                {
-                    title: 'Analyze Session',
-                    iconClass: 'fa fa-external-link-square',
-                    onClick: function (e, targetElement, selRowDataItem) {
-                        self.renderSessionAnalyzer(selRowDataItem);
-                    }
+            actionCell = [{
+                title: "Analyze Session",
+                iconClass: "fa fa-external-link-square",
+                onClick: function(e, targetElement, selRowDataItem) {
+                    self.renderSessionAnalyzer(selRowDataItem);
                 }
-            ]
+            }];
         }
 
         return {
             elementId: queryResultGridId,
             title: cowl.TITLE_RESULTS,
-            iconClass: 'fa fa-table',
-            view: 'QueryResultGridView',
+            iconClass: "fa fa-table",
+            view: "QueryResultGridView",
             tabConfig: {
-                activate: function (event, ui) {
-                    if ($('#' + queryResultGridId).data('contrailGrid')) {
-                        $('#' + queryResultGridId).data('contrailGrid').refreshView();
+                activate: function() {
+                    if ($("#" + queryResultGridId).data("contrailGrid")) {
+                        $("#" + queryResultGridId).data("contrailGrid").refreshView();
                     }
                 }
             },
@@ -321,11 +336,11 @@ define([
                     titleText: cowl.TITLE_FLOW_RECORD,
                     queryQueueUrl: cowc.URL_QUERY_FLOW_QUEUE,
                     queryQueueTitle: cowl.TITLE_FLOW,
-                    actionCell:actionCell
+                    actionCell: actionCell
                 }
             }
-        }
-    };
+        };
+    }
 
     function getSessionAnalyzerTabsViewConfig(queryResultTabsId, queryFormAttributes, selectedFlowRecord) {
         return {
@@ -336,17 +351,17 @@ define([
                 tabs: getSessionAnalyzerTabViewConfig(queryFormAttributes, selectedFlowRecord)
             }
         };
-    };
+    }
 
     function getSessionAnalyzerTabViewConfig(queryFormAttributes, selectedFlowRecord) {
         var queryId = queryFormAttributes.queryId;
         return [{
-            elementId: cowl.QE_SESSION_ANALYZER_VIEW_ID + '-' +queryId + '-' + selectedFlowRecord.cgrid,
+            elementId: cowl.QE_SESSION_ANALYZER_VIEW_ID + "-" + queryId + "-" + selectedFlowRecord.cgrid,
             title: cowl.TITLE_SESSION_ANALYZER,
-            iconClass: 'icon-bar-chart',
+            iconClass: "fa fa-bar-chart-o",
             app: cowc.APP_CONTRAIL_CONTROLLER,
-            viewPathPrefix: 'controller-basedir/reports/qe/ui/js/views/',
-            view: 'SessionAnalyzerView',
+            viewPathPrefix: "controller-basedir/reports/qe/ui/js/views/",
+            view: "SessionAnalyzerView",
             tabConfig: {
                 removable: true,
             },
@@ -357,7 +372,7 @@ define([
                 selectedFlowRecord: selectedFlowRecord
             }
         }];
-    };
+    }
 
     return FlowRecordQueryView;
 });
