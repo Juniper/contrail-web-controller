@@ -21,6 +21,8 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
                          '/src/serverroot/utils/redis.utils'),
     rest = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/rest.api'),
+	discApi = require(process.mainModule.exports.corePath +
+					  "/src/serverroot/common/discoveryclient.api"),
     async = require('async');
 
 var redisInfraClient = null;
@@ -882,6 +884,31 @@ function getNetworkReachableIP (dataObj, callback)
         accept: '*/*',
         'content-length': 0
     };
+    var serverType = null;
+    var discData = discApi.getServiceRespDataList();
+    if ('true' == isConfig) {
+        serverType = global.DISC_SERVICE_TYPE_API_SERVER;
+    } else if ('false' == isConfig) {
+        serverType = global.DISC_SERVICE_TYPE_OP_SERVER;
+    }
+    var dataList =
+        commonUtils.getValueByJsonPath(discData,
+                                       serverType + ';data;' +
+                                       serverType, []);
+    if (null != serverType) {
+        var dataCnt = dataList.length;
+        for (var i = 0; i < dataCnt; i++) {
+            var discIP =
+            commonUtils.getValueByJsonPath(dataList[i],
+                                           'ip-address', null);
+            var discPort =
+            commonUtils.getValueByJsonPath(dataList[i],
+                                           'port', null);
+            if (ip == discIP) {
+                port = discPort;
+            }
+        }
+    }
     var nwReachReqUrl = global.HTTP_URL + ip + ':' + port + '/';
     options['uri'] = nwReachReqUrl;
     resultJSON['error'] = null;
