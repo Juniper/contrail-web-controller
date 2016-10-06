@@ -410,3 +410,11 @@ button.btn.btn-mini #remove-error-popup{
 button#remove-error-popup{
   outline: none !important;
 }
+.object-column-header{
+    background: #fafafa;
+    width: 97%;
+    height: 26px;
+    border-bottom: 1px solid #DEDEDE;
+    margin-top: 15px;
+    margin-left: 21px;
+}

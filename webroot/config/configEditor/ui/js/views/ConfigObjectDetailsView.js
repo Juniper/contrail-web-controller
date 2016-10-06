@@ -189,44 +189,52 @@ define([
               );
            },
            getParentKeyOfSchema: function(schema){
+               var obj, key;
                var jsonKey = getValueByJsonPath(configList,Object.keys(configList)[0]);
                var schemaKey = getValueByJsonPath(schema,'properties;'+Object.keys(schema.properties)[0]+';properties');
-               var topOrder = 0;
+               var topOrder = 2, objNameOrder = 0;
                var bottomOrder = 1000;
                for (var i in jsonKey){
                  bottomOrder++;
                  if(typeof jsonKey[i] === 'number' || typeof jsonKey[i] === 'string'){
-                     topOrder++;
-                     var obj = { propertyOrder: topOrder, type: typeof jsonKey[i], collapse:true };
-                     var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                     schemaKey[key] = obj;
+                     if(i === 'display_name' || i == 'name'){
+                        objNameOrder++;
+                        obj = { propertyOrder: objNameOrder, type: typeof jsonKey[i], collapse:true };
+                        key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
+                        schemaKey[key] = obj;
+                     }else{
+                        topOrder++;
+                        obj = { propertyOrder: topOrder, type: typeof jsonKey[i], collapse:true };
+                        key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
+                        schemaKey[key] = obj;
+                     }
                  }else if(typeof jsonKey[i] === 'boolean'){
                      topOrder++;
-                     var obj = { propertyOrder: topOrder, type: typeof jsonKey[i] ,format: 'checkbox', collapse:true };
-                     var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
+                     obj = { propertyOrder: topOrder, type: typeof jsonKey[i] ,format: 'checkbox', collapse:true };
+                     key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
                      schemaKey[key] = obj;
                  }else if(jsonKey[i] == null || (typeof jsonKey[i] === 'object' && jsonKey[i].constructor !== Array)){
-                     var obj = ConfigObjectDetailUtils.getChildKeyOfSchema(jsonKey[i], bottomOrder);
-                     var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
+                     obj = ConfigObjectDetailUtils.getChildKeyOfSchema(jsonKey[i], bottomOrder);
+                     key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
                      schemaKey[key] = obj;
                  }else if(jsonKey[i].constructor === Array){
                      if(typeof jsonKey[i][0] !== 'object'){
                          if(i === 'fq_name' || i === 'to'){
                              topOrder++;
-                             var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
+                             key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
                              schemaKey[key] = { propertyOrder: topOrder, type: 'string', collapse:true};
                          }else{
-                             var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
+                             key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
                              schemaKey[key] = { propertyOrder: bottomOrder, type: 'array' , collapse:true};
                          }
                        }else{
-                           var obj = {
+                           obj = {
                                    propertyOrder: bottomOrder,
                                    type: 'array',
                                    collapse:true,
                                    items: ConfigObjectDetailUtils.getChildKeyOfSchema(jsonKey[i][0])
                            };
-                           var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
+                           key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
                            schemaKey[key] = obj;
                        }
                   }

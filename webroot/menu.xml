@@ -959,37 +959,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     </items>
                 </item>
                 
-                <item>
-                    <name>configEditor</name>
-                    <label>Config Editor</label>
-                    <hash>config_editor</hash>
-                    <iconClass>menu-icon fa fa-code</iconClass>
-                    <resources>
-                        <resource>
-                            <rootDir>/config/configEditor/ui</rootDir>
-                            <js>configEditor.main.js</js>
-                            <template>config.editor.tmpl</template>
-                            <css>ConfigEditor.css</css>
-                            <class>configEditorLoader</class>
-                            <function>render</function>
-                            <searchStrings>Config Editor</searchStrings>
-                        </resource>
-                    </resources>
-                    <!-- <items>
-                        <item>
-                            <hash>config_config_editor</hash>
-                            <label>API List</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/configEditor/ui</rootDir>
-                                    <class>configEditorLoader</class>
-                                    <function>render</function>
-                                </resource>
-                            </resources>
-                            <searchStrings>Config Editor</searchStrings>
-                        </item>
-                    </items> -->
-                </item>
+                
                 <!--
                 <item>
                     <label>IPAM</label>
@@ -1142,6 +1112,26 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
+                <item>
+                    <name>configEditor</name>
+                    <label>Config Editor</label>
+                    <hash>setting_config_editor</hash>
+                    <iconClass>menu-icon fa fa-wpforms</iconClass>
+                    <resources>
+                        <resource>
+                            <rootDir>/config/configEditor/ui</rootDir>
+                            <js>configEditor.main.js</js>
+                            <template>config.editor.tmpl</template>
+                            <css>ConfigEditor.css</css>
+                            <class>configEditorLoader</class>
+                            <function>render</function>
+                            <searchStrings>Config Editor</searchStrings>
+                        </resource>
+                    </resources>
+                 </item>
+                
+                
+                
             </items>
         </item>
         <item>
