@@ -4,22 +4,21 @@
  */
 
 define([
-    'underscore',
-    'contrail-view',
-    'xml2json'
-], function (_, ContrailView, xml2json) {
+    "underscore",
+    "contrail-view",
+    "xml2json"
+], function (_, ContrailView, Xml2json) {
     var IntrospectResultTabsView = ContrailView.extend({
-        el: $(contentContainer),
+        el: $(window.contentContainer),
 
         render: function() {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
-                node = viewConfig.node,
                 ipAddress = viewConfig.ip_address,
                 port = viewConfig.port,
                 moduleIntrospect = viewConfig.module_introspect,
                 params = viewConfig.params,
-                url = '/proxy' + ($.isEmptyObject(params) ? '?' : ('?' + $.param(params) + '&')) + 'proxyURL=http://' + ipAddress + ':' + port + '/Snh_' + moduleIntrospect;
+                url = "/proxy" + ($.isEmptyObject(params) ? "?" : ("?" + $.param(params) + "&")) + "proxyURL=http://" + ipAddress + ":" + port + "/Snh_" + moduleIntrospect;
 
             self.fetchIntrospect(url);
         },
@@ -28,11 +27,11 @@ define([
             var self = this;
 
             contrail.ajaxHandler({
-                url: url, cache: true, dataType: 'xml'
+                url: url, cache: true, dataType: "xml"
             }, function() {
                 self.$el.html('<p class="padding-10-0"><i class="fa fa-spin fa fa-spinner"></i> Loading Results.</p>');
             }, function (xml) {
-                var x2js = new xml2json(),
+                var x2js = new Xml2json(),
                     json = x2js.xml2json(xml),
                     data = { xml: xml, json: json };
 
@@ -41,8 +40,8 @@ define([
                 if (error.status === 404) {
                     self.$el.html('<div class="alert alert-error">' +
                         '<button type="button" class="close" data-dismiss="alert"></button> ' +
-                        '<strong>Error: </strong> <span> '  + error.responseText + ' </span>' +
-                        '</div>');
+                        "<strong>Error: </strong> <span> " + error.responseText + " </span>" +
+                        "</div>");
                 }
             }, null);
         },
@@ -52,7 +51,6 @@ define([
                 viewConfig = self.attributes.viewConfig,
                 node = viewConfig.node,
                 ipAddress = viewConfig.ip_address,
-                moduleIntrospect = viewConfig.module_introspect,
                 port = viewConfig.port,
                 modelMap = contrail.handleIfNull(self.modelMap, {});
 
@@ -61,15 +59,15 @@ define([
                     jsonKeys = _.keys(json),
                     moduleItemName =jsonKeys[0];
 
-                if (contrail.checkIfExist(json[moduleItemName]['next_batch'])) {
-                    $('#introspect-result-' + node + '-' + port + '-next-batch-tab-extra-link')
-                        .parent('li').show()
-                        .off('click')
-                        .on('click', function() {
-                            var url = '/proxy?proxyURL=http://' + ipAddress + ':' + port + '/Snh_' +
-                                json[moduleItemName]['next_batch']['_link'] + '?x=' + json[moduleItemName]['__text'];
+                if (contrail.checkIfExist(json[moduleItemName].next_batch)) {
+                    $("#introspect-result-" + node + "-" + port + "-next-batch-tab-extra-link")
+                        .parent("li").show()
+                        .off("click")
+                        .on("click", function() {
+                            var url = "/proxy?proxyURL=http://" + ipAddress + ":" + port + "/Snh_" +
+                                json[moduleItemName].next_batch.link + "?x=" + json[moduleItemName]._text;
 
-                            self.fetchIntrospect(url)
+                            self.fetchIntrospect(url);
                         });
                 }
             });
@@ -78,7 +76,7 @@ define([
 
     function getIntrospectTabViewConfig(data, node, port) {
         return {
-            elementId: 'introspect-result-' + node + '-' + port + 'tabs',
+            elementId: "introspect-result-" + node + "-" + port + "tabs",
             view: "TabsView",
             viewConfig: {
                 theme: cowc.TAB_THEME_WIDGET_CLASSIC,
@@ -90,30 +88,30 @@ define([
                 ],
                 extra_links: [
                     {
-                        elementId: 'introspect-result-' + node + '-' + port + '-next-batch',
-                        title: 'Next Batch'
+                        elementId: "introspect-result-" + node + "-" + port + "-next-batch",
+                        title: "Next Batch"
                     }
                 ]
             }
-        }
+        };
     }
 
     function getIntrospectJSGridTabViewConfig(data, node, port) {
         var json = data.json,
-            gridId = 'introspect-result-' + node + '-' + port + '-js-grid';
+            gridId = "introspect-result-" + node + "-" + port + "-js-grid";
 
         return {
             elementId: gridId,
-            title: 'Grid',
-            view: 'IntrospectJSGridView',
+            title: "Grid",
+            view: "IntrospectJSGridView",
             viewPathPrefix: "setting/introspect/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             tabConfig: {
                 renderOnActivate: true,
-                activate: function (event, ui) {
-                    _.each($('#' + gridId).find('.contrail-grid'), function (gridEl, key) {
-                        if ($(gridEl).data('contrailGrid')) {
-                            $(gridEl).data('contrailGrid').refreshView();
+                activate: function () {
+                    _.each($("#" + gridId).find(".contrail-grid"), function (gridEl) {
+                        if ($(gridEl).data("contrailGrid")) {
+                            $(gridEl).data("contrailGrid").refreshView();
                         }
                     });
                 }
@@ -123,17 +121,17 @@ define([
                 node: node,
                 port: port
             }
-        }
+        };
     }
 
     function getIntrospectXSLGridTabViewConfig(data, node, port) {
         var xml = data.xml,
-            gridId = 'introspect-result-' + node + '-' + port + '-xsl-grid';
+            gridId = "introspect-result-" + node + "-" + port + "-xsl-grid";
 
         return {
             elementId: gridId,
-            title: 'XSL Grid',
-            view: 'IntrospectXSLGridView',
+            title: "XSL Grid",
+            view: "IntrospectXSLGridView",
             viewPathPrefix: "setting/introspect/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             tabConfig: {
@@ -142,17 +140,17 @@ define([
             viewConfig: {
                 xmlData: xml
             }
-        }
+        };
     }
 
     function getIntrospectJSONTabViewConfig(data, node, port) {
         var json = data.json,
-            jsonId = 'introspect-result-' + node + '-' + port + '-json';
+            jsonId = "introspect-result-" + node + "-" + port + "-json";
 
         return {
             elementId: jsonId,
-            title: 'JSON',
-            view: 'IntrospectJSONView',
+            title: "JSON",
+            view: "IntrospectJSONView",
             viewPathPrefix: "setting/introspect/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             tabConfig: {
@@ -161,7 +159,7 @@ define([
             viewConfig: {
                 jsonData: json
             }
-        }
+        };
     }
 
     return IntrospectResultTabsView;

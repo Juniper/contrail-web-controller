@@ -4,7 +4,7 @@
  */
 
 define([
-    'controller-basedir/setting/introspect/ui/js/IntrospectPageLoader'
+    "controller-basedir/setting/introspect/ui/js/IntrospectPageLoader"
 ], function (IntrospectPageLoader) {
-    introspectPageLoader = new IntrospectPageLoader();
+    window.introspectPageLoader = new IntrospectPageLoader();
 });

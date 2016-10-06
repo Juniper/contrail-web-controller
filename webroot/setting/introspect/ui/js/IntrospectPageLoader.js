@@ -4,14 +4,14 @@
  */
 
 define([
-    'controller-basedir/setting/introspect/ui/js/views/IntrospectView'
+    "controller-basedir/setting/introspect/ui/js/views/IntrospectView"
 ], function(IntrospectView) {
     var IntrospectPageLoader = function() {
         this.load = function (paramObject) {
-            var self = this, currMenuObj = globalObj.currMenuObj,
-                hashParams = paramObject['hashParams'],
-                renderFn = paramObject['function'],
-                loadingStartedDefObj = paramObject['loadingStartedDefObj'];
+            var self = this,
+                hashParams = paramObject.hashParams,
+                renderFn = paramObject.function,
+                loadingStartedDefObj = paramObject.loadingStartedDefObj;
 
             self.introspectView = new IntrospectView();
             self.renderView(renderFn, hashParams);
@@ -20,23 +20,23 @@ define([
             }
         };
 
-        this.renderView = function (renderFn, hashParams, view) {
+        this.renderView = function (renderFn, hashParams) {
 
-            $(contentContainer).empty();
+            $(window.contentContainer).empty();
             switch (renderFn) {
-                case 'renderControlNodeIntrospect':
+                case "renderControlNodeIntrospect":
                     this.introspectView.renderControlNodeIntrospect({hashParams: hashParams});
                     break;
 
-                case 'renderVirtualRouterIntrospect':
+                case "renderVirtualRouterIntrospect":
                     this.introspectView.renderVirtualRouterIntrospect({hashParams: hashParams});
                     break;
 
-                case 'renderConfigNodeIntrospect':
+                case "renderConfigNodeIntrospect":
                     this.introspectView.renderConfigNodeIntrospect({hashParams: hashParams});
                     break;
 
-                case 'renderAnalyticsNodeIntrospect':
+                case "renderAnalyticsNodeIntrospect":
                     this.introspectView.renderAnalyticsNodeIntrospect({hashParams: hashParams});
                     break;
             }
@@ -45,7 +45,7 @@ define([
         this.updateViewByHash = function (currPageQueryStr) {
             var renderFn;
 
-            this.load({hashParams: currPageQueryStr, 'function': renderFn});
+            this.load({hashParams: currPageQueryStr, "function": renderFn});
         };
 
         this.destroy = function () {};

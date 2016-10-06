@@ -3,72 +3,75 @@
  */
 
 define([
-    'underscore',
-    'contrail-view',
-    'setting/configdb/ui/js/models/ConfigDatabaseModel',
-    'setting/configdb/ui/js/views/ConfigDatabaseActionView'
-], function (_, ContrailView, ConfigDatabaseModel, ConfigDatabaseActionView) {
+    "lodash",
+    "layout-handler",
+    "contrail-view",
+    "setting/configdb/ui/js/models/ConfigDatabaseModel",
+    "setting/configdb/ui/js/views/ConfigDatabaseActionView"
+], function (_, LayoutHandler, ContrailView, ConfigDatabaseModel, ConfigDatabaseActionView) {
+    var layoutHandler = new LayoutHandler();
+
     var ConfigDatabaseView = ContrailView.extend({
-        el: $(contentContainer),
+        el: $(window.contentContainer),
 
         renderFQTableNamesList: function (viewConfig) {
             var self = this,
-                hashParams = viewConfig['hashParams'],
-                key = hashParams['key'],
-                table = hashParams['table'];
+                hashParams = viewConfig.hashParams,
+                key = hashParams.key,
+                table = hashParams.table;
 
             if (contrail.checkIfExist(key) && contrail.checkIfExist(table)) {
-                this.renderView4Config(self.$el, null, getFQKeyTableNamesListConfig(hashParams));
+                self.renderView4Config(self.$el, null, getFQKeyTableNamesListConfig(hashParams));
             } else {
-                this.renderView4Config(self.$el, null, getFQTableNamesListConfig(viewConfig));
+                self.renderView4Config(self.$el, null, getFQTableNamesListConfig(viewConfig));
             }
         },
 
         renderUUIDTableNamesList: function (viewConfig) {
             var self = this,
-                hashParams = viewConfig['hashParams'],
-                key = hashParams['key'],
-                table = hashParams['table'];
+                hashParams = viewConfig.hashParams,
+                key = hashParams.key,
+                table = hashParams.table;
 
             if (contrail.checkIfExist(key) && contrail.checkIfExist(table)) {
-                this.renderView4Config(this.$el, null, getUUIDKeyTableNamesListConfig(hashParams));
+                self.renderView4Config(self.$el, null, getUUIDKeyTableNamesListConfig(hashParams));
             } else {
-                this.renderView4Config(this.$el, null, getUUIDTableNamesListConfig(viewConfig));
+                self.renderView4Config(self.$el, null, getUUIDTableNamesListConfig(viewConfig));
             }
         },
 
         renderSharedTableNamesList: function (viewConfig) {
             var self = this,
-                hashParams = viewConfig['hashParams'],
-                key = hashParams['key'],
-                table = hashParams['table'];
+                hashParams = viewConfig.hashParams,
+                key = hashParams.key,
+                table = hashParams.table;
 
             if (contrail.checkIfExist(key) && contrail.checkIfExist(table)) {
-                this.renderView4Config(this.$el, null, getSharedKeyTableNamesListConfig(hashParams));
+                self.renderView4Config(self.$el, null, getSharedKeyTableNamesListConfig(hashParams));
             } else {
-                this.renderView4Config(this.$el, null, getSharedTableNamesListConfig(viewConfig));
+                self.renderView4Config(self.$el, null, getSharedTableNamesListConfig(viewConfig));
             }
         }
     });
 
-    function getUUIDTableNamesListConfig (hashParams) {
+    function getUUIDTableNamesListConfig () {
         var gridConfig = {
             url       : ctwc.URL_OBJECT_UUID_TABLE,
             table     : ctwc.OBJECT_UUID_TABLE,
             gridTitle : ctwl.CDB_TITLE_UUID_TABLE,
-            columnName: 'keys',
+            columnName: "keys",
             actionCell: true,
             columns: [
                 {
                     id         : "key",
                     field      : "key",
                     name       : "UUID",
-                    cssClass   : 'cell-hyperlink-blue',
+                    cssClass   : "cell-hyperlink-blue",
                     searchable : true,
                     events     : {
                         onClick: function (e, dc) {
                             var currentHashObj = layoutHandler.getURLHashObj();
-                            loadFeature({p: currentHashObj['p'], q: {'key': dc['key'], 'table': dc['table']}});
+                            window.loadFeature({p: currentHashObj.p, q: {"key": dc.key, "table": dc.table}});
                         }
                     }
                 }
@@ -95,26 +98,26 @@ define([
                 ]
             }
         };
-    };
+    }
 
-    function getSharedTableNamesListConfig (hashParams) {
+    function getSharedTableNamesListConfig () {
         var gridConfig = {
             url       : ctwc.URL_OBJECT_SHARED_TABLE,
             table     : ctwc.OBJECT_SHARED_TABLE,
             gridTitle : ctwl.CDB_TITLE_SHARED_TABLE,
-            columnName: 'keys',
+            columnName: "keys",
             actionCell: true,
             columns: [
                 {
                     id         : "key",
                     field      : "key",
                     name       : "Key",
-                    cssClass   : 'cell-hyperlink-blue',
+                    cssClass   : "cell-hyperlink-blue",
                     searchable : true,
                     events     : {
                         onClick: function (e, dc) {
                             var currentHashObj = layoutHandler.getURLHashObj();
-                            loadFeature({p: currentHashObj['p'], q: {'key': dc['key'], 'table': dc['table']}});
+                            window.loadFeature({p: currentHashObj.p, q: {"key": dc.key, "table": dc.table}});
                         }
                     }
                 }
@@ -141,14 +144,14 @@ define([
                 ]
             }
         };
-    };
+    }
 
     function getUUIDKeyTableNamesListConfig (hashParams) {
         var gridConfig = {
-            url        : '/api/query/cassandra/values/' + hashParams['table'] + '/' + hashParams['key'],
-            table      : hashParams['table'],
-            gridTitle  : 'UUID Details: ' + hashParams['key'],
-            columnName : 'keyvalues',
+            url        : "/api/query/cassandra/values/" + hashParams.table + "/" + hashParams.key,
+            table      : hashParams.table,
+            gridTitle  : "UUID Details: " + hashParams.key,
+            columnName : "keyvalues",
             actionCell: true,
             columns: [
                 {
@@ -180,14 +183,14 @@ define([
                 ]
             }
         };
-    };
+    }
 
     function getSharedKeyTableNamesListConfig (hashParams) {
         var gridConfig = {
-            url        : '/api/query/cassandra/values/' + hashParams['table'] + '/' + hashParams['key'],
-            table      : hashParams['table'],
-            gridTitle  : 'Key Details: ' + hashParams['key'],
-            columnName : 'keyvalues',
+            url        : "/api/query/cassandra/values/" + hashParams.table + "/" + hashParams.key,
+            table      : hashParams.table,
+            gridTitle  : "Key Details: " + hashParams.key,
+            columnName : "keyvalues",
             actionCell: true,
             columns: [
                 {
@@ -219,26 +222,26 @@ define([
                 ]
             }
         };
-    };
+    }
 
     function getFQTableNamesListConfig () {
         var gridConfig = {
             url        : "/api/query/cassandra/keys/obj_fq_name_table",
             table      : "obj_fq_name_table",
             gridTitle  : ctwl.CDB_TITLE_FQ_TABLE,
-            columnName : 'keys',
+            columnName : "keys",
             actionCell : true,
             columns : [
                 {
                     id        : "key",
                     field     : "key",
                     name      : "Key",
-                    cssClass  : 'cell-hyperlink-blue',
+                    cssClass  : "cell-hyperlink-blue",
                     searchable: true,
                     events    : {
                         onClick: function (e, dc) {
                             var currentHashObj = layoutHandler.getURLHashObj();
-                            loadFeature({p: currentHashObj['p'], q: {'key': dc['key'], 'table': dc['table']}});
+                            window.loadFeature({p: currentHashObj.p, q: {"key": dc.key, "table": dc.table}});
                         }
                     }
                 },
@@ -265,14 +268,14 @@ define([
                 ]
             }
         };
-    };
+    }
 
     function getFQKeyTableNamesListConfig (hashParams) {
         var gridConfig = {
-            url       : '/api/query/cassandra/values/' + hashParams['table'] + '/' + hashParams['key'],
-            table     : hashParams['table'],
-            gridTitle : 'FQ Name Details: ' + hashParams['key'],
-            columnName: 'keyvalues',
+            url       : "/api/query/cassandra/values/" + hashParams.table + "/" + hashParams.key,
+            table     : hashParams.table,
+            gridTitle : "FQ Name Details: " + hashParams.key,
+            columnName: "keyvalues",
             actionCell: true,
             columns : [
                 {
@@ -290,15 +293,15 @@ define([
                 {
                     field      : "keyvalue",
                     name       : "UUID",
-                    cssClass   : 'cell-hyperlink-blue',
+                    cssClass   : "cell-hyperlink-blue",
                     searchable : true,
                     formatter  : function (r, c, v, cd, dc) {
-                        return dc.keyvalue.split(":")[dc.keyvalue.split(":").length - 1]
+                        return dc.keyvalue.split(":")[dc.keyvalue.split(":").length - 1];
                     },
                     events: {
                         onClick: function (e, dc) {
-                            var uuid = dc.keyvalue.split(":")[dc.keyvalue.split(":").length - 1]
-                            loadFeature({p: "setting_configdb_uuid", q: {'key': uuid, 'table': "obj_uuid_table"}});
+                            var uuid = dc.keyvalue.split(":")[dc.keyvalue.split(":").length - 1];
+                            window.loadFeature({p: "setting_configdb_uuid", q: {"key": uuid, "table": "obj_uuid_table"}});
                         }
                     }
                 }
@@ -325,7 +328,7 @@ define([
                 ]
             }
         };
-    };
+    }
 
     function getConfigDBTableNamesGridConfig (gridConfig, gridId) {
         return {
@@ -345,8 +348,8 @@ define([
                     detail: false,
                     checkboxSelectable: false,
                     forceFitColumns: true,
-                    actionCell: function (dc) {
-                        if (gridConfig.actionCell && globalObj['configDBEditEnabled']) {
+                    actionCell: function () {
+                        if (gridConfig.actionCell && globalObj.configDBEditEnabled) {
                             return getRowActionConfig(gridConfig.columnName, gridId);
                         } else {
                             return [];
@@ -359,7 +362,7 @@ define([
                             url: gridConfig.url
                         },
                         dataParser: function (response) {
-                            globalObj['configDBEditEnabled'] = response.editEnabled;
+                            globalObj.configDBEditEnabled = response.editEnabled;
                             return response[gridConfig.columnName];
                         },
                         serverSidePagination: false
@@ -370,8 +373,8 @@ define([
                         text: ctwm.NO_RECORDS_IN_DB
                     },
                     error: {
-                        type       : 'error',
-                        iconClasses: 'fa fa-warning',
+                        type       : "error",
+                        iconClasses: "fa fa-warning",
                         text       : ctwm.CASSANDRA_ERROR
                     }
                 }
@@ -384,14 +387,14 @@ define([
                     }
                 }
             }
-        }
-    };
+        };
+    }
 
     function getRowActionConfig (columnName, gridId) {
-        var type = '',
+        var type = "",
             rowActionConfig = [
                 ctwgc.getDeleteAction(function (rowIndex) {
-                    var dataItem = $('#' + gridId).data('contrailGrid')._dataView.getItem(rowIndex),
+                    var dataItem = $("#" + gridId).data("contrailGrid")._dataView.getItem(rowIndex),
                         configDatabaseModel = new ConfigDatabaseModel(dataItem),
                         checkedRow = dataItem, title = ctwl.CDB_TITLE_DELETE_RECORD,
                         configDatabaseActionView = new ConfigDatabaseActionView();
@@ -404,14 +407,14 @@ define([
                     }
                     configDatabaseActionView.renderDeleteRecord({
                         "title": title, "type": type, checkedRows: checkedRow, callback: function () {
-                            var dataView = $('#' + gridId).data("contrailGrid")._dataView;
+                            var dataView = $("#" + gridId).data("contrailGrid")._dataView;
                             dataView.refreshData();
                         }
                     });
                 })
             ];
         return rowActionConfig;
-    };
+    }
 
     return ConfigDatabaseView;
 });

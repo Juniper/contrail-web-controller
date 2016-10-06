@@ -3,11 +3,11 @@
  */
 
 define([
-    'underscore',
-    'contrail-view'
+    "lodash",
+    "contrail-view"
 ], function (_, ContrailView) {
     var IntrospectView = ContrailView.extend({
-        el: $(contentContainer),
+        el: $(window.contentContainer),
 
         renderControlNodeIntrospect: function (viewConfig) {
             this.renderView4Config(this.$el, null, getFeatureIntrospectViewConfig(viewConfig, ctwc.INTROSPECT_CONTROL_NODE_PORTS));
@@ -27,11 +27,11 @@ define([
     });
 
     function getFeatureIntrospectViewConfig(config, featurePorts) {
-        var hashParams = config['hashParams'],
-            introspectNode = hashParams['node'];
+        var hashParams = config.hashParams,
+            introspectNode = hashParams.node;
 
         return {
-            elementId: 'introspect-' + introspectNode+ '-tabs',
+            elementId: "introspect-" + introspectNode+ "-tabs",
             view: "TabsView",
             viewConfig: {
                 theme: cowc.TAB_THEME_OVERCAST,
@@ -46,7 +46,7 @@ define([
 
         _.each(featurePorts, function(value, key) {
             tabs.push({
-                elementId: 'introspect-' + introspectNode + '-' + value,
+                elementId: "introspect-" + introspectNode + "-" + value,
                 title: cowl.get(value),
                 view: "IntrospectFormView",
                 viewPathPrefix: "setting/introspect/ui/js/views/",
@@ -55,11 +55,11 @@ define([
                     port: key,
                     type: value,
                     widgetConfig: {
-                        elementId: 'introspect-' + value + '-widget',
+                        elementId: "introspect-" + value + "-widget",
                         view: "WidgetView",
                         viewConfig: {
                             header: {
-                                title: cowl.get(value) + ' ' + ctwl.TITLE_INTROSPECT,
+                                title: cowl.get(value) + " " + ctwl.TITLE_INTROSPECT,
                                 iconClass: "fa fa-search"
                             },
                             controls: {
@@ -72,7 +72,7 @@ define([
                         }
                     }
                 }
-            })
+            });
         });
 
         return tabs;

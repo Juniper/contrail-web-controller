@@ -4,9 +4,9 @@
  */
 
 define([
-    'underscore',
-    'knockout',
-    'contrail-model'
+    "underscore",
+    "knockout",
+    "contrail-model"
 ], function (_, Knockout, ContrailModel) {
     var IntrospectSecondaryFormModel = ContrailModel.extend({
 

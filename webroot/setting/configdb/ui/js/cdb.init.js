@@ -3,18 +3,17 @@
  */
 
 define([
-    'underscore',
-    'controller-basedir/setting/configdb/ui/js/cdb.main'
-], function (_) {
+    "controller-basedir/setting/configdb/ui/js/cdb.main"
+], function () {
 
-    var initJSpath = pkgBaseDir + '/setting/configdb/ui/js/cdb.init.js',
-        initStatus = contentHandler.initFeatureModuleMap[initJSpath],
-        deferredObj = initStatus['deferredObj'];
+    var initJSpath = window.pkgBaseDir + "/setting/configdb/ui/js/cdb.init.js",
+        initStatus = window.contentHandler.initFeatureModuleMap[initJSpath],
+        deferredObj = initStatus.deferredObj;
 
-    initStatus['isInProgress'] = false;
-    initStatus['isComplete'] = true;
+    initStatus.isInProgress = false;
+    initStatus.isComplete = true;
 
     if(contrail.checkIfExist(deferredObj)) {
-        deferredObj.resolve()
+        deferredObj.resolve();
     }
 });

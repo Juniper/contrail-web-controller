@@ -2,15 +2,15 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var cdbPageLoader = new ConfigDatabaseLoader();
+window.cdbPageLoader = new ConfigDatabaseLoader();
 
 function ConfigDatabaseLoader () {
     this.load = function (paramObject) {
-        var self = this, currMenuObj = globalObj.currMenuObj,
-            hashParams = paramObject['hashParams'],
-            pathCDBView = ctWebDir + '/setting/configdb/ui/js/views/ConfigDatabaseView.js',
-            renderFn = paramObject['function'],
-            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
+        var self = this,
+            hashParams = paramObject.hashParams,
+            pathCDBView = window.ctWebDir + "/setting/configdb/ui/js/views/ConfigDatabaseView.js",
+            renderFn = paramObject.function,
+            loadingStartedDefObj = paramObject.loadingStartedDefObj;
 
         require([pathCDBView], function (ConfigDatabaseView) {
             self.cdbView = new ConfigDatabaseView();
@@ -20,32 +20,32 @@ function ConfigDatabaseLoader () {
             }
         });
     };
-    this.renderView = function (renderFn, hashParams, view) {
-        $(contentContainer).empty();
+    this.renderView = function (renderFn, hashParams) {
+        $(window.contentContainer).empty();
         switch (renderFn) {
-            case 'renderFQTable':
+            case "renderFQTable":
                 this.cdbView.renderFQTableNamesList({hashParams: hashParams});
                 break;
-            case 'renderUUIDTable':
+            case "renderUUIDTable":
                 this.cdbView.renderUUIDTableNamesList({hashParams: hashParams});
                 break;
-            case 'renderSharedTable':
+            case "renderSharedTable":
                 this.cdbView.renderSharedTableNamesList({hashParams: hashParams});
                 break;
         }
     };
     this.updateViewByHash = function (currPageQueryStr, lastPageQueryStr, currMenuObj) {
-        var hash = currMenuObj['hash'],
+        var hash = currMenuObj.hash,
             renderFn;
 
-        if (hash == "setting_configdb_fqname") {
+        if (hash === "setting_configdb_fqname") {
             renderFn = "renderFQTable";
-        } else if (hash == "setting_configdb_uuid"){
+        } else if (hash === "setting_configdb_uuid"){
             renderFn = "renderUUIDTable";
         }
-        this.load({hashParams: currPageQueryStr, 'function': renderFn});
+        this.load({hashParams: currPageQueryStr, "function": renderFn});
     };
     this.destroy = function () {
 
     };
-};
+}

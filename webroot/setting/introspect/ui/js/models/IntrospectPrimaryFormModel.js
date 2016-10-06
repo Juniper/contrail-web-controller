@@ -4,11 +4,11 @@
  */
 
 define([
-    'underscore',
-    'knockout',
-    'contrail-model',
-    'xml2json'
-], function (_, Knockout, ContrailModel, xml2json) {
+    "lodash",
+    "knockout",
+    "contrail-model",
+    "xml2json"
+], function (_, Knockout, ContrailModel, Xml2json) {
     var IntrospectPrimaryFormModel = ContrailModel.extend({
 
         constructor: function (modelData, IntrospectFormView) {
@@ -32,13 +32,13 @@ define([
             this.getIpAddressOptionList();
 
             this.model().on("change:ip_address", function() {
-                this.onChangeIpAddress(IntrospectFormView)
+                this.onChangeIpAddress(IntrospectFormView);
             }, this);
             this.model().on("change:module", function() {
-                this.onChangeModule(IntrospectFormView)
+                this.onChangeModule(IntrospectFormView);
             }, this);
             this.model().on("change:module_introspect", function() {
-                this.onChangeModuleIntrospect(IntrospectFormView)
+                this.onChangeModuleIntrospect(IntrospectFormView);
             }, this);
 
             return this;
@@ -58,12 +58,12 @@ define([
                 if (!contrail.checkIfExist(uiAddedParameters[node][port])) {
                     uiAddedParameters[node][port] = {};
 
-                    if (node === 'control') {
+                    if (node === "control") {
                         $.ajax({
-                            url: '/api/admin/monitor/infrastructure/controlnodes/summary',
+                            url: "/api/admin/monitor/infrastructure/controlnodes/summary",
                             success: function (response) {
-                                _.each(response, function(value, key) {
-                                    var ipAddress = value['value']['ConfigData']['bgp-router']['bgp_router_parameters']['address'];
+                                _.each(response, function(value) {
+                                    var ipAddress = value.value.ConfigData["bgp-router"].bgp_router_parameters.address;
                                     uiAddedParameters[node][port][ipAddress] = {};
                                     ipAddressOptionList.push({id: ipAddress, text: ipAddress});
                                 });
@@ -72,13 +72,13 @@ define([
                             }
                         });
                     
-                    } else if (node === 'vrouter') {
+                    } else if (node === "vrouter") {
 
                         $.ajax({
-                            url: '/api/admin/monitor/infrastructure/vrouters/summary',
+                            url: "/api/admin/monitor/infrastructure/vrouters/summary",
                             success: function (response) {
-                                _.each(response, function(value, key) {
-                                    var ipAddress = value['value']['ConfigData']['virtual-router']['virtual_router_ip_address'];
+                                _.each(response, function(value) {
+                                    var ipAddress = value.value.ConfigData["virtual-router"].virtual_router_ip_address;
                                     uiAddedParameters[node][port][ipAddress] = {};
                                     ipAddressOptionList.push({id: ipAddress, text: ipAddress});
                                 });
@@ -87,13 +87,13 @@ define([
                             }
                         });
 
-                    } else if (node === 'config') {
+                    } else if (node === "config") {
 
                         $.ajax({
-                            url: '/api/admin/monitor/infrastructure/confignodes/summary',
+                            url: "/api/admin/monitor/infrastructure/confignodes/summary",
                             success: function (response) {
-                                _.each(response, function(value, key) {
-                                    var ipAddress = value['value']['derived-uve']['ConfigData']['config_node_ip_address'];
+                                _.each(response, function(value) {
+                                    var ipAddress = value.value["derived-uve"].ConfigData.config_node_ip_address;
                                     uiAddedParameters[node][port][ipAddress] = {};
                                     ipAddressOptionList.push({id: ipAddress, text: ipAddress});
                                 });
@@ -102,13 +102,13 @@ define([
                             }
                         });
 
-                    } else if (node === 'analytics') {
+                    } else if (node === "analytics") {
 
                         $.ajax({
-                            url: '/api/admin/monitor/infrastructure/analyticsnodes/summary',
+                            url: "/api/admin/monitor/infrastructure/analyticsnodes/summary",
                             success: function (response) {
-                                _.each(response, function(value, key) {
-                                    var ipAddress = value['value']['derived-uve']['ConfigData']['analytics-node']['analytics_node_ip_address'];
+                                _.each(response, function(value) {
+                                    var ipAddress = value.value["derived-uve"].ConfigData["analytics-node"].analytics_node_ip_address;
                                     uiAddedParameters[node][port][ipAddress] = {};
                                     ipAddressOptionList.push({id: ipAddress, text: ipAddress});
                                 });
@@ -120,7 +120,7 @@ define([
                 }
             } else {
                 _.each(uiAddedParameters[node][port], function(value, key) {
-                    ipAddressOptionList.push({id: key, text: key})
+                    ipAddressOptionList.push({id: key, text: key});
                 });
                 self.ip_address_option_list(ipAddressOptionList);
             }
@@ -133,7 +133,7 @@ define([
                 ipAddress = model.attributes.ip_address,
                 port = model.attributes.port,
                 uiAddedParameters = model.attributes.ui_added_parameters,
-                url = '/proxy?proxyURL=http://' + ipAddress + ':' + port,
+                url = "/proxy?proxyURL=http://" + ipAddress + ":" + port,
                 modules = [];
 
             if (!contrail.checkIfExist(uiAddedParameters[node][port])) {
@@ -154,31 +154,31 @@ define([
             } else {
 
                 contrail.ajaxHandler({
-                    url: url, dataType: 'html'
+                    url: url, dataType: "html"
                 }, function(){
                     IntrospectFormView.hideIntrospectStatus();
                 }, function (html) {
                     var moduleText;
 
                     $(html).each(function (key, value) {
-                        if ($(value).is('a')) {
+                        if ($(value).is("a")) {
                             moduleText = $(value).text();
-                            moduleText = moduleText.replace('.xml', '');
+                            moduleText = moduleText.replace(".xml", "");
                             modules.push({id: moduleText, text: moduleText});
 
                             uiAddedParameters[node][port][ipAddress][moduleText] = {};
                         }
                     });
 
-                    if(modules.length == 0) {
-                        IntrospectFormView.renderIntrospectEmptyStatus('No Module Found.');
+                    if(modules.length === 0) {
+                        IntrospectFormView.renderIntrospectEmptyStatus("No Module Found.");
                     }
 
                     self.module_option_list(modules);
                 },
                 function(error) {
                     if (error.status === 404) {
-                        IntrospectFormView.renderIntrospectErrorStatus('Unable to fetch ' + url);
+                        IntrospectFormView.renderIntrospectErrorStatus("Unable to fetch " + url);
                     }
                 });
             }
@@ -192,7 +192,7 @@ define([
                 port = model.attributes.port,
                 module = model.attributes.module,
                 uiAddedParameters = model.attributes.ui_added_parameters,
-                url = '/proxy?proxyURL=http://' + ipAddress + ':' + port + '/' + module + '.xml',
+                url = "/proxy?proxyURL=http://" + ipAddress + ":" + port + "/" + module + ".xml",
                 moduleIntrospects = [];
 
             if (!$.isEmptyObject(uiAddedParameters[node][port][ipAddress][module])) {
@@ -205,28 +205,28 @@ define([
             } else {
 
                 contrail.ajaxHandler({
-                    url: url, dataType: 'xml'
+                    url: url, dataType: "xml"
                 }, function(){
                     IntrospectFormView.hideIntrospectStatus();
                 }, function (xml) {
-                    var x2js = new xml2json(),
+                    var x2js = new Xml2json(),
                         json = x2js.xml2json(xml);
 
                     _.each(json[module], function (jsonValue, jsonKey) {
-                        if(jsonKey.charAt(0) !== '_') {
+                        if(jsonKey.charAt(0) !== "_") {
                             moduleIntrospects.push({id: jsonKey, text: jsonKey});
                             uiAddedParameters[node][port][ipAddress][module][jsonKey] = jsonValue;
                         }
                     });
 
-                    if(moduleIntrospects.length == 0) {
-                        IntrospectFormView.renderIntrospectEmptyStatus('No Introspect Found.');
+                    if(moduleIntrospects.length === 0) {
+                        IntrospectFormView.renderIntrospectEmptyStatus("No Introspect Found.");
                     }
 
                     self.module_introspect_option_list(moduleIntrospects);
                 }, function (error) {
                     if (error.status === 404) {
-                        IntrospectFormView.renderIntrospectErrorStatus('Unable to fetch ' + url);
+                        IntrospectFormView.renderIntrospectErrorStatus("Unable to fetch " + url);
                     }
                 });
             }
@@ -242,7 +242,7 @@ define([
                 moduleIntrospect = model.attributes.module_introspect,
                 uiAddedParameters = model.attributes.ui_added_parameters;
 
-            if (moduleIntrospect !== '') {
+            if (moduleIntrospect !== "") {
                 IntrospectFormView.renderIntrospectSecondaryForm(uiAddedParameters[node][port][ipAddress][module][moduleIntrospect]);
             } else {
                 IntrospectFormView.removeIntrospectSecondaryForm();
@@ -251,9 +251,9 @@ define([
 
         validations: {
             runIntrospectValidation: {
-                'ip_address': {
+                "ip_address": {
                     required: true,
-                    msg: ctwm.getRequiredMessage('ip address')
+                    msg: ctwm.getRequiredMessage("ip address")
                 }
             }
         }

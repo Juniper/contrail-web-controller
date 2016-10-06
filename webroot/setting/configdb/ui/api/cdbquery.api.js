@@ -3,21 +3,21 @@
  */
 
 var cdbqueryapi = module.exports,
-    commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
-    config = process.mainModule.exports["config"],
+    commonUtils = require(process.mainModule.exports.corePath + "/src/serverroot/utils/common.utils"),
+    config = process.mainModule.exports.config,
     editEnabled = config.cassandra.enable_edit,
-    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
-    cassandra = require('cassandra-driver');
+    logutils = require(process.mainModule.exports.corePath + "/src/serverroot/utils/log.utils"),
+    cassandra = require("cassandra-driver");
 
 var hosts = getCassandraHostList(config.cassandra.server_ips, config.cassandra.server_port),
-    cClient = new cassandra.Client({ contactPoints: hosts, keyspace: 'config_db_uuid'});
+    cClient = new cassandra.Client({ contactPoints: hosts, keyspace: "config_db_uuid"});
 
-cClient.on('error', function (err) {
+cClient.on("error", function (err) {
     logutils.logger.error(err.stack);
 });
 
 cdbqueryapi.listKeys4Table = function (req, res) {
-    var table = req.param('table'),
+    var table = req.param("table"),
         responseJSON = {"table": table, "keys": [], "editEnabled": editEnabled};
 
     cClient.execute("SELECT DISTINCT key FROM " + table, [], function (err, results) {
@@ -27,7 +27,7 @@ cdbqueryapi.listKeys4Table = function (req, res) {
             commonUtils.handleJSONResponse(err, res, null);
         } else {
             results.rows.forEach(function (row) {
-                responseJSON.keys.push({"table": table, "key": (row['key']).toString()});
+                responseJSON.keys.push({"table": table, "key": (row.key).toString()});
             });
             commonUtils.handleJSONResponse(null, res, responseJSON);
         }
@@ -45,7 +45,7 @@ cdbqueryapi.listValues4Key = function (req, res) {
             commonUtils.handleJSONResponse(err, res, null);
         } else {
             results.rows.forEach(function (row) {
-                responseJSON.keyvalues.push({"key": key, "table": table, "keyvalue": (row['column1']).toString()});
+                responseJSON.keyvalues.push({"key": key, "table": table, "keyvalue": (row.column1).toString()});
             });
             commonUtils.handleJSONResponse(null, res, responseJSON);
         }
@@ -56,7 +56,7 @@ cdbqueryapi.deleteValue4Key = function (req, res) {
     var key = req.param("key"),
         table = req.param("table"),
         value = req.param("value");
-    if (value && value == "") {
+    if (value && value === "") {
         value = null;
     }
 
@@ -72,8 +72,8 @@ cdbqueryapi.deleteValue4Key = function (req, res) {
 };
 
 cdbqueryapi.deleteKeyFromTable = function (req, res) {
-    var table = req.param('table'),
-        key = req.param('key');
+    var table = req.param("table"),
+        key = req.param("key");
 
     //TODO:
     cClient.execute("DELETE FROM " + table + " WHERE KEY = asciiAsBlob('" + key + "')", [], function (err, results) {
@@ -92,4 +92,4 @@ function getCassandraHostList(serverIPs, port) {
         hosts.push(serverIPs[i] + ":" + port);
     }
     return hosts;
-};
+}

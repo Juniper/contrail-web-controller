@@ -4,18 +4,18 @@
  */
 
 define([
-    'underscore',
-    'contrail-view'
+    "underscore",
+    "contrail-view"
 ], function (_, ContrailView) {
     var IntrospectJSONView = ContrailView.extend({
-        el: $(contentContainer),
+        el: $(window.contentContainer),
 
         render: function() {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 jsonData = viewConfig.jsonData;
 
-            $(self.$el).html(contrail.formatJSON2HTML(jsonData, 5, ['toString']))
+            $(self.$el).html(contrail.formatJSON2HTML(jsonData, 5, ["toString"]));
         }
     });
 

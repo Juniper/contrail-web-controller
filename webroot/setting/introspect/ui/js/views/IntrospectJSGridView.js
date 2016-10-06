@@ -4,11 +4,11 @@
  */
 
 define([
-    'underscore',
-    'contrail-view'
+    "underscore",
+    "contrail-view"
 ], function (_, ContrailView) {
     var IntrospectJSGridView = ContrailView.extend({
-        el: $(contentContainer),
+        el: $(window.contentContainer),
 
         render: function() {
             var self = this,
@@ -31,7 +31,7 @@ define([
             gridViewConfigs.push({
                 columns: [
                     {
-                        elementId: 'introspect-result-js-grid-' + introspectNode  + '-' + introspectPort + '-' + key,
+                        elementId: "introspect-result-js-grid-" + introspectNode + "-" + introspectPort + "-" + key,
                         view: "GridView",
                         viewConfig: {
                             elementConfig: getIntrospectJSGridConfig(value)
@@ -42,7 +42,7 @@ define([
         });
 
         return {
-            elementId: 'introspect-js-grids',
+            elementId: "introspect-js-grids",
             view: "SectionView",
             viewConfig: {
                 rows: gridViewConfigs
@@ -56,7 +56,7 @@ define([
         if (isSandeshDataHavingObject(value)) {
             dataObj = parseDataObject(value.data);
 
-            if (dataObj != null && dataObj != undefined) {
+            if (contrail.checkIfExist(dataObj)) {
                 gridColumnsObj = createGridColumns(dataObj);
                 gridData = createGridData(dataObj);
             }
@@ -64,18 +64,18 @@ define([
 
         return {
             header: {
-                title: {text: value['title']},
+                title: {text: value.title},
                 defaultControls: {
                     collapseable: false,
                     columnPickable: true
                 }
             },
-            columnHeader: {columns: gridColumnsObj['columns']},
+            columnHeader: {columns: gridColumnsObj.columns},
             body: {
                 options: {
-                    forceFitColumns: gridColumnsObj['columns'].length < 3 ? true : false,
+                    forceFitColumns: gridColumnsObj.columns.length < 3 ? true : false,
                     checkboxSelectable: false,
-                    fixedRowHeight: gridColumnsObj['isFixedRowHeight'] ? 30 : false
+                    fixedRowHeight: gridColumnsObj.isFixedRowHeight ? 30 : false
                 },
                 dataSource: {data: gridData}
             }
@@ -94,7 +94,7 @@ define([
         }
 
         _.each(dataRecord, function (value, key) {
-            if (key.charAt(0) !== '_' && ['more', 'next_batch'].indexOf(key) == -1 ) {
+            if (key.charAt(0) !== "_" && ["more", "next_batch"].indexOf(key) === -1 ) {
                 var gridColumn = {
                     id: key, field: key,
                     name: getLabel4Key(key),
@@ -102,21 +102,21 @@ define([
                     sortable: true
                 };
 
-                if (contrail.checkIfExist(value['_link'])) {
-                    gridColumn['formatter'] = function (r, c, v, cd, dc) {
-                        return '<a class="introspect-link" data-link="' + value['_link'] + '" ' +
-                            'x="' + dc[key] + '">' + dc[key] + '</a>';
+                if (contrail.checkIfExist(value._link)) {
+                    gridColumn.formatter = function (r, c, v, cd, dc) {
+                        return '<a class="introspect-link" data-link="' + value._link + '" ' +
+                            'x="' + dc[key] + '">' + dc[key] + "</a>";
                     };
-                    gridColumn['exportConfig'] = { allow: true };
+                    gridColumn.exportConfig = { allow: true };
 
                 }
 
-                if (_.contains(['list', 'struct', 'sandesh'], value['_type']) ||
-                    (!contrail.checkIfExist(value['_type']) && _.isArray(value))) {
-                    gridColumn['formatter'] = {
-                        format: 'json2html', options: {jsonValuePath: key, htmlValuePath: key + 'HTML', expandLevel: 0}
+                if (_.contains(["list", "struct", "sandesh"], value._type) ||
+                    (!contrail.checkIfExist(value._type) && _.isArray(value))) {
+                    gridColumn.formatter = {
+                        format: "json2html", options: {jsonValuePath: key, htmlValuePath: key + "HTML", expandLevel: 0}
                     };
-                    gridColumn['exportConfig'] = { allow: true, advFormatter: function(dc) { return JSON.stringify(dc[key]);}};
+                    gridColumn.exportConfig = { allow: true, advFormatter: function(dc) { return JSON.stringify(dc[key]);}};
                     isFixedRowHeight = false;
                 }
 
@@ -125,10 +125,10 @@ define([
         });
 
         return { columns: gridColumns, isFixedRowHeight: isFixedRowHeight };
-    };
+    }
 
     function getColoumnWidth(value, key) {
-        var type = value['_type'],
+        var type = value._type,
             keyLength = key.length,
             headerPixelFactor = 10, strPixelFactor = 15,
             columnWidth = keyLength * headerPixelFactor,
@@ -136,12 +136,12 @@ define([
 
         columnWidth = columnWidth < minWidth ? minWidth : columnWidth;
 
-        if((type == 'string' || type == 'u32' || type == 'u64') && contrail.checkIfExist(value['__text'])) {
-            textValue = value['__text'];
+        if((type === "string" || type === "u32" || type === "u64") && contrail.checkIfExist(value.__text)) {
+            textValue = value.__text;
             textValueLength = textValue.length * strPixelFactor;
             columnWidth = (textValueLength > maxWidth) ? maxWidth : ((textValueLength < columnWidth) ? columnWidth : textValueLength);
 
-        } else if (_.contains(['list', 'struct', 'sandesh'], type)) {
+        } else if (_.contains(["list", "struct", "sandesh"], type)) {
             columnWidth = 250;
         }
 
@@ -149,44 +149,43 @@ define([
     }
 
     function createGridData(dataObj) {
-        var dataLength = dataObj.length,
-            gridData = [];
+        var gridData = [];
 
         if (!_.isArray(dataObj)) {
             gridData.push(cleanDataObj(dataObj));
         } else {
-            _.each(dataObj, function (value, key) {
+            _.each(dataObj, function (value) {
                 gridData.push(cleanDataObj(value));
             });
         }
 
         return gridData;
-    };
+    }
 
     function cleanDataObj(data) {
         var dataObj = $.extend(true, {}, data);
         _.each(dataObj, function (value, key) {
-            if (contrail.checkIfExist(value['__text'])) {
-                dataObj[key] = value['__text'];
-            } else if (value['_type'] == 'string') {
-                if (contrail.checkIfExist(value['element'])) {
-                    dataObj[key] = value['element'];
+            if (contrail.checkIfExist(value.__text)) {
+                dataObj[key] = value.__text;
+            } else if (value._type === "string") {
+                if (contrail.checkIfExist(value.element)) {
+                    dataObj[key] = value.element;
                 } else {
-                    dataObj[key] = '-'
+                    dataObj[key] = "-";
                 }
 
-            } else if (value['_type'] == 'list') {
-                if (parseInt(value['list']['_size']) == 0) {
-                    dataObj[key] = '-'
+            } else if (value._type === "list") {
+                if (parseInt(value.list._size) === 0) {
+                    dataObj[key] = "-";
                 } else {
-                    delete value['list']['_size'];
-                    delete value['list']['_type'];
-                    dataObj[key] = cleanDataObj(value['list']);
+                    delete value.list._size;
+                    delete value.list._type;
+                    dataObj[key] = cleanDataObj(value.list);
                 }
 
-            } else if (value['_type'] == 'struct') {
-                delete value['_type'];
-                delete value['_identifier'];
+            } else if (value._type === "struct") {
+                delete value._type;
+                delete value._identifier;
                 dataObj[key] = cleanDataObj(value);
 
             } else if (_.isArray(value)) {
@@ -197,7 +196,7 @@ define([
             }
         });
 
-        return dataObj
+        return dataObj;
     }
 
     function getLabel4Key(key) {
@@ -208,8 +207,8 @@ define([
     }
 
     function replaceAll(find, replace, strValue) {
-        return strValue.replace(new RegExp(find, 'g'), replace);
-    };
+        return strValue.replace(new RegExp(find, "g"), replace);
+    }
 
     function capitalizeSentence(sentence) {
         var word = sentence.split(" ");
@@ -217,19 +216,19 @@ define([
             word[i] = word[i].charAt(0).toUpperCase() + word[i].slice(1);
         }
         return word.join(" ");
-    };
+    }
 
     function parseData(jsonObject, title) {
         var sandeshData = [],
             filteredSandeshObj = filterSandeshObject(jsonObject),
-            sandeshKey = filteredSandeshObj['key'],
-            sandeshObj = filteredSandeshObj['value'];
+            sandeshKey = filteredSandeshObj.key,
+            sandeshObj = filteredSandeshObj.value;
 
-        if (sandeshObj['_type'] === 'sandesh') {
-            sandeshData = sandeshData.concat(parseSandeshData(jsonObject, title))
+        if (sandeshObj._type === "sandesh") {
+            sandeshData = sandeshData.concat(parseSandeshData(jsonObject, title));
 
-        } else if (sandeshObj['_type'] === 'slist') {
-            sandeshObj = _.omit(sandeshObj, ['_type', 'more', 'next_batch']);
+        } else if (sandeshObj._type === "slist") {
+            sandeshObj = _.omit(sandeshObj, ["_type", "more", "next_batch"]);
             _.each(sandeshObj, function(sandeshValue, sandeshKey) {
                 var sandeshListObj = {};
                 sandeshListObj[sandeshKey] = sandeshValue;
@@ -238,7 +237,7 @@ define([
         } else {
 
             sandeshData.push({
-                title: (contrail.checkIfExist(title) ? title + ' | ' : '') + sandeshKey,
+                title: (contrail.checkIfExist(title) ? title + " | " : "") + sandeshKey,
                 data: jsonObject
             });
         }
@@ -247,27 +246,27 @@ define([
     }
 
     function parseSandeshData(jsonObject, title) {
-        var sandeshTypes = ['list', 'struct'], sandeshData = [],
+        var sandeshTypes = ["list", "struct"], sandeshData = [],
             filteredSandeshObj = filterSandeshObject(jsonObject),
-            sandeshKey = filteredSandeshObj['key'],
-            sandeshObj = _.omit(filteredSandeshObj['value'], ['_type']),
+            sandeshKey = filteredSandeshObj.key,
+            sandeshObj = _.omit(filteredSandeshObj.value, ["_type"]),
             sandeshObjKeys = _.keys(sandeshObj),
             sandeshTypesLength = getLengthOfTypesInSandeshObj(sandeshObj, sandeshTypes);
 
         if (sandeshTypesLength < sandeshObjKeys.length) {
             sandeshData.push({
-                title: (contrail.checkIfExist(title) ? title + ' | ' : '') + sandeshKey,
+                title: (contrail.checkIfExist(title) ? title + " | " : "") + sandeshKey,
                 data: filterTypesOfSandeshObj(sandeshObj, sandeshTypes)
             });
         }
 
         if (sandeshTypesLength > 0) {
             _.each(sandeshObj, function (value, key) {
-                var newTitle = (contrail.checkIfExist(title) ? title + ' | ' : '') + sandeshKey + ' | ' + key;
+                var newTitle = (contrail.checkIfExist(title) ? title + " | " : "") + sandeshKey + " | " + key;
 
                 if (isSandeshAllListORStruct(value)) {
-                    sandeshData = sandeshData.concat(parseSandeshData(value, newTitle))
-                } else  if(_.contains(sandeshTypes, value['_type'])) {
+                    sandeshData = sandeshData.concat(parseSandeshData(value, newTitle));
+                } else if(_.contains(sandeshTypes, value._type)) {
                     sandeshData.push({
                         title: newTitle,
                         data: value
@@ -280,19 +279,19 @@ define([
     }
 
     function isSandeshAllListORStruct(jsonObject) {
-        var sandeshTypes = ['list', 'struct'],
+        var sandeshTypes = ["list", "struct"],
             filteredSandeshObj = filterSandeshObject(jsonObject),
-            sandeshObj = filteredSandeshObj['value'],
+            sandeshObj = filteredSandeshObj.value,
             sandeshObjKeys = _.keys(sandeshObj),
             sandeshTypesLength = getLengthOfTypesInSandeshObj(sandeshObj, sandeshTypes);
 
-        return (sandeshTypesLength == sandeshObjKeys.length);
+        return (sandeshTypesLength === sandeshObjKeys.length);
     }
 
     function getLengthOfTypesInSandeshObj(sandeshObj, types) {
         var typesLength = 0;
-        _.each(sandeshObj, function(value, key) {
-            if(_.contains(types, value['_type'])) {
+        _.each(sandeshObj, function(value) {
+            if(_.contains(types, value._type)) {
                 typesLength += 1;
             }
         });
@@ -305,7 +304,7 @@ define([
             sandeshKey = keys[0],
             sandeshObj = jsonObject[sandeshKey];
 
-        sandeshObj = _.omit(sandeshObj, ['more', 'next_batch']);
+        sandeshObj = _.omit(sandeshObj, ["more", "next_batch"]);
 
         return {key: sandeshKey, value: sandeshObj};
     }
@@ -313,7 +312,7 @@ define([
     function filterTypesOfSandeshObj(sandeshObj, omitTypes) {
         var filteredSandeshObj = {};
         _.each(sandeshObj, function(value, key) {
-            if(!_.contains(omitTypes, value['_type'])) {
+            if(!_.contains(omitTypes, value._type)) {
                 filteredSandeshObj[key] = value;
             }
         });
@@ -323,24 +322,24 @@ define([
 
     function parseDataObject(jsonObject) {
 
-        while (jsonObject['_type'] === 'list') {
+        while (jsonObject._type === "list") {
             jsonObject = parseListDataObj(jsonObject);
         }
 
-        while (jsonObject['_type'] === 'struct') {
-            jsonObject = parseDataObjByType(jsonObject, 'struct');
+        while (jsonObject._type === "struct") {
+            jsonObject = parseDataObjByType(jsonObject, "struct");
         }
 
-        if (jsonObject['_type'] === 'string' && contrail.checkIfExist(jsonObject['_size']) && contrail.checkIfExist(jsonObject['element'])) {
-            jsonObject = _.map(jsonObject['element'], function(value, key) { return {element: value}; });
+        if (jsonObject._type === "string" && contrail.checkIfExist(jsonObject._size) && contrail.checkIfExist(jsonObject.element)) {
+            jsonObject = _.map(jsonObject.element, function(value) { return {element: value}; });
         }
 
         return jsonObject;
-    };
+    }
 
     function parseDataObjByType(jsonObject, type) {
         for (var key in jsonObject) {
-            if (_.isObject(jsonObject[key]) && jsonObject['_type'] === type) {
+            if (_.isObject(jsonObject[key]) && jsonObject._type === type) {
                 jsonObject = jsonObject[key];
                 break;
             }
@@ -351,7 +350,7 @@ define([
 
     function isSandeshDataHavingObject(sandeshDataItem) {
         var isObject = false;
-        _.each(sandeshDataItem.data, function(value, key) {
+        _.each(sandeshDataItem.data, function(value) {
             isObject = isObject || _.isObject(value);
         });
 
@@ -359,8 +358,8 @@ define([
     }
 
     function parseListDataObj(jsonObject) {
-        if (jsonObject['list']['_size'] > 0) {
-            jsonObject = jsonObject['list'];
+        if (jsonObject.list._size > 0) {
+            jsonObject = jsonObject.list;
         } else {
             jsonObject = {};
         }

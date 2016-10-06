@@ -3,17 +3,17 @@
  */
 
 define([
-    'underscore',
-    'contrail-model'
+    "lodash",
+    "contrail-model"
 ], function (_, ContrailModel) {
     var ConfigDatabaseModel = ContrailModel.extend({
 
         deleteRecord: function (checkedRow, callbackObj, type) {
-            var ajaxConfig = {}, that = this, url;
+            var ajaxConfig = {}, url;
 
-            if (type == ctwc.DELETE_KEY_TYPE) {
+            if (type === ctwc.DELETE_KEY_TYPE) {
                 url = "/api/query/cassandra/key/" + checkedRow.table + "/" + checkedRow.key;
-            } else if (type == ctwc.DELETE_KEY_VALUE_TYPE) {
+            } else if (type === ctwc.DELETE_KEY_VALUE_TYPE) {
                 url = "/api/query/cassandra/value/" + checkedRow.table + "/" + checkedRow.key + "/" + checkedRow.keyvalue;
             }
 
@@ -24,7 +24,7 @@ define([
                 if (contrail.checkIfFunction(callbackObj.init)) {
                     callbackObj.init();
                 }
-            }, function (response) {
+            }, function () {
                 if (contrail.checkIfFunction(callbackObj.success)) {
                     callbackObj.success();
                 }

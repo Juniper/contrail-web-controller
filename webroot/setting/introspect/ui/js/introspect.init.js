@@ -4,15 +4,15 @@
  */
 
 require([
-    'controller-basedir/setting/introspect/ui/js/introspect.module'
+    "controller-basedir/setting/introspect/ui/js/introspect.module"
 ], function () {
 
-    var initJSpath = pkgBaseDir + '/setting/introspect/ui/js/introspect.init.js',
-        initStatus = contentHandler.initFeatureModuleMap[initJSpath],
-        deferredObj = initStatus['deferredObj'];
+    var initJSpath = window.pkgBaseDir + "/setting/introspect/ui/js/introspect.init.js",
+        initStatus = window.contentHandler.initFeatureModuleMap[initJSpath],
+        deferredObj = initStatus.deferredObj;
 
-    initStatus['isInProgress'] = false;
-    initStatus['isComplete'] = true;
+    initStatus.isInProgress = false;
+    initStatus.isComplete = true;
 
     if (contrail.checkIfExist(deferredObj)) {
         deferredObj.resolve();
