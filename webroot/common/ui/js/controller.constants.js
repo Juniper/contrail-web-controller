@@ -943,7 +943,7 @@ define([
         this.TMPL_CONFIG_HREF = "config-editor-href-container";
         this.COPIED_MSG = 'Copied To Clipboard';
         this.CONFIG_EDITOR_TEMPLATE = 'config-editor-template';
-        this.CONFIG_HASH_PATH = '/#p=config_editor&q[objName]=';
+        this.CONFIG_HASH_PATH = '/#p=setting_config_editor&q[objName]=';
         this.TEXT_AREA_PLACEHOLDER = 'Copy / Paste JSON data for ';
         this.MODAL_CONFIG_EDITOR_CONTAINER = 'json-editor-form-view';
 
