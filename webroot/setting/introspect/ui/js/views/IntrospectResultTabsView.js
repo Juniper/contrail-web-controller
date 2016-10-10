@@ -16,9 +16,9 @@ define([
                 viewConfig = self.attributes.viewConfig,
                 ipAddress = viewConfig.ip_address,
                 port = viewConfig.port,
-                moduleIntrospect = viewConfig.module_introspect,
+                moduleRequest = viewConfig.module_request,
                 params = viewConfig.params,
-                url = "/proxy" + ($.isEmptyObject(params) ? "?" : ("?" + $.param(params) + "&")) + "proxyURL=http://" + ipAddress + ":" + port + "/Snh_" + moduleIntrospect;
+                url = "/proxy" + ($.isEmptyObject(params) ? "?" : ("?" + $.param(params) + "&")) + "proxyURL=http://" + ipAddress + ":" + port + "/Snh_" + moduleRequest;
 
             self.fetchIntrospect(url);
         },

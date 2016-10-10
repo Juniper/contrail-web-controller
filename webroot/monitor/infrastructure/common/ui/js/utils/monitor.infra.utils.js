@@ -1480,9 +1480,9 @@ define([
         }
 
         self.onIntrospectLinkClick = function (nodeIp, introspectPort) {
-            window.open('/proxy?proxyURL=http://'+nodeIp+':'+ introspectPort +
-                    '&indexPage', '_blank');
-        }
+            var nodeName = ctwc.INTROSPECT_PORT_NODE_MAP[introspectPort]
+            window.open("/#p=setting_introspect_" + nodeName + "&q[node]=" + nodeName + "&q[ip_address]=" + nodeIp + "&q[port]=" + introspectPort, "_blank");
+        };
 
         self.onConfigLinkClick = function (nodeIp, introspectPort) {
             window.open('/proxy?proxyURL=http://'+nodeIp+':'+ introspectPort , '_blank');

@@ -28,14 +28,19 @@ define([
 
     function getFeatureIntrospectViewConfig(config, featurePorts) {
         var hashParams = config.hashParams,
-            introspectNode = hashParams.node;
+            introspectNode = hashParams.node,
+            activeTab = 0;
+
+        if (contrail.checkIfExist(hashParams.port)) {
+            activeTab = _.keys(featurePorts).indexOf(hashParams.port);
+        }
 
         return {
             elementId: "introspect-" + introspectNode+ "-tabs",
             view: "TabsView",
             viewConfig: {
                 theme: cowc.TAB_THEME_OVERCAST,
-                active: 0,
+                active: (activeTab !== -1) ? activeTab : 0,
                 tabs: getFeatureTabsConfig(featurePorts, introspectNode)
             }
         };
@@ -51,6 +56,9 @@ define([
                 view: "IntrospectFormView",
                 viewPathPrefix: "setting/introspect/ui/js/views/",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
+                tabConfig: {
+                    renderOnActivate: true
+                },
                 viewConfig: {
                     port: key,
                     type: value,

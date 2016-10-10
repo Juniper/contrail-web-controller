@@ -17,11 +17,11 @@ define([
                 ip_address: null,
                 port: null,
                 module: null,
-                module_introspect: null,
+                module_request: null,
 
                 ip_address_option_list: [],
                 module_option_list: [],
-                module_introspect_option_list: [],
+                module_request_option_list: [],
 
                 ui_added_parameters: {}
             };
@@ -37,7 +37,7 @@ define([
             this.model().on("change:module", function() {
                 this.onChangeModule(IntrospectFormView);
             }, this);
-            this.model().on("change:module_introspect", function() {
+            this.model().on("change:module_request", function() {
                 this.onChangeModuleIntrospect(IntrospectFormView);
             }, this);
 
@@ -49,6 +49,7 @@ define([
                 model = self.model(),
                 node = model.attributes.node,
                 port = model.attributes.port,
+                ipAddress = model.attributes.ip_address,
                 uiAddedParameters = model.attributes.ui_added_parameters,
                 ipAddressOptionList = [];
 
@@ -69,6 +70,7 @@ define([
                                 });
 
                                 self.ip_address_option_list(ipAddressOptionList);
+                                self.ip_address(ipAddress);
                             }
                         });
                     
@@ -84,6 +86,7 @@ define([
                                 });
 
                                 self.ip_address_option_list(ipAddressOptionList);
+                                self.ip_address(ipAddress);
                             }
                         });
 
@@ -99,6 +102,7 @@ define([
                                 });
 
                                 self.ip_address_option_list(ipAddressOptionList);
+                                self.ip_address(ipAddress);
                             }
                         });
 
@@ -114,6 +118,7 @@ define([
                                 });
 
                                 self.ip_address_option_list(ipAddressOptionList);
+                                self.ip_address(ipAddress);
                             }
                         });
                     }
@@ -136,51 +141,54 @@ define([
                 url = "/proxy?proxyURL=http://" + ipAddress + ":" + port,
                 modules = [];
 
-            if (!contrail.checkIfExist(uiAddedParameters[node][port])) {
-                uiAddedParameters[node][port] = {};
-            }
+            if (ipAddress !== "") {
 
-            if (!contrail.checkIfExist(uiAddedParameters[node][port][ipAddress])) {
-                uiAddedParameters[node][port][ipAddress] = {};
-            }
+                if (!contrail.checkIfExist(uiAddedParameters[node][port])) {
+                    uiAddedParameters[node][port] = {};
+                }
 
-            if (!$.isEmptyObject(uiAddedParameters[node][port][ipAddress])) {
+                if (!contrail.checkIfExist(uiAddedParameters[node][port][ipAddress])) {
+                    uiAddedParameters[node][port][ipAddress] = {};
+                }
 
-                _.each(uiAddedParameters[node][port][ipAddress], function(value, key) {
-                    modules.push({id: key, text: key});
-                });
-                self.module_option_list(modules);
+                if (!$.isEmptyObject(uiAddedParameters[node][port][ipAddress])) {
 
-            } else {
-
-                contrail.ajaxHandler({
-                    url: url, dataType: "html"
-                }, function(){
-                    IntrospectFormView.hideIntrospectStatus();
-                }, function (html) {
-                    var moduleText;
-
-                    $(html).each(function (key, value) {
-                        if ($(value).is("a")) {
-                            moduleText = $(value).text();
-                            moduleText = moduleText.replace(".xml", "");
-                            modules.push({id: moduleText, text: moduleText});
-
-                            uiAddedParameters[node][port][ipAddress][moduleText] = {};
-                        }
+                    _.each(uiAddedParameters[node][port][ipAddress], function (value, key) {
+                        modules.push({id: key, text: key});
                     });
-
-                    if(modules.length === 0) {
-                        IntrospectFormView.renderIntrospectEmptyStatus("No Module Found.");
-                    }
-
                     self.module_option_list(modules);
-                },
-                function(error) {
-                    if (error.status === 404) {
-                        IntrospectFormView.renderIntrospectErrorStatus("Unable to fetch " + url);
-                    }
-                });
+
+                } else {
+
+                    contrail.ajaxHandler({
+                            url: url, dataType: "html"
+                        }, function () {
+                            IntrospectFormView.hideIntrospectStatus();
+                        }, function (html) {
+                            var moduleText;
+
+                            $(html).each(function (key, value) {
+                                if ($(value).is("a")) {
+                                    moduleText = $(value).text();
+                                    moduleText = moduleText.replace(".xml", "");
+                                    modules.push({id: moduleText, text: moduleText});
+
+                                    uiAddedParameters[node][port][ipAddress][moduleText] = {};
+                                }
+                            });
+
+                            if (modules.length === 0) {
+                                IntrospectFormView.renderIntrospectEmptyStatus("No Module Found.");
+                            }
+
+                            self.module_option_list(modules);
+                        },
+                        function (error) {
+                            if (error.status === 404) {
+                                IntrospectFormView.renderIntrospectErrorStatus("Unable to fetch " + url);
+                            }
+                        });
+                }
             }
         },
 
@@ -200,7 +208,7 @@ define([
                 _.each(uiAddedParameters[node][port][ipAddress][module], function(value, key) {
                     moduleIntrospects.push({id: key, text: key});
                 });
-                self.module_introspect_option_list(moduleIntrospects);
+                self.module_request_option_list(moduleIntrospects);
 
             } else {
 
@@ -223,7 +231,7 @@ define([
                         IntrospectFormView.renderIntrospectEmptyStatus("No Introspect Found.");
                     }
 
-                    self.module_introspect_option_list(moduleIntrospects);
+                    self.module_request_option_list(moduleIntrospects);
                 }, function (error) {
                     if (error.status === 404) {
                         IntrospectFormView.renderIntrospectErrorStatus("Unable to fetch " + url);
@@ -239,11 +247,11 @@ define([
                 ipAddress = model.attributes.ip_address,
                 port = model.attributes.port,
                 module = model.attributes.module,
-                moduleIntrospect = model.attributes.module_introspect,
+                moduleRequest = model.attributes.module_request,
                 uiAddedParameters = model.attributes.ui_added_parameters;
 
-            if (moduleIntrospect !== "") {
-                IntrospectFormView.renderIntrospectSecondaryForm(uiAddedParameters[node][port][ipAddress][module][moduleIntrospect]);
+            if (moduleRequest !== "") {
+                IntrospectFormView.renderIntrospectSecondaryForm(uiAddedParameters[node][port][ipAddress][module][moduleRequest]);
             } else {
                 IntrospectFormView.removeIntrospectSecondaryForm();
             }

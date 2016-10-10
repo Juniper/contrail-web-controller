@@ -22,6 +22,7 @@ define([
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 hashParams = layoutHandler.getURLHashParams(),
+                hashModelData = {}, primaryFormModelData,
                 introspectNode = hashParams.node,
                 introspectPort = viewConfig.port,
                 introspectType = viewConfig.type,
@@ -29,8 +30,13 @@ define([
                 introspectPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_INTROSPECT_PAGE),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null;
 
+            hashModelData.ip_address = contrail.checkIfExist(hashParams.ip_address) ? hashParams.ip_address : null;
+            hashModelData.port = contrail.checkIfExist(hashParams.port) ? parseInt(hashParams.port) : introspectPort;
+
+            primaryFormModelData = $.extend(true, {}, {node: introspectNode}, hashModelData);
+
             self.primary = {};
-            self.primary.model = new IntrospectPrimaryFormModel({port: introspectPort, node: introspectNode}, self);
+            self.primary.model = new IntrospectPrimaryFormModel(primaryFormModelData, self);
             self.$el.append(introspectPageTmpl({type: introspectType, feature: introspectNode}));
 
             self.renderIntrospectPrimaryForm();
@@ -97,7 +103,7 @@ define([
                 .find(".alert-info").show().html(emptyText);
         },
 
-        renderIntrospectSecondaryForm: function(moduleIntrospectFormData) {
+        renderIntrospectSecondaryForm: function(moduleRequestFormData) {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 modelMap = contrail.handleIfNull(self.modelMap, {}),
@@ -107,15 +113,15 @@ define([
                 introspectType = viewConfig.type,
                 introspectSecondaryFormId = "#introspect-" + introspectNode + "-" + introspectType + "-secondary-form",
                 introspectSecondaryId = "introspect-" + introspectNode + "-" + introspectType + "-secondary-container",
-                secondaryModelData = getSecondaryModelData(moduleIntrospectFormData),
+                secondaryModelData = getSecondaryModelData(moduleRequestFormData),
                 primaryModelAttributes = self.primary.model.model().attributes,
-                moduleIntrospect = primaryModelAttributes.module_introspect;
+                moduleRequest = primaryModelAttributes.module_request;
 
             self.secondary = {};
             self.secondary.model = new IntrospectSecondaryFormModel(secondaryModelData);
 
             self.renderView4Config($(introspectSecondaryFormId), self.secondary.model,
-                getIntrospectSecondaryFormViewConfig(moduleIntrospectFormData, introspectNode, introspectPort), null, null, modelMap, function () {
+                getIntrospectSecondaryFormViewConfig(moduleRequestFormData, introspectNode, introspectPort), null, null, modelMap, function () {
 
                     var introspectResultId = "#introspect-" + introspectNode + "-" + introspectType + "-results";
 
@@ -137,7 +143,7 @@ define([
                             }
                         });
 
-                        self.renderIntrospectResult(moduleIntrospect, encodedParams);
+                        self.renderIntrospectResult(moduleRequest, encodedParams);
                     });
 
                     $(introspectResultId)
@@ -163,7 +169,7 @@ define([
 
         },
 
-        renderIntrospectResult: function(moduleIntrospect, params) {
+        renderIntrospectResult: function(moduleRequest, params) {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
@@ -176,7 +182,7 @@ define([
                 introspectResultId = "#introspect-" + introspectNode + "-" + introspectType + "-results",
                 primaryModelAttributes = self.primary.model.model().attributes,
                 ipAddress = primaryModelAttributes.ip_address,
-                introspectResultTabViewConfig = getIntrospectResultTabViewConfig(introspectNode, ipAddress, introspectPort, moduleIntrospect, introspectType, params);
+                introspectResultTabViewConfig = getIntrospectResultTabViewConfig(introspectNode, ipAddress, introspectPort, moduleRequest, introspectType, params);
             
             if (widgetConfig !== null) {
                 $(introspectFormId).parents(".widget-box").data("widget-action").collapse();
@@ -219,14 +225,14 @@ define([
                                 }
                             },
                             {
-                                elementId: "module_introspect", view: "FormDropdownView",
+                                elementId: "module_request", view: "FormDropdownView",
                                 viewConfig: {
-                                    path: "module_introspect", class: "col-xs-4",
-                                    label: "Introspect",
-                                    dataBindValue: "module_introspect", dataBindOptionList: "module_introspect_option_list()",
+                                    path: "module_request", class: "col-xs-4",
+                                    label: "Request",
+                                    dataBindValue: "module_request", dataBindOptionList: "module_request_option_list()",
                                     elementConfig: {
                                         dataTextField: "text", dataValueField: "id",
-                                        placeholder: "Select Module Introspect"
+                                        placeholder: "Select Module Request"
                                     },
                                     visible: "module() !== null"
 
@@ -239,12 +245,12 @@ define([
         };
     }
 
-    function getIntrospectSecondaryFormViewConfig(moduleIntrospectFormData, introspectNode, introspectPort) {
+    function getIntrospectSecondaryFormViewConfig(moduleRequestFormData, introspectNode, introspectPort) {
         var row, i = 0,
             isNewRow, elementName,
             secondaryFormConfig = [];
 
-        _.each(moduleIntrospectFormData, function(value, key) {
+        _.each(moduleRequestFormData, function(value, key) {
             if (["_type", "errors", "locks"].indexOf(key) === -1) {
                 isNewRow = ((i % 3) === 0) ? true : false;
                 elementName = key;
@@ -285,10 +291,10 @@ define([
         };
     }
 
-    function getSecondaryModelData(moduleIntrospectFormData) {
+    function getSecondaryModelData(moduleRequestFormData) {
         var modelData = {};
 
-        _.each(moduleIntrospectFormData, function(value, key) {
+        _.each(moduleRequestFormData, function(value, key) {
             if (["_type", "errors", "locks"].indexOf(key) === -1) {
                 modelData[key] = null;
             }
@@ -297,7 +303,7 @@ define([
         return modelData;
     }
 
-    function getIntrospectResultTabViewConfig(introspectNode, ipAddress, port, moduleIntrospect, introspectType, secondaryModelAttributes) {
+    function getIntrospectResultTabViewConfig(introspectNode, ipAddress, port, moduleRequest, introspectType, secondaryModelAttributes) {
         return {
             elementId: "introspect-" + introspectType + "-results",
             view: "IntrospectResultTabsView",
@@ -307,7 +313,7 @@ define([
                 node: introspectNode,
                 ip_address: ipAddress,
                 port: port,
-                module_introspect: moduleIntrospect,
+                module_request: moduleRequest,
                 params: _.omit(secondaryModelAttributes, ["_type", "errors", "locks"])
             }
         };

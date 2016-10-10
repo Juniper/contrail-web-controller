@@ -256,6 +256,13 @@ define([
             8104: 'analytics-nodemgr',
         };
 
+        this.INTROSPECT_PORT_NODE_MAP = {
+            "8083": "control",
+            "8084": "config",
+            "8085": "vrouter",
+            "8089": "analytics",
+        };
+
         // Underlay constants
         this.UNDERLAY_TOPOLOGY_CACHE = "underlayTopology";
         this.UNDERLAY_TABS_VIEW_ID = 'underlayTabsView';
