@@ -100,7 +100,6 @@ define([
                         elementId: cowl.QE_FLOW_QUEUE_ID,
                         view: "QueryQueueView",
                         viewPathPrefix: "reports/qe/ui/js/views/",
-                        app: cowc.APP_CONTRAIL_CONTROLLER,
                         viewConfig: {
                             queueType: queueType
                         }
