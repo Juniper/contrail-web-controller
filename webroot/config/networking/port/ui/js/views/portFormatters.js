@@ -8,9 +8,6 @@ define([
 ], function (_) {
     var PortFormatters = function() {
         var self = this;
-        self.domainName = contrail.getCookie(cowc.COOKIE_DOMAIN);
-        self.projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
-        self.currentDomainProject = self.domainName + ":" + self.projectName;
         ////Data formating with the result from API////
         //Getting all the data Inside virtual-machine-interface//
         self.formatVMIGridData = function(response){
@@ -37,15 +34,16 @@ define([
             }
             return uuidName;
         };
+
         //Start of grid data formating//
         //Grid column label: Network//
         //Grid column expand label : Network//
         self.networkFormater = function(d, c, v, cd, dc) {
             var network = "-";
-            var vn_ref = getValueByJsonPath(dc, "virtual_network_refs", "")
+            var vn_ref = getValueByJsonPath(dc, "virtual_network_refs", "");
             if(vn_ref != ""){
                 network = ctwu.formatCurrentFQName(vn_ref[0]["to"],
-                    self.currentDomainProject);
+                    ctwu.getCurrentDomainProject());
             }
             return network;
         };
@@ -205,7 +203,7 @@ define([
                 for(var i = 0; i < sg_length;i++) {
                     if(sg != "") sg += ", ";
                     sg += ctwu.formatCurrentFQName(sgData[i]["to"],
-                        self.currentDomainProject);
+                            ctwu.getCurrentDomainProject());
                 }
             } else {
                 sg = "-";
@@ -287,7 +285,7 @@ define([
                     var serviceHealthCheckTo =
                         getValueByJsonPath(serviceHealthCheckValues[i], "to", []);
                     temp = ctwu.formatCurrentFQName(serviceHealthCheckTo,
-                        self.currentDomainProject);
+                            ctwu.getCurrentDomainProject());
                     serviceHealthCheck += temp;
                 }
             } else {
@@ -419,7 +417,6 @@ define([
                         "virtual_machine_interface_properties;" +
                         "interface_mirror;mirror_to;nh_mode", null),
                 vtepDestIP, vtepDestMAC, VxLANId;
-
             if(analyzerIP) {
                 mirror += self.addTableRow(["Analyzer IP", " : ", analyzerIP]);
             } else {
@@ -441,7 +438,7 @@ define([
             if(routingInst) {
                 var ri = routingInst.split(":");
                 routingInst = ctwu.formatCurrentFQName(ri,
-                    self.currentDomainProject);
+                        ctwu.getCurrentDomainProject());
                 mirror += self.addTableRow(["Routing Instance", " : ", routingInst]);
             } else {
                 mirror += self.addTableRow(["Routing Instance", " : ", "-"]);
@@ -635,7 +632,7 @@ define([
                     var objArr = networkResponse;
                     var text = "";
                     text = ctwu.formatCurrentFQName(networkResponse,
-                        self.currentDomainProject);
+                            ctwu.getCurrentDomainProject());
                     var networkResponseVal = networkResponse.join(":");
                     networkList.push({value: networkResponseVal, text: text});
                 }
@@ -663,7 +660,7 @@ define([
                     var objArr = sgResponse;
                     var text = "";
                     text = ctwu.formatCurrentFQName(sgResponse,
-                        self.currentDomainProject);
+                            ctwu.getCurrentDomainProject());
                     sgList.push({value: sgResponseVal, text: text});
                 }
             }
@@ -684,7 +681,7 @@ define([
                     var objArr = rtResponse;
                     var text = "";
                     text = ctwu.formatCurrentFQName(rtResponse,
-                        self.currentDomainProject);
+                            ctwu.getCurrentDomainProject());
                     rtList.push({value: rtResponseVal, text: text});
                 }
             }
@@ -705,7 +702,7 @@ define([
                     var objArr = routingInstResponse;
                     var text = "";
                     text = ctwu.formatCurrentFQName(routingInstResponse,
-                        self.currentDomainProject);
+                            ctwu.getCurrentDomainProject());
                     routingInstList.push({value: routingInstResponseVal, text: text});
                 }
             }
@@ -819,7 +816,7 @@ define([
                 if(healthCheckFQName.length > 0) {
                     healthCheckVal = healthCheckFQName.join(":") +
                         cowc.DROPDOWN_VALUE_SEPARATOR + healthCheckUUID;
-                    var text = ctwu.formatCurrentFQName(healthCheckFQName, self.currentDomainProject);
+                    var text = ctwu.formatCurrentFQName(healthCheckFQName, ctwu.getCurrentDomainProject());
                     healthCheckDataReturn.push({value: healthCheckVal, text: text});
                 }
             }
@@ -834,7 +831,8 @@ define([
                 selectedPortUUID = "",
                 vmiArray = getValueByJsonPath(response, 'data', ''),
                 vmiArrayLen = vmiArray.length,
-                subInterfaceParentDatas = [];
+                subInterfaceParentDatas = [],
+                projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
             for(var j=0;j < vmiArrayLen;j++){
                 var val="";
                 var mac_text = "";
@@ -848,7 +846,7 @@ define([
                     var subInterfaceProject = getValueByJsonPath(ip,
                                   "virtual_network_refs;0;to;1", null);
                     if((vlanTag == null) &&
-                       (subInterfaceProject == self.projectName)){
+                       (subInterfaceProject == projectName)){
                         subInterfaceParentText += ip["uuid"] + "\xa0\xa0";
                         var fixedIp = getValueByJsonPath(ip,
                                       "instance_ip_back_refs;0;fixedip;ip", "");
@@ -924,6 +922,8 @@ define([
         }
 
         self.interfaceDetailFormater = function(d, c, v, cd, dc) {
+            var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN);
+            var projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
             if("virtual_machine_interface_refs" in dc &&
                dc["virtual_machine_interface_refs"] != null &&
                dc["virtual_machine_interface_refs"].length > 0) {
@@ -942,8 +942,8 @@ define([
                            "ip" in vmi[inc]["instance_ip_back_refs"][0]){
                             ip = vmi[inc]["instance_ip_back_refs"][0]["ip"];
                         }
-                        if(connectedNetwork[0] == self.domainName &&
-                           connectedNetwork[1] == self.projectName){
+                        if(connectedNetwork[0] == domainName &&
+                           connectedNetwork[1] == projectName){
                            network = connectedNetwork[2];
                         } else {
                            network = connectedNetwork[2]
