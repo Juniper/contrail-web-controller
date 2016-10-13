@@ -6,8 +6,8 @@ define([
     'contrail-view','contrail-model',
     'config/configEditor/ui/js/utils/ConfigObjectDetail.utils',
     'config/configEditor/ui/js/utils/ConfigObjectList.utils',
-    'jdorn-jsoneditor','knockback'],
-    function(_, ContrailView, ContrailModel, ConfigObjectDetailUtils, ConfigObjectListUtils, JsonEditor, Knockback) {
+    'jdorn-jsoneditor','knockback','jquery-linedtextarea'],
+    function(_, ContrailView, ContrailModel, ConfigObjectDetailUtils, ConfigObjectListUtils, JsonEditor, Knockback, JqueryLinedTextArea, AJV) {
     var configList, jsoneditor, keep_value = undefined, schema, formRadioFlag = true;
     var configObjectDetailsView = ContrailView.extend({
         el: $(contentContainer),
@@ -34,6 +34,9 @@ define([
                    $("#jsonEditorContainer").css("display", "none");
                    ConfigObjectDetailUtils.hideErrorPopup();
                    formRadioFlag = false;
+                   if($('#rawJsonTextArea').closest('.linedtextarea').length == 0) {
+                       $('#rawJsonTextArea').linedtextarea();
+                   }
                 });
                 $("input:radio[id=configFormMode]").change(function() {
                    $("#jsonEditorContainer").css("display", "block");
