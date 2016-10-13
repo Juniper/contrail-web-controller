@@ -16,9 +16,8 @@ define(['underscore', 'contrail-view',
                         cowc.TMPL_1COLUMN__1ROW_CONTENT_VIEW),
                 viewConfig = self.attributes.viewConfig,
                 colorFn = viewConfig['colorFn'];
-
+            self.$el.append(percentileWrapperTemplate({cssClass: 'percentileWrapper col-xs-6'}));
             self.$el.append(anlyticsTemplate);
-            self.$el.append(percentileWrapperTemplate({cssClass: 'percentileWrapper col-xs-6 col-xs-offset-6'}));
             var topleftColumn = self.$el.find(".top-container .left-column"),
             toprightCoulmn = self.$el.find(".top-container .right-column"),
             bottomleftColumn = self.$el.find(".bottom-container .left-column"),

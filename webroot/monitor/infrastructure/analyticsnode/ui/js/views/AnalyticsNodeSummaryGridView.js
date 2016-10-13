@@ -9,6 +9,7 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                             var self = this,
                                 viewConfig = this.attributes.viewConfig,
                                 pagerOptions = viewConfig['pagerOptions'];
+                                //console.log(viewConfig);
                             this.renderView4Config(
                                 self.$el,
                                 self.model,
@@ -145,7 +146,7 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                        id:"analyticsMem",
                        sortable:true,
                        name:"Memory",
-                       minWidth:150,
+                       minWidth:100,
                        sortField:"y"
                    },
                    {
@@ -153,7 +154,22 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                        id:"genCount",
                        sortable:true,
                        name:"Generators",
-                       minWidth:85
+                       minWidth:80
+                   },
+                   {
+                       id:"percentileMessagesSize",
+                       sortable:true,
+                       name:"95% - Messages",
+                       minWidth:200,
+                       formatter:function(r,c,v,cd,dc) {
+                           return '<span>'+"Count: "+
+                                   '</span>' +
+                                  '<span class="display-inline">' +
+                                  (dc['percentileMessages']) + '</span>'+'<span>'+", Size: "+
+                                   '</span>' +
+                                  '<span class="display-inline">' +
+                                  (dc['percentileSize']) + '</span>';
+                       }
                    }
                 ];
                 var gridElementConfig = {

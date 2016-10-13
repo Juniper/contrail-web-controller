@@ -144,8 +144,24 @@ define(
                    {
                        field:"memory",
                        name:"Memory",
-                       minWidth:150,
+                       minWidth:110,
                        sortField:"y"
+                   },
+                   {
+                       field:"percentileTime",
+                       id:"percentileTime",
+                       sortable:true,
+                       name:"95% - Responses",
+                       minWidth:200,
+                       formatter:function(r,c,v,cd,dc) {
+                           return '<span>'+"Time: "+
+                                   '</span>' +
+                                  '<span class="display-inline">' +
+                                  (dc['percentileTime']) + '</span>'+'<span>'+", Size: "+
+                                   '</span>' +
+                                  '<span class="display-inline">' +
+                                  (dc['percentileSize']) + '</span>';
+                       }
                    }
                 ];
                 var gridElementConfig = {

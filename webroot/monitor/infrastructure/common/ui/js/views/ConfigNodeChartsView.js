@@ -11,8 +11,16 @@ define(['underscore', 'contrail-view', 'legend-view',
                 viewConfig = self.attributes.viewConfig,
                 colorFn = viewConfig['colorFn'];
             var chartModel = new ConfigNodeChartsModel();
-            self.renderView4Config(self.$el, chartModel,
+            var configNodechartTemplate = contrail.getTemplate4Id(cowc.TMPL_1COLUMN__1ROW_CONTENT_VIEW);
+            var percentileWrapperTemplate = contrail.getTemplate4Id(cowc.TMPL_1COLUMN__1ROW_CONTENT_VIEW);
+            self.$el.append(percentileWrapperTemplate({cssClass: 'percentileWrapper col-xs-6'}));
+            self.$el.append(configNodechartTemplate({cssClass: 'configNodePercentile'}));
+            var topleftColumn = self.$el.find(".configNodePercentile");
+            var bottomRow = self.$el.find(".percentileWrapper");
+            self.renderView4Config(bottomRow, null,getPercentileTextViewConfig());
+            self.renderView4Config(topleftColumn, chartModel,
                     getConfigNodeChartViewConfig(colorFn));
+            
         }
     });
 
@@ -123,5 +131,61 @@ define(['underscore', 'contrail-view', 'legend-view',
        }
 
    }
+   function getPercentileTextViewConfig() {
+       var queryPostData = {
+           "autoSort": true,
+           "async": false,
+           "formModelAttrs": {
+            "table_name": "StatTable.VncApiStatsLog.api_stats",
+             "table_type": "STAT",
+             "query_prefix": "stat",
+             "from_time": Date.now() - (2 * 60 * 60 * 1000),
+             "from_time_utc": Date.now() - (2 * 60 * 60 * 1000),
+             "to_time": Date.now(),
+             "to_time_utc": Date.now(),
+             "select": "PERCENTILES(api_stats.response_time_in_usec), PERCENTILES(api_stats.response_size)",
+             "time_granularity": 30,
+             "time_granularity_unit": "mins",
+             "limit": "150000"
+           },
+       };
+       return {
+           elementId : ctwl.CONFIGNODE_CHART_PERCENTILE_SECTION_ID,
+           view : "SectionView",
+           viewConfig : {
+               rows : [ {
+                   columns : [ {
+                       elementId :ctwl.CONFIGNODE_CHART_PERCENTILE_TEXT_VIEW,
+                       view : "PercentileTextView",
+                       viewPathPrefix:
+                           ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
+                       app : cowc.APP_CONTRAIL_CONTROLLER,
+                       viewConfig : {
+                           percentileTitle : ctwl.CONFIGNODE_CHART_PERCENTILE_TITLE,
+                           percentileXvalue : ctwl.CONFIGNODE_CHART_PERCENTILE_TIME,
+                           percentileYvalue : ctwl.CONFIGNODE_CHART_PERCENTILE_SIZE,
+                              modelConfig : {
+                                   remote : {
+                                       ajaxConfig : {
+                                           url : "/api/qe/query",
+                                           type: 'POST',
+                                           data: JSON.stringify(queryPostData),
+                                           timeout : 120000 //2 mins
+                                       },
+                                       dataParser : function (response) {
+                                           console.log(response['data']);
+                                           return monitorInfraParsers.percentileConfigNodeNodeSummaryChart(response['data']);
+                                       }
+                                   },
+                                   cacheConfig : {}
+                               },
+                       }
+                   }]
+               }]
+           }
+       }
+
+   }
+
    return ConfigNodeChartView;
 });

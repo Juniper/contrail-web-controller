@@ -981,6 +981,60 @@ define([
             });
             primaryDS.updateData(updatedData);
         };
+        
+        self.parseAndMergepercentileConfigNodeNodeSummaryChart =
+            function (response,primaryDS) {
+            var statsData = response;
+            var primaryData = primaryDS.getItems();
+           // console.log(primaryData);
+            var updatedData = [];
+            
+            $.each(primaryData,function(i,d){
+                var idx=0;
+                while(statsData.length > 0 && idx < statsData.length){
+                    if(statsData[idx]['Source'] == d['name']){
+                        var formattedTime =  getValueByJsonPath(statsData, '0;PERCENTILES(api_stats.response_time_in_usec);95', '-');
+                        var secs = formattedTime / 1000;
+                        var seconds = Number((secs).toFixed(2))+' ms' // 6.7
+                        formattedTime = seconds;
+                        d['percentileTime'] = formattedTime;
+                        d['percentileSize'] = formatBytes(getValueByJsonPath(statsData, '0;PERCENTILES(api_stats.response_size);95', '-'));
+                       statsData.splice(idx,1);
+                       break;
+                    }
+                    idx++;
+                };
+                updatedData.push(d);
+            });
+            primaryDS.updateData(updatedData);
+            console.log(primaryDS.getItems());
+        };
+        
+        self.parseAndMergePercentileAnalyticsNodeSummaryChart =
+            function (response,primaryDS) {
+           // console.log(primaryDS);
+            //console.log(response);
+            var statsData = response;
+            var primaryData = primaryDS.getItems();
+           // console.log(primaryData);
+            var updatedData = [];
+            
+            $.each(primaryData,function(i,d){
+                var idx=0;
+                while(statsData.length > 0 && idx < statsData.length){
+                    if(statsData[idx]['Source'] == d['name']){
+                        d['percentileMessages'] = Math.round(getValueByJsonPath(statsData, '0;PERCENTILES(msg_info.messages);95', '-'));
+                        d['percentileSize'] = formatBytes(getValueByJsonPath(statsData, '0;PERCENTILES(msg_info.messages);95', '-'));
+                       statsData.splice(idx,1);
+                       break;
+                    }
+                    idx++;
+                };
+                updatedData.push(d);
+            });
+            primaryDS.updateData(updatedData);
+            console.log(primaryDS.getItems());
+        };
 
         self.mergeCollectorDataAndPrimaryData = function (collectorData,primaryDS){
             var collectors = ifNull(collectorData.value,[]);

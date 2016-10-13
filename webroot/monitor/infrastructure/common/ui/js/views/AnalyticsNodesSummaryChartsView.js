@@ -19,13 +19,14 @@ define(['underscore', 'contrail-view',
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 colorFn = viewConfig['colorFn'];
+            self.$el.append(percentileWrapperTemplate({cssClass: 'percentileWrapper col-xs-6'}));
             self.$el.append(anlyticsTemplate);
-            self.$el.append(percentileWrapperTemplate({cssClass: 'percentileWrapper col-xs-6 col-xs-offset-6'}));
-            var topleftColumn = self.$el.find(".top-container .left-column"),
+            var bottomRow = self.$el.find(".percentileWrapper"),
+                topleftColumn = self.$el.find(".top-container .left-column"),
                 toprightCoulmn = self.$el.find(".top-container .right-column"),
                 bottomleftColumn = self.$el.find(".bottom-container .left-column"),
-                bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
-                bottomRow = self.$el.find(".percentileWrapper"),
+                bottomrightCoulmn = self.$el.find(".bottom-container .right-column");
+                
                 sandeshModel = new AnalyticsNodeSandeshChartModel(),
                 queriesModel = new AnalyticsNodeQueriesChartModel(),
                 dbUsageModel = new AanlyticsNodeDatabaseUsageModel();
@@ -239,6 +240,9 @@ define(['underscore', 'contrail-view',
                            ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
                        app : cowc.APP_CONTRAIL_CONTROLLER,
                        viewConfig : {
+                              percentileTitle : ctwl.ANALYTICSNODE_CHART_PERCENTILE_TITLE,
+                              percentileXvalue : ctwl.ANALYTICSNODE_CHART_PERCENTILE_COUNT,
+                              percentileYvalue : ctwl.ANALYTICSNODE_CHART_PERCENTILE_SIZE,
                               modelConfig : {
                                    remote : {
                                        ajaxConfig : {

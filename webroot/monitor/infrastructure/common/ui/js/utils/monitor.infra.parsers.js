@@ -702,8 +702,23 @@ define(
                     var parsedData = [];
                     var formatBytespercentileSizeVal = formatBytes(percentileSizeobjVal);
                     parsedData.push({
-                        percentileMessagesobjVal: percentileMessagesobjVal,
-                        percentileSizeobjVal: formatBytespercentileSizeVal
+                        percentileXobjVal: percentileMessagesobjVal,
+                        percentileYobjVal: formatBytespercentileSizeVal
+                    });
+                    return parsedData;
+                };
+
+                self.percentileConfigNodeNodeSummaryChart = function (chartModel) {
+                    var percentileSizeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(api_stats.response_size);95', '-');
+                    var percentileTimeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(api_stats.response_time_in_usec);95', '-');
+                    var secs = percentileTimeobjVal / 1000;
+                    var seconds = Number((secs).toFixed(2))+' ms' // 6.7
+                    percentileTimeobjVal = seconds;
+                    var parsedData = [];
+                    var formatBytespercentileSizeVal = formatBytes(percentileSizeobjVal);
+                    parsedData.push({
+                        percentileXobjVal: percentileTimeobjVal,
+                        percentileYobjVal: formatBytespercentileSizeVal
                     });
                     return parsedData;
                 };

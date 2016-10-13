@@ -391,6 +391,9 @@ define([
         this.CACHE_DATABASE_USAGE_CHARTS = 'cache-databse-usage-charts';
         this.ANALYTICS_CHART_PERCENTILE_SECTION_ID = "analytics-chart-percentile-section-id";
         this.ANALYTICS_CHART_PERCENTILE_TEXT_VIEW = "analytics-chart-percentile-text-view";
+        this.ANALYTICSNODE_CHART_PERCENTILE_TITLE = "95th Percentile - Messages (per min)";
+        this.ANALYTICSNODE_CHART_PERCENTILE_COUNT = "Count";
+        this.ANALYTICSNODE_CHART_PERCENTILE_SIZE = "Size";
         //Config node labels
         this.CONFIGNODE_VIEWPATH_PREFIX = 'monitor/infrastructure/confignode/ui/js/views/';
         this.CONFIGNODE_SUMMARY_PAGE_ID = 'monitor-config-nodes';
@@ -406,6 +409,11 @@ define([
         this.CONFIGNODE_SUMMARY_CHART_ID = 'config-nodes-chart';
         this.CONFIGNODE_SUMMARY_LIST_SECTION_ID = 'config-nodes-list-section';
         this.CONFIGNODE_SUMMARY_CHART_SECTION_ID = 'config-nodes-chart-section';
+        this.CONFIGNODE_CHART_PERCENTILE_SECTION_ID = "confignode-chart-percentile-section-id";
+        this.CONFIGNODE_CHART_PERCENTILE_TEXT_VIEW = "confignode-chart-percentile-text-view";
+        this.CONFIGNODE_CHART_PERCENTILE_TITLE = "95th Percentile - Response";
+        this.CONFIGNODE_CHART_PERCENTILE_TIME = "Time";
+        this.CONFIGNODE_CHART_PERCENTILE_SIZE = "Size";
         //Config node scatter chart
         this.CONFIGNODE_SUMMARY_SCATTERCHART_ID = 'config-nodes-scatterchart';
         this.CONFIGNODE_SUMMARY_SCATTERCHART_SECTION_ID = 'config-nodes-scatterchart-section';
