@@ -148,7 +148,8 @@ define([
                }
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
-                    callbackObj.error(this.getFormErrorText(ctwl.BGP_PREFIX_ID));
+                    callbackObj.error(this.getFormErrorText
+                            (ctwl.ERROR_LABEL_PACKET_CAPTURE));
                 }
             }
 

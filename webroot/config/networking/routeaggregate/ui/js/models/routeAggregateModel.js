@@ -138,7 +138,8 @@ define([
                 });
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
-                    callbackObj.error(this.getFormErrorText(ctwl.BGP_PREFIX_ID));
+                    callbackObj.error(this.getFormErrorText(
+                            ctwc.ROUTE_AGGREGATE_PREFIX_ID));
                 }
             }
 

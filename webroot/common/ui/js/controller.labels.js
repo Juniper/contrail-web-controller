@@ -1185,6 +1185,7 @@ define([
         this.TITLE_PACKET_CAPTURE_DELETE = 'Delete Analyzer';
         this.TITLE_PACKET_CAPTURE_MULTI_DELETE = 'Delete Analyzer(s)';
         this.TITLE_ADD_PACKET_CAPTURE = 'Create Analyzer';
+        this.ERROR_LABEL_PACKET_CAPTURE = 'Analyzer';
     };
     return CTLabels;
 });
