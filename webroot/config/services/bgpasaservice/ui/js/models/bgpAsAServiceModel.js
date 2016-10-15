@@ -278,7 +278,8 @@ define([
                 });
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
-                    callbackObj.error(self.getFormErrorText(ctwl.BGP_PREFIX_ID));
+                    callbackObj.error(self.getFormErrorText(
+                            ctwc.BGP_AS_A_SERVICE_PREFIX_ID));
                 }
             }
 
