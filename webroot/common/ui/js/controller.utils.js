@@ -845,6 +845,15 @@ define([
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] = null;
             errors.set(attrErrorObj);
         };
+
+        /**
+         * Used to get current domain project from stored cookie
+         */
+        this.getCurrentDomainProject = function() {
+            var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
+            return domainName + ":" + projectName;
+        };
     };
 
     this.permissionFormatter =  function(v, dc) {
