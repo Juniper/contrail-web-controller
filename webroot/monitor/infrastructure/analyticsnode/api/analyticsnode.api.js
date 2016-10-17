@@ -19,8 +19,8 @@ var rest = require(process.mainModule.exports["corePath"] +
     opApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
-    discoveryClientApi = require(process.mainModule.exports["corePath"] +
-                                 '/src/serverroot/common/discoveryclient.api'),
+    contrailService = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/jobs/core/contrailservice.api'),
     configApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/configServer.api');
 
@@ -424,37 +424,29 @@ function processAnalyticsQueryStats (collUVE, appData, details, callback)
     var urlLists = [];
     var dataObjArr = [];
     var url = '/analytics/queries';
-    var discEnabled =
-        commonUtils.getValueByJsonPath(config, 'discoveryService;enable', true);
     var anaPort = '8081';
     var opServers = [];
     var opServersCnt = 0;
 
-    if (false == discEnabled) {
-        anaPort =
-            commonUtils.getValueByJsonPath(config, 'analytics;server_port',
-                                           '8081');
-    } else {
-        var discServList = discoveryClientApi.getServiceRespDataList();
-        opServers =
-            commonUtils.getValueByJsonPath(discServList,
-                                           'OpServer;data;OpServer',
-                                           []);
-        opServersCnt = opServers.length;
-    }
+    var contrailServList =
+        contrailService.getActiveServiceRespDataList();
+    opServers =
+        commonUtils.getValueByJsonPath(contrailServList,
+                global.CONTRAIL_SERVICE_TYPE_OP_SERVER + ';data;' +
+                global.CONTRAIL_SERVICE_TYPE_OP_SERVER, []);
+    opServersCnt = opServers.length;
+
     if (ipList.length == 0) {
         callback(null, collUVE);
     } else {
         cnt = ipList.length;
         for (var i = 0; i < cnt; i++) {
             var serverIP = commonUtils.getValueByJsonPath(ipList[i], '0', null);
-            if (true == discEnabled) {
-                for (var j = 0; j < opServersCnt; j++) {
-                    if ((serverIP == opServers[j]['@publisher-id']) ||
-                        (serverIP == opServers[j]['ip-address'])) {
-                        anaPort = opServers[j]['port'];
-                        break;
-                    }
+            for (var j = 0; j < opServersCnt; j++) {
+                if ((serverIP == opServers[j]['@publisher-id']) ||
+                    (serverIP == opServers[j]['ip-address'])) {
+                    anaPort = opServers[j]['port'];
+                    break;
                 }
             }
             opServerAPI =
