@@ -485,7 +485,16 @@ define([
         this.CONTROL_NODE_ALARMS_GRID_SECTION_ID =
             "control_node_alarms_grid_section_id";
         this.CONTROLNODE_ROUTER_TITLE =
-            "Search Routes"
+            "Search Routes";
+
+        this.CONTROLNODE_CPU_SHARE_LINE_CHART_SEC_ID = 'control-nodes-cpu-line-chart-section';
+        this.CONTROLNODE_CPU_SHARE_LINE_CHART_ID = 'control-nodes-cpu-line-chart';
+        this.CONTROLNODE_MEM_SHARE_LINE_CHART_SEC_ID = 'control-nodes-mem-line-chart-section';
+        this.CONTROLNODE_MEM_SHARE_LINE_CHART_ID = 'control-nodes-mem-line-chart';
+        this.CONTROLNODE_SENT_UPDATES_SCATTER_CHART_SEC_ID = 'control-nodes-sent-updates-scatter-chart-section';
+        this.CONTROLNODE_SENT_UPDATES_SCATTER_CHART_ID = 'control-nodes-sent-updates-scatter-chart';
+        this.CONTROLNODE_RECEIVED_UPDATES_SCATTER_CHART_SEC_ID = 'control-nodes-received-updates-scatter-chart-section';
+        this.CONTROLNODE_RECEIVED_UPDATES_SCATTER_CHART_ID = 'control-nodes-received-updates-scatter-chart';
 
         //vRouter summary page labels
         this.VROUTER_VIEWPATH_PREFIX =
