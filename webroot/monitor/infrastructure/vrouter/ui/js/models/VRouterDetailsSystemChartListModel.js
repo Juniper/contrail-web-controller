@@ -6,17 +6,38 @@ define(['contrail-list-model'], function(ContrailListModel) {
     var VRouterDetailsSystemChartListModel = function(config) {
         var hostname = config['node'];
         var isTORAgent = config['isTORAgent'];
-        var postData = monitorInfraUtils.
+        var systemCpuPostData = monitorInfraUtils.
                         getPostDataForCpuMemStatsQuery({
                                 nodeType:monitorInfraConstants.COMPUTE_NODE,
-                                moduleType:"vRouterSystem",
+                                moduleType:"vRouterSystemCpu",
                                 node:hostname});
+        var systemMemPostData = monitorInfraUtils.
+                                getPostDataForCpuMemStatsQuery({
+                                    nodeType:monitorInfraConstants.COMPUTE_NODE,
+                                    moduleType:"vRouterSystemMem",
+                                    node:hostname});
+        var vlRemoteConfig = {
+                vlRemoteList: [{
+                    getAjaxConfig: function() {
+                        return {
+                            url:monitorInfraConstants.monitorInfraUrls['QUERY'],
+                            type:'POST',
+                            data:JSON.stringify(systemMemPostData)
+                        }
+                    },
+                    successCallback: function(response, contrailListModel) {
+                        var flowRateData = getValueByJsonPath(response,'data',[]);
+                        monitorInfraUtils.parseAndMergeStats (flowRateData,contrailListModel,'MAX(system_mem_usage.used)');
+                    }
+                }
+            ]
+        };
         var listModelConfig = {
             remote : {
                 ajaxConfig : {
                     url: monitorInfraConstants.monitorInfraUrls['QUERY'],
                     type: 'POST',
-                    data: JSON.stringify(postData)
+                    data: JSON.stringify(systemCpuPostData)
                 },
                 dataParser : function (response) {
                     if(!isTORAgent) {
@@ -26,6 +47,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                     }
                 }
             },
+            vlRemoteConfig: vlRemoteConfig,
             cacheConfig : {
 //                ucid: ctwc.get(ctwc.UCID_NODE_CPU_MEMORY_LIST, hostname)
             }

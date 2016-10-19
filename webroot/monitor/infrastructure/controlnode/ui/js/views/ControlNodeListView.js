@@ -3,51 +3,94 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-color-mapping'],
+        [ 'underscore', 'contrail-view', 'node-color-mapping'],
         function(
-                _, ContrailView, ControlNodeListModel, NodeColorMapping) {
+                _, ContrailView, NodeColorMapping) {
             var ControlNodeListView = ContrailView.extend({
                 render : function() {
-                    var controlNodeListModel = new ControlNodeListModel(),
-                        nodeColorMapping = new NodeColorMapping(),
+                    var nodeColorMapping = new NodeColorMapping(),
                         colorFn = nodeColorMapping.getNodeColorMap;
-                    this.renderView4Config(this.$el, controlNodeListModel,
+                    this.renderView4Config(this.$el, null,
                             getControlNodeListViewConfig(colorFn));
                 }
             });
-
             function getControlNodeListViewConfig(colorFn) {
                 var viewConfig = {
-                    rows : [{
-                        columns : [{
-                            elementId : ctwl.CONTROLNODE_SUMMARY_CHART_ID,
-                            title : ctwl.CONTROLNODE_SUMMARY_TITLE,
-                            view : "ControlNodeSummaryChartsView",
-                            viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
-                            app : cowc.APP_CONTRAIL_CONTROLLER,
-                            viewConfig: {
-                                colorFn: colorFn
-                            }
+                    rows : [
+                        monitorInfraUtils.getToolbarViewConfig(),
+                        {
+                            columns : [{
+                                elementId: 'control-node-carousel-view',
+                                view: "CarouselView",
+                                viewConfig: {
+                                pages : [
+                                         {
+                                             page: {
+                                                 elementId : 'control-node-grid-stackview-0',
+                                                 view : "GridStackView",
+                                                 viewConfig: {
+                                                     elementId : 'control-node-grid-stackview-0',
+                                                     gridAttr : {
+                                                         defaultWidth : 6,
+                                                         defaultHeight : 8
+                                                     },
+                                                     widgetCfgList: [
+                                                         {id:'controlnode-sent-updates'},
+                                                         {id:'controlnode-received-updates'},
+                                                         {id:'controlnode-control'},
+                                                         {id:'controlnode-memory'},
+                                                         {id:'controlnode-grid-view'}
+                                                     ]
+                                                  }
+                                               }
+                                         },{
+                                             page: {
+                                                 elementId : 'control-node-grid-stackview-1',
+                                                 view : "GridStackView",
+                                                 viewConfig: {
+                                                     elementId : 'control-node-grid-stackview-1',
+                                                     gridAttr : {
+                                                         defaultWidth : 6,
+                                                         defaultHeight : 8
+                                                     },
+                                                     widgetCfgList: [
+                                                         {id:'controlnode-dns'},
+                                                         {id:'controlnode-named'},
+                                                         {id:'controlnode-system-cpu-share'},
+                                                         {id:'controlnode-system-memory-usage'},
+                                                        // {id:'disk-usage-info'},
+                                                         {id:'controlnode-grid-view'}
+                                                     ]
+                                                }
+                                             },
+                                         },{
+                                             page: {
+                                             elementId : 'control-node-grid-stackview-2',
+                                             view : "GridStackView",
+                                             viewConfig: {
+                                                 elementId : 'control-node-grid-stackview-2',
+                                                 gridAttr : {
+                                                     defaultWidth : 6,
+                                                     defaultHeight : 8
+                                                 },
+                                                 widgetCfgList: [
+                                                     {id:'controlnode-disk-usage-info'},
+                                                     {id:'controlnode-grid-view'}
+                                                 ]
+                                            }
+                                         },
+                                      }
+                                   ]
+                                }
+                            }]
                         }]
-                    },{
-                        columns : [{
-                            elementId : ctwl.CONTROLNODE_SUMMARY_GRID_ID,
-                            title : ctwl.CONTROLNODE_SUMMARY_TITLE,
-                            view : "ControlNodeSummaryGridView",
-                            viewPathPrefix: ctwl.CONTROLNODE_VIEWPATH_PREFIX,
-                            app : cowc.APP_CONTRAIL_CONTROLLER,
-                            viewConfig : {
-                                colorFn: colorFn
-                            }
-                        }]
-                    }]
                 };
                 return {
                     elementId : cowu.formatElementId([
-                         ctwl.CONTROLNODE_SUMMARY_LIST_SECTION_ID ]),
+                          ctwl.CONTROLNODE_SUMMARY_LIST_SECTION_ID ]),
                     view : "SectionView",
-                    viewConfig :viewConfig
+                    viewConfig : viewConfig
                 };
-            };
-        return ControlNodeListView;
-    });
+            }
+            return ControlNodeListView;
+        });

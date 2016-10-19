@@ -48,8 +48,8 @@ define([
             prefix:'vrouterAgent',
             sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
-            sparkline1Dimension:'cpu_info.cpu_share',
-            sparkline2Dimension:'cpu_info.mem_res',
+            sparkline1Dimension:'process_mem_cpu_usage.cpu_share',
+            sparkline2Dimension:'process_mem_cpu_usage.mem_res',
             view: VRouterDetailsAgentLineChartView,
             model: vRouterDetailsAgentChartListModel
         },
@@ -58,8 +58,8 @@ define([
             prefix:'vrouterSystem',
             sparklineTitle1:ctwl.TITLE_CPU_LOAD,
             sparklineTitle2:'Memory',
-            sparkline1Dimension: 'cpu_info.one_min_cpuload',
-            sparkline2Dimension:'cpu_info.used_sys_mem',
+            sparkline1Dimension: 'MAX(system_cpu_usage.one_min_avg)',
+            sparkline2Dimension:'MAX(system_mem_usage.used)',
             view: VRouterDetailsSystemLineChartView,
             model: vRouterDetailsSystemChartListModel
         },

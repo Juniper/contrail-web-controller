@@ -49,8 +49,8 @@ define([
             prefix:'analyticsCollector',
             sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
-            sparkline1Dimension:'cpu_info.cpu_share',
-            sparkline2Dimension:'cpu_info.mem_res',
+            sparkline1Dimension:'process_mem_cpu_usage.cpu_share',
+            sparkline2Dimension:'process_mem_cpu_usage.mem_res',
             view: AnalyticsNodeDetailsCollectorLineChartView,
             model: analyticsNodeDetailsCollectorChartListModel
         },
@@ -59,8 +59,8 @@ define([
             prefix:'analyticsQE',
             sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
-            sparkline1Dimension:'cpu_info.cpu_share',
-            sparkline2Dimension:'cpu_info.mem_res',
+            sparkline1Dimension:'process_mem_cpu_usage.cpu_share',
+            sparkline2Dimension:'process_mem_cpu_usage.mem_res',
             view: AnalyticsNodeDetailsQELineChartView,
             model: analyticsNodeDetailsQEChartListModel
         },
@@ -69,8 +69,8 @@ define([
             prefix:'analyticsAPI',
             sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
-            sparkline1Dimension:'cpu_info.cpu_share',
-            sparkline2Dimension:'cpu_info.mem_res',
+            sparkline1Dimension:'process_mem_cpu_usage.cpu_share',
+            sparkline2Dimension:'process_mem_cpu_usage.mem_res',
             view: AnalyticsNodeDetailsAnalyticsLineChartView,
             model: analyticsNodeDetailsAnalyticsChartListModel
         }];
