@@ -3,7 +3,6 @@
  */
 
 define(['contrail-list-model'], function(ContrailListModel) {
-    var AnalyticsNodeListModel = function() {
         var listModelConfig = {
             remote : {
                 ajaxConfig : {
@@ -88,7 +87,5 @@ define(['contrail-list-model'], function(ContrailListModel) {
                 ucid : ctwl.CACHE_ANALYTICSNODE
             }
         };
-        return ContrailListModel(listModelConfig);
-    };
-    return AnalyticsNodeListModel;
+    return listModelConfig;
 });

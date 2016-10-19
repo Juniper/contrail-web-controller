@@ -132,6 +132,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                          view:"ZoomScatterChartView",
                          viewConfig: {
                              chartOptions: {
+                                 xLabel: 'Agent CPU Share (%)',
+                                 yLabel: 'Agent Memory (MB)',
                                  xFormatter: function(x) {
                                      return cowu.numberFormatter(x,0);
                                  },
@@ -236,6 +238,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
              "vrouter-system-cpu-percentiles-chart" : function() {
                  return {
                      modelCfg: {
+                        modelId:'VROUTER_SYSTEM_CPU_PERCENTILE_MODEL',
                          source:"STATTABLE",
                          config :{
                              table_name: 'StatTable.NodeStatus.system_cpu_usage',
@@ -273,6 +276,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
              "vrouter-system-memory-percentiles-chart" : function() {
                  return {
                      modelCfg: {
+                         modelId:'VROUTER_SYSTEM_MEMORY_PERCENTILE_MODEL',
                          source:"STATTABLE",
                          config: {
                              table_name: 'StatTable.NodeStatus.system_mem_usage',
@@ -293,7 +297,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                  xAxisLabel: '',
                                  colors: cowc.THREE_NODE_COLOR,
                                  yAxisLabel: ctwl.VROUTER_SYSTEM_MEMORY_PERCENTILES,
-                                 subTitle:ctwl.VROUTER_MIN_MAX_CPU_UTILIZATION,
+                                 subTitle:"Max Avg Min Memory Utilization",
 //                                 groupBy:'Source',
 //                                 yField: 'percentileValue',
                                  yFields: getYFieldsForPercentile('system_mem_usage.used'),
@@ -363,16 +367,19 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
              },
              "vrouter-system-cpu-mem-chart" : function() {
                  return {
-                     modelCfg: {listModel:vRouterUIListModel},
+                     modelCfg: {
+                         modelId:'VROUTER_LIST_MODEL',
+                         listModel: vRouterUIListModel
+                     },
                      viewCfg: {
                          elementId : 'vrouter-system-cpu-mem-chart',
                          view: 'ZoomScatterChartView',
                          viewConfig: {
                              chartOptions: {
-                                 xField: 'NodeStatus;system_mem_cpu_usage;cpu_share',
+                                 xField: 'NodeStatus;system_cpu_usage;cpu_share',
                                  xFormatter: function(x) {return $.isNumeric(x) ? x : NaN;},
                                  xLabelFormat: function(x) {return $.isNumeric(x) ? x : NaN;},
-                                 yField: 'NodeStatus;system_mem_cpu_usage;mem_info;used',
+                                 yField: 'NodeStatus;system_mem_usage;used',
                                  yFormatter: function(y) {
                                                  return $.isNumeric(y) ? parseFloat(
                                                  parseFloat(y / 1024).toFixed(2)) : NaN;
@@ -391,9 +398,9 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                      options['tooltipContents'] = [
                                            {label:'Host Name', value: currObj['name']},
                                            {label:'Version', value:currObj['version']},
-                                           {label: 'System CPU Share (%)', value:getValueByJsonPath(currObj,'NodeStatus;system_mem_cpu_usage;cpu_share','-')},
+                                           {label: 'System CPU Share (%)', value:getValueByJsonPath(currObj,'NodeStatus;system_cpu_usage;cpu_share','-')},
                                            {label: 'System Memory (GB)', value:function(){
-                                                   var mem = getValueByJsonPath(currObj,'NodeStatus;system_mem_cpu_usage;mem_info;used','-');
+                                                   var mem = getValueByJsonPath(currObj,'NodeStatus;system_mem_usage;used','-');
                                                    mem = $.isNumeric(mem) ? parseFloat(
                                                            parseFloat(mem / 1024).toFixed(2)) : NaN;
                                                    return formatBytes(mem * 1024 * 1024);
@@ -461,10 +468,12 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
              "vrouter-agent-cpu-percentiles-chart" : function() {
                  return {
                      modelCfg: {
+                         modelId:'VROUTER_CPU_PERCENTILE_MODEL',
                          source:"STATTABLE",
                          config:{
-                             table_name: 'StatTable.ComputeCpuState.cpu_info',
-                             select: 'T=, PERCENTILES(cpu_info.cpu_share)'
+                             table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                             select: 'T=, PERCENTILES(process_mem_cpu_usage.cpu_share)',
+                             where: 'process_mem_cpu_usage.__key = contrail-vrouter-agent'
                          }
                      },
                      viewCfg: {
@@ -478,7 +487,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                  colors: cowc.THREE_NODE_COLOR,
                                  xAxisLabel: '',
                                  yAxisLabel: ctwl.VROUTER_AGENT_CPU_PERCENTILES,
-                                 yFields: getYFieldsForPercentile('cpu_info.cpu_share'),
+                                 yFields: getYFieldsForPercentile('process_mem_cpu_usage.cpu_share'),
                                  yFormatter: function(y) {
                                      return y;
                                  }
@@ -495,10 +504,12 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
              "vrouter-agent-mem-usage-percentiles-chart" : function() {
                  return {
                      modelCfg:{
+                        modelId:'VROUTER_MEM_PERCENTIL_MODEL',
                          source:"STATTABLE",
                          config:{
-                             table_name: 'StatTable.ComputeCpuState.cpu_info',
-                             select: 'T=, PERCENTILES(cpu_info.mem_res)'
+                             table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                             select: 'T=, PERCENTILES(process_mem_cpu_usage.mem_res)',
+                             where: 'process_mem_cpu_usage.__key = contrail-vrouter-agent'
                          }
                      },
                      viewCfg: {
@@ -508,11 +519,11 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                              parseFn : cowu.parsePercentilesData,
                              chartOptions: {
                                  title: ctwl.VROUTER_AGENT_MEMORY_PERCENTILES,
-                                 subTitle:ctwl.VROUTER_MIN_MAX_CPU_UTILIZATION,
+                                 subTitle:"Max Avg Min Memory Utilization",
                                  colors: cowc.THREE_NODE_COLOR,
                                  xAxisLabel: '',
                                  yAxisLabel: ctwl.VROUTER_AGENT_MEMORY_PERCENTILES,
-                                 yFields: getYFieldsForPercentile('cpu_info.mem_res'),
+                                 yFields: getYFieldsForPercentile('process_mem_cpu_usage.mem_res'),
                                  yFormatter: function(y) {
                                      return formatBytes(y * 1024, true, null, null,
                                              null);
@@ -530,6 +541,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
              "vrouter-active-flows-percentiles-chart" : function() {
                  return {
                      modelCfg: {
+                        modelId:'VROUTER_ACTIVE_FLOWS_PERCENTILE_MODEL',
                          source:"STATTABLE",
                          config:{
                              table_name: 'StatTable.VrouterStatsAgent.flow_rate',
@@ -543,7 +555,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                              parseFn : cowu.parsePercentilesData,
                              chartOptions: {
                                  title: 'Active Flows Percentiles',
-                                 subTitle:ctwl.VROUTER_MIN_MAX_CPU_UTILIZATION,
+                                 subTitle:"Max Avg Min Flow Count",
                                  colors: cowc.THREE_NODE_COLOR,
                                  xAxisLabel: '',
                                  yAxisLabel: 'Active Flows Percentiles',

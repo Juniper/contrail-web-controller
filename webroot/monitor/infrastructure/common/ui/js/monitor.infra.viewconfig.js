@@ -5,8 +5,6 @@
 define(['underscore', 'contrail-view', 'node-color-mapping'],
         function(_, ContrailView, NodeColorMapping){
     var MonitorInfraViewConfig = function () {
-        var nodeColorMapping = new NodeColorMapping(),
-        colorFn = nodeColorMapping.getNodeColorMap;
         var self = this;
         self.viewConfig = {
                 'system-cpu-share': function () {
@@ -14,8 +12,8 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                         modelCfg: {
                             source: 'STATTABLE',
                             config: {
-                                "table_name": "StatTable.NodeStatus.system_mem_cpu_usage",
-                                "select": "Source, T=, MAX(system_mem_cpu_usage.cpu_share)"
+                                "table_name": "StatTable.NodeStatus.system_cpu_usage",
+                                "select": "Source, T=, MAX(system_cpu_usage.cpu_share)"
                             }
                         },
                         viewCfg:{
@@ -27,8 +25,7 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                                     subTitle:"System CPU Utilization (in 3 mins)",
                                     yAxisLabel: 'System CPU Share (%)',
                                     groupBy: 'Source',
-                                    colors: colorFn,
-                                    yField: 'MAX(system_mem_cpu_usage.cpu_share)',
+                                    yField: 'MAX(system_cpu_usage.cpu_share)',
                                     title: "System",
                                 }
                             }
@@ -55,11 +52,10 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                                     subTitle:"Memory usage per system (3 mins)",
                                     yAxisLabel: ctwl.SYSTEM_MEMORY_USED,
                                     groupBy: 'Source',
-                                    colors: colorFn,
                                     yField: 'MAX(system_mem_usage.used)',
                                     title: "System",
                                     yFormatter : function(d){
-                                        return formatBytes(d, true);
+                                        return formatBytes(d * 1024, true);
                                    }
                                 }
                             }
@@ -75,14 +71,6 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                             config: {
                                 "table_name": "StatTable.NodeStatus.disk_usage_info",
                                 "select": "T=, Source, MAX(disk_usage_info.partition_space_used_1k)",
-                                "parser": function(response){
-                                    var stats = response;
-                                    $.each(stats, function(idx, obj) {
-                                        obj['MAX(disk_usage_info.partition_space_used_1k)'] =
-                                            ifNull(obj['MAX(disk_usage_info.partition_space_used_1k)'],0) * 1024; //Converting KB to Bytes
-                                    });
-                                    return stats;
-                                }
                             }
                         },
                         viewCfg: {
@@ -95,10 +83,9 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                                     xAxisLabel: '',
                                     yAxisLabel: ctwl.DISK_USAGE,
                                     groupBy: 'Source',
-                                    colors: colorFn,
                                     yField: 'MAX(disk_usage_info.partition_space_used_1k)',
                                     yFormatter : function(d){
-                                        return formatBytes(d, true);
+                                        return formatBytes(d * 1024, true);
                                    },margin: {
                                        left: 62
                                    }

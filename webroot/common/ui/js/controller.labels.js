@@ -632,7 +632,7 @@ define([
         this.VROUTER_AGENT_CPU_PERCENTILES = "VRouter Agent CPU Share Percentiles";
         this.VROUTER_AGENT_MEMORY_PERCENTILES = "VRouter Agent Memory Usage Percentiles";
         this.VROUTER_ACTIVE_FLOWS_PERCENTILES = "Active Flows Percentiles";
-        this.VROUTER_ACTIVE_FLOWS_DROPS_LABEL = "Active Flows";
+        this.VROUTER_ACTIVE_FLOWS_DROPS_LABEL = "Sampled Active Flows / Drops";
         this.VROUTER_AGENT_CPU_PERCENTILES = "Agent CPU Percentiles";
         this.VROUTER_AGENT_MEMORY_PERCENTILES = "Agent Memory Percentiles";
 
@@ -720,7 +720,7 @@ define([
         this.ANALYTICS_NODE_ALARM_GEN_CPU_SHARE = 'alarmgen CPU Share (%)';
         this.ANALYTICS_NODE_COLLECTOR_CPU_SHARE = 'Collector CPU Share (%)';
         this.ANALYTICS_NODE_QE_CPU_SHARE = 'Query Engine CPU Share (%)';
-        this.ANALYTICS_NODE_API_CPU_SHARE = 'API CPU Share (%)';
+        this.ANALYTICS_NODE_API_CPU_SHARE = 'Analytics API CPU Share (%)';
         this.ANALYTICS_NODE_TOP_GENERATORS = 'Generators';
         this.ANALYTICS_NODE_TOP_MESSAGE_TYPES = 'Message Types';
         this.ANALYTICS_NODE_MESSAGE_PARAMS_PERCENTILE = 'Sandesh Messages Size & Count Percentile';

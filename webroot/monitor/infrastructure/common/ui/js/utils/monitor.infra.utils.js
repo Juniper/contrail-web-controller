@@ -2153,7 +2153,6 @@ define([
                     postData['where'] = '(process_mem_cpu_usage.__key = contrail-vrouter-agent)';
                 }
             } else if (dsName == monitorInfraConstants.ANALYTICS_NODE) {
-//                postData['select'] = 'Source, T=, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res';
                 if (moduleType != null && moduleType != '') {
                     if(moduleType == 'analyticsCollector') {
                         postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-collector)';
@@ -2437,7 +2436,7 @@ define([
                     tooltipContents: getValueByJsonPath(options,'tooltipContents')
                 });
         },
-        self.getDefaultScatterChartTooltipFn = function(currObj,cfg,subtitle) {
+        self.getDefaultGeneratorScatterChartTooltipFn = function(currObj,cfg) {
             var tooltipContents = [];
             if (cfg.tooltipContents != null) {
                 tooltipContents = cfg.tooltipContents;
@@ -2452,22 +2451,10 @@ define([
                         info: tooltipContents.slice(1)
                     },title : {
                         name: tooltipContents[0]['value'],
-                        type: subtitle
+                        type: "Messages / Bytes sent per min"
                     }
                 }
             }
-        },
-        self.getScatterChartClickFn = function(currObj,options) {
-            layoutHandler.setURLHashParams({
-                type: getValueByJsonPath(options,'type'),
-                view: getValueByJsonPath(options,'type'),
-                focusedElement: {
-                    node: currObj['name'],
-                    tab: 'details'
-                }
-            }, {
-                p: getValueByJsonPath(options,'hash')
-            });
         },
         self.parseAndMergeStats = function (response,primaryDS,key) {
             var primaryData = primaryDS.getItems();
@@ -2499,6 +2486,18 @@ define([
                 }
             }
             primaryDS.updateData(primaryData);
+        }
+        self.getScatterChartClickFn = function(currObj,options) {
+            layoutHandler.setURLHashParams({
+                type: getValueByJsonPath(options,'type'),
+                view: getValueByJsonPath(options,'type'),
+                focusedElement: {
+                    node: currObj['name'],
+                    tab: 'details'
+                }
+            }, {
+                p: getValueByJsonPath(options,'hash')
+            });
         }
     };
     return MonitorInfraUtils;

@@ -5,7 +5,6 @@
 define([
     'contrail-list-model',
 ], function (ContrailListModel) {
-    var DatabaseNodeListModel = function () {
         var listModelConfig = {
                 remote : {
                     ajaxConfig : {
@@ -17,8 +16,6 @@ define([
                     ucid: ctwl.CACHE_DATABASENODE
                 }
             };
-        return ContrailListModel(listModelConfig);
-    };
-    return DatabaseNodeListModel;
+    return listModelConfig;
     }
 );

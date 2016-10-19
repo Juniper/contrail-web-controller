@@ -701,8 +701,8 @@ define(
                 };
 
                 self.percentileAnalyticsNodeSummaryChart = function (chartModel) {
-                    var percentileSizeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(msg_info.bytes);95', '-');
-                    var percentileMessagesobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(msg_info.messages);95', '-');
+                    var percentileSizeobjVal = getValueByJsonPath(chartModel, 'data;0;PERCENTILES(msg_info.bytes);95', '-');
+                    var percentileMessagesobjVal = getValueByJsonPath(chartModel, 'data;0;PERCENTILES(msg_info.messages);95', '-');
                     percentileMessagesobjVal = Math.round(percentileMessagesobjVal);
                     var parsedData = [];
                     var formatBytespercentileSizeVal = formatBytes(percentileSizeobjVal);
@@ -713,8 +713,8 @@ define(
                     return parsedData;
                 };
                 self.percentileConfigNodeNodeSummaryChart = function (chartModel) {
-                    var percentileSizeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(api_stats.response_size);95', '-');
-                    var percentileTimeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(api_stats.response_time_in_usec);95', '-');
+                    var percentileSizeobjVal = getValueByJsonPath(chartModel, 'data;0;PERCENTILES(api_stats.response_size);95', '-');
+                    var percentileTimeobjVal = getValueByJsonPath(chartModel, 'data;0;PERCENTILES(api_stats.response_time_in_usec);95', '-');
                     console.log(percentileTimeobjVal);
                     var secs = percentileTimeobjVal / 1000;
                     var seconds = Number((secs).toFixed(2))+' ms' // 6.7

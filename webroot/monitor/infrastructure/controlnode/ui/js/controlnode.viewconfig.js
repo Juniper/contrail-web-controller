@@ -3,18 +3,17 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-color-mapping'],
-        function(_, ContrailView,  ControlNodeListModel, NodeColorMapping) {
+define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-color-mapping', 'monitor-infra-viewconfig'],
+        function(_, ContrailView,  controlNodeListModelCfg, NodeColorMapping, monitorInfraViewConfig) {
     var ControlNodeViewConfig = function () {
         var nodeColorMapping = new NodeColorMapping(),
-        colorFn = nodeColorMapping.getNodeColorMap,
-        controlNodeListModel = new ControlNodeListModel();
+        colorFn = nodeColorMapping.getNodeColorMap;
         var self = this;
         self.viewConfig = {
             'controlnode-sent-updates': function (){
                 return {
                     modelCfg: {
-                        modelId: ctwl.CONTROLNODE_SENT_UPDATES,
+                        modelId: 'CONTROLNODE_SENT_UPDATES_MODEL',
                         source:'STATTABLE',
                         config: {
                             table_name: 'StatTable.PeerStatsData.tx_update_stats',
@@ -36,6 +35,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                                 yField: 'SUM(tx_update_stats.reach)',
                                 colors: colorFn,
                                 failureLabel:'Unreach Updates (Total)',
+                                failureColor: '#ffbf87',
                                 failureCheckFn: function (d) {
                                     return ifNull(d['SUM(tx_update_stats.unreach)'],0);
                                 },
@@ -50,7 +50,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
             'controlnode-received-updates': function (){
                 return {
                     modelCfg: {
-                        modelId: ctwl.CONTROLNODE_RECEIVED_UPDATES,
+                        modelId: 'CONTROLNODE_RECEIVED_UPDATES_MODEL',
                         source:'STATTABLE',
                         config: {
                             table_name: 'StatTable.PeerStatsData.rx_update_stats',
@@ -70,6 +70,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                                 yField: 'SUM(rx_update_stats.reach)',
                                 colors: colorFn,
                                 failureLabel:'Unreach Updates (Total)',
+                                failureColor: '#ffbf87',
                                 failureCheckFn: function (d) {
                                     return ifNull(d['SUM(rx_update_stats.unreach)'],0);
                                 },
@@ -82,44 +83,47 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                     }
                 }
             },
-            'controlnode-cpu-share': function (){
-                return {
-                     modelCfg: {
-                        source:'STATTABLE',
-                        config: {
-                            table_name: 'StatTable.ControlCpuState.cpu_info',
-                            select: 'T=, name, MAX(cpu_info.cpu_share), MAX(cpu_info.mem_res)',
-                            where:'cpu_info.module_id = contrail-control'
+            'controlnode-system-cpu-share': function () {
+                var config = monitorInfraViewConfig['system-cpu-share']();
+                return $.extend(true, config,{
+                    viewCfg: {
+                        viewConfig: {
+                            chartOptions: {
+                                colors:colorFn
+                            }
                         }
-                    },
-                     viewCfg: {
-                         elementId : ctwl.CONTROLNODE_CPU_SHARE_LINE_CHART_ID,
-                         view: 'LineWithFocusChartView',
-                         viewConfig: {
-                             chartOptions: {
-                                yAxisLabel: 'Control CPU Share (%)',
-                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
-                                groupBy: 'name',
-                                yField: 'MAX(cpu_info.cpu_share)',
-                                colors: colorFn,
-                                title: ctwl.CONTROLNODE_SUMMARY_TITLE,
-                                yFormatter : function(d){
-                                    return d;
-                                },
-                                xFormatter: xCPUChartFormatter,
-                             }
-                         }
-                     },
-                     itemAttr: {
-                          title: ctwl.CONTROL_NODE_CPU_SHARE
                     }
-                }
+                });
+            },
+            'controlnode-system-memory-usage': function () {
+                var config = monitorInfraViewConfig['system-memory-usage']();
+                return $.extend(true, config, {
+                    viewCfg: {
+                        viewConfig: {
+                            chartOptions: {
+                                colors:colorFn
+                            }
+                        }
+                    }
+                });
+            },
+            'controlnode-disk-usage-info': function () {
+                var config = monitorInfraViewConfig['disk-usage-info']();
+                return $.extend(true, config, {
+                    viewCfg: {
+                        viewConfig: {
+                            chartOptions: {
+                                colors:colorFn
+                            }
+                        }
+                    }
+                });
             },
             'controlnode-system-logs': function () {
                 return {
                     modelCfg: {
-                        modelId: ctwl.CONTROLNODE_CONSOLE_LOGS_MODEL,
-                        source:'STATTABLE',
+                        modelId: 'CONTROLNODE_SYSTEM_LOGS_MODEL',
+                        source:'LOG',
                         config: {
                             table_name: 'MessageTable',
                             table_type: 'LOG',
@@ -130,6 +134,83 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                     viewCfg: {
                         view : "eventDropsView",
                         viewConfig: {
+                            groupBy: 'MessageType',
+                            title: 'Controlnode System Logs'
+                        }
+                    },
+                    itemAttr: {
+                        title: ctwl.CONTROLNODE_CONSOLE_LOGS,
+                        width: 2
+                    }
+                }
+            },
+            'controlnode-objectbgprouter-logs': function () {
+                return {
+                    modelCfg: {
+                        modelId: 'CONTROLNODE_OBJECT_BGPROUTER_MODEL',
+                        source:'OBJECT',
+                        config: {
+                            table_name: 'ObjectBgpRouter',
+                            table_type: 'OBJECT',
+                            select: 'Source,ModuleId,MessageTS,ObjectId,Messagetype,ObjectLog,SystemLog',
+                            where:'ModuleId=contrail-control'
+                        }
+                    },
+                    viewCfg: {
+                        view : "eventDropsView",
+                        viewConfig: {
+                            // groupBy: 'MessageType',
+                            title:'ObjectBgpRouter'
+                        }
+                    },
+                    itemAttr: {
+                        title: ctwl.CONTROLNODE_CONSOLE_LOGS,
+                        width: 2
+                    }
+                }
+            },
+            'controlnode-objectxmpppeer-logs': function () {
+                return {
+                    modelCfg: {
+                        modelId: 'CONTROLNODE_OBJECT_XMPPPEER_MODEL',
+                        source:'OBJECT',
+                        config: {
+                            table_name: 'ObjectXmppPeerInfo',
+                            table_type: 'OBJECT',
+                            select: 'Source,ModuleId,MessageTS,ObjectId,Messagetype,ObjectLog,SystemLog',
+                            where:'ModuleId=contrail-control'
+                        }
+                    },
+                    viewCfg: {
+                        view : "eventDropsView",
+                        viewConfig: {
+                            // groupBy: 'MessageType',
+                            title:'ObjectXmppPeerInfo'
+                        }
+                    },
+                    itemAttr: {
+                        title: ctwl.CONTROLNODE_CONSOLE_LOGS,
+                        width: 2
+                    }
+                }
+            },
+            'controlnode-objectbgppeer-logs': function () {
+                return {
+                    modelCfg: {
+                        modelId: 'CONTROLNODE_OBJECT_BGPPEER_MODEL',
+                        source:'OBJECT',
+                        config: {
+                            table_name: 'ObjectBgpPeer',
+                            table_type: 'OBJECT',
+                            select: 'Source,ModuleId,MessageTS,ObjectId,Messagetype,ObjectLog,SystemLog',
+                            where:'ModuleId=contrail-control'
+                        }
+                    },
+                    viewCfg: {
+                        view : "eventDropsView",
+                        viewConfig: {
+                            // groupBy: 'MessageType',
+                            title:'ObjectBgpPeer'
                         }
                     },
                     itemAttr: {
@@ -141,11 +222,12 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
             'controlnode-memory': function (){
                 return {
                     modelCfg: {
+                        modelId:'CONTROLNODE_MEMORY_MODEL',
                         source:'STATTABLE',
                         config: {
-                            table_name: 'StatTable.ControlCpuState.cpu_info',
-                            select: 'T=, name, MAX(cpu_info.cpu_share), MAX(cpu_info.mem_res)',
-                            where:'cpu_info.module_id = contrail-control'
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.mem_res)',
+                            where:'process_mem_cpu_usage.__key = contrail-control'
                         }
                     },
                      viewCfg: {
@@ -156,19 +238,13 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                                 yAxisLabel: 'BGP Memory Usage',
                                 subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 groupBy: 'name',
-                                yField: 'MAX(cpu_info.mem_res)',
+                                yField: 'MAX(process_mem_cpu_usage.mem_res)',
                                 colors: colorFn,
                                 title: ctwl.CONTROLNODE_SUMMARY_TITLE,
-                                margin: {
-                                    left: 60,
-                                    top: 20,
-                                    right: 15,
-                                    bottom: 50
-                                },
                                 yFormatter : function(d){
                                     return formatBytes(d * 1024, true);
                                 },
-                                xFormatter: xCPUChartFormatter,
+                                //xFormatter: xCPUChartFormatter,
                              }
                          }
                      },
@@ -180,6 +256,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
             'controlnode-control': function (){
                 return {
                     modelCfg:{
+                        modelId:'CONTROLNODE_CPU_MODEL',
                         source:'STATTABLE',
                         config: {
                             table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
@@ -209,6 +286,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
             'controlnode-nodemgr': function (){
                 return {
                     modelCfg:{
+                        modelId: 'CONTROLNODE_NODEMGR_CPU_MODEL',
                         source:'STATTABLE',
                         config: {
                             table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
@@ -238,6 +316,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
             'controlnode-dns': function (){
                 return {
                     modelCfg:{
+                        modelId:'CONTROLNODE_DNS_CPU_MODEL',
                         source:'STATTABLE',
                         config: {
                             table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
@@ -267,6 +346,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
             'controlnode-named': function (){
                 return {
                     modelCfg:{
+                        modelId:'CONTROLNODEL_NAMED_CPU_MODEL',
                         source:'STATTABLE',
                         config: {
                             table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
@@ -296,8 +376,8 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
             'controlnode-grid-view': function () {
                 return {
                     modelCfg:{
-                        modelId: ctwl.CONTROLNODE_GRID_VIEW,
-                        listModel: controlNodeListModel
+                        modelId: 'CONTROLNODE_LIST_MODEL',
+                        config: controlNodeListModelCfg
                     },
                     viewCfg: {
                         elementId : ctwl.CONTROLNODE_SUMMARY_GRID_ID,
@@ -305,7 +385,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                         view : "GridView",
                         viewConfig : {
                             elementConfig :
-                                getControlNodeSummaryGridConfig(controlNodeListModel, colorFn)
+                                getControlNodeSummaryGridConfig('controlnode-grid-view', colorFn)
                         }
                     },
                     itemAttr: {
@@ -314,7 +394,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                 }
             },
         };
-        function getControlNodeSummaryGridConfig(model, colorFn) {
+        function getControlNodeSummaryGridConfig(widgetId, colorFn) {
             var columns = [
                            {
                                field:"name",
@@ -324,7 +404,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                                       name:'name',
                                       statusBubble:true,
                                       rowData:dc,
-                                      tagColorMap:colorFn(_.pluck(model.getItems(), 'name'))});
+                                      tagColorMap:colorFn(_.pluck(cowu.getGridItemsForWidgetId(widgetId), 'name'))});
                                },
                                events: {
                                   onClick: onClickHostName

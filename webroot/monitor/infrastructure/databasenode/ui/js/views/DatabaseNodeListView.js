@@ -38,7 +38,7 @@ define(
                                                          {id:'databasenode-pending-compactions'},
                                                          {id:'databasenode-cpu-share'},
                                                          {id:'databasenode-memory'},
-                                                         {id:'disk-usage-info'},
+                                                         {id:'databasenode-disk-usage-info'},
                                                          {id:'database-grid-view'}
                                                      ]
                                                   }
@@ -56,8 +56,8 @@ define(
                                                      widgetCfgList: [
                                                          {id:'databasenode-zookeeper'},
                                                          {id:'databasenode-kafka'},
-                                                         {id:'system-cpu-share'},
-                                                         {id:'system-memory-usage'},
+                                                         {id:'databasenode-system-cpu-share'},
+                                                         {id:'databasenode-system-memory-usage'},
                                                         // {id:'disk-usage-info'},
                                                          {id:'database-grid-view'}
                                                      ]

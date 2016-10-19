@@ -106,9 +106,9 @@ define(
                                             }, {
                                                 id: 'confignode-process-contrail-discovery'
                                             }, {
-                                                id: 'system-cpu-share'
+                                                id: 'confignode-system-cpu-share'
                                             }, {
-                                                id: 'system-memory-usage'
+                                                id: 'confignode-system-memory-usage'
                                             }, {
                                                 id: 'confignode-grid-view'
                                             }]
@@ -125,7 +125,7 @@ define(
                                                 defaultHeight: 8
                                             },
                                             widgetCfgList: [{
-                                                id: 'disk-usage-info'
+                                                id: 'confignode-disk-usage-info'
                                             },{
                                                 id: 'confignode-grid-view'
                                             }]
