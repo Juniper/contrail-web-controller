@@ -28,6 +28,36 @@ define([
                     monitorInfraUtils.parseAndMergeCpuStatsWithPrimaryDataForInfraNodes(
                     response, contrailListModel);
                 }
+            },{
+                getAjaxConfig : function() {
+                    var queryPostData = {
+                            "autoSort": true,
+                            "async": false,
+                            "formModelAttrs": {
+                             "table_name": "StatTable.VncApiStatsLog.api_stats",
+                              "table_type": "STAT",
+                              "query_prefix": "stat",
+                              "from_time": Date.now() - (2 * 60 * 60 * 1000),
+                              "from_time_utc": Date.now() - (2 * 60 * 60 * 1000),
+                              "to_time": Date.now(),
+                              "to_time_utc": Date.now(),
+                              "select": "Source,PERCENTILES(api_stats.response_time_in_usec), PERCENTILES(api_stats.response_size)",
+                              "time_granularity": 30,
+                              "time_granularity_unit": "mins",
+                              "limit": "150000"
+                            },
+                        };
+                    return {
+                        url : "/api/qe/query",
+                        type: 'POST',
+                        data: JSON.stringify(queryPostData)
+                    };
+                },
+                successCallback : function(response, contrailListModel) {
+                        monitorInfraUtils.parseAndMergepercentileConfigNodeNodeSummaryChart(
+                                response['data'], contrailListModel);
+
+                }
             }
         ];
         var listModelConfig = {

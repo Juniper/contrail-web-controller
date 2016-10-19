@@ -3,8 +3,9 @@
  */
 
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    'legend-view'
+], function (_, LegendView) {
     var MonitorInfraConstants = function () {
         this.infraNodesTree;
         this.noDataStr = '-';
@@ -137,6 +138,70 @@ define([
                                      { id:"Local", text:"Local" }];
 
         this.VROUTER_DEFAULT_MAX_THROUGHPUT = 10737418240; // 10 GB
+
+        this.stackChartDefaultViewConfig = {
+            view: 'StackedBarChartWithFocusView',
+            viewConfig: {
+                class: 'mon-infra-chart chartMargin',
+                chartOptions: {
+                    bucketSize: this.STATS_BUCKET_DURATION,
+                    showControls: true,
+                    height: 230,
+                    tickPadding: 8,
+                    margin: {
+                        left: 45,
+                        top: 20,
+                        right: 0,
+                        bottom: 40
+                    },
+                    yAxisOffset: 25,
+                    defaultZeroLineDisplay: true
+                }
+            }
+        };
+        this.defaultLineChartViewCfg = {
+                view : "LineWithFocusChartView",
+                viewConfig: {
+                    class: 'mon-infra-chart chartMargin',
+                    chartOptions : {
+                        brush: false,
+                        height: 225,
+                        xAxisLabel: '',
+                        yAxisLabel: '',
+                        groupBy: 'Source',
+                        yField: '',
+                        yFieldOperation: 'average',
+                        bucketSize: this.STATS_BUCKET_DURATION,
+                        colors: {},
+                        title: '',
+                        axisLabelDistance : 0,
+                        margin: {
+                            left: 70,
+                            top: 20,
+                            right: 15,
+                            bottom: 20
+                        },
+                        tickPadding: 8,
+                        hideFocusChart: true,
+                        forceY: false,
+                        yFormatter : d3.format('d'),
+                        xFormatter: function(xValue, tickCnt) {
+                            var date = xValue > 1 ? new Date(xValue) : new Date();
+                            if (tickCnt != null) {
+                               var mins = date.getMinutes();
+                               date.setMinutes(Math.ceil(mins/15) * 15);
+                            }
+                            return d3.time.format('%H:%M')(date);
+                        },
+                        yTickFormat: function(value){
+                            return d3.format('.2f')(value);
+                        },
+                        showLegend: true,
+                        defaultZeroLineDisplay: true,
+                        legendView: LegendView
+                    },
+                }
+            };
 
     };
 

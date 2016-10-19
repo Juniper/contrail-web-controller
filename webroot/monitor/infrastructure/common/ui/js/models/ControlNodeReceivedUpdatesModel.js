@@ -7,7 +7,7 @@ define([
 ], function (ContrailListModel) {
     var CNReceivedUpdatesModel = function () {
         var statsConfig = {};
-        statsConfig["tableName"] = "StatTable.PeerStatsData.rx_update_stats";
+        statsConfig["table_name"] = "StatTable.PeerStatsData.rx_update_stats";
         statsConfig["select"] = "T=, Source, SUM(rx_update_stats.reach), SUM(rx_update_stats.unreach)";
         return ContrailListModel(monitorInfraUtils.getStatsModelConfig(statsConfig));
     };

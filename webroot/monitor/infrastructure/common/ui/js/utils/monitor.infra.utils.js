@@ -981,7 +981,49 @@ define([
             });
             primaryDS.updateData(updatedData);
         };
+        self.parseAndMergepercentileConfigNodeNodeSummaryChart =
+            function (response,primaryDS) {
+            var statsData = response;
+            var primaryData = primaryDS.getItems();
+            var updatedData = [];
+            $.each(primaryData,function(i,d){
+                var idx=0;
+                while(statsData.length > 0 && idx < statsData.length){
+                    if(statsData[idx]['Source'] == d['name']){
+                        var formattedTime =  getValueByJsonPath(statsData[idx], 'PERCENTILES(api_stats.response_time_in_usec);95', '-');
+                        var secs = formattedTime / 1000;
+                        var seconds = Number((secs).toFixed(2))+' ms'
+                        formattedTime = seconds;
+                        d['percentileTime'] = formattedTime;
+                        d['percentileSize'] = formatBytes(getValueByJsonPath(statsData[idx], 'PERCENTILES(api_stats.response_size);95', '-'));
+                       break;
+                    }
+                    idx++;
+                };
+                updatedData.push(d);
+            });
+            primaryDS.updateData(updatedData);
+        };
 
+        self.parseAndMergePercentileAnalyticsNodeSummaryChart =
+            function (response,primaryDS) {
+            var statsData = response;
+            var primaryData = primaryDS.getItems();
+            var updatedData = [];
+            $.each(primaryData,function(i,d){
+                var idx=0;
+                while(statsData.length > 0 && idx < statsData.length){
+                    if(statsData[idx]['Source'] == d['name']){
+                        d['percentileMessages'] = Math.round(getValueByJsonPath(statsData[idx], 'PERCENTILES(msg_info.messages);95', '-'));
+                        d['percentileSize'] = formatBytes(getValueByJsonPath(statsData[idx], 'PERCENTILES(msg_info.messages);95', '-'));
+                       break;
+                    }
+                    idx++;
+                };
+                updatedData.push(d);
+            });
+            primaryDS.updateData(updatedData);
+        };
         self.mergeCollectorDataAndPrimaryData = function (collectorData,primaryDS){
             var collectors = ifNull(collectorData.value,[]);
             if(collectors.length == 0){
@@ -2354,8 +2396,9 @@ define([
                   "limit": "150000"
                 }
             };
-            if (statsConfig['tableName'] != null) {
-                postData['formModelAttrs']['table_name'] = statsConfig['tableName'];
+
+            if (statsConfig['table_name'] != null) {
+                postData['formModelAttrs']['table_name'] = statsConfig['table_name'];
             }
             if (statsConfig['select'] != null) {
                 postData['formModelAttrs']['select'] = statsConfig['select'];
@@ -2363,25 +2406,35 @@ define([
             if (statsConfig['where'] != null) {
                 postData['formModelAttrs']['where'] = statsConfig['where'];
             }
-            var listModelConfig = {
-                "remote" : {
+            if (statsConfig['time_granularity'] != null) {
+                postData['formModelAttrs']['time_granularity'] = statsConfig['time_granularity'];
+            }
+            if (statsConfig['time_granularity_unit'] != null) {
+                postData['formModelAttrs']['time_granularity_unit'] = statsConfig['time_granularity_unit'];
+            }
+            var listModelConfig =  {
+                remote : {
                     ajaxConfig : {
                         url : "/api/qe/query",
                         type: 'POST',
                         data: JSON.stringify(postData)
                     },
                     dataParser : function (response) {
-                        return response['data'];
+                        var data = response['data'];
+                        if (statsConfig['parser'] != null && typeof statsConfig['parser'] == "function") {
+                            data = statsConfig['parser'](data);
+                        }
+                        return data;
                     }
                 },
-                "cacheConfig" : {}
+                cacheConfig : {
+
+                }
             };
-            if(statsConfig['cacheId'] != null){
-                listModelConfig["cacheConfig"] = {
-                        ucid: statsConfig['cacheId']
-                };
+            if (statsConfig['ucid'] != null) {
+                listModelConfig['cacheConfig']['ucid'] = statsConfig['ucid'];
             }
-            return listModelConfig
+            return listModelConfig;
         };
     };
     return MonitorInfraUtils;

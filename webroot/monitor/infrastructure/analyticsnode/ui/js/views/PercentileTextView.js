@@ -25,10 +25,14 @@ define(['underscore', 'contrail-view', 'contrail-list-model'],
            },
         renderTemplate: function (selector, viewConfig, chartViewModel,percentileTextViewTemplate) {
             var chartModelItems = chartViewModel.getItems(), self = this;
-            var percentileMessagesobjVal = getValueByJsonPath(chartModelItems, '0;percentileMessagesobjVal', '-');
-            var percentileSizeobjVal = getValueByJsonPath(chartModelItems, '0;percentileSizeobjVal', '-');
-            self.$el.html(percentileTextViewTemplate({percentileMessagesobjVal: percentileMessagesobjVal ,percentileSizeobjVal: percentileSizeobjVal}));
-           }
+            var percentileXobjVal = getValueByJsonPath(chartModelItems, '0;percentileXobjVal', '-');
+            var percentileYobjVal = getValueByJsonPath(chartModelItems, '0;percentileYobjVal', '-');
+            self.$el.html(percentileTextViewTemplate({percentileXobjVal: percentileXobjVal,
+                percentileYobjVal: percentileYobjVal,
+                percentileTitle: viewConfig.percentileTitle,
+                percentileYvalue: viewConfig.percentileYvalue,
+                percentileXvalue: viewConfig.percentileXvalue}));
+        }
     });
 
    return PercentileTextView;

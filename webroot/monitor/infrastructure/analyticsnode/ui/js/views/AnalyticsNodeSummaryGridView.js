@@ -154,6 +154,20 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                        sortable:true,
                        name:"Generators",
                        minWidth:85
+                   },{
+                       id:"percentileMessagesSize",
+                       sortable:true,
+                       name:"95% - Messages",
+                       minWidth:200,
+                       formatter:function(r,c,v,cd,dc) {
+                           return '<span><b>'+"Count: "+
+                                   '</b></span>' +
+                                  '<span>' +
+                                  (dc['percentileMessages']) + '</span>'+'<span><b>'+", Size: "+
+                                   '</b></span>' +
+                                  '<span>' +
+                                  (dc['percentileSize']) + '</span>';
+                       }
                    }
                 ];
                 var gridElementConfig = {

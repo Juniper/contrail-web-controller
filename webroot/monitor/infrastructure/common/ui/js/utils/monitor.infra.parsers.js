@@ -702,87 +702,27 @@ define(
                     var parsedData = [];
                     var formatBytespercentileSizeVal = formatBytes(percentileSizeobjVal);
                     parsedData.push({
-                        percentileMessagesobjVal: percentileMessagesobjVal,
-                        percentileSizeobjVal: formatBytespercentileSizeVal
+                        percentileXobjVal: percentileMessagesobjVal,
+                        percentileYobjVal: formatBytespercentileSizeVal
                     });
                     return parsedData;
                 };
-
-                this.parseConfigNodeResponseStackedChartData = function (apiStats, colorFn) {
-                    var cf = crossfilter(apiStats);
-                    var buckets = cowu.bucketizeStats(apiStats, {
-                        bucketSize: 4});
-                    var tsDim = cf.dimension(function (d) {return d.T});
-                    var sourceDim = cf.dimension(function (d) {return d.Source});
-                    var sourceGroupedData = sourceDim.group().all();
-                    var sourceGrpKeys = _.pluck(sourceGroupedData, 'key');
-                    var colors = colorFn(_.sortBy(sourceGrpKeys));
-                    var nodeMap = {}, chartData = [];
-                    $.each(sourceGroupedData, function (idx, obj) {
-                        nodeMap[obj['key']] = {
-                            key: obj['key'],
-                            values: [],
-                            bar: true,
-                            color: colors[obj['key']] != null ? colors[obj['key']] : cowc.D3_COLOR_CATEGORY5[1]
-                        };
-                        chartData.push(nodeMap[obj['key']]);
+                self.percentileConfigNodeNodeSummaryChart = function (chartModel) {
+                    var percentileSizeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(api_stats.response_size);95', '-');
+                    var percentileTimeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(api_stats.response_time_in_usec);95', '-');
+                    console.log(percentileTimeobjVal);
+                    var secs = percentileTimeobjVal / 1000;
+                    var seconds = Number((secs).toFixed(2))+' ms' // 6.7
+                    percentileTimeobjVal = seconds;
+                    var parsedData = [];
+                    var formatBytespercentileSizeVal = formatBytes(percentileSizeobjVal);
+                    parsedData.push({
+                        percentileXobjVal: percentileTimeobjVal,
+                        percentileYobjVal: formatBytespercentileSizeVal
                     });
-                    var lineChartData = {
-                        key: ctwl.RESPONSE_SIZE,
-                        values: [],
-                        color: monitorInfraConstants.CONFIGNODE_RESPONSESIZE_COLOR
-                    }
-                    for (var i in buckets) {
-                        var timestampExtent = buckets[i]['timestampExtent'],
-                            aggResSize = 0,
-                            avgResSize = 0,
-                            nodeReqMap = {};
-                        tsDim.filter(timestampExtent);
-                        var bucketRequestsCnt = tsDim.top(Infinity).length;
-                        sourceGroupedData = sourceDim.group().all();
-                        sourceGroupedData = _.sortBy(sourceGroupedData, 'key');
-                        $.each(sourceGroupedData, function(idx, obj) {
-                            nodeReqMap[obj['key']] = obj['value'];
-                        });
-                        var resTimeData = sourceDim.group().reduceSum(function (d) {
-                            return d['api_stats.response_time_in_usec'];
-                        });
-                        var resSizeData = sourceDim.group().reduceSum(function (d) {
-                            return d['api_stats.response_size'];
-                        });
-                        var resTimeArr = resTimeData.top(Infinity);
-                        var resSizeArr = resSizeData.top(Infinity);
-                        var resTimeArrLen = resTimeArr.length;
-                        var resSizeArrLen = resSizeArr.length;
-                        var resTimeNodeMap = {}, resSizeNodeMap = {};
-                        //Averaging the response time on node basis
-                        for (var j = 0; j < resTimeArrLen; j++) {
-                            if (nodeMap[resTimeArr[j]['key']] != null ) {
-                                var avgResTime = 0;
-                                avgResTime = resTimeArr[j]['value']/nodeReqMap[resTimeArr[j]['key']];
-                                avgResTime = avgResTime/1000; // converting to milli secs
-                                nodeMap[resTimeArr[j]['key']]['values'].push({
-                                    x: Math.round(i/1000),
-                                    y: avgResTime
-                                });
-                            }
-                        }
-                        //Calculating the aggregrate response size of all the nodes
-                        //in particular interval and averaging with overall requests
-                        //in the particular time interval.
-                        for (var j = 0; j < resSizeArrLen; j++) {
-                            aggResSize += resSizeArr[j]['value'];
-                        }
-                        avgResSize = aggResSize/bucketRequestsCnt;
-                        lineChartData['values'].push({
-                            x: Math.round(i/1000),
-                            y: avgResSize
-                        });
-                    }
-                    chartData.push(lineChartData);
-                    return chartData;
-
+                    return parsedData;
                 };
+                
                 this.parseConfigNodeRequestForDonutChart = function (apiStats, reqType, color) {
                     var cf = crossfilter(apiStats),
                         parsedData = [],

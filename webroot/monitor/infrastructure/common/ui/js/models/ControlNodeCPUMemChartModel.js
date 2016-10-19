@@ -7,7 +7,7 @@ define([
 ], function (ContrailListModel) {
     var CNCPUMemChartsModel = function () {
         var statsConfig = {};
-        statsConfig["tableName"] = "StatTable.ControlCpuState.cpu_info";
+        statsConfig["table_name"] = "StatTable.ControlCpuState.cpu_info";
         statsConfig["select"] = "T=, name, MAX(cpu_info.cpu_share), MAX(cpu_info.mem_res)";
         statsConfig["where"] = "cpu_info.module_id = contrail-control";
         return ContrailListModel(monitorInfraUtils.getStatsModelConfig(statsConfig));
