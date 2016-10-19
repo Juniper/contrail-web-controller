@@ -59,14 +59,14 @@
     </div>
 </script>
 <script type="text/x-handlebars-template" id="percentile-text-view-template">
-<div class="percentile row">
-    <label class="generator"><i class="fa fa-pie-chart"></i>95th Percentile - Messages (per min)</label>
+  <div class="percentile row">
+    <label class="generator"><i class="fa fa-pie-chart"></i>{{{this.percentileTitle}}}</label>
     <div class="pull-right">
-        <div class="value pull-left" >Count<span>{{{this.percentileMessagesobjVal}}}</span></div>
-        <div class="value pull-left">Size<span>{{{this.percentileSizeobjVal}}}</span></div>
+        <div class="value pull-left" >{{{this.percentileXvalue}}}<span>{{{this.percentileXobjVal}}}</span>&nbsp;&nbsp;&nbsp;|</div>
+        <div class="value pull-left">{{{this.percentileYvalue}}}<span>{{{this.percentileYobjVal}}}</span></div>
     </div>
     </div>
-</div>
+  </div>
 </script>
 <script type="text/x-handlebars-template" id="percentile-bar-view-template">
   <div class="percentile row">

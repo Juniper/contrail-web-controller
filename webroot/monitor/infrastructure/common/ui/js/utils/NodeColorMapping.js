@@ -17,8 +17,9 @@ define(
                         colors = cowc.FIVE_NODE_COLOR,
                         keysLen = 0;
                     //if hostname doesn't exists in nodeColorMap
-                    if (keys.toString().indexOf(hostNames.toString()) == -1) {
+                    //if (keys.toString().indexOf(hostNames.toString()) == -1) {
                         keys = _.unique(keys.concat(hostNames));
+                        keys = _.without(keys, 'DEFAULT'),
                         keys = _.sortBy(keys),
                         keysLen = keys.length;
                         if (keysLen == 1) {
@@ -29,7 +30,7 @@ define(
                         $.each(keys, function (idx, obj) {
                             nodeColorMap[obj] = colors[idx];
                         });
-                    }
+                    //}
                     return nodeColorMap;
                 };
             };

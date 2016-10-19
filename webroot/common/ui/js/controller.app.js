@@ -78,11 +78,6 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'traceflow-model': ctWebDir + '/monitor/infrastructure/underlay/ui/js/models/TraceFlowTabModel',
             'underlay-graph-model' : ctWebDir + '/monitor/infrastructure/underlay/ui/js/models/UnderlayGraphModel',
             'monitor-infra-confignode-model' : ctWebDir + '/monitor/infrastructure/common/ui/js/models/ConfigNodeListModel',
-            'monitor-infra-confignode-charts-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ConfigNodeChartsModel',
-            'monitor-infra-analytics-sandesh-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeSandeshChartModel',
-            'monitor-infra-analytics-queries-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeQueriesModel',
-            'monitor-infra-analytics-database-read-write-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeDatabaseWriteReadModel',
-            'monitor-infra-analytics-database-usage-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/DatabaseUsageModel',
             'monitor-infra-analyticsnode-model' : ctWebDir + '/monitor/infrastructure/common/ui/js/models/AnalyticsNodeListModel',
             'monitor-infra-databasenode-model' : ctWebDir + '/monitor/infrastructure/common/ui/js/models/DatabaseNodeListModel',
             'monitor-infra-controlnode-model' : ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeListModel',
@@ -93,6 +88,7 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'dbnode-scatterchart-view': ctWebDir + '/monitor/infrastructure/common/ui/js/views/DatabaseNodeScatterChartView',
             'analyticsnode-scatterchart-view': ctWebDir + '/monitor/infrastructure/common/ui/js/views/AnalyticsNodeScatterChartView',
             'vrouter-dashboard-view': ctWebDir + '/monitor/infrastructure/dashboard/ui/js/views/VRouterDashboardView',
+            'monitor-infra-viewconfig': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.viewconfig',
             'monitor-infra-parsers': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/monitor.infra.parsers',
             'monitor-infra-utils': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/monitor.infra.utils',
             'monitor-infra-constants': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/monitor.infra.constants',
@@ -100,15 +96,11 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'node-color-mapping': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/NodeColorMapping',
             'controller-init': ctWebDir + '/common/ui/js/controller.init',
             'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
-
-            //Monitor Infra databasenodes
-            'monitor-infra-databasenode-cpu-mem-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodeCPUMemChartModel',
-            'monitor-infra-databasenode-pending-compact-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodePendingCompactionChartModel',
-
-            //Monitor Infra controlnodes
-            'monitor-infra-controlnode-sent-update-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeSentUpdatesModel',
-            'monitor-infra-controlnode-received-update-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeReceivedUpdatesModel',
-            'monitor-infra-controlnode-cpu-mem-chart-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeCPUMemChartModel'
+            'confignode-viewconfig': ctWebDir + '/monitor/infrastructure/confignode/ui/js/confignode.viewconfig',
+            'analyticsnode-viewconfig': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/analyticsnode.viewconfig',
+            'controlnode-viewconfig': ctWebDir + '/monitor/infrastructure/controlnode/ui/js/controlnode.viewconfig',
+            'databasenode-viewconfig': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/databasenode.viewconfig',
+            'vrouter-viewconfig': ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.viewconfig'
         }
     } else if(env == "prod") {
         return {
@@ -126,21 +118,13 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
 
             'controller-init': ctWebDir + '/common/ui/js/controller.init',
             'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
-            'monitor-infra-analytics-database-usage-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/DatabaseUsageModel',
             'node-color-mapping': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/NodeColorMapping',
-            //Monitor Infra analytics charts
-            'monitor-infra-analytics-sandesh-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeSandeshChartModel',
-            'monitor-infra-analytics-queries-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeQueriesModel',
-            'monitor-infra-analytics-database-read-write-chart-model': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/models/AnalyticsNodeDatabaseWriteReadModel',
-
-            //Monitor Infra databasenodes
-            'monitor-infra-databasenode-cpu-mem-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodeCPUMemChartModel',
-            'monitor-infra-databasenode-pending-compact-model': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/models/DatabaseNodePendingCompactionChartModel',
-
-            //Monitor Infra controlnodes
-            'monitor-infra-controlnode-sent-update-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeSentUpdatesModel',
-            'monitor-infra-controlnode-received-update-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeReceivedUpdatesModel',
-            'monitor-infra-controlnode-cpu-mem-chart-model': ctWebDir + '/monitor/infrastructure/common/ui/js/models/ControlNodeCPUMemChartModel'
+            'confignode-viewconfig': ctWebDir + '/monitor/infrastructure/confignode/ui/js/confignode.viewconfig',
+            'analyticsnode-viewconfig': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/analyticsnode.viewconfig',
+            'controlnode-viewconfig': ctWebDir + '/monitor/infrastructure/controlnode/ui/js/controlnode.viewconfig',
+            'databasenode-viewconfig': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/databasenode.viewconfig',
+            'vrouter-viewconfig': ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.viewconfig',
+            'monitor-infra-viewconfig': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.viewconfig'
         }
     }
 };

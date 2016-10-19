@@ -4,22 +4,19 @@
 .mon-infra-chart g.nv-barsWrap g.nv-group {
     fill-opacity: 1 !important;
 }
-#analytics-nodes-chart .contrail-legend text,
-#database-nodes-chart .contrail-legend text,
-#config-nodes-chart .contrail-legend text{
+
+.mon-infra-chart .contrail-legend text{
     font: normal 11px Open Sans;
     opacity: 1;
 }
-#analytics-nodes-chart .contrail-chart-title text,
-#config-nodes-chart .contrail-chart-title text  {
+.mon-infra-chart .contrail-chart-title text  {
     font-size: 11px;
 }
-#config-nodes-chart,
-#analytics-nodes-chart,
-#database-nodes-chart{
-    margin-top:15px !important;
+.mon-infra-chart{
+    margin-left:10px !important;
+    margin-right:10px !important;
 }
-#config-nodes-chart .chart-container g.main text.axis-label,
+/*#config-nodes-chart .chart-container g.main text.axis-label,
 #config-nodes-donutchart-section g.contrail-chart-title text,
 #config-nodes-linebarchart .nv-axislabel{
     text-anchor:middle !important;
@@ -31,10 +28,10 @@
 }
 #config-nodes-linebarchart{
     width:43% !important;
-}
+}*/
 
-.mon-infra-chart .chart-container g.main text.axis-label,
-.mon-infra-chart text.nv-axislabel{
+.grid-stack-item-content .chart-container text.axis-label,
+.grid-stack-item-content text.nv-axislabel{
     text-anchor:middle;
     font-weight:600;
     font-size:11px !important;
@@ -60,13 +57,12 @@
 /******VRouter Radio Button Css Ends Here****/
 .percentile {
     background: #f6f6f6;
-    padding: 8px 0px;
+    padding: 6px 4px 6px 4px;
     color: #787878;
     font-family: "Open Sans";
     font-size: 11px;
-    margin-left: 62px;
+    margin-left: 0px;
     margin-right: 10px;
-    padding: 10px;
     vertical-align: middle;
 }
 .percentile dl, .percentile dt, .percentile dd {
@@ -124,6 +120,25 @@ dl.progress-percentage dd {
     padding: 1px 10px;
     margin-left: 5px;
     font-size: 13px;
+    font-weight:bold;
 }
+
 /******Percentile CSS ends here****/
 
+.grid-stack-item header{
+  background-color:transparent !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-indent: -1000em !important;
+  color:#fff !important;
+  display: none;
+}
+.ui-draggable-handle:hover{
+    cursor:move;
+}
+.grid-stack .grid-stack-item .grid-stack-item-content {
+    overflow: hidden;
+}
+.chart-control-panel-container{
+    display:none !important;
+}

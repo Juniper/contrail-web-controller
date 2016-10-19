@@ -31,16 +31,16 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                          response, ['GET'], color);
                             },
                             chartOptions: {
-                                height: 170,
                                 margin: {
                                     top: 10,
                                     bottom: 10
                                 },
                                 showLabels: false,
                                 showLegend: false,
-                                title: 'Reads',
+                                title: ' Reads per API server',
                                 defaultDataStatusMessage: false,
-                                showEmptyDonut: true
+                                showEmptyDonut: true,
+                                isChartSettingsOverride: false
                             },
                         }
                     }, {
@@ -54,16 +54,16 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                          response, ['POST', 'PUT', 'DELETE'], color);
                             },
                             chartOptions: {
-                                height: 170,
                                 margin: {
                                     bottom: 10,
                                     top: 10
                                 },
                                 showLabels: false,
-                                title: 'Writes',
+                                title: 'Writes per API server',
                                 defaultDataStatusMessage: false,
                                 showEmptyDonut: true,
                                 showLegend: false,
+                                isChartSettingsOverride: false
                             },
                         }
                     }]
