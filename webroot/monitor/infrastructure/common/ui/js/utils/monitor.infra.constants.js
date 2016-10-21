@@ -146,7 +146,6 @@ define([
                 chartOptions: {
                     bucketSize: this.STATS_BUCKET_DURATION,
                     showControls: true,
-                    height: 230,
                     tickPadding: 8,
                     margin: {
                         left: 45,
@@ -165,7 +164,6 @@ define([
                     class: 'mon-infra-chart chartMargin',
                     chartOptions : {
                         brush: false,
-                        height: 225,
                         xAxisLabel: '',
                         yAxisLabel: '',
                         groupBy: 'Source',

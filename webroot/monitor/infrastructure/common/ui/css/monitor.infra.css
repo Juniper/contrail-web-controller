@@ -54,9 +54,6 @@
 #vrouter_routes_radio .form-element .ace-lbl {
   margin-right: 15px;
 }
-#analytics-chart-percentile-text-view, #confignode-chart-percentile-text-view{
-     width:50% !important;
-}
 /******VRouter Radio Button Css Ends Here****/
 .percentile {
     background: #f6f6f6;
