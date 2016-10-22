@@ -10,7 +10,7 @@ define(
                 render: function() {
                     var self = this,
                         viewConfig = this.attributes.viewConfig;
-                    prevNextCache = [];
+                    prevNextCache = {};
                     var currentHashParams = layoutHandler.getURLHashParams();
                     var currentDNSServer = currentHashParams.focusedElement.dnsServer;
                     var listModelConfig = {
