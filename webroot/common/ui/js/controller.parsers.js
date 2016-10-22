@@ -453,19 +453,27 @@ define([
 
         this.parseActiveDNSRecordsData = function(result) {
             var activeDNSRecData = [];
+            prevNextCache = prevNextCache || {};
             if(result instanceof Array && result.length === 1){
                 var virtualDNSResponse = getValueByJsonPath(result,
-                    "0;VirtualDnsRecordsResponse", {});
-                var recData = getValueByJsonPath(virtualDNSResponse,
-                    "records;list;VirtualDnsRecordTraceData", []);
+                    "0;__VirtualDnsRecordsResponse_list;" +
+                    "VirtualDnsRecordsResponse", {}),
+                    recData = getValueByJsonPath(virtualDNSResponse,
+                    "records;list;VirtualDnsRecordTraceData", [], false),
+                    paginationObj = getValueByJsonPath(result,
+                            "0;__VirtualDnsRecordsResponse_list;" +
+                            "Pagination;req;PageReqData", null, false);
                 if(recData instanceof Array) {
                     activeDNSRecData = recData;
                 } else {
                     activeDNSRecData.push(recData);
                 }
-                var key = getValueByJsonPath(virtualDNSResponse,
-                    "getnext_record_set", null);
-                prevNextCache.push(key);
+                prevNextCache.prevPageKey = getValueByJsonPath(
+                        paginationObj, "prev_page", "", false);
+                prevNextCache.nextPageKey = getValueByJsonPath(
+                        paginationObj, "next_page", "", false);
+                prevNextCache.firstPageKey = getValueByJsonPath(
+                        paginationObj, "first_page", "", false);
             }
             return activeDNSRecData;
         };
