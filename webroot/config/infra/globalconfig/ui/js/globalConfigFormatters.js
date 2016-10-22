@@ -116,28 +116,41 @@
                             "long_lived_restart_time", "-"),
                         eorRecTime = getValueByJsonPath(val,
                             "end_of_rib_timeout", "-"),
-                        enable = getValueByJsonPath(val, "enable", "-"),
+                        grEnable = getValueByJsonPath(val, "enable", "-"),
                         bgpHelperEnable = getValueByJsonPath(val,
                                 "bgp_helper_enable", "-"),
                         xmppHelperEnable = getValueByJsonPath(val,
-                                "xmpp_helper_enable", "-");
-                    enable = enable === true ? "True" : "False";
+                                "xmpp_helper_enable", "-"),
+                        formattedGR='', grStr='';
                     bgpHelperEnable = bgpHelperEnable === true ?
-                            "True" : "False";
+                            "Enabled" : "Disabled";
                     xmppHelperEnable = xmppHelperEnable === true ?
-                            "True" : "False";
+                            "Enabled" : "Disabled";
                     dispStr = "";
-                    dispStr += "Enabled : " + enable;
-                    dispStr += "<br>BGP Helper Enabled : " + bgpHelperEnable;
-                    dispStr += "<br>XMPP Helper Enabled : " + xmppHelperEnable;
-                    dispStr += "<br>Restart Time : " +
-                        (grTime === "-" ? grTime : grTime + " (seconds)");
-                    dispStr += "<br>LLGR Time : " +
-                        (llgTime === "-" ? llgTime : llgTime + " (seconds)");
-                    dispStr += "<br>End of RIB Timeout : " +
-                        (eorRecTime === "-" ? eorRecTime :
-                            eorRecTime + " (seconds)");
+                    if(grEnable == false || grEnable == "false" || grEnable == '-') {
+                        dispStr = "Disabled";
+                        return dispStr;
+                    }
+                    dispStr = "Enabled<br><br>";
+                    grStr += "<tr style='vertical-align:top'><td>";
+                    grStr += bgpHelperEnable + "</td><td>";
+                    grStr += xmppHelperEnable + "</td><td>";
+                    grStr += grTime + "</td><td>";
+                    grStr += llgTime + "</td><td>";
+                    grStr += eorRecTime + "</td></tr>";
 
+                    formattedGR = "<table style='width:100%'><thead><tr>" +
+                    "<th style='width:20%'>BGP Helper</th>" +
+                    "<th style='width:20%'>XMPP Helper</th>" +
+                    "<th style='width:20%'>Restart Time(secs)</th>" +
+                    "<th style='width:20%'>LLGR Time(secs)</th>" +
+                    "<th style='width:20%'>End of RIB(secs)</th>" +
+                    "</tr></thead><tbody>";
+
+                    formattedGR += grStr;
+                    formattedGR +="</tbody></table>";
+
+                    dispStr += formattedGR;
                     return dispStr;
                 }
                 return val;

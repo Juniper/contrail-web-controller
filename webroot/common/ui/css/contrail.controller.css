@@ -275,10 +275,15 @@ div.vis-network canvas{
     border-top:none;}
 #peer_selection .item-list table tr:first-child td{
     background-color:gray;}
-#bgp-grid .value th, #config-vn-list .value th, #service-instances-grid .value th{
+#bgp-grid .value th, #config-vn-list .value th, #service-instances-grid .value th, #global-bgp-options-grid th{
     font-weight:600;
     border-bottom:#777 solid 1px;
     padding-bottom:2px;}
+#global-bgp-options-grid th, #global-bgp-options-grid td{
+    color:#777;
+    font-size:12px;
+}
+
 #bgp-grid .value tr td{
     border-bottom:#f5f5f5 solid 1px;
     vertical-align:top;}
