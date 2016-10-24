@@ -49,43 +49,30 @@ define(['underscore', 'contrail-view',
             view : "SectionView",
             viewConfig : {
                 rows : [{
-                    columns : [{
-                        elementId : ctwl.DATABASENODE_CPU_SHARE_LINE_CHART_ID,
-                        view : "LineWithFocusChartView",
-                        viewConfig: {
-                            class: 'mon-infra-chart chartMargin',
-                            chartOptions : {
-                                brush: false,
-                                height: 225,
-                                xAxisLabel: '',
-                                yAxisLabel: 'CPU Share (%)',
-                                groupBy: 'name',
-                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
-                                bucketSize: monitorInfraConstants.STATS_BUCKET_DURATION,
-                                yFieldOperation: 'average',
-                                colors: colorFn,
-                                title: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                axisLabelDistance : 0,
-                                margin: {
-                                    left: 60,
-                                    top: 20,
-                                    right: 15,
-                                    bottom: 35
-                                },
-                                tickPadding: 8,
-                                hideFocusChart: true,
-                                forceY: false,
-                                yTickFormat: cpuChartYTickFormat,
-                                yFormatter : function(d){
-                                    return d;
-                                },
-                                xFormatter: xCPUChartFormatter,
-                                showLegend: true,
-                                defaultZeroLineDisplay: true,
-                                legendView: LegendView
+                    columns : [$.extend(true, {}, monitorInfraConstants.defaultLineChartViewCfg, {
+                            elementId : ctwl.DATABASENODE_CPU_SHARE_LINE_CHART_ID,
+                            viewConfig:{
+                                chartOptions : {
+                                    yAxisLabel: 'CPU Share (%)',
+                                    groupBy: 'name',
+                                    yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                    colors: colorFn,
+                                    title: ctwl.DATABASENODE_SUMMARY_TITLE,
+                                    margin: {
+                                        left: 60,
+                                        top: 20,
+                                        right: 15,
+                                        bottom: 35
+                                    },
+                                    yTickFormat: cpuChartYTickFormat,
+                                    yFormatter : function(d){
+                                        return d;
+                                    },
+                                    xFormatter: xCPUChartFormatter,
+                                }
                             }
-                        }
-                    }]
+                        })
+                    ]
                 }]
             }
         };
@@ -97,42 +84,28 @@ define(['underscore', 'contrail-view',
             view : "SectionView",
             viewConfig : {
                 rows : [{
-                    columns : [{
+                    columns : [$.extend(true, {}, monitorInfraConstants.defaultLineChartViewCfg,{
                         elementId : ctwl.DATABASENODE_MEM_SHARE_LINE_CHART_ID,
-                        view : "LineWithFocusChartView",
                         viewConfig: {
-                            class: 'mon-infra-chart chartMargin',
                             chartOptions : {
-                                brush: false,
-                                height: 225,
-                                xAxisLabel: '',
                                 yAxisLabel: 'Memory',
                                 groupBy: 'name',
                                 yField: 'MAX(process_mem_cpu_usage.mem_res)',
-                                bucketSize: monitorInfraConstants.STATS_BUCKET_DURATION,
-                                yFieldOperation: 'average',
                                 colors: colorFn,
                                 title: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                axisLabelDistance : 0,
                                 margin: {
                                     left: 60,
                                     top: 20,
                                     right: 15,
                                     bottom: 50
                                 },
-                                tickPadding: 8,
-                                hideFocusChart: true,
-                                forceY: false,
                                 yFormatter : function(d){
                                     return formatBytes(d * 1024, false);
                                 },
                                 xFormatter: xCPUChartFormatter,
-                                showLegend: true,
-                                defaultZeroLineDisplay: true,
-                                legendView: LegendView
                             },
                         }
-                    }]
+                    })]
                 }]
             }
         };
@@ -144,42 +117,28 @@ define(['underscore', 'contrail-view',
             view : "SectionView",
             viewConfig : {
                 rows : [{
-                    columns : [{
+                    columns : [$.extend(true, {}, monitorInfraConstants.defaultLineChartViewCfg,{
                         elementId : ctwl.DATABASENODE_DISK_SPACE_USAGE_CHART_ID,
-                        view : "LineWithFocusChartView",
                         viewConfig: {
-                            class: 'mon-infra-chart chartMargin',
                             chartOptions : {
-                                brush: false,
-                                height: 225,
-                                xAxisLabel: '',
                                 yAxisLabel: 'Disk Space Usage',
                                 groupBy: 'Source',
                                 yField: 'MAX(database_usage.disk_space_used_1k)',
-                                yFieldOperation: 'average',
-                                bucketSize: monitorInfraConstants.STATS_BUCKET_DURATION,
                                 colors: colorFn,
                                 title: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                axisLabelDistance : 0,
                                 margin: {
                                     left: 60,
                                     top: 20,
                                     right: 15,
                                     bottom: 50
                                 },
-                                tickPadding: 8,
-                                hideFocusChart: true,
-                                forceY: false,
                                 yFormatter : function(d){
                                     return formatBytes(d, true);
                                 },
                                 xFormatter: xCPUChartFormatter,
-                                showLegend: true,
-                                defaultZeroLineDisplay: true,
-                                legendView: LegendView
                             },
                         }
-                    }]
+                    })]
                 }]
             }
         };
