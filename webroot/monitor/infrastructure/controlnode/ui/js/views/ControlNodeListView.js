@@ -20,24 +20,23 @@ define(
                 var viewConfig = {
                     rows : [{
                         columns : [{
-                            elementId : ctwl.CONTROLNODE_SUMMARY_CHART_ID,
-                            title : ctwl.CONTROLNODE_SUMMARY_TITLE,
-                            view : "ControlNodeSummaryChartsView",
-                            viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
-                            app : cowc.APP_CONTRAIL_CONTROLLER,
+                            elementId: 'control-node-carousel-view',
+                            view: "CarouselView",
                             viewConfig: {
-                                colorFn: colorFn
-                            }
-                        }]
-                    },{
-                        columns : [{
-                            elementId : ctwl.CONTROLNODE_SUMMARY_GRID_ID,
-                            title : ctwl.CONTROLNODE_SUMMARY_TITLE,
-                            view : "ControlNodeSummaryGridView",
-                            viewPathPrefix: ctwl.CONTROLNODE_VIEWPATH_PREFIX,
-                            app : cowc.APP_CONTRAIL_CONTROLLER,
-                            viewConfig : {
-                                colorFn: colorFn
+                            pages : [
+                                     {
+                                         page: {
+                                             elementId :ctwl.CONTROLNODE_SUMMARY_CHART_ID,
+                                             title : ctwl.CONTROLNODE_SUMMARY_TITLE,
+                                             view : "ControlNodeSummaryChartsView",
+                                             viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
+                                             app : cowc.APP_CONTRAIL_CONTROLLER,
+                                             viewConfig: {
+                                                 colorFn: colorFn
+                                             }
+                                         },
+                                     }
+                               ]
                             }
                         }]
                     }]

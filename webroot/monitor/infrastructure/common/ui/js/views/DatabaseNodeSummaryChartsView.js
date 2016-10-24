@@ -2,46 +2,97 @@
  * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['underscore', 'contrail-view',
+define(['underscore', 'contrail-view','monitor-infra-databasenode-model',
        'monitor-infra-databasenode-cpu-mem-model',
        'monitor-infra-analytics-database-usage-model',
        'monitor-infra-databasenode-pending-compact-model',
-       'legend-view'],
-       function(_, ContrailView, DatabaseNodeCPUMemModel, DatabaseUsageModel,
-               PendingCompactionModel, LegendView){
+       'legend-view','gs-view'],
+       function(_, ContrailView, DatabaseNodeListModel, DatabaseNodeCPUMemModel, DatabaseUsageModel,
+               PendingCompactionModel, LegendView,GridStackView){
 
     var DatabaseNodesSummaryChartsView = ContrailView.extend({
         render : function (){
             var self = this,
-                anlyticsTemplate = contrail.getTemplate4Id(cowc.TMPL_4COLUMN__2ROW_CONTENT_VIEW),
-                percentileWrapperTemplate = contrail.getTemplate4Id(
-                        cowc.TMPL_1COLUMN__1ROW_CONTENT_VIEW),
                 viewConfig = self.attributes.viewConfig,
                 colorFn = viewConfig['colorFn'];
-
-            self.$el.append(anlyticsTemplate);
-            self.$el.append(percentileWrapperTemplate({cssClass: 'percentileWrapper col-xs-6 col-xs-offset-6'}));
-            var topleftColumn = self.$el.find(".top-container .left-column"),
-            toprightCoulmn = self.$el.find(".top-container .right-column"),
-            bottomleftColumn = self.$el.find(".bottom-container .left-column"),
-            bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
-            bottomRow = self.$el.find(".percentileWrapper"),
-            dbCPUMemModel = new DatabaseNodeCPUMemModel(),
-            dbUsageModel = new DatabaseUsageModel(),
-            pendingCompactModel = new PendingCompactionModel();
-
-            self.renderView4Config(topleftColumn,  dbCPUMemModel,
-                    getCPUShareChartViewConfig(colorFn));
-            self.renderView4Config(bottomleftColumn,  dbCPUMemModel,
-                    getMemShareChartViewConfig(colorFn));
-            self.renderView4Config(bottomrightCoulmn,  dbUsageModel,
-                    getDBDiskSpaceUsageViewConfig(colorFn));
-            self.renderView4Config(toprightCoulmn,  pendingCompactModel,
-                    getDBPendingCompactionsViewConfig(colorFn));
-            self.renderView4Config(bottomRow, self.model,
-                    getPercentileBarViewConfig());
+                self.$el.append($("<div class='gs-container'></div>"));
+                self.renderView4Config(self.$el.find('.gs-container'),{},getGridStackWidgetConfig(colorFn));
         }
     });
+    function getGridStackWidgetConfig(colorFn) {
+        var dbCPUMemModel = new DatabaseNodeCPUMemModel(),
+        dbUsageModel = new DatabaseUsageModel(),
+        pendingCompactModel = new PendingCompactionModel(),
+        databaseNodeListModel = new DatabaseNodeListModel();
+       return {
+           elementId : 'databasenodeGridStackSection',
+           view : "SectionView",
+           viewConfig : {
+               rows : [ {
+                   columns : [ {
+                       elementId : 'databaseNodeGridStackComponent',
+                       view : "GridStackView",
+                       viewConfig : {
+                            gridAttr : {
+                                defaultWidth : 6,
+                                defaultHeight : 10
+                            },
+                            widgetCfgList: [
+                                {
+                                    modelCfg: databaseNodeListModel,
+                                    viewCfg: {
+                                        elementId :ctwl.DATABASENODE_PERCENTILE_BAR_VIEW,
+                                        title : '',
+                                        view : "PercentileBarView",
+                                        viewPathPrefix:
+                                            ctwl.DATABASENODE_VIEWPATH_PREFIX,
+                                        app : cowc.APP_CONTRAIL_CONTROLLER,
+                                        viewConfig : {
+                                        }
+                                },
+                                    itemAttr: {
+                                        width: 2,
+                                        height:0.2
+                                    }
+                                },
+                                {
+                                    modelCfg: dbCPUMemModel,
+                                    viewCfg: getCPUShareChartViewConfig(colorFn)
+                                },
+                                {
+                                    modelCfg: dbCPUMemModel,
+                                    viewCfg: getMemShareChartViewConfig(colorFn)
+                                },
+                                {
+                                    modelCfg: dbUsageModel,
+                                    viewCfg: getDBDiskSpaceUsageViewConfig(colorFn)
+                                },
+
+                                {
+                                    modelCfg: pendingCompactModel,
+                                    viewCfg: getDBPendingCompactionsViewConfig(colorFn),
+                                },{
+                                    modelCfg: new DatabaseNodeListModel(),
+                                    viewCfg: {
+                                        elementId : ctwl.DATABASENODE_SUMMARY_GRID_ID,
+                                        title : ctwl.DATABASENODE_SUMMARY_TITLE,
+                                        view : "DatabaseNodeSummaryGridView",
+                                        viewPathPrefix:ctwl.DATABASENODE_VIEWPATH_PREFIX,
+                                        app : cowc.APP_CONTRAIL_CONTROLLER,
+                                        viewConfig : {
+                                            colorFn: colorFn
+                                        }},
+                                    itemAttr: {
+                                        width: 2
+                                    }
+                                }
+                            ]
+                       }
+                   }]
+               }]
+           }
+       }
+   }
 
     function getCPUShareChartViewConfig(colorFn){
         return {
@@ -223,19 +274,6 @@ define(['underscore', 'contrail-view',
                }]
            }
        };
-    }
-
-    function getPercentileBarViewConfig() {
-        return {
-                elementId :ctwl.DATABASENODE_PERCENTILE_BAR_VIEW,
-                title : '',
-                view : "PercentileBarView",
-                viewPathPrefix:
-                    ctwl.DATABASENODE_VIEWPATH_PREFIX,
-                app : cowc.APP_CONTRAIL_CONTROLLER,
-                viewConfig : {
-                }
-        }
     }
 
     function xCPUChartFormatter(xValue, tickCnt) {
