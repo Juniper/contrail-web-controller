@@ -503,7 +503,10 @@ define([
         this.CONTROLNODE_SENT_UPDATES_SCATTER_CHART_ID = 'control-nodes-sent-updates-scatter-chart';
         this.CONTROLNODE_RECEIVED_UPDATES_SCATTER_CHART_SEC_ID = 'control-nodes-received-updates-scatter-chart-section';
         this.CONTROLNODE_RECEIVED_UPDATES_SCATTER_CHART_ID = 'control-nodes-received-updates-scatter-chart';
-
+        this.CONTROL_NODE_SENT_UPDATES = 'Sent Updates';
+        this.CONTROL_NODE_RECEIVED_UPDATES = 'Received Updates';
+        this.CONTROL_NODE_CPU_SHARE = 'CPU Share (%)';
+        this.CONTROL_NODE_MEMORY = 'Memory';
         //vRouter summary page labels
         this.VROUTER_VIEWPATH_PREFIX =
             'monitor/infrastructure/vrouter/ui/js/views/';
@@ -654,6 +657,10 @@ define([
         this.DATABASENODE_COMPACTIONS_CHART_ID = 'database-nodes-compactions-chart';
         this.DATABASENODE_PERCENTILE_SECTION_ID = "database-nodes-percentile-section-id";
         this.DATABASENODE_PERCENTILE_BAR_VIEW = "database-nodes-percentile-bar-view";
+        this.DATABSE_NODE_MEMORY = "Memory";
+        this.DATABSE_NODE_CPU_SHARE = "CPU Share(%)";
+        this.DATABSE_NODE_DISK_SPACE_USAGE = "Disk Space Usage";
+        this.DATABSE_NODE_PENDING_COMPACTIONS = "Pending Compactions";
 
         //Analytics node labels
         this.ANALYTICSNODE_VIEWPATH_PREFIX =

@@ -163,7 +163,7 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                            return '<span><b>'+"Count: "+
                                    '</b></span>' +
                                   '<span>' +
-                                  (dc['percentileMessages']) + '</span>'+'<span><b>'+", Size: "+
+                                  ifNotNumeric(dc['percentileMessages'],'-') + '</span>'+'<span><b>'+", Size: "+
                                    '</b></span>' +
                                   '<span>' +
                                   (dc['percentileSize']) + '</span>';
