@@ -2,14 +2,14 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['underscore', 'contrail-view',
+define(['underscore', 'contrail-view','monitor-infra-controlnode-model',
        'monitor-infra-controlnode-sent-update-model',
        'monitor-infra-controlnode-received-update-model',
        'monitor-infra-controlnode-cpu-mem-chart-model',
-       'legend-view'],
-       function(_, ContrailView, ControlNodeSentUpdateChartModel,
+       'legend-view','gs-view'],
+       function(_, ContrailView, ControlNodeListModel, ControlNodeSentUpdateChartModel,
                ControlNodeReceivedUpdateChartModel,
-               ControlNodeCPUMemChartModel, LegendView){
+               ControlNodeCPUMemChartModel, LegendView, GridStackView){
         var ControlNodeSummaryChartsView = ContrailView.extend({
         render : function (){
             var anlyticsTemplate = contrail.getTemplate4Id(
@@ -17,28 +17,70 @@ define(['underscore', 'contrail-view',
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 colorFn = viewConfig['colorFn'];
-            self.$el.html(anlyticsTemplate);
-            var topleftColumn = self.$el.find(".top-container .left-column"),
-                toprightCoulmn = self.$el.find(".top-container .right-column"),
-                bottomleftColumn = self.$el.find(".bottom-container .left-column"),
-                bottomrightCoulmn = self.$el.find(".bottom-container .right-column"),
-                sentUpdateModel = new ControlNodeSentUpdateChartModel(),
-                receivedUpdateModel = new ControlNodeReceivedUpdateChartModel(),
-                cpuMemChartModel = new ControlNodeCPUMemChartModel();
-
-            self.renderView4Config(topleftColumn,  sentUpdateModel,
-                    getSentUpdatesChartViewConfig(colorFn));
-
-            self.renderView4Config(bottomleftColumn,  receivedUpdateModel,
-                    getReceivedUpdatesChartViewConfig(colorFn));
-
-            self.renderView4Config(toprightCoulmn,  cpuMemChartModel,
-                    getCPUShareChartViewConfig(colorFn));
-
-            self.renderView4Config(bottomrightCoulmn,  cpuMemChartModel,
-                    getMemShareChartViewConfig(colorFn));
+                self.$el.append($("<div class='gs-container'></div>"));
+                self.renderView4Config(self.$el.find('.gs-container'),{},getGridStackWidgetConfig(colorFn));
         }
     });
+        
+        function getGridStackWidgetConfig(colorFn) {
+            var sentUpdateModel = new ControlNodeSentUpdateChartModel(),
+                receivedUpdateModel = new ControlNodeReceivedUpdateChartModel(),
+                cpuMemChartModel = new ControlNodeCPUMemChartModel();
+            
+           return {
+               elementId : 'controlnodeGridStackSection',
+               view : "SectionView",
+               viewConfig : {
+                   rows : [ {
+                       columns : [ {
+                           elementId : 'controlNodeGridStackComponent',
+                           view : "GridStackView",
+                           viewConfig : {
+                                gridAttr : {
+                                    defaultWidth : 6,
+                                    defaultHeight : 10
+                                },
+                                widgetCfgList: [
+                                    {
+                                        modelCfg: sentUpdateModel,
+                                        viewCfg: getSentUpdatesChartViewConfig(colorFn)
+                                    },
+                                    {
+                                        modelCfg: receivedUpdateModel,
+                                        viewCfg: getReceivedUpdatesChartViewConfig(colorFn)
+                                    },
+                                    {
+                                        modelCfg: cpuMemChartModel,
+                                        viewCfg: getCPUShareChartViewConfig(colorFn)
+                                    },
+
+                                    {
+                                        modelCfg: cpuMemChartModel,
+                                        viewCfg: getMemShareChartViewConfig(colorFn),
+                                    },{
+                                        modelCfg: new ControlNodeListModel(),
+                                        viewCfg: {
+                                            elementId : ctwl.CONTROLNODE_SUMMARY_GRID_ID,
+                                            title : ctwl.CONTROLNODE_SUMMARY_TITLE,
+                                            view : "ControlNodeSummaryGridView",
+                                            viewPathPrefix: ctwl.CONTROLNODE_VIEWPATH_PREFIX,
+                                            app : cowc.APP_CONTRAIL_CONTROLLER,
+                                            viewConfig : {
+                                                colorFn: colorFn
+                                            }},
+                                        itemAttr: {
+                                            width: 2
+                                        }
+                                    }
+                                ]
+                           }
+                       }]
+                   }]
+               }
+           }
+       }
+        
+  
    function getSentUpdatesChartViewConfig(colorFn) {
        return {
            elementId : ctwl.CONTROLNODE_SENT_UPDATES_SCATTER_CHART_SEC_ID,

@@ -22,31 +22,26 @@ define(
                     rows : [
                         {
                             columns : [{
-                                elementId :
-                                    ctwl.DATABASENODE_SUMMARY_CHART_ID,
-                                title : ctwl.DATABASENODE_SUMMARY_TITLE,
-                                app : cowc.APP_CONTRAIL_CONTROLLER,
-                                view : "DatabaseNodeSummaryChartsView",
-                                viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
+                                elementId: 'analytics-node-carousel-view',
+                                view: "CarouselView",
                                 viewConfig: {
-                                    colorFn: colorFn
+                                pages : [
+                                         {
+                                             page: {
+                                                 elementId : ctwl.DATABASENODE_SUMMARY_CHART_ID,
+                                                 title : ctwl.DATABASENODE_SUMMARY_TITLE,
+                                                 view : "DatabaseNodeSummaryChartsView",
+                                                 viewPathPrefix:  ctwl.MONITOR_INFRA_VIEW_PATH,
+                                                 app : cowc.APP_CONTRAIL_CONTROLLER,
+                                                 viewConfig: {
+                                                     colorFn: colorFn
+                                                 }
+                                             },
+                                         }
+                                   ]
                                 }
                             }]
-                        },
-                        {
-                            columns : [{
-                                elementId :
-                                    ctwl.DATABASENODE_SUMMARY_GRID_ID,
-                                title : ctwl.DATABASENODE_SUMMARY_TITLE,
-                                view : "DatabaseNodeSummaryGridView",
-                                viewPathPrefix:
-                                    ctwl.DATABASENODE_VIEWPATH_PREFIX,
-                                app : cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig : {
-                                    colorFn: colorFn
-                                }
-                            }]
-                        } ]
+                        }]
                 };
                 return {
                     elementId : cowu.formatElementId([
