@@ -130,6 +130,7 @@ define(
                                 view : "LineWithFocusChartView",
                                 viewConfig: {
                                     class: 'mon-infra-chart chartMargin',
+                                    parseFn: cowu.chartDataFormatter,
                                     chartOptions : {
                                         brush: false,
                                         height: 225,
@@ -178,6 +179,7 @@ define(
                                 view : "LineWithFocusChartView",
                                 viewConfig: {
                                     class: 'mon-infra-chart chartMargin',
+                                    parseFn: cowu.chartDataFormatter,
                                     chartOptions : {
                                         brush: false,
                                         height: 225,
@@ -225,6 +227,7 @@ define(
                                 view : "LineWithFocusChartView",
                                 viewConfig: {
                                     class: 'mon-infra-chart chartMargin',
+                                    parseFn: cowu.chartDataFormatter,
                                     chartOptions : {
                                         brush: false,
                                         height: 225,
