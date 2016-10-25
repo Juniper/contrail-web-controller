@@ -4,10 +4,9 @@
 
 define(
         [ 'underscore', 'contrail-view', 'legend-view','monitor-infra-confignode-model',
-          'monitor-infra-confignode-charts-model', 'node-color-mapping'],
+          'node-color-mapping'],
         function(
-                _, ContrailView, LegendView, ConfigNodeListModel,
-                ConfigNodeChartsModel,NodeColorMapping) {
+                _, ContrailView, LegendView, ConfigNodeListModel,NodeColorMapping) {
             var ConfigNodeListView = ContrailView.extend({
                 render : function() {
                     var nodeColorMapping = new NodeColorMapping(),
@@ -17,10 +16,7 @@ define(
                             getConfigNodeListViewConfig(colorFn));
                 }
             });
-
-
             function getConfigNodeListViewConfig(colorFn) {
-                var chartModel = new ConfigNodeChartsModel();
                 var viewConfig = {
                     rows : [
                          {
@@ -72,7 +68,12 @@ define(
                                                               title: ctwl.CONFIG_NODE_RESPONSE_PARAMS_PERCENTILE
                                                           }
                                                       },{
-                                                              modelCfg: chartModel,
+                                                              modelCfg: monitorInfraUtils.getStatsModelConfig({
+                                                                  table_name: 'StatTable.VncApiStatsLog.api_stats',
+                                                                  select: "Source, T, UUID, api_stats.operation_type," +
+                                                                      " api_stats.response_time_in_usec, api_stats.response_size," +
+                                                                      " api_stats.resp_code, name"
+                                                              }),
                                                               viewCfg:
                                                                   $.extend(true, {}, monitorInfraConstants.stackChartDefaultViewConfig, {
                                                                       elementId : ctwl.CONFIGNODE_SUMMARY_STACKEDCHART_ID,
@@ -109,7 +110,12 @@ define(
                                                                   title: ctwl.CONFIG_NODE_REQUESTS_SERVED
                                                               }
                                                           },{
-                                                              modelCfg: chartModel,
+                                                              modelCfg: monitorInfraUtils.getStatsModelConfig({
+                                                                  table_name: 'StatTable.VncApiStatsLog.api_stats',
+                                                                  select: "Source, T, UUID, api_stats.operation_type," +
+                                                                      " api_stats.response_time_in_usec, api_stats.response_size," +
+                                                                      " api_stats.resp_code, name"
+                                                              }),
                                                               viewCfg: {
                                                                   elementId: ctwl.CONFIGNODE_SUMMARY_LINEBARCHART_ID,
                                                                   view: 'LineBarWithFocusChartView',
@@ -179,7 +185,12 @@ define(
                                                                   title: ctwl.CONFIG_NODE_RESPONSE_TIME_VS_SIZE
                                                               }
                                                           },{
-                                                              modelCfg: chartModel,
+                                                              modelCfg: monitorInfraUtils.getStatsModelConfig({
+                                                                  table_name: 'StatTable.VncApiStatsLog.api_stats',
+                                                                  select: "Source, T, UUID, api_stats.operation_type," +
+                                                                      " api_stats.response_time_in_usec, api_stats.response_size," +
+                                                                      " api_stats.resp_code, name"
+                                                              }),
                                                               viewCfg: {
                                                                   elementId: ctwl.CONFIGNODE_SUMMARY_DONUTCHART_SECTION_ID,
                                                                   view: 'ConfigNodeDonutChartView',
@@ -198,13 +209,12 @@ define(
                                                           },{
                                                               modelCfg: new ConfigNodeListModel(),
                                                               viewCfg: {
+                                                                  elementId : ctwl.CONFIGNODE_SUMMARY_GRID_ID,
                                                                   title : ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                                                  view : "ConfigNodeSummaryGridView",
-                                                                  viewPathPrefix:
-                                                                      ctwl.CONFIGNODE_VIEWPATH_PREFIX,
-                                                                  app : cowc.APP_CONTRAIL_CONTROLLER,
+                                                                  view : "GridView",
                                                                   viewConfig : {
-                                                                      colorFn: colorFn
+                                                                      elementConfig :
+                                                                          getConfigNodeSummaryGridConfig()
                                                                   }
                                                               },
                                                               itemAttr: {
@@ -375,13 +385,12 @@ define(
                                                             }, {
                                                                 modelCfg: new ConfigNodeListModel(),
                                                                 viewCfg: {
+                                                                    elementId : ctwl.CONFIGNODE_SUMMARY_GRID_ID,
                                                                     title : ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                                                    view : "ConfigNodeSummaryGridView",
-                                                                    viewPathPrefix:
-                                                                        ctwl.CONFIGNODE_VIEWPATH_PREFIX,
-                                                                    app : cowc.APP_CONTRAIL_CONTROLLER,
+                                                                    view : "GridView",
                                                                     viewConfig : {
-                                                                        colorFn: colorFn
+                                                                        elementConfig :
+                                                                            getConfigNodeSummaryGridConfig()
                                                                     }
                                                                 },
                                                                 itemAttr: {
@@ -491,13 +500,12 @@ define(
                                                           },{
                                                               modelCfg: new ConfigNodeListModel(),
                                                               viewCfg: {
+                                                                  elementId : ctwl.CONFIGNODE_SUMMARY_GRID_ID,
                                                                   title : ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                                                  view : "ConfigNodeSummaryGridView",
-                                                                  viewPathPrefix:
-                                                                      ctwl.CONFIGNODE_VIEWPATH_PREFIX,
-                                                                  app : cowc.APP_CONTRAIL_CONTROLLER,
+                                                                  view : "GridView",
                                                                   viewConfig : {
-                                                                      colorFn: colorFn
+                                                                      elementConfig :
+                                                                          getConfigNodeSummaryGridConfig()
                                                                   }
                                                               },
                                                               itemAttr: {
@@ -520,5 +528,177 @@ define(
                     viewConfig : viewConfig
                 };
             }
+            function getConfigNodeSummaryGridConfig() {
+                var columns = [
+                   {
+                       field:"name",
+                       name:"Host name",
+                       formatter:function(r,c,v,cd,dc) {
+                          return cellTemplateLinks({
+                                          cellText:'name',
+                                          name:'name',
+                                          statusBubble:true,
+                                          rowData:dc
+                                   });
+                       },
+                       events: {
+                          onClick: onClickHostName
+                       },
+                       cssClass: 'cell-hyperlink-blue',
+                       searchFn:function(d) {
+                           return d['name'];
+                       },
+                       minWidth:90,
+                       exportConfig: {
+                           allow: true,
+                           advFormatter: function(dc) {
+                               return dc.name;
+                           }
+                       },
+                   },
+                   {
+                       field:"ip",
+                       name:"IP Address",
+                       minWidth:90,
+                       formatter:function(r,c,v,cd,dc){
+                           return monitorInfraParsers.summaryIpDisplay(dc['ip'],
+                                           dc['summaryIps']);
+                       },
+                       exportConfig: {
+                           allow: true,
+                           advFormatter: function(dc) {
+                               return dc.ip;
+                           }
+                       },
+                       sorter : comparatorIP
+                   },
+                   {
+                       field:"version",
+                       name:"Version",
+                       minWidth:90
+                   },
+                   {
+                       field:"status",
+                       name:"Status",
+                       formatter:function(r,c,v,cd,dc) {
+                           return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'html');
+                       },
+                       searchFn:function(dc) {
+                           return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'text');
+                       },
+                       minWidth:110,
+                       exportConfig: {
+                           allow: true,
+                           advFormatter: function(dc) {
+                               return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'text');
+                           }
+                       },
+                       sortable:{
+                           sortBy: function (d) {
+                               return monitorInfraUtils.getNodeStatusContentForSummayPages(d,'text');
+                           }
+                       },
+                       sorter:cowu.comparatorStatus
+                   },
+                   {
+                       field:"cpu",
+                       name: ctwl.TITLE_CPU,
+                       formatter:function(r,c,v,cd,dc) {
+                           return '<div class="gridSparkline display-inline">' +
+                                   '</div>' +
+                                  '<span class="display-inline">' +
+                                  ifNotNumeric(dc['cpu'],'-') + '</span>';
+                       },
+                       asyncPostRender: renderSparkLines,
+                       searchFn:function(d){
+                           return d['cpu'];
+                       },
+                       minWidth:110,
+                       exportConfig: {
+                           allow: true,
+                           advFormatter: function(dc) {
+                               return dc.cpu;
+                           }
+                       }
+                   },
+                   {
+                       field:"memory",
+                       name:"Memory",
+                       minWidth:150,
+                       sortField:"y"
+                   },{
+                       field:"percentileResponse",
+                       id:"percentileTime",
+                       sortable:true,
+                       name:"95% - Responses",
+                       minWidth:200,
+                       formatter:function(r,c,v,cd,dc) {
+                           return '<span><b>'+"Time "+
+                                   '</b></span>' +
+                                  '<span class="display-inline">' +
+                                  (dc['percentileTime']) + '</span>'+'<span><b>'+", Size "+
+                                   '</b></span>' +
+                                  '<span class="display-inline">' +
+                                  (dc['percentileSize']) + '</span>';
+                       }
+                   }
+
+                ];
+                var gridElementConfig = {
+                    header : {
+                        title : {
+                            text : ctwl.CONFIGNODE_SUMMARY_TITLE
+                        }
+                    },
+                    columnHeader : {
+                        columns : columns
+                    },
+                    body : {
+                        options : {
+                          detail : false,
+                          enableAsyncPostRender:true,
+                          checkboxSelectable : false,
+                          fixedRowHeight: 30
+                        },
+                        dataSource : {
+                        },
+                        statusMessages: {
+                            loading: {
+                                text: 'Loading Config Nodes..',
+                            },
+                            empty: {
+                                text: 'No Config Nodes Found.'
+                            }
+                        }
+                    }
+                };
+                return gridElementConfig;
+            }
+
+            function onClickHostName(e, selRowDataItem) {
+                var name = selRowDataItem.name, hashParams = null,
+                    triggerHashChange = true, hostName;
+
+                hostName = selRowDataItem['name'];
+                var hashObj = {
+                        type: "configNode",
+                        view: "details",
+                        focusedElement: {
+                            node: name,
+                            tab: 'details'
+                        }
+                    };
+
+                if(contrail.checkIfKeyExistInObject(true, hashParams,
+                            'clickedElement')) {
+                    hashObj.clickedElement = hashParams.clickedElement;
+                }
+
+                layoutHandler.setURLHashParams(hashObj, {
+                    p: "mon_infra_config",
+                    merge: false,
+                    triggerHashChange: triggerHashChange});
+
+            };
             return ConfigNodeListView;
         });
