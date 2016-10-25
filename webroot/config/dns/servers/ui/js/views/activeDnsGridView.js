@@ -25,31 +25,21 @@ define([
                 }
             );
             function onNextClick(currentDNSServer) {
-                if(prevNextCache.length > 0) {
-                    fetchActiveDNSData(prevNextCache[prevNextCache.length - 1]);
+                if(prevNextCache.nextPageKey) {
+                    fetchActiveDNSData(prevNextCache.nextPageKey);
                 } else {
-                    fetchFirstPageData(currentDNSServer);
+                    fetchFirstPageData(prevNextCache.firstPageKey);
                 }
             };
             function onPrevClick(currentDNSServer) {
-                if(prevNextCache.length > 1) {
-                    //navigate to first page
-                    if(prevNextCache.length === 2) {
-                        prevNextCache.pop();
-                        prevNextCache.pop();
-                        fetchFirstPageData(currentDNSServer);
-                    } else {
-                        prevNextCache.pop();
-                        prevNextCache.pop();
-                        fetchActiveDNSData(prevNextCache[prevNextCache.length -1]);
-                    }
+                if(prevNextCache.prevPageKey) {
+                    fetchActiveDNSData(prevNextCache.prevPageKey);
                 } else {
-                    prevNextCache.pop();
-                    fetchFirstPageData(currentDNSServer);
+                    fetchFirstPageData(prevNextCache.firstPageKey);
                 }
             };
             function fetchFirstPageData(currentDNSServer) {
-                fetchActiveDNSData(getCookie("domain") + ":" + currentDNSServer);
+                fetchActiveDNSData(currentDNSServer);
             };
             function fetchActiveDNSData(key) {
                    if(!key) {
