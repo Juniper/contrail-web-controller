@@ -91,6 +91,7 @@ define([
         {
             id: 'name',
             field: 'name',
+            maxWidth: '365',
             name: 'BGP Option',
             cssClass: 'cell-text-blue',
             sortable: false
