@@ -117,14 +117,14 @@ define([
                 }
             }
             */
-
-            var intfTypes = ['management', 'left', 'right', 'other0'];
+            var svcType = this.model().get('user_created_service_type');
+            var intfTypes = svcType == "analyzer" ? ['left', 'management'] :
+                ['management', 'left', 'right', 'other0'];
             var intfColl = this.model().get('interfaces');
             var len = intfColl.length;
             var intfTypesList = [];
             var tmpIntfList = intfTypes;
             var otherIntfIdxList = [];
-            var svcType = this.model().get('user_created_service_type');
             if (('analyzer' == svcType) && (len >= 2)) {
                 /* Analyzer, only two interface types can be added */
                 return;
@@ -132,50 +132,12 @@ define([
             for (var i = 0; i < len; i++) {
                 var modIntf = intfColl.at(i).get('service_interface_type')();
                 intfTypesList.push(modIntf);
-                var otherIntfArr = modIntf.split('other');
-                if ((2 == otherIntfArr.length) && (otherIntfArr[1].length > 0)) {
-                    if (modIntf != 'other0') {
-                        /* other0 already inside intfTypes */
-                        tmpIntfList.push(modIntf);
-                    }
-                    var idx = parseInt(otherIntfArr[1]);
-                    otherIntfIdxList.push(idx);
-                }
+                intfTypes.push('other' + (i + 1).toString());
             }
-            otherIntfIdxList.sort(function(a, b) {
-                if (a > b) {
-                    return 1;
-                } else if (a < b) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            });
             var newIntfTypes = _.difference(intfTypes, intfTypesList);
             var newIntfType = "";
             if (newIntfTypes.length > 0) {
                 newIntfType = newIntfTypes[0];
-            } else {
-                var arrLen = otherIntfIdxList.length;
-                if (!arrLen) {
-                    newIntfType = 'other1';
-                } else {
-                    if (arrLen == otherIntfIdxList[arrLen - 1] + 1) {
-                        /* All the array entries are there starting from 0 */
-                        newIntfType = 'other' + arrLen.toString();
-                    } else {
-                        /* Get the first missing index */
-                        for (var i = 0; i < arrLen; i++) {
-                            if (i != otherIntfIdxList[i]) {
-                                newIntfType = 'other' + i.toString();
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            if (-1 == tmpIntfList.indexOf(newIntfType)) {
-                tmpIntfList.push(newIntfType);
             }
             var intfText = newIntfType;
             /*
