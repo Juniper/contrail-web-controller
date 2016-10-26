@@ -1015,7 +1015,7 @@ define([
                 while(statsData.length > 0 && idx < statsData.length){
                     if(statsData[idx]['Source'] == d['name']){
                         d['percentileMessages'] = Math.round(getValueByJsonPath(statsData[idx], 'PERCENTILES(msg_info.messages);95', '-'));
-                        d['percentileSize'] = formatBytes(getValueByJsonPath(statsData[idx], 'PERCENTILES(msg_info.messages);95', '-'));
+                        d['percentileSize'] = formatBytes(getValueByJsonPath(statsData[idx], 'PERCENTILES(msg_info.bytes);95', '-'));
                        break;
                     }
                     idx++;
