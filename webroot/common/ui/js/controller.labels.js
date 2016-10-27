@@ -662,6 +662,35 @@ define([
         this.DATABSE_NODE_DISK_SPACE_USAGE = "Disk Space Usage";
         this.DATABSE_NODE_PENDING_COMPACTIONS = "Pending Compactions";
 
+        //Monitor infra widget titles
+        this.CONFIG_NODE_TOP_5_USER_AGENTS = 'Process Wise Requests';
+        this.CONFIG_NODE_TOP_5_PROJECTS = 'Project Wise Requests';
+        this.CONFIG_NODE_TOP_5_OBJECT = 'Object Wise Requests';
+        this.CONFIG_NODE_TOP_REMOTE_IP = "Client Wise Requests";
+        this.CONFIG_NODE_NODE_MANAGER_CPU_SHARE = 'Node Manager CPU Share (%)';
+        this.CONFIG_NODE_SCHEMA_CPU_SHARE = 'Schema CPU Share (%)';
+        this.CONFIG_NODE_DISCOVERY_CPU_SHARE = 'Discovery CPU Share (%)';
+        this.CONFIG_NODE_API_CPU_SHARE = 'Api CPU Share (%)';
+        this.CONFIG_NODE_RESPONSE_PARAMS_PERCENTILE = 'Response Parameters Percentile';
+        this.CONFIG_NODE_REQUESTS_SERVED = 'Requests Served';
+        this.CONFIG_NODE_RESPONSE_TIME_VS_SIZE = 'Response Time vs Response Size';
+        this.CONFIG_NODE_REQUESTS_READ_VS_WRITE = 'Reads vs Writes';
+
+        this.ANALYTICS_NODE_NODE_MANAGER_CPU_SHARE = 'Node Manager CPU Share (%)';
+        this.ANALYTICS_NODE_SNMP_COLLECTOR_CPU_SHARE = 'SNMP Collector CPU Share (%)';
+        this.ANALYTICS_NODE_ALARM_GEN_CPU_SHARE = 'Alarm Generator CPU Share (%)';
+        this.ANALYTICS_NODE_COLLECTOR_CPU_SHARE = 'Collector CPU Share (%)';
+        this.ANALYTICS_NODE_QE_CPU_SHARE = 'QE CPU Share (%)';
+        this.ANALYTICS_NODE_API_CPU_SHARE = 'Api CPU Share (%)';
+        this.ANALYTICS_NODE_TOP_GENERATORS = 'Generators';
+        this.ANALYTICS_NODE_TOP_MESSAGE_TYPES = 'Message Types';
+        this.ANALYTICS_NODE_MESSAGE_PARAMS_PERCENTILE = 'Sandesh Messages Size & Count Percentile';
+        this.ANALYTICS_NODE_SANDESH_MESSAGE_DISTRIBUTION='Sandesh Messages Distribution';
+        this.ANALYTICS_NODE_QUERY_DISTRIBUTION='Queries Distribution';
+        this.ANALYTICS_NODE_DB_USAGE = 'DB Usage';
+        this.ANALYTICS_NODE_DB_READ_WRITE = 'DB Read Writes';
+
+
         //Analytics node labels
         this.ANALYTICSNODE_VIEWPATH_PREFIX =
             'monitor/infrastructure/analyticsnode/ui/js/views/';
