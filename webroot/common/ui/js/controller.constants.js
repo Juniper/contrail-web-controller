@@ -140,10 +140,6 @@ define([
         this.TMPL_VN_PORT_HEAT_CHART = "network-port-heat-chart-template";
         this.TMPL_TRAFFIC_STATS_TAB = "traffic-stats-tab-template";
         this.TMPL_GRAPH_CONTROL_PANEL_SEARCH = "graph-control-panel-search-template";
-        this.TMPL_QUERY_SELECT = "query-select-popup-template";
-        this.TMPL_QUERY_PAGE = "query-page-template";
-        this.TMPL_QUERY_QUEUE_PAGE = "query-queue-page-template";
-        this.TMPL_QUERY_TEXT = "query-text-template";
         this.TMPL_FORM_RESULT = 'form-result-page-template';
         this.TMPL_SESSION_ANALYZER = "session-analyzer-view-template";
 
