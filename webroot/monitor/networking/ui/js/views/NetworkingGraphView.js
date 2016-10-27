@@ -275,7 +275,7 @@ define([
                             $(self).toggleClass('active');
                             $(self).toggleClass('refreshing');
 
-                            chartControlPanelExpandedSelector.toggle();
+                            chartControlPanelExpandedSelector.toggleElement();
 
                             if (chartControlPanelExpandedSelector.is(':visible')) {
                                 if (!contrail.checkIfExist(nodeSearchDropdownData)) {
