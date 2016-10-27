@@ -1144,6 +1144,10 @@ and need to add the iconClass tag wherever we need to show some icons
                     <rootDir>/reports/qe/ui</rootDir>
                     <css>qe.main.css</css>
                 </resource>
+                <resource>
+                    <rootDir>/reports/udd/ui</rootDir>
+                    <css>udd.css</css>
+                </resource>
             </resources>
             <access>
                 <roles>
@@ -1156,6 +1160,21 @@ and need to add the iconClass tag wherever we need to show some icons
                 </orchModels>
             </access>
             <items>
+                <item>
+                    <label>Dashboards</label>
+                    <iconClass>menu-icon fa fa-dashboard</iconClass>
+                    <init>/reports/udd/ui/js/udd.init.js</init>
+                    <items>
+                        <item>
+                            <hash>query_udd_webController</hash>
+                            <label>Web Controller</label>
+                            <loader>
+                                <class>WCUDDLoader</class>
+                            </loader>
+                            <searchStrings>User-defined Dashboard</searchStrings>
+                        </item>
+                    </items>
+                </item>
                 <item>
                     <label>Flows</label>
                     <iconClass>menu-icon fa fa-exchange</iconClass>
