@@ -4,8 +4,10 @@
 
 define([
     'underscore',
-    'legend-view'
-], function (_, LegendView) {
+    'legend-view',
+    'core-utils'
+], function (_, LegendView, CoreUtils) {
+    cowu = new CoreUtils();
     var MonitorInfraConstants = function () {
         this.infraNodesTree;
         this.noDataStr = '-';
@@ -162,6 +164,7 @@ define([
                 view : "LineWithFocusChartView",
                 viewConfig: {
                     class: 'mon-infra-chart chartMargin',
+                    parseFn: cowu.chartDataFormatter,
                     chartOptions : {
                         brush: false,
                         xAxisLabel: '',
