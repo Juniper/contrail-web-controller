@@ -6,10 +6,11 @@ define([
     "knockback",
     "validation",
     "layout-handler",
+    "core-constants",
     "query-form-view",
     "controller-basedir/reports/qe/ui/js/models/FlowSeriesFormModel",
     "core-basedir/reports/qe/ui/js/common/qe.utils",
-], function(kb, kbValidation, LayoutHandler, QueryFormView, FlowSeriesFormModel, qeUtils) {
+], function(kb, kbValidation, LayoutHandler, coreConstants, QueryFormView, FlowSeriesFormModel, qeUtils) {
     var layoutHandler = new LayoutHandler();
 
     var FlowSeriesFormView = QueryFormView.extend({
@@ -18,7 +19,7 @@ define([
                 viewConfig = self.attributes.viewConfig,
                 modelMap = contrail.handleIfNull(self.modelMap, {}),
                 hashParams = layoutHandler.getURLHashParams(),
-                queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
+                queryPageTmpl = contrail.getTemplate4Id(coreConstants.TMPL_QUERY_PAGE),
                 queryType = contrail.checkIfExist(hashParams.queryType) ? hashParams.queryType : null,
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
                 queryPrefix = cowc.FS_QUERY_PREFIX,
