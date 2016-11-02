@@ -2,8 +2,9 @@ define([
     'underscore',
     'handlebars',
     'contrail-list-model',
-    'core-alarm-utils'
-], function (_, Handlebars, ContrailListModel,coreAlarmUtils) {
+    'core-alarm-utils',
+    'core-utils'
+], function (_, Handlebars, ContrailListModel,coreAlarmUtils,cowu) {
     var MonitorInfraUtils = function () {
         var self = this;
         var noDataStr = monitorInfraConstants.noDataStr;
@@ -1627,12 +1628,19 @@ define([
                 {label: ctwl.TITLE_CPU, value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  : '-'},
                 {label:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
             ];
-            if(currObj['type'] == 'vRouter') {
-                var bandwidthTooltipContent = {
-                    label: 'Throughput (In/Out)',
-                    value: formatThroughput(currObj['inThroughput'])
-                    + ' / ' + formatThroughput(currObj['outThroughput'])};
-                tooltipContents = tooltipContents.concat(bandwidthTooltipContent);
+            if (cfg.tooltipContents != null) {
+                tooltipContents = cfg.tooltipContents;
+            } else {
+                if(currObj['type'] == 'vRouter') {
+                    var bandwidthTooltipContent = [
+                        {label: 'Virtual Networks', value:currObj['vnCnt']},
+                        {label: 'Instances', value:currObj['instCnt']},
+                        {label: 'Interfaces', value:currObj['intfCnt']},
+                        {label: 'Throughput (In/Out)',
+                                value: formatThroughput(currObj['inThroughput'])
+                                + ' / ' + formatThroughput(currObj['outThroughput'])}];
+                    tooltipContents = tooltipContents.concat(bandwidthTooltipContent);
+                }
             }
             //Get tooltipAlerts
             tooltipContents = tooltipContents.concat(self.getTooltipAlerts(currObj));
@@ -2383,6 +2391,61 @@ define([
                     }
             );
         };
+
+        self.getVRouterScatterChartTooltipFn = function(currObj,formatType,options) {
+            if(currObj['children'] != null && currObj['children'].length == 1)
+                return self.getNodeTooltipContents(currObj['children'][0], {
+                    formatType: formatType,
+                    onClickHandler: monitorInfraUtils.onvRouterDrillDown,
+                    options: options
+                });
+            else
+                return self.getNodeTooltipContents(currObj, {
+                    formatType: formatType,
+                    onClickHandler: monitorInfraUtils.onvRouterDrillDown,
+                    tooltipContents: getValueByJsonPath(options,'tooltipContents')
+                });
+        },
+        self.getDefaultScatterChartTooltipFn = function(currObj,cfg) {
+            var tooltipContents = [];
+            if (cfg.tooltipContents != null) {
+                tooltipContents = cfg.tooltipContents;
+            }
+            var cfg = ifNull(cfg,{});
+            if(cfg['formatType'] == 'simple') {
+                return tooltipContents;
+            } else {
+                return {
+                    content: {
+                        iconClass : false,
+                        info: tooltipContents.slice(1),
+                        actions: [
+                            {
+                                type: 'link',
+                                text: 'View',
+                                iconClass: 'fa fa-external-link',
+                                callback: cfg.onClickHandler
+                            }
+                        ]
+                    },title : {
+                        name: tooltipContents[0]['value'],
+                        type: currObj['display_type']
+                    }
+                }
+            }
+        },
+        self.getScatterChartClickFn = function(currObj,options) {
+            layoutHandler.setURLHashParams({
+                type: getValueByJsonPath(options,'type'),
+                view: getValueByJsonPath(options,'type'),
+                focusedElement: {
+                    node: currObj['name'],
+                    tab: 'details'
+                }
+            }, {
+                p: getValueByJsonPath(options,'hash')
+            });
+        }
     };
     return MonitorInfraUtils;
 });
