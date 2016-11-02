@@ -205,10 +205,11 @@ define(
                                 parseFloat(mem / 1024).toFixed(2)) : NaN;
                         obj['y'] = obj['resMemory'];
                         obj['memory'] = formatBytes(obj['y'] * 1024 * 1024);
+                        obj['NodeStatus'] = getValueByJsonPath(dValue,'NodeStatus');
                         obj['ip'] = getValueByJsonPath(dValue,
                             'VrouterAgent;control_ip', '-');
-                        obj['xField'] = 'cpu';
-                        obj['yField'] = 'resMemory';
+                        obj['xField'] = 'x';
+                        obj['yField'] = 'y';
                         obj['uveIP'] = obj['ip'];
                         obj['summaryIps'] = monitorInfraUtils.getVrouterIpAddresses(dValue, "summary");
                         var iplist = getValueByJsonPath(dValue,
@@ -270,10 +271,14 @@ define(
                         var processes = ['contrail-vrouter-agent',
                             'contrail-vrouter-nodemgr', 'supervisor-vrouter'
                         ];
+                        obj['flowRate'] = getValueByJsonPath(dValue,
+                                'VrouterStatsAgent;flow_rate');
                         obj['outThroughput'] = getValueByJsonPath(dValue,
                             'VrouterStatsAgent;phy_if_5min_usage;0;out_bandwidth_usage', 0);
                         obj['inThroughput'] = getValueByJsonPath(dValue,
                                 'VrouterStatsAgent;phy_if_5min_usage;0;in_bandwidth_usage', 0);
+                        obj['VrouterStatsAgent'] = getValueByJsonPath(dValue,
+                                'VrouterStatsAgent');
                         obj['size'] = obj['outThroughput'] + obj['inThroughput'];
                         obj['shape'] = 'circle';
                         var xmppPeers = getValueByJsonPath(dValue,
