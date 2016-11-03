@@ -56,6 +56,12 @@ module.exports = function (grunt) {
         {pattern: 'contrail-web-core/webroot/dist/js/**/*.js', included: false},
         {pattern: 'contrail-web-core/webroot/common/ui/templates/*.tmpl', included: false},
 
+        //Reports dir
+        {pattern: 'contrail-web-core/webroot/reports/**/!(api)/**/*.js', included: false},
+        {pattern: 'contrail-web-core/webroot/reports/**/default.config.json', included: false},
+        {pattern: 'contrail-web-core/webroot/dist/reports/**/!(api)/**/*.js', included: false},
+        {pattern: 'contrail-web-core/webroot/dist/reports/**/default.config.json', included: false},
+
         {pattern: 'contrail-web-controller/webroot/**/test/**/*.mock.data.js', included: false},
         {pattern: 'contrail-web-controller/webroot/**/test/**/*.unit.test.suite.js', included: false}
     ];
