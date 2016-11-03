@@ -1258,7 +1258,7 @@ function getUnderlayPath (req, res, appData)
 
     var queryJSON = queries.buildUnderlayQuery(data);
 
-    queries.executeQueryString(queryJSON, function(err, result) {
+    queries.executeQueryString(queryJSON, appData, function(err, result) {
         var flowPostData = {};
         flowPostData['cfilt'] = ['PRouterEntry:ipMib', 'ContrailConfig'];
         var url = '/analytics/uves/prouter';
