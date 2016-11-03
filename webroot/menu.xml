@@ -1167,13 +1167,13 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>Dashboards</label>
                     <iconClass>menu-icon fa fa-dashboard</iconClass>
-                    <init>/reports/udd/ui/js/udd.init.js</init>
+                    <init>/reports/udd/ui/js/controller.udd.init.js</init>
                     <items>
                         <item>
                             <hash>query_udd_webController</hash>
                             <label>Web Controller</label>
                             <loader>
-                                <class>WCUDDLoader</class>
+                                <class>UDDLoader</class>
                             </loader>
                             <searchStrings>User-defined Dashboard</searchStrings>
                         </item>
