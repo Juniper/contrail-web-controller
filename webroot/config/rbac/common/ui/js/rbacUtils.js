@@ -340,7 +340,7 @@
                      "configData", null),
              uuid =
                  getValueByJsonPath(putData, "api-access-list;uuid",
-                                null), rbacPostData;
+                                null), rbacPostData, rbacRules, uuidList = [];
              putData['api-access-list']['api_access_list_entries'] = {};
              putData['api-access-list']['api_access_list_entries']
                  ['rbac_rule'] = gridData;
@@ -358,6 +358,15 @@
                  delete
                      putData['api-access-list']['api_access_list_entries']
                          ['rbac_rule'][i]['cgrid'];
+             }
+
+             rbacRules = getValueByJsonPath(putData,
+                     "api-access-list;api_access_list_entries;rbac_rule",
+                     [], false);
+             if(rbacRules.length === 0) {
+                 uuidList.push(uuid);
+                 this.deleteAPIAccessList(callbackObj, uuidList);
+                 return;
              }
 
              rbacPostData = {"data":[{"data": putData,
@@ -389,7 +398,8 @@
              var ajaxConfig = {}, returnFlag = false, i, rowIdxLen, dataLen,
              gridData = getValueByJsonPath(options, "gridData", []),
              checkedRows = getValueByJsonPath(options, "checkedRows"),
-             putData, uuid, deleteAjax = [], projectIdMap = {}, projectList = [], rbacPostData;
+             putData, uuid, deleteAjax = [], projectIdMap = {},
+             projectList = [], rbacPostData, rbacRules, uuidList = [];
              for(var i = 0; i < checkedRows.length; i++) {
                  if(options.isDomain === true) {
                      if(projectIdMap[checkedRows[i].domain] == null) {
@@ -446,10 +456,17 @@
                     putData['api-access-list']['api_access_list_entries']
                         ['rbac_rule'][i]['subIndex'];
                 }
-
+                rbacRules = getValueByJsonPath(putData,
+                        "api-access-list;api_access_list_entries;rbac_rule",
+                        [], false);
+                if(rbacRules.length === 0) {
+                    uuidList.push(uuid);
+                    continue;
+                }
                 rbacPostData = {"data":[{"data": putData,
                     "reqUrl": "/api-access-list/" +
                     uuid}]};
+
                 ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 ajaxConfig.type  = "POST";
                 ajaxConfig.data  = JSON.stringify(rbacPostData);
@@ -459,7 +476,11 @@
              if (contrail.checkIfFunction(callbackObj.init)) {
                  callbackObj.init();
              }
-             $.when.apply($, deleteAjax).then(function(response){
+             $.when.apply($, deleteAjax).then(function () {
+                 if (contrail.checkIfFunction(callbackObj.init)) {
+                     callbackObj.init();
+                 }
+             }, function(response){
                  if (contrail.checkIfFunction(callbackObj.success)) {
                      callbackObj.success();
                  }
@@ -468,7 +489,36 @@
                      callbackObj.error(error);
                  }
              })
+
+             if(uuidList.length > 0) {
+                 this.deleteAPIAccessList(callbackObj, uuidList);
+             }
+
              return returnFlag;
+         };
+
+         //Deletes api-access-list if no rbac_rule found
+         this.deleteAPIAccessList = function(callbackObj, uuidList) {
+             var ajaxConfig = {};
+
+             ajaxConfig.type = "POST";
+             ajaxConfig.data = JSON.stringify([{'type': 'api-access-list',
+                                               'deleteIDs': uuidList}]);
+
+             ajaxConfig.url = '/api/tenants/config/delete';
+             contrail.ajaxHandler(ajaxConfig, function () {
+                 if (contrail.checkIfFunction(callbackObj.init)) {
+                     callbackObj.init();
+                 }
+             }, function (response) {
+                 if (contrail.checkIfFunction(callbackObj.success)) {
+                     callbackObj.success();
+                 }
+             }, function (error) {
+                 if (contrail.checkIfFunction(callbackObj.error)) {
+                     callbackObj.error(error);
+                 }
+             });
          };
 
          this.getConfigData = function(viewConfig){
