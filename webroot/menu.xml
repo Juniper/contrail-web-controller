@@ -1165,21 +1165,6 @@ and need to add the iconClass tag wherever we need to show some icons
             </access>
             <items>
                 <item>
-                    <label>Dashboards</label>
-                    <iconClass>menu-icon fa fa-dashboard</iconClass>
-                    <init>/reports/udd/ui/js/controller.udd.init.js</init>
-                    <items>
-                        <item>
-                            <hash>query_udd_webController</hash>
-                            <label>Web Controller</label>
-                            <loader>
-                                <class>UDDLoader</class>
-                            </loader>
-                            <searchStrings>User-defined Dashboard</searchStrings>
-                        </item>
-                    </items>
-                </item>
-                <item>
                     <label>Flows</label>
                     <iconClass>menu-icon fa fa-exchange</iconClass>
                     <init>/reports/qe/ui/js/controller.qe.init.js</init>
@@ -1269,6 +1254,21 @@ and need to add the iconClass tag wherever we need to show some icons
                                 <function>renderStatQueue</function>
                             </loader>
                             <searchStrings>Stat Query Queue</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
+                    <label>User Dashboards</label>
+                    <iconClass>menu-icon fa fa-dashboard</iconClass>
+                    <init>/reports/udd/ui/js/controller.udd.init.js</init>
+                    <items>
+                        <item>
+                            <hash>query_udd_webController</hash>
+                            <label>Web Controller</label>
+                            <loader>
+                                <class>UDDLoader</class>
+                            </loader>
+                            <searchStrings>User-defined Dashboard</searchStrings>
                         </item>
                     </items>
                 </item>
