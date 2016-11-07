@@ -323,7 +323,7 @@ define([
 
     function showHideModelAttrs(portModel) {
         portModel.is_sec_grp_disabled = ko.computed((function() {
-            if(this.is_sec_grp() == true) {
+            if(this.port_security_enabled() == true) {
                 if (this.securityGroupValue() == "") {
                     var sgDefaultVal = [portFormatters.getProjectFqn()+":default"];
                     this.securityGroupValue(sgDefaultVal);
@@ -396,7 +396,7 @@ define([
                 formatter: "floatingIPFormatter"
             }
         }, {
-            key: 'security_group_refs',
+            key: 'uuid',
             name:"security_group_refs",
             label:"Security Groups",
             templateGenerator: 'TextGenerator',

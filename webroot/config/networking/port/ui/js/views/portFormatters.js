@@ -197,13 +197,26 @@ define([
         //Grid column expand label: Security Groups//
         self.sgFormater = function(d, c, v, cd, dc) {
             var sg = "",
+                portSecurity = getValueByJsonPath(dc,
+                        'port_security_enabled', "-"),
                 sgData = getValueByJsonPath(dc, "security_group_refs", []);
+            if(portSecurity == "-"){
+                return portSecurity;
+            }
+            if(portSecurity === true){
+                sg = "Enabled<br>"
+            } else{
+                sg = "Disabled";
+                return sg;
+            }
             if(sgData.length > 0) {
                 var sg_length = sgData.length;
                 for(var i = 0; i < sg_length;i++) {
-                    if(sg != "") sg += ", ";
                     sg += ctwu.formatCurrentFQName(sgData[i]["to"],
                             ctwu.getCurrentDomainProject());
+                    if(i != sg_length -1) {
+                        sg += ", ";
+                    }
                 }
             } else {
                 sg = "-";
@@ -1027,10 +1040,6 @@ define([
                     portEditView.model.subnetGroupVisible(true);
                 } else {
                     portEditView.model.subnetGroupVisible(false);
-                }
-            } else if(mode == ctwl.EDIT_ACTION) {
-                if(portEditView.model.security_group_refs().length <= 0) {
-                    portEditView.model.is_sec_grp(false);
                 }
             }
             return formattedNetworks;
