@@ -26,7 +26,7 @@ define([
             'id_perms':{'enable':true},
             'virtual_network_refs':[],
             'virtualNetworkName' : '',
-            'is_sec_grp':true,
+            'port_security_enabled': true,
             //'is_sec_grp_disabled':false,
             'security_group_refs':[],
             'securityGroupValue':'',
@@ -923,7 +923,7 @@ define([
         //Security Group
                 var sgData = getValueByJsonPath(newPortData,
                            "securityGroupValue","");
-                if(newPortData.is_sec_grp == true && sgData != "") {
+                if(newPortData.port_security_enabled == true && sgData != "") {
                     var msSGselectedData = sgData.split(cowc.DROPDOWN_VALUE_SEPARATOR);
                     if (msSGselectedData && msSGselectedData.length > 0) {
                         newPortData.security_group_refs = []
