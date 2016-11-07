@@ -197,13 +197,26 @@ define([
         //Grid column expand label: Security Groups//
         self.sgFormater = function(d, c, v, cd, dc) {
             var sg = "",
+                portSecurity = getValueByJsonPath(dc,
+                        'port_security_enabled', "-"),
                 sgData = getValueByJsonPath(dc, "security_group_refs", []);
+            if(portSecurity == "-"){
+                return portSecurity;
+            }
+            if(portSecurity === true){
+                sg = "Enabled<br>"
+            } else{
+                sg = "Disabled";
+                return sg;
+            }
             if(sgData.length > 0) {
                 var sg_length = sgData.length;
                 for(var i = 0; i < sg_length;i++) {
-                    if(sg != "") sg += ", ";
                     sg += ctwu.formatCurrentFQName(sgData[i]["to"],
                             ctwu.getCurrentDomainProject());
+                    if(i != sg_length -1) {
+                        sg += ", ";
+                    }
                 }
             } else {
                 sg = "-";
@@ -373,14 +386,14 @@ define([
                           []);
             if(AAPData.length > 0) {
                 var AAP_length = AAPData.length;
-                AAP = "Enabled<br><table><tbody><tr><td>IP</td><td>MAC</td></tr>"
+                AAP = "Enabled<br><table width='100%'><thead><tr><th style="" class='col-xs-1'>IP</th><th class='col-xs-2'>MAC</th></tr></thead>"
                 for(var i = 0; i < AAP_length;i++) {
                     var AAPVal = AAPData[i];
-                    AAP += "<tr><td>";
+                    AAP += "<tbody><tr><td>";
                     AAP += AAPVal["ip"]["ip_prefix"] + "/" +
                            AAPVal["ip"]["ip_prefix_len"]
                     AAP += "</td><td>";
-                    AAP += AAPVal["mac"];
+                    AAP += AAPVal["mac"] ? AAPVal["mac"] : "-";
                     AAP += "</td></tr>";
                 }
                 AAP += "</tbody></table>";
@@ -1027,10 +1040,6 @@ define([
                     portEditView.model.subnetGroupVisible(true);
                 } else {
                     portEditView.model.subnetGroupVisible(false);
-                }
-            } else if(mode == ctwl.EDIT_ACTION) {
-                if(portEditView.model.security_group_refs().length <= 0) {
-                    portEditView.model.is_sec_grp(false);
                 }
             }
             return formattedNetworks;
