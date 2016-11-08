@@ -14,12 +14,23 @@ define([
             var self = this, viewConfig = this.attributes.viewConfig,
                 config = viewConfig['config'],
                 hashParams = config['hashParams'];
-
+            var reqUrlParms =
+                ctwc.constructReqURLParams($.extend({},
+                                                    nmwgc.getURLConfigForFlowGrid(hashParams),
+                                                    {protocol:
+                                                        ["tcp", "icmp", "udp"]
+                                                    })
+                                          );
+            var postData = {
+                async: false,
+                formModelAttrs: reqUrlParms.reqParams
+            };
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.constructReqURL($.extend({}, nmwgc.getURLConfigForFlowGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']})),
-                        type: 'GET'
+                        url: cowc.URL_QUERY,
+                        type: "POST",
+                        data: JSON.stringify(postData)
                     },
                     dataParser: nmwp.flowsDataParser
                 }
@@ -148,7 +159,7 @@ define([
         }
 
         portGroup = portDim.group().reduceSum(function (d) {
-            return d['sum_bytes']
+            return d["sum(bytes)"]
         });
         $.each(portGroup.top(Infinity), function (idx, portObj) {
             portDim.filterAll();

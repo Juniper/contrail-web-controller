@@ -15,15 +15,14 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
   ctrlGlobal = require('../../../../common/api/global'),
   jsonPath = require('JSONPath').eval,
   _ = require('underscore'),
-  nwMonUtils = require('../../../../common/api/nwMon.utils'),
   opApiServer = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/common/opServer.api'),
   configApiServer = require(process.mainModule.exports["corePath"] +
                             '/src/serverroot/common/configServer.api'),
   jsonDiff = require(process.mainModule.exports["corePath"] +
                      '/src/serverroot/common/jsondiff'),
-  queries = require(process.mainModule.exports["corePath"] +
-                    '/src/serverroot/common/queries.api');
+  qeUtils = require(process.mainModule.exports["corePath"] +
+                    "/webroot/reports/qe/api/query.utils");
 
 var CONFIG_FOUND            = 0;
 var CONFIG_NOT_FOUND        = 1;
@@ -1260,9 +1259,9 @@ function getUnderlayPath (req, res, appData)
     var nodeName = null;
     var tmppRouterListObjs = {};
 
-    var queryJSON = queries.buildUnderlayQuery(data);
+    var queryJSON = qeUtils.buildUnderlayQuery(data);
 
-    queries.executeQueryString(queryJSON, function(err, result) {
+    qeUtils.executeQueryString(queryJSON, appData, function(err, result) {
         var flowPostData = {};
         flowPostData['cfilt'] = ['PRouterEntry:ipMib', 'ContrailConfig'];
         var url = '/analytics/uves/prouter';
@@ -1983,14 +1982,14 @@ function getIfStatsBypRouterLink (dataObj, callback)
     var timeGran;
     var timeObj = {};
     if (dataObj['more_attributes']['minsSince']!= null) {
-        timeObj = queries.createTimeQueryJsonObj(dataObj['more_attributes']['minsSince']);
-        timeGran = nwMonUtils.getTimeGranByTimeSlice(timeObj,
+        timeObj = qeUtils.createTimeQueryJsonObj(dataObj['more_attributes']['minsSince']);
+        timeGran = qeUtils.getTimeGranByTimeSlice(timeObj,
             dataObj['more_attributes']['sampleCnt']);
     } else {
         timeGran = dataObj['more_attributes']['timeGran'];
     }
 
-    var timeObj = queries.createTimeQueryJsonObjByAppData(dataObj['more_attributes']);
+    var timeObj = qeUtils.createTimeQueryJsonObjByAppData(dataObj['more_attributes']);
     var queryJSON1 = 
         commonUtils.cloneObj(ctrlGlobal.QUERY_JSON['StatTable.PRouterEntry.ifStats']);
     queryJSON1['where'][0][0]['value'] = prouter1;

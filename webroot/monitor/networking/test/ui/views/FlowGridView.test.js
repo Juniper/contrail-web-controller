@@ -36,10 +36,20 @@ define([
          *   (dport%3D9110+AND+sourcevn%3Ddefault-domain%3Aadmin%3Afrontend+AND+protocol%3D17)
          * */
 
-
+        var postData = {
+            async: false,
+            formModelAttrs: {
+                port: 9110,
+                table_name: "FlowSeriesTable",
+                table_type: "FLOW",
+                form_time_utc: "now-10m",
+                to_time_utc: "now"
+            }
+        };
         responses.push(cotr.createFakeServerResponse( {
-            method: "GET",
-            url: cttu.getRegExForUrl('/api/admin/reports/query?port=9110&timeRange=600&table=FlowSeriesTable'),
+            method: "POST",
+            url: cttu.getRegExForUrl("/api/qe/query"),
+            data: JSON.stringify(postData),
             body: JSON.stringify(TestMockdata.flowsMockData)
         }));
 

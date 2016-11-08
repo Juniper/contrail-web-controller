@@ -21,6 +21,9 @@ var cacheApi = require(process.mainModule.exports["corePath"] + '/src/serverroot
     config = process.mainModule.exports["config"],
     async = require('async'),
     jsonPath = require('JSONPath').eval,
+    flowCache = require('../../../common/api/flowCache.api'),
+    qeUtils = require(process.mainModule.exports["corePath"] +
+                      '/webroot/reports/qe/api/query.utils'),
     assert = require('assert');
 
 var instanceDetailsMap = {
@@ -29,88 +32,6 @@ var instanceDetailsMap = {
 
 var virtualNetworkDetailsMap = {
     vcenter: getVirtualNetworksForUser
-}
-
-function getTopNetworkDetailsByDomain(req, res) {
-    /* First get all the network details in this domain */
-    var urlLists = [], j = 0;
-    var domain = req.param('fqName');
-    var reqUrl = '/projects?domain=' + domain;
-    /* First get the project details in this domain */
-    var minsSince = req.query['minsSince'];
-    var limit = req.query['limit'] ||
-        global.NW_MON_TOP_DISPLAY_COUNT_DFLT_VAL;
-    var reqType = req.query['type'];
-    var urlKey;
-    var appData = {
-        minsSince: minsSince,
-        limit: limit,
-        domain: domain
-    };
-
-    if (reqType == 'network') {
-        urlKey = global.STR_GET_TOP_NW_BY_DOMAIN;
-    } else if (reqType == 'project') {
-        urlKey = global.STR_GET_TOP_PROJECT_BY_DOMAIN;
-    } else if (reqType == 'port') {
-        urlKey = global.STR_GET_TOP_PORT_BY_DOMAIN;
-    } else if (reqType == 'peer') {
-        urlKey = global.STR_GET_TOP_PEER_BY_DOMAIN;
-    } else if (reqType == 'flow') {
-        urlKey = global.STR_GET_TOP_FLOWS_BY_DOMAIN;
-    } else {
-        var err =
-            appErrors.RESTServerError(messages.error.monitoring.invalid_type_provided,
-                reqType);
-        commonUtils.handleJSONResponse(err, res, null);
-        return;
-    }
-
-    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE,
-        urlKey, reqUrl,
-        0, 1, 0, -1, true, appData);
-}
-
-function getTopNetworkDetailsByProject(req, res) {
-    var project = req.param('fqName');
-    var minsSince = req.query['minsSince'];
-    var limit = req.query['limit'] || global.NW_MON_TOP_DISPLAY_COUNT_DFLT_VAL;
-    var reqType = req.query['type'];
-    var protocol = req.query['protocol'];
-    var startTime = req.query['startTime'];
-    var endTime = req.query['endTime'];
-    var urlKey;
-    var appData = {
-        minsSince: minsSince,
-        limit: limit,
-        project: project,
-        protocol: protocol,
-        startTime: startTime,
-        endTime: endTime
-    };
-    if (reqType == 'network') {
-        urlKey = global.STR_GET_TOP_NW_BY_PROJECT;
-    } else if (reqType == 'port') {
-        urlKey = global.STR_GET_TOP_PORT_BY_PROJECT;
-        if (req.query['portRange']) {
-            appData['portRange'] = req.query['portRange'];
-        }
-    } else if (reqType == 'peer') {
-        urlKey = global.STR_GET_TOP_PEER_BY_PROJECT;
-    } else if (reqType == 'flow') {
-        urlKey = global.STR_GET_TOP_FLOWS_BY_PROJECT;
-    } else {
-        var err =
-            appErrors.RESTServerError(messages.error.monitoring.invalid_type_provided,
-                reqType);
-        commonUtils.handleJSONResponse(err, res, null);
-        return;
-    }
-
-    var reqUrl = "/virtual-networks?parent_type=project&parent_fq_name_str=" + project;
-    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE,
-        urlKey, reqUrl,
-        0, 1, 0, -1, true, appData);
 }
 
 function getFlowSeriesByVN(req, res) {
@@ -126,7 +47,7 @@ function getFlowSeriesByVN(req, res) {
     var relEndTime = req.query['relEndTime'];
     var timeGran = req.query['timeGran'];
     var minsAlign = req.query['minsAlign'];
-    var serverTime = req.query['useServerTime'];
+    var useServerTime = req.query['useServerTime'];
     var vrouter = req.query['vrouter'];
     var reqKey;
 
@@ -149,7 +70,7 @@ function getFlowSeriesByVN(req, res) {
         relStartTime: relStartTime,
         relEndTime: relEndTime,
         timeGran: timeGran,
-        serverTime: serverTime,
+        useServerTime: useServerTime,
         vrouter: vrouter,
         minsAlign: minsAlign
     };
@@ -157,38 +78,6 @@ function getFlowSeriesByVN(req, res) {
     var reqUrl = "/flow_series/VN=";
     cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE,
         reqKey, reqUrl,
-        0, 1, 0, -1, true, appData);
-}
-
-function getFlowSeriesByInstance(req, res) {
-    var vmUUID = req.query['vmUUID'];
-    var srcVN = req.query['srcVN'];
-    var minsSince = req.query['minsSince'];
-    var sampleCnt = req.query['sampleCnt'];
-    var startTime = req.query['startTime'];
-    var endTime = req.query['endTime'];
-    var relStartTime = req.query['relStartTime'];
-    var relEndTime = req.query['relEndTime'];
-    var timeGran = req.query['timeGran'];
-    var minsAlign = req.query['minsAlign'];
-
-    var appData = {
-        minsSince: minsSince,
-        minsAlign: minsAlign,
-        srcVN: srcVN,
-        sampleCnt: sampleCnt,
-        startTime: startTime,
-        endTime: endTime,
-        relStartTime: relStartTime,
-        relEndTime: relEndTime,
-        timeGran: timeGran,
-        minsAlign: minsAlign
-
-    };
-
-    var reqUrl = "/flow_series/VM=";
-    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE,
-        global.STR_FLOW_SERIES_BY_VM, reqUrl,
         0, 1, 0, -1, true, appData);
 }
 
@@ -213,7 +102,7 @@ function getNetworkStats(req, res) {
     var protocol = req.query['protocol'];
     var startTime = req.query['startTime'];
     var endTime = req.query['endTime'];
-    var serverTime = req.query['useServerTime'];
+    var useServerTime = req.query['useServerTime'];
     var ip = req.query['ip'];
     var reqKey;
 
@@ -223,7 +112,7 @@ function getNetworkStats(req, res) {
         limit: limit,
         startTime: startTime,
         endTime: endTime,
-        serverTime: serverTime,
+        useServerTime: useServerTime,
         protocol: protocol,
         ip: ip
     };
@@ -232,18 +121,18 @@ function getNetworkStats(req, res) {
         if (req.query['portRange']) {
             appData['portRange'] = req.query['portRange'];
         }
-    } else if (type == 'peer') {
-        reqKey = global.STR_GET_TOP_PEER_BY_NW;
-    } else if (type == 'flow') {
-        reqKey = global.STR_GET_TOP_FLOWS_BY_NW;
     } else {
-        var err = appErrors.RESTServerError(messages.error.monitoring.invalid_type_provided, reqKey);
+        var err =
+            appErrors.RESTServerError(messages.error.monitoring.invalid_type_provided,
+                                      reqKey);
         commonUtils.handleJSONResponse(err, res, null);
         return;
     }
 
     var url = '/virtual-network/stats';
-    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE, reqKey, url, 0, 1, 0, -1, true, appData);
+    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE,
+                                             reqKey, url, 0, 1, 0, -1, true,
+                                             appData);
 }
 
 function getVNStatsSummary(req, res, appData) {
@@ -271,36 +160,6 @@ function getVNStatsSummary(req, res, appData) {
         });
 }
 
-function getTopNwDetailsByVM(req, res) {
-    var fqName = req.query['fqName'];
-    var type = req.query['type'];
-    var limit = req.query['limit'];
-    var minsSince = req.query['minsSince'];
-    var ip = req.query['ip'];
-    var reqKey;
-
-    var appData = {
-        minsSince: minsSince,
-        fqName: fqName,
-        ip: ip,
-        limit: limit
-    };
-    if (type == 'port') {
-        reqKey = global.STR_GET_TOP_PORT_BY_VM;
-    } else if (type == 'peer') {
-        reqKey = global.STR_GET_TOP_PEER_BY_VM;
-    } else if (type == 'flow') {
-        reqKey = global.STR_GET_TOP_FLOWS_BY_VM;
-    } else {
-        var err = appErrors.RESTServerError(messages.error.monitoring.invalid_type_provided, reqType);
-        commonUtils.handleJSONResponse(err, res, null);
-        return;
-    }
-
-    var url = '/virtual-machine/stats';
-    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE, reqKey, url, 0, 1, 0, -1, true, appData);
-}
-
 function getFlowSeriesByVM(req, res) {
     var vnName = req.query['fqName'];
     var sampleCnt = req.query['sampleCnt'];
@@ -312,7 +171,7 @@ function getFlowSeriesByVM(req, res) {
     var relEndTime = req.query['relEndTime'];
     var timeGran = req.query['timeGran'];
     var minsAlign = req.query['minsAlign'];
-    var serverTime = req.query['useServerTime'];
+    var useServerTime = req.query['useServerTime'];
     var vmName = req.query['vmName'];
     var vmVnName = req.query['vmVnName'];
     var fip = req.query['fip'];
@@ -330,7 +189,7 @@ function getFlowSeriesByVM(req, res) {
         relStartTime: relStartTime,
         relEndTime: relEndTime,
         timeGran: timeGran,
-        serverTime: serverTime,
+        useServerTime: useServerTime,
         minsAlign: minsAlign
     };
     var reqUrl = "/flow_series/VM=";
@@ -397,62 +256,6 @@ function getVMStatsSummary(req, res, appData) {
                 commonUtils.handleJSONResponse(null, res, resultJSON);
             }
         });
-}
-
-function getConnectedNWsStatsSummary(req, res) {
-    var srcVN = req.query['srcVN'];
-    var destVN = req.query['destVN'];
-
-    var appData = {
-        srcVN: srcVN,
-        destVN: destVN
-    };
-
-    var reqKey = "/stat_summary/connected_nw/";
-    cacheApi.queueDataFromCacheOrSendRequest(req, res,
-        global.STR_JOB_TYPE_CACHE,
-        global.GET_STAT_SUMMARY_BY_CONN_NWS,
-        reqKey, 0, 1, 0, -1, true,
-        appData);
-}
-
-function getConnectedNWsStatsByType(req, res) {
-    var srcVN = req.query['srcVN'];
-    var destVN = req.query['destVN'];
-    var type = req.query['type'];
-    var limit = req.query['limit'];
-    var minsSince = req.query['minsSince'];
-    var startTime = req.query['startTime'];
-    var endTime = req.query['endTime'];
-    var reqKey;
-
-    var appData = {
-        srcVN: srcVN,
-        destVN: destVN,
-        minsSince: minsSince,
-        startTime: startTime,
-        endTime: endTime,
-        limit: limit
-    };
-    if (type == 'port') {
-        reqKey = global.STR_GET_TOP_PORT_BY_CONN_NW;
-    } else if (type == 'peer') {
-        reqKey = global.STR_GET_TOP_PEER_BY_CONN_NW;
-    } else if (type == 'flow') {
-        reqKey = global.STR_GET_TOP_FLOWS_BY_CONN_NW;
-    } else {
-        var err =
-            appErrors.RESTServerError(messages.error.monitoring.invalid_type_provided,
-                reqType);
-        commonUtils.handleJSONResponse(err, res, null);
-        return;
-    }
-    var reqUrl = "/stat_summary/connected_nw/";
-    cacheApi.queueDataFromCacheOrSendRequest(req, res,
-        global.STR_JOB_TYPE_CACHE,
-        reqKey, reqUrl,
-        0, 1, 0, -1, true,
-        appData);
 }
 
 function getTrafficInEgrStat(resultJSON, srcVN, destVN, type) {
@@ -647,59 +450,6 @@ function getNetworkStatsSummary(req, res, appData) {
             commonUtils.handleJSONResponse(err, res, null);
         }
     });
-}
-
-function getFlowSeriesByCPU(req, res) {
-    var source = req.query['source'];
-    var sampleCnt = req.query['sampleCnt'];
-    var minsSince = req.query['minsSince'];
-    var moduleId = req.query['moduleId'];
-    var minsAlign = req.query['minsAlign'];
-    var endTime = req.query['endTime'];
-
-    var appData = {
-        source: source,
-        sampleCnt: sampleCnt,
-        minsSince: minsSince,
-        minsAlign: minsAlign,
-        moduleId: moduleId,
-        endTime: endTime
-    };
-
-    var url = '/flow_series/cpu';
-    var key = null;
-    switch (moduleId) {
-        case 'contrail-control':
-            key = ctrlGlobal.STR_GET_CONTROL_NODE_CPU_FLOW_SERIES;
-            break;
-        case 'contrail-vrouter-agent':
-            key = ctrlGlobal.STR_GET_VROUTER_NODE_CPU_FLOW_SERIES;
-            break;
-        case 'contrail-collector':
-            key = ctrlGlobal.STR_GET_COLLECTOR_CPU_FLOW_SERIES;
-            break;
-        case 'contrail-query-engine':
-            key = ctrlGlobal.STR_GET_QE_CPU_FLOW_SERIES;
-            break;
-        case 'contrail-analytics-api':
-            key = ctrlGlobal.STR_GET_OPS_CPU_FLOW_SERIES;
-            break;
-        case 'contrail-api':
-            key = ctrlGlobal.STR_GET_API_SERVER_CPU_FLOW_SERIES;
-            break;
-        case 'contrail-svc-monitor':
-            key = ctrlGlobal.STR_GET_SVC_MON_CPU_FLOW_SERIES;
-            break;
-        case 'contrail-schema':
-            key = ctrlGlobal.STR_GET_SCHEMA_FLOW_SERIES;
-            break;
-        default:
-            logutils.logger.error("Invalid moduleId specified: " + moduleId);
-            assert(0);
-    }
-    cacheApi.queueDataFromCacheOrSendRequest(req, res,
-        global.STR_JOB_TYPE_CACHE, key,
-        url, 0, 1, 0, -1, true, appData);
 }
 
 function sendOpServerResponseByURL(url, req, res, appData) {
@@ -1610,92 +1360,54 @@ function getInstancesDetailsForUser(req, appData, callback) {
 
 }
 
-function getStats(req, res, appData) {
+function getStats (req, res, appData)
+{
 
     var reqParams = req.body['data'],
         type = reqParams['type'],
         uuids = reqParams['uuids'],
-        minSince = reqParams['minSince'],
-        useServerTime = reqParams['userServerTime'],
         whereClauseArray = [], table, context,
-        timeObj = nwMonJobs.createTimeQueryJsonObjByServerTimeFlag(minSince, useServerTime),
         whereFieldName = "name", whereClause;
 
     if ('virtual-machine' == type) {
-        table = 'StatTable_UveVMInterfaceAgent_if_stats';
+        table = 'StatTable.UveVMInterfaceAgent.if_stats';
         context = 'vm';
         whereFieldName = 'vm_uuid';
     } else if ('virtual-network' == type) {
-        table = 'StatTable_UveVirtualNetworkAgent_vn_stats';
+        table = 'StatTable.UveVirtualNetworkAgent.vn_stats';
         context = 'vn';
     } else if ('virtual-machine-interface' == type) {
-        table = 'StatTable_UveVMInterfaceAgent_if_stats';
+        table = 'StatTable.UveVMInterfaceAgent.if_stats';
         context = 'vm';
     }
 
-    if (uuids.indexOf(',') > -1) {
-        uuids = uuids.split(',');
-        var uuidsLen = uuids.length;
-        for (var i = 0; i < uuidsLen; i++) {
-            whereClause = {};
-            whereClause[whereFieldName] = uuids[i];
-            whereClauseArray.push(whereClause);
+    uuids = uuids.split(',');
+    var uuidsLen = uuids.length;
+    whereClause = "";
+    for (var i = 0; i < uuidsLen; i++) {
+        whereClause += "(" + whereFieldName + " = " + uuids[i] + ")";
+        if ((uuidsLen > 1) && (i < uuidsLen - 1)) {
+            whereClause += " OR ";
         }
-    } else {
-        whereClause = {};
-        whereClause[whereFieldName] = uuids;
-        whereClauseArray.push(whereClause);
     }
 
-    var props = global.STATS_PROP[context],
-        selectArr = [props['inBytes'], props['outBytes'], props['inPkts'], props['outPkts'], whereFieldName],
-        queryJSON = nwMonJobs.formatQueryString(table, whereClauseArray, selectArr, timeObj, true, null);
+    var props = global.STATS_PROP[context];
+    var selectArr = [props['inBytes'], props['outBytes'], props['inPkts'],
+        props['outPkts'], whereFieldName];
 
-    //Removing the flow_count select field from query as not required for the OracleStats 
-    var flowCountIdx = queryJSON['select_fields'].indexOf('flow_count');
-
-    if (flowCountIdx > -1) {
-        queryJSON['select_fields'].splice(flowCountIdx, 1);
-    }
-
-    //logutils.logger.debug("Query json is " + JSON.stringify(queryJSON));
-
-    nwMonUtils.getStatDataByQueryJSON(queryJSON, null, appData, function (err, data) {
-        //logutils.logger.debug(JSON.stringify(data));
-        commonUtils.handleJSONResponse(err, res, data);
+    var qeQuery = qeUtils.formQEQueryData(table, reqParams, selectArr,
+                                          whereClause, null);
+    var qeQueries = [];
+    qeQueries.push(qeQuery);
+    flowCache.getFlowSeriesDataByQE(qeQueries, reqParams, appData, context, null,
+                                    function (err, qeResp) {
+        var resultJSON = [];
+        resultJSON[0] =
+            {value: commonUtils.getValueByJsonPath(qeResp, '0;data', [])};
+        logutils.logger.debug(JSON.stringify(resultJSON));
+        commonUtils.handleJSONResponse(err, res, resultJSON);
     });
 }
-
-/*
- * This function returns the detail Objects of all the Virtual machines from the
- * config server
- */
-function getVirtualMachinesFromConfig(request, response, appData) {
-
-    var vmListURL = '/virtual-machines', dataObjArr = [];
-    configApiServer.apiGet(vmListURL, appData, function (error, data) {
-        var configVMObj = commonUtils.ifNull(data['virtual-machines'], []);
-        var configVMObjLen = configVMObj.length;
-        for (var i = 0; i < configVMObjLen; i++) {
-            /*
-             * In this response we need only "display_name" field so need to exclude whatever possible
-             * fields in the response,so we appended exclude_back_refs
-             */
-            var detailUrl = '/virtual-machine/' + configVMObj[i]['uuid'] + "?exclude_back_refs&exclude_children=true";
-            commonUtils.createReqObj(dataObjArr, detailUrl, global.HTTP_REQUEST_GET, null, null, null,
-                appData);
-        }
-        async.map(dataObjArr, commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
-            function (error, vmObjects) {
-                if (error || null == vmObjects) {
-                    commonUtils.handleJSONResponse(error, response, vmObjects);
-                    return;
-                }
-                commonUtils.handleJSONResponse(error, response, vmObjects);
-            });
-    });
-}
-
 
 // Handle request to get a JSON of projects for a given domain.
 function getProjects(req, res, appData) {
@@ -2036,20 +1748,13 @@ function getNetworkDetails(req, res, appData) {
 
 
 /* List all public functions */
-exports.getTopNetworkDetailsByDomain = getTopNetworkDetailsByDomain;
-exports.getTopNetworkDetailsByProject = getTopNetworkDetailsByProject;
 exports.getFlowSeriesByVN = getFlowSeriesByVN;
-exports.getFlowSeriesByInstance = getFlowSeriesByInstance;
 exports.getProjectSummary = getProjectSummary;
 exports.getNetworkStats = getNetworkStats;
 exports.getVNStatsSummary = getVNStatsSummary;
-exports.getTopNwDetailsByVM = getTopNwDetailsByVM;
 exports.getFlowSeriesByVM = getFlowSeriesByVM;
 exports.getVMStatsSummary = getVMStatsSummary;
-exports.getConnectedNWsStatsSummary = getConnectedNWsStatsSummary;
-exports.getConnectedNWsStatsByType = getConnectedNWsStatsByType;
 exports.getNetworkStatsSummary = getNetworkStatsSummary;
-exports.getFlowSeriesByCPU = getFlowSeriesByCPU;
 exports.getVirtualNetworksSummary = getVirtualNetworksSummary;
 exports.getVirtualMachine = getVirtualMachine;
 exports.getVirtualMachinesSummary = getVirtualMachinesSummary;
@@ -2060,9 +1765,7 @@ exports.getVirtualNetworksDetails = getVirtualNetworksDetails;
 exports.isAllowedVN = isAllowedVN;
 exports.getVNListByProject = getVNListByProject;
 exports.getStats = getStats;
-exports.getVirtualMachinesFromConfig = getVirtualMachinesFromConfig;
 exports.getVirtualNetworksList = getVirtualNetworksList;
-
 exports.getProjects = getProjects;
 exports.getVNetworks = getVNetworks;
 exports.getNetworkDomainSummary = getNetworkDomainSummary;

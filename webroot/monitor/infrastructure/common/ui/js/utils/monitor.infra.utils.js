@@ -2058,50 +2058,53 @@ define([
             var dsName = options.nodeType,
                 moduleType = options.moduleType,
                 node = options.node;
-            var postData = {
-                    pageSize:10000,
-                    page:1,
+            var reqData = {
+                    chunkSize: 10000,
+                    chunk: 1,
 //                    timeRange:600,
-                    tgUnits:'secs',
-                    fromTimeUTC:'now-2h',
-                    toTimeUTC:'now',
-                    async:true,
+                    async: false,
                     queryId: generateQueryUUID(),
-                    reRunTimeRange:600,
+                    //plotFields:['cpu_info.cpu_share']
+            };
+            var postData = {
+                    time_granularity_unit: 'secs',
+                    from_time_utc: 'now-2h',
+                    to_time_utc: 'now',
+                    //reRunTimeRange:600,
                     select:'Source, T, cpu_info.cpu_share, cpu_info.mem_res, cpu_info.module_id',
-                    groupFields:['Source'],
-                    plotFields:['cpu_info.cpu_share']
+                    //groupFields:['Source'],
             }
             if(options.page != null && options.page == "summary") {
-                postData['fromTimeUTC'] = 'now-15m';
+                postData['from_time_utc'] = 'now-15m';
             }
+            postData['table_type'] = 'STAT';
             if (dsName == monitorInfraConstants.CONTROL_NODE) {
-                postData['table'] = 'StatTable.ControlCpuState.cpu_info';
+                postData['table_name'] = 'StatTable.ControlCpuState.cpu_info';
                 if (moduleType != null && moduleType != '') {
                     postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-control)';
                 } else {
                     postData['where'] = '(cpu_info.module_id = contrail-control)';
                 }
             } else if (dsName == monitorInfraConstants.COMPUTE_NODE) {
-                postData['table'] = 'StatTable.ComputeCpuState.cpu_info';
+                postData['table_name'] = 'StatTable.ComputeCpuState.cpu_info';
                 if (moduleType != null && moduleType != '') {
                     if(moduleType == 'vRouterAgent') {
                         postData['select'] = 'Source, name, T, cpu_info.cpu_share, cpu_info.mem_res';
                     } else if (moduleType == 'vRouterSystem') {
                         postData['select'] = 'Source, name, T, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
                     } else if (moduleType == 'vRouterBandwidthIn') {
-                        postData['table'] = 'StatTable.VrouterStatsAgent.phy_band_in_bps';
+                        postData['table_name'] = 'StatTable.VrouterStatsAgent.phy_band_in_bps';
                         postData['select'] = 'Source, name, T=, phy_band_in_bps.__value';
-                        postData['tgValue'] = 60;
+                        postData['time_granularity'] = 60;
                     } else if (moduleType == 'vRouterBandwidthOut') {
-                        postData['table'] = 'StatTable.VrouterStatsAgent.phy_band_out_bps';
+                        postData['table_name'] = 'StatTable.VrouterStatsAgent.phy_band_out_bps';
                         postData['select'] = 'Source, name, T=, phy_band_out_bps.__value';
-                        postData['tgValue'] = 60;
+                        postData['time_granularity'] = 60;
                     } else if (moduleType == 'vRouterFlowRate') {
-                        postData['table'] = 'StatTable.VrouterStatsAgent.flow_rate';
+                        postData['table_name'] = 'StatTable.VrouterStatsAgent.flow_rate';
                         postData['select'] = 'Source, name, T=, MAX(flow_rate.active_flows)';
-                        postData['tgValue'] = 60;
-                        postData['plotFields'] = ['MAX(flow_rate.active_flows)'];
+                        postData['time_granularity'] = 60;
+                        //postData['plotFields'] = ['MAX(flow_rate.active_flows)'];
                     }
                     postData['where'] = '(Source = '+ node +' OR name = '+ node +')';
                 } else {
@@ -2109,7 +2112,7 @@ define([
                     postData['where'] = '';
                 }
             } else if (dsName == monitorInfraConstants.ANALYTICS_NODE) {
-                postData['table'] = 'StatTable.AnalyticsCpuState.cpu_info';
+                postData['table_name'] = 'StatTable.AnalyticsCpuState.cpu_info';
                 postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
                 if (moduleType != null && moduleType != '') {
                     if(moduleType == 'analyticsCollector') {
@@ -2123,7 +2126,7 @@ define([
                     postData['where'] = '(cpu_info.module_id = contrail-collector)';
                 }
             } else if (dsName == monitorInfraConstants.CONFIG_NODE) {
-                postData['table'] = 'StatTable.ConfigCpuState.cpu_info';
+                postData['table_name'] = 'StatTable.ConfigCpuState.cpu_info';
                 if (moduleType != null && moduleType != '') {
                     if(moduleType == 'configAPIServer') {
                         postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-api)';
@@ -2136,12 +2139,13 @@ define([
                     postData['where'] = '(cpu_info.module_id = contrail-api)';
                 }
             } else if (dsName == monitorInfraConstants.DATABASE_NODE) {
-                postData['table'] = 'StatTable.DatabaseUsageInfo.database_usage';
+                postData['table_name'] = 'StatTable.DatabaseUsageInfo.database_usage';
                 postData['select'] = 'Source, T, database_usage.disk_space_used_1k, database_usage.analytics_db_size_1k';
-                postData['plotFields'] = 'database_usage.disk_space_used_1k';
+                //postData['plotFields'] = 'database_usage.disk_space_used_1k';
                 postData['where'] = '(Source = '+ node +')';
             }
-            return postData;
+            reqData['formModelAttrs'] = postData;
+            return reqData;
         };
 
         self.filterTORAgentData = function (data) {
