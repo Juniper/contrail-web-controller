@@ -99,9 +99,9 @@ define([
                 DATABASE_DETAILS            : '/api/admin/monitor/infrastructure/dbnode/details?hostname={0}',
 
                 FLOWSERIES_CPU              : '/api/tenant/networking/flow-series/cpu?moduleId={0}&minsSince={1}&sampleCnt={2}&source={3}&endTime={4}',
-                QUERY                       : '/api/admin/reports/query',
-                MSGTABLE_CATEGORY           : '/api/admin/table/values/MessageTable/Category',
-                MSGTABLE_LEVEL              : '/api/admin/table/values/MessageTable/Level'
+                QUERY                       : '/api/qe/query',
+                MSGTABLE_CATEGORY           : '/api/qe/table/values/MessageTable/Category',
+                MSGTABLE_LEVEL              : '/api/qe/table/values/MessageTable/Level'
         }
 
         this.UVEModuleIds = {
