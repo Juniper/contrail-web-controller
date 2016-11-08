@@ -297,11 +297,14 @@ define([
         ];
     }
 
+    function getActiveRouteTableTabIndex() {
+        return $('#' + ctwl.RT_TABLE_TAB_ID).tabs('option', 'active');
+    }
+
     function getHeaderActionConfig(tabText) {
         var rtTableName = getRtTableDisplayName();
         var tabId = $('#rt-table-tab').tabs('option', 'active');
         var tabText = 'Tab' + tabId.toString();
-        gridElId = elId + 'Tab' + tabId.toString();
         var headerActionConfig = [
             {
                 "type": "link",
@@ -310,6 +313,8 @@ define([
                 "linkElementId": 'btnActionDelRtTable' + tabText,
                 "onClick": function() {
                      var rtTableModel = new RtTableModel();
+                     tabId = getActiveRouteTableTabIndex();
+                     gridElId = elId + 'Tab' + tabId.toString();
                      var checkedRows =
                          $(gridElId).data("contrailGrid").getCheckedRows();
 
@@ -332,6 +337,8 @@ define([
                 "onClick": function() {
                     var projFqn = [getCookie('domain'),
                         getCookie('project')];
+                    tabId = getActiveRouteTableTabIndex();
+                    gridElId = elId + 'Tab' + tabId.toString();
                     rtTableModel = new RtTableModel();
                     rtTableEditView.model = rtTableModel;
                     rtTableEditView.renderConfigureRtTable({
