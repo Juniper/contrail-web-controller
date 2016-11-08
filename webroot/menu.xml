@@ -1264,11 +1264,11 @@ and need to add the iconClass tag wherever we need to show some icons
                     <items>
                         <item>
                             <hash>query_udd_webController</hash>
-                            <label>Web Controller</label>
+                            <label>Controller</label>
                             <loader>
                                 <class>UDDLoader</class>
                             </loader>
-                            <searchStrings>User-defined Dashboard</searchStrings>
+                            <searchStrings>User Dashboard</searchStrings>
                         </item>
                     </items>
                 </item>
