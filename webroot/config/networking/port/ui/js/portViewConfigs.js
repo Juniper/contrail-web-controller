@@ -1031,15 +1031,14 @@
          self.secGrpCheckboxSection = function() {
              return {
                  columns: [{
-                         elementId: 'is_sec_grp',
+                         elementId: 'port_security_enabled',
                          view: 'FormCheckboxView',
-                         name: 'is_sec_grp',
                          viewConfig: {
                              label: 'Security Group(s)',
                              templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
-                             path: 'is_sec_grp',
+                             path: 'port_security_enabled',
                              class: 'col-xs-12',
-                             dataBindValue: 'is_sec_grp'
+                             dataBindValue: 'port_security_enabled'
                          }
                      }
                  ]
@@ -1054,13 +1053,13 @@
                          view: 'FormMultiselectView',
                          name: 'SG',
                          viewConfig: {
+                             label: '',
                              path: 'securityGroupValue',
                              dataBindValue: 'securityGroupValue',
                              class: 'col-xs-12',
                              disabled : "is_sec_grp_disabled",
                              elementConfig:{
                                  allowClear: true,
-                                 placeholder: 'Select Security Group(s)',
                                  dataTextField: "text",
                                  dataValueField: "value",
                                  separator: cowc.DROPDOWN_VALUE_SEPARATOR,
