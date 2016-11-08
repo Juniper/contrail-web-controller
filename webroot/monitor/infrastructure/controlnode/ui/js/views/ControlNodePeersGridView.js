@@ -192,14 +192,6 @@ define([
             obj['name'] = "-"
          }
          try{
-            obj['send_state'] = ifNull(jsonPath(peerInfodata,'$..send_state'),
-                                    noDataStr);
-            if(obj['send_state'] == false)
-                  obj['send_state'] = '-';
-         }catch(e){
-            obj['send_state'] = '-';
-         }
-         try{
             obj['peer_asn'] = ifNull(jsonPath(peerInfodata,'$..peer_asn')[0],
                                 noDataStr);
             if(obj['peer_asn'] == null)
@@ -233,18 +225,7 @@ define([
                                     peerInfodata,
                                     'peer_stats_info;tx_proto_stats;total',
                                     noDataStr);
-            try {
-                var state = obj['state'];
-                var introspecState = null;
-                if (null == state) {
-                    introspecState = '' + obj['send_state'];
-                } else {
-                    introspecState = state + ', ' + obj['send_state'];
-                }
-                obj['introspect_state'] = introspecState;
-            } catch(e) {
-                obj['introspect_state'] = '-';
-            }
+            obj['introspect_state'] = getValueByJsonPath(obj,'state','-');
             ret.push(obj);
       }//for loop for bgp peers END
       return ret;
