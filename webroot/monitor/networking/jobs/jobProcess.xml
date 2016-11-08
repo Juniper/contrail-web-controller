@@ -12,36 +12,12 @@
     </require>
     <!-- Define Job Names and the corresponding callback -->
     <item>
-        <jobName>getTopNetworkDetailsByProject</jobName>
-        <callback>processTopNwDetailsByProjectRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopNetworkDetailsByDomain</jobName>
-        <callback>processTopNwDetailsByDomainRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopProjectDetailsByDomain</jobName>
-        <callback>processTopProjectDetailsByDomainRequestByJob</callback>
-    </item>
-    <item>
         <jobName>getTopPortByDomain</jobName>
         <callback>processTopPortByDomainRequestByJob</callback>
     </item>
     <item>
-        <jobName>getTopPortByProject</jobName>
-        <callback>processTopPortByProjectRequestByJob</callback>
-    </item>
-    <item>
         <jobName>getTopPortByNetwork</jobName>
         <callback>processTopPortByNetworkRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopFlowsByProject</jobName>
-        <callback>processTopFlowsByProjectRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopFlowsByDomain</jobName>
-        <callback>processTopFlowsByDomainRequestByJob</callback>
     </item>
     <item>
         <jobName>getVNFlowSeriesData</jobName>
@@ -52,100 +28,8 @@
         <callback>processVNsFlowSeriesDataRequestByJob</callback>
     </item>
     <item>
-        <jobName>getTopPeerByDomain</jobName>
-        <callback>processTopPeerByDomainRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopFlowsByNetwork</jobName>
-        <callback>processTopFlowsByNetworkRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopPeerByProject</jobName>
-        <callback>processTopPeerByProjectRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopPeerByNetwork</jobName>
-        <callback>processTopPeerByNetworkRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopPeerByVM</jobName>
-        <callback>processTopPeerByVMRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopPortByVM</jobName>
-        <callback>processTopPortByVMRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopFlowsByVM</jobName>
-        <callback>processTopFlowsByVMRequestByJob</callback>
-    </item>
-    <item>
         <jobName>getVMFlowSeriesData</jobName>
         <callback>processFlowSeriesByVMRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getVMStatSummary</jobName>
-        <callback>processVMStatSummaryRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getConnNetStatsSummary</jobName>
-        <callback>processConnNetStatsSummaryRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopPortByConnNet</jobName>
-        <callback>processTopPortByConnNetRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopPeerByConnNet</jobName>
-        <callback>processTopPeerByConnNetRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopFlowsByConnNet</jobName>
-        <callback>processTopFlowsByConnNetRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getTopPeerDetailsByPort</jobName>
-        <callback>processTopPeerDetailsRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getPortLevelFlowSeries</jobName>
-        <callback>processPortLevelFlowSeriesRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getFlowDetailsByFlowTuple</jobName>
-        <callback>processFlowDetailsByFlowTupleRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getControlNodeCPULoadFlowSeries</jobName>
-        <callback>processCPULoadFlowSeriesRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getvRouterCPULoadFlowSeries</jobName>
-        <callback>processCPULoadFlowSeriesRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getSvcMonCPULoadFlowSeries</jobName>
-        <callback>processCPULoadFlowSeriesRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getAPIServerCPULoadFlowSeries</jobName>
-        <callback>processCPULoadFlowSeriesRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getSchemaCPULoadFlowSeries</jobName>
-        <callback>processCPULoadFlowSeriesRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getCollectorCPULoadFlowSeries</jobName>
-        <callback>processCPULoadFlowSeriesRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getQECPULoadFlowSeries</jobName>
-        <callback>processCPULoadFlowSeriesRequestByJob</callback>
-    </item>
-    <item>
-        <jobName>getOpServerCPULoadFlowSeries</jobName>
-        <callback>processCPULoadFlowSeriesRequestByJob</callback>
     </item>
     <item>
         <jobName>vnStatsPerVRouter</jobName>

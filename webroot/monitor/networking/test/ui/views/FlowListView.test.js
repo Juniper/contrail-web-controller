@@ -37,9 +37,21 @@ define([
          *       (sport%3D34560-34815+AND+sourcevn%3Ddefault-domain%3Aadmin%3Afrontend+AND+protocol%3D17)
          * */
 
+        var postData = {
+            async: false,
+            formModelAttrs: {
+                port: "34560-34815",
+                table_name: "FlowSeriesTable",
+                table_type: "FLOW",
+                form_time_utc: "now-10m",
+                to_time_utc: "now"
+            }
+        };
+
         responses.push(cotr.createFakeServerResponse( {
-            method: "GET",
-            url: cttu.getRegExForUrl('/api/admin/reports/query?port=34560-34815&timeRange=600&table=FlowSeriesTable'),
+            method: "POST",
+            url: cttu.getRegExForUrl("/api/qe/query"),
+            data: JSON.stringify(postData),
             body: JSON.stringify(TestMockdata.flowsMockData)
         }));
 

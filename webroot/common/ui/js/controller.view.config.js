@@ -4,8 +4,9 @@
 
 define([
     'underscore',
-    'contrail-view-model'
-], function (_, ContrailViewModel) {
+    'contrail-view-model',
+    'core-basedir/reports/qe/ui/js/common/qe.utils'
+], function (_, ContrailViewModel, qeUtils) {
     var CTViewConfig = function () {
         var self = this;
 
@@ -795,6 +796,10 @@ define([
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator'
                                                 },{
+                                                    key: "name",
+                                                    label: "FQN",
+                                                    templateGenerator: "TextGenerator"
+                                                },{
                                                     key: 'vRouter',
                                                     templateGenerator: 'LinkGenerator',
                                                     templateGeneratorConfig: {
@@ -930,19 +935,15 @@ define([
     };
 
     function getInstanceCPUMemModelConfig(networkFQN, instanceUUID) {
-        var postData = {
-            async: false,
-            fromTimeUTC: "now-120m",
-            toTimeUTC: "now",
-            select: "Source, T, cpu_stats.cpu_one_min_avg, cpu_stats.rss, name",
-            table: "StatTable.VirtualMachineStats.cpu_stats",
-            where: "(name = " + instanceUUID + ")"
-        };
+        var where = "(name = " + instanceUUID + ")";
+        var table = "StatTable.VirtualMachineStats.cpu_stats";
+        var qObj = {table: table, minsSince: "120", where: where};
+        var postData = qeUtils.formatQEUIQuery(qObj);
 
         var modelConfig = {
             remote: {
                 ajaxConfig: {
-                    url: ctwc.URL_QUERY,
+                    url: cowc.URL_QE_QUERY,
                     type: 'POST',
                     data: JSON.stringify(postData)
                 },

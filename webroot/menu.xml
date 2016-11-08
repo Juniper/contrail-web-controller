@@ -220,6 +220,19 @@ and need to add the iconClass tag wherever we need to show some icons
                             </queryParams>
                             <searchStrings>Monitor instances</searchStrings>
                         </item>
+                        <item>
+                            <label>Interfaces</label>
+                            <hash>mon_networking_interfaces</hash>
+                            <loader>
+                                <class>mnPageLoader</class>
+                                <function>renderInterfaces</function>
+                            </loader>
+                            <queryParams>
+                                <view>list</view>
+                                <type>interface</type>
+                            </queryParams>
+                            <searchStrings>Monitor interfaces</searchStrings>
+                        </item>
                     </items>
                 </item>
                 <item>
