@@ -30,8 +30,8 @@
     width:43% !important;
 }*/
 
-.mon-infra-chart .chart-container text.axis-label,
-.mon-infra-chart text.nv-axislabel{
+.grid-stack-item-content .chart-container text.axis-label,
+.grid-stack-item-content text.nv-axislabel{
     text-anchor:middle;
     font-weight:600;
     font-size:11px !important;

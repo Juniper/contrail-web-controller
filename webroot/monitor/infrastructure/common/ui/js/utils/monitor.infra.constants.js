@@ -59,6 +59,11 @@ define([
         this.CONFIGNODE_FAILEDREQUESTS_COLOR = '#d95436';
         this.CONFIGNODE_RESPONSESIZE_COLOR = '#7f9d92';
 
+        this.CONFIGNODE_CPU_SHARE_NODE_MNGR_LINE_CHART_ID = 'confignode-cpu-share-node-mgnr-line-chart-id';
+        this.CONFIGNODE_CPU_SHARE_SCHEMA_LINE_CHART_ID = 'confignode-cpu-share-schema-line-chart-id';
+        this.CONFIGNODE_CPU_SHARE_DISCOVERY_LINE_CHART_ID = 'confignode-cpu-share-discovery-line-chart-id';
+        this.CONFIGNODE_CPU_SHARE_API_LINE_CHART_ID = 'confignode-cpu-share-api-line-chart-id';
+
         this.monitorInfraUrls = {
                 TENANT_API_URL              : "/api/tenant/get-data",
 
@@ -185,7 +190,9 @@ define([
                         tickPadding: 8,
                         hideFocusChart: true,
                         forceY: false,
-                        yFormatter : d3.format('d'),
+                        yFormatter : function(d){
+                            return d;
+                        },
                         xFormatter: function(xValue, tickCnt) {
                             var date = xValue > 1 ? new Date(xValue) : new Date();
                             if (tickCnt != null) {
