@@ -40,6 +40,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     },
                     itemAttr: {
                         height:0.25,
+                        width: 1.5,
                         title: ctwl.ANALYTICS_NODE_MESSAGE_PARAMS_PERCENTILE
                     }
                 }
@@ -52,6 +53,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     }),
                     viewCfg: $.extend(true, {}, monitorInfraConstants.stackChartDefaultViewConfig, {
                         elementId : ctwl.ANALYTICS_CHART_SANDESH_STACKEDBARCHART_ID,
+                        view: 'StackedAreaChartView',
                         viewConfig: {
                             chartOptions: {
                                 colors: colorFn,
@@ -64,6 +66,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         }
                     }),
                     itemAttr: {
+                        height: 1.2,
+                        width: 2,
                         title: ctwl.ANALYTICS_NODE_SANDESH_MESSAGE_DISTRIBUTION
                     }
                 }
@@ -94,6 +98,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         }
                     }),
                     itemAttr: {
+                        width: 0.68,
+                        height: 0.9,
                         title: ctwl.ANALYTICS_NODE_QUERY_DISTRIBUTION
                     }
                 }
@@ -122,10 +128,17 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                                 xAxisLabel: '',
                                 yAxisLabel: ctwl.ANALYTICS_CHART_DATABASE_USAGE,
                                 yField: 'MAX(database_usage.analytics_db_size_1k)',
+                                yAxisFormatter: function (value) {
+                                    return formatBytes(value);
+                                },margin: {
+                                    left: 60
+                                }
                             }
                         }
                     }),
                     itemAttr: {
+                        width: 0.68,
+                        height: 0.9,
                         title: ctwl.ANALYTICS_NODE_DB_USAGE
                     }
                 }
@@ -153,6 +166,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         }
                     }),
                     itemAttr: {
+                        width: 0.68,
+                        height: 0.9,
                         title: ctwl.ANALYTICS_NODE_DB_READ_WRITE
                     }
                 }

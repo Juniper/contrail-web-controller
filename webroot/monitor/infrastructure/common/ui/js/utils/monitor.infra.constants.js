@@ -158,7 +158,7 @@ define([
                         left: 45,
                         top: 20,
                         right: 0,
-                        bottom: 40
+                        bottom: 15
                     },
                     yAxisOffset: 25,
                     defaultZeroLineDisplay: true

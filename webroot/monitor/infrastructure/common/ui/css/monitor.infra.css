@@ -130,6 +130,7 @@ dl.progress-percentage dd {
   overflow: hidden;
   text-indent: -1000em !important;
   color:#fff !important;
+  display: none;
 }
 .ui-draggable-handle:hover{
     cursor:move;

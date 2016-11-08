@@ -36,10 +36,10 @@ define(
                                                               },
                                                               widgetCfgList: [
                                                                  analyticsNodeViewConfig.getViewConfig('analyticsnode-percentile-count-size')(),
-                                                                 analyticsNodeViewConfig.getViewConfig('analyticsnode-sandesh-message-info')(),
+                                                                 analyticsNodeViewConfig.getViewConfig('analyticsnode-database-read-write')(),
                                                                  analyticsNodeViewConfig.getViewConfig('analyticsnode-query-stats')(),
                                                                  analyticsNodeViewConfig.getViewConfig('analyticsnode-database-usage')(),
-                                                                 analyticsNodeViewConfig.getViewConfig('analyticsnode-database-read-write')(),
+                                                                 analyticsNodeViewConfig.getViewConfig('analyticsnode-sandesh-message-info')(),
                                                                  analyticsNodeViewConfig.getViewConfig('analyticsnode-grid-view')()
                                                               ]
                                                          }

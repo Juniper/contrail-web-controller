@@ -36,9 +36,9 @@ define(
                                                           defaultHeight: 10
                                                       },
                                                       widgetCfgList: [
-                                                            configNodeViewConfig.getViewConfig('confignode-percentile-time-size')(),
                                                             configNodeViewConfig.getViewConfig('confignode-requests-served')(),
                                                             configNodeViewConfig.getViewConfig('confignode-response-time-size')(),
+                                                            configNodeViewConfig.getViewConfig('confignode-percentile-time-size')(),
                                                             configNodeViewConfig.getViewConfig('confignode-reads-writes-donut-chart')(),
                                                             configNodeViewConfig.getViewConfig('confignode-grid-view')()
                                                       ]
