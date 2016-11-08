@@ -61,6 +61,7 @@ define([
                         },
                         viewConfig: {
                             parentUUID: projectUUID,
+                            parentFQN: projectFQN,
                             parentType: ctwc.TYPE_PROJECT
                         }
                     },

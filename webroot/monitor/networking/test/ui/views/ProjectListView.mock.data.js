@@ -947,10 +947,1197 @@ define(['underscore'], function (_) {
             ]
         }
     ];
+
+    this.networksDetailsMockData = {
+        "data": {
+            "value": [
+            {
+                "name": "default-domain:admin:backend",
+                "value": {
+                    "UveVirtualNetworkAgent": {
+                        "udp_sport_bitmap": [
+                            "1",
+                        "0",
+                        "0",
+                        "0",
+                        "4294418391",
+                        "3187539135",
+                        "4294954943",
+                        "15999"
+                            ],
+                        "mirror_acl": null,
+                        "vrf_stats_list": [
+                        {
+                            "offload_packet_counts": {
+                                "gro": 0
+                            },
+                            "unknown_unicast_floods": 0,
+                            "arp_packet_counts": {
+                                "from_vm_interface": {
+                                    "stats": {
+                                        "floods": 0,
+                                        "proxies": 96,
+                                        "stitches": 0
+                                    }
+                                },
+                                "from_physical_interface": {
+                                    "stats": {
+                                        "floods": 0,
+                                        "proxies": 0,
+                                        "stitches": 0
+                                    }
+                                }
+                            },
+                            "name": "default-domain:admin:backend:backend",
+                            "nh_packet_counts": {
+                                "discards": 0,
+                                "local_vm_l3_forwards": 0,
+                                "resolves": 0,
+                                "local_vm_l2_forwards": 0,
+                                "l3_receives": 0,
+                                "l2_receives": 0,
+                                "comp_nh_stats": {
+                                    "edge_replication_forwards": 0,
+                                    "source_replication_forwards": 0,
+                                    "local_vm_l3_forwards": 0,
+                                    "total_multicast_forwards": 0
+                                },
+                                "ecmp_forwards": 0,
+                                "vrf_translates": 0,
+                                "tunnel_nh_stats": {
+                                    "vxlan_encaps": 0,
+                                    "mpls_over_udp_encaps": 0,
+                                    "udp_encaps": 0,
+                                    "mpls_over_gre_encaps": 0
+                                }
+                            },
+                            "diag_packet_count": 0
+                        }
+                        ],
+                            "total_acl_rules": 4,
+                            "in_bandwidth_usage": 232745,
+                            "vn_stats": [
+                            {
+                                "in_bytes": 0,
+                                "other_vn": "__UNKNOWN__",
+                                "out_bytes": 0,
+                                "out_tpkts": 0,
+                                "in_tpkts": 0,
+                                "vrouter": "a7s12"
+                            },
+                            {
+                                "in_bytes": 0,
+                                "other_vn": "default-domain:admin:backend",
+                                "out_bytes": 0,
+                                "out_tpkts": 0,
+                                "in_tpkts": 0,
+                                "vrouter": "a7s12"
+                            },
+                            {
+                                "in_bytes": 843702,
+                                "other_vn": "default-domain:admin:frontend",
+                                "out_bytes": 889590,
+                                "out_tpkts": 2571,
+                                "in_tpkts": 2575,
+                                "vrouter": "a7s12"
+                            },
+                            {
+                                "in_bytes": 0,
+                                "other_vn": "default-domain:default-project:ip-fabric",
+                                "out_bytes": 0,
+                                "out_tpkts": 0,
+                                "in_tpkts": 0,
+                                "vrouter": "a7s12"
+                            }
+                        ],
+                            "in_stats": [
+                            {
+                                "bytes": 5254,
+                                "other_vn": "__UNKNOWN__",
+                                "tpkts": 71
+                            },
+                            {
+                                "bytes": 33951,
+                                "other_vn": "default-domain:admin:backend",
+                                "tpkts": 399
+                            },
+                            {
+                                "bytes": 38325509042,
+                                "other_vn": "default-domain:admin:frontend",
+                                "tpkts": 114424423
+                            },
+                            {
+                                "bytes": 13780,
+                                "other_vn": "default-domain:default-project:ip-fabric",
+                                "tpkts": 153
+                            }
+                        ],
+                            "policy_rule_stats": [
+                            {
+                                "count": 8,
+                                "rule": "00000000-0000-0000-0000-000000000001"
+                            },
+                            {
+                                "count": 0,
+                                "rule": "00000000-0000-0000-0000-000000000003"
+                            },
+                            {
+                                "count": 0,
+                                "rule": "00000000-0000-0000-0000-000000000004"
+                            },
+                            {
+                                "count": 0,
+                                "rule": "62bea881-acd9-4f37-ab6e-330080cdef79"
+                            }
+                        ],
+                            "egress_flow_count": 100,
+                            "udp_dport_bitmap": [
+                                "1",
+                            "0",
+                            "0",
+                            "0",
+                            "4294418391",
+                            "3187539135",
+                            "4294954943",
+                            "15999"
+                                ],
+                            "associated_fip_count": 0,
+                            "out_stats": [
+                            {
+                                "bytes": 0,
+                                "other_vn": "__UNKNOWN__",
+                                "tpkts": 0
+                            },
+                            {
+                                "bytes": 33951,
+                                "other_vn": "default-domain:admin:backend",
+                                "tpkts": 399
+                            },
+                            {
+                                "bytes": 38326522040,
+                                "other_vn": "default-domain:admin:frontend",
+                                "tpkts": 114446838
+                            },
+                            {
+                                "bytes": 10959,
+                                "other_vn": "default-domain:default-project:ip-fabric",
+                                "tpkts": 145
+                            }
+                        ],
+                            "virtualmachine_list": [
+                                "a14fa2f3-6240-41a7-8dd1-d72018a1b1db"
+                                ],
+                            "tcp_sport_bitmap": [
+                                "2147483649",
+                            "8",
+                            "0",
+                            "0",
+                            "10519040",
+                            "100702336",
+                            "3423764836",
+                            "24"
+                                ],
+                            "interface_list": [
+                                "default-domain:admin:cdbc2eb3-b2e1-4a27-b9fc-eda692f2ea06"
+                                ],
+                            "acl": "default-domain:admin:backend:backend",
+                            "tcp_dport_bitmap": [
+                                "1",
+                            "8",
+                            "0",
+                            "0",
+                            "10519040",
+                            "100702336",
+                            "3423764836",
+                            "24"
+                                ],
+                            "ingress_flow_count": 100,
+                            "out_bandwidth_usage": 245404
+                    },
+                    "RoutingInstanceStatsData": {
+                        "ermvpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:backend:backend\"": {
+                                "prefixes": 2,
+                                "total_paths": 2,
+                                "primary_paths": 2,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "evpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:backend:backend\"": {
+                                "prefixes": 4,
+                                "total_paths": 4,
+                                "primary_paths": 4,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ipv4_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:backend:backend\"": {
+                                "prefixes": 5,
+                                "total_paths": 5,
+                                "primary_paths": 1,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 4
+                            }
+                        }
+                    },
+                    "ContrailConfig": {
+                        "deleted": false,
+                        "elements": {
+                            "display_name": "\"backend\"",
+                            "virtual_network_network_id": "4",
+                            "network_policy_refs": "[{\"to\": [\"default-domain\", \"admin\", \"f2b-allow-policy\"], \"attr\": {\"timer\": null, \"sequence\": {\"major\": 0, \"minor\": 0}}, \"uuid\": \"7ec7a888-84c9-4f72-8fa8-5aadf45275c8\"}]",
+                            "router_external": "false",
+                            "parent_uuid": "\"6f6f5981-515c-4d64-ac1b-1135b0ccdd1f\"",
+                            "parent_type": "\"project\"",
+                            "uuid": "\"b1a19e41-31a2-455a-93e6-95426f9f694d\"",
+                            "perms2": "{\"owner\": \"a6c92d95076d49b6b57820159c5480f6\", \"owner_access\": 7, \"global_access\": 0, \"share\": []}",
+                            "flood_unknown_unicast": "false",
+                            "id_perms": "{\"enable\": true, \"description\": null, \"created\": \"2016-10-27T21:08:24.513392\", \"creator\": null, \"uuid\": {\"uuid_mslong\": 12799685618806441306, \"uuid_lslong\": 10657369680791955789}, \"user_visible\": true, \"last_modified\": \"2016-10-27T21:09:02.730792\", \"permissions\": {\"owner\": \"neutron\", \"owner_access\": 7, \"other_access\": 7, \"group\": \"admin\", \"group_access\": 7}}",
+                            "fq_name": "[\"default-domain\", \"admin\", \"backend\"]",
+                            "network_ipam_refs": "[{\"to\": [\"default-domain\", \"default-project\", \"default-network-ipam\"], \"attr\": {\"ipam_subnets\": [{\"subnet\": {\"ip_prefix\": \"10.2.1.0\", \"ip_prefix_len\": 24}, \"dns_server_address\": \"10.2.1.2\", \"enable_dhcp\": true, \"default_gateway\": \"10.2.1.1\", \"dns_nameservers\": [], \"dhcp_option_list\": null, \"subnet_uuid\": \"25bbb047-ebf8-4beb-a665-d81c06e0b238\", \"alloc_unit\": 1, \"host_routes\": null, \"addr_from_start\": true, \"subnet_name\": \"\", \"allocation_pools\": []}], \"host_routes\": null}, \"uuid\": \"c4cad97e-1a90-407f-b944-a6cd7fd10747\"}]",
+                            "is_shared": "false"
+                        }
+                    },
+                    "UveVirtualNetworkConfig": {
+                        "total_acl_rules": 4,
+                        "routing_instance_list": [
+                            "default-domain:admin:backend:backend"
+                            ],
+                        "connected_networks": [
+                            "default-domain:admin:frontend"
+                            ]
+                    }
+                }
+            },
+            {
+                "name": "default-domain:admin:frontend",
+                "value": {
+                    "UveVirtualNetworkAgent": {
+                        "udp_sport_bitmap": [
+                            "1",
+                        "0",
+                        "0",
+                        "0",
+                        "4294967295",
+                        "4294967295",
+                        "4294967295",
+                        "32767"
+                            ],
+                        "mirror_acl": null,
+                        "vrf_stats_list": [
+                        {
+                            "offload_packet_counts": {
+                                "gro": 0
+                            },
+                            "unknown_unicast_floods": 0,
+                            "arp_packet_counts": {
+                                "from_vm_interface": {
+                                    "stats": {
+                                        "floods": 0,
+                                        "proxies": 354,
+                                        "stitches": 15619
+                                    }
+                                },
+                                "from_physical_interface": {
+                                    "stats": {
+                                        "floods": 0,
+                                        "proxies": 0,
+                                        "stitches": 0
+                                    }
+                                }
+                            },
+                            "name": "default-domain:admin:frontend:frontend",
+                            "nh_packet_counts": {
+                                "discards": 0,
+                                "local_vm_l3_forwards": 0,
+                                "resolves": 0,
+                                "local_vm_l2_forwards": 0,
+                                "l3_receives": 0,
+                                "l2_receives": 0,
+                                "comp_nh_stats": {
+                                    "edge_replication_forwards": 0,
+                                    "source_replication_forwards": 0,
+                                    "local_vm_l3_forwards": 0,
+                                    "total_multicast_forwards": 0
+                                },
+                                "ecmp_forwards": 0,
+                                "vrf_translates": 0,
+                                "tunnel_nh_stats": {
+                                    "vxlan_encaps": 0,
+                                    "mpls_over_udp_encaps": 0,
+                                    "udp_encaps": 0,
+                                    "mpls_over_gre_encaps": 0
+                                }
+                            },
+                            "diag_packet_count": 60
+                        }
+                        ],
+                            "total_acl_rules": 4,
+                            "in_bandwidth_usage": 247026,
+                            "vn_stats": [
+                            {
+                                "in_bytes": 0,
+                                "other_vn": "__UNKNOWN__",
+                                "out_bytes": 0,
+                                "out_tpkts": 0,
+                                "in_tpkts": 0,
+                                "vrouter": "a7s12"
+                            },
+                            {
+                                "in_bytes": 889590,
+                                "other_vn": "default-domain:admin:backend",
+                                "out_bytes": 843702,
+                                "out_tpkts": 2575,
+                                "in_tpkts": 2571,
+                                "vrouter": "a7s12"
+                            },
+                            {
+                                "in_bytes": 5880,
+                                "other_vn": "default-domain:admin:frontend",
+                                "out_bytes": 5880,
+                                "out_tpkts": 60,
+                                "in_tpkts": 60,
+                                "vrouter": "a7s12"
+                            },
+                            {
+                                "in_bytes": 0,
+                                "other_vn": "default-domain:default-project:ip-fabric",
+                                "out_bytes": 0,
+                                "out_tpkts": 0,
+                                "in_tpkts": 0,
+                                "vrouter": "a7s12"
+                            }
+                        ],
+                            "in_stats": [
+                            {
+                                "bytes": 13114,
+                                "other_vn": "__UNKNOWN__",
+                                "tpkts": 178
+                            },
+                            {
+                                "bytes": 38326522040,
+                                "other_vn": "default-domain:admin:backend",
+                                "tpkts": 114446838
+                            },
+                            {
+                                "bytes": 104263083,
+                                "other_vn": "default-domain:admin:frontend",
+                                "tpkts": 1062233
+                            },
+                            {
+                                "bytes": 40152,
+                                "other_vn": "default-domain:default-project:ip-fabric",
+                                "tpkts": 441
+                            }
+                        ],
+                            "policy_rule_stats": [
+                            {
+                                "count": 6,
+                                "rule": "00000000-0000-0000-0000-000000000001"
+                            },
+                            {
+                                "count": 0,
+                                "rule": "00000000-0000-0000-0000-000000000003"
+                            },
+                            {
+                                "count": 0,
+                                "rule": "00000000-0000-0000-0000-000000000004"
+                            },
+                            {
+                                "count": 0,
+                                "rule": "62bea881-acd9-4f37-ab6e-330080cdef79"
+                            }
+                        ],
+                            "egress_flow_count": 102,
+                            "udp_dport_bitmap": [
+                                "1",
+                            "0",
+                            "0",
+                            "0",
+                            "4294967295",
+                            "4294967295",
+                            "4294967295",
+                            "32767"
+                                ],
+                            "associated_fip_count": 1,
+                            "out_stats": [
+                            {
+                                "bytes": 0,
+                                "other_vn": "__UNKNOWN__",
+                                "tpkts": 0
+                            },
+                            {
+                                "bytes": 38325509042,
+                                "other_vn": "default-domain:admin:backend",
+                                "tpkts": 114424423
+                            },
+                            {
+                                "bytes": 104263083,
+                                "other_vn": "default-domain:admin:frontend",
+                                "tpkts": 1062233
+                            },
+                            {
+                                "bytes": 31952,
+                                "other_vn": "default-domain:default-project:ip-fabric",
+                                "tpkts": 420
+                            }
+                        ],
+                            "virtualmachine_list": [
+                                "5199c65e-8b71-4e4c-90cc-58deea9752dd",
+                            "c73ed229-bbf2-4e1e-be26-4aee2d1780b3",
+                            "faa5b186-5383-4670-b640-ad230fe2100f"
+                                ],
+                            "tcp_sport_bitmap": [
+                                "2147484161",
+                            "65544",
+                            "0",
+                            "0",
+                            "136490532",
+                            "654350348",
+                            "2358411620",
+                            "4126"
+                                ],
+                            "interface_list": [
+                                "default-domain:admin:fede15b7-548a-4dac-a7ab-c88749e4dcca",
+                            "default-domain:admin:fbf56475-71dc-46dd-bf8e-0f8dc127dc82",
+                            "default-domain:admin:08242801-ff6e-44d4-876d-4a001ba21862"
+                                ],
+                            "acl": "default-domain:admin:frontend:frontend",
+                            "tcp_dport_bitmap": [
+                                "513",
+                            "65544",
+                            "0",
+                            "0",
+                            "136490532",
+                            "654350348",
+                            "2358411620",
+                            "4126"
+                                ],
+                            "ingress_flow_count": 102,
+                            "out_bandwidth_usage": 234367
+                    },
+                    "RoutingInstanceStatsData": {
+                        "ermvpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:frontend:frontend\"": {
+                                "prefixes": 2,
+                                "total_paths": 2,
+                                "primary_paths": 2,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "evpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:frontend:frontend\"": {
+                                "prefixes": 9,
+                                "total_paths": 9,
+                                "primary_paths": 9,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ipv4_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:frontend:frontend\"": {
+                                "prefixes": 5,
+                                "total_paths": 5,
+                                "primary_paths": 4,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 1
+                            }
+                        }
+                    },
+                    "ContrailConfig": {
+                        "deleted": false,
+                        "elements": {
+                            "parent_uuid": "\"6f6f5981-515c-4d64-ac1b-1135b0ccdd1f\"",
+                            "parent_type": "\"project\"",
+                            "route_target_list": "{\"route_target\": []}",
+                            "display_name": "\"frontend\"",
+                            "virtual_network_network_id": "3",
+                            "id_perms": "{\"enable\": true, \"uuid\": {\"uuid_mslong\": 9532422352401548634, \"uuid_lslong\": 11514566773222571326}, \"creator\": null, \"created\": \"2016-10-27T21:08:09.446001\", \"user_visible\": true, \"last_modified\": \"2016-11-10T00:28:01.225938\", \"permissions\": {\"owner\": \"neutron\", \"owner_access\": 7, \"other_access\": 7, \"group\": \"admin\", \"group_access\": 7}, \"description\": null}",
+                            "instance_ip_back_refs": "[{\"to\": [\"dd7121b8-ee54-410d-b0e6-09411dfb2b5a\"], \"attr\": null, \"uuid\": \"dd7121b8-ee54-410d-b0e6-09411dfb2b5a\"}]",
+                            "multi_policy_service_chains_enabled": "false",
+                            "floating_ip_pools": "[{\"to\": [\"default-domain\", \"admin\", \"frontend\", \"pool1\"], \"uuid\": \"1aafd65f-bdfa-4442-abeb-50de473d20b0\"}]",
+                            "virtual_network_properties": "{\"allow_transit\": false, \"mirror_destination\": false, \"rpf\": \"enable\"}",
+                            "ecmp_hashing_include_fields": "{}",
+                            "network_policy_refs": "[{\"to\": [\"default-domain\", \"admin\", \"f2b-allow-policy\"], \"attr\": {\"timer\": null, \"sequence\": {\"major\": 0, \"minor\": 0}}, \"uuid\": \"7ec7a888-84c9-4f72-8fa8-5aadf45275c8\"}]",
+                            "virtual_machine_interface_back_refs": "[{\"to\": [\"default-domain\", \"admin\", \"08242801-ff6e-44d4-876d-4a001ba21862\"], \"attr\": null, \"uuid\": \"08242801-ff6e-44d4-876d-4a001ba21862\"}]",
+                            "provider_properties": "null",
+                            "perms2": "{\"owner\": \"a6c92d95076d49b6b57820159c5480f6\", \"owner_access\": 7, \"global_access\": 0, \"share\": []}",
+                            "fq_name": "[\"default-domain\", \"admin\", \"frontend\"]",
+                            "routing_instances": "[{\"to\": [\"default-domain\", \"admin\", \"frontend\", \"frontend\"], \"uuid\": \"ba640d9e-53fd-4c0c-8114-cf7e9ae675ad\"}]",
+                            "uuid": "\"8449f79f-e3e3-455a-9fcb-f57934727d3e\"",
+                            "import_route_target_list": "{\"route_target\": []}",
+                            "is_shared": "false",
+                            "access_control_lists": "[{\"to\": [\"default-domain\", \"admin\", \"frontend\", \"frontend\"], \"uuid\": \"a54c6249-caf8-462a-ac85-5739f8ba394b\"}]",
+                            "router_external": "false",
+                            "export_route_target_list": "{\"route_target\": []}",
+                            "flood_unknown_unicast": "false",
+                            "network_ipam_refs": "[{\"to\": [\"default-domain\", \"default-project\", \"default-network-ipam\"], \"attr\": {\"ipam_subnets\": [{\"subnet\": {\"ip_prefix\": \"10.1.1.0\", \"ip_prefix_len\": 24}, \"addr_from_start\": true, \"enable_dhcp\": true, \"default_gateway\": \"10.1.1.1\", \"dns_nameservers\": [], \"subnet_uuid\": \"fe6f2b83-2afa-4d29-a587-d18a038d29d6\", \"alloc_unit\": 1, \"subnet_name\": \"\", \"dns_server_address\": \"10.1.1.2\"}]}, \"uuid\": \"c4cad97e-1a90-407f-b944-a6cd7fd10747\"}]"
+                        }
+                    },
+                    "UveVirtualNetworkConfig": {
+                        "total_acl_rules": 4,
+                        "routing_instance_list": [
+                            "default-domain:admin:frontend:frontend"
+                            ],
+                        "connected_networks": [
+                            "default-domain:admin:backend"
+                            ]
+                    }
+                }
+            },
+            {
+                "name": "default-domain:admin:snat-si-left_snat_30c8d029-0df3-4646-b17f-f5f285bf141e_2824f3fa-602e-4b6f-8c12-5772fcd29702",
+                "value": {
+                    "RoutingInstanceStatsData": {
+                        "ipv6_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:snat-si-left_snat_30c8d029-0df3-4646-b17f-f5f285bf141e_2824f3fa-602e-4b6f-8c12-5772fcd29702:snat-si-left_snat_30c8d029-0df3-4646-b17f-f5f285bf141e_2824f3fa-602e-4b6f-8c12-5772fcd29702\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ermvpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:snat-si-left_snat_30c8d029-0df3-4646-b17f-f5f285bf141e_2824f3fa-602e-4b6f-8c12-5772fcd29702:snat-si-left_snat_30c8d029-0df3-4646-b17f-f5f285bf141e_2824f3fa-602e-4b6f-8c12-5772fcd29702\"": {
+                                "prefixes": 2,
+                                "total_paths": 2,
+                                "primary_paths": 2,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "evpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:snat-si-left_snat_30c8d029-0df3-4646-b17f-f5f285bf141e_2824f3fa-602e-4b6f-8c12-5772fcd29702:snat-si-left_snat_30c8d029-0df3-4646-b17f-f5f285bf141e_2824f3fa-602e-4b6f-8c12-5772fcd29702\"": {
+                                "prefixes": 4,
+                                "total_paths": 4,
+                                "primary_paths": 4,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ipv4_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:snat-si-left_snat_30c8d029-0df3-4646-b17f-f5f285bf141e_2824f3fa-602e-4b6f-8c12-5772fcd29702:snat-si-left_snat_30c8d029-0df3-4646-b17f-f5f285bf141e_2824f3fa-602e-4b6f-8c12-5772fcd29702\"": {
+                                "prefixes": 2,
+                                "total_paths": 2,
+                                "primary_paths": 2,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "name": "default-domain:admin:snat-si-left_snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2",
+                "value": {
+                    "RoutingInstanceStatsData": {
+                        "ipv6_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:snat-si-left_snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2:snat-si-left_snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ermvpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:snat-si-left_snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2:snat-si-left_snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2\"": {
+                                "prefixes": 2,
+                                "total_paths": 2,
+                                "primary_paths": 2,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "evpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:snat-si-left_snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2:snat-si-left_snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2\"": {
+                                "prefixes": 4,
+                                "total_paths": 4,
+                                "primary_paths": 4,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ipv4_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:snat-si-left_snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2:snat-si-left_snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2\"": {
+                                "prefixes": 2,
+                                "total_paths": 4,
+                                "primary_paths": 2,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 2
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "name": "default-domain:admin:testvn_nitishk",
+                "value": {
+                    "UveVirtualNetworkAgent": {
+                        "policy_rule_stats": [
+                        {
+                            "count": 0,
+                            "rule": "00000000-0000-0000-0000-000000000001"
+                        },
+                        {
+                            "count": 6,
+                            "rule": "00000000-0000-0000-0000-000000000004"
+                        }
+                        ],
+                            "vrf_stats_list": [
+                            {
+                                "offload_packet_counts": {
+                                    "gro": 0
+                                },
+                                "unknown_unicast_floods": 0,
+                                "arp_packet_counts": {
+                                    "from_vm_interface": {
+                                        "stats": {
+                                            "floods": 405501,
+                                            "proxies": 0,
+                                            "stitches": 50389
+                                        }
+                                    },
+                                    "from_physical_interface": {
+                                        "stats": {
+                                            "floods": 0,
+                                            "proxies": 0,
+                                            "stitches": 0
+                                        }
+                                    }
+                                },
+                                "name": "default-domain:admin:testvn_nitishk:testvn_nitishk",
+                                "nh_packet_counts": {
+                                    "discards": 0,
+                                    "local_vm_l3_forwards": 0,
+                                    "resolves": 0,
+                                    "local_vm_l2_forwards": 0,
+                                    "l3_receives": 0,
+                                    "l2_receives": 0,
+                                    "comp_nh_stats": {
+                                        "edge_replication_forwards": 0,
+                                        "source_replication_forwards": 0,
+                                        "local_vm_l3_forwards": 0,
+                                        "total_multicast_forwards": 0
+                                    },
+                                    "ecmp_forwards": 0,
+                                    "vrf_translates": 0,
+                                    "tunnel_nh_stats": {
+                                        "vxlan_encaps": 0,
+                                        "mpls_over_udp_encaps": 0,
+                                        "udp_encaps": 0,
+                                        "mpls_over_gre_encaps": 0
+                                    }
+                                },
+                                "diag_packet_count": 0
+                            }
+                        ],
+                            "total_acl_rules": 0,
+                            "out_bandwidth_usage": 139,
+                            "vn_stats": [
+                            {
+                                "in_bytes": 0,
+                                "other_vn": "__UNKNOWN__",
+                                "out_bytes": 0,
+                                "out_tpkts": 0,
+                                "in_tpkts": 0,
+                                "vrouter": "a7s12"
+                            },
+                            {
+                                "in_bytes": 0,
+                                "other_vn": "default-domain:admin:testvn_nitishk",
+                                "out_bytes": 0,
+                                "out_tpkts": 0,
+                                "in_tpkts": 0,
+                                "vrouter": "a7s12"
+                            },
+                            {
+                                "in_bytes": 0,
+                                "other_vn": "default-domain:default-project:ip-fabric",
+                                "out_bytes": 504,
+                                "out_tpkts": 6,
+                                "in_tpkts": 0,
+                                "vrouter": "a7s12"
+                            }
+                        ],
+                            "in_stats": [
+                            {
+                                "bytes": 3724,
+                                "other_vn": "__UNKNOWN__",
+                                "tpkts": 38
+                            },
+                            {
+                                "bytes": 167536292,
+                                "other_vn": "default-domain:admin:testvn_nitishk",
+                                "tpkts": 1709554
+                            },
+                            {
+                                "bytes": 0,
+                                "other_vn": "default-domain:default-project:ip-fabric",
+                                "tpkts": 0
+                            }
+                        ],
+                            "egress_flow_count": 41,
+                            "acl": null,
+                            "associated_fip_count": 1,
+                            "virtualmachine_list": [
+                                "06c75bb2-e17b-4ccd-b00c-aa59fdaecb55",
+                            "e0219ad7-3212-4e30-abfc-212e4a888538"
+                                ],
+                            "out_stats": [
+                            {
+                                "bytes": 0,
+                                "other_vn": "__UNKNOWN__",
+                                "tpkts": 0
+                            },
+                            {
+                                "bytes": 167536292,
+                                "other_vn": "default-domain:admin:testvn_nitishk",
+                                "tpkts": 1709554
+                            },
+                            {
+                                "bytes": 5910974520755640,
+                                "other_vn": "default-domain:default-project:ip-fabric",
+                                "tpkts": 7696581511506
+                            }
+                        ],
+                            "interface_list": [
+                                "default-domain:admin:8ab38e5b-768b-44f6-8883-08d1670ddfec",
+                            "default-domain:admin:c43d910c-bafa-4428-bba8-530cdfa94326"
+                                ],
+                            "mirror_acl": null,
+                            "ingress_flow_count": 40,
+                            "in_bandwidth_usage": 0
+                    },
+                    "RoutingInstanceStatsData": {
+                        "ermvpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:testvn_nitishk:testvn_nitishk\"": {
+                                "prefixes": 2,
+                                "total_paths": 2,
+                                "primary_paths": 2,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "evpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:testvn_nitishk:testvn_nitishk\"": {
+                                "prefixes": 4,
+                                "total_paths": 4,
+                                "primary_paths": 4,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ipv4_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:testvn_nitishk:testvn_nitishk\"": {
+                                "prefixes": 1,
+                                "total_paths": 1,
+                                "primary_paths": 1,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        }
+                    },
+                    "ContrailConfig": {
+                        "deleted": false,
+                        "elements": {
+                            "parent_uuid": "\"6f6f5981-515c-4d64-ac1b-1135b0ccdd1f\"",
+                            "parent_type": "\"project\"",
+                            "route_target_list": "{\"route_target\": []}",
+                            "fq_name": "[\"default-domain\", \"admin\", \"testvn_nitishk\"]",
+                            "virtual_network_network_id": "5",
+                            "id_perms": "{\"enable\": true, \"description\": null, \"created\": \"2016-10-27T21:21:48.565953\", \"creator\": null, \"uuid\": {\"uuid_mslong\": 3425050546377281251, \"uuid_lslong\": 11794149931587230916}, \"user_visible\": true, \"last_modified\": \"2016-11-17T21:43:11.674001\", \"permissions\": {\"owner\": \"neutron\", \"owner_access\": 7, \"other_access\": 7, \"group\": \"admin\", \"group_access\": 7}}",
+                            "instance_ip_back_refs": "[{\"to\": [\"309e8778-fdbe-43b5-b3b2-65d1a05bbe51\"], \"attr\": null, \"uuid\": \"309e8778-fdbe-43b5-b3b2-65d1a05bbe51\"}, {\"to\": [\"74f6ba43-d347-449f-800d-55f7334b0c9c\"], \"attr\": null, \"uuid\": \"74f6ba43-d347-449f-800d-55f7334b0c9c\"}]",
+                            "multi_policy_service_chains_enabled": "false",
+                            "floating_ip_pools": "[{\"to\": [\"default-domain\", \"admin\", \"testvn_nitishk\", \"pool1\"], \"uuid\": \"dbcebdd1-2d44-4885-b39a-b85283347243\"}]",
+                            "virtual_network_properties": "{\"allow_transit\": false, \"mirror_destination\": false, \"rpf\": \"enable\"}",
+                            "ecmp_hashing_include_fields": "{}",
+                            "virtual_machine_interface_back_refs": "[{\"to\": [\"default-domain\", \"admin\", \"c43d910c-bafa-4428-bba8-530cdfa94326\"], \"attr\": null, \"uuid\": \"c43d910c-bafa-4428-bba8-530cdfa94326\"}, {\"to\": [\"default-domain\", \"admin\", \"8ab38e5b-768b-44f6-8883-08d1670ddfec\"], \"attr\": null, \"uuid\": \"8ab38e5b-768b-44f6-8883-08d1670ddfec\"}]",
+                            "provider_properties": "null",
+                            "perms2": "{\"owner\": \"a6c92d95076d49b6b57820159c5480f6\", \"owner_access\": 7, \"global_access\": 0, \"share\": []}",
+                            "display_name": "\"testvn_nitishk\"",
+                            "routing_instances": "[{\"to\": [\"default-domain\", \"admin\", \"testvn_nitishk\", \"testvn_nitishk\"], \"uuid\": \"d5852651-0572-4a3b-8cf3-492b41314845\"}]",
+                            "uuid": "\"2f883953-4293-4ee3-a3ad-3cdfebf45cc4\"",
+                            "import_route_target_list": "{\"route_target\": []}",
+                            "is_shared": "false",
+                            "router_external": "false",
+                            "export_route_target_list": "{\"route_target\": []}",
+                            "flood_unknown_unicast": "false",
+                            "network_ipam_refs": "[{\"to\": [\"default-domain\", \"default-project\", \"default-network-ipam\"], \"attr\": {\"ipam_subnets\": [{\"subnet\": {\"ip_prefix\": \"30.30.31.0\", \"ip_prefix_len\": 24}, \"addr_from_start\": true, \"enable_dhcp\": true, \"default_gateway\": \"30.30.31.1\", \"dns_nameservers\": [], \"subnet_uuid\": \"4208f440-b446-4ce5-a29f-0042eeeea722\", \"alloc_unit\": 1, \"subnet_name\": \"test_sub_nitishk\", \"dns_server_address\": \"30.30.31.2\"}]}, \"uuid\": \"c4cad97e-1a90-407f-b944-a6cd7fd10747\"}]"
+                        }
+                    },
+                    "UveVirtualNetworkConfig": {
+                        "total_acl_rules": 0,
+                        "routing_instance_list": [
+                            "default-domain:admin:testvn_nitishk:testvn_nitishk"
+                            ]
+                    }
+                }
+            },
+            {
+                "name": "default-domain:admin:vn1",
+                "value": {
+                    "RoutingInstanceStatsData": {
+                        "ipv6_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn1:vn1\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ermvpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn1:vn1\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "evpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn1:vn1\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ipv4_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn1:vn1\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        }
+                    },
+                    "ContrailConfig": {
+                        "deleted": false,
+                        "elements": {
+                            "parent_uuid": "\"6f6f5981-515c-4d64-ac1b-1135b0ccdd1f\"",
+                            "parent_type": "\"project\"",
+                            "route_target_list": "{\"route_target\": []}",
+                            "display_name": "\"vn1\"",
+                            "virtual_network_network_id": "6",
+                            "id_perms": "{\"enable\": true, \"description\": null, \"creator\": null, \"created\": \"2016-11-11T01:13:47.664107\", \"user_visible\": true, \"last_modified\": \"2016-11-12T02:01:12.781131\", \"permissions\": {\"owner\": \"admin\", \"owner_access\": 7, \"other_access\": 7, \"group\": \"admin\", \"group_access\": 7}, \"uuid\": {\"uuid_mslong\": 14317338333347464982, \"uuid_lslong\": 9592022520133782625}}",
+                            "logical_router_back_refs": "[{\"to\": [\"default-domain\", \"admin\", \"rtr1\"], \"attr\": null, \"uuid\": \"c7ba5140-5cdc-4484-bcdf-2ff53ef97040\"}]",
+                            "instance_ip_back_refs": "[{\"to\": [\"default-domain__admin__snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2-right\"], \"attr\": null, \"uuid\": \"4b083132-c795-472e-a4df-a0eea95d351e\"}]",
+                            "multi_policy_service_chains_enabled": "false",
+                            "floating_ip_pools": "[{\"to\": [\"default-domain\", \"admin\", \"vn1\", \"default\"], \"uuid\": \"dd265c76-439f-475f-ad4a-336af35f3157\"}]",
+                            "virtual_network_properties": "{\"allow_transit\": false, \"mirror_destination\": false, \"rpf\": \"enable\"}",
+                            "ecmp_hashing_include_fields": "{}",
+                            "network_policy_refs": "[{\"to\": [\"default-domain\", \"admin\", \"test\"], \"attr\": {\"timer\": null, \"sequence\": {\"major\": 0, \"minor\": 0}}, \"uuid\": \"c8e8d8e2-c10f-4cd4-8055-407a91790f55\"}, {\"to\": [\"default-domain\", \"admin\", \"vn1vn3\"], \"attr\": {\"timer\": null, \"sequence\": {\"major\": 1, \"minor\": 0}}, \"uuid\": \"042cd5f2-46a4-4dd5-82d3-4c2326549def\"}]",
+                            "virtual_machine_interface_back_refs": "[{\"to\": [\"default-domain\", \"admin\", \"default-domain__admin__snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2__1__right__1\"], \"attr\": null, \"uuid\": \"37ecee1e-2e0c-4b70-968f-461c68c70467\"}, {\"to\": [\"default-domain\", \"admin\", \"default-domain__admin__snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2__2__right__1\"], \"attr\": null, \"uuid\": \"d590aebc-3e4b-42a3-941f-915a82256106\"}]",
+                            "provider_properties": "null",
+                            "perms2": "{\"owner\": \"6f6f5981515c4d64ac1b1135b0ccdd1f\", \"owner_access\": 7, \"global_access\": 0, \"share\": []}",
+                            "fq_name": "[\"default-domain\", \"admin\", \"vn1\"]",
+                            "routing_instances": "[{\"to\": [\"default-domain\", \"admin\", \"vn1\", \"vn1\"], \"uuid\": \"6932042f-051f-4d4a-a84a-9d1c2a0d6b17\"}]",
+                            "uuid": "\"c6b1675b-9042-4716-851d-b5a94e1f0c61\"",
+                            "import_route_target_list": "{\"route_target\": []}",
+                            "is_shared": "false",
+                            "access_control_lists": "[{\"to\": [\"default-domain\", \"admin\", \"vn1\", \"vn1\"], \"uuid\": \"1bb07c14-4ddb-4402-aed1-049c2f13de7a\"}]",
+                            "router_external": "true",
+                            "export_route_target_list": "{\"route_target\": []}",
+                            "flood_unknown_unicast": "false",
+                            "network_ipam_refs": "[{\"to\": [\"default-domain\", \"default-project\", \"default-network-ipam\"], \"attr\": {\"ipam_subnets\": [{\"subnet\": {\"ip_prefix\": \"80.1.1.0\", \"ip_prefix_len\": 24}, \"addr_from_start\": true, \"enable_dhcp\": true, \"default_gateway\": \"80.1.1.1\", \"subnet_uuid\": \"b44430e8-30e7-448b-8f18-d2f04b0493b7\", \"subnet_name\": \"b44430e8-30e7-448b-8f18-d2f04b0493b7\", \"dns_server_address\": \"80.1.1.2\"}]}, \"uuid\": \"c4cad97e-1a90-407f-b944-a6cd7fd10747\"}]"
+                        }
+                    },
+                    "UveVirtualNetworkConfig": {
+                        "total_acl_rules": 6,
+                        "routing_instance_list": [
+                            "default-domain:admin:vn1:vn1"
+                            ],
+                        "connected_networks": [
+                            "default-domain:admin:vn3",
+                        "default-domain:admin:vn2"
+                            ]
+                    }
+                }
+            },
+            {
+                "name": "default-domain:admin:vn2",
+                "value": {
+                    "RoutingInstanceStatsData": {
+                        "ipv6_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn2:vn2\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ermvpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn2:vn2\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "evpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn2:vn2\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ipv4_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn2:vn2\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        }
+                    },
+                    "ContrailConfig": {
+                        "deleted": false,
+                        "elements": {
+                            "parent_uuid": "\"6f6f5981-515c-4d64-ac1b-1135b0ccdd1f\"",
+                            "parent_type": "\"project\"",
+                            "route_target_list": "{\"route_target\": []}",
+                            "display_name": "\"vn2\"",
+                            "virtual_network_network_id": "7",
+                            "id_perms": "{\"enable\": true, \"description\": null, \"created\": \"2016-11-11T01:13:56.938346\", \"creator\": null, \"uuid\": {\"uuid_mslong\": 8164795293299854487, \"uuid_lslong\": 13472760850406397852}, \"user_visible\": true, \"last_modified\": \"2016-11-12T01:57:43.668859\", \"permissions\": {\"owner\": \"admin\", \"owner_access\": 7, \"other_access\": 7, \"group\": \"admin\", \"group_access\": 7}}",
+                            "instance_ip_back_refs": "[{\"to\": [\"9d7a338e-56a7-4a71-bda6-d433cdf65683\"], \"attr\": null, \"uuid\": \"9d7a338e-56a7-4a71-bda6-d433cdf65683\"}]",
+                            "multi_policy_service_chains_enabled": "false",
+                            "virtual_network_properties": "{\"allow_transit\": false, \"mirror_destination\": false, \"rpf\": \"enable\"}",
+                            "ecmp_hashing_include_fields": "{}",
+                            "network_policy_refs": "[{\"to\": [\"default-domain\", \"admin\", \"test\"], \"attr\": {\"timer\": null, \"sequence\": {\"major\": 0, \"minor\": 0}}, \"uuid\": \"c8e8d8e2-c10f-4cd4-8055-407a91790f55\"}]",
+                            "virtual_machine_interface_back_refs": "[{\"to\": [\"default-domain\", \"admin\", \"ccffb471-4e32-4664-af8e-1a38f285a40f\"], \"attr\": null, \"uuid\": \"ccffb471-4e32-4664-af8e-1a38f285a40f\"}]",
+                            "provider_properties": "null",
+                            "perms2": "{\"owner\": \"6f6f5981515c4d64ac1b1135b0ccdd1f\", \"owner_access\": 7, \"global_access\": 0, \"share\": []}",
+                            "fq_name": "[\"default-domain\", \"admin\", \"vn2\"]",
+                            "routing_instances": "[{\"to\": [\"default-domain\", \"admin\", \"vn2\", \"vn2\"], \"uuid\": \"55a4f543-cbca-4b9e-8b5a-df2c83e3f9c9\"}]",
+                            "uuid": "\"714f2e0f-70eb-4c97-baf8-dc9c9843579c\"",
+                            "import_route_target_list": "{\"route_target\": []}",
+                            "is_shared": "false",
+                            "router_external": "false",
+                            "export_route_target_list": "{\"route_target\": []}",
+                            "flood_unknown_unicast": "false",
+                            "network_ipam_refs": "[{\"to\": [\"default-domain\", \"default-project\", \"default-network-ipam\"], \"attr\": {\"ipam_subnets\": [{\"subnet\": {\"ip_prefix\": \"80.1.2.0\", \"ip_prefix_len\": 24}, \"addr_from_start\": true, \"enable_dhcp\": true, \"default_gateway\": \"80.1.2.1\", \"subnet_uuid\": \"804640c1-c699-42b0-8163-e29b6ebe7aaf\", \"subnet_name\": \"804640c1-c699-42b0-8163-e29b6ebe7aaf\", \"dns_server_address\": \"80.1.2.2\"}]}, \"uuid\": \"c4cad97e-1a90-407f-b944-a6cd7fd10747\"}]"
+                        }
+                    },
+                    "UveVirtualNetworkConfig": {
+                        "total_acl_rules": 4,
+                        "routing_instance_list": [
+                            "default-domain:admin:vn2:vn2"
+                            ],
+                        "connected_networks": [
+                            "default-domain:admin:vn1"
+                            ]
+                    }
+                }
+            },
+            {
+                "name": "default-domain:admin:vn3",
+                "value": {
+                    "RoutingInstanceStatsData": {
+                        "ipv6_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn3:vn3\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ermvpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn3:vn3\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "evpn_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn3:vn3\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        },
+                        "ipv4_stats": {
+                            "a7s12:Control:contrail-control:0:\"default-domain:admin:vn3:vn3\"": {
+                                "prefixes": 0,
+                                "total_paths": 0,
+                                "primary_paths": 0,
+                                "infeasible_paths": 0,
+                                "secondary_paths": 0
+                            }
+                        }
+                    },
+                    "ContrailConfig": {
+                        "deleted": false,
+                        "elements": {
+                            "parent_uuid": "\"6f6f5981-515c-4d64-ac1b-1135b0ccdd1f\"",
+                            "parent_type": "\"project\"",
+                            "route_target_list": "{\"route_target\": []}",
+                            "display_name": "\"vn3\"",
+                            "virtual_network_network_id": "8",
+                            "id_perms": "{\"enable\": true, \"description\": null, \"creator\": null, \"created\": \"2016-11-11T01:15:56.729527\", \"user_visible\": true, \"last_modified\": \"2016-11-12T02:01:02.106901\", \"permissions\": {\"owner\": \"admin\", \"owner_access\": 7, \"other_access\": 7, \"group\": \"admin\", \"group_access\": 7}, \"uuid\": {\"uuid_mslong\": 8541015613818095468, \"uuid_lslong\": 11347687702080964871}}",
+                            "instance_ip_back_refs": "[{\"to\": [\"05c413d5-f04d-4092-890b-8f2f869acf14\"], \"attr\": null, \"uuid\": \"05c413d5-f04d-4092-890b-8f2f869acf14\"}]",
+                            "multi_policy_service_chains_enabled": "false",
+                            "virtual_network_properties": "{\"allow_transit\": false, \"mirror_destination\": false, \"rpf\": \"enable\"}",
+                            "ecmp_hashing_include_fields": "{}",
+                            "network_policy_refs": "[{\"to\": [\"default-domain\", \"admin\", \"vn1vn3\"], \"attr\": {\"timer\": null, \"sequence\": {\"major\": 0, \"minor\": 0}}, \"uuid\": \"042cd5f2-46a4-4dd5-82d3-4c2326549def\"}]",
+                            "virtual_machine_interface_back_refs": "[{\"to\": [\"default-domain\", \"admin\", \"68312b1c-3849-4c7b-a420-5c3c89e2a6c0\"], \"attr\": null, \"uuid\": \"68312b1c-3849-4c7b-a420-5c3c89e2a6c0\"}]",
+                            "provider_properties": "null",
+                            "perms2": "{\"owner\": \"6f6f5981515c4d64ac1b1135b0ccdd1f\", \"owner_access\": 7, \"global_access\": 0, \"share\": []}",
+                            "fq_name": "[\"default-domain\", \"admin\", \"vn3\"]",
+                            "routing_instances": "[{\"to\": [\"default-domain\", \"admin\", \"vn3\", \"vn3\"], \"uuid\": \"e46aefc6-b2ce-4299-a2ae-f144f64a01b0\"}]",
+                            "uuid": "\"7687c872-d2b1-476c-9d7b-15d7a89ac907\"",
+                            "import_route_target_list": "{\"route_target\": []}",
+                            "is_shared": "false",
+                            "router_external": "false",
+                            "export_route_target_list": "{\"route_target\": []}",
+                            "flood_unknown_unicast": "false",
+                            "network_ipam_refs": "[{\"to\": [\"default-domain\", \"default-project\", \"default-network-ipam\"], \"attr\": {\"ipam_subnets\": [{\"subnet\": {\"ip_prefix\": \"80.1.3.0\", \"ip_prefix_len\": 24}, \"addr_from_start\": true, \"enable_dhcp\": true, \"default_gateway\": \"80.1.3.1\", \"subnet_uuid\": \"14ed1a2c-7afc-4b95-ae63-bf9e795afb61\", \"subnet_name\": \"14ed1a2c-7afc-4b95-ae63-bf9e795afb61\", \"dns_server_address\": \"80.1.3.2\"}]}, \"uuid\": \"c4cad97e-1a90-407f-b944-a6cd7fd10747\"}]"
+                        }
+                    },
+                    "UveVirtualNetworkConfig": {
+                        "total_acl_rules": 4,
+                        "routing_instance_list": [
+                            "default-domain:admin:vn3:vn3"
+                            ],
+                        "connected_networks": [
+                            "default-domain:admin:vn1"
+                            ]
+                    }
+                }
+            }
+            ]
+        },
+        "lastKey": null,
+        "more": false
+    }
+
+    this.networksStatMockData = {
+        "data": [
+        {
+            "name": "default-domain:admin:backend",
+            "SUM(vn_stats.in_bytes)": 104696520,
+            "SUM(vn_stats.in_tpkts)": 312928,
+            "SUM(vn_stats.out_bytes)": 104810974,
+            "SUM(vn_stats.out_tpkts)": 312011
+        },
+        {
+            "name": "default-domain:admin:frontend",
+            "SUM(vn_stats.in_bytes)": 105516574,
+            "SUM(vn_stats.in_tpkts)": 319211,
+            "SUM(vn_stats.out_bytes)": 105402120,
+            "SUM(vn_stats.out_tpkts)": 320128
+        },
+        {
+            "name": "default-domain:admin:testvn_nitishk",
+            "SUM(vn_stats.in_bytes)": 0,
+            "SUM(vn_stats.in_tpkts)": 0,
+            "SUM(vn_stats.out_bytes)": 281474976777604,
+            "SUM(vn_stats.out_tpkts)": 1099511628573
+        }
+        ],
+            "total": 3,
+            "queryJSON": {
+                "table": "StatTable.UveVirtualNetworkAgent.vn_stats",
+                "start_time": "now-60m",
+                "end_time": "now",
+                "select_fields": [
+                    "SUM(vn_stats.in_bytes)",
+                "SUM(vn_stats.out_bytes)",
+                "SUM(vn_stats.in_tpkts)",
+                "SUM(vn_stats.out_tpkts)",
+                "name"
+                    ],
+                "filter": [
+                    []
+                    ],
+                "where": [
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:backend",
+                        "op": 1
+                    }
+                ],
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:frontend",
+                        "op": 1
+                    }
+                ],
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:snat-si-left_snat_30c8d029-0df3-4646-b17f-f5f285bf141e_2824f3fa-602e-4b6f-8c12-5772fcd29702",
+                        "op": 1
+                    }
+                ],
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:snat-si-left_snat_c7ba5140-5cdc-4484-bcdf-2ff53ef97040_0b4939a6-e690-4f2f-9c48-0152b46a70a2",
+                        "op": 1
+                    }
+                ],
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:testvn_nitishk",
+                        "op": 1
+                    }
+                ],
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:vn1",
+                        "op": 1
+                    }
+                ],
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:vn2",
+                        "op": 1
+                    }
+                ],
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:vn3",
+                        "op": 1
+                    }
+                ]
+                    ],
+                    "limit": 150000
+            },
+            "chunk": 1,
+            "chunkSize": 3,
+            "serverSideChunking": true
+    }
     return {
         domainsMockData: domainsMockData,
         projectMockData: projectMockData,
         networksMockData: networksMockData,
-        networksMockStatData: networksMockStatData
+        networksMockStatData: networksMockStatData,
+        networksDetailsMockData: networksDetailsMockData,
+        networksStatMockData: networksStatMockData
     };
 });

@@ -481,11 +481,24 @@ function getVNNodeAttributes(vnUVENode) {
     try {
         uveVirtualNetworkAgent = vnUVENode['value']['UveVirtualNetworkAgent'];
         if (uveVirtualNetworkAgent != null) {
-            moreAttributes['vm_count'] = commonUtils.getValueByJsonPath(uveVirtualNetworkAgent, 'virtualmachine_list', []).length;
-            moreAttributes['vmi_count'] = commonUtils.getValueByJsonPath(uveVirtualNetworkAgent, 'interface_list', []).length;
-            moreAttributes['in_throughput'] = commonUtils.getValueByJsonPath(uveVirtualNetworkAgent, 'in_bandwidth_usage', 0);
-            moreAttributes['out_throughput'] = commonUtils.getValueByJsonPath(uveVirtualNetworkAgent, 'out_bandwidth_usage', 0);
-            moreAttributes['virtualmachine_list'] = commonUtils.getValueByJsonPath(uveVirtualNetworkAgent,'virtualmachine_list', []);
+            var vmList =
+                commonUtils.getValueByJsonPath(uveVirtualNetworkAgent,
+                                               'virtualmachine_list', []);
+            var vmiList =
+                commonUtils.getValueByJsonPath(uveVirtualNetworkAgent,
+                                               'interface_list', []);
+
+            moreAttributes['vm_count'] = vmList.length;
+            moreAttributes['vmi_count'] = vmiList.length;
+            moreAttributes['in_throughput'] =
+                commonUtils.getValueByJsonPath(uveVirtualNetworkAgent,
+                                               'in_bandwidth_usage', 0);
+            moreAttributes['out_throughput'] =
+                commonUtils.getValueByJsonPath(uveVirtualNetworkAgent,
+                                               'out_bandwidth_usage', 0);
+            moreAttributes['virtualmachine_list'] =
+                commonUtils.getValueByJsonPath(uveVirtualNetworkAgent,
+                                               'virtualmachine_list', []);
         }
     } catch (e) {
         logutils.logger.error(e.stack);
@@ -918,7 +931,7 @@ function getProjectConnectedGraph(req, res, appData) {
 function processProjectConnectedGraph(fqName, projectData, appData, callback) {
     var resultJSON = [], vnFound = true,
         configVN = commonUtils.getValueByJsonPath(projectData,
-                '2;virtual-networks', []),
+                                                  '2;virtual-networks', []),
         configSI = commonUtils.getValueByJsonPath(projectData,
                 '3;service-instances',[]);
 
@@ -999,9 +1012,14 @@ function getInstanceConnectedGraph(req, res, appData) {
     instanceUrl = '/analytics/uves/virtual-machine/' + instanceUUID + '?cfilt=' + instanceFilters.join(',');
     commonUtils.createReqObj(dataObjArr, instanceUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
-    async.map(dataObjArr, commonUtils.getServerResponseByRestApi(configApiServer, false), function (err, instanceData) {
-        var interfaceList = instanceData[0]['UveVirtualMachineAgent']['interface_list'];
-        interfaceUrl = '/analytics/uves/virtual-machine-interface/*?kfilt=' + interfaceList.join(",") + "&cfilt=" + interfaceFilters.join(",");
+    async.map(dataObjArr, commonUtils.getServerResponseByRestApi(configApiServer, false),
+              function (err, instanceData) {
+        var interfaceList =
+            commonUtils.getValueByJsonPath(instanceData,
+                                           "0;UveVirtualMachineAgent;interface_list",
+                                           []);
+        interfaceUrl = "/analytics/uves/virtual-machine-interface/*?kfilt=" +
+            interfaceList.join(",") + "&cfilt=" + interfaceFilters.join(",");
 
         opApiServer.apiGet(interfaceUrl, appData, function (err, interfaceData) {
             var interfaceDetailsList = interfaceData['value'],

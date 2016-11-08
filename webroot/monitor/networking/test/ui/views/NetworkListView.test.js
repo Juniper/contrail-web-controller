@@ -31,6 +31,7 @@ define([
             url: /\/api\/tenants\/projects\/default-domain.*$/,
             body: JSON.stringify(TestMockdata.projectMockData)
         }));
+        /*
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
             url: cttu.getRegExForUrl(ctwc.URL_ALL_NETWORKS_DETAILS),
@@ -40,6 +41,22 @@ define([
             method: "POST",
             url: cttu.getRegExForUrl(ctwc.URL_VM_VN_STATS),
             body: JSON.stringify(TestMockdata.networksMockStatData)
+        }));
+        */
+        responses.push(cotr.createFakeServerResponse({
+            method:"POST",
+            url: cttu.getRegExForUrl(ctwc.URL_GET_VIRTUAL_NETWORKS),
+            body: JSON.stringify(TestMockdata.networksDetailsMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl(ctwc.URL_GET_VIRTUAL_NETWORKS_LIST),
+            body: JSON.stringify(TestMockdata.networksListMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl(cowc.URL_QE_QUERY),
+            body: JSON.stringify(TestMockdata.networksStatMockData)
         }));
 
         return responses;

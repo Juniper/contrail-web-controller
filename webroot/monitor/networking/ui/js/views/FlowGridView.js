@@ -13,9 +13,21 @@ define([
                 hashParams = viewConfig['hashParams'],
                 pagerOptions = viewConfig['pagerOptions'];
 
+            var reqUrlParms =
+                ctwc.constructReqURLParams($.extend({},
+                                                    nmwgc.getURLConfigForFlowGrid(hashParams),
+                                                    {protocol:
+                                                        ["tcp", "icmp", "udp"]
+                                                    })
+                                          );
+            var postData = {
+                async: false,
+                formModelAttrs: reqUrlParms.reqParams
+            };
             var flowRemoteConfig = {
-                url: ctwc.constructReqURL($.extend({}, nmwgc.getURLConfigForFlowGrid(hashParams), {protocol:['tcp','icmp','udp']})),
-                type: 'GET'
+                url: cowc.URL_QE_QUERY,
+                type: "POST",
+                data: JSON.stringify(postData)
             };
 
             self.renderView4Config(self.$el, this.model, getFlowListViewConfig(flowRemoteConfig, pagerOptions));

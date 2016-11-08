@@ -19,8 +19,8 @@ var rest = require(process.mainModule.exports["corePath"] +
     opApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
-    queries = require(process.mainModule.exports["corePath"] +
-                      '/src/serverroot/common/queries.api'),
+    qeUtils = require(process.mainModule.exports["corePath"] +
+                      "/webroot/reports/qe/api/query.utils"),
     ctrlGlobal = require('../../../../common/api/global'),
     configApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/configServer.api');
@@ -224,7 +224,7 @@ function getDBNodeStatsFlowSeries (req, res, appData)
         'minsSince': req.param('minsSince')
     };
 
-    var timeObj = queries.createTimeQueryJsonObjByAppData(appData);
+    var timeObj = qeUtils.createTimeQueryJsonObjByAppData(appData);
     var queryJSON =
         commonUtils.cloneObj(ctrlGlobal.QUERY_JSON[
             'StatTable.DatabaseUsageInfo.database_usage'

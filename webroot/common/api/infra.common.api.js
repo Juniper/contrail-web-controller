@@ -759,6 +759,9 @@ function getServerResponseByModType (req, res, appData)
 function getDataFromConfigNode (str, hostName, appData, data, callback)
 {
     var url = '/' + str;
+    if (null === data["derived-uve"]) {
+        data["derived-uve"] = {};
+    }
     data['derived-uve']['nodeStatus'] = 'Down';
     configApiServer.apiGet(url, appData,
                            commonUtils.doEnsureExecution(function(err, configData) {
