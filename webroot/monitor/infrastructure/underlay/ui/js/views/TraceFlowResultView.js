@@ -79,17 +79,17 @@ define([
                 var vmData = underlayGraphModel.vmMap()[vmUUID];
                 var vRouters = underlayGraphModel.getVirtualRouters();
                 var ajaxData = {
-                    pageSize: 50,
-                    timeRange: 300,
-                    select: 'agg-bytes,agg-packets,vrouter_ip,other_vrouter_ip',
-                    fromTimeUTC: 'now-600s',
-                    toTimeUTC: 'now',
-                    startAt: new Date().getTime(),
+                    chunkSize: 50,
+                    chunk: 1,
                     async: false,
-                    table:'FlowRecordTable',
-                    filters : "limit: 5000"
-
                 };
+                var queryData = {
+                    table_name: 'FlowRecordTable',
+                    from_time_utc: 'now-10m',
+                    to_time_utc: 'now',
+                    filters : "limit: 5000",
+                    select: 'agg-bytes,agg-packets,vrouter_ip,other_vrouter_ip',
+                }
                 var intfData = getValueByJsonPath(vmData,
                     'more_attributes;interface_list',[]);
                 var where = '',floatingIp = [];
@@ -108,10 +108,11 @@ define([
                     if(i+1 < intfData.length)
                         where+= ' OR ';
                 }
-                ajaxData['where'] = where;
+                queryData['where'] = where;
+                ajaxData['formModelAttrs'] = queryData;
                 ajaxData['engQueryStr'] = JSON.stringify(ajaxData);
                 traceFlowRemoteConfig = {
-                    url: '/api/admin/reports/query',
+                    url: '/api/qe/query',
                     data: ajaxData,
                     dataParser: function (response) {
                         return underlayParsers.parseUnderlayFlowRecords(

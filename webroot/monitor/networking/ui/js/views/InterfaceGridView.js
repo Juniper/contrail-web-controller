@@ -104,7 +104,7 @@ define([
                         dataParser: ctwp.interfaceDataParser
                     },
                     vlRemoteConfig: {
-                        vlRemoteList: ctwgc.getInterfaceStatsLazyRemoteConfig()
+                        vlRemoteList: nmwgc.getInterfaceStatsVLOfPrimaryRemoteConfig()
                     },
                     cacheConfig : {
                         ucid: ucid

@@ -82,6 +82,12 @@ define([
             body: JSON.stringify(TestMockdata.virtualMachinesSummaryMockData)
         }));
 
+        responses.push(cotr.createFakeServerResponse({
+            method:"POST",
+            url: cttu.getRegExForUrl(ctwc.URL_GET_NETWORK_INSTANCES),
+            body: JSON.stringify(TestMockdata.instancesDetailsMockData)
+        }));
+
         return responses;
     };
     fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;

@@ -481,8 +481,12 @@ function getVNNodeAttributes(vnUVENode) {
     try {
         uveVirtualNetworkAgent = vnUVENode['value']['UveVirtualNetworkAgent'];
         if (uveVirtualNetworkAgent != null) {
-            var vmList = uveVirtualNetworkAgent['virtualmachine_list'],
-                vmiList = uveVirtualNetworkAgent['interface_list'];
+            var vmList =
+                commonUtils.getValueByJsonPath(uveVirtualNetworkAgent,
+                                               'virtualmachine_list', []);
+                vmiList =
+                    commonUtils.getValueByJsonPath(uveVirtualNetworkAgent,
+                                                   'interface_list', []);
 
             moreAttributes['vm_count'] = vmList.length;
             moreAttributes['vmi_count'] = vmiList.length;
@@ -921,7 +925,7 @@ function getProjectConnectedGraph(req, res, appData) {
 function processProjectConnectedGraph(fqName, projectData, appData, callback) {
     var resultJSON = [], vnFound = true,
         configVN = commonUtils.getValueByJsonPath(projectData,
-                '2;virtual-networks', []),
+                                                  '2;virtual-networks', []),
         configSI = commonUtils.getValueByJsonPath(projectData,
                 '3;service-instances',[]);
 
@@ -1002,9 +1006,14 @@ function getInstanceConnectedGraph(req, res, appData) {
     instanceUrl = '/analytics/uves/virtual-machine/' + instanceUUID + '?cfilt=' + instanceFilters.join(',');
     commonUtils.createReqObj(dataObjArr, instanceUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
-    async.map(dataObjArr, commonUtils.getServerResponseByRestApi(configApiServer, false), function (err, instanceData) {
-        var interfaceList = instanceData[0]['UveVirtualMachineAgent']['interface_list'];
-        interfaceUrl = '/analytics/uves/virtual-machine-interface/*?kfilt=' + interfaceList.join(",") + "&cfilt=" + interfaceFilters.join(",");
+    async.map(dataObjArr, commonUtils.getServerResponseByRestApi(configApiServer, false),
+              function (err, instanceData) {
+        var interfaceList =
+            commonUtils.getValueByJsonPath(instanceData,
+                                           "0;UveVirtualMachineAgent;interface_list",
+                                           []);
+        interfaceUrl = "/analytics/uves/virtual-machine-interface/*?kfilt=" +
+            interfaceList.join(",") + "&cfilt=" + interfaceFilters.join(",");
 
         opApiServer.apiGet(interfaceUrl, appData, function (err, interfaceData) {
             var interfaceDetailsList = interfaceData['value'],

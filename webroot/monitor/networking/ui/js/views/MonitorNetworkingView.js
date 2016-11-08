@@ -33,6 +33,10 @@ define([
             this.renderView4Config(this.$el, null, getInstanceListConfig(viewConfig));
         },
 
+        renderInterfaceList: function (viewConfig) {
+            this.renderView4Config(this.$el, null, getInterfaceListConfig(viewConfig));
+        },
+
         renderFlowList: function (viewConfig) {
             this.renderView4Config(this.$el, null, getFlowListConfig(viewConfig));
         },
@@ -170,6 +174,32 @@ define([
             };
 
         return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions)
+    };
+
+    function getInterfaceListConfig(viewConfig) {
+        var hashParams = viewConfig.hashParams,
+            customNetworkDropdownOptions = {
+                defaultValueIndex: 1,
+                childView: {
+                    init: getInterfaceListViewConfig(viewConfig)
+                },
+                allDropdownOption: ctwc.ALL_NETWORK_DROPDOWN_OPTION
+            },
+            customProjectDropdownOptions = {
+                getProjectsFromIdentity: true,
+                defaultValueIndex: 1,
+                childView: {
+                    init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
+                },
+                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION
+            },
+            customDomainDropdownOptions = {
+                childView: {
+                    init: ctwvc.getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
+                }
+            };
+
+        return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions)
     }
 
     function getProjectViewConfig() {
@@ -255,6 +285,18 @@ define([
             return {
                 elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_LIST_PAGE_ID]),
                 view: "InstanceListView",
+                viewPathPrefix: "monitor/networking/ui/js/views/",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewConfig: $.extend(true, {}, viewConfig, {networkSelectedValueData: networkSelectedValueData})
+            }
+        }
+    };
+
+    function getInterfaceListViewConfig(viewConfig) {
+        return function (networkSelectedValueData) {
+            return {
+                elementId: cowu.formatElementId([ctwl.MONITOR_INTERFACE_LIST_PAGE_ID]),
+                view: "InterfaceListView",
                 viewPathPrefix: "monitor/networking/ui/js/views/",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewConfig: $.extend(true, {}, viewConfig, {networkSelectedValueData: networkSelectedValueData})

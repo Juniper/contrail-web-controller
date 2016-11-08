@@ -3,26 +3,28 @@
  */
 
 define([
-    'underscore',
-    'contrail-view'
-], function (_, ContrailView) {
+    "underscore",
+    "contrail-view",
+    "core-basedir/reports/qe/ui/js/common/qe.utils"
+], function (_, ContrailView, qeUtils) {
     var NetworkGridView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig,
-                projectFQN = viewConfig['projectFQN'],
+                projectSelectedValueData = viewConfig.projectSelectedValueData,
+                projectFQN = viewConfig.projectFQN,
+                projectUUID = viewConfig.projectUUID,
                 pagerOptions = viewConfig['pagerOptions'];
 
             var networkRemoteConfig = {
-                url: projectFQN != null ? ctwc.get(ctwc.URL_PROJECT_NETWORKS_IN_CHUNKS, 10, 100, projectFQN, $.now()) : ctwc.get(ctwc.URL_NETWORKS_DETAILS_IN_CHUNKS, 10, 100, $.now()),
+                url: ctwc.get(ctwc.URL_GET_VIRTUAL_NETWORKS, 100, 1000, $.now()),
                 type: 'POST',
                 data: JSON.stringify({
-                    data: [{
-                        "type": ctwc.TYPE_VIRTUAL_NETWORK,
-                        "cfilt": ctwc.FILTERS_COLUMN_VN.join(',')
-                    }]
+                    id: qeUtils.generateQueryUUID(),
+                    FQN: projectFQN,
+                    fqnUUID: projectUUID
                 })
             };
 
@@ -73,7 +75,7 @@ define([
                         dataParser: nmwp.networkDataParser
                     },
                     vlRemoteConfig: {
-                        vlRemoteList: nmwgc.getVNDetailsLazyRemoteConfig(ctwc.TYPE_VIRTUAL_NETWORK)
+                        vlRemoteList: nmwgc.getVNStatsVLOfPrimaryRemoteConfig(ctwc.TYPE_VIRTUAL_NETWORK)
                     },
                     cacheConfig: {
                         ucid: ucid

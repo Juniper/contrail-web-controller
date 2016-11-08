@@ -4,6 +4,8 @@
 
 define(['underscore'], function (_) {
     var flowsMockData = {
+        "chunk": 1,
+        "chunkSize": 5,
         "data": [
             {
                 "destip": "10.3.1.3",
@@ -151,7 +153,8 @@ define(['underscore'], function (_) {
                     }
                 ]
             ]
-        }
+        },
+        "serverSideChunking": true
     };
     return {
         flowsMockData:flowsMockData

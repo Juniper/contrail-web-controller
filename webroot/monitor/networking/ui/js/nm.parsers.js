@@ -8,6 +8,8 @@ define([
     var NMParsers = function() {
         var self = this;
         this.networkDataParser = function(response) {
+          var responseData = getValueByJsonPath(response, "data;value", null);
+          if (null != responseData) {
             var retArr = $.map(ifNull(response['data']['value'], response), function (currObject) {
                 if(!ctwu.isServiceVN(currObject['name'])) {
                     currObject['rawData'] = $.extend(true, {}, currObject);
@@ -41,6 +43,7 @@ define([
                 }
             });
             return retArr;
+          }
         };
 
         this.statsOracleParseFn = function(response,type) {

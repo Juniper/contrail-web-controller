@@ -2097,25 +2097,28 @@ define([
             var dsName = options.nodeType,
                 moduleType = options.moduleType,
                 node = options.node;
-            var postData = {
-                    pageSize:10000,
-                    page:1,
+            var reqData = {
+                    chunkSize: 10000,
+                    chunk: 1,
 //                    timeRange:600,
-                    tgUnits:'secs',
-                    tgValue:60,
-                    fromTimeUTC:'now-2h',
-                    toTimeUTC:'now',
-                    async:true,
+                    async: false,
                     queryId: generateQueryUUID(),
-                    reRunTimeRange:600,
-                    select:'Source, T=, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res, process_mem_cpu_usage.__key',
-                    //groupFields:['Source'],
                     //plotFields:['cpu_info.cpu_share']
             };
-            if(options.page != null && options.page == "summary") {
-                postData['fromTimeUTC'] = 'now-15m';
+            var postData = {
+                    time_granularity_unit: 'secs',
+                    from_time_utc: 'now-2h',
+                    to_time_utc: 'now',
+                    //reRunTimeRange:600,
+                    time_granularity: 60,
+                    select:'Source, T=, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res, process_mem_cpu_usage.__key',
+                    //groupFields:['Source'],
             }
-            postData['table'] = 'StatTable.NodeStatus.process_mem_cpu_usage';
+            if(options.page != null && options.page == "summary") {
+                postData['from_time_utc'] = 'now-15m';
+            }
+            postData['table_type'] = 'STAT';
+            postData['table_name'] = 'StatTable.NodeStatus.process_mem_cpu_usage';
             if (dsName == monitorInfraConstants.CONTROL_NODE) {
                 //postData['table'] = 'StatTable.ControlCpuState.cpu_info';
                 if (moduleType != null && moduleType != '') {
@@ -2137,13 +2140,13 @@ define([
                         postData['table'] = 'StatTable.NodeStatus.system_mem_usage';
                         postData['select'] = 'T=, MAX(system_mem_usage.used)';
                     } else if (moduleType == 'vRouterBandwidthIn') {
-                        postData['table'] = 'StatTable.VrouterStatsAgent.phy_band_in_bps';
+                        postData['table_name'] = 'StatTable.VrouterStatsAgent.phy_band_in_bps';
                         postData['select'] = 'Source, name, T=, phy_band_in_bps.__value';
                     } else if (moduleType == 'vRouterBandwidthOut') {
-                        postData['table'] = 'StatTable.VrouterStatsAgent.phy_band_out_bps';
+                        postData['table_name'] = 'StatTable.VrouterStatsAgent.phy_band_out_bps';
                         postData['select'] = 'Source, name, T=, phy_band_out_bps.__value';
                     } else if (moduleType == 'vRouterFlowRate') {
-                        postData['table'] = 'StatTable.VrouterStatsAgent.flow_rate';
+                        postData['table_name'] = 'StatTable.VrouterStatsAgent.flow_rate';
                         postData['select'] = 'Source, name, T=, MAX(flow_rate.active_flows)';
                     }
                 } else {
@@ -2175,12 +2178,13 @@ define([
                     postData['where'] = '(process_mem_cpu_usage.__key = contrail-api:0)';
                 }
             } else if (dsName == monitorInfraConstants.DATABASE_NODE) {
-                postData['table'] = 'StatTable.DatabaseUsageInfo.database_usage';
-                postData['select'] = 'Source, T=, database_usage.disk_space_used_1k, database_usage.analytics_db_size_1k';
-                postData['plotFields'] = 'database_usage.disk_space_used_1k';
+                postData['table_name'] = 'StatTable.DatabaseUsageInfo.database_usage';
+                postData['select'] = 'Source, T, database_usage.disk_space_used_1k, database_usage.analytics_db_size_1k';
+                //postData['plotFields'] = 'database_usage.disk_space_used_1k';
                 postData['where'] = '(Source = '+ node +')';
             }
-            return postData;
+            reqData['formModelAttrs'] = postData;
+            return reqData;
         };
 
         self.filterTORAgentData = function (data) {
