@@ -3,6 +3,7 @@ define([
 ], function (_) {
     var ConfigObjectListUtils = function () {
         var self = this;
+        self.conformMsg = '<div>Are you sure you want to delete  <b></b>?</div>';
         self.getObjListUrl = function(viewConfig) {
             var options = {type:viewConfig.hashParams.objName};
             var ajaxConfig = {
@@ -15,7 +16,6 @@ define([
          self.hideHeaderIcons = function(template) {
              template.find(".config-object-edit").hide();
              template.find(".object-basic-view").hide();
-             template.find(".cancel-config-edit").hide();
              template.find(".config-jSon-form-edit").hide();
          }
          self.getCopiedContent = function(){
@@ -37,43 +37,16 @@ define([
              }
              return strStack.join(' ');
          }
-         self.setTextAreaHeight = function(configJson, template){
-             var textAreaHeight = self.getWindowHeight() - 23;
-             template.find("#jsonTextArea").css({"height": textAreaHeight});
-             var text = ctwc.TEXT_AREA_PLACEHOLDER + Object.keys(configJson)[0].slice(0,-1);
-             template.find("#jsonTextArea").attr("placeholder",text);
-             template.find("#jsonTextArea").val('');
-         }
          self.getWindowHeight = function(){
              var outerHeight = window.outerHeight;
              var pageHeader = $("#pageHeader").height();
              var breadCrum = $("#breadcrumbs").height();
              return outerHeight - pageHeader - breadCrum - 107;
          }
-         self.hideIconForNewConfigObj = function(template){
-             template.find('.refresh-container').hide();
-             template.find('.create-config-object').hide();
-             template.find(".save-config-object").show();
-             template.find("#jsonTextArea").css({'width':'100%'});
-             template.find(".cancel-config-edit").show();
-             template.find(".object-text-area-view").show();
-             template.find(".object-json-view").hide();
-         }
-         self.showIconsAfterCancel = function(template){
-             template.find('.refresh-container').show();
-             template.find(".cancel-config-edit").hide();
-             template.find(".object-text-area-view").hide();
-             template.find(".object-json-view").show();
-             template.find(".save-config-object").hide();
-             template.find('.create-config-object').show();
-             document.getElementById('jsonTextArea').value = '';
-         }
          self.showIconsAfterSave = function(template){
              template.find('.refresh-container').show();
-             template.find(".cancel-config-edit").hide();;
              template.find(".object-text-area-view").hide();
              template.find(".object-json-view").show();
-             template.find(".save-config-object").hide();
              template.find('.create-config-object').show();
          }
          self.getPostDataForGet = function (options) {
@@ -93,14 +66,14 @@ define([
              }
              return JSON.stringify(postData);
          }
-         self.formatJSON2HTML = function(json, formatDepth, ignoreKeys, hrefClick){
+         self.formatJSON2HTML = function(json, formatDepth, ignoreKeys, hrefClick, trashClick){
              var self = this;
              if(typeof json == 'string'){
                  json = JSON.parse(json);
              }
-            return '<pre class="pre-format-JSON2HTML">' + self.formatJsonObject(json, formatDepth, 0, ignoreKeys, hrefClick) + '</pre>';
+            return '<pre class="pre-format-JSON2HTML">' + self.formatJsonObject(json, formatDepth, 0, ignoreKeys, hrefClick, trashClick) + '</pre>';
          }
-         self.formatJsonObject = function(jsonObj, formatDepth, currentDepth, ignoreKeys, hrefClick) {
+         self.formatJsonObject = function(jsonObj, formatDepth, currentDepth, ignoreKeys, hrefClick, trashClick) {
              var self = this, output = '',
                  objType = {type: 'object', startTag: '{', endTag: '}'};
              if(jsonObj instanceof Array){
@@ -115,18 +88,22 @@ define([
                  $.each(jsonObj, function(key, val){
                      if (!contrail.checkIfExist(ignoreKeys) || (contrail.checkIfExist(ignoreKeys) && ignoreKeys.indexOf(key) === -1)) {
                          if (objType['type'] == 'object') {
-                             output += '<li class="key-value"><span class="key">' + key + '</span>: ';
+                             if(key == 'href' && trashClick){
+                                 output += '<li class="key-value object-trash-hover"><span class="key">' + key + '</span>: ';
+                             }else{
+                                 output += '<li class="key-value"><span class="key">' + key + '</span>: ';
+                             }
                          }
                          else {
                              output += '<li class="key-value">';
                          }
 
                          if (val != null && typeof val == 'object') {
-                             output += '<span class="value">' + self.formatJsonObject(val, formatDepth - 1, currentDepth + 1, ignoreKeys, hrefClick) + '</span>';
+                             output += '<span class="value">' + self.formatJsonObject(val, formatDepth - 1, currentDepth + 1, ignoreKeys, hrefClick, trashClick) + '</span>';
                          }
                          else {
                              if(hrefClick && (key === 'href' || key === 'parent_href')){
-                                 output += '<span class="hyperlink value ' + typeof val + '"onclick=getClickedHref("' + val +'")>'+'"' + val +'"'+ '</span><span class="hideSeperatedComma">,</span>';
+                                 output += '<span class="hyperlink value ' + typeof val + '"onclick=getClickedHref("' + val +'")>'+'"' + val +'"'+ '</span><span class="hideSeperatedComma">,</span><i class="fa fa-trash-o object-delete-trash-icon" title="Delete Object" onclick=getTrashParam("' + val +'")></i>';
                              }else{
                                  if(typeof val === 'number'){
                                      output += '<span class="value config-number">' + val + '</span><span class="hideSeperatedComma">,</span>';
@@ -154,6 +131,39 @@ define([
              }else{
                  loadFeature({p: currentHashObj['p'], q: {'objName': splitHref[splitHref.length - 2],'uuid':splitHref[splitHref.length - 1]}}); 
              }
+         }
+         getTrashParam = function(href){
+             var href = href.split('/');
+             cowu.createModal({
+                 'modalId': 'config-object-list-modal',
+                 'className': 'modal-480',
+                 'title': 'Delete '+self.parseParentJsonKeyToLabel(href[href.length-2]),
+                 'body': self.conformMsg,
+                 'btnName': 'Confirm',
+                 'onSave': function() {
+                     var objectDeleteConfig = {
+                             url: '/api/tenants/config/delete-config-data?type='+href[href.length-2]+'&uuid='+href[href.length-1],
+                             type:'DELETE'
+                         };
+                     contrail.ajaxHandler(objectDeleteConfig, null, function(projects){
+                         for(var i=0; i < $('.object-trash-hover').length; i++){
+                             var url = $('.object-trash-hover')[i].firstChild.nextSibling.nextSibling.innerHTML.split('/');
+                             var lastIndex = url[url.length-1];
+                             var uuid = lastIndex.substring(0,lastIndex.length-1);
+                             if(uuid == href[href.length-1]){
+                                 $('.object-trash-hover')[i].parentElement.parentElement.parentElement.setAttribute('style','display:none !important');
+                                 $("#config-object-list-modal").modal('hide');
+                                 break;
+                             }
+                         }
+                     },function(error){
+                         contrail.showErrorMsg(error.responseText);
+                     });
+                 },
+                 'onCancel': function() {
+                     $("#config-object-list-modal").modal('hide');
+                 }
+             });
          }
     };
    return new ConfigObjectListUtils;
