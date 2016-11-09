@@ -37,7 +37,8 @@ define(
                                                         controlNodeViewConfig.getViewConfig('controlnode-received-updates')(),
                                                         controlNodeViewConfig.getViewConfig('controlnode-cpu-share')(),
                                                         controlNodeViewConfig.getViewConfig('controlnode-memory')(),
-                                                        controlNodeViewConfig.getViewConfig('controlnode-grid-view')()
+                                                        controlNodeViewConfig.getViewConfig('controlnode-grid-view')(),
+                                                        // controlNodeViewConfig.getViewConfig('controlnode-system-logs')()
                                                      ]
                                              }
                                          },
