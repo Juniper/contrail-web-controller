@@ -1118,6 +1118,10 @@ and need to add the iconClass tag wherever we need to show some icons
                     <iconClass>menu-icon fa fa-wpforms</iconClass>
                     <resources>
                         <resource>
+                            <rootDir>/assets/jquery-linedtextarea</rootDir>
+                            <css>jquery-linedtextarea.css</css>
+                        </resource>
+                        <resource>
                             <rootDir>/config/configEditor/ui</rootDir>
                             <js>configEditor.main.js</js>
                             <template>config.editor.tmpl</template>
