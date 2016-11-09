@@ -45,7 +45,7 @@ define([
                          delete result.href;
                          result.links = collectionObj;
                          self.setApiListInHiddenArea(result);
-                         var json = ConfigObjectListUtils.formatJSON2HTML(result, 5, undefined, true);
+                         var json = ConfigObjectListUtils.formatJSON2HTML(result, 5, undefined, true, false);
                          $(contentContainer).find('.config-href-container').empty();
                          $(contentContainer).find('.config-href-container').append(json);
                          $('.config-edit-refresh').children().removeClass('fa fa-spin fa fa-spinner').addClass('fa fa-repeat');
