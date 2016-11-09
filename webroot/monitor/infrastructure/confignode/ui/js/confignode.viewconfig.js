@@ -12,30 +12,22 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
         self.viewConfig = {
             'confignode-percentile-time-size': function (){
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                        "table_name": "StatTable.VncApiStatsLog.api_stats",
-                        "select": "PERCENTILES(api_stats.response_time_in_usec), PERCENTILES(api_stats.response_size)",
-                        "parser": monitorInfraParsers.percentileConfigNodeNodeSummaryChart
-                    }),
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            "table_name": "StatTable.VncApiStatsLog.api_stats",
+                            "select": "PERCENTILES(api_stats.response_time_in_usec), PERCENTILES(api_stats.response_size)",
+                            "parser": monitorInfraParsers.percentileConfigNodeNodeSummaryChart
+                        }
+                    },
                     viewCfg: {
-                        elementId : ctwl.CONFIGNODE_CHART_PERCENTILE_SECTION_ID,
-                        view : "SectionView",
+                        elementId :ctwl.CONFIGNODE_CHART_PERCENTILE_TEXT_VIEW,
+                        title : ctwl.CONFIG_NODE_RESPONSE_PARAMS_PERCENTILE,
+                        view : "PercentileTextView",
                         viewConfig : {
-                            rows : [ {
-                                columns : [ {
-                                    elementId :ctwl.CONFIGNODE_CHART_PERCENTILE_TEXT_VIEW,
-                                    title : ctwl.CONFIG_NODE_RESPONSE_PARAMS_PERCENTILE,
-                                    view : "PercentileTextView",
-                                    viewPathPrefix:
-                                        ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
-                                    app : cowc.APP_CONTRAIL_CONTROLLER,
-                                    viewConfig : {
-                                        percentileTitle : ctwl.CONFIGNODE_CHART_PERCENTILE_TITLE,
-                                        percentileXvalue : ctwl.CONFIGNODE_CHART_PERCENTILE_TIME,
-                                        percentileYvalue : ctwl.CONFIGNODE_CHART_PERCENTILE_SIZE,
-                                    }
-                                }]
-                            }]
+                            percentileTitle : ctwl.CONFIGNODE_CHART_PERCENTILE_TITLE,
+                            percentileXvalue : ctwl.CONFIGNODE_CHART_PERCENTILE_TIME,
+                            percentileYvalue : ctwl.CONFIGNODE_CHART_PERCENTILE_SIZE,
                         }
                     },
                     itemAttr: {
@@ -47,35 +39,37 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
             },
             'confignode-requests-served': function (){
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                        table_name: 'StatTable.VncApiStatsLog.api_stats',
-                        select: "Source, T, UUID, api_stats.operation_type," +
-                            " api_stats.response_time_in_usec, api_stats.response_size," +
-                            " api_stats.resp_code, name"
-                    }),
-                    viewCfg:
-                        $.extend(true, {}, monitorInfraConstants.stackChartDefaultViewConfig, {
-                            elementId : ctwl.CONFIGNODE_SUMMARY_STACKEDCHART_ID,
-                            view: 'StackedAreaChartView',
-                            viewConfig: {
-                                class: 'col-xs-7 mon-infra-chart chartMargin',
-                                chartOptions: {
-                                    showControls: false,
-                                    colors: colorFn,
-                                    title: ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                    xAxisLabel: '',
-                                    yAxisLabel: 'Requests Served',
-                                    groupBy: 'Source',
-                                    failureCheckFn: function (d) {
-                                        if (parseInt(d['api_stats.resp_code']) != 200) {
-                                            return 1;
-                                        } else {
-                                            return 0;
-                                        }
+                    modelCfg: {
+                        source: 'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.VncApiStatsLog.api_stats',
+                            select: "Source, T, UUID, api_stats.operation_type," +
+                                " api_stats.response_time_in_usec, api_stats.response_size," +
+                                " api_stats.resp_code, name"
+                        }
+                    },
+                    viewCfg: {
+                        elementId : ctwl.CONFIGNODE_SUMMARY_STACKEDCHART_ID,
+                        view: 'StackedAreaChartView',
+                        viewConfig: {
+                            class: 'col-xs-7 mon-infra-chart chartMargin',
+                            chartOptions: {
+                                showControls: false,
+                                colors: colorFn,
+                                title: ctwl.CONFIGNODE_SUMMARY_TITLE,
+                                xAxisLabel: '',
+                                yAxisLabel: 'Requests Served',
+                                groupBy: 'Source',
+                                failureCheckFn: function (d) {
+                                    if (parseInt(d['api_stats.resp_code']) != 200) {
+                                        return 1;
+                                    } else {
+                                        return 0;
                                     }
                                 }
                             }
-                        }),
+                        }
+                    },
                     itemAttr: {
                         height: 0.9,
                         width: 2,
@@ -85,12 +79,15 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
             },
             'confignode-response-time-size': function (){
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                        table_name: 'StatTable.VncApiStatsLog.api_stats',
-                        select: "Source, T, UUID, api_stats.operation_type," +
-                            " api_stats.response_time_in_usec, api_stats.response_size," +
-                            " api_stats.resp_code, name"
-                    }),
+                    modelCfg: {
+                        source: 'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.VncApiStatsLog.api_stats',
+                            select: "Source, T, UUID, api_stats.operation_type," +
+                                " api_stats.response_time_in_usec, api_stats.response_size," +
+                                " api_stats.resp_code, name"
+                        }
+                    },
                     viewCfg: {
                         elementId: ctwl.CONFIGNODE_SUMMARY_LINEBARCHART_ID,
                         view: 'LineBarWithFocusChartView',
@@ -164,12 +161,15 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
             },
             'confignode-reads-writes-donut-chart': function (){
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                        table_name: 'StatTable.VncApiStatsLog.api_stats',
-                        select: "Source, T, UUID, api_stats.operation_type," +
-                            " api_stats.response_time_in_usec, api_stats.response_size," +
-                            " api_stats.resp_code, name"
-                    }),
+                    modelCfg: {
+                        source: 'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.VncApiStatsLog.api_stats',
+                            select: "Source, T, UUID, api_stats.operation_type," +
+                                " api_stats.response_time_in_usec, api_stats.response_size," +
+                                " api_stats.resp_code, name"
+                        }
+                    },
                     viewCfg: {
                         elementId: ctwl.CONFIGNODE_SUMMARY_DONUTCHART_SECTION_ID,
                         view: 'ConfigNodeDonutChartView',
@@ -189,7 +189,9 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
             },
             'confignode-grid-view': function () {
               return {
-                  modelCfg: configNodeListModel,
+                  modelCfg: {
+                    listModel: configNodeListModel,
+                  },
                   viewCfg: {
                       elementId : ctwl.CONFIGNODE_SUMMARY_GRID_ID,
                       title : ctwl.CONFIGNODE_SUMMARY_TITLE,
@@ -206,141 +208,121 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
             },
             'confignode-top-useragent': function (){
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                    table_name: 'StatTable.VncApiStatsLog.api_stats',
-                    select: "T=, api_stats.useragent, COUNT(api_stats)"
-                    }),
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.VncApiStatsLog.api_stats',
+                            select: "T=, api_stats.useragent, COUNT(api_stats)"
+                        }
+                    },
                     viewCfg: {
-                        elementId : 'useragent_top_5_section',
-                        view : "SectionView",
-                        viewConfig : {
-                            rows : [ {
-                                columns :[
-                                     $.extend(true, {}, monitorInfraConstants.stackChartDefaultViewConfig, {
-                                         elementId : 'useragent_top_5',
-                                         viewConfig: {
-                                             chartOptions: {
-                                                 colors: cowc.FIVE_NODE_COLOR,
-                                                 title: 'Process',
-                                                 xAxisLabel: '',
-                                                 yAxisLabel: 'Process Wise Usage',
-                                                 groupBy: 'api_stats.useragent',
-                                                 limit: 5,
-                                                 yField: 'COUNT(api_stats)',
-                                             }
-                                         }
-                                     })
-                                ]
-                            }]
+                        elementId : 'useragent_top_5',
+                        view: 'StackedBarChartWithFocusView',
+                        viewConfig: {
+                            chartOptions: {
+                                colors: cowc.FIVE_NODE_COLOR,
+                                title: 'Process',
+                                xAxisLabel: '',
+                                yAxisLabel: 'Process Wise Usage',
+                                groupBy: 'api_stats.useragent',
+                                limit: 5,
+                                yField: 'COUNT(api_stats)',
+                            }
                         }
                     }
                 };
             },
             'confignode-top-objecttypes': function (){
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                    table_name: 'StatTable.VncApiStatsLog.api_stats',
-                    select: "T=, api_stats.object_type, COUNT(api_stats)"
-                    }),
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.VncApiStatsLog.api_stats',
+                            select: "T=, api_stats.object_type, COUNT(api_stats)"
+                        }
+                    },
                     viewCfg: {
-                        elementId : 'objecttype_top_5_section',
-                        view : "SectionView",
-                        viewConfig : {
-                            rows : [ {
-                                columns :[
-                                     $.extend(true, {}, monitorInfraConstants.stackChartDefaultViewConfig, {
-                                         elementId : 'objecttype_top_5',
-                                         viewConfig: {
-                                             chartOptions: {
-                                                 colors: cowc.FIVE_NODE_COLOR,
-                                                 title: 'Objects',
-                                                 xAxisLabel: '',
-                                                 yAxisLabel: 'Object Wise Usage',
-                                                 groupBy: 'api_stats.object_type',
-                                                 limit: 5,
-                                                 yField: 'COUNT(api_stats)',
-                                             }
-                                         }
-                                     })
-                                ]
-                            }]
+                        elementId : 'objecttype_top_5',
+                        view:'StackedBarChartWithFocusView',
+                        viewConfig: {
+                            chartOptions: {
+                                colors: cowc.FIVE_NODE_COLOR,
+                                title: 'Objects',
+                                xAxisLabel: '',
+                                yAxisLabel: 'Object Wise Usage',
+                                groupBy: 'api_stats.object_type',
+                                limit: 5,
+                                yField: 'COUNT(api_stats)',
+                            }
                         }
                     }
                 };
             },
             'confignode-top-remote-ip': function (){
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                        table_name: 'StatTable.VncApiStatsLog.api_stats',
-                        select: "T=, api_stats.remote_ip, COUNT(api_stats)"
-                    }),
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.VncApiStatsLog.api_stats',
+                            select: "T=, api_stats.remote_ip, COUNT(api_stats)"
+                        }
+                    },
                     viewCfg: {
-                        elementId : 'remote_ip_top_5_section',
-                        view : "SectionView",
-                        viewConfig : {
-                            rows : [ {
-                                columns :[
-                                     $.extend(true, {}, monitorInfraConstants.stackChartDefaultViewConfig, {
-                                         elementId : 'remote_ip_top_5',
-                                         viewConfig: {
-                                             chartOptions: {
-                                                 colors: cowc.FIVE_NODE_COLOR,
-                                                 title: "Clients",
-                                                 xAxisLabel: '',
-                                                 yAxisLabel: "Client Wise Usage",
-                                                 groupBy: 'api_stats.remote_ip',
-                                                 limit: 5,
-                                                 yField: 'COUNT(api_stats)',
-                                             }
-                                         }
-                                     })
-                                ]
-                            }]
+                        elementId : 'remote_ip_top_5',
+                        view:'StackedBarChartWithFocusView',
+                        viewConfig: {
+                            chartOptions: {
+                                colors: cowc.FIVE_NODE_COLOR,
+                                title: "Clients",
+                                xAxisLabel: '',
+                                yAxisLabel: "Client Wise Usage",
+                                groupBy: 'api_stats.remote_ip',
+                                limit: 5,
+                                yField: 'COUNT(api_stats)',
+                            }
                         }
                     }
                 };
             },
             'confignode-top-projects': function () {
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                        table_name: 'StatTable.VncApiStatsLog.api_stats',
-                        select: "T=, api_stats.project_name, COUNT(api_stats)"
-                    }),
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.VncApiStatsLog.api_stats',
+                            select: "T=, api_stats.project_name, COUNT(api_stats)"
+                        }
+                    },
                     viewCfg: {
-                        elementId : 'projects_top_5_section',
-                        view : "SectionView",
-                        viewConfig : {
-                            rows : [ {
-                                columns :[
-                                     $.extend(true, {}, monitorInfraConstants.stackChartDefaultViewConfig, {
-                                         elementId : 'projects_top_5',
-                                         viewConfig: {
-                                             chartOptions: {
-                                                 colors: cowc.FIVE_NODE_COLOR,
-                                                 title: "Projects",
-                                                 xAxisLabel: '',
-                                                 yAxisLabel: "Project Wise Usage",
-                                                 groupBy: 'api_stats.project_name',
-                                                 limit: 5,
-                                                 yField: 'COUNT(api_stats)',
-                                             }
-                                         }
-                                     })
-                                ]
-                            }]
+                        elementId : 'projects_top_5',
+                        view:'StackedBarChartWithFocusView',
+                        viewConfig: {
+                            chartOptions: {
+                                colors: cowc.FIVE_NODE_COLOR,
+                                title: "Projects",
+                                xAxisLabel: '',
+                                yAxisLabel: "Project Wise Usage",
+                                groupBy: 'api_stats.project_name',
+                                limit: 5,
+                                yField: 'COUNT(api_stats)',
+                            }
                         }
                     }
                 };
             },
-            'confignode-process-cpu-node-mngr': function (colorFn) {
+            'confignode-process-cpu-node-mngr': function () {
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                        table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
-                        select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
-                        where: 'process_mem_cpu_usage.__key = contrail-config-nodemgr'
-                    }),
-                    viewCfg: $.extend(true, {}, monitorInfraConstants.defaultLineChartViewCfg, {
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where: 'process_mem_cpu_usage.__key = contrail-config-nodemgr'
+                        }
+                    },
+                    viewCfg: {
                         elementId : monitorInfraConstants.CONFIGNODE_CPU_SHARE_NODE_MNGR_LINE_CHART_ID,
+                        view:'LineWithFocusChartView',
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
@@ -351,18 +333,22 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
                             }
                         }
-                    })
+                    }
                 };
             },
             'confignode-process-contrail-schema': function () {
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                        table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
-                        select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
-                        where: 'process_mem_cpu_usage.__key = contrail-schema'
-                    }),
-                    viewCfg: $.extend(true, {}, monitorInfraConstants.defaultLineChartViewCfg, {
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where: 'process_mem_cpu_usage.__key = contrail-schema'
+                        }
+                    },
+                    viewCfg: {
                         elementId : monitorInfraConstants.CONFIGNODE_CPU_SHARE_SCHEMA_LINE_CHART_ID,
+                        view:'LineWithFocusChartView',
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
@@ -373,18 +359,22 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
                             }
                         }
-                    })
+                    }
                 };
             },
             'confignode-process-contrail-discovery': function () {
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                        table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
-                        select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
-                        where: 'process_mem_cpu_usage.__key = contrail-discovery:0'
-                    }),
-                    viewCfg: $.extend(true, {}, monitorInfraConstants.defaultLineChartViewCfg, {
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where: 'process_mem_cpu_usage.__key = contrail-discovery:0'
+                        }
+                    },
+                    viewCfg: {
                         elementId : monitorInfraConstants.CONFIGNODE_CPU_SHARE_DISCOVERYLINE_CHART_ID,
+                        view:'LineWithFocusChartView',
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
@@ -395,17 +385,21 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
                             }
                         }
-                    })
+                    }
                 };
             },'confignode-process-contrail-api': function () {
                 return {
-                    modelCfg: monitorInfraUtils.getStatsModelConfig({
-                        table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
-                        select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
-                        where: 'process_mem_cpu_usage.__key = contrail-api:0'
-                    }),
-                    viewCfg: $.extend(true, {}, monitorInfraConstants.defaultLineChartViewCfg, {
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where: 'process_mem_cpu_usage.__key = contrail-api:0'
+                        }
+                    },
+                    viewCfg: {
                         elementId : monitorInfraConstants.CONFIGNODE_CPU_SHARE_API_LINE_CHART_ID,
+                        view:'LineWithFocusChartView',
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
@@ -416,7 +410,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
                             }
                         }
-                    })
+                    }
                 };
             },
         };

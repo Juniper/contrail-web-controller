@@ -2383,63 +2383,6 @@ define([
                     }
             );
         };
-
-        self.getStatsModelConfig = function (statsConfig) {
-            var postData = {
-                "autoSort": true,
-                "async": false,
-                "formModelAttrs": {
-                  "table_type": "STAT",
-                  "query_prefix": "stat",
-                  "from_time": Date.now() - (2 * 60 * 60 * 1000),
-                  "from_time_utc": Date.now() - (2 * 60 * 60 * 1000),
-                  "to_time": Date.now(),
-                  "to_time_utc": Date.now(),
-                  "time_granularity_unit": "secs",
-                  "time_granularity": 150,
-                  "limit": "150000"
-                }
-            };
-
-            if (statsConfig['table_name'] != null) {
-                postData['formModelAttrs']['table_name'] = statsConfig['table_name'];
-            }
-            if (statsConfig['select'] != null) {
-                postData['formModelAttrs']['select'] = statsConfig['select'];
-            }
-            if (statsConfig['where'] != null) {
-                postData['formModelAttrs']['where'] = statsConfig['where'];
-            }
-            if (statsConfig['time_granularity'] != null) {
-                postData['formModelAttrs']['time_granularity'] = statsConfig['time_granularity'];
-            }
-            if (statsConfig['time_granularity_unit'] != null) {
-                postData['formModelAttrs']['time_granularity_unit'] = statsConfig['time_granularity_unit'];
-            }
-            var listModelConfig =  {
-                remote : {
-                    ajaxConfig : {
-                        url : "/api/qe/query",
-                        type: 'POST',
-                        data: JSON.stringify(postData)
-                    },
-                    dataParser : function (response) {
-                        var data = response['data'];
-                        if (statsConfig['parser'] != null && typeof statsConfig['parser'] == "function") {
-                            data = statsConfig['parser'](data);
-                        }
-                        return data;
-                    }
-                },
-                cacheConfig : {
-
-                }
-            };
-            if (statsConfig['ucid'] != null) {
-                listModelConfig['cacheConfig']['ucid'] = statsConfig['ucid'];
-            }
-            return listModelConfig;
-        };
     };
     return MonitorInfraUtils;
 });
