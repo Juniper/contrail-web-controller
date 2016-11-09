@@ -2,13 +2,14 @@
  * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 define([
-    'underscore',
+    'lodash',
     'contrail-view','contrail-model',
     'config/configEditor/ui/js/utils/ConfigObjectDetail.utils',
     'config/configEditor/ui/js/utils/ConfigObjectList.utils',
     'jdorn-jsoneditor','knockback','jquery-linedtextarea'],
-    function(_, ContrailView, ContrailModel, ConfigObjectDetailUtils, ConfigObjectListUtils, JsonEditor, Knockback, JqueryLinedTextArea, AJV) {
-    var configList, jsoneditor, keep_value = undefined, schema, formRadioFlag = true;
+    function(lodash, ContrailView, ContrailModel, ConfigObjectDetailUtils, ConfigObjectListUtils, JsonEditor, Knockback, JqueryLinedTextArea, AJV) {
+    var configList, formJson, jsoneditor, keep_value = undefined, schema, formRadioFlag = true, oldFormData, textAreaModel;
+    var modelRefs = [];
     var configObjectDetailsView = ContrailView.extend({
         el: $(contentContainer),
         render: function() {
@@ -22,77 +23,12 @@ define([
             $(contentContainer).find('.config-edit-refresh').on('click', function(){self.refreshObjectDetails(viewConfig)});
             $(contentContainer).find('.copy-config-object').on('click', ConfigObjectDetailUtils.getCopiedContent);
             $(contentContainer).find('.config-jSon-form-edit').on('click',function(){
-                formRadioFlag = true;
-                var modelTitle = ConfigObjectDetailUtils.parseParentKeyLowerToUpper(Object.keys(configList)[0]);
-                self.generateConfigModel(modelTitle, viewConfig);
-                if(Object.keys(configList)[0].search('-') != -1 || Object.keys(configList)[0][0].toUpperCase() != Object.keys(configList)[0][0]){
-                    configList = self.updateModelForSchema(configList,0);
-                }
-                self.loadSchemaBasedForm(configList,schema);
-                $("input:radio[id=configJsonMode]").change(function() {
-                   $("#rawJsonEdit").css("display", "block");
-                   $("#jsonEditorContainer").css("display", "none");
-                   ConfigObjectDetailUtils.hideErrorPopup();
-                   formRadioFlag = false;
-                   if($('#rawJsonTextArea').closest('.linedtextarea').length == 0) {
-                       $('#rawJsonTextArea').linedtextarea();
-                   }
-                });
-                $("input:radio[id=configFormMode]").change(function() {
-                   $("#jsonEditorContainer").css("display", "block");
-                   $("#rawJsonEdit").css("display", "none");
-                   formRadioFlag = true;
-                   ConfigObjectDetailUtils.hideErrorPopup();
-                });
-                document.getElementById('rawJsonTextArea').value = '';
-                var model = ConfigObjectDetailUtils.updateKeyValueBeforeSave(configList);
-                var updatedJson = ConfigObjectDetailUtils.changeJsonKeyUpperToLower(model, 0);
-                document.getElementById('rawJsonTextArea').value = JSON.stringify(updatedJson,null,2);
+                var disableKeys = ['security_group_id','parent_href','uuid','href','fq_name','owner','creator','created','last_modified','timer','parent_uuid','parent_type'];
+                ConfigObjectDetailUtils.loadConfigEditorModal(schema, formJson, viewConfig, disableKeys, modelRefs);
             });
+            $(contentContainer).find('.delete-config-object').on('click', function(){ConfigObjectDetailUtils.deleteConformModal(viewConfig)});
          },
-         generateConfigModel: function(title, viewConfig){
-             cowu.createModal({
-                 'modalId': ctwc.MODAL_CONFIG_EDITOR_CONTAINER,
-                 'className': 'modal-980',
-                 'title': title,
-                 'body': ConfigObjectDetailUtils.modelLayout,
-                 'onSave': function() {
-                     if(formRadioFlag){
-                         var updatedJson, editedJson = jsoneditor.getValue();
-                         if(Object.keys(editedJson)[0].search('-') == -1){
-                             var model = ConfigObjectDetailUtils.updateKeyValueBeforeSave(editedJson);
-                             updatedJson = ConfigObjectDetailUtils.changeJsonKeyUpperToLower(model, 0);
-                         }else{
-                             var updatedJson = editedJson;
-                         }
-                         self.saveObjectDetails(self, updatedJson, viewConfig, true);
-                     }else{
-                         try{
-                             var json = JSON.parse(document.getElementById('rawJsonTextArea').value);
-                             self.saveObjectDetails(self,json,viewConfig);
-                         }catch(err){
-                             ConfigObjectDetailUtils.showConfigErrorMsg(err);
-                         }
-                     }
-                 },
-                 'onCancel': function() {
-                     $("#json-editor-form-view").modal('hide');
-                 },
-                 'onReset': function() {
-                     if(formRadioFlag){
-                         ConfigObjectDetailUtils.hideErrorPopup();
-                         var parentKey = Object.keys(configList)[0];
-                         if(parentKey.search('_') != -1 || parentKey.search('-') != -1 || parentKey[0].toUpperCase() != parentKey[0]){
-                             configList = self.updateModelForSchema(configList,0);
-                         }
-                         self.loadSchemaBasedForm(configList,schema);
-                     }else{
-                         self.resetTextArea();
-                     }
-                 }
-             });
-         },
-         loadConfigObject: function(viewConfig,rawJosnSave, formSave){
+         loadConfigObject: function(viewConfig, rawJosnSave, formSave){
              var options = {type:viewConfig.hashParams.objName+'/'+viewConfig.hashParams.uuid};
              var ajaxConfig = {
                      url: ctwc.URL_GET_CONFIG_DETAILS,
@@ -108,24 +44,95 @@ define([
                  if(rawJosnSave == undefined && formSave == undefined){
                      self.loadBreadcrumb(viewConfig);
                  }
-                 var getHtmlFormatJson = ConfigObjectListUtils.formatJSON2HTML(configList, 10, undefined, true);
+                 var getHtmlFormatJson = ConfigObjectListUtils.formatJSON2HTML(configList, 10, undefined, true, false);
                  $(contentContainer).find('.object-json-view').empty();
                  $(contentContainer).find('.object-json-view').append(getHtmlFormatJson);
-                 if(rawJosnSave){
-                     ConfigObjectDetailUtils.hideTextAreaAfterSave($(contentContainer));
-                 }
                  if(Object.keys(schema).length === 0){
-                     self.getJsonSchema(configList)
+                   self.getGenerateDsSchema(viewConfig);
                  }
                  if(formSave){
-                     ConfigObjectDetailUtils.cancelSchemaBasedForm($(contentContainer));
                      schema = {};
-                     self.getJsonSchema(configList)
+                     self.getGenerateDsSchema(viewConfig);
                  }
                  ConfigObjectDetailUtils.setContentInTextArea(configList);
              },function(error){
-                 ConfigObjectDetailUtils.showConfigErrorMsg(error.responseText);
+                 contrail.showErrorMsg(error.responseText);
              });
+          },
+          getGenerateDsSchema: function(viewConfig){
+              var options = {type:viewConfig.hashParams.objName+'/'+viewConfig.hashParams.uuid+'?exclude_back_refs=true&exclude_children=true'};
+              var ajaxConfigForSchema = {
+                      url: '/api/tenants/config/get-json-schema/'+viewConfig.hashParams.objName,
+                      type:'GET'
+                  };
+              var ajaxConfigForJson = {
+                      url: ctwc.URL_GET_CONFIG_DETAILS,
+                      type:'POST',
+                      data:ConfigObjectListUtils.getPostDataForGet(options)
+                  };
+              contrail.ajaxHandler(ajaxConfigForSchema, null, function(dsschema){
+                  schema = dsschema;
+                  contrail.ajaxHandler(ajaxConfigForJson, null, function(model){
+                      formJson = model[0];
+                      var obj = formJson[Object.keys(formJson)[0]];
+                      for(var i in obj){
+                          if(i.substring(i.length-5,i.length) === '_refs'){
+                              modelRefs.push(i);
+                              modelRefs.push(obj[i]);
+                          }
+                      }
+                      self.getHrefUrlOptions();
+                  },function(error){
+                      contrail.showErrorMsg(error.responseText);
+                  });
+              },function(error){
+                  contrail.showErrorMsg(error.responseText);
+              });
+          },
+          getHrefUrlOptions: function(){
+              var refsOrder = 50,list=[];
+              schemaProperties = getValueByJsonPath(schema,'properties;'+Object.keys(schema.properties)[0]+';properties');
+              for(var j in schemaProperties){
+                  if(j.substring(j.length-5,j.length) === '_refs'){
+                     list.push(j+':'+schemaProperties[j].url);
+                  }
+                  if(j == 'parent_type'){
+                      delete schemaProperties[j].enum;
+                      schema.properties[Object.keys(schema.properties)[0]].properties[j] = schemaProperties[j];
+                  }
+              }
+              $.each(list, function (i, item) {
+                  var url = item.split(':');
+                  var options = {type:url[1].substring(1, url[1].length)};
+                  var ajaxConfig = {
+                          url: ctwc.URL_GET_CONFIG_LIST,
+                          type:'POST',
+                          data:ConfigObjectListUtils.getPostDataForGet(options)
+                       };
+                  contrail.ajaxHandler(ajaxConfig, null, function(model) {
+                      var optionsList = [];
+                      refsOrder++;
+                      var objList = model[0][Object.keys(model[0])[0]];
+                      for(var k = 0; k < objList.length; k++){
+                          optionsList.push(objList[k].fq_name.join(':'));
+                      }
+                      //ToDo for without 's' keys s.split('-').join('_')
+                      var objKey = Object.keys(model[0])[0].split('-').join('_');
+                      var updatedKey = objKey.substring(0,objKey.length - 1) + '_refs';
+                      schema.properties[Object.keys(schema.properties)[0]].properties[updatedKey]= {
+                              "type": "array",
+                              "format": "select",
+                              "propertyOrder": refsOrder,
+                              "uniqueItems": true,
+                              "items": {
+                                 "type": "string",
+                                 "enum": optionsList
+                               } 
+                      }
+                  },function(error){
+                      contrail.showErrorMsg(error.responseText);
+                  });
+              });
           },
           refreshObjectDetails: function(viewConfig){
               $('.config-edit-refresh').children().removeClass('fa fa-repeat').addClass('fa fa-spin fa fa-spinner');
@@ -137,13 +144,13 @@ define([
                   };
               contrail.ajaxHandler(ajaxConfig, null, function(json){
                   configList = json[0];
-                  var getHtmlFormatJson = ConfigObjectListUtils.formatJSON2HTML(configList, 10, undefined, true);
+                  var getHtmlFormatJson = ConfigObjectListUtils.formatJSON2HTML(configList, 10, undefined, true, false);
                   $(contentContainer).find('.object-json-view').empty();
                   $(contentContainer).find('.object-json-view').append(getHtmlFormatJson);
                   ConfigObjectDetailUtils.setContentInTextArea(configList);
                   $('.config-edit-refresh').children().removeClass('fa fa-spin fa fa-spinner').addClass('fa fa-repeat');
               },function(error){
-                  ConfigObjectDetailUtils.showConfigErrorMsg(error.responseText);
+                  contrail.showErrorMsg(error.responseText);
               });
           },
           loadBreadcrumb: function(viewConfig){
@@ -159,12 +166,7 @@ define([
                                   {label:getValueByJsonPath(configList,Object.keys(configList)[0]+';fq_name').join(' : ')}]); 
               }
           },
-          resetTextArea: function(){
-              document.getElementById('rawJsonTextArea').value = '';
-              document.getElementById('rawJsonTextArea').value = JSON.stringify(configList,null,2);
-              ConfigObjectDetailUtils.hideErrorPopup();
-          },
-          saveObjectDetails: function(self, data, viewConfig, formSaved){
+          saveObjectDetails: function(data, viewConfig, formSaved ,utilSelf){
               var reqUrlHash;
               if (viewConfig.hashParams.objName[viewConfig.hashParams.objName.length - 1] == 's') {
                   reqUrlHash = viewConfig.hashParams.objName.slice(0, -1);
@@ -179,146 +181,27 @@ define([
                           },
                           success: function () {
                               $("#json-editor-form-view").modal('hide');
-                              if(formSaved){
-                                  self.loadConfigObject(viewConfig, false, formSaved);
-                              }else{
-                                  self.loadConfigObject(viewConfig, true, false);
-                              }
+                              self.loadConfigObject(viewConfig, false, formSaved);
                           },
                           error: function (error) {
-                              ConfigObjectDetailUtils.showConfigErrorMsg(error.responseText);
+                              utilSelf.showConfigErrorMsg(error.responseText);
                           }
                       }
               );
            },
-           getParentKeyOfSchema: function(schema){
-               var jsonKey = getValueByJsonPath(configList,Object.keys(configList)[0]);
-               var schemaKey = getValueByJsonPath(schema,'properties;'+Object.keys(schema.properties)[0]+';properties');
-               var topOrder = 0;
-               var bottomOrder = 1000;
-               for (var i in jsonKey){
-                 bottomOrder++;
-                 if(typeof jsonKey[i] === 'number' || typeof jsonKey[i] === 'string'){
-                     topOrder++;
-                     var obj = { propertyOrder: topOrder, type: typeof jsonKey[i], collapse:true };
-                     var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                     schemaKey[key] = obj;
-                 }else if(typeof jsonKey[i] === 'boolean'){
-                     topOrder++;
-                     var obj = { propertyOrder: topOrder, type: typeof jsonKey[i] ,format: 'checkbox', collapse:true };
-                     var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                     schemaKey[key] = obj;
-                 }else if(jsonKey[i] == null || (typeof jsonKey[i] === 'object' && jsonKey[i].constructor !== Array)){
-                     var obj = ConfigObjectDetailUtils.getChildKeyOfSchema(jsonKey[i], bottomOrder);
-                     var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                     schemaKey[key] = obj;
-                 }else if(jsonKey[i].constructor === Array){
-                     if(typeof jsonKey[i][0] !== 'object'){
-                         if(i === 'fq_name' || i === 'to'){
-                             topOrder++;
-                             var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                             schemaKey[key] = { propertyOrder: topOrder, type: 'string', collapse:true};
-                         }else{
-                             var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                             schemaKey[key] = { propertyOrder: bottomOrder, type: 'array' , collapse:true};
-                         }
-                       }else{
-                           var obj = {
-                                   propertyOrder: bottomOrder,
-                                   type: 'array',
-                                   collapse:true,
-                                   items: ConfigObjectDetailUtils.getChildKeyOfSchema(jsonKey[i][0])
-                           };
-                           var key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                           schemaKey[key] = obj;
-                       }
-                  }
-               }
-              return schemaKey;
-           },
-           updateModelForSchema: function(model,count){
-               var key,preKeyValue;
-               for (var i in model) {
-                   if (typeof model[i] === 'object' && model[i] !== null && model[i].constructor !== Array) {
-                          var oldModel = model[i];
-                          if(count == 0){
-                             key = ConfigObjectDetailUtils.parseParentKeyLowerToUpper(i);
-                           }else{
-                             key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                           }
-                          count++;
-                          model[key] = oldModel;
-                          delete model[i];
-                          self.updateModelForSchema(oldModel, count);
-                   }else if( model[i] !== null && model[i].constructor === Array){
-                       if(typeof model[i][0] === 'object'){
-                           preKeyValue = model[i];
-                           key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                           model[key] = preKeyValue;
-                           delete model[i];
-                           for(var j = 0; j < preKeyValue.length; j++){
-                               self.updateModelForSchema(preKeyValue[j]);
-                           }
-                       }else if(model[i].length == 0){
-                           preKeyValue = model[i];
-                           key= ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                           model[key] = preKeyValue;
-                           delete model[i];
-                       }else if(i === 'fq_name'){
-                               var fqName = model[i].join(':');
-                               key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                               delete model[i];
-                               model[key] = fqName;
-                       }else if(i === 'to'){
-                           var to = model[i].join(':');
-                           key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                           delete model[i];
-                           model[key] = to;
-                       }
-                   }else{
-                       key = ConfigObjectDetailUtils.parseJsonKeyLowerToUpper(i);
-                       model[key] = model[i];
-                       delete model[i];
-                   }
-               }
-             return model;
-           },
-           getJsonSchema: function(configList){
-               schema.type = 'object';
-               schema.properties = {};
-               var parentKey = ConfigObjectDetailUtils.parseParentKeyLowerToUpper(Object.keys(configList)[0]);
-               schema.properties[parentKey] = {};
-               schema.properties[parentKey]['type'] = 'object';
-               schema.properties[parentKey]['collapse'] = true;
-               schema.properties[parentKey]['properties'] = {};
-               var childProperty = self.getParentKeyOfSchema(schema);
-               schema.properties[parentKey].properties = childProperty;
-           },
-           loadSchemaBasedForm: function(configList,schema){
-               var startval = (jsoneditor && keep_value)? jsoneditor.getValue() : configList;
-               var rowJsonContainer = $('.object-json-view');
-               var formContainer = document.getElementById('jsonEditorContainer');
-               if(jsoneditor) jsoneditor.destroy();
-               JSONEditor.defaults.options.theme = 'bootstrap2';
-               jsoneditor = new JSONEditor(formContainer,{
-                   schema: schema,
-                   startval: startval,
-                   theme: 'bootstrap2',
-                   iconlib: 'fontawesome3',
-                   disable_edit_json: true,
-                   disable_properties: false,
-                   no_additional_properties :false,
-                   required_by_default : false,
-                   disable_array_delete:true,
-                   disable_array_delete_all_rows: true,
-                   disable_array_delete_last_row : true,
-                   disable_array_reorder:true,
-                   remove_empty_properties: false,
-                   unDeletableProperty : ConfigObjectDetailUtils.unDeletableProp
-                });
-               window.jsoneditor = jsoneditor;
-               rowJsonContainer.value = '';
-           }
+          deleteConfigObjectDetails: function(viewConfig){
+              var currentHashObj = layoutHandler.getURLHashObj();
+              var objectDeleteConfig = {
+                      url: '/api/tenants/config/delete-config-data?type='+viewConfig.hashParams.objName+'&uuid='+viewConfig.hashParams.uuid,
+                      type:'DELETE'
+                  };
+              contrail.ajaxHandler(objectDeleteConfig, null, function(projects){
+                  $("#config-object-details-modal").modal('hide');
+                  loadFeature({p: currentHashObj['p'], q: {'objName': currentHashObj.q.objName+'s'}});
+              },function(error){
+                  contrail.showErrorMsg(error.responseText);
+              });
+          }
      });
     return configObjectDetailsView;
 });
