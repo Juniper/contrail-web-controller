@@ -61,7 +61,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 class: 'col-xs-7 mon-infra-chart chartMargin',
                                 chartOptions: {
                                     showControls: false,
-                                    height: 480,
                                     colors: colorFn,
                                     title: ctwl.CONFIGNODE_SUMMARY_TITLE,
                                     xAxisLabel: '',
@@ -73,19 +72,13 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                         } else {
                                             return 0;
                                         }
-                                    },
-                                    margin: {
-                                        left: 40,
-                                        top: 20,
-                                        right: 0,
-                                        bottom: 40
                                     }
                                 }
                             }
                         }),
                     itemAttr: {
-                        height: 1.8,
-                        width: 1.2,
+                        height: 0.9,
+                        width: 2,
                         title: ctwl.CONFIG_NODE_REQUESTS_SERVED
                     }
                 }
@@ -163,7 +156,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                         }
                     },
                     itemAttr:{
-                        width: 0.9,
+                        width: 1.2,
+                        height: 0.9,
                         title: ctwl.CONFIG_NODE_RESPONSE_TIME_VS_SIZE
                     }
                 }
@@ -188,7 +182,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                     },
                     itemAttr: {
                         width: 0.9,
-                        height: 0.6,
+                        height: 0.7,
                         title: ctwl.CONFIG_NODE_REQUESTS_READ_VS_WRITE
                     }
                 }
@@ -233,12 +227,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                                  groupBy: 'api_stats.useragent',
                                                  limit: 5,
                                                  yField: 'COUNT(api_stats)',
-                                                 margin: {
-                                                     left: 40,
-                                                     top: 20,
-                                                     right: 0,
-                                                     bottom: 40
-                                                 }
                                              }
                                          }
                                      })
@@ -271,12 +259,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                                  groupBy: 'api_stats.object_type',
                                                  limit: 5,
                                                  yField: 'COUNT(api_stats)',
-                                                 margin: {
-                                                     left: 40,
-                                                     top: 20,
-                                                     right: 0,
-                                                     bottom: 40
-                                                 }
                                              }
                                          }
                                      })
@@ -309,12 +291,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                                  groupBy: 'api_stats.remote_ip',
                                                  limit: 5,
                                                  yField: 'COUNT(api_stats)',
-                                                 margin: {
-                                                     left: 40,
-                                                     top: 20,
-                                                     right: 0,
-                                                     bottom: 40
-                                                 }
                                              }
                                          }
                                      })
@@ -347,12 +323,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                                  groupBy: 'api_stats.project_name',
                                                  limit: 5,
                                                  yField: 'COUNT(api_stats)',
-                                                 margin: {
-                                                     left: 40,
-                                                     top: 20,
-                                                     right: 0,
-                                                     bottom: 40
-                                                 }
                                              }
                                          }
                                      })
