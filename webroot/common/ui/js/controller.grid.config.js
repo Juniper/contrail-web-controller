@@ -252,7 +252,7 @@ define([
                                 data: {
                                     type: 'virtual-machine-interface',
                                     uuids: names.join(','),
-                                    minSince: 60,
+                                    minsSince: 60,
                                     useServerTime: true
                                 }
                             })
@@ -371,7 +371,7 @@ define([
                                 data: {
                                     type: type,
                                     uuids: uuids.join(','),
-                                    minSince: 60,
+                                    minsSince: 60,
                                     useServerTime: true
                                 }
                             })

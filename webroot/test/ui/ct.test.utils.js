@@ -21,7 +21,7 @@ define([
             '/api/tenant/networking/virtual-machine-interfaces/summary': /\/api\/tenant\/networking\/virtual-machine-interfaces\/summary\?.*$/,
             '/api/tenant/networking/virtual-machine-interfaces/summary': /\/api\/tenant\/networking\/virtual-machine-interfaces\/summary.*$/,
             '/api/tenant/networking/stats': /\/api\/tenant\/networking\/stats.*$/,
-            '/api/admin/reports/query' : /\/api\/admin\/reports\/query.*$/,
+            '/api/qe/query': /\/api\/qe\/query.*$/,
             '/api/tenant/networking/network/stats/top' :  /\/api\/tenant\/networking\/network\/stats\/top.*$/,
             '/api/tenant/monitoring/project-connected-graph': /\/api\/tenant\/monitoring\/project-connected-graph.*$/,
             '/api/tenant/monitoring/project-config-graph': /\/api\/tenant\/monitoring\/project-config-graph.*$/,
@@ -32,10 +32,7 @@ define([
             '/api/tenant/monitoring/network-connected-graph?fqName=default-domain:admin:frontend': /\/api\/tenant\/monitoring\/network-connected-graph\?fqName=default-domain%3Aadmin%3Afrontend.*$/,
             '/api/tenant/monitoring/network-config-graph?fqName=default-domain:admin:frontend': /\/api\/tenant\/monitoring\/network-config-graph\?fqName=default-domain%3Aadmin%3Afrontend.*$/,
             '/api/tenant/networking/virtual-machines/details?fqnUUID=ad8a9efc-9b7e-4425-9735-03bda0d2726e&count=10&nextCount=100&type=vn': /\/api\/tenant\/networking\/virtual-machines\/details\?fqnUUID=ad8a9efc-9b7e-4425-9735-03bda0d2726e&count=10&nextCount=100&type=vn.*$/,
-            '/api/tenant/networking/virtual-machines/summary': /\/api\/tenant\/networking\/virtual-machines\/summary.*$/,
-
-            '/api/admin/reports/query?port=34560-34815&timeRange=600&table=FlowSeriesTable': /\/api\/admin\/reports\/query\?port=34560-34815&timeRange=600&table=FlowSeriesTable.*$/,
-            '/api/admin/reports/query?port=9110&timeRange=600&table=FlowSeriesTable': /\/api\/admin\/reports\/query\?port=9110&timeRange=600&table=FlowSeriesTable.*$/
+            '/api/tenant/networking/virtual-machines/summary': /\/api\/tenant\/networking\/virtual-machines\/summary.*$/
         };
 
         return regexUrlMap [url];

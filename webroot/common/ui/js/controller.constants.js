@@ -45,7 +45,6 @@ define([
         this.URL_VM_VN_STATS = '/api/tenant/networking/stats';
         this.URL_VM_INTERFACES = '/api/tenant/networking/virtual-machine-interfaces/summary';
 
-        this.URL_QUERY = '/api/admin/reports/query';
         this.URL_GET_GLOBAL_VROUTER_CONFIG = '/api/tenants/config/global-vrouter-config';
 
         this.URL_GET_PROJECT_QUOTA_USED = '/api/tenants/config/project-quotas-info?id={0}';
@@ -315,6 +314,11 @@ define([
         };
 
         this.constructReqURL = function (urlConfig) {
+            var reqUrlParamObj = this.constructReqURLParams(urlConfig);
+            return reqUrlParamObj.url + '?' + $.param(reqUrlParamObj.reqParams);
+        };
+
+        this.constructReqURLParams = function(urlConfig) {
             var url = "", length = 0, context,
                 fqName = contrail.checkIfExist(urlConfig['fqName']) ? decodeURIComponent(urlConfig['fqName']) : urlConfig['fqName'];
 
@@ -341,11 +345,11 @@ define([
                 if (urlConfig['type'] == 'summary')
                     url = "/api/tenant/networking/project/summary"
                 else if (urlConfig['type'] == 'portRangeDetail')
-                    url = "/api/admin/reports/query";
+                    url = "/api/qe/query";
             } else if (context == 'network') {
                 url = "/api/tenant/networking/network/stats/top"
                 if (urlConfig['type'] == 'portRangeDetail')
-                    url = "/api/admin/reports/query";
+                    url = "/api/qe/query";
                 var urlMap = {
                     summary: '/api/tenant/networking/vn/summary',
                     flowseries: '/api/tenant/networking/flow-series/vn',
@@ -437,13 +441,14 @@ define([
             if (urlConfig['type'] == 'portRangeDetail') {
                 var fqName = fqName, protocolCode;
                 reqParams['timeRange'] = 600;
-                reqParams['table'] = 'FlowSeriesTable';
+                reqParams['table_name'] = 'FlowSeriesTable';
+                reqParams['table_type'] = 'FLOW';
                 if (urlConfig['startTime'] != null) {
-                    reqParams['fromTimeUTC'] = urlConfig['startTime'];
-                    reqParams['toTimeUTC'] = urlConfig['endTime'];
+                    reqParams['from_time_utc'] = urlConfig['startTime'];
+                    reqParams['to_time_utc'] = urlConfig['endTime'];
                 } else {
-                    reqParams['fromTimeUTC'] = new XDate().addMinutes(-10).getTime();
-                    reqParams['toTimeUTC'] = new XDate().getTime();
+                    reqParams['from_time_utc'] = new XDate().addMinutes(-10).getTime();
+                    reqParams['to_time_utc'] = new XDate().getTime();
                 }
                 var protocolMap = {tcp: 6, icmp: 1, udp: 17},
                 protocolCode = [];
@@ -523,7 +528,7 @@ define([
             //reqParams['limit'] = 100;
             delete reqParams['limit'];
 
-            return url + '?' + $.param(reqParams);
+            return {url: url, reqParams: reqParams};
         };
 
         this.STATS_SELECT_FIELDS = {

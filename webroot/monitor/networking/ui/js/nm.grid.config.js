@@ -192,7 +192,7 @@ define([
                                 data: {
                                     type: type,
                                     uuids: uuids.join(','),
-                                    minSince: 60,
+                                    minsSince: 60,
                                     useServerTime: true
                                 }
                             })
@@ -241,7 +241,7 @@ define([
                                 data: {
                                     type: 'virtual-machine-interface',
                                     uuids: names.join(','),
-                                    minSince: 60,
+                                    minsSince: 60,
                                     useServerTime: true
                                 }
                             })
@@ -356,26 +356,26 @@ define([
                 searchable: true
             },
             {
-                field: 'sum_bytes',
-                name: 'Sum (Bytes)',
+                field: "sum(bytes)",
+                name: "Sum (Bytes)",
                 minWidth: 80,
                 searchFn: function (d) {
-                    return d['sum_bytes'];
+                    return d["sum(bytes)"];
                 },
                 formatter: function (r, c, v, cd, dc) {
-                    return cowu.addUnits2Bytes(dc['sum_bytes']);
+                    return cowu.addUnits2Bytes(dc["sum(bytes)"]);
                 },
                 searchable: true
             },
             {
-                field: 'sum_packets',
-                name: 'Sum (Packets)',
+                field: "sum(packets)",
+                name: "Sum (Packets)",
                 minWidth: 90,
                 searchFn: function (d) {
-                    return d['sum_packets'];
+                    return d["sum(packets)"];
                 },
                 formatter: function (r, c, v, cd, dc) {
-                    return cowu.addUnits2Packets(dc['sum_packets']);
+                    return cowu.addUnits2Packets(dc['sum(packets)']);
                 },
                 searchable: true
             },
