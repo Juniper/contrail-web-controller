@@ -14,7 +14,6 @@ define(
                             getDatabaseNodeListViewConfig(colorFn));
                 }
             });
-
             function getDatabaseNodeListViewConfig(colorFn) {
                 var viewConfig = {
                     rows : [
@@ -29,20 +28,41 @@ define(
                                                  elementId : 'database-node-grid-stackview-0',
                                                  view : "GridStackView",
                                                  viewConfig: {
+                                                     elementId : 'database-node-grid-stackview-0',
                                                      gridAttr : {
                                                          defaultWidth : 6,
                                                          defaultHeight : 8
                                                      },
                                                      widgetCfgList: [
                                                          {id:'databsenode-percentile-bar-view'},
+                                                         {id:'databasenode-pending-compactions'},
                                                          {id:'databasenode-cpu-share'},
                                                          {id:'databasenode-memory'},
-                                                         {id:'databasenode-disk-space-usage'},
-                                                         {id:'databasenode-pending-compactions'},
+                                                         {id:'disk-usage-info'},
+                                                         {id:'database-grid-view'}
+                                                     ]
+                                                  }
+                                               }
+                                         },{
+                                             page: {
+                                                 elementId : 'database-node-grid-stackview-1',
+                                                 view : "GridStackView",
+                                                 viewConfig: {
+                                                     elementId : 'database-node-grid-stackview-1',
+                                                     gridAttr : {
+                                                         defaultWidth : 6,
+                                                         defaultHeight : 8
+                                                     },
+                                                     widgetCfgList: [
+                                                         {id:'databasenode-zookeeper'},
+                                                         {id:'databasenode-kafka'},
+                                                         {id:'system-cpu-share'},
+                                                         {id:'system-memory-usage'},
+                                                        // {id:'disk-usage-info'},
                                                          {id:'database-grid-view'}
                                                      ]
                                                 }
-                                             }
+                                             },
                                          }
                                    ]
                                 }
