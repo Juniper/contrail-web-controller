@@ -153,6 +153,7 @@ define([
                 chartOptions: {
                     bucketSize: this.STATS_BUCKET_DURATION,
                     showControls: true,
+                    showLegend: true,
                     tickPadding: 8,
                     margin: {
                         left: 45,
@@ -182,9 +183,9 @@ define([
                         title: '',
                         axisLabelDistance : 0,
                         margin: {
-                            left: 70,
+                            left: 58,
                             top: 20,
-                            right: 15,
+                            right: 0,
                             bottom: 20
                         },
                         tickPadding: 8,

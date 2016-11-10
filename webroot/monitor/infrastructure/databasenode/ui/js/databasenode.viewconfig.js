@@ -44,12 +44,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                      yField: 'MAX(process_mem_cpu_usage.cpu_share)',
                                      colors: colorFn,
                                      title: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                     margin: {
-                                         left: 60,
-                                         top: 20,
-                                         right: 15,
-                                         bottom: 35
-                                     },
                                      yTickFormat: cpuChartYTickFormat,
                                      yFormatter : function(d){
                                          return d;
@@ -59,7 +53,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                          }
                      }),
                      itemAttr: {
-                         title: ctwl.DATABSE_NODE_CPU_SHARE
+                         title: ctwl.DATABSE_NODE_CPU_SHARE,
+                         height: 1.3
                      }
                 }
             },
@@ -78,16 +73,9 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                  yField: 'MAX(process_mem_cpu_usage.mem_res)',
                                  colors: colorFn,
                                  title: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                 margin: {
-                                     left: 60,
-                                     top: 20,
-                                     right: 15,
-                                     bottom: 50
-                                 },
-                                 yTickFormat: cpuChartYTickFormat,
                                  yFormatter : function(d){
-                                     return d;
-                                 },
+                                     return formatBytes(d, true);
+                                },
                                  xFormatter: xCPUChartFormatter,
                          }
                      }
@@ -121,12 +109,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                      yField: 'MAX(database_usage.disk_space_used_1k)',
                                      colors: colorFn,
                                      title: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                     margin: {
-                                         left: 60,
-                                         top: 20,
-                                         right: 15,
-                                         bottom: 50
-                                     },
                                      yFormatter : function(d){
                                           return formatBytes(d, true);
                                      },
@@ -152,14 +134,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                 colors: colorFn,
                                 title: ctwl.DATABASENODE_SUMMARY_TITLE,
                                 yAxisLabel: 'Pending Compactions',
-                                margin: {
-                                    left: 55,
-                                    top: 20,
-                                    right: 15,
-                                    bottom: 55
-                                },
-                                showControls: false,
-                                showLegend: true,
+                                xAxisLabel: '',
                                 groupBy: 'name',
                                 yField: 'MAX(cassandra_compaction_task.pending_compaction_tasks)',
                             }
