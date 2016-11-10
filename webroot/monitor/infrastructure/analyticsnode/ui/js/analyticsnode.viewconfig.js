@@ -31,7 +31,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     },
                     itemAttr: {
                         height:0.25,
-                        width: 1.5,
+                        width: 2,
                         title: ctwl.ANALYTICS_NODE_MESSAGE_PARAMS_PERCENTILE
                     }
                 }
@@ -96,52 +96,92 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         }
                     },
                     itemAttr: {
-                        width: 0.68,
+                        width: 0.67,
                         height: 0.9,
                         title: ctwl.ANALYTICS_NODE_QUERY_DISTRIBUTION
                     }
                 }
             },
-            'analyticsnode-database-usage': function (){
+            'analyticsnode-generators-scatterchart': function (){
                 return {
                     modelCfg: {
                         source: 'STATTABLE',
                         config: {
-                            table_name: 'StatTable.DatabaseUsageInfo.database_usage',
-                            select: 'Source, T=, MAX(database_usage.analytics_db_size_1k), MAX(database_usage.disk_space_used_1k)',
-                            parser: function(response){
-                                var stats = response;
-                                $.each(stats, function(idx, obj) {
-                                    obj['MAX(database_usage.analytics_db_size_1k)'] =
-                                        ifNull(obj['MAX(database_usage.analytics_db_size_1k)'],0) * 1024; //Converting KB to Bytes
-                                    obj['MAX(database_usage.disk_space_used_1k)'] =
-                                        ifNull(obj['MAX(database_usage.disk_space_used_1k)'],0) * 1024;
-                                });
-                                return stats;
+                            "table_name": "StatTable.SandeshMessageStat.msg_info",
+                            "select": "Source,name, T=, SUM(msg_info.messages),SUM(msg_info.bytes)",
+                            "parser": function(response){
+                                var apiStats = response;
+                                var parsedData = [], parsedDataAll = [];
+                                var parsedDataNew = [];
+                                var cf = crossfilter(apiStats);
+                                var sourceDim = cf.dimension(function (d) {return d['name']});
+                                var totalResMessages = sourceDim.group().reduceSum(
+                                        function (d) {
+                                            return d['SUM(msg_info.messages)'];
+                                        });
+                                var totalResSize = sourceDim.group().reduceSum(
+                                        function (d) {
+                                            return d['SUM(msg_info.bytes)'];
+                                        });
+                                totalResMessagesData = totalResMessages.all();
+                                totalResSize = totalResSize.all();
+                                    $.each(totalResSize, function (key, value){
+                                        var xValue = Math.round(value['value']/120);
+                                        var Source = value['key'].substring(0, 6);
+                                        xValue = formatBytes(xValue);
+                                        xValue = parseFloat(xValue);
+                                        xValue = Math.round(xValue);
+                                        parsedData.push({
+                                            Source : Source,
+                                            label: value['key'],
+                                            x: parseFloat(xValue)
+                                            //color: colors[value['key']]
+                                        });
+                                    });
+                                    $.each(totalResMessagesData, function (key, value){
+                                        var dataWithX = _.find(parsedData, function(xValue){
+                                            return xValue.label === value["key"];
+                                        });
+                                        dataWithX.y = value['value']/120;
+                                        dataWithX.y = parseFloat(dataWithX.y);
+                                        dataWithX.y = Math.round(dataWithX.y);
+                                    });
+                                return parsedData;
+
                             }
                         }
                     },
-                    viewCfg: {
-                        elementId : ctwl.ANALYTICS_CHART_DATABASE_READ_STACKEDBARCHART_ID,
-                        view:'StackedBarChartWithFocusView',
+                    viewCfg:{
+                        elementId : 'generatorsScatterChart',
+                        view:'ZoomScatterChartView',
                         viewConfig: {
                             chartOptions: {
-                                title: ctwl.ANALYTICSNODE_SUMMARY_TITLE,
-                                xAxisLabel: '',
-                                yAxisLabel: ctwl.ANALYTICS_CHART_DATABASE_USAGE,
-                                yField: 'MAX(database_usage.analytics_db_size_1k)',
-                                yAxisFormatter: function (value) {
-                                    return formatBytes(value);
-                                },margin: {
-                                    left: 60
-                                }
+                                xLabelFormat: function(x) {return $.isNumeric(x) ? x : NaN;},
+                                xLabel: 'Bytes (KB)/ min',
+                                yLabel: 'Generators Messages / min',
+                                xTickCount:5,
+                                yTickCount:5,
+                               // sizeField: 'size',
+                                doBucketize:false,
+                                tooltipConfigCB: function(currObj,format) {
+                                    var options = {};
+                                    var nodes = currObj;
+                                    options['tooltipContents'] = [
+                                          {label:'Node', value: nodes.Source},
+                                          {label:'No. of Generators:', value: nodes.size},
+                                          {label:'Messages', value:$.isNumeric(currObj['y']) ? currObj['y'].toFixed(2)  : currObj['y']},
+                                          {label:'Bytes(KB)', value:Math.round(currObj['x'])}
+                                      ];
+                                    return monitorInfraUtils.getDefaultScatterChartTooltipFn(currObj,options);
+                                },
+                                //clickCB: monitorInfraUtils.onvRouterDrillDown,
                             }
                         }
                     },
-                    itemAttr: {
-                        width: 0.68,
-                        height: 0.9,
-                        title: ctwl.ANALYTICS_NODE_DB_USAGE
+                itemAttr: {
+                    width: 0.83,
+                    height: 1.2,
+                    title: ctwl.ANALYTICS_NODE_GENERATORS
                     }
                 }
             },
@@ -172,30 +212,11 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         }
                     },
                     itemAttr: {
-                        width: 0.68,
+                        width: 0.67,
                         height: 0.9,
                         title: ctwl.ANALYTICS_NODE_DB_READ_WRITE
                     }
                 }
-            },
-            'analyticsnode-grid-view': function () {
-              return {
-                  modelCfg: {
-                    listModel: new AnalyticsNodeListModel()
-                  },
-                  viewCfg: {
-                      elementId : ctwl.ANALYTICSNODE_SUMMARY_GRID_ID,
-                      title : ctwl.ANALYTICSNODE_SUMMARY_TITLE,
-                      view : "GridView",
-                      viewConfig : {
-                          elementConfig :
-                              getAnalyticsNodeSummaryGridConfig(analyticsNodeListModel, colorFn)
-                      }
-                  },
-                  itemAttr: {
-                      width: 2
-                  }
-              }
             },
             'analyticsnode-top-messagetype': function (){
                 return {
@@ -223,7 +244,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     },itemAttr: {
                         title: ctwl.ANALYTICS_NODE_TOP_MESSAGE_TYPES
                     }
-                };
+                }
             },
             'analyticsnode-top-generators': function (){
                 return {
@@ -251,7 +272,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     },itemAttr: {
                         title: ctwl.ANALYTICS_NODE_TOP_GENERATORS
                     }
-                };
+                }
             },
             'analyticsnode-qe-cpu-share': function (){
                 return {
@@ -279,7 +300,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     },itemAttr: {
                         title: ctwl.ANALYTICS_NODE_QE_CPU_SHARE
                     }
-                };
+                }
             },
             'analyticsnode-collector-cpu-share': function () {
                 return {
@@ -307,7 +328,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     },itemAttr: {
                         title: ctwl.ANALYTICS_NODE_COLLECTOR_CPU_SHARE
                     }
-                };
+                }
             },
             'analyticsnode-alarm-gen-cpu-share': function () {
                 return {
@@ -320,7 +341,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         }
                     },
                     viewCfg: {
-                        elementId : ctwl.ANALYTICS_CHART_SANDESH_STACKEDBARCHART_ID,
+                        elementId : 'analyticsnode_alarm_gen_cpu_share',
                         view: 'LineWithFocusChartView',
                         viewConfig: {
                             chartOptions: {
@@ -335,7 +356,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     },itemAttr: {
                         title: ctwl.ANALYTICS_NODE_ALARM_GEN_CPU_SHARE
                     }
-                };
+                }
             },
             'analyticsnode-snmp-collector-cpu-share': function () {
                 return {
@@ -363,8 +384,36 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     },itemAttr: {
                         title: ctwl.ANALYTICS_NODE_SNMP_COLLECTOR_CPU_SHARE
                     }
-                };
+                }
             },
+            'analyticsnode-contrail-topology-cpu-share': function () {
+                return {
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where: 'process_mem_cpu_usage.__key = contrail-topology'
+                        }
+                    },
+                    viewCfg: {
+                        elementId : 'analytics_node_topology_cpu_share',
+                        view:'LineWithFocusChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: ctwl.ANALYTICS_NODE_TOPOLOGY_CPU_SHARE,
+                                groupBy: 'name',
+                                colors: colorFn,
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                title: ctwl.ANALYTICSNODE_SUMMARY_TITLE,
+                            }
+                        }
+                    },itemAttr: {
+                        title: ctwl.ANALYTICS_NODE_TOPOLOGY_CPU_SHARE
+                     }
+                 }
+             },
             'analyticsnode-manager-cpu-share': function () {
                 return {
                     modelCfg: {
@@ -392,7 +441,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     itemAttr: {
                         title: ctwl.ANALYTICS_NODE_NODE_MANAGER_CPU_SHARE
                     }
-                };
+                }
             },'analyticsnode-api-cpu-share': function () {
                 return {
                     modelCfg: {
@@ -420,8 +469,56 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         title: ctwl.ANALYTICS_NODE_API_CPU_SHARE
                     }
                 };
-            }
-        };
+            },'analyticsnode-stats-available-connections': function () {
+                return {
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.CollectorDbStats.cql_stats.stats',
+                            select: 'T=, Source, MIN(cql_stats.stats.available_connections)'
+                        }
+                    },
+                    viewCfg:{
+                        elementId : 'analytics_node_avilable_connections',
+                        view:'LineWithFocusChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: ctwl.ANALYTICS_NODE_AVAILABLE_CONNECTIONS,
+                                groupBy: 'Source',
+                                colors: colorFn,
+                                yField: 'MIN(cql_stats.stats.available_connections)',
+                                title: ctwl.ANALYTICSNODE_SUMMARY_TITLE,
+                                yFormatter : function(d){
+                                    return cowu.numberFormatter(d,0);
+                               }
+                            }
+                        }
+                    },itemAttr: {
+                        title: ctwl.ANALYTICS_NODE_AVAILABLE_CONNECTIONS
+                    }
+                }
+            },
+            'analyticsnode-grid-view': function () {
+                return {
+                    modelCfg: {
+                      listModel: new AnalyticsNodeListModel()
+                    },
+                    viewCfg: {
+                        elementId : ctwl.ANALYTICSNODE_SUMMARY_GRID_ID,
+                        title : ctwl.ANALYTICSNODE_SUMMARY_TITLE,
+                        view : "GridView",
+                        viewConfig : {
+                            elementConfig :
+                                getAnalyticsNodeSummaryGridConfig(analyticsNodeListModel, colorFn)
+                        }
+                    },
+                    itemAttr: {
+                        width: 2
+                    }
+                }
+             }
+         };
         function getAnalyticsNodeSummaryGridConfig(model, colorFn) {
             var columns = [
                {

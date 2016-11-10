@@ -4,7 +4,8 @@
 
 define(
         [ 'underscore', 'contrail-view','node-color-mapping'],
-        function(_, ContrailView,NodeColorMapping) {
+        function(
+                _, ContrailView,NodeColorMapping) {
             var ConfigNodeListView = ContrailView.extend({
                 render : function() {
                     var nodeColorMapping = new NodeColorMapping(),
@@ -44,7 +45,7 @@ define(
                                             }]
                                         }
                                     },
-                                }, {
+                                },{
                                     page: {
                                         elementId: 'config-node-grid-stackview-1',
                                         view: 'GridStackView',
@@ -67,7 +68,7 @@ define(
                                             }]
                                         }
                                     }
-                                }, {
+                                },{
                                     page: {
                                         elementId: 'config-node-grid-stackview-2',
                                         view: 'GridStackView',
@@ -78,14 +79,54 @@ define(
                                                 defaultHeight: 8
                                             },
                                             widgetCfgList: [{
-                                                id: 'confignode-process-cpu-node-mngr'
+                                                id: 'confignode-process-contrail-api'
                                             }, {
                                                 id: 'confignode-process-contrail-schema'
                                             }, {
+                                                id: 'confignode-process-contrail-service-monitor'
+                                            }, {
+                                                id: 'confignode-process-contrail-device-manager'
+                                            }, {
+                                                id: 'confignode-grid-view'
+                                            }]
+                                        }
+                                    }
+                                },{
+                                    page: {
+                                        elementId: 'config-node-grid-stackview-3',
+                                        view: 'GridStackView',
+                                        viewConfig: {
+                                            elementId: 'config-node-grid-stackview-3',
+                                            gridAttr: {
+                                                defaultWidth: 6,
+                                                defaultHeight: 8
+                                            },
+                                            widgetCfgList: [{
+                                                id: 'confignode-process-ifmap'
+                                            }, {
                                                 id: 'confignode-process-contrail-discovery'
                                             }, {
-                                                id: 'confignode-process-contrail-api'
+                                                id: 'system-cpu-share'
                                             }, {
+                                                id: 'system-memory-usage'
+                                            }, {
+                                                id: 'confignode-grid-view'
+                                            }]
+                                        }
+                                    }
+                                },{
+                                    page: {
+                                        elementId: 'config-node-grid-stackview-4',
+                                        view: 'GridStackView',
+                                        viewConfig: {
+                                            elementId: 'config-node-grid-stackview-4',
+                                            gridAttr: {
+                                                defaultWidth: 6,
+                                                defaultHeight: 8
+                                            },
+                                            widgetCfgList: [{
+                                                id: 'disk-usage-info'
+                                            },{
                                                 id: 'confignode-grid-view'
                                             }]
                                         }

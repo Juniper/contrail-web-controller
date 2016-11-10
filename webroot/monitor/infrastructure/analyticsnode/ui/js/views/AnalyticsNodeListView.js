@@ -4,7 +4,8 @@
 
 define(
         [ 'underscore', 'contrail-view', 'node-color-mapping'],
-        function(_, ContrailView, NodeColorMapping) {
+        function(
+                _, ContrailView, NodeColorMapping) {
             var AnalyticsNodeListView = ContrailView.extend({
                 render : function() {
                     nodeColorMapping = new NodeColorMapping(),
@@ -37,7 +38,7 @@ define(
                                                                 {id:'analyticsnode-percentile-count-size'},
                                                                 {id:'analyticsnode-database-read-write'},
                                                                 {id:'analyticsnode-query-stats'},
-                                                                {id:'analyticsnode-database-usage'},
+                                                                {id:'analyticsnode-generators-scatterchart'},
                                                                 {id:'analyticsnode-sandesh-message-info'},
                                                                 {id:'analyticsnode-grid-view'}
                                                             ]
@@ -48,7 +49,7 @@ define(
                                                          elementId: 'analytics-node-grid-stackview-1',
                                                          view: 'GridStackView',
                                                          viewConfig: {
-                                                            elementId: 'analytics-node-grid-stackview-1',
+                                                             elementId: 'analytics-node-grid-stackview-1',
                                                              gridAttr: {
                                                                  defaultWidth: 6,
                                                                  defaultHeight: 8
@@ -56,8 +57,8 @@ define(
                                                              widgetCfgList: [
                                                                 {id:'analyticsnode-top-messagetype'},
                                                                 {id:'analyticsnode-top-generators'},
-                                                                {id:'analyticsnode-qe-cpu-share'},
                                                                 {id:'analyticsnode-collector-cpu-share'},
+                                                                {id:'analyticsnode-alarm-gen-cpu-share'},
                                                                 {id:'analyticsnode-grid-view'}
                                                              ]
                                                          }
@@ -73,12 +74,31 @@ define(
                                                                 defaultHeight: 8
                                                             },
                                                             widgetCfgList: [
-                                                            {id:'analyticsnode-alarm-gen-cpu-share'},
+                                                            {id:'analyticsnode-qe-cpu-share'},
                                                             {id:'analyticsnode-snmp-collector-cpu-share'},
-                                                            {id:'analyticsnode-manager-cpu-share'},
+                                                            {id:'analyticsnode-contrail-topology-cpu-share'},
                                                             {id:'analyticsnode-api-cpu-share'},
                                                             {id:'analyticsnode-grid-view'}
                                                             ]
+                                                         }
+                                                     }
+                                                 },{
+                                                     page: {
+                                                         elementId: 'analytics-node-grid-stackview-3',
+                                                         view: 'GridStackView',
+                                                         viewConfig: {
+                                                             elementId: 'analytics-node-grid-stackview-3',
+                                                             gridAttr: {
+                                                                 defaultWidth: 6,
+                                                                 defaultHeight: 8
+                                                             },
+                                                             widgetCfgList: [
+                                                                {id:'analyticsnode-stats-available-connections'},
+                                                                {id:'disk-usage-info'},
+                                                                {id:'system-cpu-share'},
+                                                                {id:'system-memory-usage'},
+                                                                {id:'analyticsnode-grid-view'}
+                                                             ]
                                                          }
                                                      }
                                                  }

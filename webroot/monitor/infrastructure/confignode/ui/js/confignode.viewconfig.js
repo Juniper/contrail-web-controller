@@ -49,7 +49,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                         }
                     },
                     viewCfg: {
-                        elementId : ctwl.CONFIGNODE_SUMMARY_STACKEDCHART_ID,
+                        elementId : 'confignode_requests_served',
                         view: 'StackedAreaChartView',
                         viewConfig: {
                             class: 'col-xs-7 mon-infra-chart chartMargin',
@@ -89,7 +89,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                         }
                     },
                     viewCfg: {
-                        elementId: ctwl.CONFIGNODE_SUMMARY_LINEBARCHART_ID,
+                        elementId: 'confignode_response_time_size',
                         view: 'LineBarWithFocusChartView',
                         viewConfig: {
                             class: 'col-xs-5 mon-infra-chart',
@@ -203,8 +203,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                   },
                   itemAttr: {
                       width: 2
-                  }
-              }
+                    }
+                }
             },
             'confignode-top-useragent': function (){
                 return {
@@ -228,9 +228,12 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 limit: 5,
                                 yField: 'COUNT(api_stats)',
                             }
+                    },
+                    itemAttr: {
+                        title: ctwl.CONFIG_NODE_PROCESS_WISE_USAGE,
                         }
                     }
-                };
+                }
             },
             'confignode-top-objecttypes': function (){
                 return {
@@ -254,12 +257,12 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 limit: 5,
                                 yField: 'COUNT(api_stats)',
                             }
-                        }
                     },
                     itemAttr: {
                         title : ctwl.CONFIG_NODE_OBJECT_USAGE_TITLE
+                        }
                     }
-                };
+                }
             },
             'confignode-top-remote-ip': function (){
                 return {
@@ -283,9 +286,12 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 limit: 5,
                                 yField: 'COUNT(api_stats)',
                             }
+                    },
+                    itemAttr: {
+                        title: ctwl.CONFIG_NODE_CLIENT_WISE_USAGE,
                         }
                     }
-                };
+                }
             },
             'confignode-top-projects': function () {
                 return {
@@ -309,37 +315,14 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 limit: 5,
                                 yField: 'COUNT(api_stats)',
                             }
-                        }
-                    }
-                };
-            },
-            'confignode-process-cpu-node-mngr': function () {
-                return {
-                    modelCfg: {
-                        source:'STATTABLE',
-                        config: {
-                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
-                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
-                            where: 'process_mem_cpu_usage.__key = contrail-config-nodemgr'
-                        }
                     },
-                    viewCfg: {
-                        elementId : monitorInfraConstants.CONFIGNODE_CPU_SHARE_NODE_MNGR_LINE_CHART_ID,
-                        view:'LineWithFocusChartView',
-                        viewConfig: {
-                            chartOptions: {
-                                yFormatter: d3.format('.2f'),
-                                yAxisLabel: 'Node Manager CPU Share (%)',
-                                groupBy: 'name',
-                                colors: colorFn,
-                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
-                                title: ctwl.CONFIGNODE_SUMMARY_TITLE,
-                            }
-                        }
-                    }
-                };
-            },
-            'confignode-process-contrail-schema': function () {
+                    itemAttr: {
+                        title: ctwl.CONFIG_NODE_PROJECT_WISE_USAGE,
+                          }
+                      }
+                  }
+              },
+              'confignode-process-contrail-schema': function () {
                 return {
                     modelCfg: {
                         source:'STATTABLE',
@@ -361,9 +344,12 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 yField: 'MAX(process_mem_cpu_usage.cpu_share)',
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
                             }
+                        },
+                        itemAttr: {
+                            title: ctwl.CONFIG_NODE_SCHEMA_CPU_SHARE,
                         }
                     }
-                };
+                }
             },
             'confignode-process-contrail-discovery': function () {
                 return {
@@ -388,9 +374,13 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
                             }
                         }
+                    },
+                    itemAttr: {
+                        title: ctwl.CONFIGNODE_DISCOVERY_CPU_SHARE,
                     }
-                };
-            },'confignode-process-contrail-api': function () {
+                }
+            },
+            'confignode-process-contrail-api': function () {
                 return {
                     modelCfg: {
                         source:'STATTABLE',
@@ -412,9 +402,99 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 yField: 'MAX(process_mem_cpu_usage.cpu_share)',
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
                             }
+                        },
+                        itemAttr: {
+                            title: ctwl.CONFIG_NODE_API_CPU_SHARE,
                         }
                     }
-                };
+                }
+            },
+            'confignode-process-contrail-service-monitor': function () {
+                return {
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where: 'process_mem_cpu_usage.__key = contrail-svc-monitor'
+                        }
+                    },
+                    viewCfg: {
+                        elementId : monitorInfraConstants.CONFIGNODE_CPU_SHARE_SERVICE_MONITOR_LINE_CHART_ID,
+                        view:'LineWithFocusChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: ctwl.CONFIG_NODE_SERVICE_MONITOR_CPU_SHARE,
+                                groupBy: 'name',
+                                colors: colorFn,
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                title: ctwl.CONFIGNODE_SUMMARY_TITLE,
+                            }
+                        },
+                        itemAttr: {
+                            title: ctwl.CONFIG_NODE_SERVICE_MONITOR_CPU_SHARE,
+                        }
+                    }
+                }
+            },
+            'confignode-process-contrail-device-manager': function () {
+                return {
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where: 'process_mem_cpu_usage.__key = contrail-device-manager'
+                        }
+                    },
+                    viewCfg: {
+                        elementId : monitorInfraConstants.CONFIGNODE_CPU_SHARE_DEVICE_MANAGER_LINE_CHART_ID,
+                        view:'LineWithFocusChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: ctwl.CONFIG_NODE_DEVICE_MANAGER_CPU_SHARE,
+                                groupBy: 'name',
+                                colors: colorFn,
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                title: ctwl.CONFIGNODE_SUMMARY_TITLE,
+                            }
+                        },
+                        itemAttr: {
+                            title: ctwl.CONFIG_NODE_DEVICE_MANAGER_CPU_SHARE,
+                        }
+                    }
+                }
+            },
+            'confignode-process-ifmap': function () {
+                return {
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where: 'process_mem_cpu_usage.__key = ifmap'
+                        }
+                    },
+                    viewCfg: {
+                        elementId : monitorInfraConstants.CONFIGNODE_CPU_SHARE_IFMAP_LINE_CHART_ID,
+                        view:'LineWithFocusChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: ctwl.CONFIG_NODE_IFMAP_CPU_SHARE,
+                                groupBy: 'name',
+                                colors: colorFn,
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                title: ctwl.CONFIGNODE_SUMMARY_TITLE,
+                            }
+                        },
+                        itemAttr: {
+                            title: ctwl.CONFIG_NODE_IFMAP_CPU_SHARE,
+                        }
+                    }
+                }
             },
         };
         function getConfigNodeSummaryGridConfig(model, colorFn) {
