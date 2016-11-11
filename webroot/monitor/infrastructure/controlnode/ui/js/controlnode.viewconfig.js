@@ -173,7 +173,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-controlnode
                     view : "GridView",
                     viewConfig : {
                         elementConfig :
-                            getControlNodeSummaryGridConfig()
+                            getControlNodeSummaryGridConfig(controlNodeListModel, colorFn)
                     }
                     },
                     itemAttr: {
@@ -182,7 +182,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-controlnode
                 }
               },
         };
-        function getControlNodeSummaryGridConfig() {
+        function getControlNodeSummaryGridConfig(model, colorFn) {
             var columns = [
                            {
                                field:"name",
@@ -191,7 +191,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-controlnode
                                   return cellTemplateLinks({cellText:'name',
                                       name:'name',
                                       statusBubble:true,
-                                      rowData:dc});
+                                      rowData:dc,
+                                      tagColorMap:colorFn(_.pluck(model.getItems(), 'name'))});
                                },
                                events: {
                                   onClick: onClickHostName

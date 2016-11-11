@@ -75,7 +75,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                  title: ctwl.DATABASENODE_SUMMARY_TITLE,
                                  yFormatter : function(d){
                                      return formatBytes(d, true);
-                                },
+                                 },
                                  xFormatter: xCPUChartFormatter,
                          }
                      }
@@ -154,7 +154,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                         view : "GridView",
                         viewConfig : {
                             elementConfig :
-                                getDatabaseNodeSummaryGridConfig()
+                                getDatabaseNodeSummaryGridConfig(databaseNodeListModel, colorFn)
                         }
                     },
                     itemAttr: {
@@ -163,7 +163,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                 }
               },
         };
-        function getDatabaseNodeSummaryGridConfig() {
+        function getDatabaseNodeSummaryGridConfig(model, colorFn) {
             var columns = [
                            {
                                field:"name",
@@ -172,7 +172,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                   return cellTemplateLinks({cellText:'name',
                                       name:'name',
                                       statusBubble:true,
-                                      rowData:dc});
+                                      rowData:dc,
+                                      tagColorMap:colorFn(_.pluck(model.getItems(), 'name'))});
                                },
                                events: {
                                   onClick: onClickHostName

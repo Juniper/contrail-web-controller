@@ -196,7 +196,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                       view : "GridView",
                       viewConfig : {
                           elementConfig :
-                              getConfigNodeSummaryGridConfig()
+                              getConfigNodeSummaryGridConfig(configNodeListModel, colorFn)
                       }
                   },
                   itemAttr: {
@@ -420,7 +420,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                 };
             },
         };
-        function getConfigNodeSummaryGridConfig() {
+        function getConfigNodeSummaryGridConfig(model, colorFn) {
             var columns = [
                {
                    field:"name",
@@ -430,7 +430,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                       cellText:'name',
                                       name:'name',
                                       statusBubble:true,
-                                      rowData:dc
+                                      rowData:dc,
+                                      tagColorMap:colorFn(_.pluck(model.getItems(), 'name'))
                                });
                    },
                    events: {

@@ -173,7 +173,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                 }
             },
             'analyticsnode-grid-view': function () {
-              return {
+                return {
                   modelCfg: analyticsNodeListModel,
                   viewCfg: {
                       elementId : ctwl.ANALYTICSNODE_SUMMARY_GRID_ID,
@@ -181,7 +181,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                       view : "GridView",
                       viewConfig : {
                           elementConfig :
-                              getAnalyticsNodeSummaryGridConfig()
+                              getAnalyticsNodeSummaryGridConfig(analyticsNodeListModel, colorFn)
                       }
                   },
                   itemAttr: {
@@ -402,7 +402,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                 };
             }
         };
-        function getAnalyticsNodeSummaryGridConfig() {
+        function getAnalyticsNodeSummaryGridConfig(model, colorFn) {
             var columns = [
                {
                    field:"name",
@@ -413,7 +413,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                           cellText:'name',
                           name:'name',
                           statusBubble:true,
-                          rowData:dc});
+                          rowData:dc,
+                          tagColorMap:colorFn(_.pluck(model.getItems(), 'name'))});
                    },
                    exportConfig: {
                        allow: true,
