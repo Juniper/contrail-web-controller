@@ -3,10 +3,9 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view','node-color-mapping','controlnode-viewconfig'],
+        [ 'underscore', 'contrail-view','node-color-mapping'],
         function(
-                _, ContrailView,NodeColorMapping,ControlNodeViewConfig) {
-            var controlNodeViewConfig = new ControlNodeViewConfig();
+                _, ContrailView,NodeColorMapping) {
             var ControlNodeListView = ContrailView.extend({
                 render : function() {
                     var nodeColorMapping = new NodeColorMapping(),
@@ -28,18 +27,29 @@ define(
                                              elementId : 'control-node-grid-stackview-0',
                                              view : "GridStackView",
                                              viewConfig: {
-                                                     gridAttr : {
-                                                         defaultWidth : 6,
-                                                         defaultHeight : 8
-                                                     },
-                                                     widgetCfgList: [
-                                                        controlNodeViewConfig.getViewConfig('controlnode-sent-updates')(),
-                                                        controlNodeViewConfig.getViewConfig('controlnode-received-updates')(),
-                                                        controlNodeViewConfig.getViewConfig('controlnode-cpu-share')(),
-                                                        controlNodeViewConfig.getViewConfig('controlnode-memory')(),
-                                                        controlNodeViewConfig.getViewConfig('controlnode-grid-view')(),
-                                                        // controlNodeViewConfig.getViewConfig('controlnode-system-logs')()
-                                                     ]
+                                                elementId : 'control-node-grid-stackview-0',
+                                                gridAttr : {
+                                                    defaultWidth : 6,
+                                                    defaultHeight : 8
+                                                },
+                                                widgetCfgList: [
+                                                    {
+                                                        id: 'controlnode-sent-updates',
+                                                    },
+                                                    {   
+                                                        id: 'controlnode-received-updates',
+                                                    },
+                                                    {   
+                                                        id: 'controlnode-cpu-share',
+                                                    },
+                                                    {   
+                                                        id: 'controlnode-memory',
+                                                    },
+                                                    {   
+                                                        id: 'controlnode-grid-view',
+                                                    }
+                                                    // 'controlnode-system-logs'
+                                                ]
                                              }
                                          },
                                      }

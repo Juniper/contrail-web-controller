@@ -3,10 +3,9 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view', 'node-color-mapping','databasenode-viewconfig'],
+        [ 'underscore', 'contrail-view', 'node-color-mapping'],
         function(
-                _, ContrailView, NodeColorMapping, DatabaseNodeViewConfig) {
-            var databaseNodeViewConfig = new DatabaseNodeViewConfig();
+                _, ContrailView, NodeColorMapping) {
             var DatabaseNodeListView = ContrailView.extend({
                 render : function() {
                     var nodeColorMapping = new NodeColorMapping(),
@@ -35,15 +34,15 @@ define(
                                                          defaultHeight : 8
                                                      },
                                                      widgetCfgList: [
-                                                         databaseNodeViewConfig.getViewConfig('databsenode-percentile-bar-view')(),
-                                                         databaseNodeViewConfig.getViewConfig('databasenode-cpu-share')(),
-                                                         databaseNodeViewConfig.getViewConfig('databasenode-memory')(),
-                                                         databaseNodeViewConfig.getViewConfig('databasenode-disk-space-usage')(),
-                                                         databaseNodeViewConfig.getViewConfig('databasenode-pending-compactions')(),
-                                                         databaseNodeViewConfig.getViewConfig('database-grid-view')(),
+                                                         {id:'databsenode-percentile-bar-view'},
+                                                         {id:'databasenode-cpu-share'},
+                                                         {id:'databasenode-memory'},
+                                                         {id:'databasenode-disk-space-usage'},
+                                                         {id:'databasenode-pending-compactions'},
+                                                         {id:'database-grid-view'}
                                                      ]
                                                 }
-                                             },
+                                             }
                                          }
                                    ]
                                 }

@@ -2,8 +2,8 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-controlnode-model', 'node-color-mapping'],
-        function(_, ContrailView, LegendView, ControlNodeListModel, NodeColorMapping){
+define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-color-mapping'],
+        function(_, ContrailView,  ControlNodeListModel, NodeColorMapping) {
     var ControlNodeViewConfig = function () {
         var nodeColorMapping = new NodeColorMapping(),
         colorFn = nodeColorMapping.getNodeColorMap,
@@ -417,6 +417,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-controlnode
         self.getViewConfig = function(id) {
             return self.viewConfig[id];
         };
-};
-return ControlNodeViewConfig;
+    };
+    return (new ControlNodeViewConfig()).viewConfig;
 });

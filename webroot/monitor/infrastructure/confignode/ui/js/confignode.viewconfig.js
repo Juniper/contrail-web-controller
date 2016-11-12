@@ -249,12 +249,15 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 colors: cowc.FIVE_NODE_COLOR,
                                 title: 'Objects',
                                 xAxisLabel: '',
-                                yAxisLabel: 'Object Wise Usage',
+                                yAxisLabel: ctwl.CONFIG_NODE_OBJECT_USAGE_TITLE,
                                 groupBy: 'api_stats.object_type',
                                 limit: 5,
                                 yField: 'COUNT(api_stats)',
                             }
                         }
+                    },
+                    itemAttr: {
+                        title : ctwl.CONFIG_NODE_OBJECT_USAGE_TITLE
                     }
                 };
             },
@@ -587,6 +590,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
         self.getViewConfig = function(id) {
             return self.viewConfig[id];
         };
-};
-return ConfigNodeViewConfig;
+    };
+    return (new ConfigNodeViewConfig()).viewConfig;
 });

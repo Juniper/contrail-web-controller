@@ -3,10 +3,8 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view', 'node-color-mapping','analyticsnode-viewconfig'],
-        function(
-                _, ContrailView, NodeColorMapping, AnalyticsNodeViewConfig) {
-            var analyticsNodeViewConfig = new AnalyticsNodeViewConfig();
+        [ 'underscore', 'contrail-view', 'node-color-mapping'],
+        function(_, ContrailView, NodeColorMapping) {
             var AnalyticsNodeListView = ContrailView.extend({
                 render : function() {
                     nodeColorMapping = new NodeColorMapping(),
@@ -30,18 +28,19 @@ define(
                                                          elementId : 'analytics-node-grid-stackview-0',
                                                          view : "GridStackView",
                                                          viewConfig : {
-                                                              gridAttr : {
-                                                                  defaultWidth : 6,
-                                                                  defaultHeight : 8
-                                                              },
-                                                              widgetCfgList: [
-                                                                 analyticsNodeViewConfig.getViewConfig('analyticsnode-percentile-count-size')(),
-                                                                 analyticsNodeViewConfig.getViewConfig('analyticsnode-database-read-write')(),
-                                                                 analyticsNodeViewConfig.getViewConfig('analyticsnode-query-stats')(),
-                                                                 analyticsNodeViewConfig.getViewConfig('analyticsnode-database-usage')(),
-                                                                 analyticsNodeViewConfig.getViewConfig('analyticsnode-sandesh-message-info')(),
-                                                                 analyticsNodeViewConfig.getViewConfig('analyticsnode-grid-view')()
-                                                              ]
+                                                            elementId : 'analytics-node-grid-stackview-0',
+                                                            gridAttr : {
+                                                                defaultWidth : 6,
+                                                                defaultHeight : 8
+                                                            },
+                                                            widgetCfgList: [
+                                                                {id:'analyticsnode-percentile-count-size'},
+                                                                {id:'analyticsnode-database-read-write'},
+                                                                {id:'analyticsnode-query-stats'},
+                                                                {id:'analyticsnode-database-usage'},
+                                                                {id:'analyticsnode-sandesh-message-info'},
+                                                                {id:'analyticsnode-grid-view'}
+                                                            ]
                                                          }
                                                      },
                                                  },{
@@ -49,16 +48,17 @@ define(
                                                          elementId: 'analytics-node-grid-stackview-1',
                                                          view: 'GridStackView',
                                                          viewConfig: {
+                                                            elementId: 'analytics-node-grid-stackview-1',
                                                              gridAttr: {
                                                                  defaultWidth: 6,
                                                                  defaultHeight: 8
                                                              },
                                                              widgetCfgList: [
-                                                                analyticsNodeViewConfig.getViewConfig('analyticsnode-top-messagetype')(),
-                                                                analyticsNodeViewConfig.getViewConfig('analyticsnode-top-generators')(),
-                                                                analyticsNodeViewConfig.getViewConfig('analyticsnode-qe-cpu-share')(),
-                                                                analyticsNodeViewConfig.getViewConfig('analyticsnode-collector-cpu-share')(),
-                                                                analyticsNodeViewConfig.getViewConfig('analyticsnode-grid-view')()
+                                                                {id:'analyticsnode-top-messagetype'},
+                                                                {id:'analyticsnode-top-generators'},
+                                                                {id:'analyticsnode-qe-cpu-share'},
+                                                                {id:'analyticsnode-collector-cpu-share'},
+                                                                {id:'analyticsnode-grid-view'}
                                                              ]
                                                          }
                                                      }
@@ -67,17 +67,18 @@ define(
                                                          elementId: 'analytics-node-grid-stackview-2',
                                                          view: 'GridStackView',
                                                          viewConfig: {
-                                                             gridAttr: {
-                                                                 defaultWidth: 6,
-                                                                 defaultHeight: 8
-                                                             },
-                                                             widgetCfgList: [
-                                                               analyticsNodeViewConfig.getViewConfig('analyticsnode-alarm-gen-cpu-share')(),
-                                                               analyticsNodeViewConfig.getViewConfig('analyticsnode-snmp-collector-cpu-share')(),
-                                                               analyticsNodeViewConfig.getViewConfig('analyticsnode-manager-cpu-share')(),
-                                                               analyticsNodeViewConfig.getViewConfig('analyticsnode-api-cpu-share')(),
-                                                               analyticsNodeViewConfig.getViewConfig('analyticsnode-grid-view')()
-                                                             ]
+                                                            elementId: 'analytics-node-grid-stackview-2',
+                                                            gridAttr: {
+                                                                defaultWidth: 6,
+                                                                defaultHeight: 8
+                                                            },
+                                                            widgetCfgList: [
+                                                            {id:'analyticsnode-alarm-gen-cpu-share'},
+                                                            {id:'analyticsnode-snmp-collector-cpu-share'},
+                                                            {id:'analyticsnode-manager-cpu-share'},
+                                                            {id:'analyticsnode-api-cpu-share'},
+                                                            {id:'analyticsnode-grid-view'}
+                                                            ]
                                                          }
                                                      }
                                                  }

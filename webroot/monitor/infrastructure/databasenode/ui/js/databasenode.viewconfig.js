@@ -351,6 +351,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
         self.getViewConfig = function(id) {
             return self.viewConfig[id];
         };
-};
-return DatabseNodeViewConfig;
+    };
+    return (new DatabseNodeViewConfig()).viewConfig;
 });

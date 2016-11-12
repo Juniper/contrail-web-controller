@@ -618,6 +618,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
         self.getViewConfig = function(id) {
             return self.viewConfig[id];
         };
-};
-return AnalyticsNodeViewConfig;
+    };
+    return (new AnalyticsNodeViewConfig()).viewConfig;
 });

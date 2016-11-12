@@ -438,6 +438,8 @@ define([
         this.CONFIGNODE_ALARMS_GRID_VIEW_ID = "config_node_alarms_grid_view_id";
         this.CONFIG_NODE_ALARMS_GRID_SECTION_ID = "config_node_alarm_grid_section_id";
 
+        this.CONFIG_NODE_OBJECT_USAGE_TITLE = 'Object Wise Usage';
+
         //Control node labels
         this.CONTROLNODE_VIEWPATH_PREFIX =
             'monitor/infrastructure/controlnode/ui/js/views/';
