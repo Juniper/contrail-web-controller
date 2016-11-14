@@ -59,16 +59,33 @@ define([
                     jsonKeys = _.keys(json),
                     moduleItemName =jsonKeys[0];
 
-                if (contrail.checkIfExist(json[moduleItemName].next_batch)) {
+                var nextPageLink =
+                    getValueByJsonPath(json, moduleItemName +
+                                       ";Pagination;req;PageReqData;next_page", null);
+                var nextBatchLink =
+                    getValueByJsonPath(json, moduleItemName + ";next_batch", null);
+                var link = null, text = null;
+                if (!cowu.isNil(nextPageLink)) {
+                    link = nextPageLink._link;
+                    text = nextPageLink.__text;
+                } else if (!cowu.isNil(nextBatchLink)) {
+                    link = nextBatchLink.link;
+                    text = nextBatchLink._text;
+                }
+
+                if (!(cowu.isNil(link)) && !(cowu.isNil(text))) {
                     $("#introspect-result-" + node + "-" + port + "-next-batch-tab-extra-link")
                         .parent("li").show()
                         .off("click")
                         .on("click", function() {
                             var url = "/proxy?proxyURL=http://" + ipAddress + ":" + port + "/Snh_" +
-                                json[moduleItemName].next_batch.link + "?x=" + json[moduleItemName]._text;
+                                link + "?x=" + text;
 
                             self.fetchIntrospect(url);
                         });
+                } else {
+                    $("#introspect-result-" + node + "-" + port + "-next-batch-tab-extra-link")
+                        .parent("li").hide();
                 }
             });
         }
