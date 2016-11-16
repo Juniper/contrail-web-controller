@@ -572,7 +572,6 @@ function compareCreateRefObject (dataObject, callback)
         error = dataObject.error;
 
     var vmiUUID = vmiData['virtual-machine-interface']['uuid'];
-    delete portPutData["virtual-machine-interface"]["id_perms"];
     var DataObjectLenDetail = [],
         DataObjectArr = [],
         DataObjectDelArr = [],
