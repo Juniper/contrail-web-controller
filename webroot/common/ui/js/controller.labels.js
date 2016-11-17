@@ -362,7 +362,7 @@ define([
 
         //Monitor Infra common
         this.MONITOR_INFRA_VIEW_PATH = 'monitor/infrastructure/common/ui/js/views/';
-
+        this.CPU_SHARE_PERCENTAGE = "CPU Share % (in 3 mins)";
         this.VROUTER_DASHBOARD_CHART_ID = 'vrouter-dashboard-chart';
         this.VROUTER_DASHBOARD_SPARKLINE_ID = 'vrouter-dashboard-sparkline';
         this.VROUTER_DASHBOARD_SECTION_ID = 'vrouter-dashboard-section';
@@ -445,7 +445,7 @@ define([
         this.CONFIG_NODE_PROJECT_WISE_USAGE = 'Project Wise Usage';
         this.CONFIG_NODE_SCHEMA_CPU_SHARE = 'Schema CPU Share (%)';
         this.CONFIG_NODE_API_CPU_SHARE = 'API CPU Share (%)';
-        this.CONFIG_NODE_SERVICE_MONITOR_CPU_SHARE = 'Service Monitor CPU Share (%)';
+        this.CONFIG_NODE_SERVICE_MONITOR_CPU_SHARE = 'ServiceMon CPU Share (%)';
         this.CONFIG_NODE_DEVICE_MANAGER_CPU_SHARE = 'Device Manager CPU Share (%)';
         this.CONFIG_NODE_IFMAP_CPU_SHARE = 'IFMAP CPU Share (%)';
 
@@ -521,7 +521,7 @@ define([
         this.CONTROL_NODE_CONTROL_CPU_SHARE = 'BGP CPU Share (%)';
         this.CONTROL_NODE_NODE_MANAGER_CPU_SHARE = 'Node Manager CPU Share (%)';
         this.CONTROL_DNS_CPU_SHARE = 'DNS CPU Share (%)';
-        this.CONTROL_NAMED_CPU_SHARE = "Named CPU Share (%)";
+        this.CONTROL_NAMED_CPU_SHARE = "'Named' CPU Share (%)";
         //vRouter summary page labels
         this.VROUTER_VIEWPATH_PREFIX =
             'monitor/infrastructure/vrouter/ui/js/views/';
@@ -619,6 +619,7 @@ define([
         this.VROUTER_BANDWIDTH_PERCENTILE = "Bandwidth Percentiles";
         this.VROUTER_SYSTEM_CPU_PERCENTILES = "System CPU Percentiles";
         this.VROUTER_SYSTEM_MEMORY_PERCENTILES = "System Memory Percentiles";
+        this.VROUTER_MIN_MAX_CPU_UTILIZATION = "Max Avg Min CPU Utilization";
         this.VROUTER_SYSTEM_CPU_MEMORY = "System CPU Memory Usage";
         this.VROUTER_VN_INTF_INST = "VNs / Interfaces / Instances";
         this.VROUTER_AGENT_CPU_PERCENTILES = "VRouter Agent CPU Share Percentiles";
@@ -709,10 +710,10 @@ define([
         this.ANALYTICS_NODE_NODE_MANAGER_CPU_SHARE = 'Node Manager CPU Share (%)';
         this.ANALYTICS_NODE_SNMP_COLLECTOR_CPU_SHARE = 'SNMP Collector CPU Share (%)';
         this.ANALYTICS_NODE_TOPOLOGY_CPU_SHARE = 'Topology CPU Share (%)';
-        this.ANALYTICS_NODE_ALARM_GEN_CPU_SHARE = 'Alarm Generator CPU Share (%)';
+        this.ANALYTICS_NODE_ALARM_GEN_CPU_SHARE = 'alarmgen CPU Share (%)';
         this.ANALYTICS_NODE_COLLECTOR_CPU_SHARE = 'Collector CPU Share (%)';
-        this.ANALYTICS_NODE_QE_CPU_SHARE = 'QE CPU Share (%)';
-        this.ANALYTICS_NODE_API_CPU_SHARE = 'Api CPU Share (%)';
+        this.ANALYTICS_NODE_QE_CPU_SHARE = 'Query Engine CPU Share (%)';
+        this.ANALYTICS_NODE_API_CPU_SHARE = 'API CPU Share (%)';
         this.ANALYTICS_NODE_TOP_GENERATORS = 'Generators';
         this.ANALYTICS_NODE_TOP_MESSAGE_TYPES = 'Message Types';
         this.ANALYTICS_NODE_MESSAGE_PARAMS_PERCENTILE = 'Sandesh Messages Size & Count Percentile';
