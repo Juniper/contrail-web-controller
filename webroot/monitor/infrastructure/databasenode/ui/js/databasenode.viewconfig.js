@@ -44,6 +44,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                          viewConfig: {
                              chartOptions: {
                                  yAxisLabel: ctwl.DATABSE_NODE_CPU_SHARE,
+                                 subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                  groupBy: 'name',
                                  yField: 'MAX(process_mem_cpu_usage.cpu_share)',
                                  colors: colorFn,
@@ -77,6 +78,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                      viewConfig: {
                          chartOptions: {
                                  yAxisLabel: 'Cassandra Memory Usage',
+                                 subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                  groupBy: 'name',
                                  yField: 'MAX(process_mem_cpu_usage.mem_res)',
                                  colors: colorFn,
@@ -109,6 +111,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                             chartOptions: {
                                 colors: colorFn,
                                 title: ctwl.DATABASENODE_SUMMARY_TITLE,
+                                subTitle:"Pending compactions per DB (in 3 mins)",
                                 yAxisLabel: ctwl.DATABSE_NODE_PENDING_COMPACTIONS,
                                 xAxisLabel: '',
                                 groupBy: 'name',
@@ -138,6 +141,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.DATABASE_NODE_ZOOKEEPER_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -166,6 +170,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.DATABASE_NODE_KAFKA_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,

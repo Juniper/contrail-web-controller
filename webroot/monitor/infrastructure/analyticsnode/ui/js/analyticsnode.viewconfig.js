@@ -52,6 +52,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                             chartOptions: {
                                 colors: colorFn,
                                 title: ctwl.ANALYTICSNODE_SUMMARY_TITLE,
+                                subTitle:"Messages received per Collector (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: ctwl.ANALYTICS_CHART_SANDESH_LABEL,
                                 groupBy: 'Source',
@@ -82,6 +83,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                             chartOptions: {
                                 colors: colorFn,
                                 title: ctwl.ANALYTICSNODE_SUMMARY_TITLE,
+                                subTitle:"Queries per Collector (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: ctwl.ANALYTICS_CHART_QUERIES_LABEL,
                                 groupBy: 'Source',
@@ -168,7 +170,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                                     var nodes = currObj;
                                     options['tooltipContents'] = [
                                           {label:'Node', value: nodes.Source},
-                                          {label:'No. of Generators:', value: nodes.size},
                                           {label:'Messages', value:$.isNumeric(currObj['y']) ? currObj['y'].toFixed(2)  : currObj['y']},
                                           {label:'Bytes(KB)', value:Math.round(currObj['x'])}
                                       ];
@@ -180,7 +181,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     },
                 itemAttr: {
                     width: 0.83,
-                    height: 1.2,
+                    height: 1.1,
                     title: ctwl.ANALYTICS_NODE_GENERATORS
                     }
                 }
@@ -201,6 +202,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                             chartOptions: {
                                 colors: colorFn,
                                 title: ctwl.ANALYTICSNODE_SUMMARY_TITLE,
+                                subTitle:"Writes per Collector (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: ctwl.ANALYTICS_CHART_DATABASE_WRITE_LABEL,
                                 groupBy: 'Source',
@@ -234,6 +236,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                             chartOptions: {
                                 colors: cowc.FIVE_NODE_COLOR,
                                 title: 'Message Types',
+                                subTitle:"Messages per Object type (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: ctwl.ANALYTICS_NODE_TOP_MESSAGE_TYPES,
                                 groupBy: 'msg_info.type',
@@ -262,6 +265,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                             chartOptions: {
                                 colors: cowc.FIVE_NODE_COLOR,
                                 title: 'Generators',
+                                subTitle:"Messages per Generator (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: ctwl.ANALYTICS_NODE_TOP_GENERATORS,
                                 groupBy: 'name',
@@ -290,6 +294,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.ANALYTICS_NODE_QE_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -318,6 +323,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.ANALYTICS_NODE_COLLECTOR_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -346,6 +352,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.ANALYTICS_NODE_ALARM_GEN_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -374,6 +381,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.ANALYTICS_NODE_SNMP_COLLECTOR_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -402,6 +410,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.ANALYTICS_NODE_TOPOLOGY_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -430,6 +439,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.ANALYTICS_NODE_NODE_MANAGER_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -458,6 +468,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.ANALYTICS_NODE_API_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -484,6 +495,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.ANALYTICS_NODE_AVAILABLE_CONNECTIONS,
                                 groupBy: 'Source',
                                 colors: colorFn,
