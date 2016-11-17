@@ -120,6 +120,7 @@ dl.progress-percentage dd {
     padding: 1px 10px;
     margin-left: 5px;
     font-size: 13px;
+    font-weight:bold;
 }
 
 /******Percentile CSS ends here****/

@@ -110,6 +110,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                              parseFn: cowu.parseDataForLineChart,
                              chartOptions: {
                                  title: ctwl.VROUTER_ACTIVE_FLOWS_DROPS_LABEL,
+                                 subTitle:"Active, Dropped Flows (Total)",
                                  colors: monitorInfraConstants.VROUTER_FLOWS_CHART_COLORS,
                                  staticColor: true,
                                  xAxisLabel: '',
@@ -186,6 +187,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                           chartOptions: {
                               colors:cowc.FIVE_NODE_COLOR,
                               title: ctwl.VROUTER_BANDWIDTH_PERCENTILE,
+                              subTitle:ctwl.VROUTER_MIN_MAX_CPU_UTILIZATION,
                               xAxisLabel: '',
                               yAxisLabel: ctwl.VROUTER_BANDWIDTH_PERCENTILE,
                               yFormatter: function(y) {
@@ -225,6 +227,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
 //                             },
                              chartOptions: {
                                  title: ctwl.VROUTER_SYSTEM_CPU_PERCENTILES,
+                                 subTitle:ctwl.VROUTER_MIN_MAX_CPU_UTILIZATION,
                                  colors: cowc.THREE_NODE_COLOR,
                                  xAxisLabel: '',
 //                                 yField: 'percentileValue',
@@ -264,6 +267,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                  xAxisLabel: '',
                                  colors: cowc.THREE_NODE_COLOR,
                                  yAxisLabel: ctwl.VROUTER_SYSTEM_MEMORY_PERCENTILES,
+                                 subTitle:ctwl.VROUTER_MIN_MAX_CPU_UTILIZATION,
 //                                 groupBy:'Source',
 //                                 yField: 'percentileValue',
                                  yFields: getYFieldsForPercentile('system_mem_usage.used'),
@@ -440,6 +444,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                              parseFn : cowu.parsePercentilesData,
                              chartOptions: {
                                  title: ctwl.VROUTER_AGENT_CPU_PERCENTILES,
+                                 subTitle:ctwl.VROUTER_MIN_MAX_CPU_UTILIZATION,
                                  colors: cowc.THREE_NODE_COLOR,
                                  xAxisLabel: '',
                                  yAxisLabel: ctwl.VROUTER_AGENT_CPU_PERCENTILES,
@@ -473,6 +478,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                              parseFn : cowu.parsePercentilesData,
                              chartOptions: {
                                  title: ctwl.VROUTER_AGENT_MEMORY_PERCENTILES,
+                                 subTitle:ctwl.VROUTER_MIN_MAX_CPU_UTILIZATION,
                                  colors: cowc.THREE_NODE_COLOR,
                                  xAxisLabel: '',
                                  yAxisLabel: ctwl.VROUTER_AGENT_MEMORY_PERCENTILES,
@@ -507,6 +513,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                              parseFn : cowu.parsePercentilesData,
                              chartOptions: {
                                  title: 'Active Flows Percentiles',
+                                 subTitle:ctwl.VROUTER_MIN_MAX_CPU_UTILIZATION,
                                  colors: cowc.THREE_NODE_COLOR,
                                  xAxisLabel: '',
                                  yAxisLabel: 'Active Flows Percentiles',
