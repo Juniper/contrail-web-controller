@@ -104,16 +104,19 @@ define([
         };
 
         this.conNetworkFormatter = function(d, c, v, cd, dc) {
-            var connectedNetworks = "";
-            if("virtual_machine_interface_refs" in dc &&
-               dc["virtual_machine_interface_refs"] != null &&
-               dc["virtual_machine_interface_refs"].length > 0) {
-                var vmi_length = dc["virtual_machine_interface_refs"].length;
-                var domainName = ctwu.getGlobalVariable('domain').name;
-                var projectName = ctwu.getGlobalVariable('project').name;
+            var connectedNetworks = "",
+                vmiRefs = getValueByJsonPath(dc,
+                        "virtual_machine_interface_refs", [], false);
+            if(vmiRefs.length > 0) {
+                var vmi_length = vmiRefs.length;
+                var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN);
+                var projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
                 for(var i = 0; i < vmi_length && i < 3 ;i++) {
-                    var vmiNetworks = dc["virtual_machine_interface_refs"]
-                                        [i]["virtual_network_refs"][0]["to"];
+                    var vmiNetworks = getValueByJsonPath(vmiRefs[i],
+                            "virtual_network_refs;0;to", [], false);
+                    if(vmiNetworks.length === 0) {
+                        continue;
+                    }
                     if(connectedNetworks != "") {
                         connectedNetworks += ", ";
                     }
@@ -131,22 +134,27 @@ define([
                 } if (vmi_length > 3) {
                     connectedNetworks += " (" + (vmi_length-3) + " more)";
                 }
-            } else {
+            }
+
+            if(connectedNetworks == "") {
                 connectedNetworks = "-";
             }
             return connectedNetworks;
         };
         this.conNetworkFormatterExpand = function(d, c, v, cd, dc) {
-            var connectedNetworks = "";
-            if("virtual_machine_interface_refs" in dc &&
-               dc["virtual_machine_interface_refs"] != null &&
-               dc["virtual_machine_interface_refs"].length > 0) {
-                var vmi_length = dc["virtual_machine_interface_refs"].length;
-                var domainName = ctwu.getGlobalVariable('domain').name;
-                var projectName = ctwu.getGlobalVariable('project').name;
+            var connectedNetworks = "",
+                vmiRefs = getValueByJsonPath(dc,
+                        "virtual_machine_interface_refs", [], false);
+            if(vmiRefs.length > 0) {
+                var vmi_length = vmiRefs.length;
+                var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN)
+                var projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
                 for(var i = 0; i < vmi_length;i++) {
-                    var vmiNetworks = dc["virtual_machine_interface_refs"]
-                                        [i]["virtual_network_refs"][0]["to"];
+                    var vmiNetworks = getValueByJsonPath(vmiRefs[i],
+                            "virtual_network_refs;0;to", [], false);
+                    if(vmiNetworks.length === 0){
+                        continue;
+                    }
                     if(connectedNetworks != "") {
                         connectedNetworks += ", ";
                     }
@@ -162,7 +170,9 @@ define([
                 if (vmi_length <= 0) {
                     connectedNetworks = "-";
                 }
-            } else {
+            }
+
+            if(connectedNetworks == "") {
                 connectedNetworks = "-";
             }
             return connectedNetworks;
