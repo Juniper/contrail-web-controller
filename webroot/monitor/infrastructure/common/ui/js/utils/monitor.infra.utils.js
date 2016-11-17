@@ -2457,18 +2457,10 @@ define([
                 return {
                     content: {
                         iconClass : false,
-                        info: tooltipContents.slice(1),
-                        actions: [
-                            {
-                                type: 'link',
-                                text: 'View',
-                                iconClass: 'fa fa-external-link',
-                                callback: cfg.onClickHandler
-                            }
-                        ]
+                        info: tooltipContents.slice(1)
                     },title : {
                         name: tooltipContents[0]['value'],
-                        type: currObj['display_type']
+                        type: subtitle
                     }
                 }
             }
