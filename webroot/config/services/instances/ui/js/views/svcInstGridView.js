@@ -204,14 +204,6 @@ define([
                                         }
                                     },
                                     {
-                                        key: 'service_instance_properties',
-                                        label: 'HA Mode',
-                                        templateGenerator: 'TextGenerator',
-                                        templateGeneratorConfig: {
-                                            formatter: 'haModeFormatter',
-                                        }
-                                    },
-                                    {
                                         key: 'service_instance_properties.interface_list',
                                         label: 'Networks',
                                         templateGenerator: 'TextGenerator',
