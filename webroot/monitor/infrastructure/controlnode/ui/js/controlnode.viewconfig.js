@@ -28,12 +28,14 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                             class: 'mon-infra-chart chartMargin',
                             chartOptions:{
                                 title: ctwl.CONTROLNODE_SUMMARY_TITLE,
+                                subTitle:"Reach/Unreach Route Updates (in 3 mins)",
+                                valueText:"",
                                 xAxisLabel: '',
-                                yAxisLabel: 'Sent Updates',
+                                yAxisLabel: 'Updates sent per Control Node',
                                 groupBy: 'Source',
                                 yField: 'SUM(tx_update_stats.reach)',
                                 colors: colorFn,
-                                failureLabel:'Unreach',
+                                failureLabel:'Unreach Updates (Total)',
                                 failureCheckFn: function (d) {
                                     return ifNull(d['SUM(tx_update_stats.unreach)'],0);
                                 },
@@ -61,12 +63,13 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                         viewConfig : {
                             chartOptions:{
                                 xAxisLabel: '',
-                                yAxisLabel: 'Received Updates',
+                                yAxisLabel: 'Updates received per Control Node',
+                                subTitle:"Reach/Unreach Route Updates (in 3 mins)",
                                 title: ctwl.CONTROLNODE_SUMMARY_TITLE,
                                 groupBy: 'Source',
                                 yField: 'SUM(rx_update_stats.reach)',
                                 colors: colorFn,
-                                failureLabel:'Unreach',
+                                failureLabel:'Unreach Updates (Total)',
                                 failureCheckFn: function (d) {
                                     return ifNull(d['SUM(rx_update_stats.unreach)'],0);
                                 },
@@ -95,6 +98,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                          viewConfig: {
                              chartOptions: {
                                 yAxisLabel: 'Control CPU Share (%)',
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 groupBy: 'name',
                                 yField: 'MAX(cpu_info.cpu_share)',
                                 colors: colorFn,
@@ -150,6 +154,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                          viewConfig: {
                              chartOptions: {
                                 yAxisLabel: 'BGP Memory Usage',
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 groupBy: 'name',
                                 yField: 'MAX(cpu_info.mem_res)',
                                 colors: colorFn,
@@ -188,8 +193,8 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                         viewConfig: {
                             chartOptions: {
                                 yAxisLabel: ctwl.CONTROL_NODE_CONTROL_CPU_SHARE,
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yFormatter: d3.format('.2f'),
-                                yAxisLabel: ctwl.CONTROL_NODE_CONTROL_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
                                 yField: 'MAX(process_mem_cpu_usage.cpu_share)',
@@ -218,6 +223,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
                                 yAxisLabel: "Node Manager CPU Share (%)",
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 groupBy: 'name',
                                 colors: colorFn,
                                 yField: 'MAX(process_mem_cpu_usage.cpu_share)',
@@ -245,6 +251,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.CONTROL_DNS_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -273,6 +280,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.CONTROL_NAMED_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,

@@ -77,7 +77,7 @@ define(
                                                             widgetCfgList: [
                                                             {id:'analyticsnode-qe-cpu-share'},
                                                             {id:'analyticsnode-snmp-collector-cpu-share'},
-                                                            {id:'analyticsnode-contrail-topology-cpu-share'},
+                                                            {id:'analyticsnode-stats-available-connections'},
                                                             {id:'analyticsnode-api-cpu-share'},
                                                             {id:'analyticsnode-grid-view'}
                                                             ]
@@ -94,7 +94,7 @@ define(
                                                                  defaultHeight: 8
                                                              },
                                                              widgetCfgList: [
-                                                                {id:'analyticsnode-stats-available-connections'},
+                                                                {id:'analyticsnode-contrail-topology-cpu-share'},
                                                                 {id:'disk-usage-info'},
                                                                 {id:'system-cpu-share'},
                                                                 {id:'system-memory-usage'},
