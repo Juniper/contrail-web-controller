@@ -24,6 +24,7 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                             viewConfig: {
                                 chartOptions: {
                                     yFormatter: d3.format('.2f'),
+                                    subTitle:"System CPU Utilization (in 3 mins)",
                                     yAxisLabel: 'System CPU Share (%)',
                                     groupBy: 'Source',
                                     colors: colorFn,
@@ -51,6 +52,7 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                             viewConfig: {
                                 chartOptions: {
                                     //yFormatter: d3.format('.2f'),
+                                    subTitle:"Memory usage per system (3 mins)",
                                     yAxisLabel: ctwl.SYSTEM_MEMORY_USED,
                                     groupBy: 'Source',
                                     colors: colorFn,
@@ -89,6 +91,7 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                             viewConfig: {
                                 chartOptions: {
                                     title: ctwl.DISK_USAGE,
+                                    subTitle:"Disk utilization (in 3 mins)",
                                     xAxisLabel: '',
                                     yAxisLabel: ctwl.DISK_USAGE,
                                     groupBy: 'Source',

@@ -37,7 +37,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                 },
                                 showLabels: false,
                                 showLegend: false,
-                                title: 'Reads',
+                                title: ' Read per API server',
                                 defaultDataStatusMessage: false,
                                 showEmptyDonut: true
                             },
@@ -58,7 +58,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                     top: 10
                                 },
                                 showLabels: false,
-                                title: 'Writes',
+                                title: 'Write per API server',
                                 defaultDataStatusMessage: false,
                                 showEmptyDonut: true,
                                 showLegend: false,
