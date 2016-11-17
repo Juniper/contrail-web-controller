@@ -25,10 +25,14 @@ define(['underscore', 'contrail-view', 'contrail-list-model'],
            },
         renderTemplate: function (selector, viewConfig, chartViewModel,percentileBarViewTemplate) {
             var chartModelItems = chartViewModel.getItems(), self = this,chartModelFilteredArray=[];
+            var formattedUsedPercentage,usedValue,formattedUsedValue;
             for(var i=0;i<chartModelItems.length;i++){
-                var usedValue = getValueByJsonPath(chartModelItems, ''+i+''+';formattedUsedPercentage', '-');
-                var formattedUsedValue = Math.round(usedValue.replace('%',''));
-                var formattedUsedPercentage = formattedUsedValue+"%";
+                usedValue = getValueByJsonPath(chartModelItems, ''+i+''+';formattedUsedPercentage', '-');
+                formattedUsedValue = Math.round(usedValue.replace('%',''));
+                if(isNaN(formattedUsedValue)){
+                    formattedUsedValue = '0';
+                }
+                formattedUsedPercentage = formattedUsedValue+"%";
                 chartModelFilteredArray.push({
                     name: getValueByJsonPath(chartModelItems, ''+i+''+';name', '-'),
                     formattedUsedPercentage: formattedUsedPercentage,

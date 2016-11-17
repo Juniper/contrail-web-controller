@@ -57,6 +57,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                                 showControls: false,
                                 colors: colorFn,
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
+                                subTitle:"Requests served per API Server (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: 'Requests Served',
                                 groupBy: 'Source',
@@ -221,6 +222,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                         viewConfig: {
                             chartOptions: {
                                 colors: cowc.FIVE_NODE_COLOR,
+                                subTitle:"API requests per process/client (in 3 mins)",
                                 title: 'Process',
                                 xAxisLabel: '',
                                 yAxisLabel: 'Process Wise Usage',
@@ -251,6 +253,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                             chartOptions: {
                                 colors: cowc.FIVE_NODE_COLOR,
                                 title: 'Objects',
+                                subTitle:"API requests per Config Object type (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: ctwl.CONFIG_NODE_OBJECT_USAGE_TITLE,
                                 groupBy: 'api_stats.object_type',
@@ -280,6 +283,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                             chartOptions: {
                                 colors: cowc.FIVE_NODE_COLOR,
                                 title: "Clients",
+                                subTitle:"API requests per client [IP:Port] (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: "Client Wise Usage",
                                 groupBy: 'api_stats.remote_ip',
@@ -309,6 +313,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                             chartOptions: {
                                 colors: cowc.FIVE_NODE_COLOR,
                                 title: "Projects",
+                                subTitle:"API requests per project (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: "Project Wise Usage",
                                 groupBy: 'api_stats.project_name',
@@ -338,6 +343,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: 'Schema CPU Share (%)',
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -367,6 +373,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: 'Discovery CPU Share (%)',
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -396,7 +403,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
-                                yAxisLabel: 'Api CPU Share (%)',
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
+                                yAxisLabel: 'API CPU Share (%)',
                                 groupBy: 'name',
                                 colors: colorFn,
                                 yField: 'MAX(process_mem_cpu_usage.cpu_share)',
@@ -425,6 +433,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.CONFIG_NODE_SERVICE_MONITOR_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -454,6 +463,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.CONFIG_NODE_DEVICE_MANAGER_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
@@ -483,6 +493,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                         viewConfig: {
                             chartOptions: {
                                 yFormatter: d3.format('.2f'),
+                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
                                 yAxisLabel: ctwl.CONFIG_NODE_IFMAP_CPU_SHARE,
                                 groupBy: 'name',
                                 colors: colorFn,
