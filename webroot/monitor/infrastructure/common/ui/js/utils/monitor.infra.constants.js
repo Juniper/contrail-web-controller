@@ -151,6 +151,8 @@ define([
 
         this.VROUTER_DEFAULT_MAX_THROUGHPUT = 10737418240; // 10 GB
 
+        this.VROUTER_FLOWS_CHART_COLORS = ['#6f97ae','#d95436'];
+
     };
 
     return MonitorInfraConstants;

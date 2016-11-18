@@ -614,6 +614,19 @@ define([
         this.VROUTER_FLOWS_PREFIX = 'vrouter_flows';
         this.VROUTER_FLOWS_GRID_ID = this.VROUTER_FLOWS_PREFIX + '-results';
         this.VROUTER_FLOWS_TAB_IDX = 4;
+        this.VROUTER_ACTIVE_FLOWS_DROP_STATS = "Active Flows & Drop Stats";
+        this.VROUTER_CPU_MEM_UTILIZATION = "Cpu Memory Utilization";
+        this.VROUTER_BANDWIDTH_PERCENTILE = "Bandwidth Percentiles";
+        this.VROUTER_SYSTEM_CPU_PERCENTILES = "System CPU Percentiles";
+        this.VROUTER_SYSTEM_MEMORY_PERCENTILES = "System Memory Percentiles";
+        this.VROUTER_SYSTEM_CPU_MEMORY = "System CPU Memory Usage";
+        this.VROUTER_VN_INTF_INST = "VNs / Interfaces / Instances";
+        this.VROUTER_AGENT_CPU_PERCENTILES = "VRouter Agent CPU Share Percentiles";
+        this.VROUTER_AGENT_MEMORY_PERCENTILES = "VRouter Agent Memory Usage Percentiles";
+        this.VROUTER_ACTIVE_FLOWS_PERCENTILES = "Active Flows Percentiles";
+        this.VROUTER_ACTIVE_FLOWS_DROPS_LABEL = "Active Flows / Drops";
+        this.VROUTER_AGENT_CPU_PERCENTILES = "Agent CPU Percentiles";
+        this.VROUTER_AGENT_MEMORY_PERCENTILES = "Agent Memory Percentiles";
 
         this.VROUTER_ALARMS_GRID_VIEW_ID = "vrouter_alarms_grid_view_id";
         this.VROUTER_ALARMS_GRID_SECTION_ID = "vrouter_alarms_grid_section_id";
