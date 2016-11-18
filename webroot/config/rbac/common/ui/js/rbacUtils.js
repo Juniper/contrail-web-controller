@@ -476,11 +476,7 @@
              if (contrail.checkIfFunction(callbackObj.init)) {
                  callbackObj.init();
              }
-             $.when.apply($, deleteAjax).then(function () {
-                 if (contrail.checkIfFunction(callbackObj.init)) {
-                     callbackObj.init();
-                 }
-             }, function(response){
+             $.when.apply($, deleteAjax).then(function(response){
                  if (contrail.checkIfFunction(callbackObj.success)) {
                      callbackObj.success();
                  }

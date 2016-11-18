@@ -142,9 +142,9 @@
                     formattedGR = "<table style='width:100%'><thead><tr>" +
                     "<th style='width:20%'>BGP Helper</th>" +
                     "<th style='width:20%'>XMPP Helper</th>" +
-                    "<th style='width:20%'>Restart Time(secs)</th>" +
-                    "<th style='width:20%'>LLGR Time(secs)</th>" +
-                    "<th style='width:20%'>End of RIB(secs)</th>" +
+                    "<th style='width:20%'>Restart Time (secs)</th>" +
+                    "<th style='width:20%'>LLGR Time (secs)</th>" +
+                    "<th style='width:20%'>End of RIB (secs)</th>" +
                     "</tr></thead><tbody>";
 
                     formattedGR += grStr;
