@@ -127,26 +127,6 @@ define([
                                 }
                             }
                         },
-                        {
-                            elementId: 'xmpp_helper_enable',
-                            view: "FormDropdownView",
-                            viewConfig : {
-                                visible: "graceful_restart_enable",
-                                path : 'graceful_restart_parameters.xmpp_helper_enable',
-                                class : "col-xs-6",
-                                label:'XMPP Helper',
-                                templateId: cowc.TMPL_DROPDOWN_LABEL_RIGHT_VIEW,
-                                dataBindValue :
-                                    'graceful_restart_parameters().xmpp_helper_enable',
-                                elementConfig : {
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    data: [{text: "Enabled", value: "true"},
-                                           {text: "Disabled", value: "false"}]
-                                }
-                            }
-                        }]
-                    },
                     {
                         columns:[{
                             elementId:
