@@ -63,6 +63,11 @@ define([
         this.CONFIGNODE_CPU_SHARE_SCHEMA_LINE_CHART_ID = 'confignode-cpu-share-schema-line-chart-id';
         this.CONFIGNODE_CPU_SHARE_DISCOVERY_LINE_CHART_ID = 'confignode-cpu-share-discovery-line-chart-id';
         this.CONFIGNODE_CPU_SHARE_API_LINE_CHART_ID = 'confignode-cpu-share-api-line-chart-id';
+        this.CONFIGNODE_CPU_SHARE_SERVICE_MONITOR_LINE_CHART_ID = 'confignode-cpu-share-service-monitor-line-chart-id';
+        this.CONFIGNODE_CPU_SHARE_DEVICE_MANAGER_LINE_CHART_ID = 'confignode-cpu-share-device-manager-line-chart-id';
+        this.CONFIGNODE_CPU_SHARE_IFMAP_LINE_CHART_ID = 'confignode-cpu-share-ifmap-line-chart-id';
+        this.SYSTEM_CPU_SHARE_LINE_CHART_ID = 'system-cpu-share-line-chart-id';
+        this.SYSTEM_MEMORY_USAGE_LINE_CHART_ID = 'system-memory-usage-line-chart-id';
 
         this.monitorInfraUrls = {
                 TENANT_API_URL              : "/api/tenant/get-data",

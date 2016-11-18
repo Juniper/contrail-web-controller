@@ -43,23 +43,22 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                          view:'LineWithFocusChartView',
                          viewConfig: {
                              chartOptions: {
-                                  yAxisLabel: 'CPU Share (%)',
-                                     groupBy: 'name',
-                                     yField: 'MAX(process_mem_cpu_usage.cpu_share)',
-                                     colors: colorFn,
-                                     title: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                     yTickFormat: cpuChartYTickFormat,
-                                     yFormatter : function(d){
-                                         return d;
-                                     },
-                                     xFormatter: xCPUChartFormatter,
+                                 yAxisLabel: ctwl.DATABSE_NODE_CPU_SHARE,
+                                 groupBy: 'name',
+                                 yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                 colors: colorFn,
+                                 title: ctwl.DATABASENODE_SUMMARY_TITLE,
+                                 yTickFormat: cpuChartYTickFormat,
+                                 yFormatter : function(d){
+                                     return d;
+                                 },
+                                 xFormatter: xCPUChartFormatter,
                              }
                          }
                      },
                      itemAttr: {
                          title: ctwl.DATABSE_NODE_CPU_SHARE,
-                         height: 1.3
-                     }
+                    }
                 }
             },
             'databasenode-memory': function (){
@@ -77,7 +76,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                      view:'LineWithFocusChartView',
                      viewConfig: {
                          chartOptions: {
-                                 yAxisLabel: 'Memory',
+                                 yAxisLabel: 'Cassandra Memory Usage',
                                  groupBy: 'name',
                                  yField: 'MAX(process_mem_cpu_usage.mem_res)',
                                  colors: colorFn,
@@ -86,58 +85,12 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                      return formatBytes(d, true);
                                  },
                                  xFormatter: xCPUChartFormatter,
-                         }
-                     }
-                 },
-                 itemAttr: {
-                      title: ctwl.DATABSE_NODE_MEMORY
-                 }}
-            },
-            'databasenode-disk-space-usage': function (){
-                return {
-                   modelCfg: {
-                        source:'STATTABLE',
-                        config: {
-                            table_name: 'StatTable.DatabaseUsageInfo.database_usage',
-                            select: 'Source, T=, MAX(database_usage.analytics_db_size_1k), MAX(database_usage.disk_space_used_1k)',
-                            parser: function(response){
-                                var stats = response;
-                                $.each(stats, function(idx, obj) {
-                                    obj['MAX(database_usage.analytics_db_size_1k)'] =
-                                        ifNull(obj['MAX(database_usage.analytics_db_size_1k)'],0) * 1024; //Converting KB to Bytes
-                                    obj['MAX(database_usage.disk_space_used_1k)'] =
-                                        ifNull(obj['MAX(database_usage.disk_space_used_1k)'],0) * 1024;
-                                });
-                                return stats;
-                            }
-                        }
-                    },
-                     viewCfg: {
-                         elementId : ctwl.DATABASENODE_DISK_SPACE_USAGE_CHART_ID,
-                         view:'LineWithFocusChartView',
-                         viewConfig: {
-                             chartOptions: {
-                                yAxisLabel: 'Disk Space Usage',
-                                groupBy: 'Source',
-                                yField: 'MAX(database_usage.disk_space_used_1k)',
-                                colors: colorFn,
-                                title: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                margin: {
-                                    left: 60,
-                                    top: 20,
-                                    right: 15,
-                                    bottom: 50
-                                },
-                                yFormatter : function(d){
-                                    return formatBytes(d, true);
-                                },
-                                xFormatter: xCPUChartFormatter,
-                             }
+                                }
                          }
                      },
-                     itemAttr: {
-                          title: ctwl.DATABSE_NODE_DISK_SPACE_USAGE
-                     }
+                 itemAttr: {
+                     title: ctwl.DATABSE_NODE_MEMORY,
+                    }
                 }
             },
             'databasenode-pending-compactions': function (){
@@ -152,11 +105,11 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                     viewCfg: {
                          elementId : ctwl.DATABASENODE_COMPACTIONS_CHART_ID,
                          view:'StackedBarChartWithFocusView',
-                        viewConfig: {
+                         viewConfig: {
                             chartOptions: {
                                 colors: colorFn,
                                 title: ctwl.DATABASENODE_SUMMARY_TITLE,
-                                yAxisLabel: 'Pending Compactions',
+                                yAxisLabel: ctwl.DATABSE_NODE_PENDING_COMPACTIONS,
                                 xAxisLabel: '',
                                 groupBy: 'name',
                                 yField: 'MAX(cassandra_compaction_task.pending_compaction_tasks)',
@@ -164,7 +117,64 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                         }
                     },
                     itemAttr: {
-                        title: ctwl.ANALYTICS_NODE_SANDESH_MESSAGE_DISTRIBUTION
+                        title: ctwl.DATABSE_NODE_PENDING_COMPACTIONS,
+                        height: 1.3
+                    }
+                }
+            },
+            'databasenode-zookeeper': function (){
+                return {
+                    modelCfg:{
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where: 'process_mem_cpu_usage.__key = zookeeper'
+                        }
+                    },
+                    viewCfg:{
+                        view:'LineWithFocusChartView',
+                        elementId : 'database_node_zookeeper',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: ctwl.DATABASE_NODE_ZOOKEEPER_CPU_SHARE,
+                                groupBy: 'name',
+                                colors: colorFn,
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                title: ctwl.DATABASENODE_SUMMARY_TITLE,
+                            }
+                        }
+                    },itemAttr: {
+                        title: ctwl.DATABASE_NODE_ZOOKEEPER_CPU_SHARE
+                    }
+                }
+            },
+            'databasenode-kafka': function (){
+                return {
+                    modelCfg: {
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where: 'process_mem_cpu_usage.__key = kafka'
+                        }
+                    },
+                    viewCfg:{
+                        view:'LineWithFocusChartView',
+                        elementId : 'database_node_kafka',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: ctwl.DATABASE_NODE_KAFKA_CPU_SHARE,
+                                groupBy: 'name',
+                                colors: colorFn,
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                title: ctwl.DATABASENODE_SUMMARY_TITLE,
+                            }
+                        }
+                    },itemAttr: {
+                        title: ctwl.DATABASE_NODE_KAFKA_CPU_SHARE
                     }
                 }
             },
@@ -186,7 +196,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                         width: 2
                     }
                 }
-              },
+            },
         };
         function getDatabaseNodeSummaryGridConfig(model, colorFn) {
             var columns = [

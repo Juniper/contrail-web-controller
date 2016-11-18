@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
@@ -20,35 +21,22 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                             select: 'T=, Source, SUM(tx_update_stats.reach), SUM(tx_update_stats.unreach)'
                         }
                     },
-                    viewCfg:  {
+                    viewCfg:{
                         elementId : ctwl.CONTROLNODE_SENT_UPDATES_SCATTER_CHART_ID,
-                        view : "StackedBarChartWithFocusView",
+                        view : "StackedAreaChartView",
                         viewConfig : {
                             class: 'mon-infra-chart chartMargin',
                             chartOptions:{
-                                height: 230,
                                 title: ctwl.CONTROLNODE_SUMMARY_TITLE,
                                 xAxisLabel: '',
                                 yAxisLabel: 'Sent Updates',
                                 groupBy: 'Source',
                                 yField: 'SUM(tx_update_stats.reach)',
-                                yAxisOffset: 25,
-                                tickPadding: 8,
-                                margin: {
-                                    left: 55,
-                                    top: 20,
-                                    right: 0,
-                                    bottom: 40
-                                },
-                                bucketSize: monitorInfraConstants.STATS_BUCKET_DURATION,
                                 colors: colorFn,
                                 failureLabel:'Unreach',
-                                showControls: false,
-                                showLegend: true,
                                 failureCheckFn: function (d) {
                                     return ifNull(d['SUM(tx_update_stats.unreach)'],0);
                                 },
-                                defaultZeroLineDisplay: true
                             }
                         }
                     },
@@ -69,29 +57,16 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                     },
                     viewCfg: {
                         elementId : ctwl.CONTROLNODE_RECEIVED_UPDATES_SCATTER_CHART_ID,
-                        view : "StackedBarChartWithFocusView",
+                        view : "StackedAreaChartView",
                         viewConfig : {
-                            class: 'mon-infra-chart chartMargin',
                             chartOptions:{
-                                height: 230,
                                 xAxisLabel: '',
                                 yAxisLabel: 'Received Updates',
                                 title: ctwl.CONTROLNODE_SUMMARY_TITLE,
                                 groupBy: 'Source',
                                 yField: 'SUM(rx_update_stats.reach)',
-                                yAxisOffset: 25,
-                                tickPadding: 4,
-                                margin: {
-                                    left: 55,
-                                    top: 20,
-                                    right: 0,
-                                    bottom: 40
-                                },
-                                bucketSize: monitorInfraConstants.STATS_BUCKET_DURATION,
                                 colors: colorFn,
                                 failureLabel:'Unreach',
-                                showControls: false,
-                                showLegend: true,
                                 failureCheckFn: function (d) {
                                     return ifNull(d['SUM(rx_update_stats.unreach)'],0);
                                 },
@@ -119,17 +94,11 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                          view: 'LineWithFocusChartView',
                          viewConfig: {
                              chartOptions: {
-                                yAxisLabel: 'CPU Share (%)',
+                                yAxisLabel: 'Control CPU Share (%)',
                                 groupBy: 'name',
                                 yField: 'MAX(cpu_info.cpu_share)',
                                 colors: colorFn,
                                 title: ctwl.CONTROLNODE_SUMMARY_TITLE,
-                                margin: {
-                                    left: 60,
-                                    top: 20,
-                                    right: 15,
-                                    bottom: 50
-                                },
                                 yFormatter : function(d){
                                     return d;
                                 },
@@ -139,7 +108,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                      },
                      itemAttr: {
                           title: ctwl.CONTROL_NODE_CPU_SHARE
-                     }
+                    }
                 }
             },
             'controlnode-system-logs': function () {
@@ -180,7 +149,7 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                          elementId : ctwl.CONTROLNODE_MEM_SHARE_LINE_CHART_ID,
                          viewConfig: {
                              chartOptions: {
-                                yAxisLabel: 'Memory',
+                                yAxisLabel: 'BGP Memory Usage',
                                 groupBy: 'name',
                                 yField: 'MAX(cpu_info.mem_res)',
                                 colors: colorFn,
@@ -200,7 +169,120 @@ define(['underscore', 'contrail-view', 'monitor-infra-controlnode-model', 'node-
                      },
                      itemAttr: {
                           title: ctwl.CONTROL_NODE_MEMORY
-                     }
+                    }
+                }
+            },
+            'controlnode-control': function (){
+                return {
+                    modelCfg:{
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where:'process_mem_cpu_usage.__key = contrail-control'
+                        }
+                    },
+                    viewCfg:{
+                        elementId : 'control_node_control',
+                        view: 'LineWithFocusChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yAxisLabel: ctwl.CONTROL_NODE_CONTROL_CPU_SHARE,
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: ctwl.CONTROL_NODE_CONTROL_CPU_SHARE,
+                                groupBy: 'name',
+                                colors: colorFn,
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                title: ctwl.CONTROLNODE_SUMMARY_TITLE,
+                            }
+                        }
+                    },itemAttr: {
+                        title: ctwl.CONTROL_NODE_CONTROL_CPU_SHARE
+                    }
+                }
+            },
+            'controlnode-nodemgr': function (){
+                return {
+                    modelCfg:{
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where:'process_mem_cpu_usage.__key = contrail-control-nodemgr'
+                        }
+                    },
+                    viewCfg:{
+                        elementId : 'control_node_nodemgr',
+                        view: 'LineWithFocusChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: "Node Manager CPU Share (%)",
+                                groupBy: 'name',
+                                colors: colorFn,
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                title: ctwl.CONTROLNODE_SUMMARY_TITLE,
+                            }
+                        }
+                    },itemAttr: {
+                        title: ctwl.CONTROL_NODE_NODE_MANAGER_CPU_SHARE
+                    }
+                }
+            },
+            'controlnode-dns': function (){
+                return {
+                    modelCfg:{
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where:'process_mem_cpu_usage.__key = contrail-dns'
+                        }
+                    },
+                    viewCfg:{
+                        elementId : 'control_node_dns',
+                        view: 'LineWithFocusChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: ctwl.CONTROL_DNS_CPU_SHARE,
+                                groupBy: 'name',
+                                colors: colorFn,
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                title: ctwl.CONTROLNODE_SUMMARY_TITLE,
+                            }
+                        }
+                    },itemAttr: {
+                        title: ctwl.CONTROL_DNS_CPU_SHARE
+                    }
+                }
+            },
+            'controlnode-named': function (){
+                return {
+                    modelCfg:{
+                        source:'STATTABLE',
+                        config: {
+                            table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
+                            select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
+                            where:'process_mem_cpu_usage.__key = contrail-named'
+                        }
+                    },
+                    viewCfg:{
+                        elementId : 'control_node_named',
+                        view: 'LineWithFocusChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: d3.format('.2f'),
+                                yAxisLabel: ctwl.CONTROL_NAMED_CPU_SHARE,
+                                groupBy: 'name',
+                                colors: colorFn,
+                                yField: 'MAX(process_mem_cpu_usage.cpu_share)',
+                                title: ctwl.CONTROLNODE_SUMMARY_TITLE,
+                            }
+                        }
+                    },itemAttr: {
+                        title: ctwl.CONTROL_NAMED_CPU_SHARE
+                    }
                 }
             },
             'controlnode-grid-view': function () {
