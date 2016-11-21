@@ -126,10 +126,7 @@ define([
                                            {text: "Disabled", value: "false"}]
                                 }
                             }
-                        }]
-                    },
-                    {
-                        columns:[{
+                        }, {
                             elementId:
                                 "restart_time",
                             view: "FormInputView",
@@ -144,8 +141,10 @@ define([
                                     "restart_time",
                                 class: "col-xs-6"
                             }
-                        },
-                        {
+                        }]
+                    },
+                    {
+                        columns:[{
                             elementId: "long_lived_restart_time",
                             view: "FormInputView",
                             viewConfig: {
@@ -159,10 +158,7 @@ define([
                                     "long_lived_restart_time",
                                 class: "col-xs-6"
                             }
-                        }]
-                    },
-                    {
-                        columns:[{
+                        }, {
                             elementId: "end_of_rib_timeout",
                             view: "FormInputView",
                             viewConfig: {
