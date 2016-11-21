@@ -19,8 +19,7 @@ define([
                 "restart_time": 60,
                 "long_lived_restart_time": 300,
                 "end_of_rib_timeout": 30,
-                "bgp_helper_enable": false,
-                "xmpp_helper_enable": false
+                "bgp_helper_enable": false
             },
             "graceful_restart_enable": false
         },
@@ -94,14 +93,10 @@ define([
                         "graceful_restart_parameters;enable", false);
             var bgpHelperEnble = getValueByJsonPath(modelConfig,
                     "graceful_restart_parameters;bgp_helper_enable",
-                    false, false),
-                xmppHelperEnble = getValueByJsonPath(modelConfig,
-                    "graceful_restart_parameters;xmpp_helper_enable",
-                     false, false);
+                    false, false);
             modelConfig["graceful_restart_parameters"]["bgp_helper_enable"] =
                 bgpHelperEnble.toString();
-            modelConfig["graceful_restart_parameters"]["xmpp_helper_enable"] =
-                xmppHelperEnble.toString();
+
             return modelConfig;
         },
         getIPSubnetList: function(attr) {
@@ -203,12 +198,6 @@ define([
                 ["graceful_restart_parameters"]["bgp_helper_enable"] =
                     newBGPOptionsConfig["graceful_restart_parameters"]
                         ["bgp_helper_enable"].toString() == "true" ? true : false;
-
-                //xmpp helper enable
-                globalSysConfigData['global-system-config']
-                ["graceful_restart_parameters"]["xmpp_helper_enable"] =
-                    newBGPOptionsConfig["graceful_restart_parameters"]
-                        ["xmpp_helper_enable"].toString() == "true" ? true : false;
 
                 if (null != newBGPOptionsConfig['uuid']) {
                     globalSysConfigData['global-system-config']['uuid'] =

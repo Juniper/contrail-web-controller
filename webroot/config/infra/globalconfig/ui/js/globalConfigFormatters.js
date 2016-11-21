@@ -119,12 +119,8 @@
                         grEnable = getValueByJsonPath(val, "enable", "-"),
                         bgpHelperEnable = getValueByJsonPath(val,
                                 "bgp_helper_enable", "-"),
-                        xmppHelperEnable = getValueByJsonPath(val,
-                                "xmpp_helper_enable", "-"),
                         formattedGR='', grStr='';
                     bgpHelperEnable = bgpHelperEnable === true ?
-                            "Enabled" : "Disabled";
-                    xmppHelperEnable = xmppHelperEnable === true ?
                             "Enabled" : "Disabled";
                     dispStr = "";
                     if(grEnable == false || grEnable == "false" || grEnable == '-') {
@@ -134,14 +130,12 @@
                     dispStr = "Enabled<br><br>";
                     grStr += "<tr style='vertical-align:top'><td>";
                     grStr += bgpHelperEnable + "</td><td>";
-                    grStr += xmppHelperEnable + "</td><td>";
                     grStr += grTime + "</td><td>";
                     grStr += llgTime + "</td><td>";
                     grStr += eorRecTime + "</td></tr>";
 
                     formattedGR = "<table style='width:100%'><thead><tr>" +
                     "<th style='width:20%'>BGP Helper</th>" +
-                    "<th style='width:20%'>XMPP Helper</th>" +
                     "<th style='width:20%'>Restart Time (secs)</th>" +
                     "<th style='width:20%'>LLGR Time (secs)</th>" +
                     "<th style='width:20%'>End of RIB (secs)</th>" +
