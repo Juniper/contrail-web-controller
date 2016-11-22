@@ -49,8 +49,8 @@ define([
             prefix:'configAPIServer',
             sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
-            sparkline1Dimension:'cpu_info.cpu_share',
-            sparkline2Dimension:'cpu_info.mem_res',
+            sparkline1Dimension:'process_mem_cpu_usage.cpu_share',
+            sparkline2Dimension:'process_mem_cpu_usage.mem_res',
             view: ConfigNodeDetailsAPIServerLineChartView,
             model: configNodeDetailsAPIServerChartListModel
         },
@@ -59,8 +59,8 @@ define([
             prefix:'configServiceMonitor',
             sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
-            sparkline1Dimension:'cpu_info.cpu_share',
-            sparkline2Dimension:'cpu_info.mem_res',
+            sparkline1Dimension:'process_mem_cpu_usage.cpu_share',
+            sparkline2Dimension:'process_mem_cpu_usage.mem_res',
             view: ConfigNodeDetailsServiceMonitorLineChartView,
             model: configNodeDetailsServiceMonitorChartListModel
         },
@@ -69,8 +69,8 @@ define([
             prefix:'configSchema',
             sparklineTitle1: ctwl.TITLE_CPU,
             sparklineTitle2:'Memory',
-            sparkline1Dimension:'cpu_info.cpu_share',
-            sparkline2Dimension:'cpu_info.mem_res',
+            sparkline1Dimension:'process_mem_cpu_usage.cpu_share',
+            sparkline2Dimension:'process_mem_cpu_usage.mem_res',
             view: ConfigNodeDetailsSchemaLineChartView,
             model: configNodeDetailsSchemaChartListModel
         }];
