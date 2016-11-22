@@ -17,7 +17,7 @@ define(
             });
             function getConfigNodeListViewConfig(colorFn) {
                 var viewConfig = {
-                    rows: [{
+                    rows: [monitorInfraUtils.getToolbarViewConfig(), {
                         columns: [{
                             elementId: 'config-node-carousel-view',
                             view: "CarouselView",

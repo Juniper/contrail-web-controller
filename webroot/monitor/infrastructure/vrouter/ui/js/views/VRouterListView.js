@@ -17,6 +17,22 @@ define(
                     getVRouterListViewConfig(self));
                 function getVRouterListViewConfig(self) {
                     return {
+                        elementId: "vrouter_list_section",
+                        view: "SectionView",
+                        viewConfig:{
+                            rows:[
+                                monitorInfraUtils.getToolbarViewConfig(),
+                                {
+                                    columns:[
+                                        getVRouterListCarouselViewConfig(self)
+                                    ]
+                                }
+                            ]
+                        }
+                    };
+                }
+                function getVRouterListCarouselViewConfig(self) {
+                    return {
                          elementId: cowu.formatElementId([
                              ctwl.VROUTER_SUMMARY_LIST_SECTION_ID
                          ]),

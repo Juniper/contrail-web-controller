@@ -17,6 +17,7 @@ define(
             function getAnalyticsNodeListViewConfig(colorFn) {
                 var viewConfig = {
                         rows : [
+                                monitorInfraUtils.getToolbarViewConfig(),
                                 {
                                     columns : [
                                                {

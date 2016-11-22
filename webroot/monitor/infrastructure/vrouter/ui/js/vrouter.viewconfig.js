@@ -111,6 +111,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                              chartOptions: {
                                  title: ctwl.VROUTER_ACTIVE_FLOWS_DROPS_LABEL,
                                  colors: monitorInfraConstants.VROUTER_FLOWS_CHART_COLORS,
+                                 staticColor: true,
                                  xAxisLabel: '',
                                  yFormatter: function(y) {
                                      return _.isNaN(y)? y : parseInt(y);
@@ -183,7 +184,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                     //          return cowu.chartDataFormatter(data, chartOptions);
                     //      },
                           chartOptions: {
-                              colors:cowc.THREE_NODE_COLOR,
+                              colors:cowc.FIVE_NODE_COLOR,
                               title: ctwl.VROUTER_BANDWIDTH_PERCENTILE,
                               xAxisLabel: '',
                               yAxisLabel: ctwl.VROUTER_BANDWIDTH_PERCENTILE,

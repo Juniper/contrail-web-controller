@@ -485,6 +485,37 @@ define([
             return false;
         };
 
+        self.getToolbarViewConfig = function() {
+            return {
+                columns: [{
+                    elementId: "toolbar_section",
+                    view: "SectionView",
+                    viewConfig: {
+                        rows: [{
+                            columns: [{
+                                elementId: "toolbar",
+                                title: '',
+                                view: "ToolbarView",
+                                viewConfig: {
+                                    settings: [{
+                                        id: cowc.COLOR_PALETTE,
+                                        title: "Dashboard Colors",
+                                        view: 'js/views/SettingsColorView',
+                                        model: 'js/models/SettingsColorModel'
+                                    }, {
+                                        id: cowc.CHART_SETTINGS,
+                                        title: "Chart Settings",
+                                        view: "js/views/ChartSettingsView",
+                                        model: "js/models/ChartSettingsModel"
+                                    }]
+                                }
+                            }]
+                        }]
+                    }
+                }]
+             }
+        };
+
         self.getConfigNodeColor = function (d,obj) {
             obj= ifNull(obj,{});
             var nodeColor;

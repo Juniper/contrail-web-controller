@@ -17,6 +17,7 @@ define(
             function getControlNodeListViewConfig(colorFn) {
                 var viewConfig = {
                     rows : [
+                        monitorInfraUtils.getToolbarViewConfig(),
                         {
                             columns : [{
                                 elementId: 'control-node-carousel-view',

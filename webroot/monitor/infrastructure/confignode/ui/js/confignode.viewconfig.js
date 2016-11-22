@@ -603,13 +603,17 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-confignode-
                    name:"95% - Responses",
                    minWidth:200,
                    formatter:function(r,c,v,cd,dc) {
-                       return '<span><b>'+"Time "+
+                       var fomattedPct = "";
+                       if(dc && dc.percentileTime && dc.percentileSize) {
+                           fomattedPct =  '<span><b>'+"Time "+
                                '</b></span>' +
                               '<span class="display-inline">' +
                               (dc['percentileTime']) + '</span>'+'<span><b>'+", Size "+
                                '</b></span>' +
                               '<span class="display-inline">' +
                               (dc['percentileSize']) + '</span>';
+                       }
+                       return fomattedPct;
                    }
                }
 
