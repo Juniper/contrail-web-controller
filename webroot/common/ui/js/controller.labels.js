@@ -1190,17 +1190,25 @@ define([
         this.RT_TABLE_TAB_ID = 'rt-table-tab';
         this.CONFIG_RT_TABLE_PAGE_ID = 'config-rttable—page';
         this.CONFIG_RT_TABLE_LIST_VIEW_ID = 'config-rttable-list';
+        this.CONFIG_INF_RT_TABLE_LIST_VIEW_ID = 'config-inf-rttable-list';
         this.CONFIG_RT_TABLE_SECTION_ID = 'rtTable';
         this.CONFIG_RT_TABLE_ID = 'config-rt-table';
         this.NETWORK_ROUTE_TABLE_ID = 'network-rt-table';
         this.INTERFACE_ROUTE_TABLE_ID = 'interface-rt-table';
         this.TITLE_RT_TABLE = 'Route Tables';
         this.RT_TABLE_GRID_ID = 'rt-table-grid';
+        this.INF_RT_TABLE_GRID_ID = 'inf_rt-table-grid';
         this.RT_TABLE_PREFIX_ID = 'route_table';
-        this.TITLE_CREATE_RT_TABLE = 'Create Route Table';
-        this.TITLE_DEL_RT_TABLE = 'Delete Route Table';
+        this.TITLE_CREATE_RT_TABLE = 'Create Network Route Table';
+        this.TITLE_DEL_RT_TABLE = 'Delete Network Route Table';
+        this.TITLE_MULTI_DEL_RT_TABLE = 'Delete Network Route Table(s)';
+        this.TITLE_CREATE_INF_RT_TABLE = 'Create Interface Route Table';
+        this.TITLE_DEL_INF_RT_TABLE = 'Delete Interface Route Table';
+        this.TITLE_MULTI_DEL_INF_RT_TABLE = 'Delete Interface Route Table(s)';
         this.TITLE_EDIT_RT_TABLE = 'Edit Route Table';
         this.RT_TABLE_DETAILS = 'Route Table Details';
+        this.RT_GRID_TITLE = 'Network Route Tables';
+        this.INF_RT_GRID_TITLE = 'Interface Route Tables';
  
         /* BGP as a Service */
         this.TITLE_BGP_AS_A_SERVICE = 'BGP as a Service';
