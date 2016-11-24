@@ -3,8 +3,9 @@
  */
 
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    "protocol"
+], function (_, protocolUtils) {
     var NMGridConfig = function () {
         this.projectNetworksColumns = [
             {
@@ -329,7 +330,7 @@ define([
                 field: 'protocol',
                 name: 'Protocol',
                 formatter: function (r, c, v, cd, dc) {
-                    return getProtocolName(dc['protocol']);
+                    return protocolUtils.getProtocolName(dc.protocol);
                 },
                 minWidth: 60,
                 searchFn: function (d) {

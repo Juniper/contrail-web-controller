@@ -4,9 +4,10 @@
 
 define([
     'underscore',
+    "protocol",
     'contrail-view',
     'knockback'
-], function (_, ContrailView, Knockback) {
+], function (_, protocolUtils, ContrailView, Knockback) {
     var gridElId = '#' + ctwc.GLOBAL_FLOW_AGING_GRID_ID,
         prefixId = ctwc.GLOBAL_FLOW_AGING_PREFIX_ID,
         modalId = 'configure-' + prefixId,
@@ -61,37 +62,17 @@ define([
     });
 
     function getProtocalList() {
-        var flowProtoList = [];
-        var tmpFlowProtoList =
-            JSON.parse(JSON.stringify(protocolList));
-        var protoCnt = tmpFlowProtoList.length;
-        for (var i = 0; i < protoCnt; i++) {
-            var protocol = tmpFlowProtoList[i].name.toUpperCase();
-            var protocolValue = protocol.toLowerCase();
-            if(protocol === 'TCP') {
-                flowProtoList.push({
-                    index : 0,
-                    text : 6 + ' (' + protocol + ')',
-                    value : protocolValue
-                });
-            } else if(protocol === 'UDP') {
-                flowProtoList.push({
-                    index : 1,
-                    text : 17 + ' (' + protocol + ')',
-                    value : protocolValue
-                });
-            } else if(protocol === 'ICMP') {
-                flowProtoList.push({
-                    index : 2,
-                    text : 1 + ' (' + protocol + ')',
-                    value : protocolValue
-                });
-            }
-        }
-        //sort protocols by TCP,UDP and ICMP order
-        flowProtoList.sort(function(a, b){
-            return (a.index - b.index);
+        var flowProtoList = [],
+            availableProtocols = ["TCP", "UDP", "ICMP"];
+
+        flowProtoList = _.map(availableProtocols, function(protocolName, idx) {
+            return {
+                index: idx,
+                text: protocolUtils.getProtocolCode(protocolName) + " (" + protocolName + ")",
+                value: protocolName.toLowerCase()
+            };
         });
+
         return flowProtoList;
     }
 

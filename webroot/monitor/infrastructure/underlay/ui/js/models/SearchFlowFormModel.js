@@ -5,9 +5,10 @@
 define([
     'underscore',
     'knockout',
+    "protocol",
     'query-form-model',
     'core-basedir/reports/qe/ui/js/common/qe.model.config'
-], function (_, Knockout, QueryFormModel, qeModelConfig) {
+], function (_, Knockout, protocolUtils, QueryFormModel, qeModelConfig) {
     var SearchFlowFormModel = QueryFormModel.extend({
         defaultSelectFields: ['flow_class_id', 'direction_ing'],
 
@@ -40,7 +41,7 @@ define([
             searchFlowModel.attributes.where_data_object['value_option_list'] =
                 valueOptionList;
             var protocolData = [];
-            $.each(protocolList, function(idx, obj) {
+            $.each(protocolUtils.protocolList, function(idx, obj) {
                 protocolData.push(obj['name']);
             });
             valueOptionList['protocol'] = protocolData;

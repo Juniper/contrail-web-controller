@@ -4,9 +4,10 @@
 
 define([
     'underscore',
+    "protocol",
     'core-constants',
     'contrail-common'
-], function (_, cowc, Contrail) {
+], function (_, protocolUtils, cowc, Contrail) {
     var contrail = new Contrail()
 
     var CTConstants = function () {
@@ -445,11 +446,11 @@ define([
                     reqParams['fromTimeUTC'] = new XDate().addMinutes(-10).getTime();
                     reqParams['toTimeUTC'] = new XDate().getTime();
                 }
-                var protocolMap = {tcp: 6, icmp: 1, udp: 17},
+
                 protocolCode = [];
 
                 $.each(urlConfig['protocol'], function (idx, value) {
-                    protocolCode.push(protocolMap[value]);
+                    protocolCode.push(protocolUtils.getProtocolCode(value));
                 });
                 if (fqName.split(':').length == 2) {
                     fqName += ':*';//modified the fqName as per the flow series queries
