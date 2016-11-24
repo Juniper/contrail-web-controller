@@ -1113,11 +1113,11 @@ define([
                 }
                 if(ret[source] != null && ret[source]['history-10'] != null){
                     var hist10 = ret[source]['history-10'];
-                    hist10[t] = d['cpu_info.cpu_share'];
+                    hist10[t] = d['process_mem_cpu_usage.cpu_share'];
                 } else {
                     ret[source] = {};
                     ret[source]['history-10'] = {};
-                    ret[source]['history-10'][t] = d['cpu_info.cpu_share'];
+                    ret[source]['history-10'][t] = d['process_mem_cpu_usage.cpu_share'];
                 }
             });
             $.each(ret,function(key,val){
@@ -2110,27 +2110,36 @@ define([
                     from_time_utc: 'now-2h',
                     to_time_utc: 'now',
                     //reRunTimeRange:600,
-                    select:'Source, T, cpu_info.cpu_share, cpu_info.mem_res, cpu_info.module_id',
+                    select:'Source, T, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res, process_mem_cpu_usage.__key',
                     //groupFields:['Source'],
             }
             if(options.page != null && options.page == "summary") {
                 postData['from_time_utc'] = 'now-15m';
             }
             postData['table_type'] = 'STAT';
+            postData['table_name'] = 'StatTable.NodeStatus.process_mem_cpu_usage';
             if (dsName == monitorInfraConstants.CONTROL_NODE) {
-                postData['table_name'] = 'StatTable.ControlCpuState.cpu_info';
+//                postData['table_name'] = 'StatTable.ControlCpuState.cpu_info';
                 if (moduleType != null && moduleType != '') {
-                    postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-control)';
+                    postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-control)';
                 } else {
-                    postData['where'] = '(cpu_info.module_id = contrail-control)';
+                    postData['where'] = '(process_mem_cpu_usage.__key = contrail-control)';
                 }
             } else if (dsName == monitorInfraConstants.COMPUTE_NODE) {
-                postData['table_name'] = 'StatTable.ComputeCpuState.cpu_info';
+//                postData['table_name'] = 'StatTable.ComputeCpuState.cpu_info';
                 if (moduleType != null && moduleType != '') {
                     if(moduleType == 'vRouterAgent') {
-                        postData['select'] = 'Source, name, T, cpu_info.cpu_share, cpu_info.mem_res';
-                    } else if (moduleType == 'vRouterSystem') {
-                        postData['select'] = 'Source, name, T, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
+                        postData['select'] = 'Source, name, T=, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res';
+                        postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-vrouter-agent)';
+                        postData['time_granularity'] = 60;
+                    } else if (moduleType == 'vRouterSystemCpu') {
+                        postData['table_name'] = 'StatTable.NodeStatus.system_cpu_usage';
+                        postData['select'] = 'T=, MAX(system_cpu_usage.one_min_avg)';
+                        postData['time_granularity'] = 60;
+                    } else if (moduleType == 'vRouterSystemMem') {
+                        postData['table_name'] = 'StatTable.NodeStatus.system_mem_usage';
+                        postData['select'] = 'T=, MAX(system_mem_usage.used)';
+                        postData['time_granularity'] = 60;
                     } else if (moduleType == 'vRouterBandwidthIn') {
                         postData['table_name'] = 'StatTable.VrouterStatsAgent.phy_band_in_bps';
                         postData['select'] = 'Source, name, T=, phy_band_in_bps.__value';
@@ -2145,37 +2154,36 @@ define([
                         postData['time_granularity'] = 60;
                         //postData['plotFields'] = ['MAX(flow_rate.active_flows)'];
                     }
-                    postData['where'] = '(Source = '+ node +' OR name = '+ node +')';
                 } else {
-                    postData['select'] = 'Source, name, T, cpu_info.cpu_share, cpu_info.mem_res';
-                    postData['where'] = '';
+                    postData['select'] = 'Source, name, T, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res';
+                    postData['where'] = '(process_mem_cpu_usage.__key = contrail-vrouter-agent)';
                 }
             } else if (dsName == monitorInfraConstants.ANALYTICS_NODE) {
-                postData['table_name'] = 'StatTable.AnalyticsCpuState.cpu_info';
-                postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
+//                postData['table_name'] = 'StatTable.AnalyticsCpuState.cpu_info';
+                postData['select'] = 'Source, T, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res';
                 if (moduleType != null && moduleType != '') {
                     if(moduleType == 'analyticsCollector') {
-                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-collector)';
+                        postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-collector)';
                     } else if (moduleType == 'analyticsQE') {
-                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-query-engine)';
+                        postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-query-engine)';
                     } else if (moduleType == 'analyticsAnalytics') {
-                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-analytics-api)';
+                        postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-analytics-api)';
                     }
                 } else {
-                    postData['where'] = '(cpu_info.module_id = contrail-collector)';
+                    postData['where'] = '(process_mem_cpu_usage.__key = contrail-collector)';
                 }
             } else if (dsName == monitorInfraConstants.CONFIG_NODE) {
-                postData['table_name'] = 'StatTable.ConfigCpuState.cpu_info';
+//                postData['table_name'] = 'StatTable.ConfigCpuState.cpu_info';
                 if (moduleType != null && moduleType != '') {
                     if(moduleType == 'configAPIServer') {
-                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-api)';
+                        postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-api:0)';
                     } else if (moduleType == 'configServiceMonitor') {
-                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-svc-monitor)';
+                        postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-svc-monitor)';
                     } else if (moduleType == 'configSchema') {
-                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-schema)';
+                        postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-schema)';
                     }
                 } else {
-                    postData['where'] = '(cpu_info.module_id = contrail-api)';
+                    postData['where'] = '(process_mem_cpu_usage.__key = contrail-api:0)';
                 }
             } else if (dsName == monitorInfraConstants.DATABASE_NODE) {
                 postData['table_name'] = 'StatTable.DatabaseUsageInfo.database_usage';
@@ -2476,6 +2484,36 @@ define([
             }, {
                 p: getValueByJsonPath(options,'hash')
             });
+        },
+        self.parseAndMergeStats = function (response,primaryDS,key) {
+            var primaryData = primaryDS.getItems();
+            if(primaryData.length == 0) {
+                return response;
+            }
+            if(response.length == 0) {
+                return primaryData;
+            }
+            //If both arrays are not having first element at same time
+            //remove one item accordingly
+            while (primaryData[0]['T='] != response[0]['T=']) {
+                if(primaryData[0]['T='] > response[0]['T=']) {
+                    response = response.slice(1,response.length-1);
+                } else {
+                    primaryData = primaryData.slice(1,primaryData.length-1);
+                }
+            }
+            var cnt = primaryData.length;
+            for (var i = 0; i < cnt ; i++) {
+                primaryData[i]['T'] = primaryData[i]['T='];
+                if (response[i] != null && response[i][key] != null) {
+                    primaryData[i][key] =
+                        response[i][key];
+                } else if (i > 0){
+                    primaryData[i][key] =
+                        primaryData[i-1][key];
+                }
+            }
+            primaryDS.updateData(primaryData);
         }
     };
     return MonitorInfraUtils;

@@ -32,7 +32,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                     },
                     successCallback: function(response, contrailListModel) {
                         var flowRateData = getValueByJsonPath(response,'data',[]);
-                        parseAndMergeStats (flowRateData,contrailListModel,'MAX(flow_rate.active_flows)');
+                        monitorInfraUtils.parseAndMergeStats (flowRateData,contrailListModel,'MAX(flow_rate.active_flows)');
                     }
                 },
                 {
@@ -50,7 +50,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                         } else {
                             data = getValueByJsonPath(response,'data',[]);
                         }
-                        parseAndMergeStats (data,contrailListModel,'phy_band_out_bps.__value');
+                        monitorInfraUtils.parseAndMergeStats (data,contrailListModel,'phy_band_out_bps.__value');
                     }
                 }
             ]
@@ -74,37 +74,6 @@ define(['contrail-list-model'], function(ContrailListModel) {
             cacheConfig : {
             }
         };
-
-        function parseAndMergeStats (response,primaryDS,key) {
-            var primaryData = primaryDS.getItems();
-            if(primaryData.length == 0) {
-                return response;
-            }
-            if(response.length == 0) {
-                return primaryData;
-            }
-            //If both arrays are not having first element at same time
-            //remove one item accordingly
-            while (primaryData[0]['T='] != response[0]['T=']) {
-                if(primaryData[0]['T='] > response[0]['T=']) {
-                    response = response.slice(1,response.length-1);
-                } else {
-                    primaryData = primaryData.slice(1,primaryData.length-1);
-                }
-            }
-            var cnt = primaryData.length;
-            for (var i = 0; i < cnt ; i++) {
-                primaryData[i]['T'] = primaryData[i]['T='];
-                if (response[i] != null && response[i][key] != null) {
-                    primaryData[i][key] =
-                        response[i][key];
-                } else if (i > 0){
-                    primaryData[i][key] =
-                        primaryData[i-1][key];
-                }
-            }
-            primaryDS.updateData(primaryData);
-        }
 
         return ContrailListModel(listModelConfig);
     };
