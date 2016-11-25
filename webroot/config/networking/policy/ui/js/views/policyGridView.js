@@ -222,10 +222,11 @@ define([
             templateGenerator: 'RowSectionTemplateGenerator',
             templateGeneratorConfig: {
                 rows: [{
+                    
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'row-fluied',
+                            class: 'row-fluid',
                             rows: [{
                                 title: ctwl.TITLE_POLICY_DETAILS,
                                 templateGenerator: 'BlockListTemplateGenerator',
@@ -270,7 +271,7 @@ define([
                                 }]
                             },
                             //permissions
-                            ctwu.getRBACPermissionExpandDetails('span3')]
+                            ctwu.getRBACPermissionExpandDetails('col-xs-3')]
                         }]
                     }
                 }]

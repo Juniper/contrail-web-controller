@@ -251,8 +251,10 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'col-xs-6',
+                            class: 'col-xs-12',
                             rows: [{
+                                keyClass:'col-xs-3',
+                                valueClass:'col-xs-9',
                                 title: 'Details',
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [{
@@ -260,18 +262,26 @@ define([
                                     templateGenerator: 'TextGenerator',
                                     label: 'Name'
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: 'display_name',
                                     templateGenerator: 'TextGenerator',
                                     label: 'Display Name'
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: "uuid",
                                     templateGenerator: "TextGenerator",
                                     label: "UUID"
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: "autonomous_system",
                                     templateGenerator: "TextGenerator",
                                     label: "Autonomous System"
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: "virtual_machine_interface_refs",
                                     templateGenerator: "TextGenerator",
                                     label: "Virtual Machine Interface(s)",
@@ -279,6 +289,8 @@ define([
                                         formatter: "VMIFormatter"
                                     }
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: "bgpaas_ip_address",
                                     templateGenerator: "TextGenerator",
                                     label: "IP Address",
@@ -293,6 +305,8 @@ define([
                                         formatter: "AddressFamiliesFormatter"
                                     }
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: "bgpaas_session_attributes.hold_time",
                                     templateGenerator: "TextGenerator",
                                     label: "Hold Time",
@@ -300,6 +314,8 @@ define([
                                         formatter: "HoldTimeFormatter"
                                     }
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: "bgpaas_session_attributes.loop_count",
                                     templateGenerator: "TextGenerator",
                                     label: "Loop Count",
@@ -307,6 +323,8 @@ define([
                                         formatter: "LoopCountFormatter"
                                     }
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: 'bgpaas_session_attributes.admin_down',
                                     templateGenerator: 'TextGenerator',
                                     label: 'Admin State',
@@ -314,6 +332,8 @@ define([
                                         formatter: "AdminStateFormatter"
                                     }
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: 'bgpaas_session_attributes.as_override',
                                     templateGenerator: 'TextGenerator',
                                     label: 'AS Override',
@@ -321,6 +341,8 @@ define([
                                         formatter: "ASOverrideFormatter"
                                     }
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: "bgpaas_session_attributes.passive",
                                     templateGenerator: "TextGenerator",
                                     label: "Passive",
@@ -328,6 +350,8 @@ define([
                                         formatter: "PassiveFormatter"
                                     }
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: 'bgpaas_ipv4_mapped_ipv6_nexthop',
                                     templateGenerator: 'TextGenerator',
                                     label: 'Use IPv4-mapped IPv6 Nexthop',
@@ -335,6 +359,8 @@ define([
                                         formatter: "IPv4MappedIPv6NexthopFormatter"
                                     }
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: 'bgpaas_suppress_route_advertisement',
                                     templateGenerator: 'TextGenerator',
                                     label: 'Suppress Route Advertisement',
@@ -342,6 +368,8 @@ define([
                                         formatter: "SuppressRouteAdvtFormatter"
                                     }
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: "bgpaas_session_attributes.auth_data",
                                     templateGenerator: "TextGenerator",
                                     label: "Authentication Mode",
@@ -358,7 +386,7 @@ define([
                                 }*/]
                             },
                             //permissions
-                            ctwu.getRBACPermissionExpandDetails()]
+                            ctwu.getRBACPermissionExpandDetails('col-xs-3')]
                         }]
                     }
                 }]

@@ -243,7 +243,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'col-xs-6',
+                                    class: 'col-xs-12',
                                     rows: [
                                         {
                                             title:
@@ -252,26 +252,31 @@ define([
                                                 'BlockListTemplateGenerator',
                                             templateGeneratorConfig: [
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'name',
                                                     label: 'Name',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'display_name',
                                                     label: 'Display Name',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key:
                                                         'service_template_properties.version',
                                                     templateGenerator:
                                                         'TextGenerator'
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'service_template_properties.service_mode',
                                                     label: 'Mode',
                                                     templateGenerator: 'TextGenerator',
@@ -281,6 +286,7 @@ define([
                                                 },
                                                 //Following two need custom formatters
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'service_template_properties.service_type',
                                                     label: 'Type',
                                                     templateGenerator: 'TextGenerator',
@@ -289,6 +295,7 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'service_template_properties.service_scaling',
                                                     label: 'Scaling',
                                                     templateGenerator: 'TextGenerator',
@@ -297,6 +304,7 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     label: 'Availability Zone',
                                                     key: 'service_template_properties.availability_zone_enable',
                                                     templateGenerator: 'TextGenerator',
@@ -305,6 +313,7 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'service_template_properties.interface_type',
                                                     label: 'Interface Type (s)',
                                                     templateGenerator: 'TextGenerator',
@@ -313,16 +322,19 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'service_template_properties.image_name',
                                                     label: 'Image',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'service_template_properties.flavor',
                                                     label: 'Flavor',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'service_template_properties.service_virtualization_type',
                                                     label: 'Virtualization Type',
                                                     templateGenerator:
@@ -333,6 +345,7 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key:
                                                         'service_appliance_set',
                                                     label: 'Service Appliance' +
@@ -345,11 +358,13 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'service_template_properties.instance_data',
                                                     label: 'Instance Data',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    keyClass:'col-xs-3',
                                                     key: 'service_instance_back_refs',
                                                     label: 'Service Instances',
                                                     templateGenerator: 'TextGenerator',
@@ -360,7 +375,7 @@ define([
                                             ]
                                         },
                                         //permissions
-                                        ctwu.getRBACPermissionExpandDetails()
+                                        ctwu.getRBACPermissionExpandDetails('col-xs-3')
                                     ]
                                 }
                             ]

@@ -343,6 +343,8 @@ define([
     };
     function getBlockListTemplateGeneratorCfg() {
         var blockList = [{
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_network_refs',
             name: 'virtual_network_refs',
             label:'Network',
@@ -351,20 +353,28 @@ define([
                 formatter: "networkFormater"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'uuid',
             name: 'uuid',
             templateGenerator: 'TextGenerator'
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'name',
             name:"name",
             label:"Name",
             templateGenerator: 'TextGenerator'
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'display_name',
             name:"display_name",
             label:"Display Name",
             templateGenerator: 'TextGenerator'
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'id_perms',
             name:"id_perms",
             label: 'Admin State',
@@ -373,6 +383,8 @@ define([
                 formatter: "AdminStateFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_mac_addresses',
             label: 'MAC Address',
             templateGenerator: 'TextGenerator',
@@ -380,6 +392,8 @@ define([
                 formatter: "MACAddressFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'instance_ip_back_refs',
             name:"Fixed IPs",
             label:"Fixed IPs",
@@ -388,6 +402,8 @@ define([
                 formatter: "fixedIPFormaterExpand"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'floating_ip_back_refs',
             name:"floating_ip_back_refs",
             label:"Floating IPs",
@@ -396,6 +412,8 @@ define([
                 formatter: "floatingIPFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'uuid',
             name:"security_group_refs",
             label:"Security Groups",
@@ -404,6 +422,8 @@ define([
                 formatter: "sgFormater"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_dhcp_option_list',
             name:"virtual_machine_interface_dhcp_option_list",
             label:"DHCP Options",
@@ -412,6 +432,8 @@ define([
                 formatter: "DHCPFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'interface_route_table_refs',
             name:"interface_route_table_refs",
             label:"Static Routes",
@@ -420,6 +442,8 @@ define([
                 formatter: "staticRoutFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'service_health_check_refs',
             name:"service_health_check_refs",
             label:"Service Health Check",
@@ -428,6 +452,8 @@ define([
                 formatter: "serviceHealthCheckFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             label: 'QoS',
             key: 'qos_config_refs',
             templateGenerator:
@@ -437,6 +463,8 @@ define([
                     'QoSFormatter',
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_properties',
             name:"virtual_machine_interface_properties",
             label:"Local Preference",
@@ -445,6 +473,8 @@ define([
                 formatter: "localPrefFormater"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'ecmp_hashing_include_fields',
             name:"ecmp_hashing_include_fields",
             label:"ECMP Hashing Fields",
@@ -453,6 +483,8 @@ define([
                 formatter: "ECMPHashingFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_fat_flow_protocols',
             name:"virtual_machine_interface_fat_flow_protocols",
             label:"FatFlow",
@@ -461,6 +493,8 @@ define([
                 formatter: "FatFlowFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-5',
             key: 'virtual_machine_interface_bindings',
             name:"virtual_machine_interface_bindings",
             label:"Bindings",
@@ -469,6 +503,8 @@ define([
                 formatter: "PortBindingFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_allowed_address_pairs',
             name:"virtual_machine_interface_allowed_address_pairs",
             label:"Allowed address pairs",
@@ -477,6 +513,8 @@ define([
                 formatter: "AAPFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_properties.interface_mirror',
             label:"Mirror to",
             templateGenerator: 'TextGenerator',
@@ -484,6 +522,8 @@ define([
                 formatter: "mirrorFormatter"
             }
         },  {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_refs',
             name:"virtual_machine_interface_refs",
             label:"Sub Interfaces",
@@ -492,6 +532,8 @@ define([
                 formatter: "childrensUUID"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_properties',
             name:"virtual_machine_interface_properties",
             label:"Sub Interface VLAN",
@@ -500,6 +542,8 @@ define([
                 formatter: "subInterfaceVXLANUUID"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_properties.sub_interface_vlan_tag',
             name:"virtual_machine_interface_refs.sub_interface_vlan_tag",
             label:"Parent Port",
@@ -508,6 +552,8 @@ define([
                 formatter: "parentUUIDFormatter"
             }
         }, {
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_disable_policy',
             name:"virtual_machine_interface_disable_policy",
             label:"Disable Policy",
@@ -518,6 +564,8 @@ define([
         }],
 
         deviceOwnerTemplate = {
+                keyClass:'col-xs-3',
+                valueClass:'col-xs-9',
                 key: 'virtual_machine_interface_device_owner',
                 name:"virtual_machine_interface_device_owner",
                 label:"Device",
@@ -528,6 +576,8 @@ define([
         },
 
         deviceOwnerUUIDTemplate = {
+                keyClass:'col-xs-3',
+                valueClass:'col-xs-9',
                 key: 'virtual_machine_interface_device_owner',
                 name:"virtual_machine_interface_device_owner",
                 label:"Device ID",
@@ -551,7 +601,7 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'col-xs-6',
+                            class: 'col-xs-12',
                             rows: [{
                                 title: ctwl.TITLE_PORT_DETAILS,
                                 templateGenerator: 'BlockListTemplateGenerator',
@@ -559,7 +609,7 @@ define([
                                     getBlockListTemplateGeneratorCfg()
                             },
                             //permissions
-                            ctwu.getRBACPermissionExpandDetails()]
+                            ctwu.getRBACPermissionExpandDetails('col-xs-3')]
                         }]
                     }
                 }]
