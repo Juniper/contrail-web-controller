@@ -255,6 +255,7 @@ define([
                                     view: "FormEditableGridView",
                                     viewConfig: {
                                         path: "server",
+                                        templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                                         validation: "serverValidation",
                                         collection: "servers",
                                         columns: [
@@ -263,12 +264,12 @@ define([
                                                 name: 'Server MAC',
                                                 view: "FormComboboxView",
                                                 class: "",
-                                                width: 200,
+                                                width: 290,
                                                 viewConfig: {
                                                     path: "user_created_mac_address",
                                                     dataBindValue: "user_created_mac_address()",
                                                     dataBindOptionList : "dataSource()",
-                                                    width: 200,
+                                                    width: 290,
                                                     templateId:
                                           cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
                                                     elementConfig : {
@@ -285,10 +286,11 @@ define([
                                                 name: 'IP Address',
                                                 view: "FormInputView",
                                                 class: "",
-                                                width: 200,
+                                                width: 290,
                                                 viewConfig: {
                                                     templateId:
                                              cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                    width: 290,
                                                     path: "user_created_instance_ip_address",
                                                     placeholder:ctwl.IP_PH,
                                                     dataBindValue: "user_created_instance_ip_address()",
@@ -297,6 +299,11 @@ define([
                                             }
                                         ],
                                         rowActions: [
+                                            {
+                                                onClick: "function() {\
+                                                $root.addServer(); }",
+                                                iconClass: 'fa fa-plus'
+                                            },
                                             {
                                                 onClick: "function() {\
                                                 $root.deleteServer($data, this)\
@@ -308,7 +315,7 @@ define([
                                             {
                                                 onClick: "function() {\
                                                 addServer(); }",
-                                                buttonTitle: "Add Server"
+                                                buttonTitle: ""
                                             }
                                         ]
                                     }
