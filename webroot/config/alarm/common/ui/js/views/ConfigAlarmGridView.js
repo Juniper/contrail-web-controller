@@ -212,21 +212,21 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'row',
+                            class: 'row col-xs-12',
                             rows: [{
                                 title: 'Details',
                                 templateGenerator:
                                     'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [{
-                                    valueClass:'col-xs-10',
-                                    keyClass: 'col-xs-2',
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: "name",
                                     templateGenerator: "TextGenerator",
                                     label: "Name",
                                 },{
                                     key: "id_perms.created",
-                                    valueClass:'col-xs-10',
-                                    keyClass: 'col-xs-2',
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     templateGenerator: "TextGenerator",
                                     label: "Enabled",
                                     templateGeneratorConfig: {
@@ -234,8 +234,8 @@ define([
                                     }
                                 },{
                                     key: "id_perms.description",
-                                    valueClass:'col-xs-10',
-                                    keyClass: 'col-xs-2',
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     templateGenerator: "TextGenerator",
                                     label: "Description",
                                     templateGeneratorConfig: {
@@ -243,8 +243,8 @@ define([
                                     }
                                 },{
                                     key: "alarm_severity",
-                                    valueClass:'col-xs-10',
-                                    keyClass: 'col-xs-2',
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     templateGenerator: "TextGenerator",
                                     label: "Severity",
                                     templateGeneratorConfig: {
@@ -252,8 +252,8 @@ define([
                                     }
                                 },{
                                     key: "uve_keys",
-                                    valueClass:'col-xs-10',
-                                    keyClass: 'col-xs-2',
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     templateGenerator: "TextGenerator",
                                     label: "UVE Keys",
                                     templateGeneratorConfig: {
@@ -261,8 +261,8 @@ define([
                                     }
                                 },{
                                     key: "alarm_rules",
-                                    valueClass:'col-xs-10',
-                                    keyClass: 'col-xs-2',
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     templateGenerator: "TextGenerator",
                                     label: "Rules",
                                     templateGeneratorConfig: {
@@ -271,7 +271,7 @@ define([
                                 }]
                             },
                             //permissions
-                            ctwu.getRBACPermissionExpandDetails()]
+                            ctwu.getRBACPermissionExpandDetails('col-xs-3')]
                         }]
                     }
                 }]

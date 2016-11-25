@@ -214,35 +214,47 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'col-xs-6',
+                            class: 'col-xs-12',
                             rows: [{
                                 title: ctwl.TITLE_DNS_SERVER,
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [{
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'fq_name[1]',
                                         templateGenerator: 'TextGenerator',
                                         label: 'DNS Server'
 
                                     }, {
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'display_name',
                                         templateGenerator: 'TextGenerator',
                                         label: 'Display Name'
                                     }, {
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'uuid',
                                         templateGenerator: 'TextGenerator',
                                         label: 'UUID'
                                     },
 
                                     {
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'virtual_DNS_data[domain_name]',
                                         templateGenerator: 'TextGenerator',
                                         label: 'Domain Name'
 
                                     }, {
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'virtual_DNS_data[next_virtual_DNS]',
                                         templateGenerator: 'TextGenerator',
                                         label: 'Forwarder'
                                     }, {
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'virtual_DNS_data[default_ttl_seconds]',
                                         templateGenerator: 'TextGenerator',
                                         label: 'Time To Live',
@@ -251,6 +263,8 @@ define([
                                             formatter: "DnsTtlFormatter"
                                         }
                                     }, {
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'virtual_DNS_data[record_order]',
                                         templateGenerator: 'TextGenerator',
                                         label: 'Record Resolution Order',
@@ -258,10 +272,14 @@ define([
                                             formatter: "RecordResolutionFormatter"
                                         }
                                     }, {
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'virtual_DNS_data[floating_ip_record]',
                                         templateGenerator: 'TextGenerator',
                                         label: 'Floating IP Record'
                                     }, {
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'virtual_DNS_data.external_visible',
                                         templateGenerator: 'TextGenerator',
                                         label: 'External Visibility',
@@ -270,6 +288,8 @@ define([
                                             formatter: "ExternalVisibleFormatter"
                                         }
                                     }, {
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'virtual_DNS_data.reverse_resolution',
                                         templateGenerator: 'TextGenerator',
                                         label: 'Reverse Resolution',
@@ -278,6 +298,8 @@ define([
                                             formatter: "ReverseResolutionFormatter"
                                         }
                                     }, {
+                                        keyClass:'col-xs-3',
+                                        valueClass:'col-xs-9',
                                         key: 'network_ipam_back_refs',
                                         templateGenerator: 'TextGenerator',
                                         label: 'Associated IPAMs',
@@ -289,7 +311,7 @@ define([
                                 ]
                             },
                             //permissions
-                            ctwu.getRBACPermissionExpandDetails()]
+                            ctwu.getRBACPermissionExpandDetails('col-xs-3')]
                         }]
                     }
                 }]

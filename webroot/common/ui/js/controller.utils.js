@@ -904,9 +904,9 @@ define([
             }
             if(sharedPermsStr) {
                 formattedSharedPerms =
-                    "<table style='width:100%'><thead><tr>" +
-                    "<th style='width:40%'>Project</th>" +
-                    "<th style='width:60%'>Permissions</th>" +
+                    "<table class='sharedlist_permission' style='width:100%'><thead><tr>" +
+                    "<th style='width:70%'>Project</th>" +
+                    "<th style='width:30%'>Permissions</th>" +
                     "</tr></thead><tbody>";
                 formattedSharedPerms += sharedPermsStr;
                 formattedSharedPerms += "</tbody></table>";

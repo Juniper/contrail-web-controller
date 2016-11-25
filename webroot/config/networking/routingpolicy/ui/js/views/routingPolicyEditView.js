@@ -170,6 +170,7 @@ define([
                         elementId: 'term-collection',
                         view: "FormCollectionView",
                         viewConfig: {
+                            class: "col-xs-12",
                             collection: 'termCollection()',
                             validation: 'termValidation',
                             templateId: 'query-routing-policy-terms-template',

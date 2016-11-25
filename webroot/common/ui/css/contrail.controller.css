@@ -275,7 +275,7 @@ div.vis-network canvas{
     border-top:none;}
 #peer_selection .item-list table tr:first-child td{
     background-color:gray;}
-#bgp-grid .value th, #config-vn-list .value th, #service-instances-grid .value th, #global-bgp-options-grid th, #port-grid-id th{
+#bgp-grid .value th, #config-vn-list .value th, #service-instances-grid .value th, #global-bgp-options-grid th{
     font-weight:600;
     border-bottom:#777 solid 1px;
     padding-bottom:2px;}
@@ -483,10 +483,19 @@ Added for severity bubble in config alarms
 #graceful_restart_section input.ace-input[type=checkbox] + .ace-lbl::before {
     margin-right: 10px;
 }
-
 table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[class*="col-xs-"], .row-fluid table th[class*="col-xs-"] {
     display: table-cell;
     float: none;
     margin-left: 0;
     padding-left:0px;
+}
+#config-policies-grid-id  table.sharedlist_permission, #port-grid-id table.sharedlist_permission, #config-svc-template-grid table.sharedlist_permission, #bgp-as-a-service-grid table.sharedlist_permission, #dns-server-grid table.sharedlist_permission, #config-alarm-grid table.sharedlist_permission{
+    width:65%!important;
+}
+
+.and-clause-collection td.data-cell.data-cell-value, #or-clause-collection td.data-cell.data-cell-variables {
+    padding-top: 12px;
+}
+#or-clause-collection .data-cell.data-cell-operation>div{
+    margin-top:-2px;
 }
