@@ -335,7 +335,7 @@ define([
                           []);
             if(fatFlowData.length > 0) {
                 var fatFlow_length = fatFlowData.length;
-                fatFlow = "<table><tbody><tr><td>Protocol</td><td>Port</td></tr>"
+                fatFlow = "<table width='100%'><tbody><tr><th class='col-xs-4'>Protocol</th><th class='col-xs-8'>Port</th></tr>"
                 for(var i = 0; i < fatFlow_length;i++) {
                     var fatFlowVal = fatFlowData[i];
                     fatFlow += "<tr><td>";
@@ -358,7 +358,7 @@ define([
                           []);
             if(portBindingData.length > 0) {
                 var portBinding_length = portBindingData.length;
-                portBinding = "<table width='100%'><thead><tr><th class='col-xs-5'>Key</th><th class='col-xs-7'>Value</th></tr></thead>"
+                portBinding = "<table width='100%'><thead><tr><th class='col-xs-4'>Key</th><th class='col-xs-12'>Value</th></tr></thead>"
                 for(var i = 0; i < portBinding_length;i++) {
                     var portBindingVal = portBindingData[i];
                     portBinding += "<tbody><tr><td>";
