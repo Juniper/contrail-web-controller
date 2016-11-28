@@ -34,6 +34,7 @@ define([
         model.showProject = ko.computed(function(){
             return false;
         }, model);
+        rbacUtils.subscribeRBACModelChangeEvents(model);
     };
 
     function getRBACGridViewConfig (viewConfig) {

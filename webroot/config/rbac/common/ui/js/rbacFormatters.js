@@ -52,10 +52,10 @@
                    }
                    if(roleAccessStr) {
                        formattedRoleAccessStr =
-                           "<table style='width:100%'><thead><tr>\
-                           <th style='width:25%'>Role</th>\
-                           <th style='width:75%'>Access</th>\
-                           </tr></thead><tbody>";
+                           "<table style='width:100%'><thead><tr>" +
+                           "<th class='col-xs-5'>Role</th>" +
+                           "<th class='col-xs-7'>Access</th>" +
+                           "</tr></thead><tbody>";
                        formattedRoleAccessStr += roleAccessStr;
                        formattedRoleAccessStr += "</tbody></table>";
                    }
@@ -197,6 +197,15 @@
                    project = projArry[0] + ":" + projArry[1];
                }
                return project;
+           };
+
+           self.formatObjectData = function(result) {
+               var formattedData = [],
+                   data = getValueByJsonPath(result, "objects", []);
+               _.each(data, function(object){
+                  formattedData.push({"text": object, "value": object});
+               });
+               return formattedData;
            };
      };
 
