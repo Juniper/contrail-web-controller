@@ -60,6 +60,7 @@ define([
                         },
                         viewConfig: {
                             parentUUID: networkUUID,
+                            parentFQN: networkFQN,
                             parentType: ctwc.TYPE_VN
                         }
                     },

@@ -25,7 +25,7 @@ define([
                 formModelAttrs: reqUrlParms.reqParams
             };
             var flowRemoteConfig = {
-                url: cowc.URL_QUERY,
+                url: cowc.URL_QE_QUERY,
                 type: "POST",
                 data: JSON.stringify(postData)
             };

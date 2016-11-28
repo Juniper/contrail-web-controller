@@ -9,7 +9,13 @@ define([
         var self = this;
 
         this.instanceDataParser = function(response) {
-            var retArr = $.map(ifNull(response['data']['value'],response), function (currObject, idx) {
+            var interfaceMap = self.instanceInterfaceDataParser(getValueByJsonPath(response,
+                                                                                   "vmiData", []));
+            var vmData = getValueByJsonPath(response, "data;value", []);
+            var vmCnt = vmData.length;
+            var vmDetailsArr = [];
+            for (i = 0; i < vmCnt; i++) {
+                var currObject = vmData[i];
                 var currObj = currObject['value'];
                 currObject['raw_json'] = $.extend(true,{},currObject);
                 currObject['inBytes60'] = '-';
@@ -17,7 +23,8 @@ define([
                 // If we append * wildcard stats info are not there in response,so we changed it to flat
                 currObject['url'] = '/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + currObject['name'] + '?flat';
                 currObject['vmName'] = getValueByJsonPath(currObj,'UveVirtualMachineAgent;vm_name');
-                currObject['uuid'] = currObject['name'];
+                currObject['uuid'] = getValueByJsonPath(currObj, "UveVirtualMachineAgent;uuid",
+                                                        null);
 
                 var vRouter = getValueByJsonPath(currObj,'UveVirtualMachineAgent;vrouter');
                 currObject['vRouter'] = ifNull(ctwu.getDataBasedOnSource(vRouter), '-');
@@ -40,9 +47,55 @@ define([
                     'instance_health_check_status': null
                 };
 
-                return currObject;
-            });
-            return retArr;
+                /* Add details from VMIs in this VM */
+                var intfList = getValueByJsonPath(currObj, "UveVirtualMachineAgent;interface_list",
+                                                  []);
+                var intfCnt = intfList.length;
+                var inThroughput = 0, outThroughput = 0;
+                var interfaceDetailsList = [];
+                for (var j = 0; j < intfCnt; j++) {
+                    var vmi = intfList[j];
+                    var interfaceDetail = interfaceMap[vmi];
+                    if (null == interfaceDetail) {
+                        console.log("We got the VMI in VM UVE, but did not get details in VMI uve:",
+                                    vmi);
+                        continue;
+                    }
+                    inThroughput += ifNull(interfaceDetail['in_bw_usage'], 0);
+                    outThroughput += ifNull(interfaceDetail['out_bw_usage'], 0);
+                    interfaceDetailsList.push(interfaceDetail);
+                }
+                currObj.UveVirtualMachineAgent.interface_details = interfaceDetailsList;
+                currObject.throughput = inThroughput + outThroughput;
+                currObject.fipCnt = 0;
+                currObject.size = currObject.throughput;
+                currObject.vn = getValueByJsonPath(interfaceDetail, "virtual_network", null);
+                if ((null != currObject.vn) && (currObject.vn.length > 0)) {
+                    currObject.vnFQN = currObject.vn;
+                    currObject.vn = ctwu.formatVNName(currObject.vn);
+                }
+                var intfCnt = interfaceDetailsList.length;
+                for (j = 0; j < intfCnt; j++) {
+                    if (false === interfaceDetailsList[j].is_health_check_active) {
+                        currObject.ui_added_parameters.instance_health_check_status = false;
+                    }
+                    if (true === interfaceDetailsList[j].ip6_active) {
+                        if ("0.0.0.0" !== interfaceDetailsList[j].ip_address) {
+                            currObject.ip.push(interfaceDetailsList[j].ip_address);
+                        }
+                        if (null !== interfaceDetailsList[j].ip6_address) {
+                            currObject.ip.push(interfaceDetailsList[j].ip6_address);
+                        }
+                    } else {
+                        if ("0.0.0.0" !== interfaceDetailsList[j].ip_address) {
+                            currObject.ip.push(interfaceDetailsList[j]['ip_address']);
+                        }
+                    }
+                    currObject.fipCnt += interfaceDetailsList[j]['count_floating_ips'];
+                }
+                vmDetailsArr.push(currObject);
+            }
+            return vmDetailsArr;
         };
 
         this.instanceInterfaceDataParser = function(response) {
@@ -72,6 +125,8 @@ define([
                         interface['floatingIP'].push(contrail.format('{0} ({1} / {2})', fipObj['ip_address'], cowu.addUnits2Bytes(ifNull(fipObj['in_bytes'], '-')), cowu.addUnits2Bytes(ifNull(fipObj['out_bytes'], '-'))));
                     });
 
+                    interface.x = interface['out_bw_usage'];
+                    interface.y = interface['in_bw_usage'];
                     if(contrail.checkIfExist(interface['if_stats'])) {
                         interface['throughput'] = interface['in_bw_usage'] + interface['out_bw_usage'];
                     }
@@ -297,15 +352,21 @@ define([
         };
 
         this.interfaceDataParser = function(response) {
-            var interfaceMap = self.instanceInterfaceDataParser(response)
+            var intfData = getValueByJsonPath(response, "value", []);
+            if (intfData.length > 0) {
+                intfData = {value: intfData};
+            }
+
+            var interfaceMap = self.instanceInterfaceDataParser(getValueByJsonPath(response,
+                                                                                   "data", intfData));
             return _.values(interfaceMap);
         };
 
         this.parseInstanceInterfaceStats = function (response) {
-            var retArr = $.map(ifNull(response['value'], response), function (obj, idx) {
+            var retArr = $.map(ifNull(response, []), function (obj, idx) {
                 var item = {};
                 var props = ctwc.STATS_SELECT_FIELDS['virtual-machine'];
-                item['name'] = obj['name'];
+                item['name'] = obj['vm_uuid'];
                 item['inBytes'] = ifNull(obj[props['inBytes']], '-');
                 item['outBytes'] = ifNull(obj[props['outBytes']], '-');
                 return item;
@@ -417,7 +478,7 @@ define([
 
         this.parseInstanceStats = function (response, type) {
             response = contrail.handleIfNull(response, {});
-            var retArr = $.map(ifNull(response['value'], []), function (obj, idx) {
+            var retArr = $.map(ifNull(response, []), function (obj, idx) {
                 var item = {};
                 var props = ctwc.STATS_SELECT_FIELDS[type];
                 item['name'] = obj['vm_uuid'];

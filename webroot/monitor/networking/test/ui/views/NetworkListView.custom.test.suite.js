@@ -40,7 +40,7 @@ define([
 
         bodyTestGroup.registerTest(cotr.test(cttm.NETWORKS_GRID_COLUMN_VALUE_CHECK, function() {
             expect(1);
-            equal($($(el).find('.grid-body .slick_row_id_1 .slick-cell')[4]).text(), "12 MB / 9 MB",
+            equal($($(el).find('.grid-body .slick_row_id_1 .slick-cell')[4]).text(), "101 MB / 101 MB",
                 "Custom test to assert 2nd row 5th col value");
 
         }, cotc.SEVERITY_MEDIUM));
