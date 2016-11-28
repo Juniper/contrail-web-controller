@@ -61,7 +61,290 @@ define(['underscore'], function (_) {
             }
         ]
     };
-    this.networkSummaryForFrontEndNetworkMockData = {
+    this.networkSummaryForFrontEndNetworkMockData =
+    {
+        "value": [
+        {
+            "name": "default-domain:admin:frontend",
+            "value": {
+                "UveVirtualNetworkAgent": {
+                    "udp_sport_bitmap": [
+                        "1",
+                    "0",
+                    "0",
+                    "0",
+                    "4294967295",
+                    "4294967295",
+                    "4294967295",
+                    "32767"
+                        ],
+                    "mirror_acl": null,
+                    "vrf_stats_list": [
+                    {
+                        "offload_packet_counts": {
+                            "gro": 0
+                        },
+                        "unknown_unicast_floods": 0,
+                        "arp_packet_counts": {
+                            "from_vm_interface": {
+                                "stats": {
+                                    "floods": 0,
+                                    "proxies": 382,
+                                    "stitches": 25906
+                                }
+                            },
+                            "from_physical_interface": {
+                                "stats": {
+                                    "floods": 0,
+                                    "proxies": 0,
+                                    "stitches": 0
+                                }
+                            }
+                        },
+                        "name": "default-domain:admin:frontend:frontend",
+                        "nh_packet_counts": {
+                            "discards": 0,
+                            "local_vm_l3_forwards": 0,
+                            "resolves": 0,
+                            "local_vm_l2_forwards": 0,
+                            "l3_receives": 0,
+                            "l2_receives": 0,
+                            "comp_nh_stats": {
+                                "edge_replication_forwards": 0,
+                                "source_replication_forwards": 0,
+                                "local_vm_l3_forwards": 0,
+                                "total_multicast_forwards": 0
+                            },
+                            "ecmp_forwards": 0,
+                            "vrf_translates": 0,
+                            "tunnel_nh_stats": {
+                                "vxlan_encaps": 0,
+                                "mpls_over_udp_encaps": 0,
+                                "udp_encaps": 0,
+                                "mpls_over_gre_encaps": 0
+                            }
+                        },
+                        "diag_packet_count": 60
+                    }
+                    ],
+                        "total_acl_rules": 4,
+                        "in_bandwidth_usage": 244453,
+                        "vn_stats": [
+                        {
+                            "in_bytes": 0,
+                            "other_vn": "__UNKNOWN__",
+                            "out_bytes": 0,
+                            "out_tpkts": 0,
+                            "in_tpkts": 0,
+                            "vrouter": "a7s12"
+                        },
+                        {
+                            "in_bytes": 910822,
+                            "other_vn": "default-domain:admin:backend",
+                            "out_bytes": 884424,
+                            "out_tpkts": 2648,
+                            "in_tpkts": 2655,
+                            "vrouter": "a7s12"
+                        },
+                        {
+                            "in_bytes": 5880,
+                            "other_vn": "default-domain:admin:frontend",
+                            "out_bytes": 5880,
+                            "out_tpkts": 60,
+                            "in_tpkts": 60,
+                            "vrouter": "a7s12"
+                        },
+                        {
+                            "in_bytes": 0,
+                            "other_vn": "default-domain:default-project:ip-fabric",
+                            "out_bytes": 0,
+                            "out_tpkts": 0,
+                            "in_tpkts": 0,
+                            "vrouter": "a7s12"
+                        }
+                    ],
+                        "in_stats": [
+                        {
+                            "bytes": 17924,
+                            "other_vn": "__UNKNOWN__",
+                            "tpkts": 244
+                        },
+                        {
+                            "bytes": 48316200918,
+                            "other_vn": "default-domain:admin:backend",
+                            "tpkts": 144271677
+                        },
+                        {
+                            "bytes": 171774806,
+                            "other_vn": "default-domain:admin:frontend",
+                            "tpkts": 1751135
+                        },
+                        {
+                            "bytes": 40152,
+                            "other_vn": "default-domain:default-project:ip-fabric",
+                            "tpkts": 441
+                        }
+                    ],
+                        "policy_rule_stats": [
+                        {
+                            "count": 2,
+                            "rule": "00000000-0000-0000-0000-000000000001"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "00000000-0000-0000-0000-000000000003"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "00000000-0000-0000-0000-000000000004"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "62bea881-acd9-4f37-ab6e-330080cdef79"
+                        }
+                    ],
+                        "egress_flow_count": 102,
+                        "udp_dport_bitmap": [
+                            "1",
+                        "0",
+                        "0",
+                        "0",
+                        "4294967295",
+                        "4294967295",
+                        "4294967295",
+                        "32767"
+                            ],
+                        "associated_fip_count": 1,
+                        "out_stats": [
+                        {
+                            "bytes": 0,
+                            "other_vn": "__UNKNOWN__",
+                            "tpkts": 0
+                        },
+                        {
+                            "bytes": 48313213794,
+                            "other_vn": "default-domain:admin:backend",
+                            "tpkts": 144254557
+                        },
+                        {
+                            "bytes": 171774806,
+                            "other_vn": "default-domain:admin:frontend",
+                            "tpkts": 1751135
+                        },
+                        {
+                            "bytes": 31952,
+                            "other_vn": "default-domain:default-project:ip-fabric",
+                            "tpkts": 420
+                        }
+                    ],
+                        "virtualmachine_list": [
+                            "5199c65e-8b71-4e4c-90cc-58deea9752dd",
+                        "c73ed229-bbf2-4e1e-be26-4aee2d1780b3",
+                        "faa5b186-5383-4670-b640-ad230fe2100f"
+                            ],
+                        "tcp_sport_bitmap": [
+                            "2147484161",
+                        "65544",
+                        "0",
+                        "0",
+                        "136490532",
+                        "654350348",
+                        "2358411620",
+                        "5150"
+                            ],
+                        "interface_list": [
+                            "default-domain:admin:fede15b7-548a-4dac-a7ab-c88749e4dcca",
+                        "default-domain:admin:fbf56475-71dc-46dd-bf8e-0f8dc127dc82",
+                        "default-domain:admin:08242801-ff6e-44d4-876d-4a001ba21862"
+                            ],
+                        "acl": "default-domain:admin:frontend:frontend",
+                        "tcp_dport_bitmap": [
+                            "513",
+                        "65544",
+                        "0",
+                        "0",
+                        "136490532",
+                        "654350348",
+                        "2358411620",
+                        "5150"
+                            ],
+                        "ingress_flow_count": 102,
+                        "out_bandwidth_usage": 237414
+                },
+                "RoutingInstanceStatsData": {
+                    "ermvpn_stats": {
+                        "a7s12:Control:contrail-control:0:\"default-domain:admin:frontend:frontend\"": {
+                            "prefixes": 2,
+                            "total_paths": 2,
+                            "primary_paths": 2,
+                            "infeasible_paths": 0,
+                            "secondary_paths": 0
+                        }
+                    },
+                    "evpn_stats": {
+                        "a7s12:Control:contrail-control:0:\"default-domain:admin:frontend:frontend\"": {
+                            "prefixes": 9,
+                            "total_paths": 9,
+                            "primary_paths": 9,
+                            "infeasible_paths": 0,
+                            "secondary_paths": 0
+                        }
+                    },
+                    "ipv4_stats": {
+                        "a7s12:Control:contrail-control:0:\"default-domain:admin:frontend:frontend\"": {
+                            "prefixes": 5,
+                            "total_paths": 5,
+                            "primary_paths": 4,
+                            "infeasible_paths": 0,
+                            "secondary_paths": 1
+                        }
+                    }
+                },
+                "ContrailConfig": {
+                    "deleted": false,
+                    "elements": {
+                        "parent_uuid": "\"6f6f5981-515c-4d64-ac1b-1135b0ccdd1f\"",
+                        "parent_type": "\"project\"",
+                        "route_target_list": "{\"route_target\": []}",
+                        "display_name": "\"frontend\"",
+                        "virtual_network_network_id": "3",
+                        "id_perms": "{\"enable\": true, \"uuid\": {\"uuid_mslong\": 9532422352401548634, \"uuid_lslong\": 11514566773222571326}, \"creator\": null, \"created\": \"2016-10-27T21:08:09.446001\", \"user_visible\": true, \"last_modified\": \"2016-11-10T00:28:01.225938\", \"permissions\": {\"owner\": \"neutron\", \"owner_access\": 7, \"other_access\": 7, \"group\": \"admin\", \"group_access\": 7}, \"description\": null}",
+                        "instance_ip_back_refs": "[{\"to\": [\"dd7121b8-ee54-410d-b0e6-09411dfb2b5a\"], \"attr\": null, \"uuid\": \"dd7121b8-ee54-410d-b0e6-09411dfb2b5a\"}]",
+                        "multi_policy_service_chains_enabled": "false",
+                        "floating_ip_pools": "[{\"to\": [\"default-domain\", \"admin\", \"frontend\", \"pool1\"], \"uuid\": \"1aafd65f-bdfa-4442-abeb-50de473d20b0\"}]",
+                        "virtual_network_properties": "{\"allow_transit\": false, \"mirror_destination\": false, \"rpf\": \"enable\"}",
+                        "ecmp_hashing_include_fields": "{}",
+                        "network_policy_refs": "[{\"to\": [\"default-domain\", \"admin\", \"f2b-allow-policy\"], \"attr\": {\"timer\": null, \"sequence\": {\"major\": 0, \"minor\": 0}}, \"uuid\": \"7ec7a888-84c9-4f72-8fa8-5aadf45275c8\"}]",
+                        "virtual_machine_interface_back_refs": "[{\"to\": [\"default-domain\", \"admin\", \"08242801-ff6e-44d4-876d-4a001ba21862\"], \"attr\": null, \"uuid\": \"08242801-ff6e-44d4-876d-4a001ba21862\"}]",
+                        "provider_properties": "null",
+                        "perms2": "{\"owner\": \"a6c92d95076d49b6b57820159c5480f6\", \"owner_access\": 7, \"global_access\": 0, \"share\": []}",
+                        "fq_name": "[\"default-domain\", \"admin\", \"frontend\"]",
+                        "routing_instances": "[{\"to\": [\"default-domain\", \"admin\", \"frontend\", \"frontend\"], \"uuid\": \"ba640d9e-53fd-4c0c-8114-cf7e9ae675ad\"}]",
+                        "uuid": "\"8449f79f-e3e3-455a-9fcb-f57934727d3e\"",
+                        "import_route_target_list": "{\"route_target\": []}",
+                        "is_shared": "false",
+                        "access_control_lists": "[{\"to\": [\"default-domain\", \"admin\", \"frontend\", \"frontend\"], \"uuid\": \"a54c6249-caf8-462a-ac85-5739f8ba394b\"}]",
+                        "router_external": "false",
+                        "export_route_target_list": "{\"route_target\": []}",
+                        "flood_unknown_unicast": "false",
+                        "network_ipam_refs": "[{\"to\": [\"default-domain\", \"default-project\", \"default-network-ipam\"], \"attr\": {\"ipam_subnets\": [{\"subnet\": {\"ip_prefix\": \"10.1.1.0\", \"ip_prefix_len\": 24}, \"addr_from_start\": true, \"enable_dhcp\": true, \"default_gateway\": \"10.1.1.1\", \"dns_nameservers\": [], \"subnet_uuid\": \"fe6f2b83-2afa-4d29-a587-d18a038d29d6\", \"alloc_unit\": 1, \"subnet_name\": \"\", \"dns_server_address\": \"10.1.1.2\"}]}, \"uuid\": \"c4cad97e-1a90-407f-b944-a6cd7fd10747\"}]"
+                    }
+                },
+                "UveVirtualNetworkConfig": {
+                    "total_acl_rules": 4,
+                    "routing_instance_list": [
+                        "default-domain:admin:frontend:frontend"
+                        ],
+                    "connected_networks": [
+                        "default-domain:admin:backend"
+                        ]
+                }
+            }
+        }
+        ]
+    };
+    /*
+    {
         "value": [
             {
                 "name": "default-domain:admin:frontend",
@@ -212,6 +495,7 @@ define(['underscore'], function (_) {
             }
         ]
     };
+    */
     this.flowSeriesForFrontendVNMockData = {
         "summary": {
             "start_time": 1443553594000000,
@@ -1896,7 +2180,164 @@ define(['underscore'], function (_) {
         "lastKey": null,
         "more": false
     };
-    this.networkConnectedGraphForFrontEndNetworkMockData = {
+    this.networkConnectedGraphForFrontEndNetworkMockData = 
+    {
+        "nodes": [
+        {
+            "name": "default-domain:admin:frontend",
+            "more_attributes": {
+                "vm_count": 3,
+                "vmi_count": 3,
+                "in_throughput": 244453,
+                "out_throughput": 237414,
+                "virtualmachine_list": [
+                    "5199c65e-8b71-4e4c-90cc-58deea9752dd",
+                "c73ed229-bbf2-4e1e-be26-4aee2d1780b3",
+                "faa5b186-5383-4670-b640-ad230fe2100f"
+                    ],
+                "connected_networks": [
+                    [
+                    "default-domain:admin:backend"
+                    ]
+                    ]
+            },
+            "node_type": "virtual-network",
+            "status": "Active"
+        },
+        {
+            "name": "default-domain:admin:backend",
+            "more_attributes": {
+                "vm_count": 1,
+                "vmi_count": 1,
+                "in_throughput": 235846,
+                "out_throughput": 242885,
+                "virtualmachine_list": [
+                    "a14fa2f3-6240-41a7-8dd1-d72018a1b1db"
+                    ],
+                "connected_networks": [
+                    [
+                    "default-domain:admin:frontend"
+                    ]
+                    ]
+            },
+            "node_type": "virtual-network",
+            "status": "Active"
+        }
+        ],
+            "links": [
+            {
+                "src": "default-domain:admin:frontend",
+                "dst": "default-domain:admin:backend",
+                "dir": "bi",
+                "more_attributes": {
+                    "in_stats": [
+                    {
+                        "src": "default-domain:admin:frontend",
+                        "dst": "default-domain:admin:backend",
+                        "pkts": 144271677,
+                        "bytes": 48316200918
+                    }
+                    ],
+                        "out_stats": [
+                        {
+                            "src": "default-domain:admin:frontend",
+                            "dst": "default-domain:admin:backend",
+                            "pkts": 144254557,
+                            "bytes": 48313213794
+                        }
+                    ]
+                }
+            }
+        ],
+            "config-data": {
+                "virtual-networks": [
+                {
+                    "href": "http://10.84.30.249:9100/virtual-network/7b4c376f-66a0-4944-8842-cccd21420d4e",
+                    "fq_name": [
+                        "default-domain",
+                    "default-project",
+                    "default-virtual-network"
+                        ],
+                    "uuid": "7b4c376f-66a0-4944-8842-cccd21420d4e"
+                },
+                {
+                    "href": "http://10.84.30.249:9100/virtual-network/8449f79f-e3e3-455a-9fcb-f57934727d3e",
+                    "fq_name": [
+                        "default-domain",
+                    "admin",
+                    "frontend"
+                        ],
+                    "uuid": "8449f79f-e3e3-455a-9fcb-f57934727d3e"
+                },
+                {
+                    "href": "http://10.84.30.249:9100/virtual-network/2f883953-4293-4ee3-a3ad-3cdfebf45cc4",
+                    "fq_name": [
+                        "default-domain",
+                    "admin",
+                    "testvn_nitishk"
+                        ],
+                    "uuid": "2f883953-4293-4ee3-a3ad-3cdfebf45cc4"
+                },
+                {
+                    "href": "http://10.84.30.249:9100/virtual-network/98261d9a-4138-4106-be25-7854c1f2dc2f",
+                    "fq_name": [
+                        "default-domain",
+                    "default-project",
+                    "__link_local__"
+                        ],
+                    "uuid": "98261d9a-4138-4106-be25-7854c1f2dc2f"
+                },
+                {
+                    "href": "http://10.84.30.249:9100/virtual-network/b1a19e41-31a2-455a-93e6-95426f9f694d",
+                    "fq_name": [
+                        "default-domain",
+                    "admin",
+                    "backend"
+                        ],
+                    "uuid": "b1a19e41-31a2-455a-93e6-95426f9f694d"
+                },
+                {
+                    "href": "http://10.84.30.249:9100/virtual-network/c6b1675b-9042-4716-851d-b5a94e1f0c61",
+                    "fq_name": [
+                        "default-domain",
+                    "admin",
+                    "vn1"
+                        ],
+                    "uuid": "c6b1675b-9042-4716-851d-b5a94e1f0c61"
+                },
+                {
+                    "href": "http://10.84.30.249:9100/virtual-network/714f2e0f-70eb-4c97-baf8-dc9c9843579c",
+                    "fq_name": [
+                        "default-domain",
+                    "admin",
+                    "vn2"
+                        ],
+                    "uuid": "714f2e0f-70eb-4c97-baf8-dc9c9843579c"
+                },
+                {
+                    "href": "http://10.84.30.249:9100/virtual-network/e91d9514-f983-42b1-afb0-e310548f6dcd",
+                    "fq_name": [
+                        "default-domain",
+                    "default-project",
+                    "ip-fabric"
+                        ],
+                    "uuid": "e91d9514-f983-42b1-afb0-e310548f6dcd"
+                },
+                {
+                    "href": "http://10.84.30.249:9100/virtual-network/7687c872-d2b1-476c-9d7b-15d7a89ac907",
+                    "fq_name": [
+                        "default-domain",
+                    "admin",
+                    "vn3"
+                        ],
+                    "uuid": "7687c872-d2b1-476c-9d7b-15d7a89ac907"
+                }
+                ],
+                    "service-instances": []
+            }
+    };
+    /*
+    {
         "nodes": [
             {
                 "name": "default-domain:admin:frontend",
@@ -2883,7 +3324,349 @@ define(['underscore'], function (_) {
             "service-instances": []
         }
     };
-    this.networkConfigGraphForFrontEndNetworkMockData = {
+    */
+    this.networkConfigGraphForFrontEndNetworkMockData =
+    {
+        "configData": {
+            "network-policys": [
+            {
+                "href": "http://10.84.30.249:9100/network-policy/7ec7a888-84c9-4f72-8fa8-5aadf45275c8",
+                "fq_name": [
+                    "default-domain",
+                "admin",
+                "f2b-allow-policy"
+                    ],
+                "uuid": "7ec7a888-84c9-4f72-8fa8-5aadf45275c8",
+                "network_policy_entries": {
+                    "policy_rule": [
+                    {
+                        "direction": "<>",
+                        "protocol": "any",
+                        "dst_addresses": [
+                        {
+                            "security_group": null,
+                            "subnet": null,
+                            "virtual_network": "default-domain:admin:backend",
+                            "subnet_list": [],
+                            "network_policy": null
+                        }
+                        ],
+                            "action_list": {
+                                "gateway_name": null,
+                                "log": false,
+                                "alert": false,
+                                "qos_action": null,
+                                "assign_routing_instance": null,
+                                "mirror_to": null,
+                                "simple_action": "pass",
+                                "apply_service": []
+                            },
+                            "rule_uuid": "62bea881-acd9-4f37-ab6e-330080cdef79",
+                            "dst_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ],
+                            "application": [],
+                            "ethertype": null,
+                            "src_addresses": [
+                            {
+                                "security_group": null,
+                                "subnet": null,
+                                "virtual_network": "default-domain:admin:frontend",
+                                "subnet_list": [],
+                                "network_policy": null
+                            }
+                        ],
+                            "rule_sequence": {
+                                "major": -1,
+                                "minor": -1
+                            },
+                            "src_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ]
+                    }
+                    ]
+                }
+            },
+            {
+                "href": "http://10.84.30.249:9100/network-policy/c8e8d8e2-c10f-4cd4-8055-407a91790f55",
+                "fq_name": [
+                    "default-domain",
+                "admin",
+                "test"
+                    ],
+                "uuid": "c8e8d8e2-c10f-4cd4-8055-407a91790f55",
+                "network_policy_entries": {
+                    "policy_rule": [
+                    {
+                        "direction": "<>",
+                        "protocol": "any",
+                        "dst_addresses": [
+                        {
+                            "security_group": null,
+                            "virtual_network": "default-domain:admin:vn2",
+                            "subnet": null,
+                            "network_policy": null
+                        }
+                        ],
+                            "action_list": {
+                                "mirror_to": null,
+                                "gateway_name": null,
+                                "log": false,
+                                "qos_action": null,
+                                "simple_action": "pass",
+                                "apply_service": null
+                            },
+                            "rule_uuid": "1053838d-58f8-4d36-ba08-45c307a29027",
+                            "dst_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ],
+                            "application": [],
+                            "src_addresses": [
+                            {
+                                "security_group": null,
+                                "virtual_network": "default-domain:admin:vn1",
+                                "subnet": null,
+                                "network_policy": null
+                            }
+                        ],
+                            "rule_sequence": {
+                                "major": -1,
+                                "minor": -1
+                            },
+                            "src_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ]
+                    }
+                    ]
+                }
+            },
+            {
+                "href": "http://10.84.30.249:9100/network-policy/042cd5f2-46a4-4dd5-82d3-4c2326549def",
+                "fq_name": [
+                    "default-domain",
+                "admin",
+                "vn1vn3"
+                    ],
+                "uuid": "042cd5f2-46a4-4dd5-82d3-4c2326549def",
+                "network_policy_entries": {
+                    "policy_rule": [
+                    {
+                        "direction": "<>",
+                        "protocol": "any",
+                        "dst_addresses": [
+                        {
+                            "security_group": null,
+                            "virtual_network": "default-domain:admin:vn3",
+                            "subnet": null,
+                            "network_policy": null
+                        }
+                        ],
+                            "action_list": {
+                                "mirror_to": null,
+                                "gateway_name": null,
+                                "log": false,
+                                "qos_action": null,
+                                "simple_action": "pass",
+                                "apply_service": null
+                            },
+                            "rule_uuid": "ddcca6ee-62ef-4566-a4ad-00e593c89109",
+                            "dst_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ],
+                            "application": [],
+                            "src_addresses": [
+                            {
+                                "security_group": null,
+                                "virtual_network": "default-domain:admin:vn1",
+                                "subnet": null,
+                                "network_policy": null
+                            }
+                        ],
+                            "rule_sequence": {
+                                "major": -1,
+                                "minor": -1
+                            },
+                            "src_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ]
+                    }
+                    ]
+                }
+            },
+            {
+                "href": "http://10.84.30.249:9100/network-policy/6b2e615b-1fcb-4041-b220-a1ec2907eac2",
+                "fq_name": [
+                    "default-domain",
+                "admin",
+                "partial-router"
+                    ],
+                "uuid": "6b2e615b-1fcb-4041-b220-a1ec2907eac2",
+                "network_policy_entries": {
+                    "policy_rule": [
+                    {
+                        "direction": "<>",
+                        "protocol": "any",
+                        "dst_addresses": [
+                        {
+                            "security_group": null,
+                            "virtual_network": "default-domain:admin:vn2",
+                            "subnet": null,
+                            "network_policy": null
+                        }
+                        ],
+                            "action_list": {
+                                "mirror_to": null,
+                                "gateway_name": null,
+                                "log": false,
+                                "qos_action": null,
+                                "simple_action": "pass",
+                                "apply_service": null
+                            },
+                            "rule_uuid": "c45f0e3a-d5b3-42e0-bde6-bcc9151454d1",
+                            "dst_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ],
+                            "application": [],
+                            "src_addresses": [
+                            {
+                                "security_group": null,
+                                "virtual_network": "default-domain:admin:vn1",
+                                "subnet": null,
+                                "network_policy": null
+                            }
+                        ],
+                            "rule_sequence": {
+                                "major": -1,
+                                "minor": -1
+                            },
+                            "src_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ]
+                    },
+                    {
+                        "direction": "<>",
+                        "protocol": "any",
+                        "dst_addresses": [
+                        {
+                            "security_group": null,
+                            "virtual_network": "default-domain:admin:vn3",
+                            "subnet": null,
+                            "network_policy": null
+                        }
+                        ],
+                            "action_list": {
+                                "mirror_to": null,
+                                "gateway_name": null,
+                                "log": false,
+                                "qos_action": null,
+                                "simple_action": "pass",
+                                "apply_service": null
+                            },
+                            "rule_uuid": "6dfbc7da-00f2-4dab-9291-3ca62be11615",
+                            "dst_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ],
+                            "application": [],
+                            "src_addresses": [
+                            {
+                                "security_group": null,
+                                "virtual_network": "default-domain:admin:vn1",
+                                "subnet": null,
+                                "network_policy": null
+                            }
+                        ],
+                            "rule_sequence": {
+                                "major": -1,
+                                "minor": -1
+                            },
+                            "src_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ]
+                    },
+                    {
+                        "direction": "<>",
+                        "protocol": "any",
+                        "dst_addresses": [
+                        {
+                            "security_group": null,
+                            "virtual_network": "any",
+                            "subnet": null,
+                            "network_policy": null
+                        }
+                        ],
+                            "action_list": {
+                                "mirror_to": null,
+                                "gateway_name": null,
+                                "log": false,
+                                "qos_action": null,
+                                "simple_action": "pass",
+                                "apply_service": null
+                            },
+                            "rule_uuid": "098edd4e-bc47-44cb-a5d7-61b53304dbc4",
+                            "dst_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ],
+                            "application": [],
+                            "src_addresses": [
+                            {
+                                "security_group": null,
+                                "virtual_network": "any",
+                                "subnet": null,
+                                "network_policy": null
+                            }
+                        ],
+                            "rule_sequence": {
+                                "major": -1,
+                                "minor": -1
+                            },
+                            "src_ports": [
+                            {
+                                "end_port": -1,
+                                "start_port": -1
+                            }
+                        ]
+                    }
+                    ]
+                }
+            }
+            ]
+        }
+    };
+    /*
+    {
         "configData": {
             "network-policys": [
                 {
@@ -2948,6 +3731,7 @@ define(['underscore'], function (_) {
             ]
         }
     };
+    */
     this.virtualMachineDetailsByUUIDMockData = {
         "data": {
             "value": [
@@ -5473,6 +6257,917 @@ define(['underscore'], function (_) {
             ]
         }
     ];
+    this.instancesDetailsMockData = {
+        "data": {
+            "value": [
+            {
+                "name": "5199c65e-8b71-4e4c-90cc-58deea9752dd",
+                "value": {
+                    "VirtualMachineStats": {
+                        "cpu_stats": [
+                        {
+                            "virt_memory": 4677268,
+                            "cpu_one_min_avg": 1.33333,
+                            "disk_used_bytes": 940285952,
+                            "vm_memory_quota": 2097152,
+                            "peak_virt_memory": 5171480,
+                            "disk_allocated_bytes": 4294967295,
+                            "rss": 286148
+                        }
+                        ]
+                    },
+                    "UveVirtualMachineAgent": {
+                        "udp_sport_bitmap": [
+                            "1",
+                        "0",
+                        "0",
+                        "0",
+                        "2147450879",
+                        "4294967295",
+                        "4294967295",
+                        "32767"
+                            ],
+                        "vm_name": "front01",
+                        "tcp_sport_bitmap": [
+                            "1",
+                        "0",
+                        "0",
+                        "0",
+                        "2261540",
+                        "67147784",
+                        "2350023012",
+                        "1048"
+                            ],
+                        "uuid": "5199c65e-8b71-4e4c-90cc-58deea9752dd",
+                        "udp_dport_bitmap": [
+                            "1",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0"
+                            ],
+                        "cpu_info": {
+                            "virt_memory": 4677268,
+                            "cpu_one_min_avg": 1.33333,
+                            "disk_used_bytes": 940285952,
+                            "vm_memory_quota": 2097152,
+                            "peak_virt_memory": 5171480,
+                            "disk_allocated_bytes": 4294967295,
+                            "rss": 286148
+                        },
+                        "vrouter": "a7s12",
+                        "tcp_dport_bitmap": [
+                            "1",
+                        "8",
+                        "0",
+                        "0",
+                        "131108",
+                        "8",
+                        "1048576",
+                        "1024"
+                            ],
+                        "interface_list": [
+                            "default-domain:admin:08242801-ff6e-44d4-876d-4a001ba21862"
+                            ]
+                    }
+                }
+            },
+            {
+                "name": "c73ed229-bbf2-4e1e-be26-4aee2d1780b3",
+                "value": {
+                    "VirtualMachineStats": {
+                        "cpu_stats": [
+                        {
+                            "virt_memory": 4676948,
+                            "cpu_one_min_avg": 0.166667,
+                            "disk_used_bytes": 892678144,
+                            "vm_memory_quota": 2097152,
+                            "peak_virt_memory": 5169088,
+                            "disk_allocated_bytes": 4294967295,
+                            "rss": 185224
+                        }
+                        ]
+                    },
+                    "UveVirtualMachineAgent": {
+                        "udp_sport_bitmap": [
+                            "0",
+                        "0",
+                        "0",
+                        "0",
+                        "3925729277",
+                        "4090493815",
+                        "3605977855",
+                        "16381"
+                            ],
+                        "vm_name": "front03",
+                        "tcp_sport_bitmap": [
+                            "513",
+                        "0",
+                        "0",
+                        "0",
+                        "134218756",
+                        "536870912",
+                        "8388672",
+                        "4112"
+                            ],
+                        "uuid": "c73ed229-bbf2-4e1e-be26-4aee2d1780b3",
+                        "udp_dport_bitmap": [
+                            "1",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0"
+                            ],
+                        "cpu_info": {
+                            "virt_memory": 4676948,
+                            "cpu_one_min_avg": 0.166667,
+                            "disk_used_bytes": 892678144,
+                            "vm_memory_quota": 2097152,
+                            "peak_virt_memory": 5169088,
+                            "disk_allocated_bytes": 4294967295,
+                            "rss": 185224
+                        },
+                        "vrouter": "a7s12",
+                        "tcp_dport_bitmap": [
+                            "1",
+                        "65536",
+                        "0",
+                        "0",
+                        "134218756",
+                        "536870912",
+                        "8388608",
+                        "4112"
+                            ],
+                        "interface_list": [
+                            "default-domain:admin:fede15b7-548a-4dac-a7ab-c88749e4dcca"
+                            ]
+                    }
+                }
+            },
+            {
+                "name": "faa5b186-5383-4670-b640-ad230fe2100f",
+                "value": {
+                    "VirtualMachineStats": {
+                        "cpu_stats": [
+                        {
+                            "virt_memory": 4672980,
+                            "cpu_one_min_avg": 0.166667,
+                            "disk_used_bytes": 679682048,
+                            "vm_memory_quota": 2097152,
+                            "peak_virt_memory": 5169040,
+                            "disk_allocated_bytes": 4294967295,
+                            "rss": 177936
+                        }
+                        ]
+                    },
+                    "UveVirtualMachineAgent": {
+                        "udp_sport_bitmap": [
+                            "0",
+                        "0",
+                        "0",
+                        "0",
+                        "4290740218",
+                        "4294898175",
+                        "3751279046",
+                        "16252"
+                            ],
+                        "vm_name": "front02",
+                        "tcp_sport_bitmap": [
+                            "1",
+                        "65536",
+                        "0",
+                        "0",
+                        "10272",
+                        "50331652",
+                        "0",
+                        "6"
+                            ],
+                        "uuid": "faa5b186-5383-4670-b640-ad230fe2100f",
+                        "udp_dport_bitmap": [
+                            "1",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0"
+                            ],
+                        "cpu_info": {
+                            "virt_memory": 4672980,
+                            "cpu_one_min_avg": 0.166667,
+                            "disk_used_bytes": 679682048,
+                            "vm_memory_quota": 2097152,
+                            "peak_virt_memory": 5169040,
+                            "disk_allocated_bytes": 4294967295,
+                            "rss": 177936
+                        },
+                        "vrouter": "a7s12",
+                        "tcp_dport_bitmap": [
+                            "513",
+                        "0",
+                        "0",
+                        "0",
+                        "8224",
+                        "50331652",
+                        "0",
+                        "6"
+                            ],
+                        "interface_list": [
+                            "default-domain:admin:fbf56475-71dc-46dd-bf8e-0f8dc127dc82"
+                            ]
+                    }
+                }
+            }
+            ]
+        },
+        "lastKey": null,
+        "more": false,
+        "vmiData": {
+            "value": [
+            {
+                "name": "default-domain:admin:08242801-ff6e-44d4-876d-4a001ba21862",
+                "value": {
+                    "UVEAlarms": {
+                        "alarms": [
+                        {
+                            "severity": 2,
+                            "alarm_rules": {
+                                "or_list": [
+                                {
+                                    "and_list": [
+                                    {
+                                        "condition": {
+                                            "operation": "<=",
+                                            "operand1": "UveVMInterfaceAgent.added_flows_ewm.sigma",
+                                            "variables": [
+                                                "UveVMInterfaceAgent.vm_name",
+                                            "UveVMInterfaceAgent.virtual_network"
+                                                ],
+                                            "operand2": {
+                                                "json_value": "1"
+                                            }
+                                        },
+                                        "match": [
+                                        {
+                                            "json_operand1_value": "-1.22736e-52",
+                                            "json_variables": {
+                                                "UveVMInterfaceAgent.virtual_network": "\"default-domain:admin:frontend\"",
+                                                "UveVMInterfaceAgent.vm_name": "\"front01\""
+                                            }
+                                        }
+                                        ]
+                                    }
+                                    ]
+                                }
+                                ]
+                            },
+                            "timestamp": 1480036774759642,
+                            "ack": false,
+                            "token": "eyJ0aW1lc3RhbXAiOiAxNDgwMDM2Nzc0NzU5NjQyLCAiaHR0cF9wb3J0IjogNTk5NSwgImhvc3RfaXAiOiAiMTAuODQuMzAuMjQ5In0=",
+                            "type": "VMI Flow Test Alarm",
+                            "description": "VMI Flow Test Alarm"
+                        }
+                        ]
+                    },
+                    "UveVMInterfaceAgent": {
+                        "ip6_active": false,
+                        "if_stats": {
+                            "out_bytes": 895462,
+                            "in_pkts": 2627,
+                            "out_pkts": 2643,
+                            "in_bytes": 886798
+                        },
+                        "vm_uuid": "5199c65e-8b71-4e4c-90cc-58deea9752dd",
+                        "port_bucket_bmap": {
+                            "udp_sport_bitmap": [
+                                "1",
+                            "0",
+                            "0",
+                            "0",
+                            "2147450879",
+                            "4294967295",
+                            "4294967295",
+                            "32767"
+                                ],
+                            "tcp_dport_bitmap": [
+                                "1",
+                            "8",
+                            "0",
+                            "0",
+                            "131108",
+                            "8",
+                            "1048576",
+                            "1024"
+                                ],
+                            "tcp_sport_bitmap": [
+                                "1",
+                            "0",
+                            "0",
+                            "0",
+                            "2261540",
+                            "67147784",
+                            "2350023012",
+                            "1048"
+                                ],
+                            "udp_dport_bitmap": [
+                                "1",
+                            "0",
+                            "0",
+                            "0",
+                            "0",
+                            "0",
+                            "0",
+                            "0"
+                                ]
+                        },
+                        "ip6_address": "::",
+                        "gateway": "10.1.1.1",
+                        "uuid": "08242801-ff6e-44d4-876d-4a001ba21862",
+                        "floating_ips": [
+                        {
+                            "virtual_network": "default-domain:admin:frontend",
+                            "ip_address": "10.1.1.4"
+                        }
+                        ],
+                            "label": 22,
+                            "ip4_active": true,
+                            "mac_address": "02:08:24:28:01:ff",
+                            "if_out_pkts_ewm": {
+                                "config": "0.1",
+                                "state": {
+                                    "stddev": "40.651",
+                                    "mean": "2599.83"
+                                },
+                                "sigma": 1.06201,
+                                "algo": "EWM",
+                                "samples": 47097
+                            },
+                            "l2_active": true,
+                            "added_flows_ewm": {
+                                "config": "0.1",
+                                "state": {
+                                    "stddev": "1.78436e-51",
+                                    "mean": "2.19004e-103"
+                                },
+                                "sigma": -1.22736e-52,
+                                "algo": "EWM",
+                                "samples": 47097
+                            },
+                            "vm_name": "front01",
+                            "out_bw_usage": 238789,
+                            "deleted_flows_ewm": {
+                                "config": "0.1",
+                                "state": {
+                                    "stddev": "1.69455e-51",
+                                    "mean": "2.40519e-103"
+                                },
+                                "sigma": -1.41937e-52,
+                                "algo": "EWM",
+                                "samples": 47097
+                            },
+                            "is_health_check_active": true,
+                            "flow_rate": {
+                                "active_flows": 100,
+                                "max_flow_deletes_per_second": 0,
+                                "added_flows": 0,
+                                "deleted_flows": 0,
+                                "min_flow_adds_per_second": 0,
+                                "min_flow_deletes_per_second": 0,
+                                "max_flow_adds_per_second": 0
+                            },
+                            "virtual_network": "default-domain:admin:frontend",
+                            "active": true,
+                            "ip_address": "10.1.1.3",
+                            "fixed_ip4_list": [
+                                "10.1.1.3"
+                                ],
+                            "in_bw_usage": 236479,
+                            "active_flows_ewm": {
+                                "config": "0.1",
+                                "state": {
+                                    "stddev": "8.08896e-14",
+                                    "mean": "100"
+                                },
+                                "sigma": -1.05409,
+                                "algo": "EWM",
+                                "samples": 47097
+                            },
+                            "fip_agg_stats": [
+                            {
+                                "out_bytes": 0,
+                                "in_bytes": 0,
+                                "out_pkts": 0,
+                                "virtual_network": "default-domain:admin:frontend",
+                                "in_pkts": 0,
+                                "ip_address": "10.1.1.4"
+                            }
+                        ],
+                            "admin_state": true,
+                            "if_in_pkts_ewm": {
+                                "config": "0.1",
+                                "state": {
+                                    "stddev": "40.1705",
+                                    "mean": "2589.95"
+                                },
+                                "sigma": 0.922385,
+                                "algo": "EWM",
+                                "samples": 47097
+                            },
+                            "sg_rule_stats": [
+                            {
+                                "count": 6,
+                                "rule": "00000000-0000-0000-0000-000000000001"
+                            },
+                            {
+                                "count": 0,
+                                "rule": "00000000-0000-0000-0000-000000000003"
+                            },
+                            {
+                                "count": 0,
+                                "rule": "00000000-0000-0000-0000-000000000004"
+                            },
+                            {
+                                "count": 0,
+                                "rule": "b4f66ab7-c373-4a0c-a498-dc6102f69c59"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "default-domain:admin:fede15b7-548a-4dac-a7ab-c88749e4dcca",
+                "value": {
+                    "UVEAlarms": {
+                        "alarms": [
+                        {
+                            "severity": 2,
+                            "alarm_rules": {
+                                "or_list": [
+                                {
+                                    "and_list": [
+                                    {
+                                        "condition": {
+                                            "operation": "<=",
+                                            "operand1": "UveVMInterfaceAgent.added_flows_ewm.sigma",
+                                            "variables": [
+                                                "UveVMInterfaceAgent.vm_name",
+                                            "UveVMInterfaceAgent.virtual_network"
+                                                ],
+                                            "operand2": {
+                                                "json_value": "1"
+                                            }
+                                        },
+                                        "match": [
+                                        {
+                                            "json_operand1_value": "-8.80132e-53",
+                                            "json_variables": {
+                                                "UveVMInterfaceAgent.virtual_network": "\"default-domain:admin:frontend\"",
+                                                "UveVMInterfaceAgent.vm_name": "\"front03\""
+                                            }
+                                        }
+                                        ]
+                                    }
+                                    ]
+                                }
+                                ]
+                            },
+                            "timestamp": 1480036774782390,
+                            "ack": false,
+                            "token": "eyJ0aW1lc3RhbXAiOiAxNDgwMDM2Nzc0NzgyMzkwLCAiaHR0cF9wb3J0IjogNTk5NSwgImhvc3RfaXAiOiAiMTAuODQuMzAuMjQ5In0=",
+                            "type": "VMI Flow Test Alarm",
+                            "description": "VMI Flow Test Alarm"
+                        }
+                        ]
+                    },
+                    "UveVMInterfaceAgent": {
+                        "ip6_active": false,
+                        "if_stats": {
+                            "out_bytes": 2940,
+                            "in_pkts": 30,
+                            "out_pkts": 30,
+                            "in_bytes": 2940
+                        },
+                        "vm_uuid": "c73ed229-bbf2-4e1e-be26-4aee2d1780b3",
+                        "port_bucket_bmap": {
+                            "udp_sport_bitmap": [
+                                "0",
+                            "0",
+                            "0",
+                            "0",
+                            "3925729277",
+                            "4090493815",
+                            "3605977855",
+                            "16381"
+                                ],
+                            "tcp_dport_bitmap": [
+                                "1",
+                            "65536",
+                            "0",
+                            "0",
+                            "134218756",
+                            "536870912",
+                            "8388608",
+                            "4112"
+                                ],
+                            "tcp_sport_bitmap": [
+                                "513",
+                            "0",
+                            "0",
+                            "0",
+                            "134218756",
+                            "536870912",
+                            "8388672",
+                            "4112"
+                                ],
+                            "udp_dport_bitmap": [
+                                "1",
+                            "0",
+                            "0",
+                            "0",
+                            "0",
+                            "0",
+                            "0",
+                            "0"
+                                ]
+                        },
+                        "ip6_address": "::",
+                        "gateway": "10.1.1.1",
+                        "uuid": "fede15b7-548a-4dac-a7ab-c88749e4dcca",
+                        "label": 29,
+                        "ip4_active": true,
+                        "mac_address": "02:fe:de:15:b7:54",
+                        "if_out_pkts_ewm": {
+                            "config": "0.1",
+                            "state": {
+                                "stddev": "1.0114e-14",
+                                "mean": "30"
+                            },
+                            "sigma": 1.0538,
+                            "algo": "EWM",
+                            "samples": 42600
+                        },
+                        "l2_active": true,
+                        "added_flows_ewm": {
+                            "config": "0.1",
+                            "state": {
+                                "stddev": "1.36368e-51",
+                                "mean": "1.20022e-103"
+                            },
+                            "sigma": -8.80132e-53,
+                            "algo": "EWM",
+                            "samples": 42600
+                        },
+                        "vm_name": "front03",
+                        "out_bw_usage": 784,
+                        "deleted_flows_ewm": {
+                            "config": "0.1",
+                            "state": {
+                                "stddev": "1.18091e-51",
+                                "mean": "1.32361e-103"
+                            },
+                            "sigma": -1.12084e-52,
+                            "algo": "EWM",
+                            "samples": 42600
+                        },
+                        "is_health_check_active": true,
+                        "flow_rate": {
+                            "active_flows": 1,
+                            "max_flow_deletes_per_second": 0,
+                            "added_flows": 0,
+                            "deleted_flows": 0,
+                            "min_flow_adds_per_second": 0,
+                            "min_flow_deletes_per_second": 0,
+                            "max_flow_adds_per_second": 0
+                        },
+                        "virtual_network": "default-domain:admin:frontend",
+                        "active": true,
+                        "ip_address": "10.1.1.6",
+                        "fixed_ip4_list": [
+                            "10.1.1.6"
+                            ],
+                        "in_bw_usage": 784,
+                        "active_flows_ewm": {
+                            "config": "0.1",
+                            "state": {
+                                "stddev": "1.47455e-15",
+                                "mean": "1"
+                            },
+                            "sigma": -1.05409,
+                            "algo": "EWM",
+                            "samples": 42600
+                        },
+                        "admin_state": true,
+                        "if_in_pkts_ewm": {
+                            "config": "0.1",
+                            "state": {
+                                "stddev": "1.0114e-14",
+                                "mean": "30"
+                            },
+                            "sigma": 1.0538,
+                            "algo": "EWM",
+                            "samples": 42600
+                        },
+                        "sg_rule_stats": [
+                        {
+                            "count": 2,
+                            "rule": "00000000-0000-0000-0000-000000000001"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "00000000-0000-0000-0000-000000000003"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "00000000-0000-0000-0000-000000000004"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "3a92b35f-58a4-4435-acfd-e5ae79944f92"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "b4f66ab7-c373-4a0c-a498-dc6102f69c59"
+                        }
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "default-domain:admin:fbf56475-71dc-46dd-bf8e-0f8dc127dc82",
+                "value": {
+                    "UVEAlarms": {
+                        "alarms": [
+                        {
+                            "severity": 2,
+                            "alarm_rules": {
+                                "or_list": [
+                                {
+                                    "and_list": [
+                                    {
+                                        "condition": {
+                                            "operation": "<=",
+                                            "operand1": "UveVMInterfaceAgent.added_flows_ewm.sigma",
+                                            "variables": [
+                                                "UveVMInterfaceAgent.vm_name",
+                                            "UveVMInterfaceAgent.virtual_network"
+                                                ],
+                                            "operand2": {
+                                                "json_value": "1"
+                                            }
+                                        },
+                                        "match": [
+                                        {
+                                            "json_operand1_value": "-1.64577e-52",
+                                            "json_variables": {
+                                                "UveVMInterfaceAgent.virtual_network": "\"default-domain:admin:frontend\"",
+                                                "UveVMInterfaceAgent.vm_name": "\"front02\""
+                                            }
+                                        }
+                                        ]
+                                    }
+                                    ]
+                                }
+                                ]
+                            },
+                            "timestamp": 1480036774748609,
+                            "ack": false,
+                            "token": "eyJ0aW1lc3RhbXAiOiAxNDgwMDM2Nzc0NzQ4NjA5LCAiaHR0cF9wb3J0IjogNTk5NSwgImhvc3RfaXAiOiAiMTAuODQuMzAuMjQ5In0=",
+                            "type": "VMI Flow Test Alarm",
+                            "description": "VMI Flow Test Alarm"
+                        }
+                        ]
+                    },
+                    "UveVMInterfaceAgent": {
+                        "ip6_active": false,
+                        "if_stats": {
+                            "out_bytes": 2982,
+                            "in_pkts": 31,
+                            "out_pkts": 31,
+                            "in_bytes": 2982
+                        },
+                        "vm_uuid": "faa5b186-5383-4670-b640-ad230fe2100f",
+                        "port_bucket_bmap": {
+                            "udp_sport_bitmap": [
+                                "0",
+                            "0",
+                            "0",
+                            "0",
+                            "4290740218",
+                            "4294898175",
+                            "3751279046",
+                            "16252"
+                                ],
+                            "tcp_dport_bitmap": [
+                                "513",
+                            "0",
+                            "0",
+                            "0",
+                            "8224",
+                            "50331652",
+                            "0",
+                            "6"
+                                ],
+                            "tcp_sport_bitmap": [
+                                "1",
+                            "65536",
+                            "0",
+                            "0",
+                            "10272",
+                            "50331652",
+                            "0",
+                            "6"
+                                ],
+                            "udp_dport_bitmap": [
+                                "1",
+                            "0",
+                            "0",
+                            "0",
+                            "0",
+                            "0",
+                            "0",
+                            "0"
+                                ]
+                        },
+                        "ip6_address": "::",
+                        "gateway": "10.1.1.1",
+                        "uuid": "fbf56475-71dc-46dd-bf8e-0f8dc127dc82",
+                        "label": 27,
+                        "ip4_active": true,
+                        "mac_address": "02:fb:f5:64:75:71",
+                        "if_out_pkts_ewm": {
+                            "config": "0.1",
+                            "state": {
+                                "stddev": "0.306634",
+                                "mean": "30.8957"
+                            },
+                            "sigma": 0.340176,
+                            "algo": "EWM",
+                            "samples": 42602
+                        },
+                        "l2_active": true,
+                        "added_flows_ewm": {
+                            "config": "0.1",
+                            "state": {
+                                "stddev": "2.34245e-51",
+                                "mean": "3.85513e-103"
+                            },
+                            "sigma": -1.64577e-52,
+                            "algo": "EWM",
+                            "samples": 42602
+                        },
+                        "vm_name": "front02",
+                        "out_bw_usage": 795,
+                        "deleted_flows_ewm": {
+                            "config": "0.1",
+                            "state": {
+                                "stddev": "2.10807e-51",
+                                "mean": "4.21787e-103"
+                            },
+                            "sigma": -2.00082e-52,
+                            "algo": "EWM",
+                            "samples": 42602
+                        },
+                        "is_health_check_active": true,
+                        "flow_rate": {
+                            "active_flows": 1,
+                            "max_flow_deletes_per_second": 0,
+                            "added_flows": 0,
+                            "deleted_flows": 0,
+                            "min_flow_adds_per_second": 0,
+                            "min_flow_deletes_per_second": 0,
+                            "max_flow_adds_per_second": 0
+                        },
+                        "virtual_network": "default-domain:admin:frontend",
+                        "active": true,
+                        "ip_address": "10.1.1.5",
+                        "fixed_ip4_list": [
+                            "10.1.1.5"
+                            ],
+                        "in_bw_usage": 795,
+                        "active_flows_ewm": {
+                            "config": "0.1",
+                            "state": {
+                                "stddev": "1.47455e-15",
+                                "mean": "1"
+                            },
+                            "sigma": -1.05409,
+                            "algo": "EWM",
+                            "samples": 42602
+                        },
+                        "admin_state": true,
+                        "if_in_pkts_ewm": {
+                            "config": "0.1",
+                            "state": {
+                                "stddev": "0.306634",
+                                "mean": "30.8957"
+                            },
+                            "sigma": 0.340176,
+                            "algo": "EWM",
+                            "samples": 42602
+                        },
+                        "sg_rule_stats": [
+                        {
+                            "count": 2,
+                            "rule": "00000000-0000-0000-0000-000000000001"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "00000000-0000-0000-0000-000000000003"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "00000000-0000-0000-0000-000000000004"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "3a92b35f-58a4-4435-acfd-e5ae79944f92"
+                        },
+                        {
+                            "count": 0,
+                            "rule": "b4f66ab7-c373-4a0c-a498-dc6102f69c59"
+                        }
+                        ]
+                    }
+                }
+            }
+            ]
+        }
+    }
+    this.instancesStatMockData = {
+        "data": [
+        {
+            "vm_uuid": "c73ed229-bbf2-4e1e-be26-4aee2d1780b3",
+            "SUM(if_stats.in_bytes)": 352800,
+            "SUM(if_stats.in_pkts)": 3600,
+            "SUM(if_stats.out_bytes)": 352800,
+            "SUM(if_stats.out_pkts)": 3600
+        },
+        {
+            "vm_uuid": "faa5b186-5383-4670-b640-ad230fe2100f",
+            "SUM(if_stats.in_bytes)": 356706,
+            "SUM(if_stats.in_pkts)": 3693,
+            "SUM(if_stats.out_bytes)": 356706,
+            "SUM(if_stats.out_pkts)": 3693
+        },
+        {
+            "vm_uuid": "5199c65e-8b71-4e4c-90cc-58deea9752dd",
+            "SUM(if_stats.in_bytes)": 104393608,
+            "SUM(if_stats.in_pkts)": 314044,
+            "SUM(if_stats.out_bytes)": 104816226,
+            "SUM(if_stats.out_pkts)": 314005
+        }
+        ],
+            "total": 3,
+            "queryJSON": {
+                "table": "StatTable.UveVMInterfaceAgent.if_stats",
+                "start_time": "now-60m",
+                "end_time": "now",
+                "select_fields": [
+                    "SUM(if_stats.in_bytes)",
+                "SUM(if_stats.out_bytes)",
+                "SUM(if_stats.in_pkts)",
+                "SUM(if_stats.out_pkts)",
+                "vm_uuid"
+                    ],
+                "filter": [
+                    []
+                    ],
+                "where": [
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:fede15b7-548a-4dac-a7ab-c88749e4dcca",
+                        "op": 1
+                    }
+                ],
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:fbf56475-71dc-46dd-bf8e-0f8dc127dc82",
+                        "op": 1
+                    }
+                ],
+                    [
+                    {
+                        "name": "name",
+                        "value": "default-domain:admin:08242801-ff6e-44d4-876d-4a001ba21862",
+                        "op": 1
+                    }
+                ]
+                    ],
+                    "limit": 150000
+            },
+            "chunk": 1,
+            "chunkSize": 3,
+            "serverSideChunking": true
+    };
     return {
         domainsMockData                                : domainsMockData,
         projectMockData                                : projectMockData,
@@ -5486,6 +7181,7 @@ define(['underscore'], function (_) {
         virtualMachineDetailsByUUIDMockData            : virtualMachineDetailsByUUIDMockData,
         virtualMachineSummaryByUUIDMockData            : virtualMachineSummaryByUUIDMockData,
         networksMockStatData                           : networksMockStatData,
+        instancesStatMockData                          : instancesStatMockData,
         portDistributionMockData                       : portDistributionMockData,
         projectConnectedGraph                          : projectConnectedGraph,
         projectConfigGraph                             : projectConfigGraph,
@@ -5493,6 +7189,7 @@ define(['underscore'], function (_) {
         virtualMachinesSummaryMockData                 : virtualMachinesSummaryMockData,
         virtualMachinesInterfacesMockData              : virtualMachinesInterfacesMockData,
         networkingStatsMockData                        : networkingStatsMockData,
-        virtualMachinesStatsMockData                   : virtualMachinesStatsMockData
+        virtualMachinesStatsMockData                   : virtualMachinesStatsMockData,
+        instancesDetailsMockData                       : instancesDetailsMockData
     };
 });

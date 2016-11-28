@@ -43,6 +43,15 @@ define([
         this.URL_INSTANCE_TRAFFIC_STATS = '/api/tenant/networking/flow-series/vm?minsSince={0}&fqName={1}&sampleCnt={2}&ip={3}&vmName={4}&vmVnName={5}&useServerTime=true';
         this.URL_INSTANCE_PORT_DISTRIBUTION = '/api/tenant/networking/network/stats/top?minsSince=10&fqName={0}&useServerTime=true&type=port&ip={1}';
 
+        this.URL_GET_INSTANCES_LIST = '/api/tenant/networking/get-instances-list?startAt={0}';
+        this.URL_GET_NETWORK_INSTANCES = '/api/tenant/networking/get-instances?count={0}&nextCount={1}&startAt={2}';
+        this.URL_GET_INTERFACES_LIST = '/api/tenant/networking/get-interfaces-list?startAt={0}';
+        this.URL_GET_NETWORK_INTERFACES = '/api/tenant/networking/get-interfaces?count={0}&nextCount={1}&startAt={2}';
+        this.URL_GET_VIRTUAL_NETWORKS_LIST = '/api/tenant/networking/get-virtual-networks-list?startAt={0}';
+        this.URL_GET_VIRTUAL_NETWORKS = '/api/tenant/networking/get-virtual-networks?count={0}&nextCount={1}&startAt={2}';
+        this.URL_GET_VMI_UUID_LIST = '/api/tenants/config/get-config-uuid-list?type=virtual-machine-interface&parentUUID={0}';
+        this.URL_CONFIG_GET_VM_DETAILS_PAGED = '/api/tenants/config/get-virtual-machine-details-paged';
+
         this.URL_VM_VN_STATS = '/api/tenant/networking/stats';
         this.URL_VM_INTERFACES = '/api/tenant/networking/virtual-machine-interfaces/summary';
 
@@ -130,9 +139,12 @@ define([
         this.TYPE_PROJECT = "project";
         this.TYPE_NETWORK = "network";
         this.TYPE_INSTANCE = "instance";
+        this.ALL_NETWORKS = "all networks";
+        this.ALL_PROJECTS = "all projects";
         this.TYPE_VN = 'vn';
         this.TYPE_VIRTUAL_NETWORK = "virtual-network";
         this.TYPE_VIRTUAL_MACHINE = "virtual-machine";
+        this.TYPE_VIRTUAL_MACHINE_INTERFACE = "virtual-machine-interface";
 
         this.ALL_PROJECT_DROPDOWN_OPTION = [{name: 'all projects', value: 'all', fq_name: 'all'}];
         this.ALL_NETWORK_DROPDOWN_OPTION = [{name: 'all networks', value: 'all', fq_name: 'all'}];
@@ -143,7 +155,9 @@ define([
         this.TMPL_FORM_RESULT = 'form-result-page-template';
         this.TMPL_SESSION_ANALYZER = "session-analyzer-view-template";
 
-        this.COOKIE_DOMAIN = contrail.getCookie(cowc.COOKIE_DOMAIN);
+        this.COOKIE_DOMAIN = contrail.getCookie(this.TYPE_DOMAIN);
+        this.COOKIE_PROJECT = contrail.getCookie(this.TYPE_PROJECT);
+        this.COOKIE_VIRTUAL_NETWORK = contrail.getCookie(this.TYPE_VIRTUAL_NETWORK);
         this.UCID_PREFIX_MN = "monitor-networking";
         this.UCID_PREFIX_BREADCRUMB = "breadcrumb";
         this.UCID_PREFIX_GRAPHS = "graphs";
@@ -540,6 +554,12 @@ define([
                 'outPkts': 'SUM(vn_stats.out_pkts)'
             },
             'virtual-machine': {
+                'inBytes': 'SUM(if_stats.in_bytes)',
+                'outBytes': 'SUM(if_stats.out_bytes)',
+                'inPkts': 'SUM(if_stats.in_pkts)',
+                'outPkts': 'SUM(if_stats.out_pkts)'
+            },
+            'virtual-machine-interface': {
                 'inBytes': 'SUM(if_stats.in_bytes)',
                 'outBytes': 'SUM(if_stats.out_bytes)',
                 'inPkts': 'SUM(if_stats.in_pkts)',

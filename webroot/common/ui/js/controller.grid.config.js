@@ -4,8 +4,9 @@
 
 define([
     'underscore',
-    'web-utils'
-], function (_) {
+    'web-utils',
+    "core-basedir/reports/qe/ui/js/common/qe.utils"
+], function (_, webUtils, qeUtils) {
     var CTGridConfig = function () {
 
         this.bgpRouterColumns = [
@@ -169,6 +170,18 @@ define([
 
         this.instanceInterfaceColumns = [
             {
+                field: "name",
+                name: "Name",
+                minWidth: 100,
+                searchable: true
+            },
+            {
+                field: 'uuid',
+                name: 'UUID',
+                minWidth: 100,
+                searchable: true
+            },
+            {
                 field: 'ip',
                 name: 'IP Address',
                 minWidth: 100,
@@ -234,52 +247,6 @@ define([
                 }
             }
         ];
-
-        this.getInterfaceStatsLazyRemoteConfig = function () {
-            return [
-                {
-                    getAjaxConfig: function (responseJSON) {
-                        var names, lazyAjaxConfig;
-
-                        names = $.map(responseJSON, function (item) {
-                            return item['name'];
-                        });
-
-                        lazyAjaxConfig = {
-                            url: ctwc.URL_VM_VN_STATS,
-                            type: 'POST',
-                            data: JSON.stringify({
-                                data: {
-                                    type: 'virtual-machine-interface',
-                                    uuids: names.join(','),
-                                    minsSince: 60,
-                                    useServerTime: true
-                                }
-                            })
-                        };
-                        return lazyAjaxConfig;
-                    },
-                    successCallback: function (response, contrailListModel) {
-                        var statDataList = ctwp.parseInstanceInterfaceStats(response[0]),
-                            dataItems = contrailListModel.getItems(),
-                            statData;
-
-                        for (var j = 0; j < statDataList.length; j++) {
-                            statData = statDataList[j];
-                            for (var i = 0; i < dataItems.length; i++) {
-                                var dataItem = dataItems[i];
-                                if (statData['name'] == dataItem['name']) {
-                                    dataItem['inBytes60'] = ifNull(statData['inBytes'], 0);
-                                    dataItem['outBytes60'] = ifNull(statData['outBytes'], 0);
-                                    break;
-                                }
-                            }
-                        }
-                        contrailListModel.updateData(dataItems);
-                    }
-                }
-            ];
-        };
 
         this.getAcknowledgeAction = function (onClickFunction, divider) {
             return {
@@ -358,28 +325,39 @@ define([
             return [
                 {
                     getAjaxConfig: function (responseJSON) {
-                        var uuids, lazyAjaxConfig;
+                        var uuids = [], lazyAjaxConfig;
+                        var whereClause = null;
+                        var len = responseJSON.length;
 
-                        uuids = $.map(responseJSON, function (item) {
-                            return item['name'];
-                        });
+                        for (var i = 0; i < len; i++) {
+                            uuids.push(responseJSON[i].name);
+                        }
+                        var domCookie = ctwc.COOKIE_DOMAIN;
+                        var projCookie = ctwc.COOKIE_PROJECT;
+                        var vnCookie = ctwc.COOKIE_VIRTUAL_NETWORK;
+                        whereClause = "(name Starts with " + domCookie + ":" + projCookie +
+                            ":)";
+                        if (ctwc.ALL_PROJECTS === projCookie) {
+                            whereClause = "(name Starts with " + domCookie + ":)";
+                        } else if (ctwc.ALL_NETWORKS == vnCookie) {
+                            whereClause = "(name Starts with " + domCookie + ":" +
+                                projCookie + ":)";
+                        }
+                        var whereClause =
+                            qeUtils.formatUIWhereClauseConfigByUserRole(whereClause, "vm_uuid", uuids);
+                        var qObj = {table: "StatTable.UveVMInterfaceAgent.if_stats",
+                                where: whereClause};
+                        var postData = qeUtils.formatQEUIQuery(qObj);
 
                         lazyAjaxConfig = {
-                            url: ctwc.URL_VM_VN_STATS,
+                            url: cowc.URL_QE_QUERY,
                             type: 'POST',
-                            data: JSON.stringify({
-                                data: {
-                                    type: type,
-                                    uuids: uuids.join(','),
-                                    minsSince: 60,
-                                    useServerTime: true
-                                }
-                            })
+                            data: JSON.stringify(postData)
                         }
                         return lazyAjaxConfig;
                     },
                     successCallback: function (response, contrailListModel) {
-                        var statDataList = ctwp.parseInstanceStats(response[0], type),
+                        var statDataList = ctwp.parseInstanceStats(response.data, type),
                             dataItems = contrailListModel.getItems(),
                             updatedDataItems = [],
                             statData;
@@ -460,7 +438,9 @@ define([
                                     if (dataItem['vn'].length != 0) {
                                         dataItem['vnFQN'] = dataItem['vn'][0];
                                     }
-                                    dataItem['vn'] = ctwu.formatVNName(dataItem['vn']);
+                                    dataItem['vn'] = ctwu.formatVNName(dataItem['vn'],
+                                                                       cowc.COOKIE_DOMAIN + ":" +
+                                                                       cowc.COOKIE_PROJECT);
                                 } else {
                                     dataItem['vn'] = '-';
                                 }

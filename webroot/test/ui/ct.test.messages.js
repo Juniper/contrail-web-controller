@@ -17,6 +17,8 @@ define([
         this.INSTANCES_LIST_VIEW_COMMON_TEST_MODULE = 'Instances List view - Common Tests';
         this.INSTANCE_VIEW_COMMON_TEST_MODULE = 'Instance view - Common Tests';
 
+        this.INTERFACES_LIST_VIEW_COMMON_TEST_MODULE = 'Interfaces List view - Common Tests';
+
         this.FLOW_LIST_VIEW_COMMON_TEST_MODULE = 'Flow List view - Common Tests';
         this.FLOW_GRID_VIEW_COMMON_TEST_MODULE = 'Flow Grid view - Common Tests';
 
