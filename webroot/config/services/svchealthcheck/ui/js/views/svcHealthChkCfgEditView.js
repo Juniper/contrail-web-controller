@@ -143,6 +143,7 @@ define([
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
+            self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
             Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
             kbValidation.bind(self);
