@@ -14,7 +14,8 @@ define([
             "rule_field": null,
             "rule_perms": [],
             "domain": null,
-            "project": null
+            "project": null,
+            "rule_field_ds":[]
         },
 
         formatModelConfig: function(modelConfig) {

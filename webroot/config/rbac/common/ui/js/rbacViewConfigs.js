@@ -75,29 +75,44 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                                 columns: [
                                     {
                                         elementId: "rule_object",
-                                        view: "FormInputView",
+                                        view: "FormComboboxView",
                                         viewConfig: {
                                             disabled: disableId,
                                             path: "rule_object",
                                             dataBindValue: "rule_object",
-                                            placeholder:
-                                                "Enter Object Name or * (All)",
                                             label: "Object",
-                                            class: "col-xs-6"
+                                            class: "col-xs-6",
+                                            elementConfig: {
+                                                disabled: disableId,
+                                                placeholder:
+                                                    "Enter or Select object",
+                                                dataTextField: "text",
+                                                dataValueField: "value",
+                                                dataSource: {
+                                                    type: "remote",
+                                                    requestType: "get",
+                                                    url: "/api/tenants/config/get-object-list",
+                                                    parse: rbacFormatters.formatObjectData
+                                                }
+                                            }
                                         }
                                     },
                                     {
                                         elementId: "rule_field",
-                                        view: "FormInputView",
+                                        view: "FormComboboxView",
                                         viewConfig: {
                                             disabled: disableId,
                                             path: "rule_field",
-                                            placeholder:
-                                                "Enter Property Name or " +
-                                                "* (All)",
                                             dataBindValue: "rule_field",
+                                            dataBindOptionList: "rule_field_ds",
                                             label: "Property",
-                                            class: "col-xs-6"
+                                            class: "col-xs-6",
+                                            elementConfig: {
+                                                placeholder:
+                                                    "Enter or Select Property",
+                                                dataTextField: "text",
+                                                dataValueField: "value",
+                                            }
                                         }
                                     }
                                 ]
