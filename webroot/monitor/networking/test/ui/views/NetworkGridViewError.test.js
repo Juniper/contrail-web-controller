@@ -27,11 +27,13 @@ define([
             url: /\/api\/tenants\/projects\/default-domain.*$/,
             body: JSON.stringify(TestMockdata.projectMockData)
         }));
+        /*
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
             url: cttu.getRegExForUrl(),
             body: JSON.stringify(TestMockdata.networksMockData)
         }));
+        */
         responses.push(cotr.createFakeServerResponse({
             method: "POST",
             url: cttu.getRegExForUrl(ctwc.URL_VM_VN_STATS),

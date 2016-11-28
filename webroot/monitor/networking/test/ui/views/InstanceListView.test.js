@@ -57,7 +57,16 @@ define([
             url: cttu.getRegExForUrl(ctwc.URL_VM_INTERFACES),
             body: JSON.stringify(TestMockdata.virtualMachinesInterfacesMockData)
         }));
-
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl(ctwc.URL_GET_INSTANCES_LIST),
+            body: JSON.stringify(TestMockdata.instancesListMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl(ctwc.URL_GET_NETWORK_INSTANCES),
+            body: JSON.stringify(TestMockdata.instancesDetailsMockData)
+        }));
         return responses;
     };
     fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;

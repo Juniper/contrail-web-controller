@@ -5,8 +5,9 @@
 define([
     'underscore',
     'contrail-view',
-    'contrail-list-model'
-], function (_, ContrailView, ContrailListModel) {
+    'contrail-list-model',
+    'core-basedir/reports/qe/ui/js/common/qe.utils'
+], function (_, ContrailView, ContrailListModel, qeUtils) {
     var NetworkListView = ContrailView.extend({
         el: $(contentContainer),
 
@@ -16,38 +17,99 @@ define([
                 domainFQN = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 projectSelectedValueData = viewConfig.projectSelectedValueData,
                 projectFQN = (projectSelectedValueData.value === 'all') ? null : domainFQN + ':' + projectSelectedValueData.name,
-                contrailListModel = new ContrailListModel(getNetworkListModelConfig(projectFQN));
+                projectUUID = (projectSelectedValueData.value === 'all') ? null : projectSelectedValueData.value,
+                contrailListModel = new ContrailListModel(getNetworkListModelConfig(projectFQN,
+                                                                                    projectUUID));
 
-            self.renderView4Config(self.$el, contrailListModel, getNetworkListViewConfig());
+            self.renderView4Config(self.$el, contrailListModel,
+                                   getNetworkListViewConfig(projectFQN, projectUUID));
             ctwu.setProject4NetworkListURLHashParams(projectFQN);
         }
     });
 
-    function getNetworkListModelConfig(projectFQN) {
+    function updateNetworkModel (contrailListModel, parentListModelArray) {
+        var fqnList = contrailListModel.getItems();
+        var detailsList = parentListModelArray[0].getItems();
+        var uniqList = nmwu.getUniqElements(detailsList, fqnList, "name");
+        parentListModelArray[0].addData(uniqList);
+    }
+
+    function getNetworkListModelConfig(parentFQN, parentUUID) {
+        var ajaxConfig = {
+            url : ctwc.get(ctwc.URL_GET_VIRTUAL_NETWORKS, 100, 1000, $.now()),
+            type: 'POST',
+            data: JSON.stringify({
+                id: qeUtils.generateQueryUUID(),
+                FQN: parentFQN,
+                fqnUUID: parentUUID
+            })
+        };
+
         return {
             remote: {
-                ajaxConfig: {
-                    url: projectFQN != null ? ctwc.get(ctwc.URL_PROJECT_NETWORKS_IN_CHUNKS, 10, 100, projectFQN, $.now()) : ctwc.get(ctwc.URL_NETWORKS_DETAILS_IN_CHUNKS, 10, 100, $.now()),
-                    type: "POST",
-                    data: JSON.stringify({
-                        data: [{
-                            "type": ctwc.TYPE_VIRTUAL_NETWORK,
-                            "cfilt": ctwc.FILTERS_COLUMN_VN.join(',')
-                        }]
-                    })
+                ajaxConfig: ajaxConfig,
+                dataParser: nmwp.networkDataParser,
+                hlRemoteConfig: {
+                    remote: {
+                        ajaxConfig: {
+                            url: ctwc.get(ctwc.URL_GET_VIRTUAL_NETWORKS_LIST, $.now()),
+                            type: 'POST',
+                            data: JSON.stringify({
+                                reqId: qeUtils.generateQueryUUID(),
+                                FQN: parentFQN,
+                                fqnUUID: parentUUID
+                            })
+                        },
+                        dataParser: function(vnList) {
+                            var retArr = [];
+                            var opVNList = vnList.opVNList;
+                            var configVNList = vnList.configVNList;
+                            var configVNListLen = 0;
+                            var tmpOpVNObjs = {};
+                            if ((null == opVNList) || (!opVNList.length)) {
+                                return retArr;
+                            }
+                            _.each(opVNList, function(vn) {
+                                tmpOpVNObjs[vn] = vn;
+                                retArr.push({name: vn, source: "analytics"});
+                            });
+                            if (!cowu.isNil(configVNList) && !cowu.isNil(configVNList.vnFqnList)) {
+                                configVNListLen = configVNList.length;
+                            }
+                            for (var i = 0; i < configVNListLen; i++) {
+                                var vn = configVNList.vnFqnList[i];
+                                if (cowu.isNil(tmpOpVNObjs[vn])) {
+                                    retArr.push({name: vn, source: "config"});
+                                }
+                            }
+                            return retArr;
+                        },
+                        completeCallback: function(response, contrailListModel, parentListModelArray) {
+                            if (contrail.checkIfExist(parentListModelArray) &&
+                                contrail.checkIfFunction(parentListModelArray[0].isRequestInProgress)) {
+                                if (parentListModelArray[0].isRequestInProgress()) {
+                                    var updateNetworkModelCB = function() {
+                                        return updateNetworkModel(contrailListModel, parentListModelArray);
+                                    };
+                                    parentListModelArray[0].onAllRequestsComplete.subscribe(updateNetworkModelCB);
+                                }
+                            } else {
+                                updateNetworkModel(contrailListModel, parentListModelArray);
+                            }
+                        }
+                    },
+                    vlRemoteConfig: {
+                        vlRemoteList: nmwgc.getVNStatsVLOfHLRemoteConfig(ctwc.TYPE_VIRTUAL_NETWORK)
+                    }
                 },
-                dataParser: nmwp.networkDataParser
-            },
-            vlRemoteConfig: {
-                vlRemoteList: nmwgc.getVNDetailsLazyRemoteConfig(ctwc.TYPE_VIRTUAL_NETWORK)
             },
             cacheConfig: {
-                ucid: projectFQN != null ? (ctwc.UCID_PREFIX_MN_LISTS + projectFQN + ":virtual-networks") : ctwc.UCID_ALL_VN_LIST
+                ucid: parentFQN != null ? (ctwc.UCID_PREFIX_MN_LISTS + parentFQN + ":virtual-networks") : ctwc.UCID_ALL_VN_LIST
             }
         };
     }
 
-    function getNetworkListViewConfig() {
+    function getNetworkListViewConfig(projectFQN, projectUUID) {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_LIST_ID]),
             view: "SectionView",
@@ -87,7 +149,8 @@ define([
                                 view: "NetworkGridView",
                                 viewPathPrefix: "monitor/networking/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {projectFQN: null, parentType: 'project', pagerOptions: { options: { pageSize: 8, pageSizeSelect: [8, 50, 100] } }}
+                                viewConfig: {projectFQN: projectFQN, projectUUID: projectUUID,
+                                    pagerOptions: { options: { pageSize: 8, pageSizeSelect: [8, 50, 100] } }}
                             }
                         ]
                     }
