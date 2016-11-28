@@ -571,7 +571,6 @@ define([
         portModel.__kb.view_model.model().on('change:virtualNetworkName',
             function(model, newValue){
                 portModel.onVNSelectionChanged(portFormatters, newValue, mode);
-                portModel.updateMirrorRoutingInterface(portModel, newValue);
             }
         );
     };
