@@ -81,7 +81,11 @@ define([
             url: cttu.getRegExForUrl('/api/tenant/networking/virtual-machine-interfaces/summary'),
             body: JSON.stringify(TestMockdata.virtualMachinesSummaryMockData)
         }));
-
+        responses.push(cotr.createFakeServerResponse({
+            method:"POST",
+            url: cttu.getRegExForUrl(ctwc.URL_GET_VIRTUAL_NETWORKS),
+            body: JSON.stringify(TestMockdata.networksDetailsMockData)
+        }));
         return responses;
     };
     fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;
