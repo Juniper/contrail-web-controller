@@ -4,9 +4,10 @@
 
 define([
     'underscore',
+    "protocol",
     'contrail-view-model',
     'core-basedir/reports/qe/ui/js/common/qe.utils'
-], function (_, ContrailViewModel, qeUtils) {
+], function (_, protocolUtils, ContrailViewModel, qeUtils) {
     var CTViewConfig = function () {
         var self = this;
 
@@ -182,14 +183,14 @@ define([
                 var currHashObj = layoutHandler.getURLHashObj(),
                     startRange = ((64 * clickData.y) + clickData.x) * 256,
                     endRange = startRange + 255,
-                    hashParams = {}, protocolMap = {'icmp': 1, 'tcp': 6, 'udp': 17};
+                    hashParams = {};
 
                 hashParams['fqName'] = currHashObj['q']['fqName'];
                 hashParams['port'] = startRange + "-" + endRange;
                 hashParams['startTime'] = new XDate().addMinutes(-10).getTime();
                 hashParams['endTime'] = new XDate().getTime();
                 hashParams['portType'] = response['type'];
-                hashParams['protocol'] = protocolMap[response['pType']];
+                hashParams['protocol'] = protocolUtils.getProtocolCode(response['pType']);
                 hashParams['type'] = "flow";
                 hashParams['view'] = "list";
 
