@@ -333,7 +333,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
              },
              "vrouter-system-cpu-mem-chart" : function() {
                  return {
-                     modelCfg: {listModel: vRouterListModel},
+                     modelCfg: {listModel:vRouterUIListModel},
                      viewCfg: {
                          elementId : 'vrouter-system-cpu-mem-chart',
                          view: 'ZoomScatterChartView',
@@ -355,6 +355,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                  yLabel: 'System Memory (GB)',
                                  sizeField: 'size',
                                  showColorFilter:false,
+                                 bucketTooltipFn: monitorInfraUtils.vRouterBucketTooltipFn,
                                  tooltipConfigCB: function(currObj,format) {
                                      var options = {};
                                      options['tooltipContents'] = [
@@ -375,7 +376,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                      return monitorInfraUtils.getVRouterScatterChartTooltipFn(currObj,format,options);
                                  },
                                  clickCB: monitorInfraUtils.onvRouterDrillDown,
-                             }
+                             },
+                             cfDataSource : self.cfDataSource
                          }
                      },
                      itemAttr: {
@@ -387,7 +389,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
              },
              "vrouter-vn-int-inst-chart" : function() {
                  return {
-                     modelCfg: {listModel: vRouterListModel},
+                     modelCfg: {listModel:vRouterUIListModel},
                      viewCfg: {
                          elementId : 'vrouter-vn-int-chart',
                          view: 'ZoomScatterChartView',
@@ -402,6 +404,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                  xFormatter: function(x) {
                                      return cowu.numberFormatter(x,0);
                                  },
+                                 bucketTooltipFn: monitorInfraUtils.vRouterBucketTooltipFn,
                                  tooltipConfigCB: function(currObj,format) {
                                      var options = {};
                                      options['tooltipContents'] = [
@@ -414,7 +417,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                      return monitorInfraUtils.getVRouterScatterChartTooltipFn(currObj,format,options);
                                  },
                                  clickCB: monitorInfraUtils.onvRouterDrillDown
-                             }
+                             },
+                             cfDataSource : self.cfDataSource
                          }
                      },
                      itemAttr: {
