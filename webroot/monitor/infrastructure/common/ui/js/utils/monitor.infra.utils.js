@@ -1107,7 +1107,7 @@ define([
             $.each(statsData,function(idx,d){
                 var source = d['Source'];
                 var name = d['name'];
-                var t = JSON.stringify({"ts":d['T']});
+                var t = JSON.stringify({"ts":d['T=']});
                 if(name != null && source != name) {
                     source = name;//In case of TOR agents the name is the key
                 }
@@ -2110,7 +2110,8 @@ define([
                     from_time_utc: 'now-2h',
                     to_time_utc: 'now',
                     //reRunTimeRange:600,
-                    select:'Source, T, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res, process_mem_cpu_usage.__key',
+                    time_granularity: 60,
+                    select:'Source, T=, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res, process_mem_cpu_usage.__key',
                     //groupFields:['Source'],
             }
             if(options.page != null && options.page == "summary") {
@@ -2126,41 +2127,33 @@ define([
                     postData['where'] = '(process_mem_cpu_usage.__key = contrail-control)';
                 }
             } else if (dsName == monitorInfraConstants.COMPUTE_NODE) {
-//                postData['table_name'] = 'StatTable.ComputeCpuState.cpu_info';
                 if (moduleType != null && moduleType != '') {
+                    postData['where'] = '(Source = '+ node +' OR name = '+ node +')';
                     if(moduleType == 'vRouterAgent') {
                         postData['select'] = 'Source, name, T=, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res';
                         postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-vrouter-agent)';
-                        postData['time_granularity'] = 60;
                     } else if (moduleType == 'vRouterSystemCpu') {
                         postData['table_name'] = 'StatTable.NodeStatus.system_cpu_usage';
                         postData['select'] = 'T=, MAX(system_cpu_usage.one_min_avg)';
-                        postData['time_granularity'] = 60;
                     } else if (moduleType == 'vRouterSystemMem') {
                         postData['table_name'] = 'StatTable.NodeStatus.system_mem_usage';
                         postData['select'] = 'T=, MAX(system_mem_usage.used)';
-                        postData['time_granularity'] = 60;
                     } else if (moduleType == 'vRouterBandwidthIn') {
                         postData['table_name'] = 'StatTable.VrouterStatsAgent.phy_band_in_bps';
                         postData['select'] = 'Source, name, T=, phy_band_in_bps.__value';
-                        postData['time_granularity'] = 60;
                     } else if (moduleType == 'vRouterBandwidthOut') {
                         postData['table_name'] = 'StatTable.VrouterStatsAgent.phy_band_out_bps';
                         postData['select'] = 'Source, name, T=, phy_band_out_bps.__value';
-                        postData['time_granularity'] = 60;
                     } else if (moduleType == 'vRouterFlowRate') {
                         postData['table_name'] = 'StatTable.VrouterStatsAgent.flow_rate';
                         postData['select'] = 'Source, name, T=, MAX(flow_rate.active_flows)';
-                        postData['time_granularity'] = 60;
-                        //postData['plotFields'] = ['MAX(flow_rate.active_flows)'];
                     }
                 } else {
-                    postData['select'] = 'Source, name, T, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res';
-                    postData['where'] = '(process_mem_cpu_usage.__key = contrail-vrouter-agent)';
+                    postData['select'] = 'Source, name, T=, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res';
+                    postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-vrouter-agent)';
                 }
             } else if (dsName == monitorInfraConstants.ANALYTICS_NODE) {
-//                postData['table_name'] = 'StatTable.AnalyticsCpuState.cpu_info';
-                postData['select'] = 'Source, T, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res';
+//                postData['select'] = 'Source, T=, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res';
                 if (moduleType != null && moduleType != '') {
                     if(moduleType == 'analyticsCollector') {
                         postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-collector)';
@@ -2173,7 +2166,6 @@ define([
                     postData['where'] = '(process_mem_cpu_usage.__key = contrail-collector)';
                 }
             } else if (dsName == monitorInfraConstants.CONFIG_NODE) {
-//                postData['table_name'] = 'StatTable.ConfigCpuState.cpu_info';
                 if (moduleType != null && moduleType != '') {
                     if(moduleType == 'configAPIServer') {
                         postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-api:0)';
@@ -2187,7 +2179,7 @@ define([
                 }
             } else if (dsName == monitorInfraConstants.DATABASE_NODE) {
                 postData['table_name'] = 'StatTable.DatabaseUsageInfo.database_usage';
-                postData['select'] = 'Source, T, database_usage.disk_space_used_1k, database_usage.analytics_db_size_1k';
+                postData['select'] = 'Source, T=, database_usage.disk_space_used_1k, database_usage.analytics_db_size_1k';
                 //postData['plotFields'] = 'database_usage.disk_space_used_1k';
                 postData['where'] = '(Source = '+ node +')';
             }
@@ -2488,6 +2480,7 @@ define([
         self.parseAndMergeStats = function (response,primaryDS,key) {
             var primaryData = primaryDS.getItems();
             if(primaryData.length == 0) {
+                primaryDS.setData(response);
                 return response;
             }
             if(response.length == 0) {
