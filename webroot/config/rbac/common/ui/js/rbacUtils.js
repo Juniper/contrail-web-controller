@@ -662,6 +662,37 @@
              };
 
          };
+
+         this.subscribeRBACModelChangeEvents = function (rbacModel) {
+             var self = this;
+             rbacModel.__kb.view_model.model().on("change:rule_object",
+                     function(model, newValue){
+                     var ajaxConfig = {
+                             url : "/api/tenants/config/get-object-properties/"
+                                      + newValue,
+                             type : 'GET'
+                         };
+                         contrail.ajaxHandler(ajaxConfig, null,
+                             function(result) {
+                                 rbacModel.rule_field_ds(
+                                         self.getParsedObjectPropData(
+                                             result));
+                             }
+                         );
+
+                     }
+               );
+         };
+
+         this.getParsedObjectPropData =  function(result) {
+             var parsedData = [];
+             if(result instanceof Array) {
+                 _.each(result, function(property){
+                     parsedData.push({"text": property, "value": property});
+                 });
+             }
+             return parsedData;
+         };
      };
      return rbacUtils;
  });
