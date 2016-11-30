@@ -94,11 +94,13 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                         config: [
                             {
                                 table_name: 'StatTable.VrouterStatsAgent.flow_rate',
-                                select: 'T=, SUM(flow_rate.active_flows)'
+                                select: 'T=, Source, MAX(flow_rate.active_flows)',
+                                parser: function(d){return parseDataForFlowsDrops(d,'MAX(flow_rate.active_flows)')},
                             },
                             {
                                 table_name: 'StatTable.VrouterStatsAgent.drop_stats',
-                                select: 'T=, SUM(drop_stats.__value)',
+                                select: 'T=, Source, MAX(drop_stats.__value)',
+                                parser: function(d){return parseDataForFlowsDrops(d,'MAX(drop_stats.__value)')},
                                 mergeFn: cowu.parseAndMergeStats
                             }
                         ]
@@ -118,7 +120,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                  },
                                  yAxisLabel: ctwl.VROUTER_ACTIVE_FLOWS_DROPS_LABEL,
                                  yLabels: ['Active Flows','Drop Flows'],
-                                 yFields: ['SUM(flow_rate.active_flows)','SUM(drop_stats.__value)'],
+                                 yFields: ['MAX(flow_rate.active_flows)','MAX(drop_stats.__value)'],
                              }
                          }
                     },
@@ -531,6 +533,20 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                         'PERCENTILES('+field+');50',
                         'PERCENTILES('+field+');05'
                     ];
+        }
+
+        function parseDataForFlowsDrops (response,field) {
+            var ret = [];
+            var data = getValueByJsonPath(response,'data',[]);
+            var groupedByTime = _.groupBy(data,'T=');
+            for(var key in groupedByTime) {
+                var tmp = {"T=":_.isNaN(key)? key: parseInt(key)};
+                var arr = groupedByTime[key];
+                var sum = _.reduce(arr,function(memo,num){return memo + num[field]},0);
+                tmp[field] = sum;
+                ret.push(tmp);
+            }
+            return ret;
         }
     }
     return (new VRouterViewConfig()).viewConfig;
