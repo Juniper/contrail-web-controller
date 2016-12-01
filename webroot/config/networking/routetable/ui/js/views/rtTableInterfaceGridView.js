@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 
 define([
@@ -11,10 +11,10 @@ define([
 ], function (_, ContrailView, RtTableModel, RtTableEditView, RTTableUtils) {
     var rtTableEditView = new RtTableEditView(),
         rtTableUtils = new RTTableUtils(),
-        gridElId = "#" + ctwl.RT_TABLE_GRID_ID,
-        networkRTType = 'route-table';
+        gridElId = "#" + ctwl.INF_RT_TABLE_GRID_ID,
+        infRTType = 'interface-route-table';
 
-    var RtTableGridView = ContrailView.extend({
+    var RtTableInfGridView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
             var self = this,
@@ -27,14 +27,15 @@ define([
 
     var getRtTableGridViewConfig = function (pagerOptions) {
         return {
-            elementId: cowu.formatElementId([ctwl.CONFIG_RT_TABLE_LIST_VIEW_ID]),
+            elementId:
+                cowu.formatElementId([ctwl.CONFIG_INF_RT_TABLE_LIST_VIEW_ID]),
             view: "SectionView",
             viewConfig: {
                 rows: [
                     {
                         columns: [
                             {
-                                elementId: ctwl.RT_TABLE_GRID_ID,
+                                elementId: ctwl.INF_RT_TABLE_GRID_ID,
                                 view: "GridView",
                                 viewConfig: {
                                     elementConfig: getConfiguration(pagerOptions)
@@ -51,7 +52,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.RT_GRID_TITLE
+                    text: ctwl.INF_RT_GRID_TITLE
                 },
                 advanceControls: getHeaderActionConfig(),
             },
@@ -66,10 +67,10 @@ define([
                     },
                     checkboxSelectable: {
                         onNothingChecked: function(e){
-                            $('#btnActionDelRtTable').addClass('disabled-link');
+                            $('#btnActionDelInfRtTable').addClass('disabled-link');
                         },
                         onSomethingChecked: function(e){
-                            $('#btnActionDelRtTable').removeClass('disabled-link');
+                            $('#btnActionDelInfRtTable').removeClass('disabled-link');
                         }
                     },
                 },
@@ -77,15 +78,15 @@ define([
                 },
                 statusMessages: {
                     loading: {
-                        text: 'Loading ' + ctwl.RT_GRID_TITLE + '..',
+                        text: 'Loading ' + ctwl.INF_RT_GRID_TITLE + '..',
                     },
                     empty: {
-                        text: 'No ' + ctwl.RT_GRID_TITLE + ' Found.'
+                        text: 'No ' + ctwl.INF_RT_GRID_TITLE + ' Found.'
                     }
                 }
             },
             columnHeader: {
-                columns: rtTableUtils.rtTableColumns("Network Routes")
+                columns: rtTableUtils.rtTableColumns("Interface Routes")
             },
             footer: {
             }
@@ -102,7 +103,7 @@ define([
             rtTableEditView.renderConfigureRtTable({
                                   "title": ctwl.EDIT,
                                   rowIndex: rowIndex,
-                                  type: networkRTType,
+                                  type: infRTType,
                                   dataItem: dataItem,
                                   isEdit: true,
                                   callback: function () {
@@ -119,11 +120,11 @@ define([
             var checkedRows = [dataItem];
             rtTableEditView.model = rtTableModel;
             rtTableEditView.renderDeleteRtTables({
-                                  "title": ctwl.TITLE_DEL_RT_TABLE +
+                                  "title": ctwl.TITLE_DEL_INF_RT_TABLE +
                                   ' (' + dataItem['display_name'] +
                                      ')',
                                   checkedRows: checkedRows,
-                                  type: networkRTType,
+                                  type: infRTType,
                                   callback: function () {
                 var dataView =
                     $(gridElId).data("contrailGrid")._dataView;
@@ -136,9 +137,9 @@ define([
         var headerActionConfig = [
             {
                 "type": "link",
-                "title": ctwl.TITLE_MULTI_DEL_RT_TABLE,
+                "title": ctwl.TITLE_MULTI_DEL_INF_RT_TABLE,
                 "iconClass": 'fa fa-trash',
-                "linkElementId": 'btnActionDelRtTable',
+                "linkElementId": 'btnActionDelInfRtTable',
                 "onClick": function() {
                      var rtTableModel = new RtTableModel();
                      var checkedRows =
@@ -146,9 +147,9 @@ define([
 
                     rtTableEditView.model = rtTableModel;
                     rtTableEditView.renderDeleteRtTables({
-                                  "title": ctwl.TITLE_MULTI_DEL_RT_TABLE,
+                                  "title": ctwl.TITLE_MULTI_DEL_INF_RT_TABLE,
                                   checkedRows: checkedRows,
-                                  type: networkRTType,
+                                  type: infRTType,
                                   callback: function () {
                         var dataView =
                             $(gridElId).data("contrailGrid")._dataView;
@@ -158,7 +159,7 @@ define([
             },
             {
                 "type": "link",
-                "title": ctwl.TITLE_CREATE_RT_TABLE,
+                "title": ctwl.TITLE_CREATE_INF_RT_TABLE,
                 "iconClass": 'fa fa-plus',
                 "onClick": function() {
                     var projFqn = [contrail.getCookie(cowc.COOKIE_DOMAIN),
@@ -168,7 +169,7 @@ define([
                     rtTableEditView.renderConfigureRtTable({
                                   "title": ctwl.CREATE,
                                   "isEdit": false,
-                                  type: networkRTType,
+                                  type: infRTType,
                                   projFqn: projFqn,
                                   callback: function() {
                         var dataView =
@@ -181,7 +182,6 @@ define([
         return headerActionConfig;
     }
 
-   return RtTableGridView;
+   return RtTableInfGridView;
 });
-
 

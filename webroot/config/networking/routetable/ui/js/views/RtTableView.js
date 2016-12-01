@@ -58,12 +58,8 @@ define([
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
-                       var tabId = $('#rt-table-tab').tabs('option', 'active');
-                       var tabText = 'Tab' + tabId.toString();
-                       if ($('#' +
-                               ctwl.RT_TABLE_GRID_ID + tabText).data('contrailGrid')) {
-                           $('#' +
-                               ctwl.RT_TABLE_GRID_ID + tabText).data('contrailGrid').refreshView();
+                       if ($('#' + ctwl.RT_TABLE_GRID_ID).data('contrailGrid')) {
+                           $('#' + ctwl.RT_TABLE_GRID_ID).data('contrailGrid').refreshView();
                        }
                    }
                }
@@ -76,12 +72,9 @@ define([
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
-                       var tabId = $('#rt-table-tab').tabs('option', 'active');
-                       var tabText = 'Tab' + tabId.toString();
-                        if ($('#' + ctwl.RT_TABLE_GRID_ID + tabText).data('contrailGrid')) {
-                            $('#' +
-                                    ctwl.RT_TABLE_GRID_ID + tabText).data('contrailGrid').refreshView();
-                        }
+                       if ($('#' + ctwl.INF_RT_TABLE_GRID_ID).data('contrailGrid')) {
+                           $('#' + ctwl.INF_RT_TABLE_GRID_ID).data('contrailGrid').refreshView();
+                       }
                     },
                     renderOnActivate: true
                 }

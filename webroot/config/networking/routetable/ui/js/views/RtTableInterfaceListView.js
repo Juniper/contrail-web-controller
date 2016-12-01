@@ -80,7 +80,7 @@ define([
                             {
                                 elementId: ctwl.INTERFACE_ROUTE_TABLE_ID,
                                 title: ctwl.TITLE_RT_TABLE,
-                                view: "RtTableGridView",
+                                view: "rtTableInterfaceGridView",
                                 viewPathPrefix: "config/networking/routetable/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
