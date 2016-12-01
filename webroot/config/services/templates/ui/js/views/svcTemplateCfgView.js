@@ -10,7 +10,7 @@ define([
         el: $(contentContainer),
         renderSvcTemplateCfg: function (viewConfig) {
             this.renderView4Config(this.$el, null,
-                                    getSvcTemplateCfgListConfig(viewConfig));
+                    getSvcTemplateCfgViewConfig(viewConfig));
         }
     });
 
@@ -26,16 +26,13 @@ define([
     };
 
     function getSvcTemplateCfgViewConfig(viewConfig) {
-        return function (domainSelectedValueData) {
-            return {
-                elementId: cowu.formatElementId([ctwl.CFG_IPAM_PAGE_ID]),
-                view: "svcTemplateCfgListView",
-                viewPathPrefix:
-                    "config/services/templates/ui/js/views/",
-                app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewConfig: $.extend(true, {},
-                     viewConfig, {domainSelectedValueData: domainSelectedValueData})
-            }
+        return {
+            elementId: cowu.formatElementId([ctwl.CFG_IPAM_PAGE_ID]),
+            view: "svcTemplateCfgListView",
+            viewPathPrefix:
+                "config/services/templates/ui/js/views/",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            viewConfig: viewConfig
         }
     };
 

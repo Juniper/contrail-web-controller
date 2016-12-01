@@ -10,9 +10,11 @@ define([
     this.getRegExForUrl = function (url) {
         var regexUrlMap = {
             '/api/tenants/config/domains': /\/api\/tenants\/config\/domains.*$/,
+            '/api/tenants/config/all-domains': /\/api\/tenants\/config\/all-domains.*$/,
             '/api/tenants/config/projects': /\/api\/tenants\/config\/projects.*$/,
             '/api/tenants/projects': /\/api\/tenants\/projects.*$/,
             '/api/tenants/config/all-projects': /\/api\/tenants\/config\/all-projects.*$/,
+            '/api/tenants/config/current-domain-projects': /\/api\/tenants\/config\/current-domain-projects.*$/,
             '/api/tenant/networking/virtual-networks/details': /\/api\/tenant\/networking\/virtual-networks\/details\?.*$/,
 
             '/api/tenant/networking/virtual-network/summary?fqNameRegExp=default-domain:admin:frontend': /\/api\/tenant\/networking\/virtual-network\/summary\?fqNameRegExp=default-domain%3Aadmin%3Afrontend.*$/,

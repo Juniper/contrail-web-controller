@@ -25,6 +25,7 @@ var configApiServer  = require(process.mainModule.exports["corePath"] + '/src/se
 var configUtils      = require(process.mainModule.exports["corePath"] + 
                                '/src/serverroot/common/configServer.utils');
 var async            = require('async');
+var _                = require('underscore');
 
 var defaultDomainId = "default",
     defaultDomainName = "default-domain";
@@ -55,6 +56,18 @@ function listProjects (request, response, appData)
 }
 
 /**
+ * listAllProjectsPerDomain
+ * public function
+ * 1. URL /api/tenants/config/current-domain-projects/:domainId
+ * 2. Gets list of all projects from keystone and config per domain
+ */
+function listAllProjectsPerDomain(request, response, appData)
+{
+    var parentId = request.param("domainId");
+    fetchAllProjects (request, response, appData, parentId);
+}
+
+/**
  * @listAllProjects
  * public function
  * 1. URL /api/tenants/config/all-projects
@@ -63,10 +76,17 @@ function listProjects (request, response, appData)
  */
 function listAllProjects (request, response, appData)
 {
+    fetchAllProjects (request, response, appData);
+};
+
+function fetchAllProjects(request, response, appData, parentId)
+{
     var dataObjArr = [], i, keystoneProj, keystoneProjLen, apiProj,
-        apiProjLen, projList = [], tempProjMap = {};
-    dataObjArr.push({type :"keystone", request: request, appData: appData});
-    dataObjArr.push({type : "api", request: request, appData: appData});
+    apiProjLen, projList = [], tempProjMap = {};
+    dataObjArr.push({type :"keystone", request: request,
+        appData: appData, parentId: parentId});
+    dataObjArr.push({type : "api", request: request,
+        appData: appData, parentId: parentId});
     async.map(dataObjArr, getAllProjectAsync, function(error, projData) {
         if (projData[0].error && projData[1].error) {
             commonUtils.handleJSONResponse(projData[0].error, response, null);
@@ -92,17 +112,34 @@ function listAllProjects (request, response, appData)
         }
         commonUtils.handleJSONResponse(null, response, {projects: keystoneProj});
     });
-};
+}
 
 function getAllProjectAsync (dataObj, callback)
 {
-     if(dataObj.type === "keystone") {
+    var projURL, cookieDomain, projects, currentDomain;
+    if(dataObj.type === "keystone") {
          authApi.getProjectList(dataObj.request, dataObj.appData,
                                 function(error, keystoneData) {
+             if(dataObj.parentId) {
+                 cookieDomain = commonUtils.getValueByJsonPath(dataObj,
+                         "request;cookies;domain", "", false);
+                 projects = commonUtils.getValueByJsonPath(keystoneData,
+                         "projects", [], false);
+                 projects = _.filter(projects, function(project){
+                     currentDomain = commonUtils.getValueByJsonPath(project,
+                             "fq_name;0", [], false);
+                     return cookieDomain === currentDomain ? true : false;
+                 });
+                 keystoneData = {"projects": projects};
+             }
              callback(null, {error: error, data: keystoneData});
          });
      } else {
-         configApiServer.apiGet("/projects", dataObj.appData,
+         projURL = "/projects";
+         if(dataObj.parentId) {
+             projURL += "?parent_id=" + dataObj.parentId;
+         }
+         configApiServer.apiGet(projURL, dataObj.appData,
                                 function(error, configData) {
              callback(null, {error: error, data: configData});
          });
@@ -112,7 +149,7 @@ function getAllProjectAsync (dataObj, callback)
 /**
  * @listAllDomains
  * public function
- * 1. URL /api/tenants/config/all-projects
+ * 1. URL /api/tenants/config/all-domains
  * 2. Gets list of projects for the user, domain support
  *    to be added
  */
@@ -335,3 +372,4 @@ exports.listProjects = listProjects;
 exports.listAllProjects = listAllProjects;
 exports.listAllDomains = listAllDomains;
 exports.getProjectByParameter   = getProjectByParameter;
+exports.listAllProjectsPerDomain = listAllProjectsPerDomain;

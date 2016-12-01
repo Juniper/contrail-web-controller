@@ -10,7 +10,6 @@ define(
             render: function() {
                 var self = this,
                     viewConfig = this.attributes.viewConfig;
-                var domainUUID = viewConfig.domainSelectedValueData.value;
                 var listModelConfig = {
                     remote: {
                         ajaxConfig: {

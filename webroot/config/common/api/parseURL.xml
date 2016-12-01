@@ -39,6 +39,12 @@
         <callback>projectconfigapi.listAllProjects</callback>
     </item>
     <item>
+        <url>/api/tenants/config/current-domain-projects/:domainId</url>
+        <method>get</method>
+        <feature>projectconfig</feature>
+        <callback>projectconfigapi.listAllProjectsPerDomain</callback>
+    </item>
+    <item>
         <url>/api/tenants/config/projects/:domain</url>
         <method>get</method>
         <feature>projectconfig</feature>
