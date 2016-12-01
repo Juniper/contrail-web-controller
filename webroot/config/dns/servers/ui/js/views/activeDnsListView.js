@@ -12,12 +12,14 @@ define(
                         viewConfig = this.attributes.viewConfig;
                     prevNextCache = {};
                     var currentHashParams = layoutHandler.getURLHashParams();
-                    var currentDNSServer = currentHashParams.focusedElement.dnsServer;
+                    var dnsServerFQN = getValueByJsonPath(currentHashParams,
+                            "focusedElement;dnsServer", [], false);
+                    var currentDNSServer = getValueByJsonPath(dnsServerFQN,
+                            "1", "", false);
                     var listModelConfig = {
                         remote: {
                             ajaxConfig: {
-                                url: ctwc.ACTIVE_DNS_DATA + getCookie('domain') +
-                                    ":" + currentDNSServer,
+                                url: ctwc.ACTIVE_DNS_DATA + dnsServerFQN.join(":"),
                                 type: "GET"
                             },
                             dataParser: ctwp.parseActiveDNSRecordsData

@@ -9,7 +9,7 @@ define([
         el: $(contentContainer),
         renderDnsServer: function(viewConfig) {
             this.renderView4Config(this.$el, null,
-                getDnsListConfig(viewConfig));
+                    getDnsServer(viewConfig));
         },
         renderActiveDns: function(viewConfig) {
             this.renderView4Config(this.$el, null,
@@ -31,16 +31,12 @@ define([
     };
 
     function getDnsServer(viewConfig) {
-        return function(domainSelectedValueData) {
-            return {
-                elementId: ctwc.CONFIG_DNS_SERVER_PAGE_ID,
-                view: "dnsServersListView",
-                viewPathPrefix: "config/dns/servers/ui/js/views/",
-                app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewConfig: $.extend(true, {}, viewConfig, {
-                    domainSelectedValueData: domainSelectedValueData
-                })
-            }
+        return {
+            elementId: ctwc.CONFIG_DNS_SERVER_PAGE_ID,
+            view: "dnsServersListView",
+            viewPathPrefix: "config/dns/servers/ui/js/views/",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            viewConfig: viewConfig
         }
     };
 

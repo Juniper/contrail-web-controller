@@ -91,7 +91,7 @@ define([
                 hashParams = null,
                 triggerHashChange = true,
                 hostName;
-            var server = dataItem['fq_name'][1];
+            var server = dataItem['fq_name'];
             var hashObj = {
                 type: "activeDnsDatabase",
                 view: "config_dns_activeDatabase",
