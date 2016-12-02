@@ -699,7 +699,11 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <class>rtTablePageLoader</class>
                                     <function>renderRtTable</function>
                                 </resource>
-                            </resources>
+                                <resource>
+                                     <rootDir>/reports/qe/ui</rootDir>
+                                     <css>qe.main.css</css>
+                                </resource>                                
+                            </resources>                            
                             <searchStrings>Route Tables</searchStrings>
                         </item>
                         <!-- <item>

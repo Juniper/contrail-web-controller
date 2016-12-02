@@ -290,7 +290,7 @@ define([
                                 }]
                             },
                             //permissions
-                            ctwu.getRBACPermissionExpandDetails('span3')]
+                            ctwu.getRBACPermissionExpandDetails('col-xs-3')]
                         }]
                     }
                 }]
