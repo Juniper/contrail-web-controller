@@ -770,6 +770,10 @@ define([
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator'
                                                 },{
+                                                    key: "name",
+                                                    label: "FQN",
+                                                    templateGenerator: "TextGenerator"
+                                                },{
                                                     key: 'vRouter',
                                                     templateGenerator: 'LinkGenerator',
                                                     templateGeneratorConfig: {
@@ -913,7 +917,7 @@ define([
         var modelConfig = {
             remote: {
                 ajaxConfig: {
-                    url: cowc.URL_QUERY,
+                    url: cowc.URL_QE_QUERY,
                     type: 'POST',
                     data: JSON.stringify(postData)
                 },

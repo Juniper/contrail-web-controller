@@ -5,8 +5,9 @@
 define([
     'underscore',
     'contrail-view',
-    'contrail-list-model'
-], function (_, ContrailView, ContrailListModel) {
+    'contrail-list-model',
+    'core-basedir/reports/qe/ui/js/common/qe.utils'
+], function (_, ContrailView, ContrailListModel, qeUtils) {
     var InstanceListView = ContrailView.extend({
         el: $(contentContainer),
 
@@ -19,7 +20,7 @@ define([
                 projectFQN = (projectSelectedValueData.value === 'all') ? null : domainFQN + ':' + projectSelectedValueData.name,
                 contrailListModel;
 
-            if(projectUUID != null) {
+            if (projectUUID != null) {
                 var networkUUID = (networkSelectedValueData.value === 'all') ? null : networkSelectedValueData.value,
                     networkFQN = (networkSelectedValueData.value === 'all') ? null : projectFQN + ':' + networkSelectedValueData.name,
                     parentUUID = (networkUUID == null) ? projectUUID : networkUUID,
@@ -28,45 +29,179 @@ define([
                     parentHashtype = (networkUUID == null) ? ctwc.TYPE_PROJECT : ctwc.TYPE_NETWORK,
                     extendedHashOb = {};
 
-                contrailListModel = new ContrailListModel(getInstanceListModelConfig(parentUUID, parentType));
+                contrailListModel = new ContrailListModel(getInstanceListModelConfig(parentUUID, parentFQN));
 
-                self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
+                self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig(parentUUID, parentType, parentFQN));
                 extendedHashOb[parentHashtype] = parentFQN;
                 ctwu.setNetwork4InstanceListURLHashParams(extendedHashOb);
-
             } else {
                 contrailListModel = new ContrailListModel(getInstanceListModelConfig(null, null));
-
-                self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
+                self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig(null, null, null));
                 ctwu.setNetwork4InstanceListURLHashParams({});
             }
         }
     });
 
-    function getInstanceListModelConfig(parentUUID, parentType) {
+    function updateInstanceModel (contrailListModel, parentListModelArray) {
+        var uuidList = contrailListModel.getItems();
+        var instDetailsList = parentListModelArray[0].getItems();
+        var uuidListLen = uuidList.length;
+        var instDetailsListLen = instDetailsList.length;
+        var tmpUUIDObjs = {};
+        var missingUUIDList = [];
+        for (i = 0; i < instDetailsListLen; i++) {
+            var uuid = instDetailsList[i].uuid;
+            tmpUUIDObjs[uuid] = uuid;
+        }
+        for (var i = 0; i < uuidListLen; i++) {
+            uuid = uuidList[i].name;
+            if (cowu.isNil(tmpUUIDObjs[uuid])) {
+                missingUUIDList.push({uuid: uuid, name: uuid});
+            }
+        }
+        parentListModelArray[0].addData(missingUUIDList);
+    }
+
+    function getInstanceListModelConfig(parentUUID, parentFQN) {
         var ajaxConfig = {
-            url: parentUUID != null ? ctwc.get(ctwc.URL_PROJECT_INSTANCES_IN_CHUNKS, parentUUID, 10, 100, parentType, $.now()) : ctwc.get(ctwc.URL_INSTANCE_DETAILS_IN_CHUNKS, 10, 250, $.now()),
+            url: ctwc.get(ctwc.URL_GET_NETWORK_INSTANCES, 100, 1000, $.now()),
             type: 'POST',
             data: JSON.stringify({
-                data: [{"type": ctwc.TYPE_VIRTUAL_MACHINE, "cfilt": ctwc.FILTERS_COLUMN_VM.join(',')}]
+                id: qeUtils.generateQueryUUID(),
+                FQN: parentFQN
             })
         };
 
         return {
             remote: {
                 ajaxConfig: ajaxConfig,
-                dataParser: ctwp.instanceDataParser
-            },
-            vlRemoteConfig: {
-                vlRemoteList: ctwgc.getVMDetailsLazyRemoteConfig(ctwc.TYPE_VIRTUAL_MACHINE)
+                dataParser: ctwp.instanceDataParser,
+                hlRemoteConfig: {
+                    remote: {
+                        ajaxConfig: {
+                            url: ctwc.get(ctwc.URL_GET_INSTANCES_LIST, $.now()),
+                            type: 'POST',
+                            data: JSON.stringify({
+                                reqId: qeUtils.generateQueryUUID(),
+                                FQN: parentFQN,
+                                fqnUUID: parentUUID
+                            })
+                        },
+                        dataParser: function(vmList) {
+                            var retArr = [];
+                            var opVMList = vmList.opVMList;
+                            var configVMList = vmList.configVMList;
+                            var configVMListLen = 0;
+                            var tmpOpVMObjs = {};
+                            if ((null == opVMList) || (!opVMList.length)) {
+                                return retArr;
+                            }
+                            if (!cowu.isNil(configVMList)) {
+                                configVMListLen = configVMList.length;
+                            }
+                            _.each(opVMList, function(vmUUID) {
+                                tmpOpVMObjs[vmUUID] = vmUUID;
+                                retArr.push({name: vmUUID, source: "analytics"});
+                            });
+                            for (var i = 0; i < configVMListLen; i++) {
+                                var vmId = configVMList[i];
+                                if (cowu.isNil(tmpOpVMObjs[vmId])) {
+                                    retArr.push({name: vmId, source: "config"});
+                                }
+                            }
+                            retArr.push({name: "123", source: "config"});
+                            return retArr;
+                        },
+                        completeCallback: function(response, contrailListModel, parentListModelArray) {
+                            if (contrail.checkIfExist(parentListModelArray) &&
+                                contrail.checkIfFunction(parentListModelArray[0].isRequestInProgress)) {
+                                if (parentListModelArray[0].isRequestInProgress()) {
+                                    var updateInstanceModelCB = function() {
+                                        return updateInstanceModel(contrailListModel, parentListModelArray);
+                                    };
+                                    parentListModelArray[0].onAllRequestsComplete.subscribe(updateInstanceModelCB);
+                                }
+                            } else {
+                                updateInstanceModel(contrailListModel, parentListModelArray);
+                            }
+                        }
+                    },
+                    vlRemoteConfig: {
+                        vlRemoteList: [{
+                            getAjaxConfig: function (responseJSON) {
+                                var uuids = [], lazyAjaxConfig;
+                                var whereClause = null;
+
+                                var cnt = responseJSON.length;
+                                for (var i = 0; i < cnt; i++) {
+                                    if ("config" === responseJSON[i].source) {
+                                        /* Config UUIDs are pushed at end, so once we get source as
+                                         * config, then rest all are from config, so no need to
+                                         * traverse more
+                                         */
+                                        break;
+                                    }
+                                    uuids.push(responseJSON[i].name);
+                                }
+                                var domCookie = ctwc.COOKIE_DOMAIN;
+                                var projCookie = ctwc.COOKIE_PROJECT;
+                                var vnCookie = ctwc.COOKIE_VIRTUAL_NETWORK;
+                                whereClause = "(name Starts with " + domCookie + ":" + projCookie +
+                                    ":)";
+                                if (ctwc.ALL_PROJECTS === projCookie) {
+                                    whereClause = "(name Starts with " + domCookie + ":)";
+                                } else if (ctwc.ALL_NETWORKS == vnCookie) {
+                                    whereClause = "(name Starts with " + domCookie + ":" +
+                                        projCookie + ":)";
+                                }
+                                var whereClause =
+                                    qeUtils.formatUIWhereClauseConfigByUserRole(whereClause, "vm_uuid", uuids);
+                                var qObj = {table: "StatTable.UveVMInterfaceAgent.if_stats",
+                                    where: whereClause};
+                                var postData = qeUtils.formatQEUIQuery(qObj);
+
+                                lazyAjaxConfig = {
+                                    url: cowc.URL_QE_QUERY,
+                                    type: 'POST',
+                                    data: JSON.stringify(postData)
+                                }
+                                return lazyAjaxConfig;
+                            },
+                            successCallback: function (response, contrailListModel,
+                                                       parentListModelArray) {
+                                var statDataList =
+                                    ctwp.parseInstanceStats(response.data,
+                                                            ctwc.TYPE_VIRTUAL_MACHINE),
+                                    dataItems = parentListModelArray[0].getItems(),
+                                    updatedDataItems = [],
+                                    statData;
+
+                                for (var j = 0; j < statDataList.length; j++) {
+                                    statData = statDataList[j];
+                                    for (var i = 0; i < dataItems.length; i++) {
+                                        var dataItem = dataItems[i];
+                                        if (statData['name'] == dataItem['name']) {
+                                            dataItem['inBytes60'] = ifNull(statData['inBytes'], 0);
+                                            dataItem['outBytes60'] = ifNull(statData['outBytes'], 0);
+                                            updatedDataItems.push(dataItem);
+                                            break;
+                                        }
+                                    }
+                                }
+                                parentListModelArray[0].updateData(updatedDataItems);
+                            }
+                        }],
+                    }
+                }
             },
             cacheConfig : {
-                ucid: (parentUUID != null) ? (ctwc.UCID_PREFIX_MN_LISTS + parentUUID + ":" + 'virtual-machines') : ctwc.UCID_ALL_VM_LIST
+                ucid: (parentUUID != null) ? (ctwc.UCID_PREFIX_MN_LISTS + parentUUID + ":" +
+                                              'virtual-machines') : ctwc.UCID_ALL_VM_LIST
             }
         };
     }
 
-    function getInstanceListViewConfig() {
+    function getInstanceListViewConfig(parentUUID, parentType, parentFQN) {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_LIST_ID]),
             view: "SectionView",
@@ -111,7 +246,12 @@ define([
                                 view: "InstanceGridView",
                                 viewPathPrefix: "monitor/networking/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {pagerOptions: { options: { pageSize: 8, pageSizeSelect: [8, 25, 50, 100] } }}
+                                viewConfig: {
+                                    parentUUID: parentUUID,
+                                    parentType: parentType,
+                                    parentFQN: parentFQN,
+                                    pagerOptions: { options: { pageSize: 8, pageSizeSelect: [8, 25, 50, 100] } }
+                                }
                             }
                         ]
                     }

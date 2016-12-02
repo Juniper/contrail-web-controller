@@ -52,12 +52,14 @@ function getnThIndexByLastKey (lastKey, entries, matchStr) {
     return -2;
 }
 
-function makeUVEList (keys) {
+function makeUVEList (keys, attr)
+{
     var result = [];
     var len = keys.length;
+    var attrName = attr ? attr : 'name';
     for (var i = 0; i < len; i++) {
         result[i] = {};
-        result[i].name = keys[i];
+        result[i][attrName] = keys[i];
     }
     return result;
 }

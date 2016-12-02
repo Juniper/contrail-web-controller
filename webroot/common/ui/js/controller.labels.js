@@ -195,10 +195,10 @@ define([
         this.MONITOR_NETWORK_LIST_ID = "monitor-network-list";
         this.MONITOR_NETWORK_VIEW_ID = "monitor-network-view";
         this.MONITOR_INSTANCE_LIST_ID = "monitor-instance-list";
+        this.MONITOR_INTERFACE_LIST_ID = "monitor-interface-list";
         this.MONITOR_INSTANCE_PAGE_ID = "monitor-instance-page";
         this.MONITOR_INSTANCE_LIST_PAGE_ID = "monitor-instances-list-page";
         this.MONITOR_INSTANCE_LIST_VIEW_ID = "monitor-instance-list-view";
-        this.MONITOR_INSTANCE_ID = "monitor-instance";
         this.MONITOR_INSTANCE_VIEW_ID = "monitor-instance-view";
         this.MONITOR_FLOW_LIST_ID = "monitor-flow-list";
         this.MONITOR_FLOWS_PAGE_ID = "monitor-flows-page";
@@ -250,6 +250,9 @@ define([
         this.INSTANCE_INTERFACE_GRID_ID = "instance-interface-grid";
         this.INSTANCE_INTERFACE_ID = "instance-interface";
         this.INSTANCE_BREADCRUMB_TEXT = "instance-breadcrumb-text";
+
+        this.INTERFACE_GRID_ID = "interface-grid";
+        this.INTERFACES_TRAFFIC_THROUGHPUT_CHART_ID = "instances-traffic-throughput-chart";
 
         this.NETWORKING_GRAPH_ID = "networking-graph";
         this.GRAPH_CONNECTED_ELEMENTS_ID = "graph-connected-elements";
@@ -340,6 +343,9 @@ define([
         this.TITLE_GRAPH_ELEMENT_VIRTUAL_NETWORK = 'virtual network';
         this.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE = 'virtual machine';
         this.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK = 'link';
+
+        this.TITLE_GRAPH_ELEMENT_INTERFACE = 'interface';
+        this.TITLE_NO_INTERFACES_AVAIL= 'No Interfaces Available.';
 
         //Underlay labels
         this.UNDERLAY_TOPOLOGY_PAGE_ID = 'underlay-topology-page';

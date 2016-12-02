@@ -73,10 +73,10 @@ define([
         
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
-            url: cttu.getRegExForUrl('/api/tenant/networking/virtual-networks/details'),
+            //url: cttu.getRegExForUrl('/api/tenant/networking/virtual-networks/details'),
+            url: cttu.getRegExForUrl(ctwc.URL_PROJECT_NETWORKS_IN_CHUNKS),
             body: JSON.stringify(TestMockdata.networksMockData)
         }));
-        
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
             url: cttu.getRegExForUrl('/api/tenant/networking/virtual-machines/details'),
@@ -93,6 +93,21 @@ define([
             method:"POST",
             url: cttu.getRegExForUrl('/api/tenant/networking/virtual-machine-interfaces/summary'),
             body: JSON.stringify(TestMockdata.virtualMachinesSummaryMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            method:"POST",
+            url: cttu.getRegExForUrl(ctwc.URL_GET_VIRTUAL_NETWORKS),
+            body: JSON.stringify(TestMockdata.networksDetailsMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            method:"POST",
+            url: cttu.getRegExForUrl(cowc.URL_QE_QUERY),
+            body: JSON.stringify(TestMockdata.networksStatsMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            method:"POST",
+            url: cttu.getRegExForUrl(ctwc.URL_GET_NETWORK_INSTANCES),
+            body: JSON.stringify(TestMockdata.networksStatsMockData)
         }));
 
         return responses;

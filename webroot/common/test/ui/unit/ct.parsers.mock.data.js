@@ -137,14 +137,16 @@ define(['underscore'], function (_) {
                                     "vrouter": "b2s40"
                                 }
                             },
+                            "fipCnt": 0,
                             "inBytes60": "-",
+                            "throughput": 0,
                             "outBytes60": "-",
                             "url": "/api/tenant/networking/virtual-machine/summary?fqNameRegExp=83c58a58-2474-45ce-b25b-0b19dc12dda0?flat",
                             "vmName": "back01",
                             "uuid": "83c58a58-2474-45ce-b25b-0b19dc12dda0",
                             "vRouter": "b2s40",
                             "intfCnt": 1,
-                            "vn": false,
+                            "vn": null,
                             "ip": [],
                             "x": 1.66667,
                             "y": 1453136,
@@ -171,14 +173,16 @@ define(['underscore'], function (_) {
                                     "vrouter": "b2s40"
                                 }
                             },
+                            "fipCnt": 0,
                             "inBytes60": "-",
+                            "throughput": 0,
                             "outBytes60": "-",
                             "url": "/api/tenant/networking/virtual-machine/summary?fqNameRegExp=e1cd28da-232d-4320-8598-7debfe2c9f6e?flat",
                             "vmName": "front01",
                             "uuid": "e1cd28da-232d-4320-8598-7debfe2c9f6e",
                             "vRouter": "b2s40",
                             "intfCnt": 1,
-                            "vn": false,
+                            "vn": null,
                             "ip": [],
                             "x": 1.63934,
                             "y": 1420764,
@@ -202,9 +206,12 @@ define(['underscore'], function (_) {
                                     },
                                     "interface_list": [
                                         "default-domain:admin:e2911fbe-55a0-4178-988f-83e2beffb9d1"
-                                    ],
+                                        ],
                                     "uuid": "d4b8339b-3c9e-43e3-89a8-f22094cb97ab",
-                                    "vrouter": "a3s28"
+                                    "vrouter": "a3s28",
+                                    "interface_details": [
+
+                                        ]
                                 }
                             },
                             "raw_json": {
@@ -223,7 +230,7 @@ define(['underscore'], function (_) {
                                         },
                                         "interface_list": [
                                             "default-domain:admin:e2911fbe-55a0-4178-988f-83e2beffb9d1"
-                                        ],
+                                            ],
                                         "uuid": "d4b8339b-3c9e-43e3-89a8-f22094cb97ab",
                                         "vrouter": "a3s28"
                                     }
@@ -236,14 +243,18 @@ define(['underscore'], function (_) {
                             "uuid": "d4b8339b-3c9e-43e3-89a8-f22094cb97ab",
                             "vRouter": "a3s28",
                             "intfCnt": 1,
-                            "vn": false,
-                            "ip": [],
+                            "vn": null,
+                            "ip": [
+
+                                ],
                             "x": 0,
                             "y": 704416,
                             "size": 0,
                             "ui_added_parameters": {
                                 "instance_health_check_status": null
-                            }
+                            },
+                            "throughput": 0,
+                            "fipCnt": 0
                         },
                         {
                             "name": "d53cea4c-44df-4ada-81d7-24c5930684f1",
@@ -261,9 +272,12 @@ define(['underscore'], function (_) {
                                     },
                                     "interface_list": [
                                         "default-domain:admin:4590026b-6e3c-4a13-b4c2-2665957c0dd2"
-                                    ],
+                                        ],
                                     "uuid": "d53cea4c-44df-4ada-81d7-24c5930684f1",
-                                    "vrouter": "a3s31"
+                                    "vrouter": "a3s31",
+                                    "interface_details": [
+
+                                        ]
                                 }
                             },
                             "raw_json": {
@@ -282,7 +296,7 @@ define(['underscore'], function (_) {
                                         },
                                         "interface_list": [
                                             "default-domain:admin:4590026b-6e3c-4a13-b4c2-2665957c0dd2"
-                                        ],
+                                            ],
                                         "uuid": "d53cea4c-44df-4ada-81d7-24c5930684f1",
                                         "vrouter": "a3s31"
                                     }
@@ -295,14 +309,18 @@ define(['underscore'], function (_) {
                             "uuid": "d53cea4c-44df-4ada-81d7-24c5930684f1",
                             "vRouter": "a3s31",
                             "intfCnt": 1,
-                            "vn": false,
-                            "ip": [],
+                            "vn": null,
+                            "ip": [
+
+                                ],
                             "x": 0,
                             "y": 575568,
                             "size": 0,
                             "ui_added_parameters": {
                                 "instance_health_check_status": null
-                            }
+                            },
+                            "throughput": 0,
+                            "fipCnt": 0
                         }
                     ]
                 }

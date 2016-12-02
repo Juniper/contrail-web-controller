@@ -159,13 +159,13 @@
         <url>/api/tenant/networking/virtual-networks/details</url>
         <method>post</method>
         <feature>monitoring</feature>
-        <callback>nwMonApi.getVirtualNetworksDetails</callback>
+        <callback>nwMonApi.getVirtualNetworks</callback>
     </item>
     <item>
         <url>/api/tenant/networking/virtual-networks/list</url>
         <method>post</method>
         <feature>monitoring</feature>
-        <callback>nwMonApi.getVirtualNetworksList</callback>
+        <callback>nwMonApi.getUVEVirtualNetworksList</callback>
     </item>
     <item>
         <url>/api/tenant/networking/virtual-machines/details</url>
@@ -184,6 +184,45 @@
         <method>post</method>
         <feature>monitoring</feature>
         <callback>nwMonApi.getInstanceDetailsForVRouter</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/get-virtual-networks-list</url>
+        <timeout>3000</timeout>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualNetworkUUIDList</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/get-instances-list</url>
+        <timeout>3000</timeout>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getInstanceUUIDList</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/get-interfaces-list</url>
+        <timeout>3000</timeout>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getInterfaceUUIDList</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/get-virtual-networks</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualNetworksDetails</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/get-instances</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getInstancesDetails</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/get-interfaces</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getInterfacesDetails</callback>
     </item>
     <!-- End Monitor Networking APIs -->
 </urlLists>

@@ -44,8 +44,13 @@ define([
 
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
-            url: cttu.getRegExForUrl(ctwc.URL_ALL_NETWORKS_DETAILS),
-            body: JSON.stringify(TestMockdata.networksMockData)
+            url: cttu.getRegExForUrl(ctwc.URL_GET_VIRTUAL_NETWORKS),
+            body: JSON.stringify(TestMockdata.networksDetailsMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl(cowc.URL_QE_QUERY),
+            body: JSON.stringify(TestMockdata.networksStatMockData)
         }));
         responses.push(cotr.createFakeServerResponse({
             method: "POST",

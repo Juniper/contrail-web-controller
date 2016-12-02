@@ -18,6 +18,7 @@ define([
 
     var fakeServerResponsesConfig = function () {
         var responses = [];
+        var fakeVNFqName = "default-domain:admin:frontend";
 
         responses.push(cotr.createFakeServerResponse({
             url: cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
@@ -42,31 +43,36 @@ define([
 
         responses.push(cotr.createFakeServerResponse({
             method: "GET",
-            url: cttu.getRegExForUrl('/api/tenant/networking/virtual-network/summary?fqNameRegExp=default-domain:admin:frontend'),
+            url: cttu.getRegExForUrl("/api/tenant/networking/virtual-network/summary?fqNameRegExp="
+                                     + fakeVNFqName),
             body: JSON.stringify(TestMockdata.networkSummaryForFrontEndNetworkMockData)
         }));
 
         responses.push(cotr.createFakeServerResponse({
             method: "GET",
-            url: cttu.getRegExForUrl('/api/tenant/networking/flow-series/vn?minsSince=120&fqName=default-domain:admin:frontend'),
+            url: cttu.getRegExForUrl("/api/tenant/networking/flow-series/vn?minsSince=120&fqName=" +
+                                     fakeVNFqName),
             body: JSON.stringify(TestMockdata.flowSeriesForFrontendVNMockData)
         }));
 
         responses.push(cotr.createFakeServerResponse({
             method: "GET",
-            url: cttu.getRegExForUrl('/api/tenant/networking/network/stats/top?minsSince=10&fqName=default-domain:admin:frontend'),
+            url: cttu.getRegExForUrl("/api/tenant/networking/network/stats/top?minsSince=10&fqName="
+                                     + fakeVNFqName),
             body: JSON.stringify(TestMockdata.networkStatsForFrontendVNMockData)
         }));
 
         responses.push(cotr.createFakeServerResponse({
             method: "GET",
-            url: cttu.getRegExForUrl('/api/tenant/monitoring/network-connected-graph?fqName=default-domain:admin:frontend'),
+            url: cttu.getRegExForUrl("/api/tenant/monitoring/network-connected-graph?fqName=" +
+                                     fakeVNFqName),
             body: JSON.stringify(TestMockdata.networkConnectedGraphForFrontEndNetworkMockData)
         }));
 
         responses.push(cotr.createFakeServerResponse({
             method: "GET",
-            url: cttu.getRegExForUrl('/api/tenant/monitoring/network-config-graph?fqName=default-domain:admin:frontend'),
+            url: cttu.getRegExForUrl("/api/tenant/monitoring/network-config-graph?fqName=" +
+                                     fakeVNFqName),
             body: JSON.stringify(TestMockdata.networkConfigGraphForFrontEndNetworkMockData)
         }));
 
@@ -93,7 +99,16 @@ define([
             url: cttu.getRegExForUrl('/api/tenant/networking/stats'),
             body: JSON.stringify(TestMockdata.virtualMachinesStatsMockData)
         }));
-
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl(ctwc.URL_GET_NETWORK_INSTANCES),
+            body: JSON.stringify(TestMockdata.instancesDetailsMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl(cowc.URL_QE_QUERY),
+            body: JSON.stringify(TestMockdata.nstancesStatMockData)
+        }));
         return responses;
     };
     fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;
