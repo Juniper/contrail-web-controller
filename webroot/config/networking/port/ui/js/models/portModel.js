@@ -107,18 +107,18 @@ define([
             'qos_config_refs': []
         },
         onVNSelectionChanged: function(portFormatters, newValue, mode) {
+            var subnetDS = portFormatters.fixedIpSubnetDDFormatter(
+                    self.getVNData(),
+                    newValue);
+            if(subnetDS.length > 0) {
+                self.setSubnetDataSource(subnetDS);
+                self.subnetGroupVisible(true);
+            } else {
+                self.subnetGroupVisible(false);
+            }
             if(mode === ctwl.CREATE_ACTION) {
                 self.model().attributes.fixedIPCollection.reset();
-                var subnetDS = portFormatters.fixedIpSubnetDDFormatter(
-                                         self.getVNData(),
-                                         newValue);
-                if(subnetDS.length > 0) {
-                    self.setSubnetDataSource(subnetDS);
-                    self.addFixedIP();
-                    self.subnetGroupVisible(true);
-                } else {
-                    self.subnetGroupVisible(false);
-                }
+                self.addFixedIP();
             }
         },
         setVNData: function(allNetworks) {
@@ -714,7 +714,7 @@ define([
         },
         // fixed IP collection Adding
         addFixedIP: function() {
-            if(self.subnetDataSource.length > 0) {
+            if(self.subnetDataSource instanceof Array) {
                 var fixedIPList = this.model().attributes['fixedIPCollection'];
                 if(fixedIPList.length < self.subnetDataSource.length) {
                     var fixedIPModel = new FixedIPModel(
