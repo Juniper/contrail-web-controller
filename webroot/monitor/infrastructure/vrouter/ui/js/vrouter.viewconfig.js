@@ -92,19 +92,11 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                     modelCfg: {
                         modelId:'VROUTER_FLOWRATE_MODEL',
                         source:"STATTABLE",
-                        config: [
-                            {
+                        config: {
                                 table_name: 'StatTable.VrouterStatsAgent.flow_rate',
                                 select: 'T=, Source, MAX(flow_rate.active_flows)',
                                 parser: function(d){return parseDataForFlowsDrops(d,'MAX(flow_rate.active_flows)')},
-                            },
-                            {
-                                table_name: 'StatTable.VrouterStatsAgent.drop_stats',
-                                select: 'T=, Source, MAX(drop_stats.__value)',
-                                parser: function(d){return parseDataForFlowsDrops(d,'MAX(drop_stats.__value)')},
-                                mergeFn: cowu.parseAndMergeStats
                             }
-                        ]
                     },
                     viewCfg: {
                          elementId : 'flow_rate_area_chart',
@@ -113,7 +105,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                              parseFn: cowu.parseDataForLineChart,
                              chartOptions: {
                                  title: ctwl.VROUTER_ACTIVE_FLOWS_DROPS_LABEL,
-                                 subTitle:"Active, Dropped Flows (Total)",
+                                 subTitle:"Sampled Active Flows across vRouters",
                                  colors: monitorInfraConstants.VROUTER_FLOWS_CHART_COLORS,
                                  staticColor: true,
                                  xAxisLabel: '',
@@ -121,8 +113,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                      return _.isNaN(y)? y : parseInt(y);
                                  },
                                  yAxisLabel: ctwl.VROUTER_ACTIVE_FLOWS_DROPS_LABEL,
-                                 yLabels: ['Active Flows','Drop Flows'],
-                                 yFields: ['MAX(flow_rate.active_flows)','MAX(drop_stats.__value)'],
+                                 yLabels: ['Active Flows'],
+                                 yFields: ['MAX(flow_rate.active_flows)'],
                              }
                          }
                     },
@@ -167,6 +159,45 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      }
                  }
              },
+             "vrouter-drop-packets-chart": function() {
+                 return {
+
+                     modelCfg: {
+                         source:"STATTABLE",
+                         config: {
+                             table_name: 'StatTable.VrouterStatsAgent.drop_stats',
+                             select: 'T=, Source, MAX(drop_stats.__value)',
+                             parser: function(d){return parseDataForFlowsDrops(d,'MAX(drop_stats.__value)')},
+                             where: getWhereClauseForDropStats(),
+                         }
+                     },
+                     viewCfg: {
+                          elementId : 'drop_packets_chart',
+                          view: 'LineWithFocusChartView',
+                          viewConfig: {
+                              parseFn: cowu.parseDataForLineChart,
+                              chartOptions: {
+                                  title: ctwl.VROUTER_DROP_PACKETS,
+                                  subTitle:" Packet Drops across vRouters",
+                                  colors: monitorInfraConstants.VROUTER_DROP_PACKETS_COLORS,
+                                  staticColor: true,
+                                  xAxisLabel: '',
+                                  yFormatter: function(y) {
+                                      return _.isNaN(y)? y : parseInt(y);
+                                  },
+                                  yAxisLabel: ctwl.VROUTER_DROP_PACKETS,
+                                  yLabels: ['Packet Drops'],
+                                  yFields: ['MAX(drop_stats.__value)'],
+                              }
+                          }
+                     },
+                     itemAttr: {
+                         title: ctwl.VROUTER_DROP_PACKETS,
+                         height: 0.7,
+                         width:0.4
+                     }
+                 }
+             },
              "vrouter-bandwidth-percentile-chart" : function() {
                  return {
                      modelCfg: {
@@ -189,10 +220,6 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                       view: "LineWithFocusChartView",
                       viewConfig: {
                           parseFn : cowu.parsePercentilesData,
-                    //      parseFn : function(data, chartOptions) {
-                    //          var data = cowu.parsePercentilesDataForStack(data,chartOptions);
-                    //          return cowu.chartDataFormatter(data, chartOptions);
-                    //      },
                           chartOptions: {
                               colors:cowc.FIVE_NODE_COLOR,
                               title: ctwl.VROUTER_BANDWIDTH_PERCENTILE,
@@ -202,10 +229,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                               yFormatter: function(y) {
                                   return y;
                               },
-                    //          yField: 'percentileValue',
-                    //          groupBy:'Source',
                               yFields: ['PERCENTILES(phy_band_in_bps.__value)','PERCENTILES(phy_band_out_bps.__value']
-//                              yFields:getYFieldsForPercentile('disk_usage_info.partition_space_used_1k')
                           }
                       }
                     },
@@ -581,6 +605,19 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                 tmp[field] = sum;
                 ret.push(tmp);
             }
+            return ret;
+        }
+
+        function getWhereClauseForDropStats() {
+            var keycount = monitorInfraConstants.dropStatsKeyList.length;
+            var ret = "(";
+            $.each(monitorInfraConstants.dropStatsKeyList,function(i,key){
+                if(i != keycount -1 ){
+                    ret += "drop_stats.__key = "+ key +" OR ";
+                } else {
+                    ret += "drop_stats.__key = "+ key +")";
+                }
+            });
             return ret;
         }
     }

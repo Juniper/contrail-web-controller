@@ -52,11 +52,12 @@ define(
                                               widgetCfgList: [
                                                   {id:'vrouter-flow-rate-area-chart'},
                                                   {id:'vrouter-cpu-mem-scatter-chart'},
-                                                  {id:'vrouter-bandwidth-percentile-chart'},
+                                                  {id:'vrouter-drop-packets-chart'},
+//                                                  {id:'vrouter-bandwidth-percentile-chart'},
                                                   {id:'vrouter-system-cpu-percentiles-chart'},
                                                   {id:'vrouter-system-memory-percentiles-chart'},
-                                                  {id:'vrouter-summary-grid'},
-                                                  //{id:'vrouter-crossfilters-chart'}
+                                                  {id:'vrouter-summary-grid'}
+//                                                  {id:'vrouter-crossfilters-chart'}
                                               ]
                                           }
                                       },
