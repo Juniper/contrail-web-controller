@@ -125,7 +125,7 @@ dl.progress-percentage dd {
 
 /******Percentile CSS ends here****/
 
-.grid-stack-item header{
+.custom-grid-stack-item header{
   background-color:transparent !important;
   white-space: nowrap;
   overflow: hidden;
@@ -133,13 +133,13 @@ dl.progress-percentage dd {
   color:#fff !important;
   display: none;
 }
-.ui-draggable-handle:hover{
+.custom-grid-stack-item .ui-draggable-handle:hover{
     cursor:move;
 }
-.grid-stack .grid-stack-item .grid-stack-item-content {
+.custom-grid-stack-item .grid-stack-item-content {
     overflow: hidden;
 }
-.chart-control-panel-container{
+.custom-grid-stack-item .chart-control-panel-container{
     display:none !important;
 }
 #config-nodes-donutchart-one .contrail-chart-title text, #config-nodes-donutchart-two .contrail-chart-title text {

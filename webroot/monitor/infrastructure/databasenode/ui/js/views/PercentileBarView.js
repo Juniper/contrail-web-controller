@@ -37,6 +37,7 @@ define(['underscore', 'contrail-view', 'contrail-list-model'],
                     name: getValueByJsonPath(chartModelItems, ''+i+''+';name', '-'),
                     formattedUsedPercentage: formattedUsedPercentage,
                     formattedUsedValue: formattedUsedValue,
+                    highThresholdLimit:"70"
                 });
             }
             self.$el.html(percentileBarViewTemplate(chartModelFilteredArray));
