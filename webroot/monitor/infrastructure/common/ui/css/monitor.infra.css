@@ -83,6 +83,14 @@ dl.progress-percentage.red .progress-bar {
 dl.progress-percentage.red dd {
     color: #e48782;
 }
+/** Waiting for the confirmation of color change based on Severity**/
+dl.progress-percentage.orange .progress-bar {
+    background-color: #ffbf87;
+}
+dl.progress-percentage.orange dd {
+    color: #ffbf87;
+}
+/** Ends here **/
 dl.progress-percentage dd {
     padding-left: 5px;
 }
@@ -125,7 +133,7 @@ dl.progress-percentage dd {
 
 /******Percentile CSS ends here****/
 
-.grid-stack-item header{
+.custom-grid-stack-item header{
   background-color:transparent !important;
   white-space: nowrap;
   overflow: hidden;
@@ -133,13 +141,13 @@ dl.progress-percentage dd {
   color:#fff !important;
   display: none;
 }
-.ui-draggable-handle:hover{
+.custom-grid-stack-item .ui-draggable-handle:hover{
     cursor:move;
 }
-.grid-stack .grid-stack-item .grid-stack-item-content {
+.custom-grid-stack-item .grid-stack-item-content {
     overflow: hidden;
 }
-.chart-control-panel-container{
+.custom-grid-stack-item .chart-control-panel-container{
     display:none !important;
 }
 #config-nodes-donutchart-one .contrail-chart-title text, #config-nodes-donutchart-two .contrail-chart-title text {
