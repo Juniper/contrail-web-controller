@@ -515,7 +515,7 @@ define([
         }, {
             keyClass:'col-xs-3',
             valueClass:'col-xs-9',
-            key: 'virtual_machine_interface_properties.interface_mirror',
+            key: 'uuid',
             label:"Mirror to",
             templateGenerator: 'TextGenerator',
             templateGeneratorConfig:{

@@ -314,7 +314,7 @@ define([
             var hashingConfigured = getValueByJsonPath(ecmp,
                     'hashing_configured', false);
             if (hashingConfigured == false) {
-                return fields;
+                return dispStr;
             }
             for (var key in ecmp) {
                 if (true == ecmp[key] && key != "hashing_configured") {
@@ -324,6 +324,9 @@ define([
             }
             if (fields.length > 0) {
                 return fields.join(', ');
+            }
+            if(!dispStr) {
+                dispStr = "-";
             }
             return dispStr;
         };
@@ -433,7 +436,7 @@ define([
             if(analyzerIP) {
                 mirror += self.addTableRow(["Analyzer IP", " : ", analyzerIP]);
             } else {
-                mirror += self.addTableRow(["Analyzer IP", " : ", "-"]);
+                return "-";
             }
 
             if(udpPort) {

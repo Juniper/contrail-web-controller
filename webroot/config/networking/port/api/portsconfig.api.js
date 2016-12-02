@@ -1160,7 +1160,7 @@ function deletePortsCB (dataObject, callback)
  * removeNonDependentInterface delete.
  */
 function removeDependentInterface(dataObject, callback) {
-    if (userData != null) {
+    if (dataObject != null) {
         var appData =  dataObject.appData,
             portId = dataObject.uuid,
             request = dataObject.request,
