@@ -3,55 +3,141 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view','monitor-infra-confignode-model', 'node-color-mapping'],
+        [ 'underscore', 'contrail-view','node-color-mapping'],
         function(
-                _, ContrailView, ConfigNodeListModel, NodeColorMapping) {
+                _, ContrailView,NodeColorMapping) {
             var ConfigNodeListView = ContrailView.extend({
                 render : function() {
-                    var configNodeListModel = new ConfigNodeListModel(),
-                        nodeColorMapping = new NodeColorMapping(),
+                    var nodeColorMapping = new NodeColorMapping(),
                         colorFn = nodeColorMapping.getNodeColorMap;
 
-                    this.renderView4Config(this.$el, configNodeListModel,
+                    this.renderView4Config(this.$el, null,
                             getConfigNodeListViewConfig(colorFn));
                 }
             });
-
-
             function getConfigNodeListViewConfig(colorFn) {
                 var viewConfig = {
-                    rows : [
-                         {
-                            columns : [ {
-                                elementId :
-                                    ctwl.CONFIGNODE_SUMMARY_CHART_ID,
-                                title : ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                view : "ConfigNodeChartsView",
-                                viewPathPrefix:
-                                    ctwl.MONITOR_INFRA_VIEW_PATH,
-                                app : cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {
-                                    colorFn: colorFn
-                                }
-                                    } ]
-                        },{
-                            columns : [ {
-                                elementId :
-                                    ctwl.CONFIGNODE_SUMMARY_GRID_ID,
-                                title : ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                view : "ConfigNodeSummaryGridView",
-                                viewPathPrefix:
-                                    ctwl.CONFIGNODE_VIEWPATH_PREFIX,
-                                app : cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig : {
-                                    colorFn: colorFn
-                                }
-                            } ]
-                        } ]
+                    rows: [monitorInfraUtils.getToolbarViewConfig(), {
+                        columns: [{
+                            elementId: 'config-node-carousel-view',
+                            view: "CarouselView",
+                            viewConfig: {
+                                pages: [{
+                                    page: {
+                                        elementId: 'config-node-grid-stackview-0',
+                                        view: "GridStackView",
+                                        viewConfig: {
+                                            elementId: 'config-node-grid-stackview-0',
+                                            gridAttr: {
+                                                defaultWidth: 6,
+                                                defaultHeight: 10
+                                            },
+                                            widgetCfgList: [{
+                                                id: 'confignode-requests-served'
+                                            }, {
+                                                id: 'confignode-response-time-size'
+                                            }, {
+                                                id: 'confignode-percentile-time-size'
+                                            }, {
+                                                id: 'confignode-reads-writes-donut-chart'
+                                            }, {
+                                                id: 'confignode-grid-view'
+                                            }]
+                                        }
+                                    },
+                                },{
+                                    page: {
+                                        elementId: 'config-node-grid-stackview-1',
+                                        view: 'GridStackView',
+                                        viewConfig: {
+                                            elementId: 'config-node-grid-stackview-1',
+                                            gridAttr: {
+                                                defaultWidth: 6,
+                                                defaultHeight: 8
+                                            },
+                                            widgetCfgList: [{
+                                                id: 'confignode-top-useragent'
+                                            }, {
+                                                id: 'confignode-top-objecttypes'
+                                            }, {
+                                                id: 'confignode-top-remote-ip'
+                                            }, {
+                                                id: 'confignode-top-projects'
+                                            }, {
+                                                id: 'confignode-grid-view'
+                                            }]
+                                        }
+                                    }
+                                },{
+                                    page: {
+                                        elementId: 'config-node-grid-stackview-2',
+                                        view: 'GridStackView',
+                                        viewConfig: {
+                                            elementId: 'config-node-grid-stackview-2',
+                                            gridAttr: {
+                                                defaultWidth: 6,
+                                                defaultHeight: 8
+                                            },
+                                            widgetCfgList: [{
+                                                id: 'confignode-process-contrail-api'
+                                            }, {
+                                                id: 'confignode-process-contrail-schema'
+                                            }, {
+                                                id: 'confignode-process-contrail-service-monitor'
+                                            }, {
+                                                id: 'confignode-process-contrail-device-manager'
+                                            }, {
+                                                id: 'confignode-grid-view'
+                                            }]
+                                        }
+                                    }
+                                },{
+                                    page: {
+                                        elementId: 'config-node-grid-stackview-3',
+                                        view: 'GridStackView',
+                                        viewConfig: {
+                                            elementId: 'config-node-grid-stackview-3',
+                                            gridAttr: {
+                                                defaultWidth: 6,
+                                                defaultHeight: 8
+                                            },
+                                            widgetCfgList: [{
+                                                id: 'confignode-process-ifmap'
+                                            }, {
+                                                id: 'confignode-process-contrail-discovery'
+                                            }, {
+                                                id: 'confignode-system-cpu-share'
+                                            }, {
+                                                id: 'confignode-system-memory-usage'
+                                            }, {
+                                                id: 'confignode-grid-view'
+                                            }]
+                                        }
+                                    }
+                                },{
+                                    page: {
+                                        elementId: 'config-node-grid-stackview-4',
+                                        view: 'GridStackView',
+                                        viewConfig: {
+                                            elementId: 'config-node-grid-stackview-4',
+                                            gridAttr: {
+                                                defaultWidth: 6,
+                                                defaultHeight: 8
+                                            },
+                                            widgetCfgList: [{
+                                                id: 'confignode-disk-usage-info'
+                                            },{
+                                                id: 'confignode-grid-view'
+                                            }]
+                                        }
+                                    }
+                                }]
+                            }
+                        }]
+                    }]
                 };
                 return {
-                    elementId : cowu.formatElementId(
-                        [ctwl.CONFIGNODE_SUMMARY_LIST_SECTION_ID ]),
+                    elementId : cowu.formatElementId([ctwl.CONFIGNODE_SUMMARY_LIST_SECTION_ID ]),
                     view : "SectionView",
                     viewConfig : viewConfig
                 };

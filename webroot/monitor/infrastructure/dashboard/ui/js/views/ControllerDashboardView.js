@@ -19,12 +19,13 @@ define([
     'monitor-infra-databasenode-model',
     'monitor-infra-confignode-model',
     'monitor-infra-controlnode-model',
-    'monitor-infra-vrouter-model'
+    'monitor-infra-vrouter-model',
+    'contrail-list-model'
 ], function(_,Backbone,ConfigNodeScatterChartView,
         ControlNodeScatterChartView,DatabaseNodeScatterChartView,
         AnalyticsNodeScatterChartView,MonitorInfraDashboardView,VRouterDashboardView,
-        AnalyticsNodeListModel,DatabaseNodeListModel,ConfigNodeListModel,
-        ControlNodeListModel,VRouterListModel) {
+        analyticsNodeListModelCfg,databaseNodeListModelCfg,configNodeListModelCfg,
+        controlNodeListModelCfg,VRouterListModel,ContrailListModel) {
 
     var ControllerDashboardView = Backbone.View.extend({
         el: $(contentContainer),
@@ -38,10 +39,10 @@ define([
 
     function getInfoboxesConfig() {
         var vRouterListModel = new VRouterListModel();
-        var analyticsNodeListModel = new AnalyticsNodeListModel();
-        var controlNodeListModel = new ControlNodeListModel();
-        var databaseNodeListModel = new DatabaseNodeListModel();
-        var configNodeListModel = new ConfigNodeListModel();
+        var analyticsNodeListModel = new ContrailListModel(analyticsNodeListModelCfg);
+        var controlNodeListModel = new ContrailListModel(controlNodeListModelCfg);
+        var databaseNodeListModel = new ContrailListModel(databaseNodeListModelCfg);
+        var configNodeListModel = new ContrailListModel(configNodeListModelCfg);
 
         return [{
             title: 'Virtual Routers',

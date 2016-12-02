@@ -7,17 +7,17 @@ define(['underscore', 'contrail-view'], function(_, ContrailView) {
        render: function() {
             var widgetConfig = getValueByJsonPath(this,'attributes;viewConfig;widgetConfig');
             var self = this;
+            var viewConfig = (this.attributes)? this.attributes.viewConfig : null;
             self.cfDataSource = getValueByJsonPath(self,'attributes;viewConfig;cfDataSource',null,false);
             if(widgetConfig != null) {
                 this.renderView4Config(this.$el,this.model,widgetConfig);
             }
            this.renderView4Config(this.$el,
-           this.model,
-           getVRouterScatterChartViewConfig(self));
+                       this.model,getVRouterScatterChartViewConfig(self,viewConfig));
        }
    });
 
-   function getVRouterScatterChartViewConfig(self) {
+   function getVRouterScatterChartViewConfig(self,viewConfig) {
        return {
            elementId: ctwl.VROUTER_SUMMARY_SCATTERCHART_SECTION_ID,
            view: "SectionView",
@@ -37,6 +37,9 @@ define(['underscore', 'contrail-view'], function(_, ContrailView) {
                                doBucketize: true,
                                xLabel: ctwl.TITLE_CPU,
                                yLabel: 'Memory (MB)',
+                               xField: getValueByJsonPath(viewConfig,'xField','x'),
+                               yField: getValueByJsonPath(viewConfig,'xField','y'),
+                               sizeField: getValueByJsonPath(viewConfig,'xField','size'),
                                forceX: [0, 1],
                                forceY: [0, 20],
                                margin: {top:5},

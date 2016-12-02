@@ -31,8 +31,8 @@ define([
                                 view: "LineBarWithFocusChartView",
                                 viewConfig: {
                                     parseFn: function (response) {
-                                        var dimensions = ['cpu_info.cpu_share',
-                                                          'cpu_info.mem_res'];
+                                        var dimensions = ['process_mem_cpu_usage.cpu_share',
+                                                          'process_mem_cpu_usage.mem_res'];
                                         var axisLabels = [ctwl.TITLE_CPU,ctwl.TITLE_MEMORY];
                                         var options = {dimensions:dimensions,axisLabels:axisLabels};
                                         return ctwp.parseLineChartDataForNodeDetails(response,options);
