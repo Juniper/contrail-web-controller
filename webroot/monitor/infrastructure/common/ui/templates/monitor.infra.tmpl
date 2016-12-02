@@ -75,7 +75,7 @@
     {{#each this}}
       <div class="value pull-left" >
         <div class="value pull-left">{{{this.name}}}</div>
-      {{#IfCompare this.formattedUsedValue 85 operator='>'}}
+      {{#IfCompare this.formattedUsedValue 70 operator='>'}}
       <dl class="progress-percentage red">
         <dt class="progress">
           <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{{this.formattedUsedPercentage}}};"> </div>
