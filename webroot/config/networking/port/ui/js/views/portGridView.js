@@ -477,7 +477,7 @@ define([
                 formatter: "AAPFormatter"
             }
         }, {
-            key: 'virtual_machine_interface_properties.interface_mirror',
+            key: 'uuid',
             label:"Mirror to",
             templateGenerator: 'TextGenerator',
             templateGeneratorConfig:{
