@@ -81,6 +81,7 @@ define(['underscore', 'contrail-view'], function(_, ContrailView) {
                                     },
                                },
                                bucketTooltipFn: monitorInfraUtils.vRouterBucketTooltipFn,
+                               showColorFilter:true,
                                clickCB: monitorInfraUtils.onvRouterDrillDown
                            }
                        }
