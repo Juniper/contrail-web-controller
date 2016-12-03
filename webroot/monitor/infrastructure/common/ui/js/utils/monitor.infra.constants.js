@@ -152,7 +152,49 @@ define([
         this.VROUTER_DEFAULT_MAX_THROUGHPUT = 10737418240; // 10 GB
 
         this.VROUTER_FLOWS_CHART_COLORS = ['#6f97ae','#d95436'];
+        this.VROUTER_DROP_PACKETS_COLORS = ['#d95436'];
 
+        this.dropStatsKeyList = [
+            "discard",
+            "pull",
+            "invalid_if",
+            "invalid_arp",
+            "trap_no_if",
+            "nowhere_to_go",
+            "flow_queue_limit_exceeded",
+            "flow_no_memory",
+            "flow_invalid_protocol",
+            "flow_nat_no_rflow",
+            "flow_action_drop",
+            "flow_action_invalid",
+            "flow_unusable",
+            "flow_table_full",
+            "interface_tx_discard",
+            "interface_drop",
+            "duplicated",
+            "push",
+            "ttl_exceeded",
+            "invalid_nh",
+            "invalid_label",
+            "invalid_protocol",
+            "interface_rx_discard",
+            "invalid_mcast_source",
+            "head_alloc_fail",
+            "pcow_fail",
+            "mcast_clone_fail",
+            "rewrite_fail",
+            "misc",
+            "invalid_packet",
+            "cksum_err",
+            "no_fmd",
+            "invalid_vnid",
+            "frag_err",
+            "invalid_source",
+            "mcast_df_bit",
+            "l2_no_route",
+            "vlan_fwd_tx",
+            "vlan_fwd_enq"
+        ];
     };
 
     return MonitorInfraConstants;
