@@ -30,7 +30,7 @@ define([
                     removeClass('infobox-dark-border active').addClass('infobox-grey');
                 $(self.$el.find('.infobox')[tabIdx]).removeClass('infobox-grey').
                     addClass('infobox-blue infobox-border active');
-                $(window).resize();
+                window.dispatchEvent(new Event('resize'));
             });
         },
 

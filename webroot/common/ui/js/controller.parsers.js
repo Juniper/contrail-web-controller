@@ -232,7 +232,7 @@ define([
             var chartData = [axis1, axis2];
 
             for (var i = 0; i < responseArray.length; i++) {
-                var ts = Math.floor(responseArray[i]['T'] / 1000);
+                var ts = Math.floor(responseArray[i]['T='] / 1000);
                 axis1.values.push({x: ts, y: responseArray[i][options.dimensions[0]]});
                 axis2.values.push({x: ts, y: responseArray[i][options.dimensions[1]]});
             }
@@ -256,7 +256,7 @@ define([
             var chartData = [axis1, axis2, axis3];
 
             for (var i = 0; i < responseArray.length; i++) {
-                var ts = Math.floor(responseArray[i]['T'] / 1000);
+                var ts = Math.floor(responseArray[i]['T='] / 1000);
                 axis1.values.push({x: ts, y: responseArray[i][options.dimensions[0]]});
                 axis2.values.push({x: ts, y: responseArray[i][options.dimensions[1]]});
                 axis3.values.push({x: ts, y: responseArray[i][options.dimensions[2]]});
