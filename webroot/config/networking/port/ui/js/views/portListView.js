@@ -70,7 +70,7 @@ define([
                                           cbparam.allUUID.length);
                     self.portGetChunkCnt = 200;
                     if(cbparam.allUUID.length > 0) {
-                        self.fetchPortChunk(cbparam.allUUID, cbparam.cbparam);
+                        self.fetchPortChunk(cbparam.allUUID, cbparam.cbparam, callback);
                     } else {
                         callback();
                     }
