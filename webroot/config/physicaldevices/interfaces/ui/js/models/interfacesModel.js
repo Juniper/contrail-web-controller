@@ -347,7 +347,8 @@ define([
                       ];
             }
             postObj["virtual-machine-interface"]
-                ["virtual_machine_interface_device_owner"] = "";
+                ["virtual_machine_interface_device_owner"] =
+                    ctwc.LI_VMI_DEVICE_OWNER;
             postObj["virtual-machine-interface"]["security_group_refs"] =
                 [{"to" :[curDomain,curProject,"default"]}];
             return postObj;

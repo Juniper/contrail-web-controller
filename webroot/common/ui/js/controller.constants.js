@@ -739,6 +739,7 @@ define([
             {'value' : 'physical-interface', "text" : 'Physical Interface'}
         ];
         this.PHYSICAL_INF_LINK_PATTERN = ";";
+        this.LI_VMI_DEVICE_OWNER = 'physical-router';
 
         /* Port */
         this.CONFIG_PORT_PAGE_ID = "config-port-page";
