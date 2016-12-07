@@ -56,9 +56,20 @@ define(
                                                      widgetCfgList: [
                                                          {id:'controlnode-dns'},
                                                          {id:'controlnode-named'},
-                                                         {id:'system-cpu-share'},
-                                                         {id:'system-memory-usage'},
-                                                        // {id:'disk-usage-info'},
+                                                         {id:'system-cpu-share',
+                                                             itemAttr:{
+                                                                 config:{
+                                                                     nodeType:'control-node'
+                                                                 }
+                                                             }
+                                                         },
+                                                         {id:'system-memory-usage',
+                                                             itemAttr:{
+                                                                 config:{
+                                                                     nodeType:'control-node'
+                                                                 }
+                                                             }
+                                                         },
                                                          {id:'controlnode-grid-view'}
                                                      ]
                                                 }
@@ -74,7 +85,13 @@ define(
                                                      defaultHeight : 8
                                                  },
                                                  widgetCfgList: [
-                                                     {id:'disk-usage-info'},
+                                                     {id:'disk-usage-info',
+                                                         itemAttr:{
+                                                             config:{
+                                                                 nodeType:'control-node'
+                                                             }
+                                                         }
+                                                     },
                                                      {id:'controlnode-grid-view'}
                                                  ]
                                             }

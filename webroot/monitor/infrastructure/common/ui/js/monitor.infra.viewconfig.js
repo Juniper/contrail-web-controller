@@ -9,14 +9,32 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
         colorFn = nodeColorMapping.getNodeColorMap;
         var self = this;
         self.viewConfig = {
-                'system-cpu-share': function () {
+                'system-cpu-share': function (config) {
                     return {
                         modelCfg: {
                             source: 'STATTABLE',
-                            config: {
-                                "table_name": "StatTable.NodeStatus.system_mem_cpu_usage",
-                                "select": "Source, T=, MAX(system_mem_cpu_usage.cpu_share)"
-                            }
+                            config: [
+                                 monitorInfraUtils.getNodeListQueryConfig(config),
+                                 {
+                                     "table_name": "StatTable.NodeStatus.system_cpu_usage",
+                                     "select": "Source,T=,MAX(system_cpu_usage.cpu_share)",
+//                                         "primary_depends" : true,
+                                     "getAjaxConfig": function(primaryResponse, postData) {
+                                         //Modify post data as required
+                                         var whereClause = monitorInfraUtils.getWhereClauseForSystemStats(primaryResponse);
+                                         postData['formModelAttrs']['where'] = whereClause;
+                                         return {
+                                             url : "/api/qe/query",
+                                             type: 'POST',
+                                             data: JSON.stringify(postData)
+                                         }
+                                     },
+                                     mergeFn: function(response,primaryDS) {
+                                         primaryDS.setData([]);
+                                         cowu.parseAndMergeStats(response,primaryDS);
+                                     }
+                                 }
+                             ]
                         },
                         viewCfg:{
                             elementId : monitorInfraConstants.SYSTEM_CPU_SHARE_LINE_CHART_ID,
@@ -28,7 +46,7 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                                     yAxisLabel: 'System CPU Share (%)',
                                     groupBy: 'Source',
                                     colors: colorFn,
-                                    yField: 'MAX(system_mem_cpu_usage.cpu_share)',
+                                    yField: 'MAX(system_cpu_usage.cpu_share)',
                                     title: "System",
                                 }
                             }
@@ -37,14 +55,32 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                         }
                     };
                 },
-                'system-memory-usage': function () {
+                'system-memory-usage': function (config) {
                     return {
                         modelCfg: {
                             source: 'STATTABLE',
-                            config: {
-                                "table_name": "StatTable.NodeStatus.system_mem_usage",
-                                "select": "Source,T=,MAX(system_mem_usage.used)"
-                            }
+                            config: [
+                                monitorInfraUtils.getNodeListQueryConfig(config),
+                                {
+                                    "table_name": "StatTable.NodeStatus.system_mem_usage",
+                                    "select": "Source,T=,MAX(system_mem_usage.used)",
+//                                    "primary_depends" : true,
+                                    "getAjaxConfig": function(primaryResponse, postData) {
+                                        //Modify post data as required
+                                        var whereClause = monitorInfraUtils.getWhereClauseForSystemStats(primaryResponse);
+                                        postData['formModelAttrs']['where'] = whereClause;
+                                        return {
+                                            url : "/api/qe/query",
+                                            type: 'POST',
+                                            data: JSON.stringify(postData)
+                                        }
+                                    },
+                                    mergeFn: function(response,primaryDS) {
+                                        primaryDS.setData([]);
+                                        cowu.parseAndMergeStats(response,primaryDS);
+                                    }
+                                }
+                            ]
                         },
                         viewCfg: {
                             elementId : monitorInfraConstants.SYSTEM_MEMORY_USAGE_LINE_CHART_ID,
@@ -68,22 +104,41 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                         }
                     };
                 },
-                'disk-usage-info': function (){
+                'disk-usage-info': function (config){
                     return {
                         modelCfg: {
                             source: 'STATTABLE',
-                            config: {
-                                "table_name": "StatTable.NodeStatus.disk_usage_info",
-                                "select": "T=, Source, MAX(disk_usage_info.partition_space_used_1k)",
-                                "parser": function(response){
-                                    var stats = response;
-                                    $.each(stats, function(idx, obj) {
-                                        obj['MAX(disk_usage_info.partition_space_used_1k)'] =
-                                            ifNull(obj['MAX(disk_usage_info.partition_space_used_1k)'],0) * 1024; //Converting KB to Bytes
-                                    });
-                                    return stats;
-                                }
-                            }
+                            config: [
+                                     monitorInfraUtils.getNodeListQueryConfig(config),
+                                     {
+                                         "table_name": "StatTable.NodeStatus.disk_usage_info",
+                                         "select": "T=, Source, MAX(disk_usage_info.partition_space_used_1k)",
+//                                         "primary_depends" : true,
+                                         "getAjaxConfig": function(primaryResponse, postData) {
+                                             //Modify post data as required
+                                             var whereClause = monitorInfraUtils.getWhereClauseForSystemStats(primaryResponse);
+                                             postData['formModelAttrs']['where'] = whereClause;
+                                             return {
+                                                 url : "/api/qe/query",
+                                                 type: 'POST',
+                                                 data: JSON.stringify(postData)
+                                             }
+                                         },
+                                         "parser": function(response){
+                                             response = getValueByJsonPath(response,"data",[]);
+                                             var stats = response;
+                                             $.each(stats, function(idx, obj) {
+                                                 obj['MAX(disk_usage_info.partition_space_used_1k)'] =
+                                                     ifNull(obj['MAX(disk_usage_info.partition_space_used_1k)'],0) * 1024; //Converting KB to Bytes
+                                             });
+                                             return stats;
+                                         },
+                                         mergeFn: function(response,primaryDS) {
+                                             primaryDS.setData([]);
+                                             cowu.parseAndMergeStats(response,primaryDS);
+                                         }
+                                     }
+                                 ]
                         },
                         viewCfg: {
                             elementId : "databsenode_dbusage_chart",
@@ -114,6 +169,7 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
         self.getViewConfig = function(id) {
             return self.viewConfig[id];
         };
+
 };
  return (new MonitorInfraViewConfig()).viewConfig;
 

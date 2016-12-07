@@ -54,8 +54,20 @@ define(
                                                   {id:'vrouter-cpu-mem-scatter-chart'},
                                                   {id:'vrouter-drop-packets-chart'},
 //                                                  {id:'vrouter-bandwidth-percentile-chart'},
-                                                  {id:'vrouter-system-cpu-percentiles-chart'},
-                                                  {id:'vrouter-system-memory-percentiles-chart'},
+                                                  {id:'vrouter-system-cpu-percentiles-chart',
+                                                      itemAttr:{
+                                                          config:{
+                                                              nodeType:'vrouter'
+                                                          }
+                                                      }
+                                                  },
+                                                  {id:'vrouter-system-memory-percentiles-chart',
+                                                      itemAttr:{
+                                                          config:{
+                                                              nodeType:'vrouter'
+                                                          }
+                                                      }
+                                                  },
                                                   {id:'vrouter-summary-grid'}
 //                                                  {id:'vrouter-crossfilters-chart'}
                                               ]
