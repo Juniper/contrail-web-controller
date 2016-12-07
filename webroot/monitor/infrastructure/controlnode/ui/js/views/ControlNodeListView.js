@@ -26,25 +26,6 @@ define(
                                 pages : [
                                          {
                                              page: {
-                                                 elementId : 'control-node-grid-stackview-0',
-                                                 view : "GridStackView",
-                                                 viewConfig: {
-                                                     elementId : 'control-node-grid-stackview-0',
-                                                     gridAttr : {
-                                                         defaultWidth : 6,
-                                                         defaultHeight : 8
-                                                     },
-                                                     widgetCfgList: [
-                                                         {id:'controlnode-sent-updates'},
-                                                         {id:'controlnode-received-updates'},
-                                                         {id:'controlnode-control'},
-                                                         {id:'controlnode-memory'},
-                                                         {id:'controlnode-grid-view'}
-                                                     ]
-                                                  }
-                                               }
-                                         },{
-                                             page: {
                                                  elementId : 'control-node-grid-stackview-1',
                                                  view : "GridStackView",
                                                  viewConfig: {
@@ -56,9 +37,20 @@ define(
                                                      widgetCfgList: [
                                                          {id:'controlnode-dns'},
                                                          {id:'controlnode-named'},
-                                                         {id:'system-cpu-share'},
-                                                         {id:'system-memory-usage'},
-                                                        // {id:'disk-usage-info'},
+                                                         {id:'system-cpu-share',
+                                                             itemAttr:{
+                                                                 config:{
+                                                                     nodeType:'control-node'
+                                                                 }
+                                                             }
+                                                         },
+                                                         {id:'system-memory-usage',
+                                                             itemAttr:{
+                                                                 config:{
+                                                                     nodeType:'control-node'
+                                                                 }
+                                                             }
+                                                         },
                                                          {id:'controlnode-grid-view'}
                                                      ]
                                                 }
@@ -74,7 +66,13 @@ define(
                                                      defaultHeight : 8
                                                  },
                                                  widgetCfgList: [
-                                                     {id:'disk-usage-info'},
+                                                     {id:'disk-usage-info',
+                                                         itemAttr:{
+                                                             config:{
+                                                                 nodeType:'control-node'
+                                                             }
+                                                         }
+                                                     },
                                                      {id:'controlnode-grid-view'}
                                                  ]
                                             }

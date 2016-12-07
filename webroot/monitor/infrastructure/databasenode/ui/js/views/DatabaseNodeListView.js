@@ -38,7 +38,13 @@ define(
                                                          {id:'databasenode-pending-compactions'},
                                                          {id:'databasenode-cpu-share'},
                                                          {id:'databasenode-memory'},
-                                                         {id:'disk-usage-info'},
+                                                         {id:'disk-usage-info',
+                                                             itemAttr:{
+                                                                 config:{
+                                                                     nodeType:'database-node'
+                                                                 }
+                                                             }
+                                                         },
                                                          {id:'database-grid-view'}
                                                      ]
                                                   }
@@ -56,8 +62,20 @@ define(
                                                      widgetCfgList: [
                                                          {id:'databasenode-zookeeper'},
                                                          {id:'databasenode-kafka'},
-                                                         {id:'system-cpu-share'},
-                                                         {id:'system-memory-usage'},
+                                                         {id:'system-cpu-share',
+                                                             itemAttr:{
+                                                                 config:{
+                                                                     nodeType:'database-node'
+                                                                 }
+                                                             }
+                                                         },
+                                                         {id:'system-memory-usage',
+                                                             itemAttr:{
+                                                                 config:{
+                                                                     nodeType:'database-node'
+                                                                 }
+                                                             }
+                                                         },
                                                         // {id:'disk-usage-info'},
                                                          {id:'database-grid-view'}
                                                      ]

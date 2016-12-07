@@ -195,6 +195,7 @@ define([
             "vlan_fwd_tx",
             "vlan_fwd_enq"
         ];
+
     };
 
     return MonitorInfraConstants;
