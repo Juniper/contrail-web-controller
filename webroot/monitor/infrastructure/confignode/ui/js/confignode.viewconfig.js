@@ -371,8 +371,8 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                     }
                 };
             },
-            'confignode-system-cpu-share': function () {
-                var config = monitorInfraViewConfig['system-cpu-share']();
+            'confignode-system-cpu-share': function (cfg) {
+                var config = monitorInfraViewConfig['system-cpu-share'](cfg);
                 return $.extend(true, config,{
                     viewCfg: {
                         viewConfig: {
@@ -383,8 +383,8 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                     }
                 });
             },
-            'confignode-system-memory-usage': function () {
-                var config = monitorInfraViewConfig['system-memory-usage']();
+            'confignode-system-memory-usage': function (cfg) {
+                var config = monitorInfraViewConfig['system-memory-usage'](cfg);
                 return $.extend(true, config, {
                     viewCfg: {
                         viewConfig: {
@@ -395,8 +395,8 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                     }
                 });
             },
-            'confignode-disk-usage-info': function () {
-                var config = monitorInfraViewConfig['disk-usage-info']();
+            'confignode-disk-usage-info': function (cfg) {
+                var config = monitorInfraViewConfig['disk-usage-info'](cfg);
                 return $.extend(true, config, {
                     viewCfg: {
                         viewConfig: {

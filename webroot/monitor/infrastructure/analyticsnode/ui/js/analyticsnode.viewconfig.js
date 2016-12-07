@@ -108,8 +108,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     }
                 }
             },
-            'analyticsnode-system-cpu-share': function () {
-                var config = monitorInfraViewConfig['system-cpu-share']();
+            'analyticsnode-system-cpu-share': function (cfg) {
+                var config = monitorInfraViewConfig['system-cpu-share'](cfg);
                 return $.extend(true, config,{
                     viewCfg: {
                         viewConfig: {
@@ -120,8 +120,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     }
                 });
             },
-            'analyticsnode-system-memory-usage': function () {
-                var config = monitorInfraViewConfig['system-memory-usage']();
+            'analyticsnode-system-memory-usage': function (cfg) {
+                var config = monitorInfraViewConfig['system-memory-usage'](cfg);
                 return $.extend(true, config, {
                     viewCfg: {
                         viewConfig: {
@@ -132,8 +132,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                     }
                 });
             },
-            'analyticsnode-disk-usage-info': function () {
-                var config = monitorInfraViewConfig['disk-usage-info']();
+            'analyticsnode-disk-usage-info': function (cfg) {
+                var config = monitorInfraViewConfig['disk-usage-info'](cfg);
                 return $.extend(true, config, {
                     viewCfg: {
                         viewConfig: {

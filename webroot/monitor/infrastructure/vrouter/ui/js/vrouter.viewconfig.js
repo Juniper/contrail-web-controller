@@ -240,15 +240,33 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                     }
                  }
              },
-             "vrouter-system-cpu-percentiles-chart" : function() {
+             "vrouter-system-cpu-percentiles-chart" : function(config) {
                  return {
                      modelCfg: {
                         modelId:'VROUTER_SYSTEM_CPU_PERCENTILE_MODEL',
                          source:"STATTABLE",
-                         config :{
-                             table_name: 'StatTable.NodeStatus.system_cpu_usage',
-                             select: 'T=, PERCENTILES(system_cpu_usage.cpu_share)'
-                         }
+                         config : [
+                                   monitorInfraUtils.getNodeListQueryConfig(config),
+                                   {
+                                       "table_name": "StatTable.NodeStatus.system_cpu_usage",
+                                       "select": "T=, PERCENTILES(system_cpu_usage.cpu_share)",
+//                                       "primary_depends" : true,
+                                       "getAjaxConfig": function(primaryResponse, postData) {
+                                           //Modify post data as required
+                                           var whereClause = monitorInfraUtils.getWhereClauseForSystemStats(primaryResponse);
+                                           postData['formModelAttrs']['where'] = whereClause;
+                                           return {
+                                               url : "/api/qe/query",
+                                               type: 'POST',
+                                               data: JSON.stringify(postData)
+                                           }
+                                       },
+                                       mergeFn: function(response,primaryDS) {
+                                           primaryDS.setData([]);
+                                           cowu.parseAndMergeStats(response,primaryDS);
+                                       }
+                                   }
+                               ]
                      },
                      viewCfg: {
                          view:"LineWithFocusChartView",
@@ -278,15 +296,33 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      }
                  }
              },
-             "vrouter-system-memory-percentiles-chart" : function() {
+             "vrouter-system-memory-percentiles-chart" : function(config) {
                  return {
                      modelCfg: {
                          modelId:'VROUTER_SYSTEM_MEMORY_PERCENTILE_MODEL',
                          source:"STATTABLE",
-                         config: {
-                             table_name: 'StatTable.NodeStatus.system_mem_usage',
-                             select: 'T=, PERCENTILES(system_mem_usage.used)'
-                         }
+                         config: [
+                              monitorInfraUtils.getNodeListQueryConfig(config),
+                              {
+                                  "table_name": "StatTable.NodeStatus.system_mem_usage",
+                                  "select": "T=, PERCENTILES(system_mem_usage.used)",
+//                                      "primary_depends" : true,
+                                  "getAjaxConfig": function(primaryResponse, postData) {
+                                      //Modify post data as required
+                                      var whereClause = monitorInfraUtils.getWhereClauseForSystemStats(primaryResponse);
+                                      postData['formModelAttrs']['where'] = whereClause;
+                                      return {
+                                          url : "/api/qe/query",
+                                          type: 'POST',
+                                          data: JSON.stringify(postData)
+                                      }
+                                  },
+                                  mergeFn: function(response,primaryDS) {
+                                      primaryDS.setData([]);
+                                      cowu.parseAndMergeStats(response,primaryDS);
+                                  }
+                              }
+                          ]
                      },
                      viewCfg: {
                          view:"LineWithFocusChartView",
