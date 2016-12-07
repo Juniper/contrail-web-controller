@@ -383,6 +383,7 @@ tr.collapsibleChildContainer{
 #configure-network input.ace-input[type=checkbox] + .ace-lbl::before, #configure-network input.ace-input[type=radio] + .ace-lbl::before{
     margin-right:10px;}
 #configure-Ports-form .contrail-editable-grid-table{
+    margin-top:5px;
     margin-bottom:10px;}
 #network_ipam_refs th, #user_created_host_routes th, #user_created_dns_servers th, #floating_ip_pools th, #user_created_route_targets th, #user_created_export_route_targets th, #user_created_import_route_targets th,#configure-Ports th, #configure-service_instance-form th{
     padding-left:5px;}
@@ -493,9 +494,19 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
     width:65%!important;
 }
 
-.and-clause-collection td.data-cell.data-cell-value, #or-clause-collection td.data-cell.data-cell-variables {
+#configure-routingPolicy .and-clause-collection td.data-cell.data-cell-value, #configure-routingPolicy #or-clause-collection td.data-cell.data-cell-variables {
     padding-top: 12px;
 }
-#or-clause-collection .data-cell.data-cell-operation>div{
+#configure-routingPolicy #or-clause-collection .data-cell.data-cell-operation>div{
     margin-top:-2px;
 }
+#servicePorts .contrail-editable-grid-table{
+    margin-left:15px;
+    margin-right:15px;}
+#share_list th:first-child, .contrail-editable-grid-table th:first-child {
+    padding-left: 5px;
+}
+#security_group_edit_security_group .contrail-editable-grid-table{
+    margin-top:5px;}
+#interface #infServer{
+    padding-left:15px;}
