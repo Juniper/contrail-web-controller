@@ -106,9 +106,19 @@ define(
                                             }, {
                                                 id: 'confignode-process-contrail-discovery'
                                             }, {
-                                                id: 'confignode-system-cpu-share'
+                                                id: 'confignode-system-cpu-share',
+                                                itemAttr:{
+                                                    config:{
+                                                        nodeType:'config-node'
+                                                    }
+                                                }
                                             }, {
-                                                id: 'confignode-system-memory-usage'
+                                                id: 'confignode-system-memory-usage',
+                                                itemAttr:{
+                                                    config:{
+                                                        nodeType:'config-node'
+                                                    }
+                                                }
                                             }, {
                                                 id: 'confignode-grid-view'
                                             }]
@@ -125,7 +135,12 @@ define(
                                                 defaultHeight: 8
                                             },
                                             widgetCfgList: [{
-                                                id: 'confignode-disk-usage-info'
+                                                id: 'confignode-disk-usage-info',
+                                                itemAttr:{
+                                                    config:{
+                                                        nodeType:'config-node'
+                                                    }
+                                                }
                                             },{
                                                 id: 'confignode-grid-view'
                                             }]

@@ -2497,6 +2497,42 @@ define([
                 p: getValueByJsonPath(options,'hash')
             });
         }
+        self.getNodeListQueryConfig = function(config) {
+            var nodeType = getValueByJsonPath(config,"itemAttr;config;nodeType","");
+            var postData = {"data":[{"type":nodeType,"cfilt":"ContrailConfig:elements:fq_name"}]};
+            return {
+                "remoteConfig" :{
+                    "ajaxConfig": {
+                        url : "/api/tenant/get-data",
+                        type: 'POST',
+                        data: JSON.stringify(postData),
+                    },
+                    "dataParser": function(response) {
+                        response = getValueByJsonPath(response,"0;value",[]);
+                        response = $.map(response,function(d,i){
+                            return {"fq_name":getValueByJsonPath(d,'value;ContrailConfig;elements;fq_name')};
+                        });
+                        return response;
+                    }
+                },
+                "type":"non-stats-query"
+            }
+        };
+
+        self.getWhereClauseForSystemStats = function (nodeList) {
+            var keycount = nodeList.length;
+            var ret = "(";
+            $.each(nodeList,function(i,obj){
+                var fqName = JSON.parse(obj['fq_name']);
+                var name = fqName[fqName.length - 1];
+                if(i != keycount -1 ){
+                    ret += "Source = "+ name +" OR ";
+                } else {
+                    ret += "Source = "+ name +")";
+                }
+            });
+            return ret;
+        };
     };
     return MonitorInfraUtils;
 });
