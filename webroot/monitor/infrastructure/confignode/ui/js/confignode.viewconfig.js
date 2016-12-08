@@ -44,7 +44,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         source: 'STATTABLE',
                         config: {
                             table_name: 'StatTable.VncApiStatsLog.api_stats',
-                            select: "Source, T, UUID, api_stats.operation_type," +
+                            select: "Source, T, api_stats.operation_type," +
                                 " api_stats.response_time_in_usec, api_stats.response_size," +
                                 " api_stats.resp_code, name"
                         }
@@ -90,7 +90,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         source: 'STATTABLE',
                         config: {
                             table_name: 'StatTable.VncApiStatsLog.api_stats',
-                            select: "Source, T, UUID, api_stats.operation_type," +
+                            select: "Source, T, api_stats.operation_type," +
                                 " api_stats.response_time_in_usec, api_stats.response_size," +
                                 " api_stats.resp_code, name"
                         }
@@ -161,7 +161,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                     },
                     itemAttr:{
                         width: 1.2,
-                        height: 0.9,
+                        height: 0.8,
                         title: ctwl.CONFIG_NODE_RESPONSE_TIME_VS_SIZE
                     }
                 }
@@ -173,7 +173,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         source: 'STATTABLE',
                         config: {
                             table_name: 'StatTable.VncApiStatsLog.api_stats',
-                            select: "Source, T, UUID, api_stats.operation_type," +
+                            select: "Source, T, api_stats.operation_type," +
                                 " api_stats.response_time_in_usec, api_stats.response_size," +
                                 " api_stats.resp_code, name"
                         }
@@ -190,7 +190,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                     },
                     itemAttr: {
                         width: 0.9,
-                        height: 0.7,
+                        height: 0.6,
                         title: ctwl.CONFIG_NODE_REQUESTS_READ_VS_WRITE
                     }
                 }
@@ -211,7 +211,8 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                       }
                   },
                   itemAttr: {
-                      width: 2
+                      width: 2,
+                      height: 2
                     }
                 }
             },
@@ -340,7 +341,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                     },
                     itemAttr: {
                         title: ctwl.CONFIG_NODE_PROJECT_WISE_USAGE,
-                      }
+                    }
                   }
               },
               'confignode-process-contrail-schema': function () {
@@ -366,13 +367,13 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                                 colors: colorFn,
                                 yField: 'MAX(process_mem_cpu_usage.cpu_share)',
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                }
                             }
-                        },
-                        itemAttr: {
-                            title: ctwl.CONFIG_NODE_SCHEMA_CPU_SHARE,
+                        }
+                    },
+                    itemAttr: {
+                        title: ctwl.CONFIG_NODE_SCHEMA_CPU_SHARE,
                     }
-                }
+                };
             },
             'confignode-system-cpu-share': function (cfg) {
                 var config = monitorInfraViewConfig['system-cpu-share'](cfg);
@@ -464,11 +465,11 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                                 colors: colorFn,
                                 yField: 'MAX(process_mem_cpu_usage.cpu_share)',
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                }
                             }
-                        },
-                        itemAttr: {
-                            title: ctwl.CONFIG_NODE_API_CPU_SHARE,
+                        }
+                    },
+                    itemAttr: {
+                        title: ctwl.CONFIG_NODE_API_CPU_SHARE,
                     }
                 }
             },
@@ -529,8 +530,8 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                             }
                         },
                     },
-                        itemAttr: {
-                            title: ctwl.CONFIG_NODE_DEVICE_MANAGER_CPU_SHARE,
+                    itemAttr: {
+                        title: ctwl.CONFIG_NODE_DEVICE_MANAGER_CPU_SHARE,
                     }
                 }
             },
@@ -557,11 +558,11 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                                 colors: colorFn,
                                 yField: 'MAX(process_mem_cpu_usage.cpu_share)',
                                 title: ctwl.CONFIGNODE_SUMMARY_TITLE,
-                                }
                             }
-                        },
-                        itemAttr: {
-                            title: ctwl.CONFIG_NODE_IFMAP_CPU_SHARE,
+                        }
+                    },
+                    itemAttr: {
+                        title: ctwl.CONFIG_NODE_IFMAP_CPU_SHARE,
                     }
                 }
             }
@@ -711,6 +712,12 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         },
                         empty: {
                             text: 'No Config Nodes Found.'
+                        }
+                    }
+                },footer: {
+                    pager: {
+                        options: {
+                            pageSize: 10,
                         }
                     }
                 }

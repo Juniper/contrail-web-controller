@@ -90,7 +90,7 @@ define(
                                                   {id:'vrouter-vn-int-inst-chart'},
                                                   {id:'vrouter-agent-cpu-percentiles-chart'},
                                                   {id:'vrouter-agent-mem-usage-percentiles-chart'},
-                                                  {id:'vrouter-active-flows-percentiles-chart'},
+                                                  {id:'vrouter-bandwidth-percentile-chart'},
                                                   {id:'vrouter-summary-grid'}
                                               ]
                                           }

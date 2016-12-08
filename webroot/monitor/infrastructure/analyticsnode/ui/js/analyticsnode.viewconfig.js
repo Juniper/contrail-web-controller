@@ -75,7 +75,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         source: 'STATTABLE',
                         config: {
                             table_name: 'StatTable.QueryPerfInfo.query_stats',
-                            select: 'Source, query_stats.error, name,T',
+                            select: 'Source,T=, COUNT(query_stats)',
                             where: 'Source Starts with '
                         }
                     },
@@ -89,14 +89,15 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                                 subTitle:"Queries per Collector (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: ctwl.ANALYTICS_CHART_QUERIES_LABEL,
+                                yField: 'COUNT(query_stats)',
                                 groupBy: 'Source',
-                                failureCheckFn: function (d) {
+                                /*failureCheckFn: function (d) {
                                     if (d['query_stats.error'] != "None") {
                                         return 1;
                                     } else {
                                         return 0;
                                     }
-                                },
+                                },*/
                             }
                         }
                     },
@@ -150,7 +151,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         source: 'STATTABLE',
                         config: {
                             "table_name": "StatTable.SandeshMessageStat.msg_info",
-                            "select": "Source,name, T=, SUM(msg_info.messages),SUM(msg_info.bytes)",
+                            "select": "name, SUM(msg_info.messages),SUM(msg_info.bytes)",
                             "parser": function(response){
                                 var apiStats = cowu.getValueByJsonPath(response, 'data', []),
                                     parsedData = [];
@@ -232,7 +233,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         source:'STATTABLE',
                         config: {
                             table_name: 'StatTable.CollectorDbStats.table_info',
-                            select: 'Source,SUM(table_info.reads), SUM(table_info.writes), SUM(table_info.read_fails), SUM(table_info.write_fails),T='
+                            select: 'Source, SUM(table_info.writes), SUM(table_info.write_fails),T='
                         }
                     },
                     viewCfg: {
@@ -579,7 +580,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         }
                     },
                     itemAttr: {
-                        width: 2
+                        width: 2,
+                        height: 2
                     }
                 }
              }
@@ -757,6 +759,12 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         },
                         empty: {
                             text: 'No Analytics Nodes Found.'
+                        }
+                    }
+                },footer: {
+                    pager: {
+                        options: {
+                            pageSize: 10,
                         }
                     }
                 }

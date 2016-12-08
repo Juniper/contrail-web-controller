@@ -207,6 +207,12 @@ define(
                                 text: 'No Virtual Routers Found.'
                             }
                         }
+                    },footer: {
+                        pager: {
+                            options: {
+                                pageSize: 50,
+                            }
+                        }
                     }
                 };
                 return gridElementConfig;
