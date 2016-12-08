@@ -83,8 +83,8 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                     }
                 }
             },
-            'controlnode-system-cpu-share': function () {
-                var config = monitorInfraViewConfig['system-cpu-share']();
+            'controlnode-system-cpu-share': function (cfg) {
+                var config = monitorInfraViewConfig['system-cpu-share'](cfg);
                 return $.extend(true, config,{
                     viewCfg: {
                         viewConfig: {
@@ -95,8 +95,8 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                     }
                 });
             },
-            'controlnode-system-memory-usage': function () {
-                var config = monitorInfraViewConfig['system-memory-usage']();
+            'controlnode-system-memory-usage': function (cfg) {
+                var config = monitorInfraViewConfig['system-memory-usage'](cfg);
                 return $.extend(true, config, {
                     viewCfg: {
                         viewConfig: {
@@ -107,8 +107,8 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                     }
                 });
             },
-            'controlnode-disk-usage-info': function () {
-                var config = monitorInfraViewConfig['disk-usage-info']();
+            'controlnode-disk-usage-info': function (cfg) {
+                var config = monitorInfraViewConfig['disk-usage-info'](cfg);
                 return $.extend(true, config, {
                     viewCfg: {
                         viewConfig: {

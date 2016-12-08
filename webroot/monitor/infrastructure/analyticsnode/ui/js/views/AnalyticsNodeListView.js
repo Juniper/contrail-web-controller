@@ -95,9 +95,27 @@ define(
                                                              },
                                                              widgetCfgList: [
                                                                 {id:'analyticsnode-contrail-topology-cpu-share'},
-                                                                {id:'analyticsnode-disk-usage-info'},
-                                                                {id:'analyticsnode-system-cpu-share'},
-                                                                {id:'analyticsnode-system-memory-usage'},
+                                                                {id:'analyticsnode-disk-usage-info',
+                                                                    itemAttr:{
+                                                                        config:{
+                                                                            nodeType:'analytics-node'
+                                                                        }
+                                                                    }
+                                                                },
+                                                                {id:'analyticsnode-system-cpu-share',
+                                                                    itemAttr:{
+                                                                        config:{
+                                                                            nodeType:'analytics-node'
+                                                                        }
+                                                                    }
+                                                                },
+                                                                {id:'analyticsnode-system-memory-usage',
+                                                                    itemAttr:{
+                                                                        config:{
+                                                                            nodeType:'analytics-node'
+                                                                        }
+                                                                    }
+                                                                },
                                                                 {id:'analyticsnode-grid-view'}
                                                              ]
                                                          }
