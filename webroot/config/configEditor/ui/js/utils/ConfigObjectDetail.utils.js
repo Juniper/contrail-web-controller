@@ -24,7 +24,6 @@ define([
                            '<div id="jsonEditorContainer"></div><div id="rawJsonEdit" style="display:none;"><textarea id="rawJsonTextArea" spellcheck="false"></textarea></div>'+
                            '</div>';
         self.conformMsg = '<div>Are you sure you want to delete  <b></b>?</div>';
-        self.unDeletableProp = ['uuid','href','fq_name','owner','creator','created','last_modified','timer','parent_uuid','parent_type'];
         self.getCopiedContent = function(){
             $('#hiddenTextArea').removeClass('hide-header-icon');
             document.getElementById('hiddenTextArea').select();
@@ -46,33 +45,6 @@ define([
             var pageHeader = $("#pageHeader").height();
             var breadCrum = $("#breadcrumbs").height();
             return outerHeight - pageHeader - breadCrum - 133;
-        }
-        self.updateKeyValueBeforeSave = function(model){
-            for (var i in model) {
-                if (typeof model[i] === 'object' && model[i] !== null && model[i].constructor !== Array) {
-                       self.updateKeyValueBeforeSave(model[i]);
-                }else if( model[i] !== null && model[i].constructor === Array){
-                    for(var j = 0; j < model[i].length;){
-                        if(model[i][j] === ''){
-                            model[i].splice(j,1);
-                         }else if(typeof model[i][j] === 'object'){
-                            self.updateKeyValueBeforeSave(model[i][j]);
-                            j++;
-                        }else{
-                            j++;
-                        }
-                    }
-                }else if(typeof model[i] === 'string' || typeof model[i] === 'number'){
-                    if(i === 'fq_name'){
-                        var fqName = model[i].split(':');
-                        model[i] = fqName;
-                    }else if(i === 'to'){
-                        var to = model[i].split(':');
-                        model[i] = to;
-                    }
-                }
-            }
-          return model;
         }
         self.parseJsonKeyLowerToUpper = function(key){
             var splitedKey = key.split('_'); var strStack = [];
@@ -120,10 +92,13 @@ define([
             self.formRadioFlag = true;
             self.formJson = json;
             self.disableKeys = disableKeys;
+            var schemaProp = getValueByJsonPath(schema,'properties;'+Object.keys(schema.properties)[0]+';properties');
+            var updatedProp = self.setEmptyForChildEnum(schemaProp, schemaProp);
+            schema.properties[Object.keys(schema.properties)[0]].properties = updatedProp;
             if(Object.keys(self.formJson).length == 0){
                 self.schema = schema;
                 var modelTitle = self.parseParentKeyLowerToUpper(Object.keys(schema.properties)[0]);
-                self.generateConfigModal(modelTitle, viewConfig, oldJson, enumKeys);
+                self.generateConfigModal(modelTitle, viewConfig, oldJson, enumKeys, refs);
                 self.loadSchemaBasedForm(self.formJson, self.schema, true);
                 self.oldFormData = $.extend(true, {}, jsoneditor.getValue());
                 var rawJson = $.extend(true, {}, jsoneditor.getValue());
@@ -144,20 +119,22 @@ define([
                 var areaModel = $.extend(true,{},self.formJson);
                 var oldModel = $.extend(true,{},self.formJson);
                 var modelTitle = self.parseParentKeyLowerToUpper(Object.keys(self.formJson)[0]);
-                self.generateConfigModal(modelTitle, viewConfig, oldJson, enumKeys);
+                self.generateConfigModal(modelTitle, viewConfig, oldJson, enumKeys, refs);
                 self.formJson = self.updateModelForSchema(self.formJson);
                 self.loadSchemaBasedForm(self.formJson, self.schema, false);
                 self.oldFormData = $.extend(true, self.formJson, jsoneditor.getValue());
                 var newFormData = $.extend(true,{},self.formJson);
                 document.getElementById('rawJsonTextArea').value = '';
-                //var formModel = self.updateKeyValueBeforeSave(newFormData);
                 var rawJson = self.updateRefForTextArea(newFormData, refs);
                 self.oldAreaModel = rawJson;
                 document.getElementById('rawJsonTextArea').value = JSON.stringify(rawJson ,null,2);
             }
             $("input:radio[id=configJsonMode]").change(function() {
                 var textAreaHeight = $('.modal-body').height() - 57 +'px';
-                var updatedModel = self.updateRefForTextArea(jsoneditor.getValue(), refs);
+                var updatedData = jsoneditor.getValue();
+                var resetToFiled = self.resetToField(updatedData[Object.keys(updatedData)[0]]);
+                updatedData[Object.keys(updatedData)[0]] = resetToFiled;
+                var updatedModel = self.updateRefForTextArea(updatedData, refs);
                 var prop = self.schema.properties[Object.keys(self.schema.properties)[0]].properties;
                 if(Object.keys(self.formJson).length == 0){
                     var model = updatedModel[Object.keys(updatedModel)[0]];
@@ -240,6 +217,19 @@ define([
               }
              });
         }
+        self.resetToField = function(model){
+            var schemaProp = getValueByJsonPath(self.schema,'properties;'+Object.keys(self.schema.properties)[0]+';properties');
+            for(var i in model){
+                if(i.substring(i.length-5,i.length) === '_refs' && schemaProp[i].format == undefined){
+                    for(var m = 0; m < model[i].length; m++){
+                        if(typeof model[i][m].to != 'string'){
+                            model[i][m].to = model[i][m].to.join(':');
+                        }
+                    }
+                }
+            }
+            return model;
+        }
         // ToDo Move into the stack and compare
         self.changeExistingOrder = function(schema){
             for(var i in schema){
@@ -262,9 +252,9 @@ define([
           return schema;
         }
         self.setOrderOfModifedSchema =  function(updatedSchema){
-            var proOrder = 200, stringOrder = 5, booleanOrder = 150;
+            var proOrder = 220, stringOrder = 5, booleanOrder = 150, arrayOrder = 200;
             for(var j in updatedSchema){
-                if(j.substring(j.length-5,j.length) === '_refs'){}
+                if(j.substring(j.length-5,j.length) === '_refs' && updatedSchema[j].format == 'select'){}
                 else if(updatedSchema[j].type === 'number' || updatedSchema[j].type === 'string'){
                     stringOrder++;
                     updatedSchema[j] = self.addEmptyValueForEnum(updatedSchema[j]);
@@ -272,12 +262,42 @@ define([
                 }else if(updatedSchema[j].type === 'boolean'){
                     booleanOrder++;
                     updatedSchema[j].propertyOrder = booleanOrder;
-                }else if(updatedSchema[j].type === 'array' || updatedSchema[j].type === 'object'){
+                }else if(updatedSchema[j].type === 'object'){
                     proOrder++;
                     updatedSchema[j].propertyOrder = proOrder;
+                }else if(updatedSchema[j].type === 'array'){
+                    arrayOrder++;
+                    updatedSchema[j].propertyOrder = arrayOrder;
                 }
             }
             return updatedSchema;
+        }
+        self.setEmptyForChildEnum = function(properties, oldProperties){
+            var self = this;
+            for(var i in properties){
+                if(properties[i].type == 'object'){
+                    if(properties[i].properties !== undefined){
+                        self.setEmptyForChildEnum(properties[i].properties, oldProperties);
+                    }
+                }else if(properties[i].type == 'array'){
+                    if(properties[i].items !== undefined && properties[i].format === undefined){
+                        if(properties[i].items.properties !== undefined){
+                            self.setEmptyForChildEnum(properties[i].items.properties, oldProperties);
+                        }else if(properties[i].items.type === 'string' && properties[i].items.enum !== undefined){
+                              if(properties[i].items.enum[0] != ''){
+                                  properties[i].items.enum.unshift('');
+                              }
+                        }
+                    }
+                }else if(properties[i].type == 'string' && properties[i].enum !== undefined){
+                    if(!oldProperties.hasOwnProperty(i)){
+                        if(properties[i].enum[0] != ''){
+                            properties[i].enum.unshift('');
+                        }
+                    }
+                }
+            }
+            return properties;
         }
         self.modifiedExistingSchema = function(schema, formJson){
             var json = getValueByJsonPath(formJson,Object.keys(formJson)[0]);
@@ -317,7 +337,7 @@ define([
             }
           return schemaProp;
         }
-        self.generateConfigModal = function(title, viewConfig, oldJson, enumKeys){
+        self.generateConfigModal = function(title, viewConfig, oldJson, enumKeys, refs){
             cowu.createModal({
                 'modalId': ctwc.MODAL_CONFIG_EDITOR_CONTAINER,
                'className': 'modal-980',
@@ -329,7 +349,8 @@ define([
                         var oldKeys = self.oldFormData[Object.keys(self.oldFormData)[0]];
                         var updatedKeys = editedJson[Object.keys(editedJson)[0]];
                         var objDiff = lodash.diff(oldKeys, updatedKeys, false, oldJson, enumKeys);
-                        var updatedRefs = self.updateDiffRefsBeforSave(objDiff);
+                        var schemaProp = self.schema.properties[Object.keys(editedJson)[0]].properties;
+                        var updatedRefs = self.updateModelRefsForForm(objDiff, schemaProp, refs);
                         var updatedObj = {};
                         updatedObj[Object.keys(editedJson)[0]] = updatedRefs;
                         if(oldKeys.uuid !== undefined){
@@ -342,6 +363,8 @@ define([
                         try{
                             var json = JSON.parse(document.getElementById('rawJsonTextArea').value);
                             var diff = lodash.diff(self.oldAreaModel[Object.keys(self.oldAreaModel)[0]], json[Object.keys(json)[0]], false, oldJson, enumKeys);
+                            var schemaProp = self.schema.properties[Object.keys(json)[0]].properties;
+                            diff = self.updatedRefsForTextArea(diff, schemaProp);
                             var areaObj = {};
                             areaObj[Object.keys(self.oldAreaModel)[0]] = diff;
                             if(self.oldAreaModel[Object.keys(self.oldAreaModel)[0]].uuid !== undefined){
@@ -373,11 +396,12 @@ define([
             });
         }
         self.updateModelForSchema = function(model){
+            var schemaProp = self.schema.properties[Object.keys(self.schema.properties)[0]].properties;
             for (var i in model) {
                 if (typeof model[i] === 'object' && model[i] !== null && model[i].constructor !== Array) {
                        self.updateModelForSchema(model[i]);
                 }else if( model[i] !== null && model[i].constructor === Array){
-                    if(i.substring(i.length-5,i.length) === '_refs'){
+                    if(i.substring(i.length-5,i.length) === '_refs' && schemaProp[i].format !== undefined){
                         model[i] = self.checkExistingRefs(model[i]);
                     }else if(typeof model[i][0] === 'object'){
                         for(var j = 0; j < model[i].length; j++){
@@ -394,17 +418,80 @@ define([
             }
           return model;
         }
-        self.updateDiffRefsBeforSave = function(diffObj){
+        self.updateModelRefsForForm = function(diffObj, schemaProp, refs){
+            var oldRefs = [];
             for(var i in diffObj){
-                if(i.substring(i.length-5,i.length) === '_refs'){
-                    var arr = [];
+                if(i.substring(i.length-5,i.length) === '_refs' && schemaProp[i].format !== undefined){
+                    var arr = [], refCount = -1;
+                    if(refs.indexOf(i) != -1){
+                        var oldVal = refs[refs.indexOf(i)+1];
+                    }
+                    if(oldVal !== undefined){
+                        for(var l = 0; l < oldVal.length; l++){
+                            var toData = oldVal[l].to.join(':');
+                            oldRefs.push(toData);
+                            oldRefs.push(oldVal[l]);
+                        }
+                    }
                     for(var j=0; j < diffObj[i].length; j++){
-                        var obj={};
-                        var splitStr = diffObj[i][j].split(':');
-                        obj.to = splitStr;
-                        arr.push(obj);
+                        if(i == 'network_policy_refs'){
+                            var obj={},attrObj = {},sequenceObj = {};
+                            if(oldRefs.indexOf(diffObj[i][j]) != -1){
+                                refCount++;
+                                var refObj = oldRefs[oldRefs.indexOf(diffObj[i][j])+1];
+                                refObj.attr.sequence.major = refCount;
+                                arr.push(oldRefs[oldRefs.indexOf(diffObj[i][j])+1]);
+                            }else{
+                                refCount++;
+                                var splitStr = diffObj[i][j].split(':');
+                                obj.to = splitStr;
+                                attrObj.timer = null;
+                                sequenceObj.major = refCount;
+                                sequenceObj.minor = 0;
+                                attrObj.sequence = sequenceObj;
+                                obj.attr = attrObj;
+                                arr.push(obj);
+                            }
+                         }else{
+                            var obj={};
+                            var splitStr = diffObj[i][j].split(':');
+                            obj.to = splitStr;
+                            arr.push(obj);
+                        }
                     }
                     diffObj[i] = arr;
+                }else if(i.substring(i.length-5,i.length) === '_refs' && schemaProp[i].format == undefined){
+                    for(var m = 0; m < diffObj[i].length; m++){
+                        if(typeof diffObj[i][m].to == 'string'){
+                            diffObj[i][m].to = diffObj[i][m].to.split(':');
+                        }
+                    }
+                }
+            }
+            return diffObj;
+        }
+        self.updatedRefsForTextArea = function(diffObj, schemaProp){
+            var refCount = -1;
+            for(var i in diffObj){
+                if(i == 'network_policy_refs'){
+                    for(var j = 0; j < diffObj[i].length; j++){
+                        if(diffObj[i][j].attr == undefined){
+                            var attrObj = {},sequenceObj = {};
+                            refCount++;
+                            attrObj.timer = null;
+                            sequenceObj.major = refCount;
+                            sequenceObj.minor = 0;
+                            attrObj.sequence = sequenceObj;
+                            diffObj[i][j].attr = attrObj;
+                        }else{
+                            refCount++;
+                            diffObj[i][j].attr.sequence.major  = refCount;
+                        }
+                    }
+                }else if(i.substring(i.length-5,i.length) === '_refs' && schemaProp[i].format == undefined){
+                    for(var m = 0; m < diffObj[i].length; m++){
+                        diffObj[i][m].to = diffObj[i][m].to.split(':');
+                    }
                 }
             }
             return diffObj;
@@ -462,13 +549,13 @@ define([
             }
             return upperCaseProp;
         }
-        self.updateRefForTextArea = function(newModel, refs, formFlag){
+        self.updateRefForTextArea = function(newModel, refs){
             var formModel = newModel[Object.keys(newModel)[0]];
             var fileds, lastIndex, toFields;
             for(var j in formModel){
                 if(j.substring(j.length-5,j.length) === '_refs'){
                     var refStack = [];
-                    if(refs.indexOf(j) != -1){
+                    if(refs.indexOf(j) != -1 && refs[refs.indexOf(j) + 1] !== undefined){
                         var refVal = refs[refs.indexOf(j) + 1];
                         var preRefs = [];
                         for(var k =0; k < formModel[j].length; k++){
@@ -491,15 +578,23 @@ define([
                                 refStack.push(obj);
                             }
                         }
-                    }else if(formModel[j].length > 0){
+                    }else if(formModel[j].length > 0 && refs.indexOf(j) == -1){
                         for(var n = 0; n < formModel[j].length; n++){
                             var obj={};
-                            obj.to = formModel[j][n].split(':');
-                            refStack.push(obj);
+                            if(typeof formModel[j][n] =='string'){
+                                obj.to = formModel[j][n].split(':');
+                                refStack.push(obj);
+                            }else{
+                                refStack.push(formModel[j][n]);
+                            }
                         }
                     }
-                    formModel[j] = refStack;
-                 }
+                    if(refs[refs.indexOf(j) + 1] === undefined && refs[refs.indexOf(j)] == j){
+                        formModel[j] = formModel[j];
+                    }else{
+                        formModel[j] = refStack;
+                    }
+                }
              }
             if(formModel['fq_name'] !== undefined){
                 if(formModel['fq_name'].constructor !== Array){
@@ -512,14 +607,17 @@ define([
         }
         self.updateRefForForm = function(json){
             var data = json[Object.keys(json)[0]];
+            var schemaProp = self.schema.properties[Object.keys(self.schema.properties)[0]].properties;
             var refStack = [];
             for(var i in data){
                 if(i.substring(i.length-5,i.length) === '_refs'){
-                   for(var j = 0; j < data[i].length; j++){
-                       var toFields = data[i][j].to.join(':');
-                       refStack.push(toFields);
-                   }
-                   data[i] = refStack;
+                  if(schemaProp[i].format !== undefined){
+                      for(var j = 0; j < data[i].length; j++){
+                          var toFields = data[i][j].to.join(':');
+                          refStack.push(toFields);
+                      }
+                      data[i] = refStack;
+                  }
                 }
             }
             if(data['fq_name'] !== undefined){
