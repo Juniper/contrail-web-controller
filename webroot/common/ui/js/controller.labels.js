@@ -622,7 +622,8 @@ define([
         this.VROUTER_FLOWS_TAB_IDX = 4;
         this.VROUTER_ACTIVE_FLOWS_DROP_STATS = "Active Flows";
         this.VROUTER_DROP_PACKETS = "Packet Drops";
-        this.VROUTER_CPU_MEM_UTILIZATION = "Cpu Memory Utilization";
+        this.VROUTER_CPU_MEM_UTILIZATION = "CPU Memory Utilization";
+
         this.VROUTER_BANDWIDTH_PERCENTILE = "Bandwidth Percentiles";
         this.VROUTER_SYSTEM_CPU_PERCENTILES = "System CPU Percentiles";
         this.VROUTER_SYSTEM_MEMORY_PERCENTILES = "System Memory Percentiles";
