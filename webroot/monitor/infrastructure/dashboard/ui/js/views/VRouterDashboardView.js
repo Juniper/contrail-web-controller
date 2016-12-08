@@ -91,11 +91,19 @@ define(
                                 config:[{
                                     field:'instCnt',
                                     title:'Instances',
-                                    yLbl: 'vRouters'
+                                    yLbl: 'vRouters',
+                                    excludeList: [{
+                                        key:'vRouterType',
+                                        value:'tor-agent'
+                                    }]
                                 },{
                                     field:'intfCnt',
                                     title:'Interfaces',
-                                    yLbl: 'vRouters'
+                                    yLbl: 'vRouters',
+                                    excludeList: [{
+                                        key:'vRouterType',
+                                        value:'tor-agent'
+                                    }]
                                 },{
                                     field:'vnCnt',
                                     title:'VNs',
