@@ -23,7 +23,7 @@ define([
             $(contentContainer).find('.config-edit-refresh').on('click', function(){self.refreshObjectDetails(viewConfig)});
             $(contentContainer).find('.copy-config-object').on('click', ConfigObjectDetailUtils.getCopiedContent);
             $(contentContainer).find('.config-jSon-form-edit').on('click',function(){
-                var disableKeys = ['security_group_id','parent_href','uuid','href','fq_name','owner','creator','created','last_modified','timer','parent_uuid','parent_type'];
+                var disableKeys = ['to','security_group_id','parent_href','uuid','href','fq_name','owner','creator','created','last_modified','timer','parent_uuid','parent_type'];
                 ConfigObjectDetailUtils.loadConfigEditorModal(schema, formJson, viewConfig, disableKeys, modelRefs, configList, []);
             });
             $(contentContainer).find('.delete-config-object').on('click', function(){ConfigObjectDetailUtils.deleteConformModal(viewConfig)});
@@ -74,14 +74,20 @@ define([
                   schema = dsschema;
                   contrail.ajaxHandler(ajaxConfigForJson, null, function(model){
                       formJson = model[0];
+                      modelRefs = [];
                       var obj = formJson[Object.keys(formJson)[0]];
+                      var schemaProp = schema.properties[Object.keys(schema.properties)[0]].properties;
                       for(var i in obj){
                           if(i.substring(i.length-5,i.length) === '_refs'){
-                              modelRefs.push(i);
-                              modelRefs.push(obj[i]);
+                                  modelRefs.push(i);
+                                  if(schemaProp[i].items == null || i == 'network_policy_refs'){
+                                      modelRefs.push(obj[i]);
+                                  }else{
+                                      modelRefs.push(undefined);
+                                  }
                           }
                       }
-                      self.getHrefUrlOptions();
+                      self.getHrefUrlOptions(obj);
                   },function(error){
                       contrail.showErrorMsg(error.responseText);
                   });
@@ -89,7 +95,7 @@ define([
                   contrail.showErrorMsg(error.responseText);
               });
           },
-          getHrefUrlOptions: function(){
+          getHrefUrlOptions: function(jsonObj){
               var refsOrder = 50,list=[];
               schemaProperties = getValueByJsonPath(schema,'properties;'+Object.keys(schema.properties)[0]+';properties');
               for(var j in schemaProperties){
@@ -116,18 +122,38 @@ define([
                       for(var k = 0; k < objList.length; k++){
                           optionsList.push(objList[k].fq_name.join(':'));
                       }
-                      //ToDo for without 's' keys s.split('-').join('_')
                       var objKey = Object.keys(model[0])[0].split('-').join('_');
                       var updatedKey = objKey.substring(0,objKey.length - 1) + '_refs';
-                      schema.properties[Object.keys(schema.properties)[0]].properties[updatedKey]= {
-                              "type": "array",
-                              "format": "select",
-                              "propertyOrder": refsOrder,
-                              "uniqueItems": true,
-                              "items": {
-                                 "type": "string",
-                                 "enum": optionsList
-                               }
+                      if(schema.properties[Object.keys(schema.properties)[0]].properties[updatedKey].items != undefined && updatedKey != 'network_policy_refs'){
+                          schema.properties[Object.keys(schema.properties)[0]].properties[updatedKey].items.properties.to ={
+                                  "type": "string",
+                                  "enum": optionsList,
+                          }
+                      }else{
+                          var sortedList = [];
+                          if(jsonObj[updatedKey] !== undefined){
+                              if(jsonObj[updatedKey][0].attr != undefined){
+                                  var byMajor = jsonObj[updatedKey].slice(0);
+                                  byMajor.sort(function(a,b) {
+                                      return a.attr.sequence.major - b.attr.sequence.major;
+                                  });
+                                  jsonObj[updatedKey] = byMajor;
+                              }
+                              for(var m = 0; m < jsonObj[updatedKey].length; m++){
+                                  sortedList.push(jsonObj[updatedKey][m].to.join(':'));
+                              }
+                          }
+                          var orderedList = _.union(sortedList, optionsList);
+                          schema.properties[Object.keys(schema.properties)[0]].properties[updatedKey]= {
+                                  "type": "array",
+                                  "format": "select",
+                                  "propertyOrder": refsOrder,
+                                  "uniqueItems": true,
+                                  "items": {
+                                     "type": "string",
+                                     "enum": orderedList
+                                   }
+                          }
                       }
                   },function(error){
                       contrail.showErrorMsg(error.responseText);

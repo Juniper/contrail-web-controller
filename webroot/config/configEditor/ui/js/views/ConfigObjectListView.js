@@ -103,7 +103,7 @@ define([
             },
             setOrderOfSchema: function(schema){
                 var schemaProperties = getValueByJsonPath(schema,'properties;'+Object.keys(schema.properties)[0]+';properties');
-                var proOrder = 200, stringOrder = 5, booleanOrder = 150,secondOption = undefined;
+                var proOrder = 220, stringOrder = 5, booleanOrder = 150, arrayOrder = 200, secondOption = undefined;
                 for(var j in schemaProperties){
                     if(schemaProperties[j].type === 'number' || schemaProperties[j].type === 'string'){
                         stringOrder++;
@@ -122,7 +122,10 @@ define([
                      }else if(schemaProperties[j].type === 'boolean'){
                         booleanOrder++;
                         schemaProperties[j].propertyOrder = booleanOrder;
-                    }else if(schemaProperties[j].type === 'array' || schemaProperties[j].type === 'object'){
+                    }else if(schemaProperties[j].type === 'array'){
+                        arrayOrder++;
+                        schemaProperties[j].propertyOrder = arrayOrder;
+                    }else if(schemaProperties[j].type === 'object'){
                         proOrder++;
                         schemaProperties[j].propertyOrder = proOrder;
                     }
@@ -223,7 +226,7 @@ define([
                         }
                      }
                     if(j.substring(j.length-5,j.length) === '_refs'){
-                       list.push(j+':'+schemaProperties[j].url);
+                        list.push(j+':'+schemaProperties[j].url);
                     }
                 }
                 $.each(list, function (i, item) {
@@ -241,18 +244,24 @@ define([
                         for(var k = 0; k < objList.length; k++){
                             optionsList.push(objList[k].fq_name.join(':'));
                         }
-                        //ToDo for without 's' keys s.split('-').join('_')
                         var objKey = Object.keys(model[0])[0].split('-').join('_');
                         var updatedKey = objKey.substring(0,objKey.length - 1) + '_refs';
-                        schema.properties[Object.keys(schema.properties)[0]].properties[updatedKey]= {
-                                "type": "array",
-                                "format": "select",
-                                "propertyOrder": refsOrder,
-                                "uniqueItems": true,
-                                "items": {
-                                   "type": "string",
-                                   "enum": optionsList
-                                 }
+                        if(schema.properties[Object.keys(schema.properties)[0]].properties[updatedKey].items != undefined && updatedKey != 'network_policy_refs'){
+                            schema.properties[Object.keys(schema.properties)[0]].properties[updatedKey].items.properties.to ={
+                                    "type": "string",
+                                    "enum": optionsList,
+                            }
+                        }else{
+                            schema.properties[Object.keys(schema.properties)[0]].properties[updatedKey]= {
+                                    "type": "array",
+                                    "format": "select",
+                                    "propertyOrder": refsOrder,
+                                    "uniqueItems": true,
+                                    "items": {
+                                       "type": "string",
+                                       "enum": optionsList
+                                     }
+                            }
                         }
                     },function(error){
                         contrail.showErrorMsg(error.responseText);
