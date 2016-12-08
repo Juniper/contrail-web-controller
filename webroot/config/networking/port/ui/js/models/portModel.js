@@ -714,7 +714,7 @@ define([
         },
         // fixed IP collection Adding
         addFixedIP: function() {
-            if(self.subnetDataSource.length > 0) {
+            if(self.subnetDataSource instanceof Array) {
                 var fixedIPList = this.model().attributes['fixedIPCollection'];
                 if(fixedIPList.length < self.subnetDataSource.length) {
                     var fixedIPModel = new FixedIPModel(
