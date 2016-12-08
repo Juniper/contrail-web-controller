@@ -35,7 +35,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                                 yField: 'SUM(tx_update_stats.reach)',
                                 colors: colorFn,
                                 failureLabel:'Unreach Updates (Total)',
-                                failureColor: '#ffbf87',
+                                failureColor: '#ECECEC',
                                 failureCheckFn: function (d) {
                                     return ifNull(d['SUM(tx_update_stats.unreach)'],0);
                                 },
@@ -70,7 +70,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                                 yField: 'SUM(rx_update_stats.reach)',
                                 colors: colorFn,
                                 failureLabel:'Unreach Updates (Total)',
-                                failureColor: '#ffbf87',
+                                failureColor: '#ECECEC',
                                 failureCheckFn: function (d) {
                                     return ifNull(d['SUM(rx_update_stats.unreach)'],0);
                                 },
@@ -236,7 +236,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                          viewConfig: {
                              chartOptions: {
                                 yAxisLabel: 'BGP Memory Usage',
-                                subTitle:ctwl.CPU_SHARE_PERCENTAGE,
+                                subTitle:"Memory usage per system (3 mins)",
                                 groupBy: 'name',
                                 yField: 'MAX(process_mem_cpu_usage.mem_res)',
                                 colors: colorFn,
@@ -389,7 +389,8 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                         }
                     },
                     itemAttr: {
-                        width: 2
+                        width: 2,
+                        height: 2,
                     }
                 }
             },
@@ -542,6 +543,13 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                                     },
                                     empty: {
                                         text: 'No Control Nodes Found.'
+                                    }
+                                }
+                            },
+                            footer: {
+                                pager: {
+                                    options: {
+                                        pageSize: 10,
                                     }
                                 }
                             }
