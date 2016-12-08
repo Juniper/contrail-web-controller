@@ -1164,7 +1164,8 @@ function removeDependentInterface(dataObject, callback) {
         var appData =  dataObject.appData,
             portId = dataObject.uuid,
             request = dataObject.request,
-            userData = dataObject.userData,
+            userData = commonUtils.getValueByJsonPath(dataObject,
+                    "userData", [], false),
             dataObjArr = [],
             userDataLen = userData.length;
         for (var i = 0; i < userDataLen; i++) {
