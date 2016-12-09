@@ -1625,8 +1625,8 @@ define([
                 {label:'', value: 'No. of Nodes: ' + nodes.length},
                 {label:'Avg. ' + ctwl.TITLE_CPU, value:$.isNumeric(currObj['x']) ? currObj['x'].toFixed(2)  : currObj['x']},
                 {label:'Avg. Memory', value:$.isNumeric(currObj['y']) ? formatBytes(currObj['y'] * 1024* 1024) : currObj['y']},
-                {label: 'Max Throughput (In/Out)', value: formatThroughput(nodeWithMaxSize[0]['inThroughput'])
-                    + ' / ' + formatThroughput(nodeWithMaxSize[0]['outThroughput'])}
+                {label: 'Max Throughput (In/Out)', value: formatBytes(nodeWithMaxSize[0]['inThroughput'], null, null, null, null, true)
+                    + ' / ' + formatBytes(nodeWithMaxSize[0]['outThroughput'], null, null, null, null, true)}
             ];
             if(formatType == 'simple') {
                 return tooltipContents;
@@ -1668,8 +1668,8 @@ define([
                         {label: 'Instances', value:currObj['instCnt']},
                         {label: 'Interfaces', value:currObj['intfCnt']},
                         {label: 'Throughput (In/Out)',
-                                value: formatThroughput(currObj['inThroughput'])
-                                + ' / ' + formatThroughput(currObj['outThroughput'])}];
+                                value: formatBytes(currObj['inThroughput'], null, null, null, null, true)
+                                + ' / ' + formatBytes(currObj['outThroughput'], null, null, null, null, true)}];
                     tooltipContents = tooltipContents.concat(bandwidthTooltipContent);
                 }
             }

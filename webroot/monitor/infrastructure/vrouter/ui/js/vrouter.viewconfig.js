@@ -231,13 +231,13 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                           chartOptions: {
                               colors:cowc.FIVE_NODE_COLOR,
                               title: ctwl.VROUTER_BANDWIDTH_PERCENTILE,
-                              subTitle:ctwl.VROUTER_MIN_MAX_CPU_UTILIZATION,
+                              subTitle: 'Max Bandwidth Utilization',
                               xAxisLabel: '',
                               yAxisLabel: ctwl.VROUTER_BANDWIDTH_PERCENTILE,
                               yFormatter: function(y) {
-                                  return y;
+                                  return formatBytes(y, true, null, null, null, true);
                               },
-                              yFields: ['PERCENTILES(phy_band_in_bps.__value)','PERCENTILES(phy_band_out_bps.__value']
+                              yFields: ['PERCENTILES(phy_band_in_bps.__value);95','PERCENTILES(phy_band_out_bps.__value);95']
                           }
                       }
                     },
@@ -383,6 +383,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                              colorFn: {},
                              cssClass:"y-overflow-scroll"
                          }
+                     },itemAttr: {
+                        height: 10
                      }
                  }
              },
