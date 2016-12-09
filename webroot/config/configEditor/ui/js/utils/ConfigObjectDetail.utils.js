@@ -240,6 +240,19 @@ define([
               }
              });
         }
+        self.resetToField = function(model){
+            var schemaProp = getValueByJsonPath(self.schema,'properties;'+Object.keys(self.schema.properties)[0]+';properties');
+            for(var i in model){
+                if(i.substring(i.length-5,i.length) === '_refs' && schemaProp[i].format == undefined){
+                    for(var m = 0; m < model[i].length; m++){
+                        if(model[i][m].to != undefined && typeof model[i][m].to != 'string'){
+                            model[i][m].to = model[i][m].to.join(':');
+                        }
+                    }
+                }
+            }
+            return model;
+        }
         // ToDo Move into the stack and compare
         self.changeExistingOrder = function(schema){
             for(var i in schema){

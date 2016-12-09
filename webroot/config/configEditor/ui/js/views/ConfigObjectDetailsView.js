@@ -18,6 +18,9 @@ define([
             var viewConfig = this.attributes.viewConfig;
             var configListTmpl = contrail.getTemplate4Id(ctwc.CONFIG_EDITOR_TEMPLATE);
             self.$el.html(configListTmpl);
+            if(window.optionsList == undefined){
+                window.optionsList = [];
+            }
             ConfigObjectDetailUtils.hideHeaderIcons($(contentContainer));
             self.loadConfigObject(viewConfig);
             $(contentContainer).find('.config-edit-refresh').on('click', function(){self.refreshObjectDetails(viewConfig)});
