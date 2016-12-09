@@ -114,6 +114,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                  colors: monitorInfraConstants.VROUTER_FLOWS_CHART_COLORS,
                                  staticColor: true,
                                  xAxisLabel: '',
+                                 forceY: [0, 5],
                                  yFormatter: function(y) {
                                      return _.isNaN(y)? y : parseInt(y);
                                  },
@@ -230,12 +231,13 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                           parseFn : cowu.parsePercentilesData,
                           chartOptions: {
                               colors:cowc.FIVE_NODE_COLOR,
-                              title: ctwl.VROUTER_BANDWIDTH_PERCENTILE,
-                              subTitle: 'Max Bandwidth Utilization',
+                              title: 'Bandwidth Utilization',
+                              subTitle: 'vRouter Bandwidth in/out (95th Percentile)',
                               xAxisLabel: '',
                               yAxisLabel: ctwl.VROUTER_BANDWIDTH_PERCENTILE,
+                              yLabels: ['Bandwidth In', 'Bandwidth Out'],
                               yFormatter: function(y) {
-                                  return formatBytes(y, true, null, null, null, true);
+                                  return formatBytes(y, null, null, null, null, true);
                               },
                               yFields: ['PERCENTILES(phy_band_in_bps.__value);95','PERCENTILES(phy_band_out_bps.__value);95']
                           }
