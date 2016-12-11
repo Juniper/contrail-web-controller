@@ -124,15 +124,6 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                                                  data: JSON.stringify(postData)
                                              }
                                          },
-                                         "parser": function(response){
-                                             response = getValueByJsonPath(response,"data",[]);
-                                             var stats = response;
-                                             $.each(stats, function(idx, obj) {
-                                                 obj['MAX(disk_usage_info.partition_space_used_1k)'] =
-                                                     ifNull(obj['MAX(disk_usage_info.partition_space_used_1k)'],0) * 1024; //Converting KB to Bytes
-                                             });
-                                             return stats;
-                                         },
                                          mergeFn: function(response,primaryDS) {
                                              primaryDS.setData([]);
                                              cowu.parseAndMergeStats(response,primaryDS);
