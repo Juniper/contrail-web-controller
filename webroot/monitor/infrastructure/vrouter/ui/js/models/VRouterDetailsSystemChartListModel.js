@@ -12,10 +12,10 @@ define(['contrail-list-model'], function(ContrailListModel) {
                                 moduleType:"vRouterSystemCpu",
                                 node:hostname});
         var systemMemPostData = monitorInfraUtils.
-                        getPostDataForCpuMemStatsQuery({
-                            nodeType:monitorInfraConstants.COMPUTE_NODE,
-                            moduleType:"vRouterSystemMem",
-                            node:hostname});
+                                getPostDataForCpuMemStatsQuery({
+                                    nodeType:monitorInfraConstants.COMPUTE_NODE,
+                                    moduleType:"vRouterSystemMem",
+                                    node:hostname});
         var vlRemoteConfig = {
                 vlRemoteList: [{
                     getAjaxConfig: function() {

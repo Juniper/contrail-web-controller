@@ -39,7 +39,8 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                 showLegend: false,
                                 title: 'Reads per API server',
                                 defaultDataStatusMessage: false,
-                                showEmptyDonut: true
+                                showEmptyDonut: true,
+                                isChartSettingsOverride: false
                             },
                         }
                     }, {
@@ -62,6 +63,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                                 defaultDataStatusMessage: false,
                                 showEmptyDonut: true,
                                 showLegend: false,
+                                isChartSettingsOverride: false
                             },
                         }
                     }]

@@ -59,7 +59,7 @@ define(
                                                                 {id:'analyticsnode-top-messagetype'},
                                                                 {id:'analyticsnode-top-generators'},
                                                                 {id:'analyticsnode-collector-cpu-share'},
-                                                                {id:'analyticsnode-alarm-gen-cpu-share'},
+                                                                {id:'analyticsnode-stats-available-connections'},
                                                                 {id:'analyticsnode-grid-view'}
                                                              ]
                                                          }
@@ -76,8 +76,8 @@ define(
                                                             },
                                                             widgetCfgList: [
                                                             {id:'analyticsnode-qe-cpu-share'},
+                                                            {id:'analyticsnode-alarm-gen-cpu-share'},
                                                             {id:'analyticsnode-snmp-collector-cpu-share'},
-                                                            {id:'analyticsnode-stats-available-connections'},
                                                             {id:'analyticsnode-api-cpu-share'},
                                                             {id:'analyticsnode-grid-view'}
                                                             ]
@@ -95,9 +95,9 @@ define(
                                                              },
                                                              widgetCfgList: [
                                                                 {id:'analyticsnode-contrail-topology-cpu-share'},
-                                                                {id:'disk-usage-info'},
-                                                                {id:'system-cpu-share'},
-                                                                {id:'system-memory-usage'},
+                                                                {id:'analyticsnode-disk-usage-info'},
+                                                                {id:'analyticsnode-system-cpu-share'},
+                                                                {id:'analyticsnode-system-memory-usage'},
                                                                 {id:'analyticsnode-grid-view'}
                                                              ]
                                                          }

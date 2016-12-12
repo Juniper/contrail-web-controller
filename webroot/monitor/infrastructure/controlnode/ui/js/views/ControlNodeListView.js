@@ -56,8 +56,8 @@ define(
                                                      widgetCfgList: [
                                                          {id:'controlnode-dns'},
                                                          {id:'controlnode-named'},
-                                                         {id:'system-cpu-share'},
-                                                         {id:'system-memory-usage'},
+                                                         {id:'controlnode-system-cpu-share'},
+                                                         {id:'controlnode-system-memory-usage'},
                                                         // {id:'disk-usage-info'},
                                                          {id:'controlnode-grid-view'}
                                                      ]
@@ -74,7 +74,7 @@ define(
                                                      defaultHeight : 8
                                                  },
                                                  widgetCfgList: [
-                                                     {id:'disk-usage-info'},
+                                                     {id:'controlnode-disk-usage-info'},
                                                      {id:'controlnode-grid-view'}
                                                  ]
                                             }

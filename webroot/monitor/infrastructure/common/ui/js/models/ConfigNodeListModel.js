@@ -5,7 +5,6 @@
 define([
     'contrail-list-model'
 ], function (ContrailListModel) {
-    var ConfigNodeListModel = function () {
 
         var vlRemoteList = [
             {
@@ -75,8 +74,6 @@ define([
                 }
             };
 
-        return ContrailListModel(listModelConfig);
-    };
-    return ConfigNodeListModel;
+    return listModelConfig;
     }
 );

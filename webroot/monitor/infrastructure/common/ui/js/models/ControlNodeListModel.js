@@ -5,7 +5,6 @@
 define([
     'contrail-list-model'
 ], function (ContrailListModel) {
-    var ControlNodeListModel = function () {
         var vlRemoteConfig = [
           {
               getAjaxConfig: function() {
@@ -43,8 +42,6 @@ define([
                     ucid: ctwc.CACHE_CONTROLNODE
                 }
             };
-        return new ContrailListModel(listModelConfig);
-    };
-    return ControlNodeListModel;
+        return listModelConfig;
     }
 );

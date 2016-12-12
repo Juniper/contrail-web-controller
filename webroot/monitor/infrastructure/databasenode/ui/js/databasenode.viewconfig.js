@@ -2,17 +2,19 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenode-model', 'node-color-mapping'],
-        function(_, ContrailView, LegendView, DatabaseNodeListModel, NodeColorMapping){
+define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenode-model', 'node-color-mapping', 'monitor-infra-viewconfig'],
+        function(_, ContrailView, LegendView, databaseNodeListModelCfg, NodeColorMapping, monitorInfraViewConfig){
     var DatabseNodeViewConfig = function () {
         var nodeColorMapping = new NodeColorMapping(),
-        colorFn = nodeColorMapping.getNodeColorMap,
-        databaseNodeListModel = new DatabaseNodeListModel();
+        colorFn = nodeColorMapping.getNodeColorMap;
         var self = this;
         self.viewConfig = {
             'databsenode-percentile-bar-view': function (){
                 return {
-                    modelCfg: databaseNodeListModel,
+                    modelCfg:{
+                        modelId: 'DATABASENODE_LIST_MODEL',
+                        config: databaseNodeListModelCfg,
+                    },
                     viewCfg: {
                         elementId :ctwl.DATABASENODE_PERCENTILE_BAR_VIEW,
                         title : '',
@@ -31,6 +33,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
             'databasenode-cpu-share': function (){
                 return {
                     modelCfg: {
+                        modelId: 'DATABASENODE_CPU_SHARE',
                         source:'STATTABLE',
                         config: {
                             table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
@@ -53,7 +56,6 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                  yFormatter : function(d){
                                      return d;
                                  },
-                                 xFormatter: xCPUChartFormatter,
                              }
                          }
                      },
@@ -65,6 +67,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
             'databasenode-memory': function (){
                 return {
                 modelCfg: {
+                    modelId: 'DATABASENODE_CPU_SHARE',
                     source:'STATTABLE',
                     config: {
                         table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
@@ -84,9 +87,9 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                  colors: colorFn,
                                  title: ctwl.DATABASENODE_SUMMARY_TITLE,
                                  yFormatter : function(d){
-                                     return formatBytes(d, true);
+                                     return formatBytes(d * 1024, true);
                                  },
-                                 xFormatter: xCPUChartFormatter,
+                                 //xFormatter: xCPUChartFormatter,
                                 }
                          }
                      },
@@ -95,10 +98,47 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                     }
                 }
             },
+            'databasenode-system-cpu-share': function () {
+                var config = monitorInfraViewConfig['system-cpu-share']();
+                return $.extend(true, config,{
+                    viewCfg: {
+                        viewConfig: {
+                            chartOptions: {
+                                colors:colorFn
+                            }
+                        }
+                    }
+                });
+            },
+            'databasenode-system-memory-usage': function () {
+                var config = monitorInfraViewConfig['system-memory-usage']();
+                return $.extend(true, config, {
+                    viewCfg: {
+                        viewConfig: {
+                            chartOptions: {
+                                colors:colorFn
+                            }
+                        }
+                    }
+                });
+            },
+            'databasenode-disk-usage-info': function () {
+                var config = monitorInfraViewConfig['disk-usage-info']();
+                return $.extend(true, config, {
+                    viewCfg: {
+                        viewConfig: {
+                            chartOptions: {
+                                colors:colorFn
+                            }
+                        }
+                    }
+                });
+            },
             'databasenode-pending-compactions': function (){
                 return {
                     modelCfg: {
                         source:'STATTABLE',
+                        modelId: 'DATABASENODE_PENDING_COMPACTIONS',
                         config: {
                             table_name: 'StatTable.CassandraStatusData.cassandra_compaction_task',
                             select: 'T=, name, MAX(cassandra_compaction_task.pending_compaction_tasks)'
@@ -129,6 +169,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                 return {
                     modelCfg:{
                         source:'STATTABLE',
+                        modelId: 'DATABASENODE_ZOO_KEEPER_CPU_SHARE',
                         config: {
                             table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
                             select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
@@ -158,6 +199,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                 return {
                     modelCfg: {
                         source:'STATTABLE',
+                        modelId: 'DATABASENODE_KAFKA_CPU_SHARE',
                         config: {
                             table_name: 'StatTable.NodeStatus.process_mem_cpu_usage',
                             select: 'name, T=, MAX(process_mem_cpu_usage.cpu_share)',
@@ -186,7 +228,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
             'database-grid-view': function () {
                 return {
                     modelCfg: {
-                        listModel:databaseNodeListModel
+                        modelId: 'DATABASENODE_LIST_MODEL',
+                        config: databaseNodeListModelCfg
                     },
                     viewCfg: {
                         elementId : ctwl.DATABASENODE_SUMMARY_GRID_ID,
@@ -194,7 +237,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                         view : "GridView",
                         viewConfig : {
                             elementConfig :
-                                getDatabaseNodeSummaryGridConfig(databaseNodeListModel, colorFn)
+                                getDatabaseNodeSummaryGridConfig('database-grid-view', colorFn)
                         }
                     },
                     itemAttr: {
@@ -203,7 +246,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                 }
             },
         };
-        function getDatabaseNodeSummaryGridConfig(model, colorFn) {
+        function getDatabaseNodeSummaryGridConfig(widgetId, colorFn) {
             var columns = [
                            {
                                field:"name",
@@ -213,7 +256,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                       name:'name',
                                       statusBubble:true,
                                       rowData:dc,
-                                      tagColorMap:colorFn(_.pluck(model.getItems(), 'name'))});
+                                      tagColorMap:colorFn(_.pluck(cowu.getGridItemsForWidgetId(widgetId), 'name'))});
                                },
                                events: {
                                   onClick: onClickHostName
