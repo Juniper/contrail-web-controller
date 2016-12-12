@@ -175,9 +175,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                          modelId:'VROUTER_PACKETDROPS_CHART',
                          config: {
                              table_name: 'StatTable.VrouterStatsAgent.drop_stats',
-                             select: 'T=, Source, MAX(drop_stats.__value)',
-                             parser: function(d){return parseDataForFlowsDrops(d,'MAX(drop_stats.__value)')},
-                             where: getWhereClauseForDropStats(),
+                             select: 'T=, Source, MAX(drop_stats.drop_pkts)',
+                             parser: function(d){return parseDataForFlowsDrops(d,'MAX(drop_stats.drop_pkts)')}
                          }
                      },
                      viewCfg: {
@@ -196,7 +195,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                   },
                                   yAxisLabel: ctwl.VROUTER_DROP_PACKETS,
                                   yLabels: ['Packet Drops'],
-                                  yFields: ['MAX(drop_stats.__value)'],
+                                  yFields: ['MAX(drop_stats.drop_pkts)'],
                               }
                           }
                      },
