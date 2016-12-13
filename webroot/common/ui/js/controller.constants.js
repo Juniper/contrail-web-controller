@@ -12,7 +12,7 @@ define([
 
     var CTConstants = function () {
 
-        this.URL_ALL_DOMAINS = '/api/tenants/config/domains';
+        this.URL_ALL_DOMAINS = '/api/tenants/config/all-domains';
         this.URL_ALL_PROJECTS = '/api/tenants/config/all-projects';
         this.URL_PROJECTS = '/api/tenants/config/projects';
         this.URL_ALL_PROJECTS_VCENTER_OR_CONFIG = '/api/tenants/projects';

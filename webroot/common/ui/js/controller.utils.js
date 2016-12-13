@@ -331,7 +331,8 @@ define([
             var modelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.URL_ALL_PROJECTS
+                        url: ctwc.URL_ALL_PROJECTS +
+                            "?domainId=" + domainObj.value
                     },
                     dataParser: function(response) {
                         return  $.map(response.projects, function (n, i) {
