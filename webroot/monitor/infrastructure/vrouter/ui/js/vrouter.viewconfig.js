@@ -101,19 +101,17 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                          elementId : 'flow_rate_area_chart',
                          view: 'LineWithFocusChartView',
                          viewConfig: {
-                             parseFn: cowu.parseDataForLineChart,
                              chartOptions: {
                                  title: ctwl.VROUTER_ACTIVE_FLOWS_DROPS_LABEL,
                                  subTitle:"Sampled Active Flows across vRouters",
-                                 colors: monitorInfraConstants.VROUTER_FLOWS_CHART_COLORS,
-                                 staticColor: true,
+                                 colors: cowc.FIVE_NODE_COLOR,
                                  xAxisLabel: '',
                                  yFormatter: function(y) {
                                      return _.isNaN(y)? y : parseInt(y);
                                  },
+                                 groupBy:null,
                                  yAxisLabel: ctwl.VROUTER_ACTIVE_FLOWS_DROPS_LABEL,
-                                 yLabels: ['Active Flows'],
-                                 yFields: ['MAX(flow_rate.active_flows)'],
+                                 yField: 'MAX(flow_rate.active_flows)'
                              }
                          }
                     },
@@ -162,28 +160,26 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                          source:"STATTABLE",
                          config: {
                              table_name: 'StatTable.VrouterStatsAgent.drop_stats',
-                             select: 'T=, Source, MAX(drop_stats.__value)',
-                             parser: function(d){return parseDataForFlowsDrops(d,'MAX(drop_stats.__value)')},
-                             where: getWhereClauseForDropStats(),
+                             select: 'T=, SUM(drop_stats.drop_pkts)'
                          }
                      },
                      viewCfg: {
                           elementId : 'drop_packets_chart',
                           view: 'LineWithFocusChartView',
                           viewConfig: {
-                              parseFn: cowu.parseDataForLineChart,
                               chartOptions: {
                                   title: ctwl.VROUTER_DROP_PACKETS,
                                   subTitle:" Packet Drops across vRouters",
                                   colors: monitorInfraConstants.VROUTER_DROP_PACKETS_COLORS,
                                   staticColor: true,
                                   xAxisLabel: '',
+                                  forceY: [0, 5],
                                   yFormatter: function(y) {
                                       return _.isNaN(y)? y : parseInt(y);
                                   },
+                                  groupBy:null,
+                                  yField:'SUM(drop_stats.drop_pkts)',
                                   yAxisLabel: ctwl.VROUTER_DROP_PACKETS,
-                                  yLabels: ['Packet Drops'],
-                                  yFields: ['MAX(drop_stats.__value)'],
                               }
                           }
                      },
