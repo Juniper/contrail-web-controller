@@ -297,7 +297,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                             chartOptions: {
                                 colors: cowc.FIVE_NODE_COLOR,
                                 title: "Clients",
-                                subTitle:"API requests per client [IP:Port] (in 3 mins)",
+                                subTitle:"API requests per client IP (in 3 mins)",
                                 xAxisLabel: '',
                                 yAxisLabel: "Client Wise Usage",
                                 groupBy: 'api_stats.remote_ip',
