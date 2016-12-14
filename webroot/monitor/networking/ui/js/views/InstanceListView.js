@@ -109,7 +109,6 @@ define([
                                     retArr.push({name: vmId, source: "config"});
                                 }
                             }
-                            retArr.push({name: "123", source: "config"});
                             return retArr;
                         },
                         completeCallback: function(response, contrailListModel, parentListModelArray) {

@@ -445,6 +445,8 @@ define([
                                     dataItem['vn'] = '-';
                                 }
 
+                                dataItem['ip'] = [];
+                                dataItem['fipCnt'] = 0;
                                 for (var k = 0; k < interfaceDetailsList.length; k++) {
 
                                     if (interfaceDetailsList[k]['is_health_check_active'] === false) {
