@@ -168,7 +168,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                          source:"STATTABLE",
                          config: {
                              table_name: 'StatTable.VrouterStatsAgent.drop_stats',
-                             select: 'T=, SUM(drop_stats.drop_pkts)'
+                             select: 'T=, SUM(drop_stats.ds_drop_pkts)'
                          }
                      },
                      viewCfg: {
@@ -186,7 +186,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                       return _.isNaN(y)? y : parseInt(y);
                                   },
                                   groupBy:null,
-                                  yField:'SUM(drop_stats.drop_pkts)',
+                                  yField:'SUM(drop_stats.ds_drop_pkts)',
                                   yAxisLabel: ctwl.VROUTER_DROP_PACKETS,
                               }
                           }
