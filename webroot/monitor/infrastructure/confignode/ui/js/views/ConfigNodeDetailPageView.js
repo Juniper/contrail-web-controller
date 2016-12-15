@@ -4,8 +4,9 @@
 
 define([
     'underscore',
-    'contrail-view'
-], function (_, ContrailView) {
+    'contrail-view',
+    "core-constants"
+], function (_, ContrailView, cowc) {
     var noDataStr = monitorInfraConstants.noDataStr;
     var ConfigNodesDetailPageView = ContrailView.extend({
         el: $(contentContainer),
@@ -197,7 +198,7 @@ define([
                          },
                          {
                              key: 'configProcessStatusList.' +
-                                 monitorInfraConstants.UVEModuleIds['IFMAP'],
+                                 cowc.UVEModuleIds['IFMAP'],
                              label: 'Ifmap',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
@@ -312,28 +313,28 @@ define([
            for(var i=0; i < processStateList.length; i++){
               var currProc = processStateList[i];
               if(currProc.process_name == "contrail-discovery:0"){
-                 ret[monitorInfraConstants.UVEModuleIds['DISCOVERY_SERVICE']] =
+                 ret[cowc.UVEModuleIds['DISCOVERY_SERVICE']] =
                      monitorInfraUtils.getProcessUpTime(currProc);
               } else if(currProc.process_name == "contrail-discovery"){
-                 ret[monitorInfraConstants.UVEModuleIds['DISCOVERY_SERVICE']] =
+                 ret[cowc.UVEModuleIds['DISCOVERY_SERVICE']] =
                      monitorInfraUtils.getProcessUpTime(currProc);
               } else if (currProc.process_name == "contrail-api:0"){
-                 ret[monitorInfraConstants.UVEModuleIds['APISERVER']] =
+                 ret[cowc.UVEModuleIds['APISERVER']] =
                      monitorInfraUtils.getProcessUpTime(currProc);
               } else if (currProc.process_name == "contrail-api"){
-                 ret[monitorInfraConstants.UVEModuleIds['APISERVER']] =
+                 ret[cowc.UVEModuleIds['APISERVER']] =
                      monitorInfraUtils.getProcessUpTime(currProc);
               } else if (currProc.process_name == "contrail-config-nodemgr"){
                  ret['contrail-config-nodemgr'] = monitorInfraUtils.
                                                      getProcessUpTime(currProc);
               } else if (currProc.process_name == "contrail-svc-monitor"){
-                 ret[monitorInfraConstants.UVEModuleIds['SERVICE_MONITOR']] =
+                 ret[cowc.UVEModuleIds['SERVICE_MONITOR']] =
                      monitorInfraUtils.getProcessUpTime(currProc);
               } else if (currProc.process_name == "ifmap"){
-                 ret[monitorInfraConstants.UVEModuleIds['IFMAP']] =
+                 ret[cowc.UVEModuleIds['IFMAP']] =
                      monitorInfraUtils.getProcessUpTime(currProc);
               } else if (currProc.process_name == "contrail-schema"){
-                 ret[monitorInfraConstants.UVEModuleIds['SCHEMA']] =
+                 ret[cowc.UVEModuleIds['SCHEMA']] =
                      monitorInfraUtils.getProcessUpTime(currProc);
               } else if (currProc.process_name == 'contrail-zookeeper') {
                      ret['contrail-zookeeper'] = monitorInfraUtils.

@@ -3,13 +3,14 @@
  */
 define(
        [ 'underscore' ,
-        'core-alarm-utils'],
-       function(_,coreAlarmUtils) {
+        'core-alarm-utils',
+        "core-constants"],
+       function(_,coreAlarmUtils, cowc) {
             var MonInfraParsers = function() {
                 var self = this;
                 var noDataStr = monitorInfraConstants.noDataStr;
                 var formatMemory = monitorInfraUtils.formatMemory;
-                var UVEModuleIds = monitorInfraConstants.UVEModuleIds;
+                var UVEModuleIds = cowc.UVEModuleIds;
                 var getOverallNodeStatus = monitorInfraUtils.getOverallNodeStatus;
 
                 //Parser for controlnode Dashboard data
@@ -255,7 +256,7 @@ define(
                         var processStatus = getValueByJsonPath(dValue,
                                 'NodeStatus;process_status', []);
                         $.each(processStatus, function(idx, proStatusChild) {
-                            if(proStatusChild['module_id'] === monitorInfraConstants.UVEModuleIds.VROUTER_AGENT){
+                            if(proStatusChild['module_id'] === cowc.UVEModuleIds.VROUTER_AGENT){
                                 $.each(proStatusChild['connection_infos'],function(idx, connInfoChild){
                                     if(connInfoChild['name'] !== null && connInfoChild['type'] === 'XMPP'){
                                         if(connInfoChild['name'].indexOf(monitorInfraConstants.DNS_SERVER) === 0){
@@ -998,7 +999,7 @@ define(
                     vRouterDetails['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',
                             monitorInfraConstants.defaultIntrospectPort);
                     vRouterDetails['vrouterModuleId'] = getValueByJsonPath(data,'NodeStatus;process_status;0;module_id',
-                            monitorInfraConstants.UVEModuleIds['VROUTER_AGENT']);
+                            cowc.UVEModuleIds['VROUTER_AGENT']);
                     vRouterDetails['vRouterType'] = getValueByJsonPath(data,
                             'ConfigData;virtual-router;virtual_router_type','hypervisor');
                         if(vRouterDetails['vRouterType'] instanceof Array) {

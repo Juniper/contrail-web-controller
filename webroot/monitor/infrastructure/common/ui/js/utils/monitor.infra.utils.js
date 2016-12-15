@@ -3,8 +3,9 @@ define([
     'handlebars',
     'contrail-list-model',
     'core-alarm-utils',
-    'core-utils'
-], function (_, Handlebars, ContrailListModel,coreAlarmUtils,cowu) {
+    'core-utils',
+    "core-constants"
+], function (_, Handlebars, ContrailListModel,coreAlarmUtils,cowu,cowc) {
     var MonitorInfraUtils = function () {
         var self = this;
         var noDataStr = monitorInfraConstants.noDataStr;
@@ -594,7 +595,7 @@ define([
             var kfilts;
             var cfilts;
             if(dsName == 'controlNodeDS') {
-                kfilts =  '*:' + monitorInfraConstants.UVEModuleIds['CONTROLNODE'] + '*';
+                kfilts =  '*:' + cowc.UVEModuleIds['CONTROLNODE'] + '*';
                 cfilts =  'ModuleClientState:client_info,'+
                           'ModuleServerState:generator_info';
             } else if(dsName == 'computeNodeDS') {
@@ -619,13 +620,13 @@ define([
                 cfilts = 'ModuleClientState:client_info,'+
                          'ModuleServerState:generator_info';
             } else if(dsName == 'analyticsNodeDS') {
-                kfilts = '*:' + monitorInfraConstants.UVEModuleIds['COLLECTOR'] + '*,*:' +
-                                monitorInfraConstants.UVEModuleIds['OPSERVER'] + '*,*:' +
-                                monitorInfraConstants.UVEModuleIds['QUERYENGINE'] + '*';
+                kfilts = '*:' + cowc.UVEModuleIds['COLLECTOR'] + '*,*:' +
+                                cowc.UVEModuleIds['OPSERVER'] + '*,*:' +
+                                cowc.UVEModuleIds['QUERYENGINE'] + '*';
                 cfilts = 'ModuleClientState:client_info,'+
                          'ModuleServerState:generator_info';
             } else if(dsName == 'configNodeDS') {
-                kfilts = '*:' + monitorInfraConstants.UVEModuleIds['APISERVER'] + '*';
+                kfilts = '*:' + cowc.UVEModuleIds['APISERVER'] + '*';
                 cfilts = 'ModuleClientState:client_info,'+
                          'ModuleServerState:generator_info';
             }
@@ -2234,24 +2235,24 @@ define([
             var hostName = options['hostname'];
             if(nodeType == monitorInfraConstants.COMPUTE_NODE){
                 type = 'vrouter';
-                var moduleId = monitorInfraConstants.UVEModuleIds['VROUTER_AGENT'];
+                var moduleId = cowc.UVEModuleIds['VROUTER_AGENT'];
 //                if(obj['vrouterModuleId'] != null && obj['vrouterModuleId'] != ''){
 //                    moduleId = obj['vrouterModuleId'];
 //                }
                 kfilt = hostName+":*:" + moduleId + ":*";
             } else if (nodeType == monitorInfraConstants.CONTROL_NODE){
                 type = 'controlnode';
-                kfilt = hostName+":*:" + monitorInfraConstants.UVEModuleIds['CONTROLNODE'] + ":*";
+                kfilt = hostName+":*:" + cowc.UVEModuleIds['CONTROLNODE'] + ":*";
             } else if (nodeType == monitorInfraConstants.ANALYTICS_NODE){
                 type = 'contrail-collector';
-                kfilt = hostName+":*:" + monitorInfraConstants.UVEModuleIds['COLLECTOR'] + ":*,"+
-                        hostName+":*:" + monitorInfraConstants.UVEModuleIds['OPSERVER'] + ":*";
+                kfilt = hostName+":*:" + cowc.UVEModuleIds['COLLECTOR'] + ":*,"+
+                        hostName+":*:" + cowc.UVEModuleIds['OPSERVER'] + ":*";
             } else if (nodeType == monitorInfraConstants.CONFIG_NODE){
                 type = 'confignode';
-                kfilt = hostName+":*:" + monitorInfraConstants.UVEModuleIds['APISERVER'] + "*,"+
-                        hostName+":*:" + monitorInfraConstants.UVEModuleIds['DISCOVERY_SERVICE'] + ":*,"+
-                        hostName+":*:" + monitorInfraConstants.UVEModuleIds['SERVICE_MONITOR'] + ":*,"+
-                        hostName+":*:" + monitorInfraConstants.UVEModuleIds['SCHEMA'] + ":*";
+                kfilt = hostName+":*:" + cowc.UVEModuleIds['APISERVER'] + "*,"+
+                        hostName+":*:" + cowc.UVEModuleIds['DISCOVERY_SERVICE'] + ":*,"+
+                        hostName+":*:" + cowc.UVEModuleIds['SERVICE_MONITOR'] + ":*,"+
+                        hostName+":*:" + cowc.UVEModuleIds['SCHEMA'] + ":*";
             }
             return self.getPostData("generator","","",cfilt,kfilt);
         };
