@@ -4,6 +4,8 @@
  */
 
 .font-element i.icon-contrail-virtual-network {
+    position: relative;
+    top: -1px;
     color: #498AB9;
 }
 .font-element i.icon-contrail-service-instance, .font-element i.icn-service-instance {

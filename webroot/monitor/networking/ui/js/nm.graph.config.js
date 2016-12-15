@@ -425,7 +425,7 @@ define([
                             }
                         }
 
-                        return tooltipContentTmpl({info: data, iconClass: 'fa-arrows-h'});
+                        return tooltipContentTmpl({info: data, iconClass: 'fa fa-arrows-h'});
                     },
                     dimension: { width: 400 }
                 }
