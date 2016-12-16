@@ -71,6 +71,7 @@ define([
                 currObj.UveVirtualMachineAgent.interface_details = interfaceDetailsList;
                 currObject.throughput = inThroughput + outThroughput;
                 currObject.fipCnt = 0;
+                currObject.ip = [];
                 currObject.size = currObject.throughput;
                 currObject.vn = getValueByJsonPath(interfaceDetail, "virtual_network", null);
                 if ((null != currObject.vn) && (currObject.vn.length > 0)) {
