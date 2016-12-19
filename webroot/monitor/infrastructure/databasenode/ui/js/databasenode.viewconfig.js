@@ -241,7 +241,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                         }
                     },
                     itemAttr: {
-                        width: 2
+                        width: 2,
+                        height: 2,
                     }
                 }
             },
@@ -364,6 +365,12 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                     },
                                     empty: {
                                         text: 'No Database Nodes Found.'
+                                    }
+                                }
+                            },footer: {
+                                pager: {
+                                    options: {
+                                        pageSize: 10,
                                     }
                                 }
                             }
