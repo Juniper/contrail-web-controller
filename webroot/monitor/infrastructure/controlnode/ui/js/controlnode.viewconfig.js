@@ -36,6 +36,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                                 colors: colorFn,
                                 failureLabel:'Unreach Updates (Total)',
                                 failureColor: '#ECECEC',
+                                substractFailures: false,
                                 failureCheckFn: function (d) {
                                     return ifNull(d['SUM(tx_update_stats.unreach)'],0);
                                 },
@@ -71,6 +72,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                                 colors: colorFn,
                                 failureLabel:'Unreach Updates (Total)',
                                 failureColor: '#ECECEC',
+                                substractFailures: false,
                                 failureCheckFn: function (d) {
                                     return ifNull(d['SUM(rx_update_stats.unreach)'],0);
                                 },
