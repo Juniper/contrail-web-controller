@@ -599,7 +599,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'router_external',
-                                                class : "col-xs-3",
+                                                class : "col-xs-3 no-padding",
                                                 label:'External',
                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'router_external',
@@ -613,7 +613,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'virtual_network_properties.allow_transit',
-                                                class : "col-xs-3",
+                                                class : "col-xs-3 no-padding",
                                                 label:'Allow Transit',
                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'virtual_network_properties().allow_transit',
@@ -659,7 +659,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'virtual_network_properties.rpf',
-                                                class : "col-xs-3",
+                                                class : "col-xs-3 no-padding",
                                                 label:'Reverse Path Forwarding',
                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'virtual_network_properties().rpf',
@@ -673,7 +673,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'multi_policy_service_chains_enabled',
-                                                class : "col-xs-3",
+                                                class : "col-xs-3 no-padding",
                                                 label:'Multiple Service Chains',
                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                 dataBindValue : 'multi_policy_service_chains_enabled',
