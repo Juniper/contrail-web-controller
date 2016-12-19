@@ -6,84 +6,89 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
         function(_, ContrailView, ContrailListModel, CFDataSource, LegendView, VRouterListModel){
     var VRouterViewConfig = function () {
         var self = this;
-        var vRouterListModel = new VRouterListModel();
-        self.vRouterListModel = vRouterListModel;
-        //ListModel that is kept in sync with crossFilter
-        var vRouterUIListModel = new ContrailListModel({data:[]});
-        var cfDataSource = new CFDataSource();
-        self.cfDataSource = cfDataSource;
-        //vRouterListModel -> crossFilter(optional) & vRouterUIListModel
-        //crossFilter -> vRouterListModel
-        //Update cfDataSource on vRouterListModel update
+        var vRouterListModel,vRouterUIListModel;   
 
-        if(cfDataSource.getDimension('gridFilter') == null) {
-            cfDataSource.addDimension('gridFilter',function(d) {
-                return d['name'];
-            });
-        }
-        if(cfDataSource.getDimension('colorFilter') == null) {
-            cfDataSource.addDimension('colorFilter',function(d) {
-                return d['color'];
-            });
-        }
-        function onUpdatevRouterListModel() {
-            cfDataSource.updateData(vRouterListModel.getItems());
+        self.populateVRouterListModels = function() {
+            vRouterListModel = new VRouterListModel();
+            self.vRouterListModel = vRouterListModel;
+            //ListModel that is kept in sync with crossFilter
+            vRouterUIListModel = new ContrailListModel({data:[]});
+            var cfDataSource = new CFDataSource();
+            self.cfDataSource = cfDataSource;
+            //vRouterListModel -> crossFilter(optional) & vRouterUIListModel
+            //crossFilter -> vRouterListModel
+            //Update cfDataSource on vRouterListModel update
 
-            cfDataSource.fireCallBacks({source:'fetch'});
-        }
-
-        function onUpdatevRouterUIListModel() {
-            if(vRouterUIListModel.updateFromcrossFilter != true) {
-                var selRecords = vRouterUIListModel.getFilteredItems();
-                var selIds = $.map(selRecords,function(obj,idx) {
-                    return obj.name;
+            if(cfDataSource.getDimension('gridFilter') == null) {
+                cfDataSource.addDimension('gridFilter',function(d) {
+                    return d['name'];
                 });
+            }
+            if(cfDataSource.getDimension('colorFilter') == null) {
+                cfDataSource.addDimension('colorFilter',function(d) {
+                    return d['color'];
+                });
+            }
 
-                self.vRouterListModel.updateFromUIListModel = true;
-                //Apply filter only if filteredRows is < totalRows else remove the filter
-                if(vRouterUIListModel.getFilteredItems().length < vRouterUIListModel.getItems().length) {
-                    cfDataSource.applyFilter('gridFilter',function(d) {
-                        return $.inArray(d,selIds) > -1;
+            function onUpdatevRouterListModel() {
+                cfDataSource.updateData(vRouterListModel.getItems());
+
+                cfDataSource.fireCallBacks({source:'fetch'});
+            }
+
+            function onUpdatevRouterUIListModel() {
+                if(vRouterUIListModel.updateFromcrossFilter != true) {
+                    var selRecords = vRouterUIListModel.getFilteredItems();
+                    var selIds = $.map(selRecords,function(obj,idx) {
+                        return obj.name;
                     });
-                    cfDataSource.fireCallBacks({source:'grid'});
-                } else {
-                    //Remove if an earlier filter exists
-                    if(cfDataSource.getFilter('gridFilter') != null) {
-                        cfDataSource.removeFilter('gridFilter');
+
+                    self.vRouterListModel.updateFromUIListModel = true;
+                    //Apply filter only if filteredRows is < totalRows else remove the filter
+                    if(vRouterUIListModel.getFilteredItems().length < vRouterUIListModel.getItems().length) {
+                        cfDataSource.applyFilter('gridFilter',function(d) {
+                            return $.inArray(d,selIds) > -1;
+                        });
                         cfDataSource.fireCallBacks({source:'grid'});
+                    } else {
+                        //Remove if an earlier filter exists
+                        if(cfDataSource.getFilter('gridFilter') != null) {
+                            cfDataSource.removeFilter('gridFilter');
+                            cfDataSource.fireCallBacks({source:'grid'});
+                        }
+                    }
+                } else {
+                    vRouterUIListModel.updateFromcrossFilter = false;
+                }
+            }
+
+            //As cfDataSource is core one,triggered whenever filters applied/removed
+            //If udpate is triggered from
+            //  1. vRouterListModel, update both crossfilter & grid
+            //  2. crossfilter, update grid
+            //  3. grid, update crossfilter
+            cfDataSource.addCallBack('updateCFListModel',function(data) {
+                vRouterUIListModel.updateFromcrossFilter = false;
+                //Update listUIModel with crossfilter data
+                if(data['cfg']['source'] != 'grid') {
+                    //Need to get the data after filtering from dimensions other than gridFilter
+                    var currGridFilter = cfDataSource.removeFilter('gridFilter');
+                    vRouterUIListModel.setData(cfDataSource.getDimension('gridFilter').top(Infinity).sort(dashboardUtils.sortNodesByColor));
+                    if(currGridFilter != null) {
+                        cfDataSource.applyFilter('gridFilter',currGridFilter);
                     }
                 }
-            } else {
-                vRouterUIListModel.updateFromcrossFilter = false;
-            }
-        }
+                if(data['cfg']['source'] == 'crossFilter')
+                    vRouterUIListModel.updateFromcrossFilter = true;
+            });
 
-        //As cfDataSource is core one,triggered whenever filters applied/removed
-        //If udpate is triggered from
-        //  1. vRouterListModel, update both crossfilter & grid
-        //  2. crossfilter, update grid
-        //  3. grid, update crossfilter
-        cfDataSource.addCallBack('updateCFListModel',function(data) {
-            vRouterUIListModel.updateFromcrossFilter = false;
-            //Update listUIModel with crossfilter data
-            if(data['cfg']['source'] != 'grid') {
-                //Need to get the data after filtering from dimensions other than gridFilter
-                var currGridFilter = cfDataSource.removeFilter('gridFilter');
-                vRouterUIListModel.setData(cfDataSource.getDimension('gridFilter').top(Infinity).sort(dashboardUtils.sortNodesByColor));
-                if(currGridFilter != null) {
-                    cfDataSource.applyFilter('gridFilter',currGridFilter);
-                }
+            //Need to trigger/register the event once callbacks are registered
+            vRouterListModel.onDataUpdate.subscribe(onUpdatevRouterListModel);
+            //Adding grid search filter
+            vRouterUIListModel.onDataUpdate.subscribe(onUpdatevRouterUIListModel);
+            if(vRouterListModel.loadedFromCache) {
+                onUpdatevRouterListModel();
             }
-            if(data['cfg']['source'] == 'crossFilter')
-                vRouterUIListModel.updateFromcrossFilter = true;
-        });
-
-        //Need to trigger/register the event once callbacks are registered
-        vRouterListModel.onDataUpdate.subscribe(onUpdatevRouterListModel);
-        //Adding grid search filter
-        vRouterUIListModel.onDataUpdate.subscribe(onUpdatevRouterUIListModel);
-        if(vRouterListModel.loadedFromCache) {
-            onUpdatevRouterListModel();
         }
 
         self.viewConfig = {
@@ -124,6 +129,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                 }
              },
              "vrouter-cpu-mem-scatter-chart" : function(){
+                 if(self.vRouterListModel == null)
+                    self.populateVRouterListModels();
                  return {
                      modelCfg: {listModel:vRouterUIListModel},
                      viewCfg: {
@@ -314,6 +321,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                  }
              },
              "vrouter-summary-grid" : function() {
+                 if(self.vRouterListModel == null)
+                    self.populateVRouterListModels();
                  return {
                      modelCfg: {listModel: vRouterUIListModel},
                      viewCfg: {
@@ -334,6 +343,9 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                  }
              },
              "vrouter-crossfilters-chart" : function() {
+                 if(self.vRouterListModel == null) {
+                    self.populateVRouterListModels();
+                 }
                  return {
                      modelCfg: {listModel: vRouterUIListModel},
                      viewCfg: {
@@ -366,6 +378,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                  }
              },
              "vrouter-system-cpu-mem-chart" : function() {
+                 if(self.vRouterListModel == null)
+                    self.populateVRouterListModels();
                  return {
                      modelCfg: {
                          modelId:'VROUTER_LIST_MODEL',
@@ -425,6 +439,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                  }
              },
              "vrouter-vn-int-inst-chart" : function() {
+                 if(self.vRouterListModel == null)
+                    self.populateVRouterListModels();
                  return {
                      modelCfg: {listModel:vRouterUIListModel},
                      viewCfg: {
