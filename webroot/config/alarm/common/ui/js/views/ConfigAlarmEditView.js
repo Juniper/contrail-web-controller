@@ -248,7 +248,7 @@ define([
                         columns: [{ elementId: 'description',
                             view: "FormTextAreaView",
                             viewConfig: {
-                                class: "col-xs-12",
+                                class: "col-xs-6",
                                 path: 'id_perms.description',
                                 label: "Description",
                                 dataBindValue: 'id_perms().description',
