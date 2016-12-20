@@ -39,6 +39,9 @@ define([
                 case "renderAnalyticsNodeIntrospect":
                     this.introspectView.renderAnalyticsNodeIntrospect({hashParams: hashParams});
                     break;
+                case "renderIntrospectXML":
+                    this.introspectView.renderIntrospectXML({hashParams: hashParams});
+                    break;
             }
         };
 

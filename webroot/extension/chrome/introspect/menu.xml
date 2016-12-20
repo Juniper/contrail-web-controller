@@ -1,0 +1,131 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+<!--
+Access tag details
+If the access tag is not there then every one can access the menu/menu items
+If access tag is there then only the roles and orchestration models mentioned in the tags are allowed
+If any role/orchModel tag is with negation(!) value then every one has access to menu/menu item except the one mentioned with negation
+and need to add the iconClass tag wherever we need to show some icons
+ -->
+<menu>
+    <items>
+        <item>
+            <label>Monitor</label>
+            <name>monitor</name>
+            <iconClass>fa fa-bar-chart-o</iconClass>
+            <items></items>
+        </item>
+        <item>
+            <name>configure</name>
+            <label>Configure</label>
+            <iconClass>fa fa-wrench</iconClass>
+            <items></items>
+        </item>
+        <item>
+            <label>Setting</label>
+            <name>setting</name>
+            <resources>
+                <resource>
+                    <rootDir>/common/ui</rootDir>
+                    <css>contrail.controller.css</css>
+                </resource>
+            </resources>
+            <iconClass>fa fa-cog</iconClass>
+            <items>
+                <item>
+                    <label>Introspect</label>
+                    <iconClass>menu-icon fa fa-code</iconClass>
+                    <resources>
+                        <resource>
+                            <rootDir>/setting/introspect/ui</rootDir>
+                            <css>/contrail.introspect.css</css>
+                        </resource>
+                    </resources>
+                    <init>/setting/introspect/ui/js/introspect.init.js</init>
+                    <items>
+                        <item>
+                            <hash>setting_introspect_control</hash>
+                            <label>Control Nodes</label>
+                            <loader>
+                                <class>introspectPageLoader</class>
+                                <function>renderControlNodeIntrospect</function>
+                            </loader>
+                            <queryParams>
+                                <node>control</node>
+                            </queryParams>
+                            <searchStrings>Control Node</searchStrings>
+                        </item>
+                        <item>
+                            <hash>setting_introspect_vrouter</hash>
+                            <label>Virtual Router</label>
+                            <loader>
+                                <class>introspectPageLoader</class>
+                                <function>renderVirtualRouterIntrospect</function>
+                            </loader>
+                            <queryParams>
+                                <node>vrouter</node>
+                            </queryParams>
+                            <searchStrings>Virtual Router</searchStrings>
+                        </item>
+                        <item>
+                            <hash>setting_introspect_analytics</hash>
+                            <label>Analytics Nodes</label>
+                            <loader>
+                                <class>introspectPageLoader</class>
+                                <function>renderAnalyticsNodeIntrospect</function>
+                            </loader>
+                            <queryParams>
+                                <node>analytics</node>
+                            </queryParams>
+                            <searchStrings>Analytics Node</searchStrings>
+                        </item>
+                        <item>
+                            <hash>setting_introspect_config</hash>
+                            <label>Config Nodes</label>
+                            <loader>
+                                <class>introspectPageLoader</class>
+                                <function>renderConfigNodeIntrospect</function>
+                            </loader>
+                            <queryParams>
+                                <node>config</node>
+                            </queryParams>
+                            <searchStrings>Config Node</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
+                    <label>Loaded XML</label>
+                    <iconClass>menu-icon fa fa-code</iconClass>
+                    <resources>
+                        <resource>
+                            <rootDir>/setting/introspect/ui</rootDir>
+                            <css>/contrail.introspect.css</css>
+                        </resource>
+                    </resources>
+                    <init>/setting/introspect/ui/js/introspect.init.js</init>
+                    <items>
+                        <item>
+                            <hash>setting_introspect_xml</hash>
+                            <label>XML</label>
+                            <loader>
+                                <class>introspectPageLoader</class>
+                                <function>renderIntrospectXML</function>
+                            </loader>
+                            <queryParams>
+                                <node>xml</node>
+                            </queryParams>
+                            <searchStrings>Load XML</searchStrings>
+                        </item>
+                    </items>
+                </item>
+            </items>
+        </item>
+        <item>
+            <label>Query</label>
+            <name>query</name>
+            <iconClass>fa fa-search</iconClass>
+            <items></items>
+        </item>
+    </items>
+</menu>

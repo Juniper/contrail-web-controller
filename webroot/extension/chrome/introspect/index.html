@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" content="">
+    <title id="tabTitle"></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contrail Systems">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="contrail-web-core/webroot/img/sdn-favicon.ico" type="image/x-icon">
+    <link rel="icon" href="contrail-web-core/webroot/img/sdn-favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.thirdparty.unified.css"/>
+    <!--<link rel="stylesheet" href="/contrail-web-core/common/ui/css/contrail.unified.css"/>-->
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.init.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.theme.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.theme.layout.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.theme.elements.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.responsive.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.grid.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.form.elements.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.components.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.chart.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.graph.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.custom.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/contrail.font.css"/>
+    <link rel="stylesheet" href="contrail-web-core/webroot/common/ui/css/login.css"/>
+
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="/contrail-web-core/webroot/ui/css/contrail-ie.min.css?built_at=1480621227"/>
+    <![endif]-->
+
+    <!--[if IE 7]>
+    <link rel="stylesheet" href="/assets/font-awesome/css/font-awesome-ie7.min.css?built_at=1480621227"/>
+    <![endif]-->
+
+
+</head>
+
+<body class="navbar-fixed">
+
+<script type="text/x-handlebars-template" id="signin-container-tmpl">
+    <div class="login-container">
+        <div class="text-center">
+            <a href="#" class="brand">
+                <img class="logo" src="contrail-web-core/webroot/img/sdn-logo.png">
+            </a>
+        </div>
+        <div class="content">
+            <h3>Contrail Introspect</h3>
+            <hr/>
+            <input type="hidden" id="urlHash" name="urlHash" value=window.location.hash></input>
+            <input type="hidden" id="urlPath" name="urlPath" value=window.location.pathname></input>
+            <div id="login-error" class="hide">
+                <div class="alert alert-error">
+                    <!--<button type="button" class="close" data-dismiss="alert">&times;</button>-->
+                    <strong></strong>
+                </div>
+            </div>
+            <div class="container-fluid">
+                <div class="row margin-bottom-10">
+                    <div class="input-group col-xs-12">
+                        <label for="ip_address">IP Address</label>
+                        <input type="text" id="ip_address" class="span12" name="ip_address" placeholder="xxx.xxx.xxx.xxx" value="" autocomplete="on"/>
+                    </div>
+                </div>
+                <div class="row margin-bottom-10">
+                    <div class="input-group col-xs-12">
+                        <label for="process">Node Type</label>
+                        <input type="text" id="process" class="span12" name="process" placeholder="xxxx" value="control"/>
+                    </div>
+                </div>
+                <div class="row margin-bottom-10 section-connector">
+                    <span class="col-xs-offset-5 col-xs-2">OR</span>
+                </div>
+                <div class="row margin-bottom-10 viafile">
+                    <label for="localFilePath" class="hidden">Local File Path</label>
+                    <input type="text" id="localFilePath" name="localFilePath" class="col-xs-9"
+                    readonly/>
+                    <label for="xml_sandesh_file" class="btn btn-primary btn-mini pull-right">
+                        Load XML
+                        <input type="file" id="xml_sandesh_file" name="localFileLoader" class="hidden"/>
+                    </label>
+                </div>
+                <div class="row margin-top-20 margin-bottom-10">
+                    <button type="submit" id="signin" class="btn btn-primary col-xs-12">Connect</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/x-handlebars-template" id="app-container-tmpl">
+
+    <div id="pageHeader" class="navbar navbar-default ace-save-state">
+        <div id="error-container" class="alert-error">
+           <div id="msg-container"><span class="error-font-weight">Error : </span><span id="error-msg-container"></span></div>
+           <div id="error-close-icon"><button id="close-error-popup" class="btn btn-mini"><i class="fa fa-times"></i></button></div>
+        </div>
+        <div id="success-msg-container"><div id="success-text-container"></div></div>
+        <div id="navbar-container" class="navbar-container ace-save-state">
+            <button type="button" class="navbar-toggle menu-toggler pull-left" id="menu-toggler" data-target="#sidebar">
+                <i class="fa fa-bars"></i>
+            </button>
+
+            <div id="error-container" class="alert-error">
+               <div id="msg-container"><span class="error-font-weight">Error : </span><span id="error-msg-container"></span></div>
+               <div id="error-close-icon"><button id="close-error-popup" class="btn btn-mini"><i class="fa fa-remove"></i></button></div>
+            </div>
+            <div id="success-msg-container"><div id="success-text-container"></div></div>
+            <a href="" class="navbar-brand">
+                <div id="dashboard_sdn_logo">
+                    <img class="logo" src="contrail-web-core/webroot/img/sdn-logo.png"/>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div id="main-container" class="main-container ace-save-state">
+        <div id="sidebar" class="sidebar responsive ace-save-state" data-sidebar=true" data-sidebar-scroll="true" data-sidebar-hover="true">
+            <div class="sidebar-shortcuts" id="sidebar-shortcuts"></div>
+            <ul id="menu" class="nav nav-list"></ul>
+        </div>
+
+        <div id="main-content" class="main-content">
+            <div class="main-content-inner">
+                <div id="breadcrumbs" class="breadcrumbs ace-save-state fixed">
+                    <ul id="breadcrumb" class="breadcrumb"></ul>
+                    <div id="nav-search" class="nav-search">
+                        <form id="search-form" onsubmit="searchSiteMap();">
+                            <span class="input-icon">
+                                <input id="nav-search-input" type="text" placeholder="Search Sitemap" class="input-medium search-query nav-search-input" autocomplete="off">
+                                <i class="fa fa-search" id="nav-search-icon"></i>
+                            </span>
+                        </form>
+                    </div>
+                </div>
+                <div id="page-content" class="page-content">
+                    <div id='content-container'></div>
+                </div>
+            </div> <!-- main-content-inner -->
+        </div> <!-- /.main-content -->
+    </div> <!-- /.container-fluid #main-container -->
+    <a href="#" id="back-to-top"><i class="fa fa-angle-double-up icon-only bigger-110"></i>​&nbsp; Back to Top</a>
+    <div class="page-help-container" id="page-help-container" tabindex="-1"></div>
+</script>
+    <div id="signin-container">
+    </div>
+
+    <div id="app-container">
+    </div>
+
+<!-- Start dev_env -->
+<script data-env="dev" data-main="contrail-web-core/webroot/js/common/core.app" src="contrail-web-core/webroot/assets/requirejs/require.js"></script>
+<!-- End dev_env -->
+<!-- Start prod_env 
+<script data-env="prod" data-main="/contrail-web-core/webroot/js/common/core.app" src="/contrail-web-core/webroot/assets/requirejs/require.js"></script>
+End prod_env -->
+
+<!--[if lte IE 8]>
+<script src="/js/"></script>
+<![endif]-->
+</body>
+</html>
