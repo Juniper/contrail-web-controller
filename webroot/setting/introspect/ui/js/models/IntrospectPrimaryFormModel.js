@@ -7,11 +7,13 @@ define([
     "lodash",
     "knockout",
     "contrail-model",
-    "xml2json"
-], function (_, Knockout, ContrailModel, Xml2json) {
+    "xml2json",
+    "controller-basedir/setting/introspect/ui/js/introspect.utils"
+], function (_, Knockout, ContrailModel, Xml2json, iUtils) {
     var IntrospectPrimaryFormModel = ContrailModel.extend({
 
         constructor: function (modelData, IntrospectFormView) {
+            var self = this;
             var defaultConfig = {
                 node: null,
                 ip_address: null,
@@ -29,8 +31,7 @@ define([
             modelData = $.extend(true, {}, defaultConfig, modelData);
             ContrailModel.prototype.constructor.call(this, modelData);
 
-            this.getIpAddressOptionList();
-
+            this.getIpAddressOptionList(IntrospectFormView);
             this.model().on("change:ip_address", function() {
                 this.onChangeIpAddress(IntrospectFormView);
             }, this);
@@ -41,15 +42,75 @@ define([
                 this.onChangeModuleIntrospect(IntrospectFormView);
             }, this);
 
+
             return this;
         },
 
-        getIpAddressOptionList: function() {
+        getNodeIpAddressOptionList: function(nodeType, callback) {
+            var ip = null;
+            var ipAddressOptionList = [];
+            var url = "/api/admin/monitor/infrastructure/";
+            if ("control" === nodeType) {
+                nodeSummType = "controlnodes";
+            } else if ("vrouter" === nodeType) {
+                nodeSummType = "vrouters";
+            } else if ("config" === nodeType) {
+                nodeSummType = "confignodes";
+            } else if ("analytics" === nodeType) {
+                nodeSummType = "analyticsnodes";
+            }
+            url += nodeSummType + "/summary";
+            $.ajax({
+                url: url,
+                success: function(response) {
+                    _.each(response, function(value) {
+                        if ("control" === nodeType) {
+                            ip = getValueByJsonPath(value,
+                                                    "value;ConfigData;bgp-router;bgp_router_parameters;address",
+                                                    null);
+                        } else if ("vrouter" === nodeType) {
+                            ip = getValueByJsonPath(value,
+                                                    "value;ConfigData;virtual-router;virtual_router_ip_address",
+                                                    null);
+                        } else if ("config" === nodeType) {
+                            ip = getValueByJsonPath(value,
+                                                    "value;derived-uve;ConfigData;config_node_ip_address",
+                                                    null);
+                        } else if ("analytics" === nodeType) {
+                            ip = getValueByJsonPath(value,
+                                                    "value;derived-uve;ConfigData;analytics-node;analytics_node_ip_address",
+                                                    null);
+                        }
+                        ipAddressOptionList.push({id: ip, text: ip});
+                   })
+                   callback(ipAddressOptionList);
+                },
+                error: function(xhr) {
+                   callback(ipAddressOptionList);
+                }
+            })
+        },
+        getIntrospectCookie: function(callback) {
+            if (!cowu.isNil(window.chrome && chrome.runtime && chrome.runtime.id)) {
+                /* Chrome Extension */
+                getIntrospectCookie(function(cookieObj) {
+                    var ipCookie = null;
+                    if (null != cookieObj) {
+                        ipCookie = cookieObj.introIP;
+                    }
+                    callback(ipCookie);
+                });
+            } else {
+                callback(contrail.getCookie("contrailIntrospectIP"));
+            }
+        },
+        getIpAddressOptionList: function(IntrospectFormView) {
             var self = this,
                 model = self.model(),
                 node = model.attributes.node,
                 port = model.attributes.port,
                 ipAddress = model.attributes.ip_address,
+                nodeSummType,
                 uiAddedParameters = model.attributes.ui_added_parameters,
                 ipAddressOptionList = [];
 
@@ -59,66 +120,29 @@ define([
                 if (!contrail.checkIfExist(uiAddedParameters[node][port])) {
                     uiAddedParameters[node][port] = {};
 
-                    if (node === "control") {
-                        $.ajax({
-                            url: "/api/admin/monitor/infrastructure/controlnodes/summary",
-                            success: function (response) {
-                                _.each(response, function(value) {
-                                    var ipAddress = value.value.ConfigData["bgp-router"].bgp_router_parameters.address;
-                                    uiAddedParameters[node][port][ipAddress] = {};
-                                    ipAddressOptionList.push({id: ipAddress, text: ipAddress});
-                                });
-
-                                self.ip_address_option_list(ipAddressOptionList);
-                                self.ip_address(ipAddress);
+                    if (true === loadIntrospectViaProxy) {
+                        self.getNodeIpAddressOptionList(node, function(ipAddressOptionList) {
+                            self.ip_address_option_list(ipAddressOptionList);
+                            if (ipAddressOptionList.length > 0) {
+                                //self.ip_address(ipAddressOptionList[ipAddressOptionList.length - 1].id);
                             }
                         });
-                    
-                    } else if (node === "vrouter") {
-
-                        $.ajax({
-                            url: "/api/admin/monitor/infrastructure/vrouters/summary",
-                            success: function (response) {
-                                _.each(response, function(value) {
-                                    var ipAddress = value.value.ConfigData["virtual-router"].virtual_router_ip_address;
-                                    uiAddedParameters[node][port][ipAddress] = {};
-                                    ipAddressOptionList.push({id: ipAddress, text: ipAddress});
-                                });
-
-                                self.ip_address_option_list(ipAddressOptionList);
-                                self.ip_address(ipAddress);
+                    } else {
+                        this.getIntrospectCookie(function(introIPs) {
+                            var ipOptionList = [];
+                            if (null != introIPs) {
+                                var ipsArr = introIPs.split(":");
+                                var len = ipsArr.length;
+                                var setIP = null;
+                                for (var i = 0; i < len; i++) {
+                                    ipOptionList.push({id: ipsArr[i], text: ipsArr[i]});
+                                }
                             }
-                        });
-
-                    } else if (node === "config") {
-
-                        $.ajax({
-                            url: "/api/admin/monitor/infrastructure/confignodes/summary",
-                            success: function (response) {
-                                _.each(response, function(value) {
-                                    var ipAddress = value.value["derived-uve"].ConfigData.config_node_ip_address;
-                                    uiAddedParameters[node][port][ipAddress] = {};
-                                    ipAddressOptionList.push({id: ipAddress, text: ipAddress});
-                                });
-
-                                self.ip_address_option_list(ipAddressOptionList);
-                                self.ip_address(ipAddress);
-                            }
-                        });
-
-                    } else if (node === "analytics") {
-
-                        $.ajax({
-                            url: "/api/admin/monitor/infrastructure/analyticsnodes/summary",
-                            success: function (response) {
-                                _.each(response, function(value) {
-                                    var ipAddress = value.value["derived-uve"].ConfigData["analytics-node"].analytics_node_ip_address;
-                                    uiAddedParameters[node][port][ipAddress] = {};
-                                    ipAddressOptionList.push({id: ipAddress, text: ipAddress});
-                                });
-
-                                self.ip_address_option_list(ipAddressOptionList);
-                                self.ip_address(ipAddress);
+                            self.ip_address_option_list(ipOptionList);
+                            if (ipOptionList.length > 0) {
+                                self.ip_address(ipOptionList[0].id);
+                                self.onChangeIpAddress(IntrospectFormView);
+                                setIntrospectCookie(ipOptionList[0].id, node);
                             }
                         });
                     }
@@ -138,7 +162,7 @@ define([
                 ipAddress = model.attributes.ip_address,
                 port = model.attributes.port,
                 uiAddedParameters = model.attributes.ui_added_parameters,
-                url = "/proxy?proxyURL=http://" + ipAddress + ":" + port,
+                url = iUtils.getProxyURL(ipAddress, port),
                 modules = [];
 
             if (ipAddress !== "") {
@@ -189,6 +213,10 @@ define([
                             }
                         });
                 }
+                if (!cowu.isNil(window.chrome && chrome.runtime && chrome.runtime.id)) {
+                    /* Chrome Extension */
+                    setIntrospectCookie(ipAddress);
+                }
             }
         },
 
@@ -200,7 +228,7 @@ define([
                 port = model.attributes.port,
                 module = model.attributes.module,
                 uiAddedParameters = model.attributes.ui_added_parameters,
-                url = "/proxy?proxyURL=http://" + ipAddress + ":" + port + "/" + module + ".xml",
+                url = iUtils.getProxyURL(ipAddress, port, {module: module}),
                 moduleIntrospects = [];
 
             if (!$.isEmptyObject(uiAddedParameters[node][port][ipAddress][module])) {

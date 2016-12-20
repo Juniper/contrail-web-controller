@@ -139,7 +139,11 @@ define([
 
                         $.each(params, function(key, value) {
                             if (value !== null) {
-                                encodedParams[key] = encodeURIComponent(value);
+                                if (true === loadIntrospectViaProxy) {
+                                    encodedParams[key] = encodeURIComponent(value);
+                                } else {
+                                    encodedParams[key] = value;
+                                }
                             }
                         });
 
@@ -201,14 +205,14 @@ define([
                     {
                         columns: [
                             {
-                                elementId: "ip_address", view: "FormDropdownView",
+                                elementId: "ip_address", view: "FormComboboxView",
                                 viewConfig: {
                                     path: "ip_address", class: "col-xs-4",
                                     dataBindValue: "ip_address",
                                     dataBindOptionList: "ip_address_option_list()",
                                     elementConfig: {
                                         dataTextField: "text", dataValueField: "id",
-                                        placeholder: "Select IP Address"
+                                        placeholder: "Select Or Enter IP Address"
                                     }}
                             },
                             {
