@@ -4,8 +4,9 @@
 
 define([
     'underscore',
-    'contrail-view'
-], function (_, ContrailView) {
+    'contrail-view',
+    "core-constants"
+], function (_, ContrailView, cowc) {
     var noDataStr = monitorInfraConstants.noDataStr;
     var AnalyticsNodesDetailPageView = ContrailView.extend({
         el: $(contentContainer),
@@ -260,20 +261,20 @@ define([
             for(var i=0; i < processStateList.length; i++){
                 var currProc = processStateList[i];
                 if (currProc.process_name == "contrail-query-engine"){
-                    ret[monitorInfraConstants.UVEModuleIds['QUERYENGINE']]
+                    ret[cowc.UVEModuleIds['QUERYENGINE']]
                                                 = monitorInfraUtils.
                                                     getProcessUpTime(currProc);
                 }  else if (currProc.process_name ==
                                 "contrail-analytics-nodemgr"){
-                    ret[monitorInfraConstants.UVEModuleIds['ANALYTICS_NODEMGR']]
+                    ret[cowc.UVEModuleIds['ANALYTICS_NODEMGR']]
                                                 = monitorInfraUtils.
                                                     getProcessUpTime(currProc);
                 }  else if (currProc.process_name == "contrail-analytics-api"){
-                    ret[monitorInfraConstants.UVEModuleIds['APISERVER']]
+                    ret[cowc.UVEModuleIds['APISERVER']]
                                                 = monitorInfraUtils.
                                                     getProcessUpTime(currProc);
                 } else if (currProc.process_name == "contrail-collector"){
-                    ret[monitorInfraConstants.UVEModuleIds['COLLECTOR']]
+                    ret[cowc.UVEModuleIds['COLLECTOR']]
                                                 = monitorInfraUtils.
                                                     getProcessUpTime(currProc);
                 }

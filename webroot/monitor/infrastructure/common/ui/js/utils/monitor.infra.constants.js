@@ -5,8 +5,9 @@
 define([
     'underscore',
     'legend-view',
-    'core-utils'
-], function (_, LegendView, CoreUtils) {
+    'core-utils',
+    "core-constants",
+], function (_, LegendView, CoreUtils, cowc) {
     cowu = new CoreUtils();
     var MonitorInfraConstants = function () {
         this.infraNodesTree;
@@ -109,31 +110,14 @@ define([
                 MSGTABLE_LEVEL              : '/api/qe/table/values/MessageTable/Level'
         }
 
-        this.UVEModuleIds = {
-                VROUTER_AGENT       : 'contrail-vrouter-agent',
-                CONTROLNODE         : 'contrail-control',
-                COLLECTOR           : 'contrail-collector',
-                OPSERVER            : 'contrail-analytics-api',
-                QUERYENGINE         : 'contrail-query-engine',
-                APISERVER           : 'contrail-api',
-                DISCOVERY_SERVICE   : 'contrail-discovery',
-                SERVICE_MONITOR     : 'contrail-svc-monitor',
-                SCHEMA              : 'contrail-schema',
-                ANALYTICS_NODEMGR   : 'contrail-analytics-nodemgr',
-                CONFIG_NODE         : 'ConfigNode',
-                IFMAP               : 'ifmap',
-                DATABASE            : 'contrail-database',
-                KAFKA               : 'kafka'
-        }
-
-        this.controlProcsForLastTimeStamp = [this.UVEModuleIds['CONTROLNODE']];
-        this.computeProcsForLastTimeStamp = [this.UVEModuleIds['VROUTER_AGENT']];
-        this.analyticsProcsForLastTimeStamp = [this.UVEModuleIds['COLLECTOR'],
-                                               this.UVEModuleIds['OPSERVER']];
-        this.configProcsForLastTimeStamp = [this.UVEModuleIds['APISERVER'],
-                                            this.UVEModuleIds['DISCOVERY_SERVICE'],
-                                            this.UVEModuleIds['SERVICE_MONITOR'],
-                                            this.UVEModuleIds['SCHEMA']];
+        this.controlProcsForLastTimeStamp = [cowc.UVEModuleIds['CONTROLNODE']];
+        this.computeProcsForLastTimeStamp = [cowc.UVEModuleIds['VROUTER_AGENT']];
+        this.analyticsProcsForLastTimeStamp = [cowc.UVEModuleIds['COLLECTOR'],
+                                               cowc.UVEModuleIds['OPSERVER']];
+        this.configProcsForLastTimeStamp = [cowc.UVEModuleIds['APISERVER'],
+                                            cowc.UVEModuleIds['DISCOVERY_SERVICE'],
+                                            cowc.UVEModuleIds['SERVICE_MONITOR'],
+                                            cowc.UVEModuleIds['SCHEMA']];
         this.defaultIntrospectPort = '8085';
         this.controlRouteAddressFamily = [{ id:"enet", text:"enet" },
                                           { id:"ermvpn", text:"ermvpn" },

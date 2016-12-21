@@ -5,7 +5,8 @@
 define([
     'underscore',
     'contrail-view',
-], function (_, ContrailView) {
+    "core-constants"
+], function (_, ContrailView, cowc) {
     var DatabaseNodesDetailPageView = ContrailView.extend({
         el: $(contentContainer),
 
@@ -147,14 +148,14 @@ define([
                          },
                          {
                              key: 'databaseProcessStatusList.' +
-                                 monitorInfraConstants.UVEModuleIds['DATABASE'],
+                                 cowc.UVEModuleIds['DATABASE'],
                              label: 'Database',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
                              key: 'databaseProcessStatusList.' +
-                                 monitorInfraConstants.UVEModuleIds['KAFKA'],
+                                 cowc.UVEModuleIds['KAFKA'],
                              label: 'Kafka',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
@@ -199,12 +200,12 @@ define([
            for(var i=0; i < processStateList.length; i++){
               var currProc = processStateList[i];
               if(currProc.process_name ==
-                  monitorInfraConstants.UVEModuleIds['KAFKA']){
-                  ret[monitorInfraConstants.UVEModuleIds['KAFKA']] =
+                  cowc.UVEModuleIds['KAFKA']){
+                  ret[cowc.UVEModuleIds['KAFKA']] =
                       monitorInfraUtils.getProcessUpTime(currProc);
               } else if(currProc.process_name ==
-                  monitorInfraConstants.UVEModuleIds['DATABASE']){
-                 ret[monitorInfraConstants.UVEModuleIds['DATABASE']] =
+                  cowc.UVEModuleIds['DATABASE']){
+                 ret[cowc.UVEModuleIds['DATABASE']] =
                      monitorInfraUtils.getProcessUpTime(currProc);
               }
            }
