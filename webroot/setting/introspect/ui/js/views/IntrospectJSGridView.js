@@ -24,6 +24,7 @@ define([
     });
 
     function getIntrospectJSGridViewConfig(jsonData, introspectNode, introspectPort) {
+        jsonData = (null != jsonData) ? jsonData : {};
         var sandeshData = parseData(jsonData),
             gridViewConfigs = [];
 
@@ -219,8 +220,8 @@ define([
     }
 
     function parseData(jsonObject, title) {
-        var sandeshData = [],
-            filteredSandeshObj = filterSandeshObject(jsonObject),
+        var sandeshData = [];
+        var filteredSandeshObj = filterSandeshObject(jsonObject),
             sandeshKey = filteredSandeshObj.key,
             sandeshObj = filteredSandeshObj.value;
 
@@ -231,11 +232,18 @@ define([
             sandeshObj = _.omit(sandeshObj, ["_type", "more", "next_batch"]);
             _.each(sandeshObj, function(sandeshValue, sandeshKey) {
                 var sandeshListObj = {};
-                sandeshListObj[sandeshKey] = sandeshValue;
-                sandeshData = sandeshData.concat(parseData(sandeshListObj, sandeshKey));
+                if (sandeshValue instanceof Array) {
+                    var len = sandeshValue.length;
+                    for (var i = 0; i < len; i++) {
+                        sandeshListObj[sandeshKey] = sandeshValue[i];
+                        sandeshData = sandeshData.concat(parseData(sandeshListObj, sandeshKey));
+                    }
+                } else {
+                    sandeshListObj[sandeshKey] = sandeshValue;
+                    sandeshData = sandeshData.concat(parseData(sandeshListObj, sandeshKey));
+                }
             });
         } else {
-
             sandeshData.push({
                 title: (contrail.checkIfExist(title) ? title + " | " : "") + sandeshKey,
                 data: jsonObject
