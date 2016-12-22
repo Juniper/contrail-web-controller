@@ -166,7 +166,7 @@ define([
                 modules = [];
 
             if (ipAddress !== "") {
-
+                IntrospectFormView.removeIntrospectForm();
                 if (!contrail.checkIfExist(uiAddedParameters[node][port])) {
                     uiAddedParameters[node][port] = {};
                 }
@@ -239,7 +239,7 @@ define([
                 self.module_request_option_list(moduleIntrospects);
 
             } else {
-
+                IntrospectFormView.removeIntrospectForm();
                 contrail.ajaxHandler({
                     url: url, dataType: "xml"
                 }, function(){
@@ -278,10 +278,9 @@ define([
                 moduleRequest = model.attributes.module_request,
                 uiAddedParameters = model.attributes.ui_added_parameters;
 
+            IntrospectFormView.removeIntrospectForm();
             if (moduleRequest !== "") {
                 IntrospectFormView.renderIntrospectSecondaryForm(uiAddedParameters[node][port][ipAddress][module][moduleRequest]);
-            } else {
-                IntrospectFormView.removeIntrospectSecondaryForm();
             }
         },
 
