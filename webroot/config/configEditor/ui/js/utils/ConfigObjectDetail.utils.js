@@ -225,7 +225,7 @@ define([
             for(var i in model){
                 if(i.substring(i.length-5,i.length) === '_refs' && schemaProp[i].format == undefined){
                     for(var m = 0; m < model[i].length; m++){
-                        if(typeof model[i][m].to != 'string'){
+                        if(model[i][m].to != undefined && typeof model[i][m].to != 'string'){
                             model[i][m].to = model[i][m].to.join(':');
                         }
                     }
