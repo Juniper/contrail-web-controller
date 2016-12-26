@@ -240,6 +240,7 @@ define([
          * Setting/Introspect
          */
         this.TMPL_INTROSPECT_PAGE = "introspect-page-template";
+        this.INTROSPECT_FORM_TYPE_RESULTS = "results";
         this.INTROSPECT_CONTROL_NODE_PORTS = {
             8083: 'control',
             8092: 'dns',

@@ -148,6 +148,7 @@ define([
                         });
 
                         self.renderIntrospectResult(moduleRequest, encodedParams);
+                        self.primary.model.model().gridRendered = true;
                     });
 
                     $(introspectResultId)
@@ -161,16 +162,23 @@ define([
                 });
         },
 
-        removeIntrospectSecondaryForm: function() {
+        removeIntrospectForm: function(formType) {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 hashParams = layoutHandler.getURLHashParams(),
                 introspectNode = hashParams.node,
-                introspectType = viewConfig.type,
-                introspectSecondaryFormId = "#introspect-" + introspectNode + "-" + introspectType + "-secondary-form";
+                introspectType = viewConfig.type;
 
-            $(introspectSecondaryFormId).empty();
+            if (!contrail.checkIfExist(formType)) {
+                formType = ctwc.INTROSPECT_FORM_TYPE_RESULTS;
+            }
+            var introspectSecondaryFormId = "#introspect-" + introspectNode + "-" + introspectType +
+                "-" + formType;
 
+            if (self.primary.model.model().gridRendered) {
+                $(introspectSecondaryFormId).empty();
+                self.primary.model.model().gridRendered = false;
+            }
         },
 
         renderIntrospectResult: function(moduleRequest, params) {

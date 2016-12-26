@@ -38,10 +38,19 @@ define([
 
                 self.renderIntrospectTabs(data);
             }, function(error) {
-                if (error.status === 404) {
+                if (null != error) {
+                    var viewConfig = getValueByJsonPath(self, "attributes;viewConfig", {});
+                    var remoteIP = viewConfig.ip_address;
+                    var remotePort = viewConfig.port;
+                    var defaultErrorStr = "Request could not be established";
+                    if ((null != remoteIP) && (null != remotePort)) {
+                        defaultErrorStr += " with " + remoteIP + ":" + remotePort;
+                    }
+                    var errorText = (null != error.responseText) ? error.responseText :
+                        defaultErrorStr;
                     self.$el.html('<div class="alert alert-error">' +
                         '<button type="button" class="close" data-dismiss="alert"></button> ' +
-                        "<strong>Error: </strong> <span> " + error.responseText + " </span>" +
+                        "<strong>Error: </strong> <span> " + errorText + " </span>" +
                         "</div>");
                 }
             }, null);
