@@ -166,32 +166,28 @@ define([
                          },
                          {
                              key: 'configProcessStatusList.' +
-                                 monitorInfraConstants.
-                                     UVEModuleIds['APISERVER'],
+                                 cowc.UVEModuleIds['APISERVER'],
                              keyClass: 'indent-right',
                              label: 'API Server',
                              templateGenerator: 'TextGenerator'
                          },
                          {
                              key: 'configProcessStatusList.' +
-                                 monitorInfraConstants.
-                                     UVEModuleIds['SCHEMA'],
+                                 cowc.UVEModuleIds['SCHEMA'],
                              label: 'Schema Transformer',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
                              key: 'configProcessStatusList.' +
-                                 monitorInfraConstants.
-                                     UVEModuleIds['SERVICE_MONITOR'],
+                                 cowc.UVEModuleIds['SERVICE_MONITOR'],
                              label: 'Service Monitor',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
                              key: 'configProcessStatusList.' +
-                                 monitorInfraConstants.
-                                     UVEModuleIds['DISCOVERY_SERVICE'],
+                                 cowc.UVEModuleIds['DISCOVERY_SERVICE'],
                              label: 'Discovery',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'

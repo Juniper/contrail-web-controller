@@ -168,24 +168,21 @@ define([
                          },
                          {
                              key: 'analyticsProcessStatusList.' +
-                                 monitorInfraConstants.
-                                     UVEModuleIds['COLLECTOR'],
+                                 cowc.UVEModuleIds['COLLECTOR'],
                              label: 'Collector',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
                              key: 'analyticsProcessStatusList.' +
-                                 monitorInfraConstants.
-                                     UVEModuleIds['QUERYENGINE'],
+                                 cowc.UVEModuleIds['QUERYENGINE'],
                              label: 'Query Engine',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
                              key: 'analyticsProcessStatusList.' +
-                                 monitorInfraConstants.
-                                     UVEModuleIds['APISERVER'],
+                                 cowc.UVEModuleIds['APISERVER'],
                              label: 'OpServer',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
