@@ -11,7 +11,7 @@ function ControllerInfraDashboardLoader() {
             hashParams = paramObject['hashParams'],
             renderFn = paramObject['function'];
         $("#page-content").removeClass("dashboard-no-padding").addClass("dashboard-padding");
-        if(monInfraDashboardLoader.loadedControllerInfoboxes != true) {
+        /*if(monInfraDashboardLoader.loadedControllerInfoboxes != true) {
             monInfraDashboardLoader.loadedControllerInfoboxes = true;
             require(['mon-infra-dashboard-view'],function() {
                 require(['mon-infra-controller-dashboard'], function (ControllerDashboardView) {
@@ -21,7 +21,7 @@ function ControllerInfraDashboardLoader() {
                     self.monInfraDashboardView.render();
                 });
             });
-        }
+        }*/
     };
     this.destroy = function()  {
     }
