@@ -64,6 +64,8 @@
     margin-left: 0px;
     margin-right: 10px;
     vertical-align: middle;
+    display: flex;
+    flex: 1;
 }
 .percentile dl, .percentile dt, .percentile dd {
     float: left;
@@ -144,4 +146,7 @@ dl.progress-percentage dd {
 }
 #config-nodes-donutchart-one .contrail-chart-title text, #config-nodes-donutchart-two .contrail-chart-title text {
     transform: translateY(-2px);
+}
+.confignode-donut-chart .item-content {
+    padding: 0px 15px;
 }

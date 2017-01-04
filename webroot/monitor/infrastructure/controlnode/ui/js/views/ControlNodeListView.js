@@ -3,21 +3,18 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view', 'node-color-mapping'],
+        [ 'underscore', 'contrail-view'],
         function(
-                _, ContrailView, NodeColorMapping) {
+                _, ContrailView) {
             var ControlNodeListView = ContrailView.extend({
                 render : function() {
-                    var nodeColorMapping = new NodeColorMapping(),
-                        colorFn = nodeColorMapping.getNodeColorMap;
                     this.renderView4Config(this.$el, null,
-                            getControlNodeListViewConfig(colorFn));
+                            getControlNodeListViewConfig());
                 }
             });
-            function getControlNodeListViewConfig(colorFn) {
+            function getControlNodeListViewConfig() {
                 var viewConfig = {
                     rows : [
-                        monitorInfraUtils.getToolbarViewConfig(),
                         {
                             columns : [{
                                 elementId: 'control-node-carousel-view',
@@ -31,8 +28,8 @@ define(
                                                  viewConfig: {
                                                      elementId : 'control-node-grid-stackview-0',
                                                      gridAttr : {
-                                                         defaultWidth : cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                         defaultHeight : 8
+                                                         widthMultiplier : cowc.GRID_STACK_DEFAULT_WIDTH,
+                                                         heightMultiplier : 8
                                                      },
                                                      widgetCfgList: [
                                                          {id:'controlnode-sent-updates'},
@@ -50,26 +47,14 @@ define(
                                                  viewConfig: {
                                                      elementId : 'control-node-grid-stackview-1',
                                                      gridAttr : {
-                                                         defaultWidth : cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                         defaultHeight : 8
+                                                         widthMultiplier : cowc.GRID_STACK_DEFAULT_WIDTH,
+                                                         heightMultiplier : 8
                                                      },
                                                      widgetCfgList: [
                                                          {id:'controlnode-dns'},
                                                          {id:'controlnode-named'},
-                                                         {id:'controlnode-system-cpu-share',
-                                                             itemAttr:{
-                                                                 config:{
-                                                                     nodeType:'control-node'
-                                                                 }
-                                                             }
-                                                         },
-                                                         {id:'controlnode-system-memory-usage',
-                                                             itemAttr:{
-                                                                 config:{
-                                                                     nodeType:'control-node'
-                                                                 }
-                                                             }
-                                                         },
+                                                         {id:'controlnode-system-cpu-share'},
+                                                         {id:'controlnode-system-memory-usage'},
                                                          {id:'controlnode-grid-view'}
                                                      ]
                                                 }
@@ -81,17 +66,11 @@ define(
                                              viewConfig: {
                                                  elementId : 'control-node-grid-stackview-2',
                                                  gridAttr : {
-                                                     defaultWidth : cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                     defaultHeight : 8
+                                                     widthMultiplier : cowc.GRID_STACK_DEFAULT_WIDTH,
+                                                     heightMultiplier : 8
                                                  },
                                                  widgetCfgList: [
-                                                     {id:'controlnode-disk-usage-info',
-                                                         itemAttr:{
-                                                             config:{
-                                                                 nodeType:'control-node'
-                                                             }
-                                                         }
-                                                     },
+                                                     {id:'controlnode-disk-usage-info'},
                                                      {id:'controlnode-grid-view'}
                                                  ]
                                             }
