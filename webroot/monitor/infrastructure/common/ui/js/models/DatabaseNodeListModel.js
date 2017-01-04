@@ -16,6 +16,6 @@ define([
                     ucid: ctwl.CACHE_DATABASENODE
                 }
             };
-    return listModelConfig;
+        return listModelConfig;
     }
 );

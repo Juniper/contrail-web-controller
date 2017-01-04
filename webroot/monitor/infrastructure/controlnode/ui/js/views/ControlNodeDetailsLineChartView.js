@@ -41,6 +41,7 @@ define([
                                         y1AxisLabel:ctwl.TITLE_CPU,
                                         y2AxisLabel:ctwl.TITLE_MEMORY,
                                         forceY1: [0, 1],
+                                        //height: 300,
                                         y1Formatter: function (y1Value) {
                                             return (!isNaN(y1Value))? y1Value.toFixed(2): y1Value;
                                         }
