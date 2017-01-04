@@ -19,7 +19,7 @@
     </item>
     <item>
         <!-- Use cfilt/mfilt/kfilt to get filtered data -->
-        <url>/api/tenant/get-data</url>
+        <url>/api/tenant/get-data/:type?</url>
         <method>post</method>
         <feature>monitoring</feature>
         <callback>infraCmn.getServerResponseByModType</callback>

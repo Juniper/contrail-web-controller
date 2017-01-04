@@ -42,7 +42,7 @@ define([
                     };
                 },
                 successCallback : function(response, contrailListModel) {
-                        monitorInfraUtils.parseAndMergepercentileConfigNodeNodeSummaryChart(
+                        monitorInfraUtils.parseAndMergepercentileConfigNodeSummaryChart(
                                 response['data'], contrailListModel);
 
                 }

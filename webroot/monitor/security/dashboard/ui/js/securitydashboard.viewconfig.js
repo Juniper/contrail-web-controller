@@ -29,17 +29,18 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                             "end_time": Date.now(),
                             "end_time_utc": Date.now(),
                             "where": "(name Starts with " + ctwu.getCurrentDomainProject() +')',
-                            "parser": function(response){
+                            /*"parser": function(response){
                                 return _.result(response, 'data', []);
-                            }
+                            }*/
                         },{
+                            type: 'non-stats-query',
                             getAjaxConfig: function(epsClientData, postData) {
                                 var ruleUUIDs = getRuleUUIDs(epsClientData, 'eps.__key');
                                 return getAPIServerAjaxConfigOfRuleUUIDs(ruleUUIDs);
                             },
-                            parser: function (response) {
+                            /*parser: function (response) {
                                 return response;
-                            },
+                            },*/
                             mergeFn: function (response, contrailListModel) {
                                 var analyticsEpsClientData = contrailListModel.getItems(),
                                     ruleDataArr =
@@ -122,8 +123,8 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                         }
                     },
                     itemAttr: {
-                        width: 2,
-                        height: 1.5,
+                        width: 1,
+                        height: 1,
                         title: 'Workloads',
                         showTitle: true
                     }
@@ -192,8 +193,8 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                         }
                     },
                     itemAttr: {
-                        width: 1,
-                        height: 1.5,
+                        width: 0.5,
+                        height: 1,
                         title: 'Top Services',
                         showTitle: true
                     }
@@ -368,8 +369,8 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                     }
                 },
                 itemAttr: {
-                    width: 1,
-                    height: 1.5,
+                    width: 0.5,
+                    height: 1,
                     //title: action == 'pass' ? 'Top Allowed Rules': 'Top Denied Rules',
                     title: 'Top Endpoints',
                     showTitle: true
