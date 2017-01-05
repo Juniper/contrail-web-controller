@@ -557,6 +557,7 @@
                                      viewConfig: {
                                          visible: "is_sub_interface",
                                          placeholder: 'Specify VLAN',
+                                         disabled: isDisable,
                                          path: 'virtual_machine_interface_properties.sub_interface_vlan_tag',
                                          dataBindValue: 'virtual_machine_interface_properties().sub_interface_vlan_tag',
                                          class: "col-xs-6",
