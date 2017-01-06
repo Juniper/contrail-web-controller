@@ -625,8 +625,9 @@ define([
                     if(finalObj.is_mirror == true) {
                         if(value !== "" && value !== null) {
                             var vlanVal = Number(String(value).trim());
-                            if (vlanVal < 1 || vlanVal > 65535) {
-                                return "Enter UDP port between 1 to 65535";
+                            if (isNaN(vlanVal) ||
+                                    (vlanVal < 1 || vlanVal > 65535)) {
+                                return "Enter UDP Port between 1 to 65535";
                             }
                         }
                     }
