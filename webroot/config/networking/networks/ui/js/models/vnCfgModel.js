@@ -838,10 +838,11 @@ define([
                 function (value, attr, finalObj) {
                     var sriovEnabled =
                         getValueByJsonPath(finalObj,
-                        'user_created_sriov_enabled', false);
+                        'user_created_sriov_enabled', false),
+                        vlanId = Number(value);
                     if (sriovEnabled) {
-                        if (!value || (Number(value) < 1 || Number(value) > 4094))  {
-                            return "1 - 4094";
+                        if (isNaN(vlanId) || (vlanId < 1 || vlanId > 4094))  {
+                            return "Enter valid VLAN between 1 - 4094";
                         }
                     }
                 },
