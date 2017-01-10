@@ -28,7 +28,8 @@ var async            = require('async');
 var _                = require('underscore');
 
 var defaultDomainId = "default",
-    defaultDomainName = "default-domain";
+    defaultDomainName = "default-domain",
+    defaultProject = "default-project";
 
 /**
  * Bail out if called directly as "nodejs projectconfig.api.js"
@@ -90,8 +91,11 @@ function listAllProjects (request, response, appData)
         }
         for (i = 0; i < apiProjLen; i++) {
             var apiProjFQN = commonUtils.getValueByJsonPath(apiProj[i],
-                    "fq_name", [], false).join(":");
-            if (tempProjMap[apiProjFQN] == null) {
+                    "fq_name", [], false).join(":"),
+                projectName = commonUtils.getValueByJsonPath(apiProj[i],
+                    "fq_name;1", "", false);
+            if (tempProjMap[apiProjFQN] == null &&
+                    projectName !== defaultProject) {
                 keystoneProj.push(apiProj[i]);
             }
         }
@@ -150,24 +154,27 @@ function listAllDomains (request, response, appData)
             return;
         }
         keystoneDomain = commonUtils.getValueByJsonPath(domainData,
-                "0;data;domains", [], false);
+                "0", [], false);
         keystoneDomainLen = keystoneDomain.length;
         apiDomain = commonUtils.getValueByJsonPath(domainData,
                 "1;data;domains", [], false);
         apiDomainLen = apiDomain.length;
-        for (i = 0; i < keystoneDomainLen; i++) {
-            var keystoneDomainFQN = commonUtils.getValueByJsonPath(
-                    keystoneDomain[i], "fq_name", [], false).join(":");
-            tempDomainMap[keystoneDomainFQN] = keystoneDomain[i];
-        }
         for (i = 0; i < apiDomainLen; i++) {
             var apiDomainFQN = commonUtils.getValueByJsonPath(apiDomain[i],
                     "fq_name", [], false).join(":");
-            if (tempDomainMap[apiDomainFQN] == null) {
-                keystoneDomain.push(apiDomain[i]);
+            tempDomainMap[apiDomainFQN] = apiDomain[i];
+        }
+
+        for (i = 0; i < keystoneDomainLen; i++) {
+            var keystoneDomainFQN = commonUtils.getValueByJsonPath(
+                    keystoneDomain[i], "fq_name", [], false).join(":");
+            if (tempDomainMap[keystoneDomainFQN] == null) {
+                apiDomain.push(keystoneDomain[i]);
             }
         }
-        commonUtils.handleJSONResponse(null, response, {domains: keystoneDomain});
+
+        commonUtils.handleJSONResponse(null, response,
+                {domains: apiDomain});
     });
 };
 
@@ -176,24 +183,24 @@ function getAllDomainAsync (dataObj, callback)
     var appData = dataObj.appData;
     var request = dataObj.request;
      if(dataObj.type === "keystone") {
-         var isDomainListFromApiServer = config.getDomainsFromApiServer;
-         if (null == isDomainListFromApiServer) {
-             isDomainListFromApiServer = true;
-         }
+         var keystoneData = [], domainObj, domainId;
          if (('v2.0' == request.session.authApiVersion) ||
-             (null == request.session.authApiVersion)) {
-             isDomainListFromApiServer = true;
+                 (null == request.session.authApiVersion)) {
+                 keystoneData.push({uuid: defaultDomainId,
+                     fq_name: [defaultDomainName]});
+                 callback(null, {error: null, data: keystoneData});
+                 return;
          }
-         if (true == isDomainListFromApiServer) {
-             configUtils.getDomainsFromApiServer(appData, function(error, data) {
-                 callback(null, {error: error, data: data});
-             });
+         domainObj = commonUtils.getValueByJsonPath(request,
+                 "session;last_token_used;project;domain", null, false);
+         domainId = commonUtils.getValueByJsonPath(domainObj, 'id', '', false);
+         if(domainId === defaultDomainId) {
+             keystoneData.push({uuid: domainId, fq_name: [defaultDomainName]});
          } else {
-             getDomainsFromIdentityManager(request, appData,
-                                     function(error, keystoneData) {
-                 callback(null, {error: error, data: keystoneData});
-             });
+             keystoneData.push({uuid: commonUtils.convertUUIDToString(domainId),
+                 fq_name: [domainObj.name]})
          }
+         callback(null, {error: null, data: keystoneData});
      } else {
          configApiServer.apiGet("/domains", appData,
                                 function(error, configData) {
