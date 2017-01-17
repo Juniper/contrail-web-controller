@@ -17,6 +17,7 @@ define([
             "autonomous_system": null,
             "bgpaas_session_attributes": {
                 "admin_down": false,
+                "bgp_origin" : 3,
                 "as_override": false,
                 "hold_time": null,
                 "loop_count": null,
@@ -216,6 +217,10 @@ define([
                 newBGPAsAServiceData["bgpaas_session_attributes"]["admin_down"] =
                     !sessionAttrs.admin_down;
 
+                //bgp origin
+                newBGPAsAServiceData["bgpaas_session_attributes"]["bgp_origin"] =
+                    sessionAttrs.bgp_origin ? Number(sessionAttrs.bgp_origin) : 3;
+
                 //hold time
                 newBGPAsAServiceData["bgpaas_session_attributes"]["hold_time"] =
                     sessionAttrs.hold_time ? Number(sessionAttrs.hold_time) : 0;
@@ -330,6 +335,14 @@ define([
                      if (isNaN(asn) || asn < 1 || asn > 65534) {
                          return "Enter ASN number between 1-65534";
                      }
+                },
+                'bgpaas_session_attributes.bgp_origin' :  function(value, attr, finalObj){
+                    if(value) {
+                        var bgpOrigin = Number(value);
+                        if (isNaN(bgpOrigin) || bgpOrigin < 0 || bgpOrigin > 3) {
+                            return "Enter bgp origin from 0 to 3" ;
+                        }
+                    }
                 },
                 'bgpaas_session_attributes.hold_time' :  function(value, attr, finalObj){
                     if(value) {
