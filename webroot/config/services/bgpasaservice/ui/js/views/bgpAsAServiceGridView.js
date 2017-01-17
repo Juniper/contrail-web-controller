@@ -289,6 +289,13 @@ define([
                                         formatter: "VMIFormatter"
                                     }
                                 },{
+                                    key: "bgpaas_session_attributes.bgp_origin",
+                                    templateGenerator: "TextGenerator",
+                                    label: "Bgp Origin",
+                                    templateGeneratorConfig: {
+                                        formatter: "bgpOriginViewFormatter"
+                                    }
+                                },{
                                     keyClass:'col-xs-3',
                                     valueClass:'col-xs-9',
                                     key: "bgpaas_ip_address",
@@ -397,6 +404,9 @@ define([
 
     this.IPAddressFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.ipAddressFormatter("", "", v, "", dc);
+    };
+	this.bgpOriginViewFormatter = function(v, dc) {
+        return bgpAsAServiceFormatter.bgpOriginViewFormatter("", "", v, "", dc);
     };
     this.VMIFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.vmiFormatter("", "", v, "", dc);
