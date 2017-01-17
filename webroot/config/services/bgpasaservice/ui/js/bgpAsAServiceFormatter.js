@@ -110,6 +110,42 @@
           };
 
          /*
+          * bgpOriginFormatter
+          */
+          this.bgpOriginFormatter = function(r, c, v, cd, dc) {
+              var bgpOrigin;
+              var bgpOriginState =  getValueByJsonPath(dc,
+                  "bgpaas_session_attributes;bgp_origin", "3");
+              if(bgpOriginState !== "3") {
+                  bgpOrigin =
+                      bgpOriginState.toString()
+              } else {
+                  bgpOrigin = 3;
+              }
+              return bgpOrigin;
+          };
+
+         /*
+          * bgpOriginViewFormatter
+          */
+          this.bgpOriginViewFormatter = function(r, c, v, cd, dc) {
+              var bgpOrigin;
+              var bgpOriginState =  getValueByJsonPath(dc,
+                  "bgpaas_session_attributes;bgp_origin", "3");
+              if(bgpOriginState == "0") {
+                  bgpOrigin = "IGP";
+              } else if(bgpOriginState == "1") {
+                  bgpOrigin = "EGP";
+              } else if(bgpOriginState == "2") {
+                  bgpOrigin = "INCOMPLETE";
+              }else if(bgpOriginState == "3") {
+                  bgpOrigin = "None";
+              }
+
+              return bgpOrigin;
+          };
+
+         /*
           * passiveFormatter
           */
           this.passiveFormatter = function(r, c, v, cd, dc) {

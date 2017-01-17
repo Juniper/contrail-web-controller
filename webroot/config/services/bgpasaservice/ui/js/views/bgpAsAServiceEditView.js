@@ -207,6 +207,26 @@ define([
                                                 }
                                             ]},{
                                             columns: [{
+                                                elementId: "bgp_origin",
+                                                view: "FormDropdownView",
+                                                viewConfig: {
+                                                    label: "BGP Origin",
+                                                    dataBindValue: "bgpaas_session_attributes().bgp_origin",
+                                                    path: "bgpaas_session_attributes.bgp_origin",
+                                                    class: "col-xs-6",
+                                                    elementConfig : {
+                                                    dataTextField : "text",
+                                                    dataValueField : "id",
+                                                    placeholder : 'Select BGP Origin',
+                                                    data : [{id: '3', text:'None'},
+                                                            {id: '0', text:'IGP'},
+                                                            {id: '1', text:'EGP'},
+                                                            {id: '2', text:'INCOMPLETE'}]
+                                                }
+                                                }
+                                                }
+                                            ]},{
+                                            columns: [{
                                                 elementId: "hold_time",
                                                 view: "FormInputView",
                                                 viewConfig: {
