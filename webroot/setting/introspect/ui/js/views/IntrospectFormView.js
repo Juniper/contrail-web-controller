@@ -211,6 +211,7 @@ define([
         return {
             view: "SectionView",
             viewConfig: {
+                title: "Primary Form",
                 rows: [
                     {
                         columns: [
@@ -301,6 +302,7 @@ define([
         return {
             view: "SectionView",
             viewConfig: {
+                title: secondaryFormConfig.length > 1 ? "Secondary Form" : "",
                 rows: secondaryFormConfig
             }
         };
