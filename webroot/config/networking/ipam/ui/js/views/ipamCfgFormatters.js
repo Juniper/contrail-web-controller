@@ -38,11 +38,17 @@ define([
                     if (count > 2 && cd != -1) {
                         break;
                     }
-                    var ip_block = vn['attr'][field][j];
-                    var cidr = ip_block.subnet.ip_prefix + '/' +
-                               ip_block.subnet.ip_prefix_len;
-                    returnStr += fqn + ' (' + cidr + ') ' +
+                    var subnet = getValueByJsonPath(vn,
+                            'attr;' + field + ';' + j, null, false),
+                        cidr;
+                    if(subnet && subnet.ip_prefix) {
+                        cidr = subnet.ip_prefix + '/' +
+                               subnet.ip_prefix_len;
+                        returnStr += fqn + ' (' + cidr + ') ' +
                                  '<br>';
+                    } else {
+                        returnStr += fqn + '<br>';
+                    }
                                  //ip_block.default_gateway + '<br>';
                  }
              }
