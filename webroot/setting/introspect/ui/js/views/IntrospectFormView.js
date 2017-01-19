@@ -301,6 +301,7 @@ define([
         return {
             view: "SectionView",
             viewConfig: {
+                title: secondaryFormConfig.length > 1 ? "Request Parameters" : "",
                 rows: secondaryFormConfig
             }
         };
