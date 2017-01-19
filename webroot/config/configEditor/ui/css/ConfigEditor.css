@@ -441,3 +441,27 @@ button#remove-error-popup{
 .object-trash-hover:HOVER .object-delete-trash-icon{
     display:inline;
 }
+.object-top-header{
+    background: #fafafa;
+    width: 98.9%;
+    height: 26px;
+    border-bottom: 1px solid #DEDEDE;
+    margin-top: 7px;
+    margin-left: 5px;
+}
+.object-top-header-child{
+  float: left;
+  padding-top: 3px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+#editorContainer .container-fluid .row-fluid select{
+   height:28px;
+}
+.hideTrashIcon{
+   display:none;
+}
+.collectionListTrash:HOVER .hideTrashIcon{
+   display:inline;
+}
