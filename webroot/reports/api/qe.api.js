@@ -1377,7 +1377,7 @@ function runNewQuery(req, res, queryId, reqQuery, appData) {
         async = (!_.isNil(reqQuery.async) && reqQuery.async === "true") ? true : false,
         reRunTimeRange = reqQuery.reRunTimeRange,
         reRunQuery = reqQuery,
-        engQueryStr = reqQuery.engQueryStr,
+        engQueryStr = commonUtils.htmlEntityEncoding(reqQuery.engQueryStr),
         saveQuery = reqQuery.saveQuery,
         options = {
             queryId: queryId,
