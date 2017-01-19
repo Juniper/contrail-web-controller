@@ -7,6 +7,7 @@ define([
         self.objectDetailsView = new ConfigObjectDetailsView;
         self.objectListView = new ConfigObjectListView;
         self.previousObj = [];
+        self.deletedKeyStack = [];
         self.formRadioFlag = true;
         self.oldFormData = undefined;
         self.textAreaModel = undefined;
@@ -17,6 +18,7 @@ define([
         self.jsoneditor = undefined;
         self.keep_value = undefined;
         self.resetTextAreaModel = undefined;
+        self.isDirty = false;
         self.modelLayout = '<div id="config-error-container" class="alert-error clearfix">'+
                            '<div id="config-msg-container"><span class="error-font-weight">Error : </span><span id="config-error-msg-container"></span></div>'+
                            '<div id="error-remove-icon"><button id="remove-error-popup" class="btn btn-mini"><i class="fa fa-remove"></i></button></div></div>'+
@@ -92,6 +94,7 @@ define([
         self.loadConfigEditorModal = function(schema, json, viewConfig, disableKeys, refs, oldJson, enumKeys){
             self.formRadioFlag = true;
             self.formJson = json;
+            self.deletedKeyStack = [];
             self.disableKeys = disableKeys;
             var schemaProp = getValueByJsonPath(schema,'properties;'+Object.keys(schema.properties)[0]+';properties');
             var updatedProp = self.setEmptyForChildEnum(schemaProp, schemaProp);
@@ -101,8 +104,8 @@ define([
                 var modelTitle = self.parseParentKeyLowerToUpper(Object.keys(schema.properties)[0]);
                 self.generateConfigModal(modelTitle, viewConfig, oldJson, enumKeys, refs);
                 self.loadSchemaBasedForm(self.formJson, self.schema, true);
-                self.oldFormData = $.extend(true, {}, jsoneditor.getValue());
-                var rawJson = $.extend(true, {}, jsoneditor.getValue());
+                self.oldFormData = $.extend(true, {}, jsoneditor.getValue()[0]);
+                var rawJson = $.extend(true, {}, jsoneditor.getValue()[0]);
                 document.getElementById('rawJsonTextArea').value = '';
                 self.resetTextAreaModel = rawJson;
                 self.oldAreaModel = rawJson;
@@ -122,10 +125,11 @@ define([
                 var oldModel = $.extend(true,{},self.formJson);
                 var modelTitle = self.parseParentKeyLowerToUpper(Object.keys(self.formJson)[0]);
                 self.generateConfigModal(modelTitle, viewConfig, oldJson, enumKeys, refs);
-                self.formJson = self.updateModelForSchema(self.formJson);
+                self.formJson = self.updateModelForSchema(self.formJson,false);
                 self.loadSchemaBasedForm(self.formJson, self.schema, false);
-                self.oldFormData = $.extend(true, self.formJson, jsoneditor.getValue());
-                self.resetTextAreaModel = self.updateModelForSchema(jsoneditor.getValue());
+                self.oldFormData = $.extend(true, self.formJson, jsoneditor.getValue()[0]);
+                var oldCopy = self.updateModelForSchema(jsoneditor.getValue()[0],true);
+                self.resetTextAreaModel = $.extend(true,{},oldCopy);
                 var newFormData = $.extend(true,{},self.formJson);
                 document.getElementById('rawJsonTextArea').value = '';
                 var rawJson = self.updateRefForTextArea(newFormData, refs);
@@ -134,7 +138,14 @@ define([
             }
             $("input:radio[id=configJsonMode]").change(function() {
                 var textAreaHeight = $('.modal-body').height() - 57 +'px';
-                var updatedData = jsoneditor.getValue();
+                if(jsoneditor.getValue()[1].length > 0){
+                    for(var i = 0; i < jsoneditor.getValue()[1].length; i++){
+                        if(self.deletedKeyStack.indexOf(jsoneditor.getValue()[1][i]) == -1){
+                            self.deletedKeyStack.push(jsoneditor.getValue()[1][i]);
+                        }
+                    }
+                }
+                var updatedData = self.removeDeletedItem(jsoneditor.getValue()[0], self.deletedKeyStack);
                 var resetToFiled = self.resetToField(updatedData[Object.keys(updatedData)[0]]);
                 updatedData[Object.keys(updatedData)[0]] = resetToFiled;
                 var updatedModel = self.updateRefForTextArea(updatedData, refs);
@@ -219,6 +230,196 @@ define([
                   self.showConfigErrorMsg(err);
               }
              });
+        }
+        self.dirtyCheckForObj = function(model){
+            var self = this;
+            for(var i in model){
+                if(typeof model[i] === 'number' || typeof model[i] === 'string' || typeof model[i] === 'boolean'){
+                        if(model[i] !== '' && model[i] !== 0 && model[i] !== false){
+                            self.isDirty = true;
+                        }
+                    }else if(typeof model[i] === 'object'){
+                        if(model[i].constructor !== Array){
+                            self.dirtyCheckForObj(model[i]);
+                        }else{
+                            if(typeof cowu.checkArrayContainsObject(model[i]) === 'object'){
+                                for(var j = 0; j < model[i].length; j++){
+                                    self.dirtyCheckForObj(model[i][j]);
+                                }
+                            }else if(typeof cowu.checkArrayContainsString(model[i]) === 'string'){
+                                for(var k = 0; k < model[i].length; k++){
+                                    if(model[i][k] !== '' || model[i][k] !== 0){
+                                        self.isDirty = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }
+            return model;
+        }
+        self.removeSelectedKeys = function(model, keyInfo){
+            var self = this;
+            for (var i in model) {
+                 if (typeof model[i] === 'object' && model[i] !== null && model[i].constructor !== Array) {
+                        currentObj = i;
+                        if(i == keyInfo.deletedItem){
+                            if(keyInfo.directChild){
+                                self.dirtyCheckForObj(model[i]);
+                                if(!self.isDirty){
+                                   model[i] = null;
+                                }
+                                self.isDirty = false;
+                                keyInfo.directChild = false;
+                            }else{
+                                delete model[i];
+                            }
+                        }else{
+                            self.removeSelectedKeys(model[i], keyInfo);
+                        }
+                 }else if(model[i] !== undefined && model[i] !== null){
+                        if(model[i].constructor === Array){
+                           if(model[i].length == 0 && i == keyInfo.deletedItem){
+                               if(keyInfo.directChild){
+                                   model[i] = [];
+                                   keyInfo.directChild = false;
+                               }else{
+                                   delete model[i];
+                               }
+                           }else if(typeof cowu.checkArrayContainsObject(model[i]) === 'object' && i == keyInfo.parentKey){
+                                if(keyInfo.keys.length == 0){
+                                    delete model[i][keyInfo.deletedItem];
+                                }else{
+                                    for(var k = 0; k < model[i].length; k++){
+                                       for(var c = 0; c < keyInfo.keys.length; c++){
+                                            if(isNumber(keyInfo.keys[c])){
+                                               var  key = parseInt(keyInfo.keys[c]);
+                                               break;
+                                            }
+                                        }
+                                        if(key == k){
+                                            self.removeSelectedKeys(model[i][k], keyInfo);
+                                        }
+                                    }
+                                }
+                             }else if(keyInfo.keys.length == 0 && i == keyInfo.deletedItem && keyInfo.directChild){
+                                 self.dirtyCheckForObj(model[i]);
+                                 if(!self.isDirty){
+                                     model[i] = [];
+                                 }
+                                 self.isDirty = false;
+                                 keyInfo.directChild = false;
+                             }else if(typeof cowu.checkArrayContainsObject(model[i]) !== 'object'){
+                                if(isNumber(keyInfo.deletedItem) && i === keyInfo.adjecentParentKey){
+                                     delete  model[i][keyInfo.deletedItem];
+                                }
+                            }else if(typeof cowu.checkArrayContainsObject(model[i]) === 'object' && isNumber(keyInfo.deletedItem) && i === keyInfo.adjecentParentKey){
+                                delete  model[i][keyInfo.deletedItem];
+                            }else if((typeof cowu.checkArrayContainsObject(model[i]) === 'object' && (isNumber(keyInfo.deletedItem) || !isNumber(keyInfo.deletedItem))) && (keyInfo.keys.indexOf(keyInfo.adjecentParentKey) != -1)){
+                                for(var m = 0; m < model[i].length; m++){
+                                    if(keyInfo.keys.indexOf(i) != -1){
+                                        var index = keyInfo.keys.indexOf(i) + 1;
+                                        var indexData = keyInfo.keys[index];
+                                        if(m == parseInt(indexData)){
+                                            self.removeSelectedKeys(model[i][m], keyInfo);
+                                        }
+                                    }
+                                }
+                            }
+                        }else if(currentObj === keyInfo.adjecentParentKey || isNumber(keyInfo.adjecentParentKey)){
+                            if(i === keyInfo.deletedItem){
+                                if(model[i] === '' || model[i] === false){
+                                    delete model[i];
+                                }
+                            }
+                        }else if(i == keyInfo.deletedItem && keyInfo.directChild){
+                            if(model[i] === '' || model[i] === false){
+                                model[i] = null;
+                            }
+                            keyInfo.directChild = false;
+                        }
+                   }
+             }
+            return model;
+        }
+        self.removeUndefinedFromModel = function(model){
+            var self = this;
+            for (var i in model) {
+                 if (typeof model[i] === 'object' && model[i] !== null && model[i].constructor !== Array) {
+                        self.removeUndefinedFromModel(model[i]);
+                 }else if(model[i] !== undefined && model[i] !== null){
+                        if(model[i].constructor === Array){
+                            model[i] = model[i].filter(function(n){ return n != undefined });
+                            if(model[i].length > 0){
+                                if(typeof cowu.checkArrayContainsObject(model[i]) == 'object'){
+                                    for(var j = 0; j < model[i].length; j++){
+                                        self.removeUndefinedFromModel(model[i][j]);
+                                    }
+                                }
+                            }
+                        }
+                  }
+             }
+            return model;
+        }
+        self.removeDeletedItem = function(model, deletedKeyPath){
+            var directChild = false;
+            for(var i = 0; i < deletedKeyPath.length; i++){
+                var keyInfo = {};
+                var keys = deletedKeyPath[i].split(';');
+                if(keys.length == 2){
+                    directChild = true;
+                }
+                var lastKeys = keys[keys.length - 1];
+                var delItem = keys.splice(keys.length - 1, 1);
+                keyInfo.deletedItem = delItem[0]
+                    keyInfo.adjecentParentKey = keys[keys.length - 1];
+                    keyInfo.parentKey = keys[1];
+                    keys.shift();
+                    keys.shift();
+                    keyInfo.keys = keys;
+                    keyInfo.directChild = directChild;
+                    model = self.removeSelectedKeys(model, keyInfo);
+           }
+           self.changeIndexOfDeletedKey(model);
+           var newModel = self.removeUndefinedFromModel(model);
+          return newModel;
+        }
+        self.changeIndexOfDeletedKey = function(updatedModel){
+            var deletedKeys = [];
+            for(var i = 0;i < self.deletedKeyStack.length; i++){
+                var keys = self.deletedKeyStack[i].split(';');
+                var lastKeys = keys.pop();
+                var path = keys.join(';');
+                if(isNumber(lastKeys[0])){
+                    if(getValueByJsonPath(updatedModel, path).length != 0){
+                        deletedKeys.push(self.deletedKeyStack[i]);
+                        delete self.deletedKeyStack[i];
+                    }
+                }
+            }
+            self.deletedKeyStack = self.deletedKeyStack.filter(function(n){ return n != undefined });
+            deletedKeys.sort();
+            for(var j = 0; j < deletedKeys.length; j++){
+                var keys = [];
+                var deletedKey  = deletedKeys[j].split(';');
+                var lastItem = deletedKey.pop();
+                var str = deletedKey.join(';');
+                for(var k = 0; k < self.deletedKeyStack.length; k++){
+                    if(self.deletedKeyStack[k].search(str) != -1){
+                        var subStr = self.deletedKeyStack[k].substring(str.length+1);
+                        var intKey = subStr.split(';')[0];
+                        if(parseInt(lastItem) < parseInt(intKey)){
+                            var keyIndex = parseInt(lastItem) + (parseInt(intKey) - parseInt(lastItem)) - 1;
+                            var strArr = subStr.split(';');
+                           strArr[0] = keyIndex;
+                           var newStr = str +';'+ strArr.join(';');
+                           self.deletedKeyStack[k] = newStr;
+                        }
+                    }
+                }
+            }
+          return deletedKeys;
         }
         self.resetToField = function(model){
             var schemaProp = getValueByJsonPath(self.schema,'properties;'+Object.keys(self.schema.properties)[0]+';properties');
@@ -347,10 +548,17 @@ define([
                  'title': title,
                 'body': self.modelLayout,
                 'onSave': function() {
+                    self.deletedKeyStack = [];
                     if(self.formRadioFlag){
-                        var editedJson = jsoneditor.getValue();
+                        var editedJson = jsoneditor.getValue()[0];
                         var oldKeys = self.oldFormData[Object.keys(self.oldFormData)[0]];
                         var updatedKeys = editedJson[Object.keys(editedJson)[0]];
+                        if(updatedKeys.fq_name != undefined){
+                            if(typeof updatedKeys.fq_name != 'string'){
+                                var fqName = updatedKeys.fq_name.join(':');
+                                updatedKeys.fq_name = fqName;
+                            }
+                        }
                         var objDiff = lodash.diff(oldKeys, updatedKeys, false, oldJson, enumKeys);
                         var schemaProp = self.schema.properties[Object.keys(editedJson)[0]].properties;
                         var updatedRefs = self.updateModelRefsForForm(objDiff, schemaProp, refs);
@@ -382,9 +590,11 @@ define([
                     }
                 },
                 'onCancel': function() {
+                    self.deletedKeyStack = [];
                     $("#json-editor-form-view").modal('hide');
                 },
                 'onReset': function() {
+                    self.deletedKeyStack = [];
                     if(self.formRadioFlag){
                         self.hideErrorPopup();
                         if(Object.keys(self.formJson).length == 0){
@@ -398,25 +608,29 @@ define([
                 }
             });
         }
-        self.updateModelForSchema = function(model){
+        self.updateModelForSchema = function(model,isString){
             var schemaProp = self.schema.properties[Object.keys(self.schema.properties)[0]].properties;
             for (var i in model) {
                 if (typeof model[i] === 'object' && model[i] !== null && model[i].constructor !== Array) {
-                       self.updateModelForSchema(model[i]);
-                }else if( model[i] !== null && model[i].constructor === Array){
-                    if(i.substring(i.length-5,i.length) === '_refs' && schemaProp[i].format !== undefined){
-                        model[i] = self.checkExistingRefs(model[i]);
-                    }else if(typeof model[i][0] === 'object'){
-                        for(var j = 0; j < model[i].length; j++){
-                            self.updateModelForSchema(model[i][j]);
+                       self.updateModelForSchema(model[i], isString);
+                }else if( model[i] !== null && model[i] !== undefined){
+                    if(model[i].constructor === Array){
+                        if(i.substring(i.length-5,i.length) === '_refs' && schemaProp[i].format !== undefined){
+                            model[i] = self.checkExistingRefs(model[i]);
+                        }else if(typeof model[i][0] === 'object'){
+                            for(var j = 0; j < model[i].length; j++){
+                                self.updateModelForSchema(model[i][j], isString);
+                            }
+                        }else if(i === 'fq_name' || i === 'to'){
+                            var item = model[i].join(':');
+                            model[i] = item;
                         }
-                    }else if(i === 'fq_name' || i === 'to'){
-                        var item = model[i].join(':');
-                        model[i] = item;
+                    }else if((i === 'fq_name' || i === 'to') && typeof model[i] == 'string'){
+                        if(isString){
+                            var item = model[i].split(':');
+                            model[i] = item;
+                        }
                     }
-                }else if((i === 'fq_name' || i === 'to') && typeof model[i] == 'string'){
-                    var item = model[i].split(':');
-                    model[i] = item;
                 }
             }
           return model;
@@ -501,7 +715,7 @@ define([
         }
         self.resetTextArea = function(){
             document.getElementById('rawJsonTextArea').value = '';
-            document.getElementById('rawJsonTextArea').value = JSON.stringify(self.resetTextAreaModel,null,2);
+            document.getElementById('rawJsonTextArea').value = JSON.stringify(self.resetTextAreaModel , null, 2);
             self.hideErrorPopup();
         }
         self.checkExistingRefs = function(model){
@@ -519,7 +733,12 @@ define([
             }
         }
         self.loadSchemaBasedForm = function(formJson, schema, hideFlag){
-            var startval = (self.jsoneditor && self.keep_value)? self.jsoneditor.getValue() : formJson;
+            var startval;
+            if(self.jsoneditor !== undefined){
+                startval = (self.jsoneditor && self.keep_value)? self.jsoneditor.getValue()[0] : formJson;
+            }else{
+                startval = (self.jsoneditor && self.keep_value)? self.jsoneditor.getValue() : formJson;
+            }
             var rowJsonContainer = $('.object-json-view');
             var formContainer = document.getElementById('jsonEditorContainer');
             if(self.jsoneditor) self.jsoneditor.destroy();
