@@ -15,7 +15,7 @@ var qeapi = module.exports,
     messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
     global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
     qs = require('querystring'),
-    underscore = require('underscore'),
+    _ = require('underscore'),
     redisReadStream = require('redis-rstream'),
     opServer;
 var statPlotFields = [],
@@ -1237,7 +1237,14 @@ function runNewQuery(req, res, queryId, reqQuery)
     var tableName = reqQuery['table'], tableType = reqQuery['tableType'],
         queryId = reqQuery['queryId'], pageSize = parseInt(reqQuery['pageSize']),
         async = (reqQuery['async'] != null && reqQuery['async'] == "true") ? true : false,
-        reRunTimeRange = reqQuery['reRunTimeRange'], reRunQuery = reqQuery, engQueryStr = reqQuery['engQueryStr'],
+        reRunTimeRange = reqQuery['reRunTimeRange'], reRunQuery = reqQuery,
+        engQueryStr = JSON.stringify(_.object(_.map(
+            _.pairs(JSON.parse(reqQuery['engQueryStr'])),
+            function(pair) {
+                pair[1] = _.escape(pair[1]);
+                return pair;
+            }
+        ))),
         saveQuery = reqQuery['saveQuery'],
         options = {queryId:queryId, pageSize:pageSize, counter:0, status:"run",
             async:async, count:0, progress:0, errorMessage:"", reRunTimeRange:
