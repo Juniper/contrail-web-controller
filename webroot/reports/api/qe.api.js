@@ -1237,7 +1237,11 @@ function runNewQuery(req, res, queryId, reqQuery)
     var tableName = reqQuery['table'], tableType = reqQuery['tableType'],
         queryId = reqQuery['queryId'], pageSize = parseInt(reqQuery['pageSize']),
         async = (reqQuery['async'] != null && reqQuery['async'] == "true") ? true : false,
-        reRunTimeRange = reqQuery['reRunTimeRange'], reRunQuery = reqQuery, engQueryStr = reqQuery['engQueryStr'],
+        reRunTimeRange = reqQuery['reRunTimeRange'], reRunQuery = reqQuery,
+        engQueryStr = JSON.stringify(_.mapObject(
+            JSON.parse(reqQuery['engQueryStr']),
+            _.escape
+        )),
         saveQuery = reqQuery['saveQuery'],
         options = {queryId:queryId, pageSize:pageSize, counter:0, status:"run",
             async:async, count:0, progress:0, errorMessage:"", reRunTimeRange:
