@@ -168,6 +168,7 @@ define([
                                             placeholder: "Select Interface(s)",
                                             dataTextField: "text",
                                             dataValueField: "value",
+                                            maximumSelectionSize: 1,
                                             dataSource: {
                                                 type: "remote",
                                                 requestType: "GET",
