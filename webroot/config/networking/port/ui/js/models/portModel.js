@@ -469,12 +469,9 @@ define([
                     modelConfig["disable_sub_interface"] = true;
                 }
             }
-            if(vlanTag == ""){
-                var vmiRefTo = getValueByJsonPath(modelConfig,
-                                    "virtual_machine_interface_refs",[]);
-                if (vmiRefTo.length > 0) {
-                    modelConfig['isParent'] = true;
-                }
+            var portUUID = getValueByJsonPath(modelConfig, "uuid", null);
+            if(vlanTag == "" && portUUID != null) {
+                modelConfig['isParent'] = true;
             }
             modelConfig['deviceOwnerValue'] = deviceOwnerValue;
 
