@@ -7,17 +7,6 @@ define([
 ], function (ContrailListModel) {
         var vlRemoteConfig = [
           {
-              getAjaxConfig: function() {
-                  return monitorInfraUtils
-                      .getGeneratorsAjaxConfigForInfraNodes('controlNodeDS');
-              },
-              successCallback: function(response,contrailListModel) {
-                  monitorInfraUtils
-                      .parseAndMergeGeneratorWithPrimaryDataForInfraNodes(
-                              response,contrailListModel);
-              }
-          },
-          {
               getAjaxConfig: function(responseJSON) {
                   return monitorInfraUtils.getAjaxConfigForInfraNodesCpuStats(
                           monitorInfraConstants.CONTROL_NODE,responseJSON,'summary');

@@ -219,55 +219,24 @@ define([
                         msg: infraAlertMsgs['NTP_UNSYNCED_ERROR']
                     }, infoObj));
                 }
-                if(obj['isUveMissing'] == true)
-                    alertsList.push($.extend({}, {
+              //ifmap down alerts for control node
+                if(obj['isIfmapDown']) {
+                    alertsList.push($.extend({
                         sevLevel: sevLevels['ERROR'],
-                        msg: infraAlertMsgs['UVE_MISSING']
+                        msg: infraAlertMsgs['IFMAP_DOWN'],
+                        timeStamp: obj['ifmapDownAt']
                     }, infoObj));
-                if(obj['isConfigMissing'] == true)
+                }
+                if(obj['downXMPPPeerCnt'] > 0)
                     alertsList.push($.extend({}, {
-                        sevLevel: sevLevels['ERROR'],
-                        msg: infraAlertMsgs['CONFIG_MISSING']
+                        sevLevel: sevLevels['WARNING'],
+                        msg: infraAlertMsgs['XMPP_PEER_DOWN'].format(obj['downXMPPPeerCnt'])
                     }, infoObj));
-                if(obj['isUveMissing'] == false) {
-                    //ifmap down alerts for control node
-                    if(obj['isIfmapDown']) {
-                        alertsList.push($.extend({
-                            sevLevel: sevLevels['ERROR'],
-                            msg: infraAlertMsgs['IFMAP_DOWN'],
-                            timeStamp: obj['ifmapDownAt']
-                        }, infoObj));
-                    }
-                    if(obj['isPartialUveMissing'] == true)
-                        alertsList.push($.extend({}, {
-                            sevLevel: sevLevels['INFO'],
-                            msg: infraAlertMsgs['PARTIAL_UVE_MISSING']
-                        }, infoObj));
-                    if(obj['downXMPPPeerCnt'] > 0)
-                        alertsList.push($.extend({}, {
-                            sevLevel: sevLevels['WARNING'],
-                            msg: infraAlertMsgs['XMPP_PEER_DOWN'].format(obj['downXMPPPeerCnt'])
-                        }, infoObj));
-                    if(obj['downBgpPeerCnt'] > 0)
-                        alertsList.push($.extend({}, {
-                            sevLevel: sevLevels['WARNING'],
-                            msg: infraAlertMsgs['BGP_PEER_DOWN'].format(obj['downBgpPeerCnt'])
-                        }, infoObj));
-                }
-                //Alerts that are applicable only when both UVE and config data are present
-                if(obj['isUveMissing'] == false && obj['isConfigMissing'] == false) {
-                    if(typeof(obj['totalBgpPeerCnt']) == "number" &&
-                        obj['configuredBgpPeerCnt'] != obj['totalBgpPeerCnt'])
-                        alertsList.push($.extend({}, {
-                            sevLevel: sevLevels['WARNING'],
-                            msg: infraAlertMsgs['BGP_CONFIG_MISMATCH']
-                        }, infoObj));
-                    if(obj['uveCfgIPMisMatch'])
-                        alertsList.push($.extend({}, {
-                            sevLevel: sevLevels['ERROR'],
-                            msg: infraAlertMsgs['CONFIG_IP_MISMATCH']
-                        }, infoObj));
-                }
+                if(obj['downBgpPeerCnt'] > 0)
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['WARNING'],
+                        msg: infraAlertMsgs['BGP_PEER_DOWN'].format(obj['downBgpPeerCnt'])
+                    }, infoObj));
                 return alertsList.sort(dashboardUtils.sortInfraAlerts);
             },
             processConfigNodeAlerts : function(obj) {
@@ -283,20 +252,6 @@ define([
                         sevLevel: sevLevels['ERROR'],
                         msg: infraAlertMsgs['NTP_UNSYNCED_ERROR']
                     }, infoObj));
-                if(obj['isUveMissing'] == true)
-                    alertsList.push($.extend({}, {
-                        sevLevel: sevLevels['ERROR'],
-                        msg: infraAlertMsgs['UVE_MISSING']
-                    }, infoObj));
-        //        if(obj['isConfigMissing'] == true)
-        //            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
-                if(obj['isUveMissing'] == false){
-                    if(obj['isPartialUveMissing'] == true)
-                        alertsList.push($.extend({}, {
-                            sevLevel: sevLevels['INFO'],
-                            msg: infraAlertMsgs['PARTIAL_UVE_MISSING']
-                        }, infoObj));
-                }
                 return alertsList.sort(dashboardUtils.sortInfraAlerts);
             },
             processAnalyticsNodeAlerts : function(obj) {
@@ -312,20 +267,6 @@ define([
                         sevLevel: sevLevels['ERROR'],
                         msg: infraAlertMsgs['NTP_UNSYNCED_ERROR']
                     }, infoObj));
-                }
-                if(obj['isUveMissing'] == true){
-                    alertsList.push($.extend({}, {
-                        sevLevel: sevLevels['ERROR'],
-                        msg: infraAlertMsgs['UVE_MISSING']
-                    }, infoObj));
-                }
-                if(obj['isUveMissing'] == false) {
-                    if(obj['isPartialUveMissing'] == true){
-                        alertsList.push($.extend({}, {
-                            sevLevel: sevLevels['INFO'],
-                            msg: infraAlertMsgs['PARTIAL_UVE_MISSING']
-                        }, infoObj));
-                    }
                 }
                 if(obj['errorStrings'] != null && obj['errorStrings'].length > 0){
                     $.each(obj['errorStrings'],function(idx,errorString){
@@ -350,21 +291,6 @@ define([
                     alertsList.push($.extend({}, {
                         sevLevel: sevLevels['ERROR'],
                         msg: infraAlertMsgs['NTP_UNSYNCED_ERROR']
-                    }, infoObj));
-                }
-                if(obj['isUveMissing'] == true){
-                    alertsList.push($.extend({}, {
-                        sevLevel: sevLevels['ERROR'],
-                        msg: infraAlertMsgs['UVE_MISSING']
-                    }, infoObj));
-                }
-        //        if(obj['isConfigMissing'] == true){
-        //            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
-        //        }
-                if(obj['isUveMissing'] == false && obj['isPartialUveMissing'] == true){
-                    alertsList.push($.extend({}, {
-                        sevLevel: sevLevels['INFO'],
-                        msg: infraAlertMsgs['PARTIAL_UVE_MISSING']
                     }, infoObj));
                 }
                 if(obj['usedPercentage'] >= 70 && obj['usedPercentage'] < 90){
@@ -519,12 +445,7 @@ define([
 
         self.getConfigNodeColor = function (d,obj) {
             obj= ifNull(obj,{});
-            var nodeColor;
-            if(cowu.getAlarmsFromAnalytics) {
-                nodeColor = coreAlarmUtils.getNodeColor(obj);
-            } else {
-                nodeColor = coreAlarmUtils.getNodeColor(obj);
-            }
+            var nodeColor = coreAlarmUtils.getNodeColor(obj);
             if(nodeColor != false)
                 return nodeColor;
             return cowc.COLOR_SEVERITY_MAP['blue'];
@@ -532,12 +453,7 @@ define([
 
         self.getControlNodeColor = function (d,obj) {
             obj= ifNull(obj,{});
-            var nodeColor;
-            if(cowu.getAlarmsFromAnalytics) {
-                nodeColor = coreAlarmUtils.getNodeColor(obj);
-            } else {
-                nodeColor = coreAlarmUtils.getNodeColor(obj);
-            }
+            var nodeColor = coreAlarmUtils.getNodeColor(obj);
             if(nodeColor != false)
                 return nodeColor;
             //If connected to atleast one XMPP Peer
@@ -549,12 +465,7 @@ define([
 
         self.getDatabaseNodeColor = function (d,obj) {
             obj= ifNull(obj,{});
-            var nodeColor;
-            if(cowu.getAlarmsFromAnalytics) {
-                nodeColor = coreAlarmUtils.getNodeColor(obj);
-            } else {
-                nodeColor = coreAlarmUtils.getNodeColor(obj);
-            }
+            var nodeColor = coreAlarmUtils.getNodeColor(obj);
             if(nodeColor != false)
                 return nodeColor;
             return cowc.COLOR_SEVERITY_MAP['blue'];
@@ -563,23 +474,14 @@ define([
         self.getAnalyticsNodeColor = function (d, obj) {
             obj= ifNull(obj,{});
             var nodeColor;
-            if(cowu.getAlarmsFromAnalytics) {
-                nodeColor = coreAlarmUtils.getNodeColor(obj);
-            } else {
-                nodeColor = coreAlarmUtils.getNodeColor(obj);
-            }
+            var nodeColor = coreAlarmUtils.getNodeColor(obj);
             if(nodeColor != false)
                 return nodeColor;
             return cowc.COLOR_SEVERITY_MAP['blue'];
         };
 
         self.getvRouterColor = function(d,obj) {
-            var nodeColor;
-            if(cowu.getAlarmsFromAnalytics) {
-                nodeColor = coreAlarmUtils.getNodeColor(obj);
-            } else {
-                nodeColor = coreAlarmUtils.getNodeColor(obj);
-            }
+            var nodeColor = coreAlarmUtils.getNodeColor(obj);
             if(nodeColor != false)
                 return nodeColor;
             obj = ifNull(obj,{});
