@@ -11,18 +11,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                 dataParser : monitorInfraParsers.parseAnalyticsNodesDashboardData
             },
             vlRemoteConfig : {
-                vlRemoteList : [{
-                    getAjaxConfig : function() {
-                        return monitorInfraUtils
-                            .getGeneratorsAjaxConfigForInfraNodes(
-                                'analyticsNodeDS');
-                    },
-                    successCallback : function(response, contrailListModel) {
-                        monitorInfraUtils
-                            .parseAndMergeGeneratorWithPrimaryDataForInfraNodes(
-                                response, contrailListModel);
-                    }
-                },
+                vlRemoteList : [
                 {
                     getAjaxConfig : function() {
                         var postData =

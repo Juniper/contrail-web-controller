@@ -8,17 +8,6 @@ define([
 
         var vlRemoteList = [
             {
-                getAjaxConfig: function() {
-                    return monitorInfraUtils
-                       .getGeneratorsAjaxConfigForInfraNodes('configNodeDS');
-                },
-                successCallback: function(response,contrailListModel) {
-                    monitorInfraUtils
-                       .parseAndMergeGeneratorWithPrimaryDataForInfraNodes(
-                       response,contrailListModel);
-                }
-            },
-            {
                 getAjaxConfig: function(responseJSON) {
                     return monitorInfraUtils.getAjaxConfigForInfraNodesCpuStats(
                             monitorInfraConstants.CONFIG_NODE,responseJSON,'summary');

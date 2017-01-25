@@ -38,14 +38,9 @@ define(
                             ifNull(jsonPath(d,'$..bgp_router_ip_list')[0],[]);
                         obj['configIP'] = ifNull(jsonPath(d,
                             '$..ConfigData..bgp_router_parameters.address')[0],'-');
-                        obj['isConfigMissing'] = $.isEmptyObject(jsonPath(d,
-                            '$..ConfigData')[0]) ? true : false;
                         obj['configuredBgpPeerCnt'] =
                             ifNull(jsonPath(d,'$.value.ConfigData.bgp-router.'+
                             'bgp_router_refs')[0],[]).length;
-                        obj['isUveMissing'] =
-                            $.isEmptyObject(jsonPath(d,'$..BgpRouterState')[0]) ?
-                                    true : false;
                         obj['ip'] =
                             ifNull(jsonPath(d,'$..bgp_router_ip_list[0]')[0],'-');
                         //If iplist is empty will display the config ip
@@ -69,8 +64,8 @@ define(
                                     }
                                 }
                             };
-                        obj['version'] = ifEmpty(self.getNodeVersion(jsonPath(d,
-                            '$.value.BgpRouterState.build_info')[0]),'-');
+                        obj['version'] = self.getNodeVersion(
+                                getValueByJsonPath(d,"value;NodeStatus;build_info","-"));
                         obj['totalPeerCount'] =
                             ifNull(jsonPath(d,'$..num_bgp_peer')[0],0) +
                             ifNull(jsonPath(d,'$..num_xmpp_peer')[0],0);
@@ -106,23 +101,15 @@ define(
                         } else {
                             obj['downXMPPPeerCntText'] = "";
                         }
-                        obj['isPartialUveMissing'] = false;
                         obj['isIfmapDown'] = false;
-                        if(obj['isUveMissing'] == false) {
-                            obj['isPartialUveMissing'] = 
-                                (memCpuUsage == null || cowu.isEmptyObject(memCpuUsage) || cowu.isEmptyObject(
-                                jsonPath(d,'$.value.BgpRouterState.build_info')[0]) ||
-                                (obj['configIP'] == '-') || obj['uveIP'].length == 0)
-                                ? true : false;
-                            var ifmapObj =
-                                jsonPath(d,'$.value.BgpRouterState.ifmap_info')[0];
-                            if(ifmapObj != undefined &&
+                        var ifmapObj =
+                                getValueByJsonPath(d,'value;BgpRouterState;ifmap_info');
+                            if(ifmapObj != null &&
                                     ifmapObj['connection_status'] != 'Up'){
                                 obj['isIfmapDown'] = true;
                                 obj['ifmapDownAt'] =
                                     ifNull(ifmapObj['connection_status_change_at'],'-');
                             }
-                        }
                         obj['isNTPUnsynced'] =
                             monitorInfraUtils.isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
                         if(obj['downBgpPeerCnt'] > 0){
@@ -131,43 +118,21 @@ define(
                         } else {
                             obj['downBgpPeerCntText'] = "";
                         }
-                        obj['uveCfgIPMisMatch'] = false;
-                        if(obj['isUveMissing'] == false &&
-                                obj['isConfigMissing'] == false &&
-                                obj['isPartialUveMissing'] == false) {
-                            if(obj['uveIP'].indexOf(obj['configIP']) <= -1){
-                                obj['uveCfgIPMisMatch'] = true;
-                            }
-                        }
                         obj['type'] = 'controlNode';
                         obj['display_type'] = 'Control Node';
-                        var upTime = new XDate(jsonPath(d,'$..uptime')[0]/1000);
-                        var currTime = new XDate();
-                        var procStateList;
 
                         try{
                             obj['status'] = getOverallNodeStatus(d,"control");
                         }catch(e){
                             obj['status'] = 'Down';
                         }
-                        obj['processAlerts'] =
-                            infraMonitorAlertUtils.getProcessAlerts(d,obj);
-                        obj['nodeAlerts'] =
-                            infraMonitorAlertUtils.processControlNodeAlerts(obj);
                         var alarms = getValueByJsonPath(d,'value;UVEAlarms;alarms',[]);
-                        if(cowu.getAlarmsFromAnalytics) {
                             obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
                                                             {
                                                                 data:obj,
                                                                 alarms:alarms,
                                                                 nodeType:'control-node'
-//                                                                processPath:processPath
                                                             });
-                        } else {
-                            obj['alerts'] =
-                                obj['nodeAlerts'].concat(obj['processAlerts'])
-                                                    .sort(dashboardUtils.sortInfraAlerts);
-                        }
                         obj['color'] = monitorInfraUtils.getControlNodeColor(d,obj);
                         obj['isGeneratorRetrieved'] = false;
 
@@ -217,12 +182,6 @@ define(
                         if (obj['ip'] != '-')
                             iplist.push(obj['ip']);
                         obj['uveIP'] = iplist;
-                        obj['isConfigMissing'] = $.isEmptyObject(getValueByJsonPath(
-                            dValue, 'ConfigData')) ? true : false;
-                        obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(
-                                dValue, 'VrouterAgent')) && $.isEmptyObject(
-                                getValueByJsonPath(dValue, 'VrouterStatsAgent'))) ?
-                            true : false;
                         obj['isNTPUnsynced'] =
                             monitorInfraUtils.isNTPUnsynced(jsonPath(dValue,
                             '$..NodeStatus')[0]);
@@ -312,61 +271,35 @@ define(
 
                         obj['vnCnt'] = getValueByJsonPath(dValue,
                             'VrouterAgent;vn_count', 0);
-                        obj['version'] = ifNullOrEmpty(self.getNodeVersion(
-                            getValueByJsonPath(dValue,
-                                'VrouterAgent;build_info')), noDataStr);
+                        obj['version'] = self.getNodeVersion(
+                                getValueByJsonPath(d,"value;NodeStatus;build_info", noDataStr));
                         obj['type'] = 'vRouter';
                         obj['display_type'] = 'Virtual Router';
-                        obj['isPartialUveMissing'] = false;
                         obj['errorIntfCnt'] = 0;
-                        if (obj['isUveMissing'] == false) {
-                            var xmppPeers = getValueByJsonPath(dValue,
-                                'VrouterAgent;xmpp_peer_list', []);
-                            obj['xmppPeerDownCnt'] = 0;
-                            $.each(xmppPeers, function(idx, currPeer) {
-                                if (currPeer['status'] != true) {
-                                    obj['xmppPeerDownCnt']++;
-                                }
-                            });
-                            obj['isPartialUveMissing'] = $.isEmptyObject(
-                                    getValueByJsonPath(d,
-                                            'value;NodeStatus;process_mem_cpu_usage;contrail-vrouter-agent')) ||
-                                $.isEmptyObject(getValueByJsonPath(dValue,
-                                    'VrouterAgent;build_info')) ||
-                                obj['uveIP'].length == 0 ? true : false;
-                            obj['errorIntfCnt'] = getValueByJsonPath(dValue,
-                                'VrouterAgent;down_interface_count', 0);
-                        }
+                        var xmppPeers = getValueByJsonPath(dValue,
+                            'VrouterAgent;xmpp_peer_list', []);
+                        obj['xmppPeerDownCnt'] = 0;
+                        $.each(xmppPeers, function(idx, currPeer) {
+                            if (currPeer['status'] != true) {
+                                obj['xmppPeerDownCnt']++;
+                            }
+                        });
+                        obj['errorIntfCnt'] = getValueByJsonPath(dValue,
+                            'VrouterAgent;down_interface_count', 0);
                         if (obj['errorIntfCnt'] > 0) {
                             obj['errorIntfCntText'] = ", <span class='text-error'>" +
                                 obj['errorIntfCnt'] + " Down</span>";
                         } else {
                             obj['errorIntfCntText'] = "";
                         }
-                        obj['uveCfgIPMisMatch'] = false;
-                        if (obj['isUveMissing'] == false && obj['isConfigMissing'] ==
-                            false && obj['isPartialUveMissing'] == false) {
-                            obj['uveCfgIPMisMatch'] = (obj['uveIP'].indexOf(obj[
-                                    'configIP']) == -1 && obj['configIP'] != '-') ?
-                                true : false;
-                        }
-                        obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(
-                            d, obj, 'NodeStatus;process_info');
                         obj['isGeneratorRetrieved'] = false;
-                        obj['nodeAlerts'] = infraMonitorAlertUtils.processvRouterAlerts(
-                            obj);
                         var alarms = getValueByJsonPath(d,'value;UVEAlarms;alarms',[]);
-                        if(cowu.getAlarmsFromAnalytics) {
-                            obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
-                                                            {
-                                                                data:obj,
-                                                                alarms:alarms,
-                                                                nodeType:'vrouter',
-                                                            });
-                        } else {
-                            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(
-                                    dashboardUtils.sortInfraAlerts);
-                        }
+                        obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
+                                                        {
+                                                            data:obj,
+                                                            alarms:alarms,
+                                                            nodeType:'vrouter',
+                                                        });
                         //Decide color based on parameters
                         obj['color'] = monitorInfraUtils.getvRouterColor(d, obj);
                         obj['cores'] = self.getCores(d);
@@ -403,8 +336,8 @@ define(
                         obj['shape'] = 'circle';
                         obj['type'] = 'analyticsNode';
                         obj['display_type'] = 'Analytics Node';
-                        obj['version'] = ifEmpty(self.getNodeVersion(jsonPath(d,
-                            '$.value.CollectorState.build_info')[0]), '-');
+                        obj['version'] = self.getNodeVersion(
+                                getValueByJsonPath(d,"value;NodeStatus;build_info","-"));
                         try {
                             obj['status'] = getOverallNodeStatus(d, "analytics");
                         } catch(e) {
@@ -443,22 +376,8 @@ define(
                             "$.value.ModuleCpuState.error_strings")[0], []);
                         obj['isNTPUnsynced'] =
                             monitorInfraUtils.isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
-                        var isConfigDataAvailable = $.isEmptyObject(jsonPath(d,
-                            '$..ConfigData')[0]) ? false : true;
-                        obj['isUveMissing'] =
-                            ($.isEmptyObject(jsonPath(d,'$..CollectorState')[0])
-                            && isConfigDataAvailable) ? true : false;
                         obj['processAlerts'] =
                             infraMonitorAlertUtils.getProcessAlerts(d, obj);
-                        obj['isPartialUveMissing'] = false;
-                        if (obj['isUveMissing'] == false) {
-                            if (cowu.isEmptyObject(getValueByJsonPath(d,
-                            'value;NodeStatus;process_mem_cpu_usage;contrail-collector'))
-                                || cowu.isEmptyObject(jsonPath(d,
-                                        '$.value.CollectorState.build_info')[0])) {
-                                        obj['isPartialUveMissing'] = true;
-                            }
-                        }
                         obj['isGeneratorRetrieved'] = false;
                         var genInfos = ifNull(jsonPath(d,
                             '$.value.CollectorState.generator_infos')[0], []);
@@ -468,17 +387,12 @@ define(
                         var alarms = getValueByJsonPath(d,'value;UVEAlarms;alarms',[]);
                         alarms = coreAlarmUtils.
                             checkAndAddAnalyticsDownOrAlarmProcessDownAlarms(d,alarms);
-                        if(cowu.getAlarmsFromAnalytics) {
-                            obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
-                                                            {
-                                                                data:obj,
-                                                                alarms:alarms,
-                                                                nodeType:'analytics-node'
-                                                            });
-                        } else {
-                            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts'])
-                                            .sort(dashboardUtils.sortInfraAlerts);
-                        }
+                        obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
+                                                        {
+                                                            data:obj,
+                                                            alarms:alarms,
+                                                            nodeType:'analytics-node'
+                                                        });
                         obj['color'] = monitorInfraUtils.getAnalyticsNodeColor(d, obj);
                         obj['cores'] = self.getCores(d);
                         var rawData = $.extend({},d.value,true);
@@ -513,8 +427,8 @@ define(
                         obj['y'] = $.isNumeric(obj['y']) ? obj['y'] : 0;
                         //Re-visit once average response time added for config nodes
                         obj['size'] = 0;
-                        obj['version'] = ifEmpty(self.getNodeVersion(jsonPath(d,
-                            '$.value.ModuleCpuState.build_info')[0]),'-');
+                        obj['version'] = self.getNodeVersion(
+                                getValueByJsonPath(d,"value;NodeStatus;build_info","-"));
                         obj['shape'] = 'circle';
                         obj['type'] = 'configNode';
                         obj['display_type'] = 'Config Node';
@@ -533,15 +447,8 @@ define(
                             };
                         obj['isNTPUnsynced'] =
                             monitorInfraUtils.isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
-                        obj['isConfigMissing'] =
-                            $.isEmptyObject(getValueByJsonPath(d,
-                                                    'value;ConfigData')) ? true : false;
-                        obj['isUveMissing'] =
-                            ($.isEmptyObject(getValueByJsonPath(d,'value;configNode')))
-                                ? true : false;
                         obj['processAlerts'] =
                             infraMonitorAlertUtils.getProcessAlerts(d,obj);
-                        obj['isPartialUveMissing'] = false;
                         try{
                             obj['status'] = getOverallNodeStatus(d,"config");
                         }catch(e){
@@ -563,29 +470,16 @@ define(
                             });
                             obj['summaryIps'] = ipString;
                         }
-                        if(cowu.isEmptyObject(jsonPath(d,
-                           '$.value.NodeStatus.process_mem_cpu_usage'+
-                           '[?(@="^contrail-api")]')[0]) ||
-                           cowu.isEmptyObject(jsonPath(d,
-                                '$.value.ModuleCpuState.build_info')[0])) {
-                           obj['isPartialUveMissing'] = true;
-                        }
                         obj['isGeneratorRetrieved'] = false;
                         obj['nodeAlerts'] =
                             infraMonitorAlertUtils.processConfigNodeAlerts(obj);
                         var alarms = getValueByJsonPath(d,'value;UVEAlarms;alarms',[]);
-                        if(cowu.getAlarmsFromAnalytics) {
-                            obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
-                                                            {
-                                                                data:obj,
-                                                                alarms:alarms,
-                                                                nodeType:'config-node'
-                                                            });
-                        } else {
-                            obj['alerts'] =
-                                obj['nodeAlerts'].concat(obj['processAlerts'])
-                                    .sort(dashboardUtils.sortInfraAlerts);
-                        }
+                        obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
+                                                        {
+                                                            data:obj,
+                                                            alarms:alarms,
+                                                            nodeType:'config-node'
+                                                        });
                         obj['color'] = monitorInfraUtils.getConfigNodeColor(d,obj);
                         obj['cores'] = self.getCores(d);
                         var rawData = $.extend({},d.value,true);
@@ -620,19 +514,11 @@ define(
                         obj['y'] = $.isNumeric(dbSpaceUsed)?
                             dbSpaceUsed / 1024 / 1024 : 0;
 
-                        obj['isConfigMissing'] = $.isEmptyObject(getValueByJsonPath(d,
-                            'value;derived-uve;ConfigData')) ? true : false;
-                        obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(d,
-                            'value;databaseNode'))) ? true : false;
-                        obj['version'] = ifEmpty(self.getNodeVersion(getValueByJsonPath(d,
-                                            'value;NodeStatus;build_info')),'-');
+                        obj['version'] = self.getNodeVersion(
+                                getValueByJsonPath(d,"value;NodeStatus;build_info","-"));
                         var configData;
-                        if(!obj['isConfigMissing']){
-                            configData = getValueByJsonPath(d,'value;derived-uve;ConfigData');
-                            obj['ip'] = configData.database_node_ip_address;
-                        } else {
-                            obj['ip'] = noDataStr;
-                        }
+                        configData = getValueByJsonPath(d,'value;derived-uve;ConfigData');
+                        obj['ip'] = getValueByJsonPath(configData,"database_node_ip_address",noDataStr);
                         obj['dbSpaceAvailable'] = dbSpaceAvailable;
                         obj['dbSpaceUsed'] = dbSpaceUsed;
                         obj['analyticsDbSize'] = analyticsDbSize;
@@ -668,8 +554,6 @@ define(
                                 }
                             }
                         };
-                        obj['processAlerts'] =
-                            infraMonitorAlertUtils.getProcessAlerts(d,obj);
                         obj['isPartialUveMissing'] = false;
                         try{
                             obj['status'] = getOverallNodeStatus(d,"db");
@@ -681,17 +565,12 @@ define(
                         obj['nodeAlerts'] =
                             infraMonitorAlertUtils.processDbNodeAlerts(obj);
                         var alarms = getValueByJsonPath(d,'value;UVEAlarms;alarms',[]);
-                        if(cowu.getAlarmsFromAnalytics) {
-                            obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
-                                                            {
-                                                                data:obj,
-                                                                alarms:alarms,
-                                                                nodeType:'database-node',
-                                                            });
-                        } else {
-                            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts'])
-                                        .sort(dashboardUtils.sortInfraAlerts);
-                        }
+                        obj['alerts'] = coreAlarmUtils.getAlertsFromAnalytics(
+                                                        {
+                                                            data:obj,
+                                                            alarms:alarms,
+                                                            nodeType:'database-node',
+                                                        });
                         obj['color'] = monitorInfraUtils.getDatabaseNodeColor(d,obj);
                         obj['cores'] = self.getCores(d);
                         var rawData = $.extend({},d.value,true);
