@@ -246,7 +246,7 @@ define([
             var dataLen =
                 putData['global-vrouter-config']['linklocal_services']
                 ['linklocal_service_entry'].length;
-            for (var i = 0; i < dataLen - 1; i++) {
+            for (var i = 0; i < dataLen; i++) {
                 var ipFabIP =
                     putData['global-vrouter-config']['linklocal_services']
                     ['linklocal_service_entry'][i]['ip_fabric_service_ip'];
@@ -259,6 +259,9 @@ define([
                 delete
                     putData['global-vrouter-config']['linklocal_services']
                     ['linklocal_service_entry'][i]['cgrid'];
+                delete
+                    putData['global-vrouter-config']['linklocal_services']
+                    ['linklocal_service_entry'][i]['lls_fab_address_ip'];
             }
             ajaxConfig.async = false;
             ajaxConfig.type = "PUT";
