@@ -305,7 +305,7 @@ define(
                         obj['instCnt'] = getValueByJsonPath(dValue,
                             'VrouterAgent;virtual_machine_list', []).length;
                         obj['intfCnt'] = getValueByJsonPath(dValue,
-                            'VrouterAgent;total_interface_count', 0);
+                            'VrouterAgent;vmi_count;active', 0);
 
                         obj['vnCnt'] = getValueByJsonPath(dValue,
                             'VrouterAgent;vn_count', 0);
