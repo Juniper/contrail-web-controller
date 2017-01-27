@@ -116,7 +116,7 @@ function createPhysicalInterfaces (request, response, appData)
          commonUtils.handleJSONResponse(error, response, null);
          return;
      }
-     //updateVMIDetails(request, appData, postData, function() {
+     setDeviceOwnerForLIPorts(request, appData, postData, function() {
          configApiServer.apiPost(url, postData, appData,
              function(error, data) {
                 if(error) {
@@ -125,7 +125,46 @@ function createPhysicalInterfaces (request, response, appData)
                 }
                 commonUtils.handleJSONResponse(error, response, data);
              });
-     //});
+     });
+}
+
+/*
+ * It is used to set device owner as physical_router for li ports
+ */
+
+function setDeviceOwnerForLIPorts (request, appData, postData, callback)
+{
+    var infType = validateQueryParam(request, 'infType');
+    if(infType === "logical") {
+        var vmiRefsData = commonUtils.getValueByJsonPath(postData,
+                'logical-interface;virtual_machine_interface_refs', [], false);
+        var vmiDataObjArray = [];
+        var i, vmiRefsDataCnt = vmiRefsData.length;
+        for(i = 0; i < vmiRefsDataCnt ; i++) {
+            var vmiRefData = vmiRefsData[i],
+                vmiReqUrl = '/virtual-machine-interface/' + vmiRefData.uuid,
+                putData = {};
+            putData["virtual-machine-interface"] = {};
+            putData["virtual-machine-interface"]["fq_name"] = vmiRefData.to;
+            putData["virtual-machine-interface"]["uuid"] = vmiRefData.uuid;
+            putData["virtual-machine-interface"]["parent_type"] = "project";
+            putData["virtual-machine-interface"]
+                ["virtual_machine_interface_device_owner"] = "physical-router";
+            commonUtils.createReqObj(vmiDataObjArray, vmiReqUrl,
+                    global.HTTP_REQUEST_PUT, putData, null, null, appData);
+        }
+        if(vmiDataObjArray.length) {
+            async.map(vmiDataObjArray,
+                commonUtils.getServerResponseByRestApi(configApiServer, false),
+                function(vmiUpdateError, vmiUpdateData) {
+                     callback();
+                });
+        } else {
+            callback();
+        }
+    } else {
+        callback();
+    }
 }
 
 /**
@@ -144,7 +183,7 @@ function updatePhysicalInterfaces (request, response, appData)
          return;
      }
      var postData     =  request.body;
-     //updateVMIDetails(request, appData, postData, function() {
+     setDeviceOwnerForLIPorts(request, appData, postData, function() {
          var reqUrl = url + pInterfaceId;
          jsonDiff.getJSONDiffByConfigUrl(reqUrl, appData, postData,
                                          function(err, delta) {
@@ -157,7 +196,7 @@ function updatePhysicalInterfaces (request, response, appData)
                 commonUtils.handleJSONResponse(error, response, data);
              });
          });
-     //});
+     });
 }
 
 /**
