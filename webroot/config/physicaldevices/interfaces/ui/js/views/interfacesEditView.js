@@ -368,7 +368,8 @@ define([
                         vmi['virtual_machine_interface_device_owner'];
                         var subInf =
                             vmi["virtual_machine_interface_properties"];
-                        if((owner == null || owner == "") &&
+                        if((owner == null || owner == "" ||
+                            owner == ctwc.LI_VMI_DEVICE_OWNER) &&
                             (subInf == null || (subInf != null &&
                             subInf["sub_interface_vlan_tag"] == null)))
                             {
