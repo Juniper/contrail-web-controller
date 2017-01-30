@@ -21,8 +21,8 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
                          '/src/serverroot/utils/redis.utils'),
     rest = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/rest.api'),
-    discApi = require(process.mainModule.exports.corePath +
-            "/src/serverroot/common/discoveryclient.api"),
+    contrailService = require(process.mainModule.exports.corePath +
+            "/src/serverroot/jobs/core/contrailservice.api"),
     config = process.mainModule.exports.config,
     async = require('async');
 
@@ -890,48 +890,29 @@ function getNetworkReachableIP (dataObj, callback)
         'content-length': 0
     };
     var serverType = null;
-    var discData = discApi.getServiceRespDataList();
+    var contrailSvcData = contrailService.getActiveServiceRespDataList();
     if ('true' == isConfig) {
-        serverType = global.DISC_SERVICE_TYPE_API_SERVER;
+        serverType = global.CONTRAIL_SERVICE_TYPE_API_SERVER;
     } else if ('false' == isConfig) {
-        serverType = global.DISC_SERVICE_TYPE_OP_SERVER;
+        serverType = global.CONTRAIL_SERVICE_TYPE_OP_SERVER;
     }
     var dataList =
-        commonUtils.getValueByJsonPath(discData,
+        commonUtils.getValueByJsonPath(contrailSvcData,
                                        serverType + ';data;' +
                                        serverType, []);
-    var discEnabled =
-        commonUtils.getValueByJsonPath(config,
-                                       'discoveryService;enable', true);
-    if (true == discEnabled) {
-        if (null != serverType) {
-            var dataCnt = dataList.length;
-            for (var i = 0; i < dataCnt; i++) {
-                var discIP =
-                    commonUtils.getValueByJsonPath(dataList[i],
-                                                   'ip-address', null);
-                var discPort =
-                    commonUtils.getValueByJsonPath(dataList[i],
-                                                   'port', null);
-                if (ip == discIP) {
-                    port = discPort;
-                    break;
-                }
+    if (null != serverType) {
+        var dataCnt = dataList.length;
+        for (var i = 0; i < dataCnt; i++) {
+            var contrailSvcIP =
+                commonUtils.getValueByJsonPath(dataList[i],
+                                               'ip-address', null);
+            var contrailSvcPort =
+                commonUtils.getValueByJsonPath(dataList[i],
+                                               'port', null);
+            if (ip == contrailSvcIP) {
+                port = contrailSvcPort;
+                break;
             }
-        }
-    } else {
-        var cfgPort = null;
-        if ('true' == isConfig) {
-            cfgPort =
-                commonUtils.getValueByJsonPath(config, 'cnfg;server_port',
-                                               null);
-        } else if ('false' == isConfig) {
-            cfgPort =
-                commonUtils.getValueByJsonPath(config, 'analytics;server_port',
-                                               null);
-        }
-        if (null != cfgPort) {
-            port = cfgPort;
         }
     }
     var nwReachReqUrl = global.HTTP_URL + ip + ':' + port + '/';

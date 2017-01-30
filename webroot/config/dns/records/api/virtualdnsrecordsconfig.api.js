@@ -32,8 +32,6 @@ var jsonPath = require('JSONPath').eval;
 var infraCmn = require('../../../../common/api/infra.common.api');
 var jsonDiff = require(process.mainModule.exports["corePath"] +
     '/src/serverroot/common/jsondiff');
-var discCli = require(process.mainModule.exports["corePath"] +
-    '/src/serverroot/common/discoveryclient.api');
 
 /**
  * Bail out if called directly as "nodejs virtualdnsconfig.api.js"

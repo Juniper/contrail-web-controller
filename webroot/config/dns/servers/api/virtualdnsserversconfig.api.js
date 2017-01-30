@@ -32,8 +32,9 @@ var jsonPath = require('JSONPath').eval;
 var infraCmn = require('../../../../common/api/infra.common.api');
 var jsonDiff = require(process.mainModule.exports["corePath"] +
     '/src/serverroot/common/jsondiff');
-var discCli = require(process.mainModule.exports["corePath"] +
-    '/src/serverroot/common/discoveryclient.api');
+var contrailService = require(process.mainModule.exports["corePath"] +
+    '/src/serverroot/jobs/core/contrailservice.api');
+
 
 /**
  * Bail out if called directly as "nodejs virtualdnsconfig.api.js"
@@ -758,26 +759,20 @@ function getVirtualDNSSandeshRecords(req, res, appData) {
     var dataIPObjArr = [];
     var dnsName = req.param('dnsfqn');
 
-    var discServ = discCli.getServiceRespDataList();
-    if ((null == discServ) ||
-        (null == discServ[global.DISC_SERVICE_TYPE_DNS_SERVER]) ||
-        (null == discServ[global.DISC_SERVICE_TYPE_DNS_SERVER]['data']) ||
-        (null == discServ[global.DISC_SERVICE_TYPE_DNS_SERVER]['data']
-            [global.DISC_SERVICE_TYPE_DNS_SERVER]) ||
-        (!discServ[global.DISC_SERVICE_TYPE_DNS_SERVER]['data']
-            [global.DISC_SERVICE_TYPE_DNS_SERVER].length)) {
-        var error = new appErrors.RESTServerError('We did not get discovery ' +
-            'server response for ' +
-            'service dns-server');
-        commonUtils.handleJSONResponse(error, res, null);
-        return;
+    var contrailServ = contrailService.getActiveServiceRespDataList();
+    var vdnsContrailData = commonUtils.getValueByJsonPath(contrailServ,
+            global.CONTRAIL_SERVICE_TYPE_DNS_SERVER +';data;' +
+            global.CONTRAIL_SERVICE_TYPE_DNS_SERVER, []);
+    if(!vdnsContrailData.length) {
+        var error = new appErrors.RESTServerError('We did not get contrail ' +
+            'service response for ' + global.CONTRAIL_SERVICE_TYPE_DNS_SERVER);
+            commonUtils.handleJSONResponse(error, res, null);
+            return;
     }
-    var vdnsDiscData = discServ[global.DISC_SERVICE_TYPE_DNS_SERVER]['data']
-        [global.DISC_SERVICE_TYPE_DNS_SERVER];
-    var vdnsDiscDataCnt = vdnsDiscData.length;
-    for (var i = 0; i < vdnsDiscDataCnt; i++) {
+    var vdnsContrailDataCnt = vdnsContrailData.length;
+    for (var i = 0; i < vdnsContrailDataCnt; i++) {
         dataIPObjArr.push({
-            'ip': vdnsDiscData[i]['ip-address'],
+            'ip': vdnsContrailData[i]['ip-address'],
             'dnsName': dnsName
         });
     }
