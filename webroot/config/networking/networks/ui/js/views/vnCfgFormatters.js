@@ -38,9 +38,14 @@ define([
                     if (count > 2 && cd != -1) {
                         break;
                     }
-                    var ip_block = ipam['attr'][field][j];
-                    var cidr = ip_block.subnet.ip_prefix + '/' +
-                               ip_block.subnet.ip_prefix_len;
+                    var subnet = getValueByJsonPath(ipam,
+                            'attr;'+ field + ";" + j + ';subnet', null, false),
+                         cidr;
+                    if(subnet) {
+                        cidr = subnet.ip_prefix + '/' + subnet.ip_prefix_len;
+                    } else {
+                        cidr = "-";
+                    }
                     returnStr += cidr +
                                  '<br>';
                  }
@@ -265,10 +270,10 @@ define([
                     var ip_block = ipam['attr'][field][j];
                     var ipam_block= ipam['to'];
                     var ipamto = ipam_block[2] + ' ( ' + ipam_block[0] + ':' +ipam_block[1] + ')';
-                    var cidr = getValueByJsonPath(ip_block,"subnet;ip_prefix", []);
-                    var cidrlen=getValueByJsonPath(ip_block,"subnet;ip_prefix_len");
-                    cidr = cidr + '/' + cidrlen;
-                    var gw   = ip_block.default_gateway;
+                    var cidr = getValueByJsonPath(ip_block,"subnet;ip_prefix", null, false);
+                    var cidrlen=getValueByJsonPath(ip_block,"subnet;ip_prefix_len", false);
+                    cidr = cidr ? cidr + '/' + cidrlen : "-";
+                    var gw   = ip_block.default_gateway ? ip_block.default_gateway: "-";
                     var dhcp = ip_block.enable_dhcp ? 'Enabled' : 'Disabled'; 
                     var dns  = getSubnetDNSStatus(ip_block) ? 'Enabled' : 'Disabled';
                     var gwStatus =  (gw == null || gw == "" || gw == "0.0.0.0") ?
@@ -339,7 +344,14 @@ define([
 
                 for(var j = 0; j < subnetLen; j++) {
                     var subnetObj = {};
-                    var ip_block = ipam['attr'][field][j];
+                    var ip_block = getValueByJsonPath(ipam,
+                            'attr;' + field + ';' + j, null, false);
+                    subnetObj['user_created_ipam_fqn'] = ipamFQN;
+                    if(!ip_block || !ip_block.subnet){
+                        subnetObj['disable'] = true;
+                        returnArr.push(subnetObj);
+                        continue;
+                    }
                     subnetObj = ip_block;
                     var cidr = ip_block.subnet.ip_prefix + '/' +
                                ip_block.subnet.ip_prefix_len;
@@ -362,10 +374,8 @@ define([
                         subnetObj['user_created_enable_gateway'].length &&
                         subnetObj['user_created_enable_gateway'].indexOf("0.0.0.0")
                                     == -1 ? true : false;
-                    subnetObj['user_created_ipam_fqn'] = ipamFQN;
                     subnetObj['user_created_enable_dns']  = getSubnetDNSStatus(ip_block);
                     subnetObj['disable'] = true;
-
                     returnArr.push(subnetObj);
                  }
              }
