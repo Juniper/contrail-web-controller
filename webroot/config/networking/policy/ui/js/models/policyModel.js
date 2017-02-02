@@ -216,18 +216,46 @@ define([
                     newPoliceyRule[i].dst_ports =
                             policyFormatters.formatPort
                                             (policeyRule[i].dst_ports_text());
-                    if (policeyRule[i].mirror_to_check() != true) {
-                        newPoliceyRule[i].action_list.mirror_to = null;
-                    } else {
-                        if (policeyRule[i].mirror() == "") {
-                            newPoliceyRule[i].action_list.mirror_to = null;
-                        } else {
-                            newPoliceyRule[i].action_list.mirror_to = {};
-                            var mirrorVal = policeyRule[i].mirror();
-                            newPoliceyRule[i].action_list.mirror_to.analyzer_name =
-                                 mirrorVal;
+
+                    //mirroring
+                    if(policeyRule[i].mirror_to_check() === true) {
+                        var udpPort = getValueByJsonPath(newPoliceyRule[i],
+                                "action_list;mirror_to;udp_port", null, false),
+                            routingInstance = policeyRule[i].mirrorToRoutingInstance(),
+                            jnprHeader = getValueByJsonPath(newPoliceyRule[i],
+                                "action_list;mirror_to;juniper_header", "enabled", false),
+                            nhMode = policeyRule[i].mirrorToNHMode();
+                        if(udpPort) {
+                            newPoliceyRule[i]["action_list"]["mirror_to"]["udp_port"] =
+                                    Number(udpPort);
                         }
+                        if(routingInstance) {
+                            newPoliceyRule[i]["action_list"]
+                                ["mirror_to"]["routing_instance"] = routingInstance;
+                        }
+                        newPoliceyRule[i]["action_list"]["mirror_to"]["nh_mode"] =
+                            nhMode;
+                        if(nhMode === ctwc.MIRROR_DYNAMIC) {
+                            newPoliceyRule[i]["action_list"]
+                                ["mirror_to"]["static_nh_header"] = null;
+                        } else {
+                            var vni = getValueByJsonPath(newPoliceyRule[i],
+                                    "action_list;" +
+                                    "mirror_to;static_nh_header;vni", null, false);
+                            if(vni) {
+                                newPoliceyRule[i]["action_list"]
+                                ["mirror_to"]["static_nh_header"]["vni"] =
+                                    Number(vni);
+                            }
+                        }
+                        newPoliceyRule[i]["action_list"]
+                            ["mirror_to"]["juniper_header"] =
+                            jnprHeader === "enabled" ? true : false;
+
+                    } else {
+                        newPoliceyRule[i]["action_list"]["mirror_to"] = null;
                     }
+
                     if (policeyRule[i].apply_service_check() != true) {
                         newPoliceyRule[i].action_list.apply_service = null;
                     } else {

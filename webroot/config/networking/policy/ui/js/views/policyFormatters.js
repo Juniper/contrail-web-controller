@@ -302,7 +302,8 @@ define([
                     service_str += ' services ' +
                                    self.policyRuleFormat(services_value);
                 }
-                if (isSet(mt) && isSet(mt.analyzer_name)) {
+                if (isSet(mt) && isSet(mt.analyzer_name) &&
+                        isSet(mt.analyzer_ip_address)) {
                     analyzer_name_arr = mt.analyzer_name.split(':');
                     var mt_txt = "";
                     if(analyzer_name_arr.length === 3) {
@@ -508,6 +509,28 @@ define([
                 }
             });
             return ddQoSDataSrc;
+        };
+
+        this.routingInstDDFormatter = function(response) {
+            var routingInstList = [],
+                routingInst = getValueByJsonPath(response,
+                    "0;routing-instances", [], false),
+                responseLen = routingInst.length,
+                routingInstResponseVal = "";
+            for(var i = 0; i < responseLen; i++) {
+                var routingInstResponse = getValueByJsonPath(routingInst[i],
+                        'fq_name', '', false);
+                if(routingInstResponse != '') {
+                    routingInstResponseVal = routingInstResponse.join(":");
+                    var objArr = routingInstResponse;
+                    var text = "";
+                    text = ctwu.formatCurrentFQName(routingInstResponse,
+                            ctwu.getCurrentDomainProject());
+                    routingInstList.push({
+                        value: routingInstResponseVal, text: text});
+                }
+            }
+            return routingInstList;
         };
     }
     return PolicyFormatters;

@@ -31,13 +31,13 @@
 #PolicyRules #simple_action .select2-container-disabled .select2-choice,
 #PolicyRules #simple_action .select2-container,
 #PolicyRules #protocol .custom-combobox .input-group-addon,
+#PolicyRules .data-cell-protocol input,
 #PolicyRules #src_address .select2-container,
 #PolicyRules #direction .select2-container,
 #PolicyRules #direction .select2-container-disabled .select2-choice,
 #PolicyRules #dst_address .select2-container,
-#PolicyRules #dst_ports_text,
-#PolicyRules #src_ports_text,
-#PolicyRules input{
+#PolicyRules .data-cell-src_ports_text input,
+#PolicyRules .data-cell-dst_ports_text input {
     border: 0px !important;
     color: #3182bd;
 }
