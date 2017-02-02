@@ -55,7 +55,7 @@ define([
 
            this.fetchAllData(this ,
                 function(allData) {
-                   self.model.setServiceTemplateDataSource(allData.service_instances_ref);
+                   self.model.setModelDataSources(allData);
                    var disableElement = false
                    if(options['mode'] == "edit") {
                        disableElement = true;
@@ -681,37 +681,13 @@ define([
                                      }
                                 }
                             ]
-                            },{
-                            columns: [{
-                                     elementId: 'mirror',
-                                     name: 'Mirror',
-                                     view: "FormDropdownView",
-                                     width: 100,
-                                     viewConfig: {
-                                         placeholder:"Select a service to mirror...",
-                                         colSpan: "10",
-                                         visible: "mirror_to_check()",
-                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_LEFT_LABEL_VIEW,
-                                         path: "mirror",
-                                         dataBindValue: "mirror()",
-                                         elementConfig:{
-                                             dataTextField: "text",
-                                             dataValueField: "value",
-                                             data:allData.analyzerInsts
-                                         }
-                                    }
-                            }],
-                            /*rowActions: [
-                                {onClick:
-                                "function() { $root.deleteRules($data, this); }",
-                                 iconClass: 'icon-minus'}
-                            ]*/
-                        },{
+                            },getMirroringViewConfig(isDisable, allData),
+                            {
                             columns: [
                                 {
                                     elementId: 'QoS',
                                     name: 'QoS',
-                                    width: 100,
+                                    //width: 100,
                                     view: "FormDropdownView",
                                     viewConfig: {
                                         placeholder: 'Select QoS',
@@ -719,7 +695,7 @@ define([
                                         templateId:
                                             cowc.TMPL_EDITABLE_GRID_DROPDOWN_LEFT_LABEL_VIEW,
                                         path : 'qos',
-                                        colSpan: "10",
+                                        colSpan: "5",
                                         dataBindValue :
                                             'qos()',
                                         elementConfig : {
@@ -753,6 +729,249 @@ define([
             }
         }
     }
+
+    var getMirroringViewConfig = function(isDisable, allData) {
+        var routingInstance = {};
+        routingInstance.data = [];
+        routingInstance.data[0] = {'type':'routing-instances', 'fields':''};
+        return {
+            columns: [{
+                    elementId: 'mirroringOptions',
+                    view: "SectionView",
+                    viewConfig : {
+                        colSpan: "10",
+                        visible: "mirror_to_check()",
+                        rows: [{
+                            columns: [{
+                                elementId: 'user_created_mirroring_optns',
+                                view: 'FormRadioButtonView',
+                                viewConfig: {
+                                    templateId: cowc.TMPL_EDITABLE_GRID_RADIO_BUTTON_VIEW,
+                                    label: '',
+                                    path: 'user_created_mirroring_optns',
+                                    dataBindValue:
+                                        'user_created_mirroring_optns()',
+                                    class: 'col-xs-12 radio-optns-grp',
+                                    elementConfig: {
+                                        dataObj: [
+                                            {'label': 'Analyzer Instance',
+                                             'value': 'analyzer_instance'},
+                                            {'label': 'NIC Assisted',
+                                             'value': 'nic_assisted'},
+                                             {'label': 'Analyzer IP',
+                                                 'value': 'analyzer_ip'}
+                                        ]
+                                    }
+                                }
+                            }]
+                        }, {
+                            columns: [{
+                                elementId: 'analyzer_name',
+                                view: "FormDropdownView",
+                                viewConfig: {
+                                    templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_LEFT_LABEL_VIEW,
+                                    class: "col-xs-6 cust-mirroring",
+                                    path: 'action_list.mirror_to.analyzer_name',
+                                    dataBindValue: 'action_list()().mirror_to.analyzer_name',
+                                    placeholder: 'Enter Analyzer Name',
+                                    label: 'Analyzer Name',
+                                    visible : "user_created_mirroring_optns()() === 'analyzer_instance'",
+                                    elementConfig: {
+                                        placeholder: 'Select SI Analyzer',
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        dataSource: {
+                                            type: 'local',
+                                            data: allData.analyzerInsts
+                                        }
+                                    }
+                                }
+                            }, {
+                                elementId: 'user_created_analyzer_name',
+                                view: "FormInputView",
+                                viewConfig: {
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_LEFT_LABEL_VIEW,
+                                    class: "col-xs-6 cust-mirroring",
+                                    path: 'user_created_analyzer_name',
+                                    dataBindValue: 'user_created_analyzer_name()',
+                                    placeholder: 'Enter Analyzer Name',
+                                    label: 'Analyzer Name',
+                                    visible : "user_created_mirroring_optns()() !== 'analyzer_instance'",
+                                }
+                            }, {
+                                elementId: 'nic_assisted_mirroring_vlan',
+                                view: "FormInputView",
+                                viewConfig: {
+                                    visible: "user_created_mirroring_optns()() === 'nic_assisted'",
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_LEFT_LABEL_VIEW,
+                                    class: "col-xs-6 cust-mirroring",
+                                    path: 'action_list.mirror_to.nic_assisted_mirroring_vlan',
+                                    dataBindValue: 'action_list()().mirror_to.nic_assisted_mirroring_vlan',
+                                    placeholder: 'Enter NIC Assisted VLAN',
+                                    label: 'NIC Assisted VLAN'
+                                }
+                            }]
+                        }, {
+                            columns: [{
+                                elementId: 'analyzer_ip_address',
+                                view: "FormInputView",
+                                viewConfig: {
+                                    visible: "user_created_mirroring_optns()() == 'analyzer_ip'",
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_LEFT_LABEL_VIEW,
+                                    class: "col-xs-6",
+                                    path: 'action_list.mirror_to.analyzer_ip_address',
+                                    placeholder: 'xxx.xxx.xxx.xxx',
+                                    dataBindValue: 'action_list()().mirror_to.analyzer_ip_address',
+                                    label: 'Analyzer IP'
+                                }
+                            },{
+                                elementId: 'analyzer_mac_address',
+                                view: "FormInputView",
+                                viewConfig: {
+                                    visible: "user_created_mirroring_optns()() == 'analyzer_ip'",
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_LEFT_LABEL_VIEW,
+                                    class: "col-xs-6 cust-mirroring",
+                                    path: 'action_list.mirror_to.analyzer_mac_address',
+                                    dataBindValue: 'action_list()().mirror_to.analyzer_mac_address',
+                                    placeholder: 'Enter Analyzer MAC',
+                                    label: 'Analyzer MAC'
+                                }
+                            }]
+                        }, {
+                            columns: [{
+                                elementId: 'udp_port',
+                                name: "UDP Port",
+                                view: "FormInputView",
+                                viewConfig: {
+                                    visible: "user_created_mirroring_optns()() == 'analyzer_ip'",
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_LEFT_LABEL_VIEW,
+                                    class: "col-xs-6 cust-mirroring",
+                                    path: 'action_list.mirror_to.udp_port',
+                                    placeholder: '1 to 65535',
+                                    dataBindValue: 'action_list()().mirror_to.udp_port',
+                                    label: 'UDP Port'
+                                }
+                            }]
+                        }, {
+                            columns:[{
+                                elementId: 'user_created_juniper_header',
+                                view: "FormDropdownView",
+                                viewConfig: {
+                                    visible: "user_created_mirroring_optns()() == 'analyzer_ip'",
+                                    templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_LEFT_LABEL_VIEW,
+                                    class: "col-xs-6 cust-mirroring",
+                                    path: 'user_created_juniper_header',
+                                    dataBindValue: 'user_created_juniper_header()',
+                                    label: 'Juniper Header',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        data : [
+                                            {'text':'Enabled', 'value':'enabled'},
+                                            {'text':'Disabled', 'value':'disabled'}]
+                                    }
+                                }
+                            }, {
+                                elementId: 'mirrorToRoutingInstance',
+                                view: "FormDropdownView",
+                                viewConfig: {
+                                    visible: "user_created_mirroring_optns()() == 'analyzer_ip'" +
+                                        "&& user_created_juniper_header()() === 'disabled'" ,
+                                    templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_LEFT_LABEL_VIEW,
+                                    class: "col-xs-6 cust-mirroring",
+                                    path: 'mirrorToRoutingInstance',
+                                    dataBindValue: 'mirrorToRoutingInstance()',
+                                    label: 'Routing Instance',
+                                    elementConfig: {
+                                        placeholder: 'Select Routing Instance',
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        dropdownAutoWidth : false,
+                                        dataSource : {
+                                            type: 'remote',
+                                            requestType: 'post',
+                                            postData: JSON.stringify(routingInstance),
+                                            url:'/api/tenants/config/get-config-list',
+                                            parse: function(result) {
+                                                return policyFormatters.routingInstDDFormatter(result);
+                                            }
+                                        }
+                                    }
+                                }
+                            }]
+                        }, {
+                            columns: [{
+                            elementId: 'mirrorToNHMode',
+                            view: "FormDropdownView",
+                            viewConfig: {
+                                visible: "user_created_mirroring_optns()() == 'analyzer_ip'",
+                                templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_LEFT_LABEL_VIEW,
+                                class: "col-xs-6 cust-mirroring",
+                                path: 'mirrorToNHMode',
+                                dataBindValue: 'mirrorToNHMode()',
+                                placeholder: 'Enter Next Hop Mode',
+                                label: 'Nexthop Mode',
+                                elementConfig: {
+                                    placeholder: "Select Direction",
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    data : [
+                                        {'text':'Static', 'value':'static'},
+                                        {'text':'Dynamic', 'value':'dynamic'}]
+                                }
+                            }
+                        }]
+                     },{
+                         columns:[{
+                             elementId: 'staticNHHeaderSection',
+                             view: "SectionView",
+                             viewConfig: {
+                                 visible: "(user_created_mirroring_optns()() == 'analyzer_ip') && (mirrorToNHMode()() == 'static')",
+                                 rows: [{
+                                     columns:[{
+                                         elementId: 'vtep_dst_ip_address',
+                                         view: "FormInputView",
+                                         viewConfig: {
+                                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_LEFT_LABEL_VIEW,
+                                             class: "col-xs-6 cust-mirroring",
+                                             path: 'action_list.mirror_to.static_nh_header.vtep_dst_ip_address',
+                                             placeholder: 'Enter IP Address',
+                                             dataBindValue: 'action_list()().mirror_to.static_nh_header.vtep_dst_ip_address',
+                                             label: 'VTEP Dest IP'
+                                         }
+                                     }, {
+                                         elementId: 'vtep_dst_mac_address',
+                                         view: "FormInputView",
+                                         viewConfig: {
+                                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_LEFT_LABEL_VIEW,
+                                             class: "col-xs-6 cust-mirroring",
+                                             path: 'action_list.mirror_to.static_nh_header.vtep_dst_mac_address',
+                                             placeholder: 'Enter MAC Address',
+                                             dataBindValue: 'action_list()().mirror_to.static_nh_header.vtep_dst_mac_address',
+                                             label: 'VTEP Dest MAC'
+                                         }
+                                     }]
+                                 },{
+                                     columns:[{
+                                         elementId: 'vni',
+                                         view: "FormInputView",
+                                         viewConfig: {
+                                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_LEFT_LABEL_VIEW,
+                                             class: "col-xs-6 cust-mirroring",
+                                             path: 'action_list.mirror_to.static_nh_header.vni',
+                                             placeholder: 'Enter VxLAN ID',
+                                             dataBindValue: 'action_list()().mirror_to.static_nh_header.vni',
+                                             label: 'VxLAN ID'
+                                         }
+                                     }]
+                                 }]
+                             }
+                         }]
+                     }]
+                }
+            }]
+        };
+    };
 
     return PolicyCreateEditView;
 });

@@ -55,15 +55,18 @@ define([
                 }
             }
         },
-        setServiceTemplateDataSource: function(SIDataSource) {
-            self.SIDataSource = SIDataSource;
+        setModelDataSources: function(allData) {
+            self.SIDataSource = getValueByJsonPath(allData,
+                    "service_instances_ref", []);
+            self.analyzerSIDataSource = getValueByJsonPath(allData,
+                    "analyzerInsts", []);
             var policeyRule = (self.model().attributes.PolicyRules).toJSON(),
                 policeyRuleLen = policeyRule.length;
             for (var i = 0; i < policeyRuleLen; i++){
                 var SI = policeyRule[i].service_instance();
                 if (SI != null) {
                     var SIArr = SI.split(cowc.DROPDOWN_VALUE_SEPARATOR);
-                    SIArr = this.getApplyService(SIArr, SIDataSource);
+                    SIArr = this.getApplyService(SIArr, self.SIDataSource);
                     policeyRule[i].service_instance(SIArr);
                 }
             }
@@ -216,18 +219,85 @@ define([
                     newPoliceyRule[i].dst_ports =
                             policyFormatters.formatPort
                                             (policeyRule[i].dst_ports_text());
-                    if (policeyRule[i].mirror_to_check() != true) {
-                        newPoliceyRule[i].action_list.mirror_to = null;
-                    } else {
-                        if (policeyRule[i].mirror() == "") {
-                            newPoliceyRule[i].action_list.mirror_to = null;
+
+                    //mirroring
+                    if(policeyRule[i].mirror_to_check() === true) {
+                        var mirroringOptns =
+                            policeyRule[i].user_created_mirroring_optns(),
+                            udpPort, routingInstance, jnprHeader, nhMode,
+                            nicAssistedVlan,
+                            analyzerName = getValueByJsonPath(newPoliceyRule[i],
+                                "action_list;mirror_to;analyzer_name",
+                                null);
+                        if(mirroringOptns === ctwc.ANALYZER_INSTANCE){
+                            delete newPoliceyRule[i].action_list.mirror_to;
+                            newPoliceyRule[i]["action_list"]["mirror_to"] = {};
+                            newPoliceyRule[i]["action_list"]["mirror_to"]
+                            ["analyzer_name"] = analyzerName;
+                        } else if(mirroringOptns === ctwc.NIC_ASSISTED) {
+                            nicAssistedVlan = getValueByJsonPath(newPoliceyRule[i],
+                                    "action_list;mirror_to;nic_assisted_mirroring_vlan",
+                                    null);
+                            delete newPoliceyRule[i].action_list.mirror_to;
+                            newPoliceyRule[i]["action_list"]["mirror_to"] = {};
+                            newPoliceyRule[i]["action_list"]["mirror_to"]
+                                ["analyzer_name"] =
+                                    policeyRule[i].user_created_analyzer_name();
+                            newPoliceyRule[i]["action_list"]["mirror_to"]
+                                ["nic_assisted_mirroring"] = true;
+                            newPoliceyRule[i]["action_list"]["mirror_to"]
+                                ["nic_assisted_mirroring_vlan"] =
+                                    Number(nicAssistedVlan);
                         } else {
-                            newPoliceyRule[i].action_list.mirror_to = {};
-                            var mirrorVal = policeyRule[i].mirror();
-                            newPoliceyRule[i].action_list.mirror_to.analyzer_name =
-                                 mirrorVal;
+                            newPoliceyRule[i]["action_list"]["mirror_to"]
+                            ["analyzer_name"] =
+                                policeyRule[i].user_created_analyzer_name();
+                            delete newPoliceyRule[i]["action_list"]["mirror_to"]
+                                ["nic_assisted_mirroring"];
+                            delete newPoliceyRule[i]["action_list"]["mirror_to"]
+                            ["nic_assisted_mirroring_vlan"];
+                            udpPort = getValueByJsonPath(newPoliceyRule[i],
+                                    "action_list;mirror_to;udp_port", null, false);
+                            jnprHeader = policeyRule[i].user_created_juniper_header();
+                            nhMode = policeyRule[i].mirrorToNHMode();
+                            if(udpPort) {
+                                newPoliceyRule[i]["action_list"]["mirror_to"]["udp_port"] =
+                                        Number(udpPort);
+                            }
+                            newPoliceyRule[i]["action_list"]["mirror_to"]["nh_mode"] =
+                                nhMode;
+                            if(nhMode === ctwc.MIRROR_DYNAMIC) {
+                                newPoliceyRule[i]["action_list"]
+                                    ["mirror_to"]["static_nh_header"] = null;
+                            } else {
+                                var vni = getValueByJsonPath(newPoliceyRule[i],
+                                        "action_list;" +
+                                        "mirror_to;static_nh_header;vni", null, false);
+                                if(vni) {
+                                    newPoliceyRule[i]["action_list"]
+                                    ["mirror_to"]["static_nh_header"]["vni"] =
+                                        Number(vni);
+                                }
+                            }
+                            if(jnprHeader === 'enabled') {
+                                newPoliceyRule[i]["action_list"]
+                                ["mirror_to"]["juniper_header"] = true;
+                                delete newPoliceyRule[i]["action_list"]
+                                     ["mirror_to"]["routing_instance"];
+                            } else {
+                                newPoliceyRule[i]["action_list"]
+                                ["mirror_to"]["juniper_header"] = false;
+                                routingInstance = policeyRule[i].mirrorToRoutingInstance();
+                                if(routingInstance) {
+                                    newPoliceyRule[i]["action_list"]
+                                        ["mirror_to"]["routing_instance"] = routingInstance;
+                                }
+                            }
                         }
+                    } else {
+                        newPoliceyRule[i]["action_list"]["mirror_to"] = null;
                     }
+
                     if (policeyRule[i].apply_service_check() != true) {
                         newPoliceyRule[i].action_list.apply_service = null;
                     } else {
