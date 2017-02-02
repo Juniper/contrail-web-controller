@@ -15,7 +15,22 @@ define([
                 'apply_service':null,
                 'gateway_name':null,
                 'log':false,
-                'mirror_to':{'analyzer_name':null},
+                'mirror_to':{
+                    'analyzer_name': null,
+                    'analyzer_ip_address': null,
+                    'routing_instance': null,
+                    'udp_port': null,
+                    'analyzer_mac_address': null,
+                    'juniper_header': "enabled",
+                    'nh_mode': null,
+                    'static_nh_header': {
+                        'vtep_dst_ip_address': null,
+                        'vtep_dst_mac_address': null,
+                        'vni': null
+                    },
+                    'nic_assisted_mirroring': false,
+                    'nic_assisted_mirroring_vlan': null
+                },
                 'qos_action': null},
             'log_checked':false,
             'apply_service_check' : false,
@@ -35,6 +50,10 @@ define([
             'simple_action': 'pass',
             'service_instance':'',
             'mirror':'',
+            'mirrorToRoutingInstance': "",
+            'mirrorToNHMode': "dynamic",
+            'user_created_nic_assisted': "disabled",
+            'user_created_juniper_header': "enabled",
             'qos':null,
             'rule_uuid':'',
             'analyzer_name':'',
@@ -84,14 +103,35 @@ define([
             if (log != "") {
                 modelConfig["log_checked"] = log;
             }
-            var mirrorTo = getValueByJsonPath(modelConfig,
-                           "action_list;mirror_to;analyzer_name", "");
-            if (mirrorTo == "") {
-                modelConfig["mirror"] = null;
-                modelConfig["mirror_to_check"] = false;
+
+            //mirroring
+            var mirrorAnalyzerName = getValueByJsonPath(modelConfig,
+                          "action_list;mirror_to;analyzer_name", "", false);
+            if(mirrorAnalyzerName) {
+                var nicAssistedMirroring = getValueByJsonPath(modelConfig,
+                        "action_list;mirror_to;nic_assisted_mirroring",
+                        false, false), routingInst, nhMode, jnprHeader;
+                modelConfig['mirror_to_check'] = true;
+                if(nicAssistedMirroring) {
+                    modelConfig["user_created_nic_assisted"] = "enabled";
+                } else {
+                    routingInst =  getValueByJsonPath(modelConfig,
+                            "action_list;mirror_to;routing_instance", "", false),
+                    nhMode = getValueByJsonPath(modelConfig,
+                            "action_list;mirror_to;nh_mode", ctwc.MIRROR_DYNAMIC, false),
+                    jnprHeader = getValueByJsonPath(modelConfig,
+                                "action_list;mirror_to;juniper_header", true, false);
+                    modelConfig["user_created_juniper_header"] =
+                            jnprHeader === true ? "enabled" : "disabled";
+                    if (routingInst != "") {
+                        modelConfig['mirrorToRoutingInstance'] = routingInst;
+                    } else {
+                        modelConfig['mirrorToRoutingInstance'] = null;
+                    }
+                    modelConfig["mirrorToNHMode"] = nhMode;
+                }
             } else {
-                modelConfig["mirror"] = mirrorTo;
-                modelConfig["mirror_to_check"] = true;
+                modelConfig['mirror_to_check'] = false;
             }
 
             //qos
@@ -266,6 +306,98 @@ define([
                     var result = self.validatePort(val);
                     if (result != "") {
                         return result;
+                    }
+                },
+                'action_list.mirror_to.analyzer_name': function(value, attr, finalObj) {
+                    if(finalObj.mirror_to_check == true) {
+                        if(!value) {
+                            return "Select analyzer name";
+                        }
+                    }
+                },
+                'action_list.mirror_to.analyzer_ip_address': function(value, attr, finalObj) {
+                    if((finalObj.mirror_to_check == true) &&
+                        (finalObj.user_created_nic_assisted === "disabled") &&
+                        (finalObj.mirrorToNHMode !== ctwc.MIRROR_STATIC)) {
+                        if(!isValidIP(value)) {
+                            return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
+                        }
+                        if(value && value.split("/").length > 1) {
+                            return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
+                        }
+                    }
+                },
+                'action_list.mirror_to.udp_port': function(value, attr, finalObj) {
+                    if(finalObj.mirror_to_check == true &&
+                        (finalObj.user_created_nic_assisted === "disabled")) {
+                        if(value) {
+                            var vlanVal = Number(String(value).trim());
+                            if (isNaN(vlanVal) ||
+                                    (vlanVal < 1 || vlanVal > 65535)) {
+                                return "Enter UDP Port between 1 to 65535";
+                            }
+                        }
+                    }
+                },
+                'mirrorToRoutingInstance': function(value, attr, finalObj) {
+                    if(finalObj.mirror_to_check == true &&
+                        (finalObj.user_created_juniper_header === 'disabled') &&
+                        (finalObj.user_created_nic_assisted === "disabled")) {
+                        if (!value || value.trim() == "") {
+                            return "Select Routing Instance";
+                        }
+                    }
+                },
+                'action_list.mirror_to.analyzer_mac_address': function(value, attr, finalObj) {
+                    if(finalObj.mirror_to_check == true &&
+                        (finalObj.user_created_nic_assisted === "disabled")) {
+                        if(value) {
+                            if(!isValidMACAddress(value)) {
+                                return "Enter valid Analyzer MAC Address";
+                            }
+                        }
+                    }
+                },
+                'action_list.mirror_to.static_nh_header.vtep_dst_mac_address': function(value, attr, finalObj) {
+                    if(finalObj.mirror_to_check == true &&
+                            finalObj.user_created_nic_assisted === "disabled" &&
+                            finalObj.mirrorToNHMode === ctwc.MIRROR_STATIC) {
+                        if(value) {
+                            if(!isValidMACAddress(value)) {
+                                return "Enter valid VTEP Destination MAC Address";
+                            }
+                        }
+                    }
+                },
+                'action_list.mirror_to.static_nh_header.vtep_dst_ip_address': function(value, attr, finalObj) {
+                    if(finalObj.mirror_to_check == true &&
+                            finalObj.user_created_nic_assisted === "disabled" &&
+                            finalObj.mirrorToNHMode === ctwc.MIRROR_STATIC) {
+                       if(!isValidIP(value)) {
+                            return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
+                        }
+                        if(value && value.split("/").length > 1) {
+                            return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
+                        }
+                    }
+                },
+                'action_list.mirror_to.static_nh_header.vni': function(value, attr, finalObj) {
+                    if(finalObj.mirror_to_check == true &&
+                            finalObj.user_created_nic_assisted === "disabled" &&
+                            finalObj.mirrorToNHMode === ctwc.MIRROR_STATIC) {
+                        var vlanVal = Number(String(value).trim());
+                        if (isNaN(vlanVal) || vlanVal < 1 || vlanVal > 65535) {
+                            return "Enter VxLAN ID between 1 to 65535";
+                        }
+                    }
+                },
+                'action_list.mirror_to.nic_assisted_mirroring_vlan': function(value, attr, finalObj) {
+                    if(finalObj.mirror_to_check == true &&
+                            finalObj.user_created_nic_assisted === "enabled") {
+                        var vlanVal = Number(String(value).trim());
+                        if (isNaN(vlanVal) || vlanVal < 1 || vlanVal > 4094) {
+                            return "Enter VLAN between 1 to 4094";
+                        }
                     }
                 }
             }

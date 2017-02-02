@@ -509,6 +509,28 @@ define([
             });
             return ddQoSDataSrc;
         };
+
+        this.routingInstDDFormatter = function(response) {
+            var routingInstList = [],
+                routingInst = getValueByJsonPath(response,
+                    "0;routing-instances", [], false),
+                responseLen = routingInst.length,
+                routingInstResponseVal = "";
+            for(var i = 0; i < responseLen; i++) {
+                var routingInstResponse = getValueByJsonPath(routingInst[i],
+                        'fq_name', '', false);
+                if(routingInstResponse != '') {
+                    routingInstResponseVal = routingInstResponse.join(":");
+                    var objArr = routingInstResponse;
+                    var text = "";
+                    text = ctwu.formatCurrentFQName(routingInstResponse,
+                            ctwu.getCurrentDomainProject());
+                    routingInstList.push({
+                        value: routingInstResponseVal, text: text});
+                }
+            }
+            return routingInstList;
+        };
     }
     return PolicyFormatters;
 });
