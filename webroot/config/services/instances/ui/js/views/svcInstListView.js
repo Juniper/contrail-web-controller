@@ -184,6 +184,7 @@ define([
                     var vmisCnt = vmis.length;
                     for (var i = 0; i < vmisCnt; i++) {
                         if (null == vmiToHlthCheckMap[vmis[i]]) {
+                            instTupleVMIMaps[instID][portTupleID][vmis[i]] = {};
                             continue;
                         }
                         instTupleVMIMaps[instID][portTupleID][vmis[i]] =
