@@ -227,10 +227,14 @@ define(
                             '$..NodeStatus')[0]);
                         obj['configIP'] = getValueByJsonPath(dValue,
                             'ConfigData;virtual-router;virtual_router_ip_address',
-                            '-');
+                            getValueByJsonPath(dValue,
+                                    'derived-uve;ConfigData;virtual-router;virtual_router_ip_address',
+                                    '-'));
                         obj['vRouterType'] = getValueByJsonPath(dValue,
                             'ConfigData;virtual-router;virtual_router_type',
-                            'hypervisor');
+                            getValueByJsonPath(dValue,
+                                    'derived-uve;ConfigData;virtual-router;virtual_router_type',
+                                    'hypervisor'));
                         obj['vRouterPlatform'] = getValueByJsonPath(dValue,
                                 'VrouterAgent;platform',
                                  '');
@@ -1452,13 +1456,13 @@ define(
                     var vRouterDetails = {};
                     //If IP address is not available in UVE,pick it from ConfigData
                     vRouterDetails['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',
-                            getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
+                            getValueByJsonPath(data,'derived-uve;ConfigData;virtual-router;virtual_router_ip_address'));
                     vRouterDetails['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',
                             monitorInfraConstants.defaultIntrospectPort);
                     vRouterDetails['vrouterModuleId'] = getValueByJsonPath(data,'NodeStatus;process_status;0;module_id',
                             monitorInfraConstants.UVEModuleIds['VROUTER_AGENT']);
                     vRouterDetails['vRouterType'] = getValueByJsonPath(data,
-                            'ConfigData;virtual-router;virtual_router_type','hypervisor');
+                            'derived-uve;ConfigData;virtual-router;virtual_router_type','hypervisor');
                         if(vRouterDetails['vRouterType'] instanceof Array) {
                             vRouterDetails['vRouterType'] =
                                 vRouterDetails['vRouterType'][0];

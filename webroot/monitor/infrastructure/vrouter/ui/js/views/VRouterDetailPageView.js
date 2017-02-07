@@ -366,7 +366,7 @@ define([
     function getVrouterIpAddressList(data){
         var controlIp = getValueByJsonPath(data,'VrouterAgent;control_ip',noDataStr);
         var ips = getValueByJsonPath(data,'VrouterAgent;self_ip_list',[]);
-        var configip = getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address');
+        var configip = getValueByJsonPath(data,'derived-uve;ConfigData;virtual-router;virtual_router_ip_address');
         var ipList = [];
         if(controlIp != noDataStr){
             ipList.push(controlIp);
