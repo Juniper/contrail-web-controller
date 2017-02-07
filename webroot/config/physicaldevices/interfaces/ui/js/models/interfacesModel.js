@@ -151,7 +151,8 @@ define([
                         mac : serverCollection[i].user_created_mac_address(),
                         ip : serverCollection[i].user_created_instance_ip_address(),
                         isVMICreate : serverCollection[i].isVMICreate(),
-                        uuid : serverCollection[i]['virtual-machine-interface']().uuid,
+                        uuid : (serverCollection[i].isVMICreate() ? "" :
+                            serverCollection[i]['virtual-machine-interface']().uuid),
                     }
                 );
             }
@@ -656,6 +657,10 @@ define([
                                 if(attr.clearPorts) {
                                     self.deleteVirtulMachineInterfaces(
                                        self.prepareDeletePortListForEdit(attr));
+                                } else {
+                                    self.setEmptyDeviceOwnerForRemovedPorts(
+                                       self.preparePortListForDeviceOwner(attr)
+                                    );
                                 }
                                 setCookie(ctwl.BM_CLEAR_VMI, attr.clearPorts);
                             }
@@ -727,6 +732,10 @@ define([
                                 if(attr.clearPorts) {
                                     self.deleteVirtulMachineInterfaces(
                                        self.prepareDeletePortListForEdit(attr));
+                                } else {
+                                    self.setEmptyDeviceOwnerForRemovedPorts(
+                                        self.preparePortListForDeviceOwner(attr)
+                                    );
                                 }
                                 setCookie(ctwl.BM_CLEAR_VMI, attr.clearPorts);
                             }
@@ -886,6 +895,60 @@ define([
                 }
             });
         },
+
+        setEmptyDeviceOwnerForRemovedPorts : function(portRefs) {
+            var putDataList = {}, ajaxConfig = {};
+            putDataList.data = [];
+            _.each(portRefs, function(portRef){
+                var putData = {},
+                    port = getValueByJsonPath(portRef,
+                        "virtual-machine-interface", {}, false);
+                putData["virtual-machine-interface"] = {};
+                putData["virtual-machine-interface"]["fq_name"] = port.fq_name;
+                putData["virtual-machine-interface"]["uuid"] = port.uuid;
+                putData["virtual-machine-interface"]["parent_type"] = "project";
+                putData["virtual-machine-interface"]
+                    ["virtual_machine_interface_device_owner"] = "";
+                putDataList.data.push(
+                    {"data": putData,
+                    "reqUrl" : '/virtual-machine-interface/' + port.uuid});
+            })
+            if(putDataList.data.length) {
+                ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
+                ajaxConfig.type  = "POST";
+                ajaxConfig.data  = JSON.stringify(putDataList);
+                contrail.ajaxHandler(ajaxConfig, null,
+                        function(success){},
+                        function(error){}
+                );
+            }
+        },
+
+        preparePortListForDeviceOwner : function(attr) {
+            var deleteVMIList = [],
+                serverTuples = this.getServerList(attr),
+                allVMIRefs = getValueByJsonPath(attr,
+                        'virtual_machine_interface_refs', [], false),
+                selVMIList = [];
+            _.each(serverTuples, function(server){
+                if(server.uuid) {
+                    selVMIList.push(server.uuid);
+                }
+            });
+            if(selVMIList.length > 0) {
+                _.each(allVMIRefs, function(vmiRef){
+                    var vmi = getValueByJsonPath(vmiRef,
+                        'virtual-machine-interface', {}, false);
+                    if($.inArray(vmi.uuid, selVMIList) == -1) {
+                        deleteVMIList.push(vmiRef);
+                    }
+                })
+            } else {
+                deleteVMIList = allVMIRefs;
+            }
+            return deleteVMIList;
+        },
+
         prepareDeletePortListForEdit : function(attr) {
             var deleteVMIList = [];
             var serverTuples = this.getServerList(attr);
