@@ -322,7 +322,8 @@ define([
             for (var i = 0; i < cnt; i++) {
                 policyList.push(rtList[i]['rtPolicy']);
             }
-            entryObj['routing_policy'] = policyList.join(',');
+            entryObj['routing_policy'] = policyList.join(
+                                             ctwc.MULTISELECT_VALUE_SEPARATOR);
             entryObj['interface_type'] = intfType;
             var types = [{text: 'left', id: 'left'},
                 {text: 'right', id: 'right'}];
@@ -448,7 +449,8 @@ define([
                 }
                 for (var key in intfTypeToBackRefsMap) {
                     var entryObj = {};
-                    entryObj[type] = intfTypeToBackRefsMap[key].join(',');
+                    entryObj[type] = intfTypeToBackRefsMap[key].join(
+                                         ctwc.MULTISELECT_VALUE_SEPARATOR);
                     entryObj['interface_type'] = key;
                     entryObj['interfaceTypesData'] = intfTypesList;
                     var newEntry = new modelType(entryObj);
