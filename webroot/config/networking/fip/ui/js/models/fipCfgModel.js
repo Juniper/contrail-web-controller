@@ -21,7 +21,7 @@ define([
             'user_created_alloc_type': 'dynamic', //dynamic/specific
             'user_created_alloc_count': 1,
             'user_created_floating_ip_pool': null,
-            'is_specific_ip': false, //flag to map selected fixed ip to fip
+            'is_specific_ip': true, //flag to map selected fixed ip to fip
             'floating_ip_fixed_ip_address': null
         },
 
@@ -31,17 +31,17 @@ define([
                 floatingIPFixedIP = getValueByJsonPath(modelConfig,
                     'floating_ip_fixed_ip_address', null),
                 fixedIP;
-            if(floatingIPFixedIP) {
-                modelConfig["is_specific_ip"] = true;
-                fixedIP = floatingIPFixedIP;
-            } else {
-                modelConfig["is_specific_ip"] = false;
-                fixedIP = getValueByJsonPath(vmiRef,
-                    "instance_ip_back_refs;0;fixedip;ip", "");
-            }
 
             if (vmiRef) {
                 var fqName = getValueByJsonPath(vmiRef,'to', []);
+                if(floatingIPFixedIP) {
+                    modelConfig["is_specific_ip"] = true;
+                    fixedIP = floatingIPFixedIP;
+                } else {
+                    modelConfig["is_specific_ip"] = false;
+                    fixedIP = getValueByJsonPath(vmiRef,
+                        "instance_ip_back_refs;0;fixedip;ip", "");
+                }
                 fqName = fqName.join(":");
                 fqName = fqName + cowc.DROPDOWN_VALUE_SEPARATOR + fixedIP;
                 modelConfig['virtual_machine_interface_refs'] = fqName;
