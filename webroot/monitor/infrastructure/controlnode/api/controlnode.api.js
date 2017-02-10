@@ -25,7 +25,7 @@ var rest = require(process.mainModule.exports["corePath"] +
 function getControlNodesSummary (req, res, appData)
 {
     var nodesHostIp = {'hosts': {}, 'ips': {}};
-    var url = '/bgp-routers';
+    var url = '/bgp-routers?detail=true&exclude_back_refs=true&exclude_children=true';
     var resultJSON = [];
     var configData = [], uveData = [];
     var addGen = req.param('addGen');
@@ -317,12 +317,15 @@ function getControlNodeDetailConfigUVEData (configData, addGen, appData, callbac
     } catch(e) {
         len = 0;
     }
+    var filteredConfigData = []
     for (var i = 0; i < len; i++) {
-        var reqUrl = '/bgp-router/' + configData['bgp-routers'][i]['uuid'];
-        commonUtils.createReqObj(dataObjArr, reqUrl,
-                                 global.HTTP_REQUEST_GET, null, configApiServer, null,
-                                 appData);
+        var type = commonUtils.getValueByJsonPath(configData,'bgp-routers;' + i
+                + ';bgp-router;bgp_router_parameters;router_type',null,false);
+        if( type != 'bgpaas-client' && type != 'bgpaas-server') {
+            filteredConfigData.push(configData['bgp-routers'][i]);
+        }
     }
+    len = filteredConfigData.length;
     reqUrl = '/analytics/uves/control-node';
     var postData = {};
     postData['cfilt'] = ['BgpRouterState','NodeStatus','ControlCpuState','UVEAlarms'];
@@ -346,7 +349,8 @@ function getControlNodeDetailConfigUVEData (configData, addGen, appData, callbac
                 results[i] = [];
             }
         }
-        callback(err, results, len);
+        filteredConfigData = filteredConfigData.concat(results);
+        callback(err, filteredConfigData, len);
     });
 }
 
