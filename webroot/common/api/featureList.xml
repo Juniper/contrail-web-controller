@@ -159,4 +159,7 @@
     <item>
         <feature>routeaggregateconfig</feature>
     </item>
+    <item>
+        <feature>cgc</feature>
+    </item>
 </featureLists>
