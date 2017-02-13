@@ -1368,7 +1368,36 @@ function sortJSON(resultArray, sortParams, callback) {
     }, 2000, qsStatus, callback);
 }
 
+function isJSON(str) {
+    var testRes = true;
+    try {
+        var parsed = JSON.parse(str); // eslint-disable-line
+    } catch (e) {
+        testRes = false;
+    } finally {
+        return testRes;
+    }
+}
+
+function sanitizeXSS(obj) {
+    _.each(obj, function(value, key, ctx) {
+        if (_.isObject(value)) {
+            ctx[key] = sanitizeXSS(value);
+        } else if (_.isString(value)) {
+            if (isJSON(value)) {
+                ctx[key] = JSON.stringify(sanitizeXSS(JSON.parse(value)));
+            } else {
+                ctx[key] = _.escape(value);
+            }
+        }
+    });
+
+    return obj;
+}
+
 function runNewQuery(req, res, queryId, reqQuery, appData) {
+    reqQuery = sanitizeXSS(reqQuery);
+
     queryId = reqQuery.queryId;
 
     var tableName = reqQuery.table,
