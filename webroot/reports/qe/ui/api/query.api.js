@@ -188,7 +188,7 @@ function runQuery(req, res, queryReqObj, appData, isGetQ) {
 
     cachedResultConfig = {"queryId": queryId, "chunk": chunk, "sort": sort, "chunkSize": chunkSize, "toSort": true};
 
-    logutils.logger.debug('Query Request: ' + JSON.stringify(queryReqObj));
+    logutils.logger.debug('Query Request: ' + JSON.stringify(queryReqObj, null, 4));
 
     if (queryId != null) {
         redisClient.exists(queryId + ':chunk1', function (err, exists) {
@@ -214,7 +214,45 @@ function runNewQuery(req, res, queryId, queryReqObj, appData, isGetQ) {
     executeQuery(res, queryOptions, appData, isGetQ);
 };
 
+function isJSON(str) {
+    var testRes = true;
+    try {
+        var parsed = JSON.parse(str);
+    } catch (e) {
+        testRes = false;
+    } finally {
+        return testRes;
+    }
+}
+
+function sanitizeXSS(obj) {
+    _.each(obj, function(value, key, ctx) {
+        if (_.isObject(value)) {
+            ctx[key] = sanitizeXSS(value);
+        } else if (_.isString(value)) {
+            if (isJSON(value)) {
+                ctx[key] = JSON.stringify(sanitizeXSS(JSON.parse(value)));
+            } else {
+                ctx[key] = _.escape(value);
+            }
+        }
+    })
+
+    return obj;
+}
+
 function getQueryOptions(queryReqObj) {
+    queryReqObj = sanitizeXSS(queryReqObj)
+    // queryReqObj["engQueryStr"] = JSON.stringify(_.object(_.map(
+    //     _.pairs(JSON.parse(queryReqObj["engQueryStr"])),
+    //     function(pair) {
+    //         pair[1] = _.escape(pair[1]);
+    //         return pair;
+    //     }
+    // )))
+    logutils.logger.debug("==========================");
+    logutils.logger.debug(JSON.stringify(queryReqObj, null, 2));
+    logutils.logger.debug("==========================");
     var formModelAttrs = queryReqObj['formModelAttrs'], tableType = formModelAttrs['table_type'],
         queryId = queryReqObj['queryId'], chunkSize = parseInt(queryReqObj['chunkSize']),
         async = (queryReqObj['async'] != null) ? queryReqObj['async'] : false;

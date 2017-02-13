@@ -16,7 +16,7 @@ var qeapi = module.exports,
     redisUtils = require(process.mainModule.exports["corePath"] +
                          '/src/serverroot/utils/redis.utils'),
     qs = require('querystring'),
-    underscore = require('underscore'),
+    _ = require('underscore'),
     redisReadStream = require('redis-rstream'),
     opApiServer = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/opServer.api');
@@ -1208,11 +1208,48 @@ function sortJSON(resultArray, sortParams, callback) {
     }, 2000, qsStatus, callback);
 };
 
+function isJSON(str) {
+    var testRes = true;
+    try {
+        var parsed = JSON.parse(str);
+    } catch (e) {
+        testRes = false;
+    } finally {
+        return testRes;
+    }
+}
+
+function sanitizeXSS(obj) {
+    _.each(obj, function(value, key, ctx) {
+        if (_.isObject(value)) {
+            ctx[key] = sanitizeXSS(value);
+        } else if (_.isString(value)) {
+            if (isJSON(value)) {
+                ctx[key] = JSON.stringify(sanitizeXSS(JSON.parse(value)));
+            } else {
+                ctx[key] = _.escape(value);
+            }
+        }
+    })
+
+    return obj;
+}
+
+
 function runNewQuery(req, res, queryId, reqQuery, appData) {
+    reqQuery = sanitizeXSS(reqQuery);
     var tableName = reqQuery['table'], tableType = reqQuery['tableType'],
         queryId = reqQuery['queryId'], pageSize = parseInt(reqQuery['pageSize']),
         async = (reqQuery['async'] != null && reqQuery['async'] == "true") ? true : false,
-        reRunTimeRange = reqQuery['reRunTimeRange'], reRunQuery = reqQuery, engQueryStr = reqQuery['engQueryStr'],
+        reRunTimeRange = reqQuery['reRunTimeRange'], reRunQuery = reqQuery,
+        // engQueryStr = JSON.stringify(_.object(_.map(
+        //     _.pairs(JSON.parse(reqQuery['engQueryStr'])),
+        //     function(pair) {
+        //         pair[1] = _.escape(pair[1]);
+        //         return pair;
+        //     }
+        // ))),
+        engQueryStr = reqQuery['engQueryStr'],
         saveQuery = reqQuery['saveQuery'],
         options = {
             queryId: queryId, pageSize: pageSize, counter: 0, status: "run",
