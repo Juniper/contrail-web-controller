@@ -1369,6 +1369,8 @@ function sortJSON(resultArray, sortParams, callback) {
 }
 
 function runNewQuery(req, res, queryId, reqQuery, appData) {
+    reqQuery = commonUtils.sanitizeXSS(reqQuery);
+
     queryId = reqQuery.queryId;
 
     var tableName = reqQuery.table,
