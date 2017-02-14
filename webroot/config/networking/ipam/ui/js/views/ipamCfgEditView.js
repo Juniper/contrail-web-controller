@@ -59,6 +59,8 @@ define([
                                         document.getElementById(modalId));
                 kbValidation.bind(self,
                     {collection: self.model.model().attributes.tenant_dns_server});
+                kbValidation.bind(self,
+                        {collection: self.model.model().attributes.user_created_ipam_subnets});
                 //permissions
                 ctwu.bindPermissionsValidation(self);
                                     }, null, true);
@@ -178,6 +180,27 @@ define([
                             }
                         ]
                     },
+                    {
+                        columns: [
+                            {
+                                elementId: 'ipam_subnet_method',
+                                view: 'FormRadioButtonView',
+                                viewConfig: {
+                                    path: 'ipam_subnet_method',
+                                    class: 'col-xs-12',
+                                    dataBindValue: 'ipam_subnet_method',
+                                    disabled: disableOnEdit,
+                                    label: 'Subnet Method',
+                                    elementConfig: {
+                                         dataObj: [{"label": "User Defined",
+                                           "value": "user-defined-subnet"},
+                                           {"label": "Flat", "value": "flat-subnet"}]
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    getSubnetViewConfig(),
                     {
                         columns: [
                             {
@@ -332,6 +355,170 @@ define([
             }
         }
         return ipamCfgViewConfig;
+    }
+
+    function getSubnetViewConfig () {
+        var subnetViewConfig = {
+                columns: [{
+                    elementId: 'ipamsubnets',
+                    view: "AccordianView",
+                    viewConfig: [{
+                        visible: 'ipam_subnet_method() == "flat-subnet"',
+                        elementId: 'subnet_vcfg',
+                        title: 'Subnets',
+                        view: "SectionView",
+                        viewConfig: {
+                            rows: [{
+                                columns: [{
+                                    elementId: 'user_created_ipam_subnets',
+                                    view: "FormEditableGridView",
+                                    viewConfig: {
+                                         path : 'user_created_ipam_subnets',
+                                         class: 'col-xs-12',
+                                         validation:
+                                             'subnetModelConfigValidations',
+                                         collection:
+                                             'user_created_ipam_subnets',
+                                         templateId:
+                                             cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                                         gridActions: [{
+                                             onClick: "function() {\
+                                                 if (!isVCenter())\
+                                                     addSubnet();\
+                                                 }",
+                                              buttonTitle: ""
+                                          }],
+                                          rowActions: [{
+                                              onClick: "function() {\
+                                                  if (!isVCenter())\
+                                                      $root.addSubnet();\
+                                                  }",
+                                              iconClass: 'fa fa-plus'
+                                              }, {
+                                              onClick: "function() {\
+                                                  if (!isVCenter())\
+                                                      $root.deleteSubnet($data, this);\
+                                                  }",
+                                              iconClass: 'fa fa-minus'
+                                           }],
+                                           columns: [
+                                               {
+                                                elementId: 'user_created_cidr',
+                                                name:
+                                                  'CIDR',
+                                                width:160,
+                                                view: "FormInputView",
+                                                viewConfig:
+                                                  {
+                                                  class: "", width: 160,
+                                                  disabled: 'disable()',
+                                                  placeholder: 'xxx.xxx.xxx.xxx/xx',
+                                                  path: "user_created_cidr",
+                                                  templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                  dataBindValue:
+                                                       'user_created_cidr()',
+                                                  }
+                                               },
+                                               {
+                                                elementId: 'allocation_pools',
+                                                name:
+                                                  'Allocation Pools',
+                                                width:160,
+                                                view: "FormTextAreaView",
+                                                viewConfig:
+                                                  {
+                                                   class: "", width: 160,
+                                                   placeHolder: 'start-end <enter>...',
+                                                   disabled: 'disable()',
+                                                   templateId: cowc.TMPL_EDITABLE_GRID_TEXTAREA_VIEW,
+                                                   path: "allocation_pools",
+                                                   dataBindValue:
+                                                       'allocation_pools()',
+                                                  }
+                                               },
+                                               {
+                                                elementId: 'user_created_enable_gateway',
+                                                name:
+                                                  '',
+                                                width:50,
+                                                view: "FormCheckboxView",
+                                                viewConfig:
+                                                  {
+                                                  disabled: 'disable()',
+                                                  path: "user_created_enable_gateway",
+                                                  width: 50,
+                                                  templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
+                                                  label: "",
+                                                  dataBindValue:
+                                                       'user_created_enable_gateway()',
+                                                  elementConfig : {
+                                                       isChecked:true
+                                                       }
+                                                  }
+                                               },
+                                               {
+                                                elementId: 'default_gateway',
+                                                name:
+                                                  'Gateway',
+                                                width:160,
+                                                view: "FormInputView",
+                                                viewConfig:
+                                                  {
+                                                   class: "", width: 160,
+                                                   disabled: 'disable()',
+                                                   placeholder: 'xxx.xxx.xxx.xxx',
+                                                   path: "default_gateway",
+                                                   templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                   dataBindValue:
+                                                       'default_gateway()',
+                                                  }
+                                               },
+                                               /*{
+                                                elementId: 'user_created_enable_dns',
+                                                name:
+                                                  'DNS',
+                                                view: "FormCheckboxView",
+                                                viewConfig:
+                                                  {
+                                                   disabled: 'disable()',
+                                                   path: "user_created_enable_dns",
+                                                   width: 50,
+                                                   label: "",
+                                                  templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
+                                                   dataBindValue:
+                                                       'user_created_enable_dns()',
+                                                   elementConfig : {
+                                                       isChecked:true
+                                                       }
+                                                  }
+                                               },*/
+                                               {
+                                                elementId: 'enable_dhcp',
+                                                name:
+                                                  'DHCP',
+                                                view: "FormCheckboxView",
+                                                viewConfig:
+                                                  {
+                                                   disabled: 'disable()',
+                                                   path: "enable_dhcp",
+                                                   width: 50,
+                                                   label: "",
+                                                  templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
+                                                   dataBindValue:
+                                                       'enable_dhcp()',
+                                                   elementConfig : {
+                                                       isChecked:true
+                                                       }
+                                                  }
+                                               }]
+                                           }
+                                       }]
+                                   }]
+                              }
+                          }]
+                      }]
+                };
+        return subnetViewConfig;
     }
 
     return ipamCfgEditView;

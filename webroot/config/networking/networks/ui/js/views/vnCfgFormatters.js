@@ -16,8 +16,8 @@ define([
             var ipamObjs =
                 contrail.handleIfNull(dc['network_ipam_refs'], []);
 
-            var len = ipamObjs.length, count = 0, subnetCnt = 0, returnStr = '';
-
+            var len = ipamObjs.length, count = 0, subnetCnt = 0, returnStr = '',
+                flatSubnetIPAMs;
             if (!len) {
                return "-";
             }
@@ -26,7 +26,9 @@ define([
                 var ipam = ipamObjs[i];
                 var subnetStr = '', field = 'ipam_subnets';
                 var subnetLen = ipam['attr'][field].length;
-
+                if(validateFlatSubnetIPAM(ipam)){
+                    continue;
+                }
                 subnetCnt += subnetLen;
 
                 if (count > 2 && cd != -1) {
@@ -44,29 +46,54 @@ define([
                     if(subnet) {
                         cidr = subnet.ip_prefix + '/' + subnet.ip_prefix_len;
                     } else {
-                        cidr = "-";
+                        continue;
                     }
                     returnStr += cidr +
                                  '<br>';
                  }
              }
+             flatSubnetIPAMs = flatSubnetIPAMsFormatter(d, c, v, cd, dc);
+             if(flatSubnetIPAMs.length) {
+                 var flatIpamsLen = flatSubnetIPAMs.length;
+                 if(subnetCnt === 0) {
+                     flatSubnetIPAMs = flatSubnetIPAMs.slice(0, 2);
+                 } else if(subnetCnt === 1) {
+                     flatSubnetIPAMs = flatSubnetIPAMs.slice(0, 1);
+                 } else if(subnetCnt >= 2) {
+                     flatSubnetIPAMs = [];
+                 }
+                 subnetCnt += flatIpamsLen;
+             }
+             _.each(flatSubnetIPAMs, function(ipam) {
+                 returnStr += ipam + '<br>';
+             });
 
              if (subnetCnt > 2 && cd != -1) {
                  returnStr += '<span class="moredataText">(' + (subnetCnt - 2) +
                               ' more)</span><span class="moredata"' +
                               ' style="display:none;"></span>';
              } 
-             return returnStr;
+             return returnStr ? returnStr : '-';
+        };
+
+        var validateFlatSubnetIPAM = function (ipam) {
+            var isFlatSubnetIPAM = getValueByJsonPath(ipam,
+                    'attr;ipam_subnets;0;subnet', null, false) ? false : true;
+            if(isFlatSubnetIPAM){
+                return true;
+            } else {
+                return false;
+            }
         };
 
         /*
          * private @getSubnetDNSStatus
          */
-        var getSubnetDNSStatus = function(subnetObj) {
+        this.getSubnetDNSStatus = function(subnetObj) {
             var dhcpOpts = getValueByJsonPath(subnetObj,
                                 'dhcp_option_list;dhcp_option', []);
             if (dhcpOpts.length) {
-                return getdhcpValuesByOption(dhcpOpts, 6).indexOf("0.0.0.0")
+                return this.getdhcpValuesByOption(dhcpOpts, 6).indexOf("0.0.0.0")
                         == -1 ? true : false;
             }
              return true;
@@ -75,7 +102,7 @@ define([
         /*
          * private @getdhcpValueByOption
          */
-        var getdhcpValuesByOption = function(dhcpObj, optCode) {
+        this.getdhcpValuesByOption = function(dhcpObj, optCode) {
             var dhcpValues = '', dhcpObjLen = dhcpObj.length;
 
             if (dhcpObjLen == 0 ) {
@@ -248,7 +275,7 @@ define([
          * @subnetTmplFormatter
          */
         this.subnetTmplFormatter =  function(d, c, v, cd, dc) {
-            var subnetString = "";
+            var subnetString = "", flatSubnetIPAMs;
             var ipamObjs = getValueByJsonPath(dc,"network_ipam_refs", []);
              var len = ipamObjs.length, count = 0,
                         subnetCnt = 0, returnStr = '';
@@ -266,16 +293,23 @@ define([
                 var field = 'ipam_subnets';
                 var subnet = ipam['attr'][field];
                 var subnetLen = ipam['attr'][field].length;
+                if(validateFlatSubnetIPAM(ipam)){
+                    continue;
+                }
                 for(var j = 0; j < subnetLen; j++) {
                     var ip_block = ipam['attr'][field][j];
                     var ipam_block= ipam['to'];
                     var ipamto = ipam_block[2] + ' ( ' + ipam_block[0] + ':' +ipam_block[1] + ')';
                     var cidr = getValueByJsonPath(ip_block,"subnet;ip_prefix", null, false);
-                    var cidrlen=getValueByJsonPath(ip_block,"subnet;ip_prefix_len", false);
-                    cidr = cidr ? cidr + '/' + cidrlen : "-";
+                    var cidrlen = getValueByJsonPath(ip_block,"subnet;ip_prefix_len", null, false);
+                    if(cidr){
+                        cidr = cidr + '/' + cidrlen ;
+                    } else {
+                        continue;
+                    }
                     var gw   = ip_block.default_gateway ? ip_block.default_gateway: "-";
                     var dhcp = ip_block.enable_dhcp ? 'Enabled' : 'Disabled'; 
-                    var dns  = getSubnetDNSStatus(ip_block) ? 'Enabled' : 'Disabled';
+                    var dns  = this.getSubnetDNSStatus(ip_block) ? 'Enabled' : 'Disabled';
                     var gwStatus =  (gw == null || gw == "" || gw == "0.0.0.0") ?
                                         'Disabled' : gw;
 
@@ -302,6 +336,18 @@ define([
                     subnetString += "</tr>";
                 }
             }
+
+            //flat subnet ipams
+            flatSubnetIPAMs = flatSubnetIPAMsFormatter(d, c, v, -1, dc);
+            _.each(flatSubnetIPAMs, function(ipam) {
+                subnetString += "<tr style='vertical-align:top'><td>";
+                subnetString += ipam + "</td><td>";
+                subnetString += '-' + "</td><td>";
+                subnetString += '-' + "</td><td>";
+                subnetString += '-' + "</td><td>";
+                subnetString += '-' + "</td>";
+                subnetString += "</tr>";
+            });
             var returnString = "";
             if(subnetString != ""){
                 returnString =
@@ -317,8 +363,47 @@ define([
             } else {
                 returnString += "";
             }
-            return returnString;
+            return returnString ? returnString : "-";
         }
+
+        var flatSubnetIPAMsFormatter = function(d, c, v, cd, dc) {
+            var ipamString,
+                ipamObjs = getValueByJsonPath(dc,"network_ipam_refs", [], false),
+                domain  = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                project = contrail.getCookie(cowc.COOKIE_PROJECT),
+                flatSubnetIpams = [];
+            _.each(ipamObjs, function(ipamObj) {
+                var isFlatSubnetIPAM = getValueByJsonPath(ipamObj,
+                        'attr;ipam_subnets;0;subnet', null, false) ? false : true;
+                if(isFlatSubnetIPAM) {
+                    ipamFqn = ipamObj.to;
+                    if (domain != ipamFqn[0] ||
+                            project != ipamFqn[1]) {
+                        ipamString = ipamFqn[2] + ' (' + ipamFqn[0] +
+                                            ':' + ipamFqn[1] + ')';
+                    } else {
+                        ipamString = ipamFqn[2];
+                    }
+                    flatSubnetIpams.push(ipamString);
+                }
+            });
+            return flatSubnetIpams;
+        };
+
+        this.flatSubnetModelFormatter = function(d, c, v, cd, dc) {
+            var flatIPAMList = [], ipamFqnStr,
+                ipamObjs = getValueByJsonPath(dc,"network_ipam_refs", []);
+
+            _.each(ipamObjs, function(ipamObj) {
+                var isFlatSubnetIPAM = getValueByJsonPath(ipamObj,
+                        'attr;ipam_subnets;0;subnet', null, false) ? false : true;
+                if(isFlatSubnetIPAM) {
+                    ipamFqnStr = ipamObj.to.join(cowc.DROPDOWN_VALUE_SEPARATOR);
+                    flatIPAMList.push(ipamFqnStr)
+                }
+            });
+            return flatIPAMList
+        };
 
         /*
          * @subnetModelFormatter
@@ -341,18 +426,21 @@ define([
                 var ipamFQN = ipamObjs[i].to.join(cowc.DROPDOWN_VALUE_SEPARATOR);
                 var field = 'ipam_subnets';
                 var subnetLen = ipam['attr'][field].length;
+                if(validateFlatSubnetIPAM(ipam)){
+                    continue;
+                }
 
                 for(var j = 0; j < subnetLen; j++) {
                     var subnetObj = {};
                     var ip_block = getValueByJsonPath(ipam,
                             'attr;' + field + ';' + j, null, false);
-                    subnetObj['user_created_ipam_fqn'] = ipamFQN;
                     if(!ip_block || !ip_block.subnet){
                         subnetObj['disable'] = true;
                         returnArr.push(subnetObj);
                         continue;
                     }
                     subnetObj = ip_block;
+                    subnetObj['user_created_ipam_fqn'] = ipamFQN;
                     var cidr = ip_block.subnet.ip_prefix + '/' +
                                ip_block.subnet.ip_prefix_len;
                     subnetObj['user_created_cidr'] = cidr;
@@ -374,7 +462,7 @@ define([
                         subnetObj['user_created_enable_gateway'].length &&
                         subnetObj['user_created_enable_gateway'].indexOf("0.0.0.0")
                                     == -1 ? true : false;
-                    subnetObj['user_created_enable_dns']  = getSubnetDNSStatus(ip_block);
+                    subnetObj['user_created_enable_dns']  = this.getSubnetDNSStatus(ip_block);
                     subnetObj['disable'] = true;
                     returnArr.push(subnetObj);
                  }
@@ -382,7 +470,6 @@ define([
 
              return returnArr;
         };
-
 
         /*
          * @subnetHostRouteFormatter
@@ -456,7 +543,7 @@ define([
                     var dhcpOpts = getValueByJsonPath(ipBlock,
                                 'dhcp_option_list;dhcp_option', []);
                     if (dhcpOpts.length) {
-                        returnArr.push(getdhcpValuesByOption(dhcpOpts, 6).split(' ')); 
+                        returnArr.push(this.getdhcpValuesByOption(dhcpOpts, 6).split(' '));
                     }
                 }
             }
@@ -744,14 +831,20 @@ define([
          */
         this.ipamDropDownFormatter = function(response) {
             var ipamResponse = getValueByJsonPath(response,
-                    'network-ipams', []);
+                    '0;network-ipams', []);
             var ipamList = [];
             var domain  = contrail.getCookie(cowc.COOKIE_DOMAIN);
             var project = contrail.getCookie(cowc.COOKIE_PROJECT);
             var vCenter = isVCenter();
 
-            $.each(ipamResponse, function (i, obj) {
-                var flatName = obj.fq_name[2];
+            $.each(ipamResponse, function (i, ipam) {
+                var obj = getValueByJsonPath(ipam,
+                        'network-ipam', "", false),
+                    flatName = obj.fq_name[2];
+                if(obj.ipam_subnet_method &&
+                        obj.ipam_subnet_method !== ctwc.USER_DEFINED_SUBNET) {
+                    return true;
+                }
 
                 if (domain != obj.fq_name[0] ||
                     project != obj.fq_name[1]) {
@@ -775,6 +868,73 @@ define([
             });
 
             return ipamList;
+        };
+
+        /*
+         * @ipamDropDownFormatter
+         */
+        this.ipamFlatSubnetDropDownFormatter = function(response) {
+            var ipamResponse = getValueByJsonPath(response,
+                    '0;network-ipams', []);
+            var ipamList = [];
+            var domain  = contrail.getCookie(cowc.COOKIE_DOMAIN);
+            var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+            var vCenter = isVCenter();
+
+            $.each(ipamResponse, function (i, ipam) {
+                var obj = getValueByJsonPath(ipam,
+                        'network-ipam', "", false),
+                    flatName = obj.fq_name[2];
+                if(obj.ipam_subnet_method == null ||
+                        obj.ipam_subnet_method === ctwc.USER_DEFINED_SUBNET) {
+                    return true;
+                }
+                if (domain != obj.fq_name[0] ||
+                    project != obj.fq_name[1]) {
+                        flatName += ' (' + obj.fq_name[0] +
+                                    ':' + obj.fq_name[1] + ')';
+                }
+                if (vCenter) {
+                    if (domain == obj.fq_name[0] &&
+                        project == obj.fq_name[1]) {
+                        ipamList.push({
+                            id: obj.fq_name.join(cowc.DROPDOWN_VALUE_SEPARATOR),
+                            text: flatName
+                        });
+                    }
+                } else {
+                    ipamList.push({
+                        id: obj.fq_name.join(cowc.DROPDOWN_VALUE_SEPARATOR),
+                        text: flatName
+                    });
+                }
+            });
+
+            return ipamList;
+        };
+
+        /*
+         * @allocationModeExpFormatter
+         */
+        this.allocationModeExpFormatter =  function(d, c, v, cd, dc) {
+            var allocType = getValueByJsonPath(dc,
+                    "address_allocation_mode", 'user-defined-subnet-only', false),
+                returnString = "";
+            switch(allocType) {
+                case 'user-defined-subnet-preferred' :
+                    returnString = "User Defined Hybrid";
+                    break;
+                case 'user-defined-subnet-only' :
+                    returnString = "User Defined";
+                    break;
+                case 'flat-subnet-preferred' :
+                    returnString = "Flat Hybrid";
+                    break;
+                case 'flat-subnet-only' :
+                    returnString = "Flat";
+                    break;
+            };
+            return returnString ? returnString : '-';
         };
 
         /*

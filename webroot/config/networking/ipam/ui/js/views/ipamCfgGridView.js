@@ -201,7 +201,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'col-xs-6',
+                                    class: 'col-xs-8',
                                     rows: [
                                         {
                                             title: ctwl.CFG_IPAM_TITLE_DETAILS,
@@ -247,13 +247,21 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    label: 'Subnet Method',
+                                                    key: 'ipam_subnet_method',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'IPAMSubnetMethodFormatter'
+                                                    }
+                                                },
+                                                {
                                                     label: 'IP Blocks',
-                                                    key: 'virtual_network_back_refs',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'IPBlockFormatter'
                                                     }
-                                                },
+                                                }
                                             ]
                                         },
                                         //permissions
@@ -281,9 +289,17 @@ define([
         return formatipamCfg.dnsNTPFormatter(null,
                                     null, null, null, dc);
     }
+    this.IPAMSubnetMethodFormatter = function (v, dc) {
+        return formatipamCfg.ipamSubnetMethodFormatter(null,
+                                    null, null, -1, dc);
+    }
     this.IPBlockFormatter = function (v, dc) {
         return formatipamCfg.IPBlockFormatter(null,
                                     null, null, -1, dc);
     }
+    this.SubnetFormatter = function (v, dc) {
+        return formatipamCfg.subnetFormatter(null,
+                                    null, null, -1, dc);
+    };
     return ipamCfgGridView;
 });

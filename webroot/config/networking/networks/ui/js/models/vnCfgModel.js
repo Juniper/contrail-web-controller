@@ -30,6 +30,7 @@ define([
                 'vxlan_network_identifier': null, //delete if it is null
                 'mirror_destination': false
             },
+            'user_created_forwarding_mode': 'default',
             'external_ipam': false, // set only when vcenter is enabled
             'virtual_network_network_id': 0, // never set at post / put
             'network_policy_refs': [], //ordered collection attr.major,minor
@@ -92,6 +93,8 @@ define([
             'qos_config_refs': [],
             'user_created_vxlan_mode': false,
             'disable': false,
+            'address_allocation_mode': 'user-defined-subnet-only',
+            'user_created_flat_subnet_ipam': []
         },
 
         formatModelConfig: function (modelConfig) {
@@ -117,6 +120,11 @@ define([
             }
 
             modelConfig['display_name'] = ctwu.getDisplayNameOrName(modelConfig);
+
+            //populate user_created_forwarding_mode
+            modelConfig['user_created_forwarding_mode'] =
+                getValueByJsonPath(modelConfig,
+                'virtual_network_properties;forwarding_mode', 'default', false)
 
             this.readSubnetHostRoutes(modelConfig);
             this.readRouteTargetList(modelConfig, 'user_created_route_targets');
@@ -457,6 +465,13 @@ define([
                 subnetModels.push(subnetModel);
             }
 
+            //flat subnet
+            var flatIPAMList = formatVNCfg.flatSubnetModelFormatter(null,
+                    null, null, -1, modelConfig);
+            modelConfig["user_created_flat_subnet_ipam"] =
+                flatIPAMList.join(ctwc.MULTISELECT_VALUE_SEPARATOR);
+
+            //user defined subnet
             modelConfig['network_ipam_refs'] =
                                     new Backbone.Collection(subnetModels);
         },
@@ -646,17 +661,29 @@ define([
                                   {'ipam_subnets': ipamAssocArr[ipam]}
                                   });
             }
+            //add flat subnet ipams
+            var flatIpams = attr.user_created_flat_subnet_ipam ?
+                attr.user_created_flat_subnet_ipam.split(ctwc.MULTISELECT_VALUE_SEPARATOR) : [];
+            _.each(flatIpams, function(flatIpam){
+                subnetArray.push({'to':
+                    flatIpam.split(cowc.DROPDOWN_VALUE_SEPARATOR), 'attr': {'ipam_subnets':[]}});
+            });
+            delete attr.user_created_flat_subnet_ipam;
             attr['network_ipam_refs'] = subnetArray;
         },
 
 
         getProperties: function(attr) {
             var forwardingMode = getValueByJsonPath(attr,
-                        'virtual_network_properties;forwarding_mode', null);
+                        'user_created_forwarding_mode', null);
 
             if (forwardingMode == null || forwardingMode == 'default') {
                 delete attr['virtual_network_properties']['forwarding_mode'];
+            } else {
+                attr["virtual_network_properties"]["forwarding_mode"] =
+                    forwardingMode;
             }
+            delete attr.user_created_forwarding_mode;
 
             var vxLANId = getValueByJsonPath(attr,
                         'virtual_network_properties;vxlan_network_identifier', null);
@@ -769,6 +796,25 @@ define([
             }
         },
 
+        updateModelAttrsForCurrentAllocMode: function(value) {
+            //update forwarding mode
+            if(value !== 'user-defined-subnet-only') {
+                this.user_created_forwarding_mode("l3");
+            } else {
+                this.user_created_forwarding_mode("default");
+            }
+
+            //reset user defined ipam_subnets for flat subnet only case
+            if(value === 'flat-subnet-only') {
+                this.model().attributes.network_ipam_refs.reset();
+            }
+
+            //clear flat_subnets for user defined subnet only case
+            if(value === 'user-defined-subnet-only') {
+                this.user_created_flat_subnet_ipam('');
+            }
+        },
+
         readSRIOV: function (modelConfig) {
             var segment_id   = getValueByJsonPath(modelConfig,
                                 'provider_properties;segmentation_id', null);
@@ -856,6 +902,13 @@ define([
                 'display_name': {
                     required: true,
                     msg: 'Enter Name'
+                },
+                'user_created_flat_subnet_ipam':
+                function(value, attr, finalObj) {
+                    if(finalObj.address_allocation_mode ===
+                        'flat-subnet-only' && !value) {
+                        return "Select Flat Subnet IPAM(s)";
+                    }
                 },
                 'virtual_network_properties.vxlan_network_identifier' :
                 function (value, attr, finalObj) {
@@ -1014,6 +1067,11 @@ define([
                                 key: 'user_created_import_route_targets',
                                 type: cowc.OBJECT_TYPE_COLLECTION,
                                 getValidation: 'routeTargetModelConfigValidations'
+                              },
+                              {
+                                  key: 'bridge_domains',
+                                  type: cowc.OBJECT_TYPE_COLLECTION,
+                                  getValidation: 'bridgeDomainModelConfigValidations'
                               },
                               //permissions
                               ctwu.getPermissionsValidation()

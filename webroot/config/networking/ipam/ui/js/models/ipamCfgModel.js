@@ -6,9 +6,15 @@ define([
     'underscore',
     'contrail-config-model',
     'config/networking/ipam/ui/js/models/ipamTenantDNSModel',
-    'config/networking/ipam/ui/js/views/ipamCfgFormatters'
-], function (_, ContrailConfigModel, IpamTenantDNSModel, IpamCfgFormatters) {
-    var formatipamCfg = new IpamCfgFormatters();
+    'config/networking/ipam/ui/js/views/ipamCfgFormatters',
+    'config/networking/networks/ui/js/models/subnetModel',
+    'config/networking/networks/ui/js/models/hostRouteModel',
+    'config/networking/networks/ui/js/models/subnetDNSModel',
+    'config/networking/networks/ui/js/views/vnCfgFormatters'
+], function (_, ContrailConfigModel, IpamTenantDNSModel, IpamCfgFormatters,
+    SubnetModel, HostRouteModel, SubnetDNSModel, VNCfgFormatters) {
+    var formatipamCfg = new IpamCfgFormatters(),
+        formatVNCfg = new VNCfgFormatters();
 
     var ipamCfgModel = ContrailConfigModel.extend({
 
@@ -35,7 +41,12 @@ define([
                 'ntp_server': null,
             },
             'tenant_dns_server':[],
-            'user_created_dns_method': 'default-dns-server'
+            'user_created_dns_method': 'default-dns-server',
+            'ipam_subnet_method':  'user-defined-subnet',
+            'ipam_subnets':{
+                'subnets': []
+            },
+            'user_created_ipam_subnets': []
         },
 
         formatModelConfig: function (modelConfig) {
@@ -91,7 +102,220 @@ define([
                         formatipamCfg.getDhcpOptions(dhcpList, 15).trim();
             //permissions
             this.formatRBACPermsModelConfig(modelConfig);
+            //subnets
+            this.readSubnetList(modelConfig);
             return modelConfig;
+        },
+
+        readSubnetList: function (modelConfig) {
+            var self = this;
+            var subnetModels = [], subnetList = [];
+            subnetList = getValueByJsonPath(modelConfig,
+                    "ipam_subnets;subnets", []),
+            subnetLen = subnetList.length;
+            if(subnetLen > 0) {
+                for(var i = 0; i < subnetLen; i++) {
+                    var subnetObj = subnetList[i],
+                        subnetModel, allocPools, allocPoolStr = '',
+                        cidr = subnetObj.subnet.ip_prefix + '/' +
+                        subnetObj.subnet.ip_prefix_len;
+                    subnetObj["user_created_cidr"] = cidr;
+                    allocPools = getValueByJsonPath(subnetObj,
+                            "allocation_pools", [], false);
+                    allocPools.every(function(pool) {
+                        allocPoolStr += pool.start + "-" + pool.end + "\n";
+                        return true;
+                    });
+                    subnetObj['allocation_pools'] = allocPoolStr.trim();
+                    subnetObj['user_created_enable_gateway'] =
+                        getValueByJsonPath(subnetObj, 'default_gateway', "");
+                    subnetObj['user_created_enable_gateway'] =
+                        subnetObj['user_created_enable_gateway'].length &&
+                        subnetObj['user_created_enable_gateway'].indexOf("0.0.0.0")
+                                    == -1 ? true : false;
+                    subnetObj['user_created_enable_dns']  =
+                        formatVNCfg.getSubnetDNSStatus(subnetObj);
+                    subnetObj['disable'] = true;
+                    //below dummy entry is  required to use existing subnet model
+                    subnetObj['user_created_ipam_fqn'] = 'dummy';
+                    subnetModel = new SubnetModel(subnetObj);
+                    subnetModels.push(subnetModel);
+                }
+            } else if (isVCenter()) {
+                var subnetModel = new SubnetModel();
+                self.setSubnetChangeEvent(subnetModel);
+                subnetModels.push(subnetModel);
+            }
+
+            modelConfig['user_created_ipam_subnets'] =
+                                    new Backbone.Collection(subnetModels);
+        },
+
+        setSubnetGateway: function (self, model, text) {
+            var subnets = self.model().attributes['user_created_ipam_subnets'].toJSON();
+            var cid = model.cid;
+            subnets.every(function(subnet) {
+                if (subnet.disable() == true || subnet.model().cid != cid) {
+                    return true;
+                }
+                if (subnet.user_created_enable_gateway() == true) {
+                    var gw = genarateGateway(text, "start");
+                    gw != false ? subnet.default_gateway(gw) : subnet.default_gateway('');
+                } else {
+                    subnet.default_gateway('0.0.0.0');
+                }
+                return true;
+            });
+        },
+
+        toggleSubnetGateway: function (self, model, text) {
+            var subnets = self.model().attributes['user_created_ipam_subnets'].toJSON();
+            var cid = model.cid;
+            subnets.every(function(subnet) {
+                if (subnet.disable() == true || subnet.model().cid != cid) {
+                    return true;
+                }
+                if (text == true) {
+                    var gw = false;
+                    if (subnet.user_created_cidr() != null) {
+                        gw = genarateGateway(subnet.user_created_cidr(), "start");
+                    }
+                    gw != false ? subnet.default_gateway(gw) : subnet.default_gateway('');
+                } else {
+                    subnet.default_gateway('0.0.0.0');
+                }
+                return true;
+            });
+        },
+
+        setSubnetChangeEvent: function (subnetModel) {
+            var self = this;
+            subnetModel.__kb.view_model.model().on('change:user_created_cidr',
+            function(model, text){
+                 self.setSubnetGateway(self, model, text);
+            });
+            subnetModel.__kb.view_model.model().on('change:user_created_enable_gateway',
+            function(model, text){
+                 self.toggleSubnetGateway(self, model, text);
+            });
+        },
+
+        addSubnet: function() {
+            var self = this;
+            var subnet = this.model().attributes['user_created_ipam_subnets'],
+                subnetModel = new SubnetModel({user_created_ipam_fqn: 'dummy'});
+            self.setSubnetChangeEvent(subnetModel);
+            subnet.add([subnetModel]);
+        },
+
+        deleteSubnet: function(data, kbSubnet) {
+            var subnetCollection = data.model().collection,
+                subnet = kbSubnet.model();
+
+            subnetCollection.remove(subnet);
+        },
+
+        getAllocPools: function(subnetObj) {
+            var allocPools = [], retAllocPool = [];
+            if ('allocation_pools' in subnetObj &&
+                        subnetObj.allocation_pools.length) {
+                allocPools = subnetObj.allocation_pools.split('\n');
+            }
+            allocPools.every(function(pool) {
+                var poolObj = pool.split('-');
+                if (poolObj.length == 2) {
+                    retAllocPool.push({'start': poolObj[0].trim(),
+                                       'end':  poolObj[1].trim()});
+                }
+                return true;
+            });
+            return retAllocPool;
+        },
+
+        setDHCPOptionList: function(subnet, dhcpOption) {
+            if (typeof subnet.dhcp_option_list == "function") {
+                subnet.dhcp_option_list().dhcp_option = dhcpOption;
+            } else {
+                subnet['dhcp_option_list'] = {};
+                subnet['dhcp_option_list']['dhcp_option'] = dhcpOption;
+            }
+        },
+
+        getSubnetList: function(attr) {
+            var subnetCollection = attr.user_created_ipam_subnets.toJSON(),
+                subnetArray = [], dhcpOption;
+            var dnsServers = [];
+            var hostRoutes = [];
+            var disabledDNS = [{'dhcp_option_name': '6', 'dhcp_option_value' : '0.0.0.0'}];
+            for(var i = 0; i < subnetCollection.length; i++) {
+                var subnet = $.extend(true, {}, subnetCollection[i].model().attributes);
+
+                if (dnsServers.length && subnet.user_created_enable_dns) {
+                    this.setDHCPOptionList(subnet, dnsServers);
+                } else if(!dnsServers.length && subnet.user_created_enable_dns){
+                    this.setDHCPOptionList(subnet, []);
+                } else if (!(subnet.user_created_enable_dns)) {
+                    this.setDHCPOptionList(subnet, disabledDNS);
+                }
+                if (hostRoutes.length) {
+                    if (typeof subnet.host_routes == "function") {
+                        subnet.host_routes().route = hostRoutes
+                    } else {
+                         subnet['host_routes'] = {};
+                         subnet['host_routes']['route'] = hostRoutes;
+                    }
+                }
+                if (subnet.user_created_enable_gateway == false) {
+                    subnet.default_gateway = '0.0.0.0';
+                } else if (subnet.default_gateway == null) {
+                    var defGw = genarateGateway(subnet.user_created_cidr, "start");
+                    //funny api
+                    if (defGw != false) {
+                        subnet.default_gateway = defGw;
+                    }
+                }
+                var cidr = subnet.user_created_cidr;
+                if (subnet.subnet.ip_prefix == null && cidr != null &&
+                        cidr.split("/").length == 2) {
+                    subnet.subnet.ip_prefix = cidr.split('/')[0];
+                    subnet.subnet.ip_prefix_len = Number(cidr.split('/')[1]);
+                }
+                if (subnet.subnet_uuid == null) {
+                    subnet.subnet_uuid = UUIDjs.create()['hex'];
+                }
+                if (subnet.subnet_name == null) {
+                    subnet.subnet_name = subnet.subnet_uuid;
+                }
+
+                var allocPool  = this.getAllocPools(subnet);
+                subnet.allocation_pools = allocPool;
+
+                if (allocPool.length == 0) {
+                    delete subnet['allocation_pools'];
+                }
+                if (hostRoutes.length == 0) {
+                    delete subnet['host_routes'];
+                }
+                dhcpOption = getValueByJsonPath(subnet,
+                    "dhcp_option_list;dhcp_option", []);
+                if(dhcpOption.length === 0) {
+                    delete subnet['dhcp_option_list'];
+                }
+
+                delete subnet['errors'];
+                delete subnet['locks'];
+                delete subnet['disable'];
+                delete subnet['user_created_enable_dns'];
+                delete subnet['user_created_enable_gateway'];
+                delete subnet['user_created_ipam_fqn'];
+                delete subnet['user_created_cidr'];
+                subnetArray.push(subnet);
+            }
+            if(attr.ipam_subnet_method === ctwc.USER_DEFINED_SUBNET) {
+                delete attr['ipam_subnets'];
+            } else {
+                attr['ipam_subnets']['subnets'] = subnetArray;
+            }
         },
 
         addTenantDNS: function() {
@@ -162,6 +386,11 @@ define([
                                 key: 'tenant_dns_server',
                                 type: cowc.OBJECT_TYPE_COLLECTION,
                                 getValidation: 'ipamTenantDNSConfigValidations'
+                              },
+                              {
+                                  key: 'user_created_ipam_subnets',
+                                  type: cowc.OBJECT_TYPE_COLLECTION,
+                                  getValidation: 'subnetModelConfigValidations'
                               },
                               //permissions
                               ctwu.getPermissionsValidation()
@@ -246,6 +475,9 @@ define([
                         ['dhcp_option_list']['dhcp_option'] = dhcpOptions;
                 }
 
+                //subnets
+                this.getSubnetList(newipamCfgData);
+
                 //permissions
                 this.updateRBACPermsAttrs(newipamCfgData);
 
@@ -257,7 +489,7 @@ define([
                 delete newipamCfgData.href;
                 delete newipamCfgData.parent_href;
                 delete newipamCfgData.parent_uuid;
-
+                delete newipamCfgData.user_created_ipam_subnets;
 
                 postData['network-ipam'] = newipamCfgData;
 

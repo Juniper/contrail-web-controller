@@ -747,6 +747,7 @@ define([
         // IPAM Config Constants
         this.URL_CFG_IPAM_DETAILS =
             '/api/tenants/config/ipam-details';
+        this.USER_DEFINED_SUBNET = 'user-defined-subnet';
 
         // FIP Config Constants
         this.URL_CFG_FIP_DETAILS =
