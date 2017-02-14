@@ -49,6 +49,7 @@ var configJsonModifyObj = {
             'flood_unknown_unicast', 'multi_policy_service_chains_enabled',
             'route_table_refs', 'provider_properties',
             'ecmp_hashing_include_fields',
+            'address_allocation_mode',
             'qos_config_refs',
             'perms2', 'pbb_evpn_enable', 'pbb_etree_enable',
             'layer2_control_word', 'mac_learning_enabled',
@@ -63,7 +64,7 @@ var configJsonModifyObj = {
     },
     'network-ipam': {
         'isConfig': true,
-        'optFields': ['network_ipam_mgmt', 'virtual_DNS_refs', 'perms2'],
+        'optFields': ['network_ipam_mgmt', 'virtual_DNS_refs', 'perms2', 'ipam_subnets'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'virtual-machine-interface': {

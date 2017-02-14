@@ -181,7 +181,10 @@ define([
     });
 
     function getVNCfgViewConfig (disableOnEdit, selectedProjId) {
-        var prefixId = ctwl.CFG_VN_PREFIX_ID;
+        var prefixId = ctwl.CFG_VN_PREFIX_ID,
+            ipamPostData = {};
+        ipamPostData.data = [];
+        ipamPostData.data[0] = {'type':'network-ipams', 'fields':''};
         var vnCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
                                             ctwl.CFG_VN_TITLE_CREATE]),
@@ -269,12 +272,101 @@ define([
                             active:false,
                             viewConfig: {
                                     rows: [
+                                    /*{
+                                        columns: [{
+                                            elementId: 'address_allocation_mode',
+                                            view: "FormDropdownView",
+                                            viewConfig: {
+                                                label: 'Allocation Mode',
+                                                path : 'address_allocation_mode',
+                                                class: 'col-xs-4',
+                                                dataBindValue : 'address_allocation_mode',
+                                                elementConfig : {
+                                                    dataTextField : "text",
+                                                    dataValueField : "id",
+                                                    placeholder : 'Select Allocation Mode',
+                                                    data : [{id: 'user-defined-subnet-preferred', text:'User Defined Hybrid'},
+                                                            {id: 'user-defined-subnet-only', text:'User Defined'},
+                                                            {id: 'flat-subnet-preferred', text:'Flat Hybrid'},
+                                                            {id: 'flat-subnet-only', text:'Flat'}]
+                                                }
+                                            }
+                                        },{
+                                            elementId: 'user_created_flat_subnet_ipam',
+                                            view: "FormMultiselectView",
+                                            viewConfig: {
+                                                visible: 'address_allocation_mode() !== "user-defined-subnet-only"',
+                                                label: 'Flat Subnet IPAMs',
+                                                path : 'user_created_flat_subnet_ipam',
+                                                class: 'col-xs-7',
+                                                dataBindValue : 'user_created_flat_subnet_ipam',
+                                                elementConfig : {
+                                                    dataTextField : "text",
+                                                    dataValueField : "id",
+                                                    placeholder : 'Select IPAMs',
+                                                    separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
+                                                    dataSource : {
+                                                        type: "remote",
+                                                        requestType: 'post',
+                                                        url:'/api/tenants/config/get-config-details',
+                                                        postData: JSON.stringify(ipamPostData),
+                                                        parse: formatVNCfg.ipamFlatSubnetDropDownFormatter
+                                                    }
+                                                }
+                                            }
+                                        }]
+                                    },*/{
+                                        columns:[{
+                                            elementId: 'address_allocation_mode',
+                                            view: "FormRadioButtonView",
+                                            viewConfig: {
+                                                label: 'Allocation Mode',
+                                                path: 'address_allocation_mode',
+                                                class: 'col-xs-12',
+                                                dataBindValue: 'address_allocation_mode',
+                                                templateId: cowc.TMPL_FOUR_OPTNS_RADIO_BUTTON_VIEW,
+                                                elementConfig: {
+                                                    dataObj: [{
+                                                        value: 'user-defined-subnet-only', label:'User Defined'},
+                                                        {value: 'user-defined-subnet-preferred', label:'User Defined Hybrid'},
+                                                        {value: 'flat-subnet-preferred', label:'Flat Hybrid'},
+                                                        {value: 'flat-subnet-only', label:'Flat'}]
+                                                }
+                                            }
+                                        }]
+                                    }, {
+                                        columns:[{
+                                            elementId: 'user_created_flat_subnet_ipam',
+                                            view: "FormMultiselectView",
+                                            viewConfig: {
+                                                visible: 'address_allocation_mode() !== "user-defined-subnet-only"',
+                                                label: 'Flat Subnet IPAM(s)',
+                                                path : 'user_created_flat_subnet_ipam',
+                                                class: 'col-xs-11',
+                                                dataBindValue : 'user_created_flat_subnet_ipam',
+                                                elementConfig : {
+                                                    dataTextField : "text",
+                                                    dataValueField : "id",
+                                                    placeholder : 'Select IPAM(s)',
+                                                    separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
+                                                    dataSource : {
+                                                        type: "remote",
+                                                        requestType: 'post',
+                                                        url:'/api/tenants/config/get-config-details',
+                                                        postData: JSON.stringify(ipamPostData),
+                                                        parse: formatVNCfg.ipamFlatSubnetDropDownFormatter
+                                                    }
+                                                }
+                                            }
+                                        }]
+                                    },
                                     {
                                         columns: [
                                         {
                                              elementId: 'network_ipam_refs',
                                              view: "FormEditableGridView",
                                              viewConfig: {
+                                                 visible: 'address_allocation_mode() !== "flat-subnet-only"',
                                                  path : 'network_ipam_refs',
                                                  class: 'col-xs-12',
                                                  validation:
@@ -319,8 +411,10 @@ define([
                                                                 dataValueField : "id",
                                                                 defaultValueId : 0,
                                                                 dataSource : {
-                                                                    type: 'remote',
-                                                                    url: '/api/tenants/config/ipams',
+                                                                    type: "remote",
+                                                                    requestType: 'post',
+                                                                    url:'/api/tenants/config/get-config-details',
+                                                                    postData: JSON.stringify(ipamPostData),
                                                                     parse: formatVNCfg.ipamDropDownFormatter
                                                                 }
                                                             }
@@ -452,6 +546,7 @@ define([
                         view: "AccordianView",
                         viewConfig: [
                             {
+                            visible: 'address_allocation_mode() !== "flat-subnet-only"',
                             elementId: 'hostRoutes',
                             title: 'Host Route(s)',
                             view: "SectionView",
@@ -687,14 +782,14 @@ define([
                                     {
                                         columns: [
                                         {
-                                            elementId: 'forwarding_mode',
+                                            elementId: 'user_created_forwarding_mode',
                                             view: "FormDropdownView",
                                             viewConfig: {
                                                 label: 'Forwarding Mode',
-                                                path : 'virtual_network_properties.forwarding_mode',
+                                                path : 'user_created_forwarding_mode',
                                                 class: 'col-xs-6',
                                                 dataBindValue :
-                                                    'virtual_network_properties().forwarding_mode',
+                                                    'user_created_forwarding_mode',
                                                 elementConfig : {
                                                     dataTextField : "text",
                                                     dataValueField : "id",
@@ -757,7 +852,7 @@ define([
                                                         placeholder: 'Select Static Route(s)',
                                                         dataTextField: "text",
                                                         dataValueField: "id",
-                                                        separator: cowc.DROPDOWN_VALUE_SEPARATOR,
+                                                        separator: ctwc.DROPDOWN_VALUE_SEPARATOR,
                                                         dataSource : {
                                                             type: 'remote',
                                                             requestType: 'POST',
@@ -978,6 +1073,7 @@ define([
                         view: "AccordianView",
                         viewConfig: [
                             {
+                            visible: 'address_allocation_mode() !== "flat-subnet-only"',
                             elementId: 'dnsServers',
                             title: 'DNS Server(s)',
                             view: "SectionView",
