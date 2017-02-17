@@ -7,7 +7,8 @@
          var self = this,
              staticRoutArr = {},
              routingInstance = {},
-             healthCheck = {};
+             healthCheck = {},
+             bridgeDomain  = {};
 
          staticRoutArr.data = [];
          staticRoutArr.data[0] = {'type':'interface-route-tables', 'fields':''
@@ -18,6 +19,8 @@
          healthCheck.data = [];
          healthCheck.data[0] = {'type':'service-health-checks', 'fields':''};
 
+         bridgeDomain.data = [];
+         bridgeDomain.data[0] =  {'type' : 'bridge-domains', 'fields': ''};
          self.virtualNetworkSection = function(portEditView, portFormatter, mode, isDisable) {
              return {
                  columns: [{
@@ -327,7 +330,7 @@
                                          path: 'virtual_machine_interface_properties.local_preference',
                                          label: 'Local Preference',
                                          dataBindValue: 'virtual_machine_interface_properties().local_preference',
-                                         class: 'col-xs-12',
+                                         class: 'col-xs-6',
                                          elementConfig: {
                                              dataTextField: "text",
                                              dataValueField: "value",
@@ -337,6 +340,28 @@
                                                  data: [
                                                     {text: "100", value: "100"},
                                                     {text: "200", value: "200"}]
+                                             }
+                                         }
+                                     }
+                                 },{
+                                     elementId: 'bridge_domain_refs',
+                                     view: "FormDropdownView",
+                                     viewConfig: {
+                                         class: "col-xs-6",
+                                         path: 'bridge_domain_refs',
+                                         dataBindValue: 'bridge_domain_refs',
+                                         label: 'Bridge Domain',
+                                         elementConfig: {
+                                             placeholder: 'Select Bridge Domain',
+                                             dataTextField: "text",
+                                             dataValueField: "id",
+                                             dropdownAutoWidth : false,
+                                             dataSource : {
+                                                 type: 'remote',
+                                                 requestType: 'post',
+                                                 postData: JSON.stringify(bridgeDomain),
+                                                 url:'/api/tenants/config/get-config-list',
+                                                 parse: portFormatter.bridgeDomainDDFormatter
                                              }
                                          }
                                      }

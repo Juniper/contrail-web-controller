@@ -104,7 +104,8 @@ define([
                 'destination_port': true*/
             },
             'virtual_machine_interface_disable_policy': false,
-            'qos_config_refs': []
+            'qos_config_refs': [],
+            'bridge_domain_refs': [],
         },
         onVNSelectionChanged: function(portFormatters, newValue, mode) {
             var subnetDS = portFormatters.fixedIpSubnetDDFormatter(
@@ -300,6 +301,18 @@ define([
                     cowc.DROPDOWN_VALUE_SEPARATOR + qosToArry[2];
             } else {
                 modelConfig["qos_config_refs"] = "";
+            }
+
+            //bridge domain
+            var bdRef = getValueByJsonPath(modelConfig,
+                    "bridge_domain_refs;0;to", []);
+            if(bdRef.length === 4){
+                modelConfig["bridge_domain_refs"] = bdRef[0] +
+                    cowc.DROPDOWN_VALUE_SEPARATOR + bdRef[1] +
+                    cowc.DROPDOWN_VALUE_SEPARATOR + bdRef[2] +
+                    cowc.DROPDOWN_VALUE_SEPARATOR + bdRef[3];
+            } else {
+                modelConfig["bridge_domain_refs"] = "";
             }
 
             //Modal config default ECMP formatting
@@ -1068,6 +1081,17 @@ define([
                 qosList.push({"to": qos.split(cowc.DROPDOWN_VALUE_SEPARATOR)});
             }
             newPortData["qos_config_refs"] = qosList;
+
+        //Bridge Domain
+            var bridgeDomain = getValueByJsonPath(newPortData,
+                    "bridge_domain_refs", ""),
+                bridgeDomainList = [];
+            if(bridgeDomain !== "none" && bridgeDomain.trim() !== "") {
+                bridgeDomainList.push({
+                    "to": bridgeDomain.split(cowc.DROPDOWN_VALUE_SEPARATOR),
+                    "attr": {"vlan_tag": 0}});
+            }
+            newPortData["bridge_domain_refs"] = bridgeDomainList;
 
         /* ECMP Hashing */
                 var ecmpHashIncFields = this.getNonDefaultECMPHashingFields();

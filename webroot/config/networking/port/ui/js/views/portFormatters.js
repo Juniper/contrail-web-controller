@@ -1078,6 +1078,47 @@ define([
         self.qosExpansionFormatter = function(d, c, v, cd, dc) {
             return getValueByJsonPath(dc, "qos_config_refs;0;to;2", "-");
         };
+
+        /*
+         * @bridgeDomainDDFormatter
+         */
+        self.bridgeDomainDDFormatter = function(response) {
+            var bdDataSource = [{text: "None", id: "none"}], bdFqName,
+                 bridgeDomains = getValueByJsonPath(response,
+                                      "0;bridge-domains", [], false);
+            _.each(bridgeDomains, function(bd) {
+                bdFqName = (bd.fq_name && bd.fq_name.length === 4) ?
+                        bd.fq_name : null;
+                if(bdFqName) {
+                    bdDataSource.push({
+                        text: bdFqName[3] + " (" + bdFqName[1] + ":" + bdFqName[2] + ")",
+                        id: bdFqName[0] +
+                            cowc.DROPDOWN_VALUE_SEPARATOR + bdFqName[1]
+                            + cowc.DROPDOWN_VALUE_SEPARATOR +
+                            bdFqName[2] + cowc.DROPDOWN_VALUE_SEPARATOR +
+                            bdFqName[3]
+                    });
+                }
+            });
+            return bdDataSource;
+        }
+
+        /*
+         * @bridgeDomainExpFormatter
+         */
+        self.bridgeDomainExpFormatter = function(d, c, v, cd, dc) {
+            var bdToArray = getValueByJsonPath(dc,
+                    'bridge_domain_refs;0;to', null, false),
+                bdFqName = (bdToArray && bdToArray.length === 4) ?
+                        bdToArray: null, formattedStr;
+            if(bdFqName) {
+                formattedStr =
+                    bdFqName[3] + " (" + bdFqName[1] + ":" + bdFqName[2] + ")";
+            } else {
+                formattedStr = "-";
+            }
+            return formattedStr;
+        };
     }
     return PortFormatters;
 });
