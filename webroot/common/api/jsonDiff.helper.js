@@ -50,7 +50,9 @@ var configJsonModifyObj = {
             'route_table_refs', 'provider_properties',
             'ecmp_hashing_include_fields',
             'qos_config_refs',
-            'perms2'],
+            'perms2', 'pbb_evpn_enable', 'pbb_etree_enable',
+            'layer2_control_word', 'mac_learning_enabled',
+            'mac_limit_control', 'mac_move_control', 'mac_aging_time'],
         'mandateFields': ['fq_name', 'uuid', 'display_name'],
         'subType': {
             'project': {
@@ -67,8 +69,8 @@ var configJsonModifyObj = {
     'virtual-machine-interface': {
         'isConfig': true,
         'preProcessCB': {
-            'applyOnOldJSON': modifyConfigDataByAttrHrefUUID,
-            'applyOnNewJSON': modifyConfigDataByAttrHrefUUID
+            'applyOnOldJSON': modifyConfigDataByHrefUUID,
+            'applyOnNewJSON': modifyConfigDataByHrefUUID
         },
         'optFields': ['ecmp_hashing_include_fields', 'virtual_machine_interface_bindings',
             'virtual_machine_interface_allowed_address_pairs',
@@ -82,6 +84,7 @@ var configJsonModifyObj = {
             'virtual_network_refs', 'virtual_machine_interface_device_owner',
             'virtual_machine_interface_disable_policy',
             'qos_config_refs',
+            'bridge_domain_refs',
             'port_security_enabled',
             'perms2'
         ],
@@ -258,6 +261,14 @@ function modifyConfigDataByAttrHrefUUID (type, configData,
         return modifyConfigData(type, configData, optFields, mandateFields,
                                 configArrSkipObjsAttrHrefUUID);
 };
+
+function modifyConfigDataByHrefUUID (type, configData,
+        optFields, mandateFields)
+{
+    return modifyConfigData(type, configData, optFields, mandateFields,
+            configArrSkipObjsUUID);
+};
+
 
 function modifyVirtualNetworkConfigData (type, configData, optFields, mandateFields)
 {

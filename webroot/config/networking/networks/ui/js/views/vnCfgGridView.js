@@ -454,6 +454,100 @@ define([
                                                         formatter:
                                                             'QoSFormatter',
                                                     }
+                                                },
+                                                {
+                                                    label: 'PBB Encapsulation',
+                                                    key: 'pbb_evpn_enable',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'PBBEvpnFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'PBB ETree',
+                                                    key: 'pbb_etree_enable',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'PBBETreeFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'Layer2 Control Word',
+                                                    key: 'layer2_control_word',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'Layer2CWFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'MAC Learning',
+                                                    key: 'mac_learning_enabled',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'MACLearningFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'MAC Limit',
+                                                    key: 'mac_limit_control.mac_limit',
+                                                    templateGenerator:
+                                                        'TextGenerator'
+                                                },
+                                                {
+                                                    label: 'MAC Limit Action',
+                                                    key: 'mac_limit_control.mac_limit_action',
+                                                    templateGenerator:
+                                                        'TextGenerator'
+                                                },
+                                                {
+                                                    label: 'MAC Move Limit',
+                                                    key: 'mac_move_control.mac_move_limit',
+                                                    templateGenerator:
+                                                        'TextGenerator'
+                                                },
+                                                {
+                                                    label: 'MAC Move Limit Action',
+                                                    key: 'mac_move_control.mac_move_limit_action',
+                                                    templateGenerator:
+                                                        'TextGenerator'
+                                                },
+                                                {
+                                                    label: 'MAC Move Time Window',
+                                                    key: 'mac_move_control.mac_move_time_window',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'MACMoveTimeWindowFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'MAC Aging Time',
+                                                    key: 'mac_aging_time',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'MACAgingTimeFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'Bride Domains',
+                                                    key: 'bridge_domains',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'BridgeDomainFormatter',
+                                                    }
                                                 }
                                             ]
                                         },
@@ -574,6 +668,34 @@ define([
     }
     this.QoSFormatter = function (v, dc) {
         return formatVNCfg.qosExpansionFormatter(null,
+                                        null, null, null, dc);
+    };
+    this.PBBEvpnFormatter = function (v, dc) {
+        return formatVNCfg.pbbEvpnFormatter(null,
+                                        null, null, null, dc);
+    };
+    this.PBBETreeFormatter = function (v, dc) {
+        return formatVNCfg.pbbETreeFormatter(null,
+                                        null, null, null, dc);
+    };
+    this.Layer2CWFormatter = function (v, dc) {
+        return formatVNCfg.layer2CWFormatter(null,
+                                        null, null, null, dc);
+    };
+    this.MACLearningFormatter = function (v, dc) {
+        return formatVNCfg.macLearningFormatter(null,
+                                        null, null, null, dc);
+    };
+    this.MACMoveTimeWindowFormatter = function (v, dc) {
+        return formatVNCfg.macMoveTimeWindowFormatter(null,
+                                        null, null, null, dc);
+    };
+    this.MACAgingTimeFormatter = function (v, dc) {
+        return formatVNCfg.macAgingTimeFormatter(null,
+                                        null, null, null, dc);
+    };
+    this.BridgeDomainFormatter = function (v, dc) {
+        return formatVNCfg.bridgeDomainFormatter(null,
                                         null, null, null, dc);
     };
     return vnCfgGridView;

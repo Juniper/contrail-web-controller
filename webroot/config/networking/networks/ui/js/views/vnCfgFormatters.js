@@ -19,7 +19,7 @@ define([
             var len = ipamObjs.length, count = 0, subnetCnt = 0, returnStr = '';
 
             if (!len) {
-               return returnStr;
+               return "-";
             }
 
             for(var i = 0; i < len; i++) {
@@ -806,6 +806,106 @@ define([
          */
         this.qosExpansionFormatter = function(d, c, v, cd, dc) {
             return getValueByJsonPath(dc, "qos_config_refs;0;to;2", "-");
+        };
+
+        /*
+         * @pbbEvpnFormatter
+         */
+        this.pbbEvpnFormatter = function(d, c, v, cd, dc) {
+            return dc.pbb_evpn_enable ? "Enabled" : "Disabled";
+        };
+
+        /*
+         * @pbbETreeFormatter
+         */
+        this.pbbETreeFormatter = function(d, c, v, cd, dc) {
+            return dc.pbb_etree_enable ? "Enabled" : "Disabled";
+        };
+
+        /*
+         * @layer2CWFormatter
+         */
+        this.layer2CWFormatter = function(d, c, v, cd, dc) {
+            return dc.layer2_control_word ? "Enabled" : "Disabled";
+        };
+
+        /*
+         * @macLearningFormatter
+         */
+        this.macLearningFormatter = function(d, c, v, cd, dc) {
+            return dc.mac_learning_enabled ? "Enabled" : "Disabled";
+        };
+
+        /*
+         * @macMoveTimeWindowFormatter
+         */
+        this.macMoveTimeWindowFormatter = function(d, c, v, cd, dc) {
+            var timeWindow = getValueByJsonPath(dc,
+                    "mac_move_control;mac_move_time_window", null, false);
+            if(timeWindow != null) {
+                timeWindow = timeWindow + " (secs)";
+            } else {
+                timeWindow = "-";
+            }
+            return timeWindow;
+        };
+
+        /*
+         * @macAgingTimeFormatter
+         */
+        this.macAgingTimeFormatter = function(d, c, v, cd, dc) {
+            var agingTime = getValueByJsonPath(dc,
+                    "mac_aging_time", null, false);
+            if(agingTime != null) {
+                agingTime = agingTime + " (secs)";
+            } else {
+                agingTime = "-";
+            }
+            return agingTime;
+        };
+
+        /*
+         * @bridgeDomainFormatter
+         */
+        this.bridgeDomainFormatter = function(d, c, v, cd, dc) {
+            var bdString = "", bdDataList =  getValueByJsonPath(dc,
+                    'bridge_domains', [], false), returnString= "";
+            _.each(bdDataList, function(bdData){
+                bdString += "<tr style='vertical-align:top'><td>";
+                bdString += bdData.isid + "</td><td>";
+                bdString += (bdData.mac_learning_enabled ? "Enabled" : "Disabled") + "</td><td>";
+                bdString += getValueByJsonPath(bdData,
+                        "mac_limit_control;mac_limit", "-", false)  + "</td><td>";
+                bdString += getValueByJsonPath(bdData,
+                        "mac_limit_control;mac_limit_action", "-", false)  + "</td><td>";
+                bdString += getValueByJsonPath(bdData,
+                        "mac_move_control;mac_move_limit", "-", false)  + "</td><td>";
+                bdString += getValueByJsonPath(bdData,
+                        "mac_move_control;mac_move_limit_action", "-", false)  + "</td><td>";
+                bdString += getValueByJsonPath(bdData,
+                        "mac_move_control;mac_move_time_window", "-", false)  + "</td><td>";
+                bdString += getValueByJsonPath(bdData, 'mac_aging_time', "-", false) + "</td>";
+                bdString += "</tr>";
+            });
+
+            if(bdString != ""){
+                returnString =
+                    "<table style='width:100%'><thead><tr>" +
+                    "<th style='width:10%'>I-SID</th>" +
+                    "<th style='width:10%'>MAC Learning</th>" +
+                    "<th style='width:10%'>MAC Limit</th>" +
+                    "<th style='width:10%'>Action</th>" +
+                    "<th style='width:15%'>MAC Move Limit</th> " +
+                    "<th style='width:10%'>Action</th>" +
+                    "<th style='width:15%'>Time Window (secs)</th>" +
+                    "<th style='width:15%'>Aging Time (secs)</th>" +
+                    "</tr></thead><tbody>";
+                returnString += bdString;
+                returnString += "</tbody></table>";
+            } else {
+                returnString += "-";
+            }
+            return returnString;
         };
     }
     return vnCfgFormatters;

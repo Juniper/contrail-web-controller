@@ -154,6 +154,21 @@ define([
                    },
                    renderOnActivate: true
                }
+           }, {
+               elementId: 'mac_learning_tab',
+               title: 'MAC Learning',
+               view: "macLearningListView",
+               viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
+               viewConfig: viewConfig,
+               tabConfig: {
+                   activate: function(event, ui) {
+                       var gridId = $('#' + ctwc.MAC_LEARNING_GRID_ID);
+                       if (gridId.data('contrailGrid')) {
+                           gridId.data('contrailGrid').refreshView();
+                       }
+                   },
+                   renderOnActivate: true
+               }
            }]
         };
     };
