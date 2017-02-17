@@ -5,13 +5,14 @@
 define([
     'underscore',
     'contrail-config-model',
+    'config/networking/networks/ui/js/models/bridgeDomainModel',
     'config/networking/networks/ui/js/models/subnetModel',
     'config/networking/networks/ui/js/models/hostRouteModel',
     'config/networking/networks/ui/js/models/routeTargetModel',
     'config/networking/networks/ui/js/models/fipPoolModel',
     'config/networking/networks/ui/js/models/subnetDNSModel',
     'config/networking/networks/ui/js/views/vnCfgFormatters'
-], function (_, ContrailConfigModel, SubnetModel, HostRouteModel,
+], function (_, ContrailConfigModel, BridgeDomainModel, SubnetModel, HostRouteModel,
             RouteTargetModel, FipPoolModel,SubnetDNSModel, VNCfgFormatters) {
     var formatVNCfg = new VNCfgFormatters();
 
@@ -64,6 +65,21 @@ define([
                 'destination_port': false
                 */
             },
+            'pbb_evpn_enable': false,
+            'pbb_etree_enable': false,
+            'layer2_control_word': false,
+            'mac_learning_enabled': false,
+            'mac_limit_control' : {
+                'mac_limit': 0, //unlimited
+                'mac_limit_action': 'log'
+            },
+            'mac_move_control': {
+                'mac_move_limit': 0, //unlimited
+                'mac_move_time_window': 10, //secs
+                'mac_move_limit_action': 'log'
+            },
+            'mac_aging_time': 300, //secs
+            'bridge_domains': [],
             'route_table_refs': [],
             'user_created_host_routes': [],//fake created for host routes under each subnet
             'user_created_route_targets': [], //fake created for rt_list.rt collection
@@ -113,13 +129,89 @@ define([
             this.readEcmpHashing(modelConfig);
             this.readProperties(modelConfig);
             this.readQoS(modelConfig);
+            this.readBridgeDomains(modelConfig);
 
             //permissions
             this.formatRBACPermsModelConfig(modelConfig);
-
             return modelConfig;
         },
 
+        readBridgeDomains: function(modelConfig) {
+            var bridgeDomainModels = [],
+                bridgeDomainList = getValueByJsonPath(modelConfig,
+                        'bridge_domains', [], false);
+            _.each(bridgeDomainList, function(bridgeDomain){
+                if(!bridgeDomain.name) {
+                    bridgeDomain.name = getValueByJsonPath(bridgeDomain,
+                            'fq_name;3', '', false);
+                }
+                bridgeDomain = _.extend(bridgeDomain, {"disable": true});
+                bridgeDomainModels.push(new BridgeDomainModel(bridgeDomain));
+            });
+            modelConfig['bridge_domains'] =
+                new Backbone.Collection(bridgeDomainModels);
+        },
+
+        addBridgeDomain: function() {
+            var bridgeDomains = this.model().attributes['bridge_domains'],
+                newBridgeDomain = new BridgeDomainModel();
+            if(bridgeDomains.length > 0) {
+                return;
+            }
+            bridgeDomains.add([newBridgeDomain]);
+        },
+
+        deleteBridgeDomain: function(data, kbHostRoute) {
+            var bridgeDomainCollection = data.model().collection,
+                bridgeDomain = kbHostRoute.model();
+
+            bridgeDomainCollection.remove(bridgeDomain);
+        },
+
+        getBridgeDomains: function(attr) {
+            var bridgeDomains = attr.bridge_domains.toJSON(),
+                postData = {}, postDataArray = []
+                vnFQN = getValueByJsonPath(attr, 'fq_name', []);;
+            _.each(bridgeDomains, function(bridgeDomain){
+                var bdAttrs = $.extend(true, {}, bridgeDomain.model().attributes),
+                    bridgeDomainData = {};
+                if(bdAttrs.uuid){
+                    bridgeDomainData.uuid = bdAttrs.uuid;
+                }
+                bridgeDomainData.to = vnFQN.concat(bdAttrs.name);
+                bridgeDomainData.isid = Number(bdAttrs.isid);
+                bridgeDomainData.mac_learning_enabled = bdAttrs.mac_learning_enabled;
+                //if(bdAttrs.mac_learning_enabled) {
+                    bridgeDomainData.mac_limit_control = {};
+                    bridgeDomainData.mac_limit_control.mac_limit =
+                        Number(bdAttrs.mac_limit_control.mac_limit);
+                    bridgeDomainData.mac_limit_control.mac_limit_action =
+                        bdAttrs.mac_limit_control.mac_limit_action;
+                    bridgeDomainData.mac_move_control = {};
+                    bridgeDomainData.mac_move_control.mac_move_limit =
+                        Number(bdAttrs.mac_move_control.mac_move_limit);
+                    bridgeDomainData.mac_move_control.mac_move_limit_action =
+                        bdAttrs.mac_move_control.mac_move_limit_action;
+                    bridgeDomainData.mac_move_control.mac_move_time_window =
+                        Number(bdAttrs.mac_move_control.mac_move_time_window);
+                    bridgeDomainData.mac_aging_time = Number(bdAttrs.mac_aging_time);
+                //}
+                postDataArray.push(bridgeDomainData);
+            });
+            attr['bridge_domains'] = postDataArray;
+            attr.mac_limit_control.mac_limit =
+                Number(attr.mac_limit_control.mac_limit);
+            attr.mac_move_control.mac_move_limit =
+                Number(attr.mac_move_control.mac_move_limit);
+            attr.mac_move_control.mac_move_time_window =
+                Number(attr.mac_move_control.mac_move_time_window);
+            attr.mac_aging_time = Number(attr.mac_aging_time);
+            if(!attr.mac_learning_enabled) {
+                delete attr.mac_limit_control;
+                delete attr.mac_move_control;
+                delete attr.mac_aging_time;
+            }
+        },
         readQoS: function(modelConfig) {
             var qosToArry = getValueByJsonPath(modelConfig,
                     "qos_config_refs;0;to", []);
@@ -846,6 +938,36 @@ define([
                         }
                     }
                 },
+                'mac_limit_control.mac_limit':
+                    function (value, attr, finalObj) {
+                    var macLimit = Number(value);
+                    if (finalObj.mac_learning_enabled && isNaN(macLimit)) {
+                        return "MAC Limit should be a number";
+                    }
+                },
+                'mac_move_control.mac_move_limit':
+                    function (value, attr, finalObj) {
+                    var macMoveLimit = Number(value);
+                    if (finalObj.mac_learning_enabled && isNaN(macMoveLimit)) {
+                        return "MAC Move Limit should be a number";
+                    }
+                },
+                'mac_move_control.mac_move_time_window':
+                    function (value, attr, finalObj) {
+                    var timeWindow = Number(value);
+                    if (finalObj.mac_learning_enabled && (isNaN(timeWindow) ||
+                        (timeWindow < 1) || (timeWindow > 60))) {
+                        return "Enter MAC Move Time Window between 1 - 60";
+                    }
+                },
+                'mac_aging_time':
+                    function (value, attr, finalObj) {
+                    var agingTime = Number(value);
+                    if (finalObj.mac_learning_enabled && (isNaN(agingTime) ||
+                        (agingTime < 0) || (agingTime > 86400))) {
+                        return "Enter MAC Aging Time between 0 - 86400";
+                    }
+                }
             }
         },
 
@@ -928,6 +1050,7 @@ define([
                 this.getSRIOV(newVNCfgData);
                 this.getEcmpHashing(newVNCfgData);
                 this.getQoS(newVNCfgData);
+                this.getBridgeDomains(newVNCfgData);
 
                 //permissions
                 this.updateRBACPermsAttrs(newVNCfgData);

@@ -624,6 +624,19 @@ define([
         this.GLOBAL_USER_DEFINED_COUNTRER_SECTION_ID = "user_defined_counters_section";
         this.USER_DEFINED_COUNTRER_CREATE_SECTION_ID = "user_defined_counters_create_section";
 
+        //MAC Learning
+        this.GLOBAL_MAC_LEARNING_MAP =
+            [{"key": "mac_limit_control;mac_limit", "name": "MAC Limit"},
+            {"key": "mac_limit_control;mac_limit_action", "name": "MAC Limit Action"},
+            {"key": "mac_move_control;mac_move_limit", "name": "Mac Move Limit"},
+            {"key": "mac_move_control;mac_move_limit_action", "name": "MAC Move Limit Action"},
+            {"key": "mac_move_control;mac_move_time_window", "name": "MAC Move Time Window (secs)"},
+            {"key": "mac_aging_time", "name": "MAC Aging Time (secs)"}];
+        this.GLOBAL_MAC_LEARNING_SECTION_ID = "global-mac-learning-section";
+        this.GLOBAL_MAC_LEARNING_ID = "global-mac-learning";
+        this.GLOBAL_MAC_LEARNING_GRID_ID = "global-mac-learning-grid";
+        this.GLOBAL_MAC_LEARNING_PREFIX_ID = "global_mac_learning";
+        this.GLOBAL_MAC_LEARNING_LIST_VIEW_ID = "global-mac-learning-list-view";
 
         //BGP
         this.URL_GET_BGP = '/api/tenants/config/bgp/get-bgp-routers';
