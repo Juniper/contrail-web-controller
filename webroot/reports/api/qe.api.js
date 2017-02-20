@@ -1209,6 +1209,8 @@ function sortJSON(resultArray, sortParams, callback) {
 };
 
 function runNewQuery(req, res, queryId, reqQuery, appData) {
+    reqQuery = commonUtils.sanitizeXSS(reqQuery);
+
     var tableName = reqQuery['table'], tableType = reqQuery['tableType'],
         queryId = reqQuery['queryId'], pageSize = parseInt(reqQuery['pageSize']),
         async = (reqQuery['async'] != null && reqQuery['async'] == "true") ? true : false,
