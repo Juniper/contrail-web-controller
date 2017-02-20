@@ -436,7 +436,8 @@ define([
         getPolicyList: function(attr) {
             var policies = [], policyList = [];
 
-            if (attr.network_policy_refs.length) {
+            if (attr.network_policy_refs && attr.network_policy_refs != '-' &&
+                    attr.network_policy_refs.length) {
                 policies = attr.network_policy_refs.split(
                     cowc.DROPDOWN_VALUE_SEPARATOR);
             }
