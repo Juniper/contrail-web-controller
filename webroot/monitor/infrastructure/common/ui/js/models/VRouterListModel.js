@@ -5,16 +5,7 @@
 define(['contrail-list-model'], function(ContrailListModel) {
     var VRouterListModel = function() {
         var vlRemoteConfig = {
-                vlRemoteList: [{
-                    getAjaxConfig: function(responseJSON) {
-                        return monitorInfraUtils.getGeneratorsAjaxConfigForInfraNodes(
-                            'computeNodeDS',responseJSON);
-                    },
-                    successCallback: function(response, contrailListModel) {
-                        monitorInfraUtils.parseAndMergeGeneratorWithPrimaryDataForInfraNodes(
-                        response, contrailListModel);
-                    }
-                },
+                vlRemoteList: [
                 {
                     getAjaxConfig: function(responseJSON) {
                         return monitorInfraUtils.getAjaxConfigForInfraNodesCpuStats(

@@ -269,7 +269,7 @@ function getvRouterDetails (req, res, appData)
             'VrouterAgent:build_info',
             'VrouterAgent:platform',
             'VrouterStatsAgent', 'NodeStatus',
-            'UVEAlarms'];
+            'UVEAlarms','ContrailConfig'];
     }
 
     opApiServer.apiPost(url, postData, appData,
