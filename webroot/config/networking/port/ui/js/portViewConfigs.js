@@ -657,31 +657,6 @@
                              visible: "is_mirror",
                              rows: [{
                                  columns: [{
-                                     elementId: 'analyzer_ip_address',
-                                     view: "FormInputView",
-                                     viewConfig: {
-                                         visible: "is_mirror",
-                                         class: "col-xs-6",
-                                         path: 'virtual_machine_interface_properties.interface_mirror.mirror_to.analyzer_ip_address',
-                                         placeholder: 'xxx.xxx.xxx.xxx',
-                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.mirror_to.analyzer_ip_address',
-                                         label: 'Analyzer IP Address'
-                                     }
-                                 }, {
-                                     elementId: 'udp_port',
-                                     name: "UDP Port",
-                                     view: "FormInputView",
-                                     viewConfig: {
-                                         visible: "is_mirror",
-                                         class: "col-xs-6",
-                                         path: 'virtual_machine_interface_properties.interface_mirror.mirror_to.udp_port',
-                                         placeholder: '1 to 65535',
-                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.mirror_to.udp_port',
-                                         label: 'UDP Port'
-                                     }
-                                 }]
-                             }, {
-                                 columns: [{
                                      elementId: 'analyzer_name',
                                      view: "FormInputView",
                                      viewConfig: {
@@ -692,11 +667,126 @@
                                          placeholder: 'Enter Analyzer Name',
                                          label: 'Analyzer Name'
                                      }
-                                 },{
-                                     elementId: 'mirrorToRoutingInstance',
+                                 }]
+                             }, {
+                                 columns: [{
+                                     elementId: 'user_created_nic_assisted',
                                      view: "FormDropdownView",
                                      viewConfig: {
                                          visible: "is_mirror",
+                                         class: "col-xs-6",
+                                         path: 'user_created_nic_assisted',
+                                         dataBindValue: 'user_created_nic_assisted',
+                                         label: 'NIC Assisted Mirroring',
+                                         elementConfig: {
+                                             dataTextField: "text",
+                                             dataValueField: "value",
+                                             data : [
+                                                 {'text':'Enabled', 'value':'enabled'},
+                                                 {'text':'Disabled', 'value':'disabled'}]
+                                         }
+                                     }
+                                 }]
+                             }, {
+                                 columns: [{
+                                     elementId: 'nic_assisted_mirroring_vlan',
+                                     view: "FormInputView",
+                                     viewConfig: {
+                                         visible: "is_mirror() && (user_created_nic_assisted() == 'enabled')",
+                                         class: "col-xs-6",
+                                         path: 'virtual_machine_interface_properties.interface_mirror.mirror_to.nic_assisted_mirroring_vlan',
+                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.mirror_to.nic_assisted_mirroring_vlan',
+                                         placeholder: 'Enter NIC Assisted VLAN',
+                                         label: 'NIC Assisted VLAN'
+                                     }
+                                 }]
+                             }, {
+                                 columns: [{
+                                     elementId: 'udp_port',
+                                     name: "UDP Port",
+                                     view: "FormInputView",
+                                     viewConfig: {
+                                         visible: "is_mirror() && (user_created_nic_assisted() == 'disabled')",
+                                         class: "col-xs-6",
+                                         path: 'virtual_machine_interface_properties.interface_mirror.mirror_to.udp_port',
+                                         placeholder: '1 to 65535',
+                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.mirror_to.udp_port',
+                                         label: 'UDP Port'
+                                     }
+                                 }, {
+                                     elementId: 'traffic_direction',
+                                     name: "Traffic Direction",
+                                     view: "FormDropdownView",
+                                     viewConfig: {
+                                         class: "col-xs-6",
+                                         visible: "is_mirror() && user_created_nic_assisted() == 'disabled'",
+                                         path: 'virtual_machine_interface_properties.interface_mirror.traffic_direction',
+                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.traffic_direction',
+                                         placeholder: 'Direction',
+                                         label: 'Direction',
+                                         elementConfig: {
+                                             placeholder: "Select Direction",
+                                             dataTextField: "text",
+                                             dataValueField: "value",
+                                             data : [
+                                                 {'text':'Ingress', 'value':'ingress'},
+                                                 {'text':'Egress', 'value':'egress'},
+                                                 {'text':'Both', 'value':'both'}
+                                             ]
+                                         }
+                                     }
+                                 }]
+                             }, {
+                                 columns: [{
+                                     elementId: 'analyzer_ip_address',
+                                     view: "FormInputView",
+                                     viewConfig: {
+                                         visible: "is_mirror()  && (user_created_nic_assisted() == 'disabled')",
+                                         class: "col-xs-6",
+                                         path: 'virtual_machine_interface_properties.interface_mirror.mirror_to.analyzer_ip_address',
+                                         placeholder: 'xxx.xxx.xxx.xxx',
+                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.mirror_to.analyzer_ip_address',
+                                         label: 'Analyzer IP Address'
+                                     }
+                                 }, {
+                                     elementId: 'analyzer_mac_address',
+                                     view: "FormInputView",
+                                     viewConfig: {
+                                         visible: "is_mirror() && (user_created_nic_assisted() == 'disabled')",
+                                         class: "col-xs-6",
+                                         path: 'virtual_machine_interface_properties.interface_mirror.mirror_to.analyzer_mac_address',
+                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.mirror_to.analyzer_mac_address',
+                                         placeholder: 'Enter Analyzer MAC',
+                                         label: 'Analyzer MAC Address'
+                                     }
+                                 }]
+                             },{
+                                 columns: [{
+                                     elementId: 'user_created_juniper_header',
+                                     view: "FormDropdownView",
+                                     viewConfig: {
+                                         visible: "is_mirror() && (user_created_nic_assisted() == 'disabled')",
+                                         class: "col-xs-6",
+                                         path: 'user_created_juniper_header',
+                                         dataBindValue: 'user_created_juniper_header',
+                                         label: 'Juniper Header',
+                                         elementConfig: {
+                                             dataTextField: "text",
+                                             dataValueField: "value",
+                                             data : [
+                                                 {'text':'Enabled', 'value':'enabled'},
+                                                 {'text':'Disabled', 'value':'disabled'}]
+                                         }
+                                     }
+                                 }]
+                             }, {
+                                 columns: [{
+                                     elementId: 'mirrorToRoutingInstance',
+                                     view: "FormDropdownView",
+                                     viewConfig: {
+                                         visible: "is_mirror() && " +
+                                             "(user_created_juniper_header() == 'disabled') &&" +
+                                             "(user_created_nic_assisted() == 'disabled')",
                                          class: "col-xs-6",
                                          path: 'mirrorToRoutingInstance',
                                          dataBindValue: 'mirrorToRoutingInstance',
@@ -719,66 +809,12 @@
                                          }
                                      }
                                  }]
-                             }, {
-                                 columns: [{
-                                     elementId: 'juniper_header',
-                                     view: "FormDropdownView",
-                                     viewConfig: {
-                                         visible: "is_mirror",
-                                         class: "col-xs-6",
-                                         path: 'virtual_machine_interface_properties.interface_mirror.mirror_to.juniper_header',
-                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.mirror_to.juniper_header',
-                                         label: 'Juniper Header',
-                                         elementConfig: {
-                                             dataTextField: "text",
-                                             dataValueField: "value",
-                                             data : [
-                                                 {'text':'Enabled', 'value':'enabled'},
-                                                 {'text':'Disabled', 'value':'disabled'}]
-                                         }
-                                     }
-                                 },{
-                                     elementId: 'analyzer_mac_address',
-                                     view: "FormInputView",
-                                     viewConfig: {
-                                         visible: "is_mirror",
-                                         class: "col-xs-6",
-                                         path: 'virtual_machine_interface_properties.interface_mirror.mirror_to.analyzer_mac_address',
-                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.mirror_to.analyzer_mac_address',
-                                         placeholder: 'Enter Analyzer MAC',
-                                         label: 'Analyzer MAC Address'
-                                     }
-                                 }]
                              },{
-                                 columns: [{
-                                     elementId: 'traffic_direction',
-                                     name: "Traffic Direction",
-                                     view: "FormDropdownView",
-                                     viewConfig: {
-                                         class: "col-xs-6",
-                                         visible: "is_mirror",
-                                         path: 'virtual_machine_interface_properties.interface_mirror.traffic_direction',
-                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.traffic_direction',
-                                         placeholder: 'Direction',
-                                         label: 'Direction',
-                                         elementConfig: {
-                                             placeholder: "Select Direction",
-                                             dataTextField: "text",
-                                             dataValueField: "value",
-                                             data : [
-                                                 {'text':'Ingress', 'value':'ingress'},
-                                                 {'text':'Egress', 'value':'egress'},
-                                                 {'text':'Both', 'value':'both'}
-                                             ]
-                                         }
-                                     }
-                                 }]
-                             }, {
                                  columns: [{
                                  elementId: 'mirrorToNHMode',
                                  view: "FormDropdownView",
                                  viewConfig: {
-                                     visible: "is_mirror",
+                                     visible: "is_mirror() && (user_created_nic_assisted() == 'disabled')",
                                      class: "col-xs-6",
                                      path: 'mirrorToNHMode',
                                      dataBindValue: 'mirrorToNHMode',
@@ -799,7 +835,7 @@
                                   elementId: 'staticNHHeaderSection',
                                   view: "SectionView",
                                   viewConfig: {
-                                      visible: "is_mirror() && (mirrorToNHMode() == 'static')",
+                                      visible: "is_mirror() && (mirrorToNHMode() == 'static') && (user_created_nic_assisted() == 'disabled')",
                                       rows: [{
                                           columns:[{
                                               elementId: 'vtep_dst_ip_address',
