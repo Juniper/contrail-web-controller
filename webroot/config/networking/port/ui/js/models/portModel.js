@@ -78,13 +78,17 @@ define([
                             'vtep_dst_ip_address': null,
                             'vtep_dst_mac_address': null,
                             'vni': null
-                        }
+                        },
+                        'nic_assisted_mirroring': false,
+                        'nic_assisted_mirroring_vlan': null
                     }
                 }
             },
             'is_mirror' : false,
             'mirrorToRoutingInstance': "",
             'mirrorToNHMode': "dynamic",
+            'user_created_nic_assisted': false,
+            'user_created_juniper_header' : "enabled",
             'fixedIPCollection': [],
             'display_name': '',
             'virtual_machine_interface_refs': [],
@@ -336,12 +340,22 @@ define([
                 ecmpHashIncFields.join(',');
 
             //mirroring
-            var mirrorAnalyzerIP = getValueByJsonPath(modelConfig,
+            var mirrorAnalyzerName = getValueByJsonPath(modelConfig,
                           "virtual_machine_interface_properties;" +
-                          "interface_mirror;mirror_to;analyzer_ip_address",
+                          "interface_mirror;mirror_to;analyzer_name",
                           "");
-            if(mirrorAnalyzerIP) {
-                var routingInst =  getValueByJsonPath(modelConfig,
+            if(mirrorAnalyzerName) {
+                var nicAssistedMirroring = getValueByJsonPath(modelConfig,
+                        "virtual_machine_interface_properties;" +
+                        "interface_mirror;mirror_to;nic_assisted_mirroring",
+                        false, false), routingInst, nhMode, jnprHeader;
+                modelConfig['is_mirror'] = true;
+                modelConfig["user_created_nic_assisted"] = nicAssistedMirroring;
+                if(nicAssistedMirroring) {
+                    //modelConfig["user_created_nic_assisted"] = "enabled";
+                } else {
+                    //modelConfig["user_created_nic_assisted"] = "disabled";
+                    routingInst =  getValueByJsonPath(modelConfig,
                         "virtual_machine_interface_properties;" +
                         "interface_mirror;mirror_to;routing_instance",
                         ""),
@@ -353,16 +367,15 @@ define([
                             "virtual_machine_interface_properties;" +
                             "interface_mirror;mirror_to;juniper_header",
                             true);
-                if (routingInst != "") {
-                    modelConfig['mirrorToRoutingInstance'] = routingInst;
-                } else {
-                    modelConfig['mirrorToRoutingInstance'] = null;
+                    if (routingInst != "") {
+                        modelConfig['mirrorToRoutingInstance'] = routingInst;
+                    } else {
+                        modelConfig['mirrorToRoutingInstance'] = null;
+                    }
+                    modelConfig["mirrorToNHMode"] = nhMode;
+                    modelConfig["user_created_juniper_header"] =
+                            jnprHeader === true ? "enabled" : "disabled";
                 }
-                modelConfig["mirrorToNHMode"] = nhMode;
-                modelConfig["virtual_machine_interface_properties"]
-                    ["interface_mirror"]["mirror_to"]["juniper_header"] =
-                        jnprHeader === true ? "enabled" : "disabled";
-                modelConfig['is_mirror'] = true;
             } else {
                 modelConfig['is_mirror'] = false;
             }
@@ -621,8 +634,17 @@ define([
                         }
                     }
                 },
-                'virtual_machine_interface_properties.interface_mirror.mirror_to.analyzer_ip_address': function(value, attr, finalObj) {
+                'virtual_machine_interface_properties.interface_mirror.mirror_to.analyzer_name': function(value, attr, finalObj) {
                     if(finalObj.is_mirror == true) {
+                        if(!value) {
+                            return "Enter a valid analyzer name";
+                        }
+                    }
+                },
+                'virtual_machine_interface_properties.interface_mirror.mirror_to.analyzer_ip_address': function(value, attr, finalObj) {
+                    if((finalObj.is_mirror == true) &&
+                            (finalObj.user_created_nic_assisted === false) &&
+                            (finalObj.mirrorToNHMode !== ctwc.MIRROR_STATIC)) {
                         if(!isValidIP(value)) {
                             return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
                         }
@@ -632,7 +654,7 @@ define([
                     }
                 },
                 'virtual_machine_interface_properties.interface_mirror.mirror_to.udp_port': function(value, attr, finalObj) {
-                    if(finalObj.is_mirror == true) {
+                    if(finalObj.is_mirror == true && finalObj.user_created_nic_assisted === false) {
                         if(value !== "" && value !== null) {
                             var vlanVal = Number(String(value).trim());
                             if (isNaN(vlanVal) ||
@@ -643,14 +665,16 @@ define([
                     }
                 },
                 'mirrorToRoutingInstance': function(value, attr, finalObj) {
-                    if(finalObj.is_mirror == true) {
-                        if (value.trim() == "") {
+                    if(finalObj.is_mirror == true &&
+                            finalObj.user_created_juniper_header === "disabled" &&
+                            finalObj.user_created_nic_assisted === false) {
+                        if (!value || value.trim() == "") {
                             return "Select Routing Instance";
                         }
                     }
                 },
                 'virtual_machine_interface_properties.interface_mirror.mirror_to.analyzer_mac_address': function(value, attr, finalObj) {
-                    if(finalObj.is_mirror == true) {
+                    if(finalObj.is_mirror == true && finalObj.user_created_nic_assisted === false) {
                         if(value !== null && value !== "") {
                             if(!isValidMACAddress(value)) {
                                 return "Enter valid Analyzer MAC Address";
@@ -659,7 +683,7 @@ define([
                     }
                 },
                 'virtual_machine_interface_properties.interface_mirror.mirror_to.static_nh_header.vtep_dst_mac_address': function(value, attr, finalObj) {
-                    if(finalObj.is_mirror == true &&
+                    if(finalObj.is_mirror == true && finalObj.user_created_nic_assisted === false &&
                             finalObj.mirrorToNHMode === ctwc.MIRROR_STATIC) {
                         if(value !== null && value !== "") {
                             if(!isValidMACAddress(value)) {
@@ -669,7 +693,7 @@ define([
                     }
                 },
                 'virtual_machine_interface_properties.interface_mirror.mirror_to.static_nh_header.vtep_dst_ip_address': function(value, attr, finalObj) {
-                    if(finalObj.is_mirror == true &&
+                    if(finalObj.is_mirror == true && finalObj.user_created_nic_assisted === false &&
                             finalObj.mirrorToNHMode === ctwc.MIRROR_STATIC) {
                        if(!isValidIP(value)) {
                             return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
@@ -680,11 +704,20 @@ define([
                     }
                 },
                 'virtual_machine_interface_properties.interface_mirror.mirror_to.static_nh_header.vni': function(value, attr, finalObj) {
-                    if(finalObj.is_mirror == true &&
+                    if(finalObj.is_mirror == true && finalObj.user_created_nic_assisted === false &&
                             finalObj.mirrorToNHMode === ctwc.MIRROR_STATIC) {
                         var vlanVal = Number(String(value).trim());
-                        if (vlanVal < 1 || vlanVal > 65535) {
-                            return "Enter VxLAN ID between 1 to 65535";
+                        if (isNaN(vlanVal) || vlanVal < 1 || vlanVal > 65535) {
+                            return "Enter VxLAN ID between 1 - 65535";
+                        }
+                    }
+                },
+                'virtual_machine_interface_properties.interface_mirror.mirror_to.nic_assisted_mirroring_vlan': function(value, attr, finalObj) {
+                    if(finalObj.is_mirror == true &&
+                            finalObj.user_created_nic_assisted === true) {
+                        var vlanVal = Number(String(value).trim());
+                        if (isNaN(vlanVal) || vlanVal < 1 || vlanVal > 4094) {
+                            return "Enter NIC Assisted VLAN ID between 1 - 4094";
                         }
                     }
                 },
@@ -1253,44 +1286,84 @@ define([
 
                 //mirroring
                 if(newPortData.is_mirror === true) {
-                    var udpPort = getValueByJsonPath(newPortData,
-                            "virtual_machine_interface_properties;" +
-                            "interface_mirror;mirror_to;udp_port", null),
-                        routingInstance = getValueByJsonPath(newPortData,
-                                    'mirrorToRoutingInstance', ''),
-                        jnprHeader = getValueByJsonPath(newPortData,
-                            "virtual_machine_interface_properties;" +
-                            "interface_mirror;mirror_to;juniper_header", "enabled");
-                    if(udpPort) {
-                        newPortData["virtual_machine_interface_properties"]
-                            ["interface_mirror"]["mirror_to"]["udp_port"] =
-                                Number(udpPort);
-                    }
-                    if(routingInstance) {
-                        newPortData["virtual_machine_interface_properties"]
-                        ["interface_mirror"]["mirror_to"]["routing_instance"] =
-                            routingInstance;
-                    }
-                    newPortData["virtual_machine_interface_properties"]
-                    ["interface_mirror"]["mirror_to"]["nh_mode"] =
-                        newPortData["mirrorToNHMode"];
-                    if(newPortData["mirrorToNHMode"] === ctwc.MIRROR_DYNAMIC) {
-                        newPortData["virtual_machine_interface_properties"]
-                        ["interface_mirror"]["mirror_to"]["static_nh_header"] =
-                            null;
-                    } else {
-                        var vni = getValueByJsonPath(newPortData,
+                    var nicAssistedMirroring =
+                            newPortData.user_created_nic_assisted,
+                        udpPort, routingInstance, jnprHeader, analyzerName,
+                        nicAssistedVlan;
+                    if(nicAssistedMirroring === true) {
+                        analyzerName = getValueByJsonPath(newPortData,
                                 "virtual_machine_interface_properties;" +
-                                "interface_mirror;mirror_to;static_nh_header;vni", null);
-                        if(vni) {
+                                "interface_mirror;mirror_to;analyzer_name",
+                                null),
+                        nicAssistedVlan = getValueByJsonPath(newPortData,
+                                "virtual_machine_interface_properties;" +
+                                "interface_mirror;mirror_to;nic_assisted_mirroring_vlan",
+                                null);
+                        delete newPortData.virtual_machine_interface_properties.interface_mirror;
+                        newPortData["virtual_machine_interface_properties"]
+                            ["interface_mirror"] = {};
+                        newPortData["virtual_machine_interface_properties"]
+                            ["interface_mirror"]["mirror_to"] = {};
+                        newPortData["virtual_machine_interface_properties"]
+                            ["interface_mirror"]["mirror_to"]["analyzer_name"] =
+                                analyzerName;
+                        newPortData["virtual_machine_interface_properties"]
+                            ["interface_mirror"]["mirror_to"]["nic_assisted_mirroring"] =
+                                true;
+                        newPortData["virtual_machine_interface_properties"]
+                            ["interface_mirror"]["mirror_to"]["nic_assisted_mirroring_vlan"] =
+                                Number(nicAssistedVlan);
+                    } else {
+                        newPortData["virtual_machine_interface_properties"]
+                            ["interface_mirror"]["mirror_to"]["nic_assisted_mirroring"] = false;
+                        delete newPortData["virtual_machine_interface_properties"]
+                            ["interface_mirror"]["mirror_to"]["nic_assisted_mirroring_vlan"];
+                        udpPort = getValueByJsonPath(newPortData,
+                                "virtual_machine_interface_properties;" +
+                                "interface_mirror;mirror_to;udp_port", null);
+                        jnprHeader = newPortData.user_created_juniper_header;
+                        if(udpPort) {
                             newPortData["virtual_machine_interface_properties"]
-                            ["interface_mirror"]["mirror_to"]["static_nh_header"]["vni"] =
-                                Number(vni);
+                                ["interface_mirror"]["mirror_to"]["udp_port"] =
+                                    Number(udpPort);
+                        }
+
+                        newPortData["virtual_machine_interface_properties"]
+                        ["interface_mirror"]["mirror_to"]["nh_mode"] =
+                            newPortData["mirrorToNHMode"];
+                        if(newPortData["mirrorToNHMode"] === ctwc.MIRROR_DYNAMIC) {
+                            newPortData["virtual_machine_interface_properties"]
+                            ["interface_mirror"]["mirror_to"]["static_nh_header"] =
+                                null;
+                        } else {
+                            var vni = getValueByJsonPath(newPortData,
+                                    "virtual_machine_interface_properties;" +
+                                    "interface_mirror;mirror_to;static_nh_header;vni", null);
+                            if(vni) {
+                                newPortData["virtual_machine_interface_properties"]
+                                ["interface_mirror"]["mirror_to"]["static_nh_header"]["vni"] =
+                                    Number(vni);
+                            }
+                        }
+                        if(jnprHeader === 'enabled') {
+                            newPortData["virtual_machine_interface_properties"]
+                                ["interface_mirror"]["mirror_to"]["juniper_header"] =
+                                true;
+                            delete newPortData["virtual_machine_interface_properties"]
+                            ["interface_mirror"]["mirror_to"]["routing_instance"];
+                        } else {
+                            newPortData["virtual_machine_interface_properties"]
+                                ["interface_mirror"]["mirror_to"]["juniper_header"] =
+                                false;
+                            routingInstance = getValueByJsonPath(newPortData,
+                                    'mirrorToRoutingInstance', '');
+                            if(routingInstance) {
+                                newPortData["virtual_machine_interface_properties"]
+                                ["interface_mirror"]["mirror_to"]["routing_instance"] =
+                                    routingInstance;
+                            }
                         }
                     }
-                    newPortData["virtual_machine_interface_properties"]
-                    ["interface_mirror"]["mirror_to"]["juniper_header"] =
-                        jnprHeader === "enabled" ? true : false;
 
                 } else {
                     newPortData["virtual_machine_interface_properties"]

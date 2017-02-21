@@ -525,7 +525,7 @@ define([
             keyClass:'col-xs-3',
             valueClass:'col-xs-9',
             key: 'uuid',
-            label:"Mirror to",
+            label:"Mirroring",
             templateGenerator: 'TextGenerator',
             templateGeneratorConfig:{
                 formatter: "mirrorFormatter"
