@@ -39,6 +39,8 @@ var vmiPostCfilt = [
     'UveVMInterfaceAgent:floating_ips', 'UveVirtualMachineAgent:ip6_active',
     'UveVirtualMachineAgent:ip6_address'];
 
+var vRouterSandeshParams = {apiName: global.label.INTROSPECT_AGENT};
+
 function sortVMNames (vmNode1, vmNode2, sortKey)
 {
     try {
@@ -1066,7 +1068,7 @@ function doCheckIfInternalIPAndComputePath (req, srcNode, destNode, callback)
     urlLists.push(introspectUrl);
     async.map(urlLists,
               commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
-                                                    true),
+                                                    true, vRouterSandeshParams),
               function(err, result) {
         var dnsServer = jsonPath(result[0], "$..dns_server");
         var gateway = jsonPath(result[0], "$..gateway");
@@ -1786,7 +1788,8 @@ function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, srcVN, destVN,
     var topoData = {};
     var dataObjArr = [];
     async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
-                                                              false),
+                                                              false,
+                                                              vRouterSandeshParams),
               function(err, results) {
         if ((null != err) || (null == results)) {
             callback(err, null);
@@ -1928,7 +1931,8 @@ function getTraceFlow (req, res, appData)
     if (null == vrfName) {
         async.map(urlLists, 
                   commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
-                                                        false),
+                                                        false,
+                                                        vRouterSandeshParams),
                   function(err, results) {
             try {
                 var vrfList = jsonPath(results, "$..VrfSandeshData")[0];

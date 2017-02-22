@@ -282,4 +282,5 @@ function getFlowSeriesDataByQE (qeQueries, uiQuery, appData, context,
     }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT));
 }
 
+//exports.
 exports.getFlowSeriesDataByQE = getFlowSeriesDataByQE;

@@ -22,6 +22,7 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
 
 adminApiHelper = module.exports;
+var vRouterSandeshParams = {apiName: global.label.INTROSPECT_CONTROL};
 
 function parseBGPRoutingInstanceResponse (bgpRoutInstRes)
 {
@@ -294,15 +295,20 @@ function getvRouterVnItfList (res, vnUrlLists, itfUrlLists, vmUrlLists,
                               ipIndexMap, vRouterJSON, ipList)
 {
     async.map(vnUrlLists, 
-              commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, false), 
+              commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, false,
+                                                    vRouterSandeshParams),
               function(err, results) {
          getvRouterVNCount(vRouterJSON, ipIndexMap, results);
          async.map(itfUrlLists, 
-                   commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, false),
+                   commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
+                                                         false,
+                                                         vRouterSandeshParams),
                    function(err, results) {
             getvRouterItfCount(vRouterJSON, ipIndexMap, results);
                 async.map(vmUrlLists,
-                          commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, false),
+                          commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
+                                                                false,
+                                                                vRouterSandeshParams),
                           function(err, results) {
                     getvRouterVMCount(vRouterJSON, ipIndexMap, results);
                     getvRoutersCpuMemoryStats(vRouterJSON['virtual-routers'], ipList, res);
@@ -915,7 +921,9 @@ function getComputeNodeCpuMemJSON (ipObj, callback)
     url = ip + '@' + introspectPort + '@' +
                 '/Snh_AgentStatsReq?';
     urlLists[4] = url;
-    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true), 
+    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
+                                                              true,
+                                                              vRouterSandeshParams),
         function(err, results) {
         if (results) {
             var cpuLoad = 
