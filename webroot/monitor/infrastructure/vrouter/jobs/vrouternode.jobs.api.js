@@ -35,6 +35,8 @@ var rest = require(process.mainModule.exports["corePath"] +
 
 computeNode = module.exports;
 
+var vRouterSandeshParams = {apiName: global.SANDESH_API};
+
 function getVNByVRF (vrfName, vnList)
 {
     var vrf = null;
@@ -327,7 +329,8 @@ function getComputeNodeInterface (pubChannel, saveChannelKey,
 
     var vRouterRestAPI =
         commonUtils.getRestAPIServer(ip,
-                                     infraCmn.getvRtrIntrospectPortByJobData(jobData));
+                                     infraCmn.getvRtrIntrospectPortByJobData(jobData),
+                                     global.SANDESH_API);
     commonUtils.createReqObj(dataObjArr,jobData.taskData.appData.url);
 
     async.map(dataObjArr,
@@ -361,7 +364,9 @@ function getFlowCountAndSendvRouterAclResponse (jobData, ip, results, pubChannel
             ip + '@' + infraCmn.getvRtrIntrospectPortByJobData(jobData) + '@' +
             '/Snh_AclFlowReq?x=' + results[i]['uuid'];
     }
-    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
+    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
+                                                              true,
+                                                              vRouterSandeshParams),
               function(err, resultsArr) {
         if (null == resultsArr) {
         redisPub.publishDataToRedis(pubChannel, saveChannelKey,
@@ -417,7 +422,9 @@ function getComputeNodeAcl (pubChannel, saveChannelKey, data,
     url = ip + '@' + infraCmn.getvRtrIntrospectPortByJobData(jobData) + '@' + '/Snh_AclReq?uuid=';
     var urlLists = [];
     urlLists[0] = [url];
-    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
+    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
+                                                              true,
+                                                              vRouterSandeshParams),
               function(err, results) {
         if (null == results) {
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
@@ -480,7 +487,8 @@ function getAclFlowByACLSandeshResponse (jobData, ip, aclSandeshResp, callback)
         return;
     }
     async.map(urlLists,
-              commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
+              commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true,
+                                                    vRouterSandeshParams),
               function(err, result) {
 
         for (var i = 0; i < aclCnt; i++) {
@@ -529,7 +537,8 @@ function processComputeNodeAcl (pubChannel, saveChannelKey,
     }
     var vRouterRestAPI =
         commonUtils.getRestAPIServer(nodeIp,
-                                     infraCmn.getvRtrIntrospectPortByJobData(jobData));
+                                     infraCmn.getvRtrIntrospectPortByJobData(jobData),
+                                     global.SANDESH_API);
     commonUtils.createReqObj(dataObjArr,url);
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(vRouterRestAPI, false),
@@ -718,7 +727,9 @@ function processAclSandeshData (jobData, pubChannel, saveChannelKey, nodeIp, don
             }
         }
         /* Now send sandesh message */
-        async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
+        async.map(urlLists,
+                  commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true,
+                                                        vRouterSandeshParams),
                   function(err, results) {
             if (results == null) {
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
@@ -750,7 +761,9 @@ function getComputeNodeAclFlows (jobData, pubChannel, saveChannelKey, nodeIp, do
     var urlLists = [];
     urlLists[0] = nodeIp + '@' + infraCmn.getvRtrIntrospectPortByJobData(jobData) +
         '@' + '/Snh_AclReq?uuid=';
-    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
+    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
+                                                              true,
+                                                              vRouterSandeshParams),
               function(err, results) {
         if (null == results) {
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,

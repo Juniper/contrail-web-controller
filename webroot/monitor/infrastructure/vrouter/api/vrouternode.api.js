@@ -331,7 +331,8 @@ function getvRouterFlowsDetail (req, res, appData)
 
     var vRouterRestApi =
         commonUtils.getRestAPIServer(ip,
-                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort),
+                                     global.SANDESH_API);
 
     commonUtils.createReqObj(dataObjArr, reqUrl);
     infraCmn.sendSandeshRequest(req, res, dataObjArr, vRouterRestApi);
@@ -451,7 +452,8 @@ function getComputeNodeVN (req, res, appData)
 
     var vRouterRestAPI =
         commonUtils.getRestAPIServer(ip,
-                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort),
+                                     global.SANDESH_API);
     if(queryData['query'] != null && queryData['query']['x'] != null) {
         commonUtils.createReqObj(dataObjArr, '/Snh_PageReq?x=' + queryData['query']['x']);
     } else if(queryData['query'] != null && queryData['query']['vnNameFilter'] != null) {
@@ -557,11 +559,13 @@ function getVrfIndexList (ip, introspectPort, callback)
     var urlLists = [];
     var lastIndex = 0;
     var resultArr = [];
+    var vRouterSandeshParams = {apiName: global.SANDESH_API};
 
     urlLists[0] = ip + '@' + infraCmn.getvRouetrIntrospectPort(introspectPort) + '@' +
         '/Snh_VrfListReq?_x=';
     async.map(urlLists,
-              commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
+              commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true,
+                                                    vRouterSandeshParams),
               function(err, data) {
         if (data) {
             var vrfData = jsonPath(data, "$..VrfSandeshData");
@@ -588,7 +592,8 @@ function getvRouterUCastRoutes (req, res) {
     var dataObjArr = [];
     var vRouterRestAPI =
         commonUtils.getRestAPIServer(ip,
-                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort),
+                                     global.SANDESH_API);
 
     //If vrfIndex is passed
     if (null != ucIndex) {
@@ -636,7 +641,8 @@ function getvRouterL2Routes (req, res)
     var dataObjArr = [];
     var vRouterRestAPI =
         commonUtils.getRestAPIServer(ip,
-                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort),
+                                     global.SANDESH_API);
 
     if (null != vrfIndex) {
         if(req.param('x') == null) {
@@ -682,7 +688,8 @@ function getvRouterUCast6Routes (req, res) {
     var dataObjArr = [];
     var vRouterRestAPI =
         commonUtils.getRestAPIServer(ip,
-                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort),
+                                     global.SANDESH_API);
     if (null != uc6index) {
         if(req.param('x') == null) {
             commonUtils.createReqObj(dataObjArr, '/Snh_Inet6UcRouteReq?vrf_index=' +
@@ -742,7 +749,8 @@ function getvRouterMCastRoutes (req, res) {
     var dataObjArr = [];
     var vRouterRestAPI =
         commonUtils.getRestAPIServer(ip,
-                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort),
+                                     global.SANDESH_API);
     if (null != vrfIndex) {
         if(req.param('x') == null) {
             commonUtils.createReqObj(dataObjArr, '/Snh_Inet4McRouteReq?vrf_index=' +
@@ -790,7 +798,7 @@ function getvRouterVrfList (req, res)
     urlLists[0] = ip + '@' + infraCmn.getvRouetrIntrospectPort(introspectPort) + '@' +
         // '/Snh_VrfListReq?name=';
         '/Snh_PageReq?x=begin:-1,end:-1,table:db.vrf.0&name=';
-    var params = {'isRawData': true}
+    var params = {'isRawData': true, apiName: global.SANDESH_API}
     async.map(urlLists,
             commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, false, params),
               function(err, results) {

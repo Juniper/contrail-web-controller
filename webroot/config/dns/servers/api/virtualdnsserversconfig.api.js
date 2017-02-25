@@ -742,7 +742,8 @@ function getVirtualDNSSandeshRecordsCB(ipObj, callback) {
 
     commonUtils.createReqObj(dataObjArr, reqUrl);
     var dnsAgentRestApi =
-        commonUtils.getRestAPIServer(ip, global.SANDESH_DNS_AGENT_PORT);
+        commonUtils.getRestAPIServer(ip, global.SANDESH_DNS_AGENT_PORT,
+                                     global.SANDESH_API);
     async.map(dataObjArr,
         commonUtils.getServerRespByRestApi(dnsAgentRestApi, true),
         function(err, data) {
