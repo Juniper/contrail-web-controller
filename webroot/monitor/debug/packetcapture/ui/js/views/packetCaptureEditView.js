@@ -208,21 +208,25 @@ define([
                                            columns: [{
                                                elementId: "protocol",
                                                name: "Protocol",
-                                               view: "FormDropdownView",
+                                               view: "FormComboboxView",
                                                width: 100,
                                                viewConfig: {
                                                    width: 100,
                                                    path: "protocol",
-                                                   templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                                   templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
                                                    dataBindValue: "protocol()",
                                                    elementConfig:{
                                                        placeholder: "Protocol",
                                                        dataValueField: "value",
                                                        dataTextField: "text",
-                                                       data:[{value: "any", text : "ANY"},
-                                                           {value: "tcp", text: "TCP"},
-                                                           {value: "udp", text: "UDP"},
-                                                           {value: "icmp", text: "ICMP"}]
+                                                       dataSource: {
+                                                           type: 'local',
+                                                           data:[{value: "any", text : "ANY"},
+                                                                 {value: "tcp", text: "TCP"},
+                                                                 {value: "udp", text: "UDP"},
+                                                                 {value: "icmp", text: "ICMP"},
+                                                                 {value: "icmp6", text: "ICMP6"}]
+                                                       }
                                                    }
                                                }
                                            },{

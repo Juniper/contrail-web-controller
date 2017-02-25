@@ -84,7 +84,7 @@ define([
                 rule["rule_sequence"]["major"] = -1;
                 rule["rule_sequence"]["minor"] = -1;
                 rule["direction"] = r.direction();
-                rule["protocol"] = r.protocol();
+                rule["protocol"] = r.protocol().toLowerCase();
 
                 rule["action_list"] = {};
                 rule["action_list"]["simple_action"] = null;
