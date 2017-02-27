@@ -105,6 +105,14 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
         return {
             'controller-srcdir': ctBaseDir,
             'controller-basedir': ctWebDir,
+            'controller-constants': ctWebDir + '/common/ui/js/controller.constants',
+            'controller-grid-config': ctWebDir + '/common/ui/js/controller.grid.config',
+            'controller-graph-config': ctWebDir + '/common/ui/js/controller.graph.config',
+            'controller-labels': ctWebDir + '/common/ui/js/controller.labels',
+            'controller-utils': ctWebDir + '/common/ui/js/controller.utils',
+            'controller-messages': ctWebDir + '/common/ui/js/controller.messages',
+            'controller-parsers': ctWebDir + '/common/ui/js/controller.parsers',
+            'controller-view-config': ctWebDir + '/common/ui/js/controller.view.config',
 
             'monitor-infra-module': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
             'nm-module': ctWebDir + '/monitor/networking/ui/js/nm.module',
