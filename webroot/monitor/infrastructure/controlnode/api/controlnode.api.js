@@ -281,7 +281,8 @@ function getControlNodeSandeshRequest (req, res, appData)
         }
     }
     var controlNodeRestApi =
-        commonUtils.getRestAPIServer(ip, global.SANDESH_CONTROL_NODE_PORT);
+        commonUtils.getRestAPIServer(ip, global.SANDESH_CONTROL_NODE_PORT,
+                                     global.SANDESH_API);
 
     commonUtils.createReqObj(dataObjArr, url);
     infraCmn.sendSandeshRequest(req, res, dataObjArr, controlNodeRestApi);
@@ -636,7 +637,8 @@ function getControlNodeRoutingInstanceList (req, res, appData)
         url = '/Snh_ShowRoutingInstanceSummaryReqIterate?x=' + nextKey;
     }
     var bgpRtrRestAPI =
-        commonUtils.getRestAPIServer(ip, global.SANDESH_CONTROL_NODE_PORT);
+        commonUtils.getRestAPIServer(ip, global.SANDESH_CONTROL_NODE_PORT,
+                                     global.SANDESH_API);
     commonUtils.createReqObj(dataObjArr, url);
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(bgpRtrRestAPI, false),
@@ -701,7 +703,8 @@ function getControlNodeRoutes (req, res, appData)
 
     var resultJSON = [];
     var bgpRtrRestAPI =
-        commonUtils.getRestAPIServer(ip, global.SANDESH_CONTROL_NODE_PORT);
+        commonUtils.getRestAPIServer(ip, global.SANDESH_CONTROL_NODE_PORT,
+                                     global.SANDESH_API);
     commonUtils.createReqObj(dataObjArr, url);
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(bgpRtrRestAPI, true),

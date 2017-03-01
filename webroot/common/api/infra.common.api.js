@@ -832,7 +832,8 @@ function getSandeshData (req, res, appData)
         commonUtils.handleJSONResponse(err, res, null);
         return;
     }
-    var nodeRestAPI = commonUtils.getRestAPIServer(data['ip'], data['port']);
+    var nodeRestAPI = commonUtils.getRestAPIServer(data['ip'], data['port'],
+                                                   global.SANDESH_API);
     commonUtils.createReqObj(dataObjArr, data['url']);
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(nodeRestAPI, false),
