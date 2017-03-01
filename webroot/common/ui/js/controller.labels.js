@@ -942,6 +942,9 @@ define([
         this.TITLE_FLOW_AGING = "Flow Aging";
         this.TITLE_EDIT_FLOW_AGING = "Edit Flow Aging ";
 
+        this.TITLE_MAC_LEARNING = "MAC Learning Options";
+        this.TITLE_EDIT_MAC_LEARNING = "Edit MAC Learning Options";
+
         /* Security Group */
         this.CONFIG_SEC_GRP_PAGE_ID = 'config-sec—grppage';
         this.CONFIG_SEC_GRP_LIST_VIEW_ID = 'config-sec—grplist';

@@ -31,6 +31,7 @@ var jsonDiff    = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/jsondiff');
 
 var vCenterAPI  = require('./vnconfig.vcenter.api');
+var  _ = require('underscore');
                           
 /**
  * Bail out if called directly as "nodejs vnconfig.api.js"
@@ -491,6 +492,7 @@ function getPagedVirtualNetworks (dataObj, callback)
  */
 function createVirtualNetworkCb (error, vnConfig, vnPostData, response, appData) 
 {
+    var bdDataList;
     if (error) {
         commonUtils.handleJSONResponse(error, response, null);
         return;
@@ -498,7 +500,15 @@ function createVirtualNetworkCb (error, vnConfig, vnPostData, response, appData)
     vnPostData['virtual-network']['uuid'] = vnConfig['virtual-network']['uuid'];
 
     response.req.body = vnPostData;
-    updateVNFipPoolAdd(response.req, response, appData);
+    bdDataList = commonUtils.getValueByJsonPath(vnPostData,
+            'virtual-network;bridge_domains', [], false);
+    if(bdDataList.length) {
+        createBridgeDomains(bdDataList, appData, function(){
+            updateVNFipPoolAdd(response.req, response, appData);
+        });
+    } else {
+     updateVNFipPoolAdd(response.req, response, appData);
+    }
 }
 
 /**
@@ -954,7 +964,11 @@ function updateVirtualNetwork (request, response, appData)
         if ('network_policy_refs' in vnPutData['virtual-network']) {
             vnPutData = setVNPolicySequence(vnPutData);
         }
-
+        updateBridgeDomains(vnId, vnPutData, appData, function(bdError, bdData){
+            if (bdError) {
+                commonUtils.handleJSONResponse(bdError, response, null);
+                return;
+            }
         jsonDiff.getJSONDiffByConfigUrl(reqUrl, appData, vnPutData,
                                          function(err, delta) {
             configApiServer.apiPut(reqUrl, delta, appData,
@@ -973,10 +987,167 @@ function updateVirtualNetwork (request, response, appData)
                                         });
                         }
                 );
-                
             });
         });
+        });
     });
+}
+
+function updateBridgeDomains(vnId, vnPutData, appData, callback)
+{
+    configApiServer.apiGet("/virtual-network/" + vnId, appData,
+            function(err, configData){
+                 var configBDList = commonUtils.getValueByJsonPath(configData,
+                         'virtual-network;bridge_domains', [], false),
+                     changedBDList = commonUtils.getValueByJsonPath(vnPutData,
+                             'virtual-network;bridge_domains', [], false),
+                     deleteBDObjList = [], deleteBDURL, createBDDataList = [],
+                     editBDDataList = [],
+                     changedBDIds = _.pluck(changedBDList, 'uuid');
+                 _.each(changedBDList, function(bdData){
+                     if(!bdData.uuid){
+                         createBDDataList.push(bdData);
+                     } else {
+                         editBDDataList.push(bdData);
+                     }
+                 });
+                 _.each(configBDList, function(configbdData){
+                     if(!(_.contains(changedBDIds, configbdData.uuid))) {
+                         deleteBDURL = '/bridge-domain/' + configbdData.uuid;
+                         commonUtils.createReqObj(deleteBDObjList, deleteBDURL,
+                                 global.HTTP_REQUEST_DEL, null,
+                                 configApiServer, null, appData);
+                     }
+                 });
+                 editBridgeDomains(editBDDataList, appData, function(editBDError, editBDData){
+                     if(editBDError) {
+                         callback(editBDError, null);
+                         return;
+                     }
+                     deleteBridgeDomainAsync(deleteBDObjList, function(deleteBDError, deleteBDData){
+                         console.log("deleteBDError:", deleteBDError);
+                         if(deleteBDError) {
+                             callback(deleteBDError, null);
+                             return;
+                         }
+                         createBridgeDomains(createBDDataList, appData, function(createBDError, createBDData){
+                             if(createBDError){
+                                 callback(createBDError, null);
+                                 return;
+                             }
+                             callback(createBDError, createBDData);
+                         })
+                     });
+                 });
+            }
+    );
+}
+
+function createBridgeDomains(bdDataList, appData, callback)
+{
+    if(!bdDataList.length){
+        callback(null, null);
+        return;
+    }
+    var bdCreateDataArr = [], bdCreateData = {}, bdPostURL = '/bridge-domains';
+    _.each(bdDataList, function(bdData) {
+        bdCreateData["bridge-domain"] = {};
+        bdCreateData["bridge-domain"]["fq_name"] = bdData["to"];
+        bdCreateData["bridge-domain"]["name"] =
+            commonUtils.getValueByJsonPath(bdData, "to;3", null, false);
+        bdCreateData["bridge-domain"]["parent_type"] = "virtual-network";
+        bdCreateData["bridge-domain"]["isid"] = bdData["isid"];
+        bdCreateData["bridge-domain"]["mac_learning_enabled"] =
+            bdData["mac_learning_enabled"];
+        bdCreateData["bridge-domain"]["mac_limit_control"] =
+            bdData["mac_limit_control"];
+        bdCreateData["bridge-domain"]["mac_move_control"] =
+            bdData["mac_move_control"];
+        bdCreateData["bridge-domain"]["mac_aging_time"] =
+            bdData["mac_aging_time"];
+        commonUtils.createReqObj(bdCreateDataArr, bdPostURL,
+                global.HTTP_REQUEST_POST,
+                commonUtils.cloneObj(bdCreateData), null, null,
+                appData);
+    });
+    if(!bdCreateDataArr.length){
+        callback(null, null);
+        return;
+    }
+    async.map(bdCreateDataArr,
+            commonUtils.getAPIServerResponse(configApiServer.apiPost, false),
+                function(error, results) {
+                    callback(error, results);
+                    return;
+                }
+        );
+}
+
+function editBridgeDomains(bdDataList, appData, callback)
+{
+    if(!bdDataList.length){
+        callback(null, null);
+        return;
+    }
+    var bdEditDataArr = [], bdEditData = {}, bdPutURL;
+    _.each(bdDataList, function(bdData) {
+        bdEditData["bridge-domain"] = {};
+        bdEditData["bridge-domain"]["uuid"] = bdData.uuid;
+        bdEditData["bridge-domain"]["fq_name"] = bdData["to"];
+        bdEditData["bridge-domain"]["parent_type"] = "virtual-network";
+        bdEditData["bridge-domain"]["isid"] = bdData["isid"];
+        bdEditData["bridge-domain"]["mac_learning_enabled"] =
+            bdData["mac_learning_enabled"];
+        bdEditData["bridge-domain"]["mac_limit_control"] =
+            bdData["mac_limit_control"];
+        bdEditData["bridge-domain"]["mac_move_control"] =
+            bdData["mac_move_control"];
+        bdEditData["bridge-domain"]["mac_aging_time"] =
+            bdData["mac_aging_time"];
+        bdPutURL = '/bridge-domain/' +  bdData.uuid;
+        commonUtils.createReqObj(bdEditDataArr, bdPutURL,
+                global.HTTP_REQUEST_PUT,
+                commonUtils.cloneObj(bdEditData), null, null,
+                appData);
+    });
+    if(!bdEditDataArr.length){
+        callback(null, null);
+        return;
+    }
+    async.map(bdEditDataArr,
+            commonUtils.getAPIServerResponse(configApiServer.apiPut, false),
+                function(error, results) {
+                    callback(error, results);
+                    return;
+                }
+        );
+}
+
+function deleteBridgeDomains(bdDataList, appData, callback)
+{
+    var deleteBDObjList = [], deleteBDURL;
+    _.each(bdDataList, function(bdData){
+            deleteBDURL = '/bridge-domain/' + bdData.uuid;
+            commonUtils.createReqObj(deleteBDObjList, deleteBDURL,
+                    global.HTTP_REQUEST_DEL, null,
+                    configApiServer, null, appData);
+    });
+    deleteBridgeDomainAsync(deleteBDObjList, callback);
+}
+
+function deleteBridgeDomainAsync(deleteBDObjList, callback)
+{
+    if(!deleteBDObjList.length) {
+        callback(null, null);
+        return;
+    }
+    async.map(deleteBDObjList,
+        commonUtils.getAPIServerResponse(configApiServer.apiDelete, false),
+            function(error, results) {
+                callback(error, results);
+                return;
+            }
+    );
 }
 
 /**
@@ -1156,6 +1327,9 @@ function deleteVirtualNetworkAsync (dataObj, callback)
                 return;                               
             }
         }
+        //bridge domain
+        var bdDataList = commonUtils.getValueByJsonPath(data,
+                'virtual-network;bridge_domains', [], false);
         if (null != instanceIPBackRefs) {
             var uuidList = [];
             var instanceIPBackRefCnt = instanceIPBackRefs.length;
@@ -1191,11 +1365,13 @@ function deleteVirtualNetworkAsync (dataObj, callback)
                                                             return;
                                                         });
                 } else {
-                    configApiServer.apiDelete(vnDelURL, appData,
-                                              function(error, data) {
-                                                callback(null, {'error': error,
-                                                                'data': data});
-                                                return;
+                    deleteBridgeDomains(bdDataList, appData, function(){
+                        configApiServer.apiDelete(vnDelURL, appData,
+                                function(error, data) {
+                                  callback(null, {'error': error,
+                                                  'data': data});
+                                  return;
+                        });
                     });
                 }
             });
@@ -1208,11 +1384,13 @@ function deleteVirtualNetworkAsync (dataObj, callback)
                                                         return;
                                                     });
             } else {
-                configApiServer.apiDelete(vnDelURL, appData,
-                                          function(error, data) {
-                                            callback(null, {'error': error,
-                                                            'data': data});
-                                            return;
+                deleteBridgeDomains(bdDataList, appData, function(){
+                    configApiServer.apiDelete(vnDelURL, appData,
+                            function(error, data) {
+                              callback(null, {'error': error,
+                                              'data': data});
+                              return;
+                    });
                 });
             }
         }
@@ -2576,7 +2754,7 @@ function getVNDetails (req, res, appData)
     }
 
     vnURL += 'detail=true&fields=' +
-             'physical_router_back_refs,floating_ip_pools';
+             'physical_router_back_refs,floating_ip_pools,bridge_domains';
 
     if (requestParams.query && requestParams.query.filters) {
         filters = requestParams.query.filters;
@@ -2589,9 +2767,52 @@ function getVNDetails (req, res, appData)
                 commonUtils.handleJSONResponse(err, res, data);
                 return;
             }
+            getBridgeDomains(data, appData, function(vnDetails){
+                commonUtils.handleJSONResponse(null, res, vnDetails);
+            });
+    });
+}
 
-        
-        commonUtils.handleJSONResponse(null, res, data);
+function getBridgeDomains (vnList, appData, callback)
+{
+    var bduuidList = [], reqURL, vnBDMap = {}, bdList, vnUUID,
+        actVNList = commonUtils.getValueByJsonPath(vnList,
+            "virtual-networks", [], false);
+    _.each(actVNList, function(vnData){
+        vnUUID = commonUtils.getValueByJsonPath(vnData,
+                'virtual-network;uuid', '', false)
+        bdList = commonUtils.getValueByJsonPath(vnData,
+                'virtual-network;bridge_domains', [], false);
+        _.each(bdList, function(bdData){
+            bduuidList.push(bdData.uuid);
+        });
+    });
+    if(!bduuidList.length) {
+        callback(vnList);
+        return;
+    }
+
+    reqURL= '/bridge-domains?detail=true&obj_uuids=' + bduuidList.join(',');
+    configApiServer.apiGet(reqURL, appData, function(bdError, bdDetails){
+        if ((null != bdError) || (null == bdDetails)) {
+            callback(vnList);
+            return;
+        }
+        _.each(bdDetails["bridge-domains"], function(bdData){
+            actbdData = bdData['bridge-domain'];
+            var bdKeys = _.keys(vnBDMap);
+            if(!(_.contains(bdKeys, actbdData.parent_uuid))) {
+                vnBDMap[actbdData.parent_uuid] = [];
+            }
+            vnBDMap[actbdData.parent_uuid].push(actbdData);
+        });
+        _.each(actVNList, function(vnData){
+            vnUUID = commonUtils.getValueByJsonPath(vnData,
+                    'virtual-network;uuid', '', false);
+            vnData["virtual-network"]["bridge_domains"] =
+                vnBDMap[vnUUID]
+        });
+        callback({"virtual-networks" : actVNList});
     });
 }
 
