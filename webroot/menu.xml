@@ -430,23 +430,22 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Configure RBAC</searchStrings>
                         </item>
                         <item>
-                            <label>Virtual Routers</label>
-                            <hash>config_infra_vrouters</hash>
+                            <label>Nodes</label>
+                            <hash>config_infra_nodes</hash>
                             <resources>
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
                                     <js>controller.app.js</js>
                                 </resource>
                                 <resource>
-                                    <rootDir>/config/infra/vrouters/ui</rootDir>
-                                    <js>vRouterCfg.main.js</js>
-                                    <class>vRouterCfgLoader</class>
-                                    <function>rendervRouterCfg</function>
+                                    <rootDir>/config/infra/nodes/ui</rootDir>
+                                    <js>nodesCfg.main.js</js>
+                                    <class>configNodesLoader</class>
+                                    <function>renderNodesConfig</function>
                                 </resource>
                             </resources>
-                            <searchStrings>Configure Virtual Routers</searchStrings>
+                            <searchStrings>Configure Nodes</searchStrings>
                         </item>
-
                         <item>
                             <label>Project Quotas</label>
                             <hash>config_net_quotas</hash>

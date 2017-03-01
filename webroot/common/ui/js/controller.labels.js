@@ -1248,6 +1248,30 @@ define([
         this.TITLE_ROUTE_AGGREGATE_MULTI_DELETE = 'Delete Route Aggregate(s)';
         this.TITLE_ADD_ROUTE_AGGREGATE = 'Create Route Aggregate';
 
+        /* Analytics Node Config Labels */
+        this.TITLE_ANALYTICS_NODE = 'Analytics Nodes';
+        this.TITLE_EDIT_ANALYTICS_NODE = 'Edit Analytics Node';
+        this.TITLE_ANALYTICS_NODE_DELETE = 'Delete Analytics Node';
+        this.TITLE_ANALYTICS_NODE_MULTI_DELETE = 'Delete Analytics Node(s)';
+        this.TITLE_ADD_ANALYTICS_NODE = 'Create Analytics Node';
+        this.TITLE_ANALYTICS_NODE_DETAILS = 'Analytics Node Details';
+
+        /* Config Node Cfg Labels */
+        this.TITLE_CONFIG_NODE = 'Config Nodes';
+        this.TITLE_EDIT_CONFIG_NODE = 'Edit Config Node';
+        this.TITLE_CONFIG_NODE_DELETE = 'Delete Config Node';
+        this.TITLE_CONFIG_NODE_MULTI_DELETE = 'Delete Config Node(s)';
+        this.TITLE_ADD_CONFIG_NODE = 'Create Config Node';
+        this.TITLE_CONFIG_NODE_DETAILS = 'Config Node Details';
+
+        /* Database Node Config Labels */
+        this.TITLE_DATABASE_NODE = 'Database Nodes';
+        this.TITLE_EDIT_DATABASE_NODE = 'Edit Database Node';
+        this.TITLE_DATABASE_NODE_DELETE = 'Delete Database Node';
+        this.TITLE_DATABASE_NODE_MULTI_DELETE = 'Delete Database Node(s)';
+        this.TITLE_ADD_DATABASE_NODE = 'Create Database Node';
+        this.TITLE_DATABASE_NODE_DETAILS = 'Database Node Details';
+
         /* QOS labels */
         this.TITLE_QOS = 'QoS';
         this.TITLE_CREATE_QOS = 'Create QoS';
