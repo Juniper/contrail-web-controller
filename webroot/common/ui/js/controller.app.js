@@ -88,6 +88,7 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'dbnode-scatterchart-view': ctWebDir + '/monitor/infrastructure/common/ui/js/views/DatabaseNodeScatterChartView',
             'analyticsnode-scatterchart-view': ctWebDir + '/monitor/infrastructure/common/ui/js/views/AnalyticsNodeScatterChartView',
             'vrouter-dashboard-view': ctWebDir + '/monitor/infrastructure/dashboard/ui/js/views/VRouterDashboardView',
+            'global-controller-viewconfig': ctWebDir + '/monitor/infrastructure/globalcontroller/ui/js/globalController.viewconfig',
             'monitor-infra-viewconfig': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.viewconfig',
             'monitor-infra-parsers': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/monitor.infra.parsers',
             'monitor-infra-utils': ctWebDir + '/monitor/infrastructure/common/ui/js/utils/monitor.infra.utils',
@@ -124,7 +125,8 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'controlnode-viewconfig': ctWebDir + '/monitor/infrastructure/controlnode/ui/js/controlnode.viewconfig',
             'databasenode-viewconfig': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/databasenode.viewconfig',
             'vrouter-viewconfig': ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.viewconfig',
-            'monitor-infra-viewconfig': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.viewconfig'
+            'monitor-infra-viewconfig': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.viewconfig',
+            'global-controller-viewconfig': ctWebDir + '/monitor/infrastructure/globalcontroller/ui/js/globalController.viewconfig'
         }
     }
 };
