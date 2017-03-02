@@ -48,6 +48,11 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>mon_infra_dashboard</hash>
                             <label>Dashboard</label>
                             <searchStrings>Infrastructure Dashboard</searchStrings>
+                            <access>
+                                <roles>
+                                    <role>cloudAdmin</role>
+                                </roles>
+                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>.</rootDir>
@@ -68,6 +73,11 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item optional="true">
                             <hash>mon_infra_mx</hash>
                             <label>MX Visualisation</label>
+                            <access>
+                            <roles>
+                                <role>cloudAdmin</role>
+                            </roles>
+                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>/monitor/infra/mx/ui</rootDir>
@@ -80,6 +90,11 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item optional="true">
                             <hash>mon_infra_underlay</hash>
                             <label>Physical Topology</label>
+                            <access>
+                            <roles>
+                                <role>cloudAdmin</role>
+                            </roles>
+                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>/monitor/infrastructure/underlay/ui</rootDir>
@@ -92,6 +107,11 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_infra_control</hash>
                             <label>Control Nodes</label>
+                            <access>
+                            <roles>
+                                <role>cloudAdmin</role>
+                            </roles>
+                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>/monitor/infrastructure/controlnode/ui</rootDir>
@@ -105,6 +125,11 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_infra_vrouter</hash>
                             <label>Virtual Routers</label>
+                            <access>
+                            <roles>
+                                <role>cloudAdmin</role>
+                            </roles>
+                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>/monitor/infrastructure/vrouter/ui</rootDir>
@@ -118,6 +143,11 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_infra_analytics</hash>
                             <label>Analytics Nodes</label>
+                            <access>
+                            <roles>
+                                <role>cloudAdmin</role>
+                            </roles>
+                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>/monitor/infrastructure/analyticsnode/ui</rootDir>
@@ -131,6 +161,11 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_infra_config</hash>
                             <label>Config Nodes</label>
+                            <access>
+                            <roles>
+                                <role>cloudAdmin</role>
+                            </roles>
+                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>/monitor/infrastructure/confignode/ui</rootDir>
@@ -144,6 +179,11 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_infra_database</hash>
                             <label>Database Nodes</label>
+                            <access>
+                            <roles>
+                                <role>cloudAdmin</role>
+                            </roles>
+                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>/monitor/infrastructure/databasenode/ui</rootDir>
@@ -158,8 +198,43 @@ and need to add the iconClass tag wherever we need to show some icons
                     </items>
                 </item>
                 <item>
+                <name>cgcinfrastrure</name>
+                <label>Infrastructre</label>
+                <iconClass>menu-icon fa fa-puzzle-piece</iconClass>
+                <access>
+                    <orchModels>
+                        <model>openstack</model>
+                        <model>cloudstack</model>
+                    </orchModels>
+                    <roles>
+                        <role>globalController</role>
+                    </roles>
+                </access>
+                        <items>
+                            <item>
+                                <label>Regions</label>
+                                <hash>mon_infra_globalcontroller</hash>
+                                <resources>
+                                 <resource>
+                                     <rootDir>/monitor/infrastructure/globalcontroller/ui</rootDir>
+                                     <js>globalControllerDashboard.main.js</js>
+                                     <class>globalControllerDashbaordLoader</class>
+                                     <function>renderCGCView</function>
+                                  </resource>
+                                 </resources>
+                                <searchStrings>GlobalController, All regions</searchStrings>
+                            </item>
+                        </items>
+                        </item>
+                <item>
                     <label>Networking</label>
                     <iconClass>menu-icon fa fa-sitemap</iconClass>
+                    <access>
+                    <roles>
+                        <role>cloudAdmin</role>
+                        <role>member</role>
+                    </roles>
+                    </access>
                     <resources>
                         <resource>
                             <rootDir>/monitor/networking/ui</rootDir>
@@ -244,6 +319,10 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>openstack</model>
                             <model>cloudstack</model>
                         </orchModels>
+                        <roles>
+                            <role>cloudAdmin</role>
+                            <role>member</role>
+                        </roles>
                     </access>
                     <items>
                         <item>
