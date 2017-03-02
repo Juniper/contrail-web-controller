@@ -7,10 +7,10 @@ var controllerInfraDashboardLoader = new ControllerInfraDashboardLoader();
 
 function ControllerInfraDashboardLoader() {
     this.load = function (paramObject) {
-        var self = this, 
+        var self = this,
             hashParams = paramObject['hashParams'],
             renderFn = paramObject['function'];
-
+        $("#page-content").css("padding","2px 10px 5px");
         if(monInfraDashboardLoader.loadedControllerInfoboxes != true) {
             monInfraDashboardLoader.loadedControllerInfoboxes = true;
             require(['mon-infra-dashboard-view'],function() {
@@ -23,7 +23,6 @@ function ControllerInfraDashboardLoader() {
             });
         }
     };
-
     this.destroy = function()  {
     }
 }
