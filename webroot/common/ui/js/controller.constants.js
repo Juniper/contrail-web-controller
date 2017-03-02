@@ -193,6 +193,7 @@ define([
         this.UCID_INSTANCE_CPU_MEMORY_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:cpu-memory";
 
         this.UCID_NODE_CPU_MEMORY_LIST = 'node_details' + "{0}:cpu-memory";
+        this.GLOBAL_CONTROLLER_NODESCOUNT = "global_controller_nodescnt";
 
         this.GRAPH_DIR_LR = "LR";
         this.GRAPH_DIR_TB = "TB";
