@@ -55,7 +55,24 @@ define(['contrail-list-model'], function(ContrailListModel) {
                                 'webServerInfo;sessionTimeout', 3600000)
             }
         };
-        return ContrailListModel(listModelConfig);
+        var globalcontrollerlistModelConfig = {
+                remote : {
+                    ajaxConfig : {
+                        url:monitorInfraConstants.monitorInfraUrls.VROUTER_CACHED_SUMMARY + '?forceRefresh',
+                        timeout : 300000
+                    },
+                    dataParser : monitorInfraParsers.parsevRoutersDashboardData,
+                },
+                vlRemoteConfig: vlRemoteConfig,
+                cacheConfig : {}
+            };
+        //Use the globalcontroller modelconfig if the cgcEnabled is true
+        if(globalObj.webServerInfo.cgcEnabled === true){
+            return ContrailListModel(globalcontrollerlistModelConfig);
+        }
+        else{
+            return ContrailListModel(listModelConfig);
+        }
     };
     return VRouterListModel;
 });

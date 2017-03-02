@@ -6,8 +6,17 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
         function(_, ContrailView, ContrailListModel, CFDataSource, LegendView, VRouterListModel){
     var VRouterViewConfig = function () {
         var self = this;
-        var vRouterListModel,vRouterUIListModel;   
-
+        var vRouterListModel,vRouterUIListModel;
+        self.currentRegion = null;
+        self.isRegionChanged = function() {
+            var currentRegionFromCookie = contrail.getCookie('region');
+            if (self.currentRegion != currentRegionFromCookie) {
+                self.currentRegion = currentRegionFromCookie;
+                return true;
+            } else {
+                return false;
+            }
+        }
         self.populateVRouterListModels = function() {
             vRouterListModel = new VRouterListModel();
             self.vRouterListModel = vRouterListModel;
@@ -129,8 +138,9 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                 }
              },
              "vrouter-cpu-mem-scatter-chart" : function(){
-                 if(self.vRouterListModel == null)
+                 if(self.vRouterListModel == null || self.isRegionChanged()) {
                     self.populateVRouterListModels();
+                 }
                  return {
                      modelCfg: {listModel:vRouterUIListModel},
                      viewCfg: {
@@ -161,9 +171,10 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      }
                  }
              },
-             "vrouter-summary-cpu-mem-scatter-chart" : function(){
-                 if(self.vRouterListModel == null)
+             "vrouter-summary-cpu-mem-scatter-chart" : function(cfg,i){
+                 if(self.vRouterListModel == null || self.isRegionChanged() || i == 0) {
                     self.populateVRouterListModels();
+                 }
                  return {
                      modelCfg: {listModel:vRouterUIListModel},
                      viewCfg: {
@@ -390,9 +401,10 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      }
                  }
              },
-             "vrouter-summary-grid" : function() {
-                 if(self.vRouterListModel == null)
+             "vrouter-summary-grid" : function(cfg,i) {
+                 if(self.vRouterListModel == null || self.isRegionChanged() || i == 0) {
                     self.populateVRouterListModels();
+                 }
                  return {
                      modelCfg: {listModel: vRouterUIListModel},
                      viewCfg: {
@@ -413,8 +425,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      }
                  }
              },
-             "vrouter-crossfilters-chart" : function() {
-                 if(self.vRouterListModel == null) {
+             "vrouter-crossfilters-chart" : function(cfg,i) {
+                 if(self.vRouterListModel == null || self.isRegionChanged() || i == 0) {
                     self.populateVRouterListModels();
                  }
                  return {
@@ -450,8 +462,9 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                  }
              },
              "vrouter-system-cpu-mem-chart" : function() {
-                 if(self.vRouterListModel == null)
+                 if(self.vRouterListModel == null || self.isRegionChanged()) {
                     self.populateVRouterListModels();
+                 }
                  return {
                      modelCfg: {
                          modelId:'VROUTER_LIST_MODEL',
@@ -510,8 +523,9 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                  }
              },
              "vrouter-vn-int-inst-chart" : function() {
-                 if(self.vRouterListModel == null)
+                 if(self.vRouterListModel == null || self.isRegionChanged()) {
                     self.populateVRouterListModels();
+                 }
                  return {
                      modelCfg: {listModel:vRouterUIListModel},
                      viewCfg: {
