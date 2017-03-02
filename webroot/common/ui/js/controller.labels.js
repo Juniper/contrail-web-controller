@@ -202,6 +202,28 @@ define([
         this.MONITOR_INSTANCE_VIEW_ID = "monitor-instance-view";
         this.MONITOR_FLOW_LIST_ID = "monitor-flow-list";
         this.MONITOR_FLOWS_PAGE_ID = "monitor-flows-page";
+        //GLOBALCONTROLLER
+        this.GLOBAL_CONTROLER_LIST_VIEW_SECTION_ID = "global-controller-listview-sectionid";
+        this.GLOBAL_CONTROLLER_PREFIX_ID = "globalcontroller_prefix_id";
+        this.GLOBAL_CONTROLLER_REGION_BAR_SECTION_ID = "GLOBAL_CONTROLLER_REGION_BAR_SECTION_ID";
+        this.GLOBAL_CONTROLLER_REGION_SECTION_ID = "GLOBAL_CONTROLLER_REGION_SECTION_ID";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_CPU_MAX = "globalcontroller_chartview_cpu_max";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_CPU_MAX_SECTION = "globalcontroller_chartview_cpu_max_section";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_MEMORY_MAX = "globalcontroller_chartview_memory_max";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_MEMORY_MAX_SECTION = "globalcontroller_chartview_memory_max_section";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_DISK_USAGE= "globalcontroller_chartview_disk_usage";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_DISK_USAGE_SECTION= "globalcontroller_chartview_disk_usage_section";
+        this.GLOBALCONTROLLER_REGIONS_SUMMARY_URL =
+            '/api/tenant/networking/global-controller-overview?reqRegion=';
+        this.GLOBAL_CONTROLLER_CHARTS_URL = "/api/qe/query/?reqRegion=";
+        this.GLOBAL_CONTROLLER_SYSTEM_CPU_TITLE= "System CPU";
+        this.GLOBAL_CONTROLLER_SYSTEM_MAX_CPU_UTILIZATION= "Max CPU Utilization";
+        this.GLOBAL_CONTROLLER_SYSTEM_MEMORY_TITLE= "System Memory";
+        this.GLOBAL_CONTROLLER_SYSTEM_MAX_MEMORY_UTILIZATION= "Max Memory Utilization";
+        this.GLOBAL_CONTROLLER_BANDWIDTH_IN_TITLE= "Bandwidth across all vRouters";
+        this.GLOBAL_CONTROLLER_SYSTEM_MAX_BANDWIDTH_IN= "Max Bandwidth In";
+        this.GLOBAL_CONTROLLER_DISK_USAGE_TITLE= "Disk Usage";
+        this.GLOBAL_CONTROLLER_SYSTEM_CPU_UTILIZATION= "Disk Utilization";
 
         this.DOMAINS_BREADCRUMB_DROPDOWN = "domains-breadcrumb-dropdown";
         this.SASET_BREADCRUMB_DROPDOWN = "service-appliance-set-breadcrumb-dropdown";

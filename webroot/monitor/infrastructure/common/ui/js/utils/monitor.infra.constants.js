@@ -137,6 +137,7 @@ define([
 
         this.VROUTER_FLOWS_CHART_COLORS = ['#6f97ae','#d95436'];
         this.VROUTER_DROP_PACKETS_COLORS = ['#d95436'];
+        this.GLOBAL_CONTROLLER_CHART_COLOR = ['#72a9d0'];
 
         this.dropStatsKeyList = [
             "discard",
