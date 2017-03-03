@@ -94,6 +94,7 @@ define([
         }
 
         _.each(dataRecord, function (value, key) {
+            value = JSON.parse(cowu.sanitize(JSON.stringify(value)));
             if (key.charAt(0) !== "_" && ["more", "next_batch"].indexOf(key) === -1 ) {
                 var gridColumn = {
                     id: key, field: key,
@@ -105,7 +106,7 @@ define([
                 if (contrail.checkIfExist(value._link)) {
                     gridColumn.formatter = function (r, c, v, cd, dc) {
                         return '<a class="introspect-link" data-link="' + value._link + '" ' +
-                            'x="' + dc[key] + '">' + dc[key] + "</a>";
+                            'x="' + cowu.sanitize(dc[key]) + '">' + cowu.sanitize(dc[key]) + "</a>";
                     };
                     gridColumn.exportConfig = { allow: true };
 
