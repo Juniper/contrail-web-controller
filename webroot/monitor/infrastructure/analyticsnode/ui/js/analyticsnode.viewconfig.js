@@ -30,8 +30,8 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         }
                     },
                     itemAttr: {
-                        height:0.25,
-                        width: 1.98,
+                        height: 0.25,
+                        width: 1.9,
                         title: ctwl.ANALYTICS_NODE_MESSAGE_PARAMS_PERCENTILE
                     }
                 }
@@ -102,7 +102,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         }
                     },
                     itemAttr: {
-                        width: 0.67,
+                        width: 0.7,
                         height: 0.9,
                         title: ctwl.ANALYTICS_NODE_QUERY_DISTRIBUTION
                     }
@@ -220,10 +220,10 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                             }
                         }
                     },
-                itemAttr: {
-                    width: 0.83,
-                    height: 1.1,
-                    title: ctwl.ANALYTICS_NODE_GENERATORS
+                    itemAttr: {
+                        width: 0.7,
+                        height: 1.1,
+                        title: ctwl.ANALYTICS_NODE_GENERATORS
                     }
                 }
             },
@@ -256,7 +256,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                         }
                     },
                     itemAttr: {
-                        width: 0.67,
+                        width: 0.7,
                         height: 0.9,
                         title: ctwl.ANALYTICS_NODE_DB_READ_WRITE
                     }

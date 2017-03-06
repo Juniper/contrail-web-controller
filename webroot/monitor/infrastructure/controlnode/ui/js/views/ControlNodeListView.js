@@ -31,7 +31,7 @@ define(
                                                  viewConfig: {
                                                      elementId : 'control-node-grid-stackview-0',
                                                      gridAttr : {
-                                                         defaultWidth : 6,
+                                                         defaultWidth : cowc.GRID_STACK_DEFAULT_WIDTH,
                                                          defaultHeight : 8
                                                      },
                                                      widgetCfgList: [
@@ -50,7 +50,7 @@ define(
                                                  viewConfig: {
                                                      elementId : 'control-node-grid-stackview-1',
                                                      gridAttr : {
-                                                         defaultWidth : 6,
+                                                         defaultWidth : cowc.GRID_STACK_DEFAULT_WIDTH,
                                                          defaultHeight : 8
                                                      },
                                                      widgetCfgList: [
@@ -81,7 +81,7 @@ define(
                                              viewConfig: {
                                                  elementId : 'control-node-grid-stackview-2',
                                                  gridAttr : {
-                                                     defaultWidth : 6,
+                                                     defaultWidth : cowc.GRID_STACK_DEFAULT_WIDTH,
                                                      defaultHeight : 8
                                                  },
                                                  widgetCfgList: [

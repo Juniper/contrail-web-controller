@@ -251,7 +251,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                          }
                      },
                      itemAttr: {
-                          title: ctwl.CONTROL_NODE_MEMORY
+                        title: ctwl.CONTROL_NODE_MEMORY
                     }
                 }
             },
@@ -391,8 +391,8 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                         }
                     },
                     itemAttr: {
-                        width: 2,
                         height: 2,
+                        width: 2
                     }
                 }
             },
