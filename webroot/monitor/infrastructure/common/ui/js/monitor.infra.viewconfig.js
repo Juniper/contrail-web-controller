@@ -49,6 +49,7 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                                 }
                             }
                         },itemAttr: {
+                            width: 1/2,
                             title: ctwl.SYSTEM_CPU_SHARE
                         }
                     };
@@ -98,6 +99,7 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                                 }
                             }
                         },itemAttr: {
+                            width: 1/2,
                             title: ctwl.SYSTEM_MEMORY_USED
                         }
                     };
@@ -150,6 +152,7 @@ define(['underscore', 'contrail-view', 'node-color-mapping'],
                             }
                         },
                         itemAttr: {
+                            width: 1/2,
                             title: ctwl.DISK_USAGE
                         }
                     }

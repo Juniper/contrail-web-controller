@@ -31,7 +31,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
-                        width:0.9,
+                        width:0.45,
                         height:0.2,
                         title: ctwl.CONFIG_NODE_RESPONSE_PARAMS_PERCENTILE
                     }
@@ -78,7 +78,6 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                     },
                     itemAttr: {
                         height: 0.9,
-                        width: 2,
                         title: ctwl.CONFIG_NODE_REQUESTS_SERVED
                     }
                 }
@@ -156,7 +155,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr:{
-                        width: 1.2,
+                        width: 0.6,
                         height: 0.8,
                         title: ctwl.CONFIG_NODE_RESPONSE_TIME_VS_SIZE
                     }
@@ -185,7 +184,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
-                        width: 0.9,
+                        width: 0.45,
                         height: 0.6,
                         title: ctwl.CONFIG_NODE_REQUESTS_READ_VS_WRITE
                     }
@@ -207,7 +206,6 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                       }
                   },
                   itemAttr: {
-                      width: 2,
                       height: 2
                     }
                 }
@@ -240,6 +238,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONFIG_NODE_PROCESS_WISE_USAGE,
                     }
                 }
@@ -272,6 +271,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
+                        width: 1/2,
                         title : ctwl.CONFIG_NODE_OBJECT_USAGE_TITLE
                     }
                 }
@@ -304,6 +304,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONFIG_NODE_CLIENT_WISE_USAGE,
                     }
                 }
@@ -336,6 +337,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONFIG_NODE_PROJECT_WISE_USAGE,
                     }
                   }
@@ -367,6 +369,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONFIG_NODE_SCHEMA_CPU_SHARE,
                     }
                 };
@@ -434,6 +437,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONFIGNODE_DISCOVERY_CPU_SHARE,
                     }
                 }
@@ -466,6 +470,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONFIG_NODE_API_CPU_SHARE,
                     }
                 }
@@ -497,7 +502,8 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
-                            title: ctwl.CONFIG_NODE_SERVICE_MONITOR_CPU_SHARE,
+                        width: 1/2,
+                        title: ctwl.CONFIG_NODE_SERVICE_MONITOR_CPU_SHARE,
                     }
                 }
             },
@@ -528,6 +534,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         },
                     },
                     itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONFIG_NODE_DEVICE_MANAGER_CPU_SHARE,
                     }
                 }
@@ -559,6 +566,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONFIG_NODE_IFMAP_CPU_SHARE,
                     }
                 }

@@ -46,7 +46,7 @@ define(
                                           viewConfig: {
                                               elementId: 'grid-stack-view-page-1',
                                               gridAttr: {
-                                                  defaultWidth: 12,
+                                                  defaultWidth: cowc.GRID_STACK_COLUMN_CNT,
                                                   defaultHeight: 10
                                               },
                                               widgetCfgList: [
@@ -82,7 +82,7 @@ define(
                                           viewConfig: {
                                               elementId: 'grid-stack-view-page-2',
                                               gridAttr: {
-                                                  defaultWidth: 12,
+                                                  defaultWidth: cowc.GRID_STACK_COLUMN_CNT,
                                                   defaultHeight: 10
                                               },
                                               widgetCfgList: [

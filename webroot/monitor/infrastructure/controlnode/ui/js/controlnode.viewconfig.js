@@ -44,6 +44,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                         }
                     },
                     itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONTROL_NODE_SENT_UPDATES
                     }
                 }
@@ -81,6 +82,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                         }
                     },
                     itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONTROL_NODE_RECEIVED_UPDATES
                     }
                 }
@@ -142,7 +144,6 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                     },
                     itemAttr: {
                         title: ctwl.CONTROLNODE_CONSOLE_LOGS,
-                        width: 2
                     }
                 }
             },
@@ -167,7 +168,6 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                     },
                     itemAttr: {
                         title: ctwl.CONTROLNODE_CONSOLE_LOGS,
-                        width: 2
                     }
                 }
             },
@@ -192,7 +192,6 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                     },
                     itemAttr: {
                         title: ctwl.CONTROLNODE_CONSOLE_LOGS,
-                        width: 2
                     }
                 }
             },
@@ -217,7 +216,6 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                     },
                     itemAttr: {
                         title: ctwl.CONTROLNODE_CONSOLE_LOGS,
-                        width: 2
                     }
                 }
             },
@@ -251,7 +249,8 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                          }
                      },
                      itemAttr: {
-                          title: ctwl.CONTROL_NODE_MEMORY
+                        width: 1/2,
+                        title: ctwl.CONTROL_NODE_MEMORY
                     }
                 }
             },
@@ -281,6 +280,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                             }
                         }
                     },itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONTROL_NODE_CONTROL_CPU_SHARE
                     }
                 }
@@ -311,6 +311,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                             }
                         }
                     },itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONTROL_NODE_NODE_MANAGER_CPU_SHARE
                     }
                 }
@@ -341,6 +342,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                             }
                         }
                     },itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONTROL_DNS_CPU_SHARE
                     }
                 }
@@ -371,6 +373,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                             }
                         }
                     },itemAttr: {
+                        width: 1/2,
                         title: ctwl.CONTROL_NAMED_CPU_SHARE
                     }
                 }
@@ -391,7 +394,6 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                         }
                     },
                     itemAttr: {
-                        width: 2,
                         height: 2,
                     }
                 }

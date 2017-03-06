@@ -124,7 +124,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                     itemAttr: {
                         title: ctwl.VROUTER_ACTIVE_FLOWS_DROP_STATS,
                         height: 1,
-                        width:0.7
+                        width: 2/3
                     }
                 }
              },
@@ -157,7 +157,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      itemAttr: {
                          title: ctwl.VROUTER_CPU_MEM_UTILIZATION,
                          height: 1,
-                         width:0.4
+                         width: 1/3
                      }
                  }
              },
@@ -194,7 +194,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      itemAttr: {
                          title: ctwl.VROUTER_DROP_PACKETS,
                          height: 0.7,
-                         width:0.4
+                         width: 1/3
                      }
                  }
              },
@@ -236,7 +236,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                     itemAttr: {
                       title: ctwl.VROUTER_BANDWIDTH_PERCENTILE,
                       height: 0.7,
-                      width:0.4
+                      width: 1/3
                     }
                  }
              },
@@ -292,7 +292,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      itemAttr: {
                          title: ctwl.VROUTER_SYSTEM_CPU_PERCENTILES,
                          height: 0.7,
-                         width:0.4
+                         width: 1/3
                      }
                  }
              },
@@ -352,7 +352,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      itemAttr: {
                          title: ctwl.VROUTER_SYSTEM_MEMORY_PERCENTILES,
                          height: 0.7,
-                         width:0.4
+                         width: 1/3
                      }
                  }
              },
@@ -549,7 +549,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      itemAttr: {
                          title: ctwl.VROUTER_AGENT_CPU_PERCENTILES,
                          height: 0.7,
-                         width:0.4
+                         width: 1/3
                      }
                  }
              },
@@ -586,7 +586,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      itemAttr: {
                          title: ctwl.VROUTER_AGENT_MEMORY_PERCENTILES,
                          height: 0.7,
-                         width: 0.4
+                         width: 1/3
                      }
                  }
              },
@@ -618,7 +618,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      itemAttr: {
                          title: ctwl.VROUTER_ACTIVE_FLOWS_PERCENTILES,
                          height: 0.7,
-                         width:0.4
+                         width: 1/3
                      }
                  }
              }
