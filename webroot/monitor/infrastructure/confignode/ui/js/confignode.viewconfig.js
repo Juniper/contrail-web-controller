@@ -111,8 +111,9 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                                 y2AxisWidth: 50,
                                 focusEnable: false,
                                 showLegend: true,
+                                showXMinMax: true,
+                                showYMinMax: true,
                                 xAxisLabel: '',
-                                xAxisMaxMin: false,
                                 defaultDataStatusMessage: false,
                                 insertEmptyBuckets: false,
                                 bucketSize: 4,
@@ -207,9 +208,9 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                       }
                   },
                   itemAttr: {
-                      width: 2,
-                      height: 2
-                    }
+                      height: 2,
+                      width: 2
+                  }
                 }
             },
             'confignode-top-useragent': function (){
@@ -497,7 +498,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         }
                     },
                     itemAttr: {
-                            title: ctwl.CONFIG_NODE_SERVICE_MONITOR_CPU_SHARE,
+                        title: ctwl.CONFIG_NODE_SERVICE_MONITOR_CPU_SHARE,
                     }
                 }
             },
