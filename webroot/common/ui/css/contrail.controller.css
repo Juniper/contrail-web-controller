@@ -312,10 +312,10 @@ div.vis-network canvas{
     padding-top:0px;}
 #prefix_limit{width:213px}
 #bgp-grid ul.item-list .key, #config-vn-list ul.item-list .key, #service-instances-grid ul.item-list .key{
-    width:23.08% !important;
+    width:23% !important;
 }
 #bgp-grid ul.item-list .value, #service-instances-grid ul.item-list .value{
-    width:57.26% !important;
+    width:77% !important;
     vertical-align:top;
 }
 #config-vn-list ul.item-list .value{
@@ -517,3 +517,9 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
 #configalarm_edit_alarm_rule #description .textarea-input-group{
     width:100%;}
 #configalarm_edit_alarm_rule .collection-table .data-cell>div.row{margin:0px;}
+
+.vn_key{
+    font-weight:600;
+}
+.vn_seperator{
+    padding-right:8px;}

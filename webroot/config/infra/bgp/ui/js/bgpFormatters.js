@@ -61,13 +61,13 @@ define(['underscore'], function(_){
             var bgpRefs = getValueByJsonPath(dc,"bgp_router_refs", []);
             if(bgpRefs.length > 0){
                 peerString =
-                    "<table style='width:1000px !important;'><thead><tr><th style='width:200px;'>Peer Name</th>\
-                    <th style='width:150px;'>Admin State</th>\
-                    <th style='width:120px;'>Passive</th>\
-                    <th style='width:280px;'>Hold Time (seconds)</th>\
-                    <th style='width:170px;'>Loop Count</th>\
-                    <th style='width:200px;'>Auth Mode</th>\
-                    <th style='width:900px;'>Family Attributes</th></tr></thead>";
+                    "<table width='100%' ><thead><tr><th class='col-xs-1'>Peer Name</th>\
+                    <th class='col-xs-1'>Admin State</th>\
+                    <th class='col-xs-1'>Passive</th>\
+                    <th class='col-xs-1'>Hold Time (seconds)</th>\
+                    <th class='col-xs-1'>Loop Count</th>\
+                    <th class='col-xs-1'>Auth Mode</th>\
+                    <th class='col-xs-1'>Family Attributes</th></tr></thead>";
                 bgpRefs.forEach(function(bgp){
                     var attr = getValueByJsonPath(bgp,
                         "attr;session;0;attributes;0", {});
