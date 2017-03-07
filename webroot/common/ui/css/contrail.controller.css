@@ -278,7 +278,8 @@ div.vis-network canvas{
 #bgp-grid .value th, #config-vn-list .value th, #service-instances-grid .value th, #global-bgp-options-grid th{
     font-weight:600;
     border-bottom:#777 solid 1px;
-    padding-bottom:2px;}
+    padding-bottom:2px;
+    word-break:break-word;}
 #global-bgp-options-grid th, #global-bgp-options-grid td{
     color:#777;
     font-size:12px;
@@ -291,7 +292,8 @@ div.vis-network canvas{
     vertical-align:top;}
 #service-instances-grid .value td a{
     color:#3182bd;
-    text-decoration:underline;}
+    text-decoration:underline;
+    word-break:break-word;}
 #bgp-grid .value .addressFamily {
     padding: 5px 20px 20px 20px;
 }
@@ -312,10 +314,10 @@ div.vis-network canvas{
     padding-top:0px;}
 #prefix_limit{width:213px}
 #bgp-grid ul.item-list .key, #config-vn-list ul.item-list .key, #service-instances-grid ul.item-list .key{
-    width:23.08% !important;
+    width:23% !important;
 }
 #bgp-grid ul.item-list .value, #service-instances-grid ul.item-list .value{
-    width:57.26% !important;
+    width:77% !important;
     vertical-align:top;
 }
 #config-vn-list ul.item-list .value{
@@ -517,3 +519,9 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
 #configalarm_edit_alarm_rule #description .textarea-input-group{
     width:100%;}
 #configalarm_edit_alarm_rule .collection-table .data-cell>div.row{margin:0px;}
+
+.vn_key{
+    font-weight:600;
+}
+.vn_seperator{
+    padding-right:8px;}
