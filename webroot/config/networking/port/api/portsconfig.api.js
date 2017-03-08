@@ -616,6 +616,12 @@ function compareCreateRefObject (dataObject, callback)
         });
     }
 
+    //bridge domains
+    key = "bridge_domain_refs";
+    urlRef = "bridge-domain";
+    DataObjectArr = getDiffDataRefObjPerKeyOnVMI (key, urlRef, tempVmiData, tempPutData,
+            DataObjectArr, currentVMIRef, appData);
+
     //call to processDataObjects
     callback(null, error, DataObjectArr, DataObjectDelArr, vmiData, portPutData,
              request, appData)
@@ -643,6 +649,35 @@ function getDiffDataRefObjPerKey (key, urlRef, tempVmiData, tempPutData, DataObj
             //Delete Ref for specified Key();
             if (result.deletedList.length > 0) {
                 updateDataObjArrWithRefObj (DataObjectArr, result.deletedList, currentVMIRef,
+                        urlRef, "DELETE", appData);
+            }
+        }
+    }
+    return DataObjectArr;
+}
+
+/**
+ * @getDiffDataRefObjPerKeyOnVMI
+ * private function
+ * 1. Utility function to find the diff of the object as per the key.
+ * 2. Find the diff for the key passed through.
+ * 3. Create the ref update object in an array and return back the called function
+ */
+function getDiffDataRefObjPerKeyOnVMI (key, urlRef, tempVmiData, tempPutData, DataObjectArr, currentVMIRef, appData) {
+    if (key in tempVmiData || key in tempPutData) {
+        if (key in tempVmiData) {
+            tempVmiData[key] = deleteAttrHrefinKeyObject(tempVmiData[key]);
+        }
+        var result = jsonDiff.getConfigArrayDelta(key, tempVmiData[key], tempPutData[key]);
+        if (result != null) {
+            //Add Ref for specified Key();
+            if (result.addedList.length > 0) {
+                updateDataObjArrWithRefObjOnVMI (DataObjectArr, result.addedList, currentVMIRef,
+                             urlRef, "ADD", appData);
+            }
+            //Delete Ref for specified Key();
+            if (result.deletedList.length > 0) {
+                updateDataObjArrWithRefObjOnVMI (DataObjectArr, result.deletedList, currentVMIRef,
                         urlRef, "DELETE", appData);
             }
         }
@@ -698,6 +733,34 @@ function updateDataObjArrWithRefObj(dataObjArr, refsData, currentPortRefs,
                                  null, appData);
     }
 }
+
+/**
+ * @updateDataObjArrWithRefObj
+ * private function
+ * 1. Utility function to create refUpdate object array on VMI
+ */
+function updateDataObjArrWithRefObjOnVMI(dataObjArr, refsData, currentPortRef,
+                                 type, op, appData)
+{
+    var parentType = 'project';
+    var refsCnt = refsData.length;
+    for (var i = 0; i < refsCnt; i++) {
+        var putData = {
+            'type': 'virtual-machine-interface',
+            'uuid': currentPortRef['uuid'],
+            'ref-type': type,
+            'ref-fq-name': refsData[i]['to'],
+            'operation': op,
+            'attr': refsData[i]['attr']
+        };
+        var reqUrl = '/ref-update';
+        commonUtils.createReqObj(dataObjArr, reqUrl,
+                                 global.HTTP_REQUEST_POST,
+                                 commonUtils.cloneObj(putData), null,
+                                 null, appData);
+    }
+}
+
 
 /**
  * @createInstIP
@@ -812,7 +875,8 @@ function updateVMI (error, portPutData, appData, callback)
     var portPutURL = '/virtual-machine-interface/';
     var vmiUUID = portPutData['virtual-machine-interface']['uuid'];
     portPutURL += vmiUUID;
-    portPutData = removeBackRef(portPutData)
+    portPutData = removeRefs(portPutData);
+    portPutData = removeBackRef(portPutData);
     jsonDiff.getConfigDiffAndMakeCall(portPutURL, appData, portPutData,
                                           function(locError, data) {
         error = appendErrorMessage(locError, error);
@@ -837,6 +901,21 @@ function removeBackRef (portPutData)
     }
     if ("floating_ip_back_refs" in portPutData["virtual-machine-interface"]) {
         delete portPutData["virtual-machine-interface"]["floating_ip_back_refs"];
+    }
+    return portPutData;
+}
+
+/**
+ * @removeRef
+ * private function
+ * 1. Callback for Ports update operations
+ * 2. If any reference is available in the object from UI
+ *    remove it from the object
+ */
+function removeRefs (portPutData)
+{
+    if ("bridge_domain_refs" in portPutData["virtual-machine-interface"]) {
+        delete portPutData["virtual-machine-interface"]["bridge_domain_refs"];
     }
     return portPutData;
 }

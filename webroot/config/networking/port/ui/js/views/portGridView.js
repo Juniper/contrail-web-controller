@@ -81,7 +81,6 @@ define([
             var gridDataItem =
                 $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
             var dataItem = {};
-            dataItem.virtual_network_refs = gridDataItem.virtual_network_refs;
             var vmiData = {};
             vmiData.uuid = gridDataItem.uuid;
             vmiData.to = gridDataItem.fq_name;
