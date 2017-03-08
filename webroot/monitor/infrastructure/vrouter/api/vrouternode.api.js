@@ -203,11 +203,13 @@ function getvRoutersSummaryByJob (req, res, appData)
         forceRefresh = true;
     }
     var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
-    cacheApi.queueDataFromCacheOrSendRequest(req, res,
-                                             global.STR_JOB_TYPE_CACHE, key,
-                                             url, 0, 0, 0,
-                                             global.VROUTER_SUMM_JOB_REFRESH_TIME,
-                                             forceRefresh, objData);
+    var reqObj = {req: req, res: res, jobName: key, reqUrl: url,
+        sendToJobServerAlways: forceRefresh, appData: objData};
+    if (true == config.serviceEndPointFromConfig) {
+        reqObj.nextRunDelay = global.VROUTER_SUMM_JOB_REFRESH_TIME;
+        reqObj.jobRunCount = 0; /* Infinite time */
+    }
+    cacheApi.queueDataFromCacheOrSendRequestByReqObj(reqObj);
 }
 
 function getvRouterGenerators (req, res, appData)
@@ -216,11 +218,13 @@ function getvRouterGenerators (req, res, appData)
     var key = global.STR_GET_VROUTERS_GENERATORS;
     var forceRefresh = req.param['forceRefresh'];
     var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
-    cacheApi.queueDataFromCacheOrSendRequest(req, res,
-                                             global.STR_JOB_TYPE_CACHE, key,
-                                             url, 0, 0, 0,
-                                             global.VROUTER_SUMM_JOB_REFRESH_TIME,
-                                             forceRefresh, objData);
+    var reqObj = {req: req, res: res, jobName: key, reqUrl: url,
+        sendToJobServerAlways: forceRefresh, appData: objData};
+    if (true == config.serviceEndPointFromConfig) {
+        reqObj.nextRunDelay = global.VROUTER_SUMM_JOB_REFRESH_TIME;
+        reqObj.jobRunCount = 0; /* Infinite time */
+    }
+    cacheApi.queueDataFromCacheOrSendRequestByReqObj(reqObj);
 }
 
 /* Function: getComputeNodesSummary
