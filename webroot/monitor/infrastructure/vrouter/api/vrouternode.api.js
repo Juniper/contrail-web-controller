@@ -20,6 +20,10 @@ var rest = require(process.mainModule.exports["corePath"] +
     opApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
+    authApi = require(process.mainModule.exports["corePath"] +
+                      "/src/serverroot/common/auth.api"),
+    jobsUtils = require(process.mainModule.exports["corePath"] +
+                        "/src/serverroot/common/jobs.utils"),
     configApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/configServer.api');
 
@@ -203,6 +207,8 @@ function getvRoutersSummaryByJob (req, res, appData)
         forceRefresh = true;
     }
     var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
+    var regionName = authApi.getRegionToCacheKey(req, appData);
+    key = jobsUtils.addPrefixToCacheKey(key, regionName);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE, key,
                                              url, 0, 0, 0,
@@ -216,6 +222,8 @@ function getvRouterGenerators (req, res, appData)
     var key = global.STR_GET_VROUTERS_GENERATORS;
     var forceRefresh = req.param['forceRefresh'];
     var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
+    var regionName = authApi.getRegionToCacheKey(req, appData);
+    key = jobsUtils.addPrefixToCacheKey(key, regionName);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE, key,
                                              url, 0, 0, 0,
