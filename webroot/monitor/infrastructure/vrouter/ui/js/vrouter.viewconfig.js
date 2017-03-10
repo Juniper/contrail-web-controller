@@ -161,6 +161,39 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                      }
                  }
              },
+             "vrouter-summary-cpu-mem-scatter-chart" : function(){
+                 if(self.vRouterListModel == null)
+                    self.populateVRouterListModels();
+                 return {
+                     modelCfg: {listModel:vRouterUIListModel},
+                     viewCfg: {
+                         elementId : 'vrouter-cpu-mem-chart',
+                         view:"ZoomScatterChartView",
+                         viewConfig: {
+                             chartOptions: {
+                                 xLabel: 'CPU Share (%)',
+                                 yLabel: 'Memory (MB)',
+                                 xFormatter: function(x) {
+                                     return cowu.numberFormatter(x,0);
+                                 },
+                                 bubbleCfg : {
+                                     defaultMaxValue : monitorInfraConstants.VROUTER_DEFAULT_MAX_THROUGHPUT
+                                 },
+                                 showColorFilter:true,
+                                 bucketTooltipFn: monitorInfraUtils.vRouterBucketTooltipFn,
+                                 clickCB: monitorInfraUtils.onvRouterDrillDown,
+                                 tooltipConfigCB: monitorInfraUtils.vRouterTooltipFn
+                             },
+                             cfDataSource : self.cfDataSource,
+                         }
+                     },
+                     itemAttr: {
+                         title: ctwl.VROUTER_CPU_MEM_UTILIZATION,
+                         height: 1.5,
+                         width: 1
+                     }
+                 }
+             },
              "vrouter-drop-packets-chart": function() {
                  return {
 
@@ -285,7 +318,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
 //                                 yField: 'percentileValue',
                                  yAxisLabel: ctwl.VROUTER_SYSTEM_CPU_PERCENTILES,
 //                                 groupBy:'Source',
-                                 yFields: getYFieldsForPercentile('system_cpu_usage.cpu_share')
+                                 yFields: getYFieldsForPercentile('system_cpu_usage.cpu_share'),
+                                 yFormatter: d3.format('.2f')
                              }
                          }
                      },
@@ -540,9 +574,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                                  xAxisLabel: '',
                                  yAxisLabel: ctwl.VROUTER_AGENT_CPU_PERCENTILES,
                                  yFields: getYFieldsForPercentile('process_mem_cpu_usage.cpu_share'),
-                                 yFormatter: function(y) {
-                                     return y;
-                                 }
+                                 yFormatter: d3.format('.2f')
                              }
                          }
                      },

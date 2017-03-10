@@ -106,9 +106,8 @@ define([
             var self = this;
             //Need to initialize crossfilter with model
             //If model is already populated
-            // if(self.model.loadedFromCache) {
-            //     self.renderCrossFilters();
-            // }
+            //Trigger callbacks to render the crossfilters when returning second time
+            self.cfDataSource.fireCallBacks({source:'fetch'});
         }
     });
     return VRouterCrossFiltersView;
