@@ -160,6 +160,10 @@ define([
             function(backBoneModel, value) {
                 vnModel.externalRouterHandler(value);
         });
+        vnModel.__kb.view_model.model().on('change:address_allocation_mode',
+            function(backBoneModel, value) {
+                vnModel.updateModelAttrsForCurrentAllocMode(value);
+        });
     };
 
 
@@ -228,6 +232,31 @@ define([
     ];
 
 
+    function getSubnetExpandDetailsTmpl() {
+        return {
+            title: "Subnets",
+            templateGenerator: 'BlockListTemplateGenerator',
+            templateGeneratorConfig: [
+                {
+                    label: 'Allocation Mode',
+                    key: 'uuid',
+                    templateGenerator: 'TextGenerator',
+                    templateGeneratorConfig: {
+                        formatter: 'allocationModeExpFormatter'
+                    }
+                },
+                {
+                    label: 'Subnet(s)',
+                    key: 'uuid',
+                    templateGenerator: 'TextGenerator',
+                    templateGeneratorConfig: {
+                        formatter: 'subnetTmplFormatter'
+                    }
+                }
+            ]
+        }
+    };
+
     function getVNCfgDetailsTemplateConfig() {
         return {
             templateGenerator: 'RowSectionTemplateGenerator',
@@ -241,18 +270,11 @@ define([
                                 {
                                     class: 'col-xs-12',
                                     rows: [
-                                        {
+                                          getSubnetExpandDetailsTmpl(),
+                                          {
                                             title: ctwl.CFG_VN_TITLE_DETAILS,
                                             templateGenerator: 'BlockListTemplateGenerator',
                                             templateGeneratorConfig: [
-                                                {
-                                                    label: 'Subnet(s)',
-                                                    key: 'uuid',
-                                                    templateGenerator: 'TextGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter: 'subnetTmplFormatter'
-                                                    }
-                                                },
                                                 {
                                                     label: 'Name',
                                                     key: 'name',
@@ -565,6 +587,10 @@ define([
 
     this.showName = function (r, c, v, cd, dc) {
         return ctwu.getDisplayNameOrName(dc);
+    }
+    this.allocationModeExpFormatter = function (v, dc) {
+        return formatVNCfg.allocationModeExpFormatter(null,
+                                        null, null, null, dc);
     }
     this.subnetTmplFormatter = function (v, dc) {
         return formatVNCfg.subnetTmplFormatter(null,

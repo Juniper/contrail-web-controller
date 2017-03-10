@@ -4,8 +4,10 @@
  */
 
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    'config/networking/networks/ui/js/views/vnCfgFormatters'
+], function (_, VNCfgFormatters) {
+    var formatVNCfg = new VNCfgFormatters();
     var ipamCfgFormatters = function() {
         var self = this;
 
@@ -13,13 +15,33 @@ define([
          * @IPBlockFormatter
          */
         this.IPBlockFormatter = function(d, c, v, cd, dc) {
-            var vnObjs =
-                contrail.handleIfNull(dc.virtual_network_back_refs, []);
+            var vnObjs, length, count = 0, subnetCnt = 0, returnStr = '',
+                subnetMethod = getValueByJsonPath(dc,
+                    'ipam_subnet_method', ctwc.USER_DEFINED_SUBNET, false);
 
-            var length = vnObjs.length, count = 0, subnetCnt = 0, returnStr = '';
+            if(subnetMethod !== ctwc.USER_DEFINED_SUBNET) {
+                var flatSubnets = getValueByJsonPath(dc,
+                        'ipam_subnets;subnets', [], false);
+                if(cd === -1){
+                    return this.subnetFormatter(d, c, v, cd, dc);
+                }
+                subnetCnt = flatSubnets.length;
+                _.each(flatSubnets, function(flatSubnet, idx) {
+                    count++;
+                    if (count > 2 && cd != -1) {
+                        return true;
+                    }
+                    if(flatSubnet.subnet) {
+                        var cidr = flatSubnet.subnet.ip_prefix + '/' +
+                                   flatSubnet.subnet.ip_prefix_len;
+                        returnStr += cidr + '<br>';
+                    }
+                });
 
-            if (!length) {
-               return returnStr;
+            } else {
+                vnObjs = getValueByJsonPath(dc,
+                        'virtual_network_back_refs', [], false);
+                length = vnObjs.length;
             }
 
             for(var i = 0; i < length; i++) {
@@ -39,7 +61,7 @@ define([
                         break;
                     }
                     var subnet = getValueByJsonPath(vn,
-                            'attr;' + field + ';' + j, null, false),
+                            'attr;' + field + ';' + j + ';subnet', null, false),
                         cidr;
                     if(subnet && subnet.ip_prefix) {
                         cidr = subnet.ip_prefix + '/' +
@@ -58,7 +80,7 @@ define([
                               ' more)</span><span class="moredata"' +
                               ' style="display:none;"></span>';
              }
-             return returnStr;
+             return returnStr ? returnStr : '-';
         };
 
         /*
@@ -166,7 +188,7 @@ define([
                 return "Error";
             }
 
-             return ntpServer;
+             return ntpServer ? ntpServer : "-";
         };
 
         /*
@@ -205,6 +227,157 @@ define([
             return vDnsList;
         };
 
+        /*
+         * @ipamSubnetMethodFormatter
+         */
+        this.ipamSubnetMethodFormatter =  function(d, c, v, cd, dc) {
+            var subnetType = getValueByJsonPath(dc,
+                    "ipam_subnet_method", ctwc.USER_DEFINED_SUBNET, false),
+                returnString = "";
+            if(subnetType === ctwc.USER_DEFINED_SUBNET){
+                returnString = "User Defined";
+            } else {
+                returnString = "Flat";
+            }
+
+            return returnString ? returnString : '-';
+        };
+
+        /*
+         * @subnetFormatter
+         */
+        this.subnetFormatter = function(d, c, v, cd, dc) {
+            var subnetType = getValueByJsonPath(dc,
+                    "ipam_subnet_method", ctwc.USER_DEFINED_SUBNET, false),
+                returnString, subnetString = "", subnets;
+            if(subnetType === ctwc.USER_DEFINED_SUBNET){
+                returnString = "-";
+            } else {
+                returnString = '';
+                subnets =  getValueByJsonPath(dc,
+                        'ipam_subnets;subnets', [], false);
+                _.each(subnets, function(subnetObj){
+                    var cidr = getValueByJsonPath(subnetObj,
+                            "subnet;ip_prefix", null, false);
+                    var cidrlen = getValueByJsonPath(subnetObj,
+                            "subnet;ip_prefix_len", null, false);
+                    cidr = cidr ? cidr + '/' + cidrlen : "-";
+                    var gw   = subnetObj.default_gateway ?
+                            subnetObj.default_gateway: "-";
+                    var dhcp = subnetObj.enable_dhcp ? 'Enabled' : 'Disabled';
+                    var gwStatus =  (gw == null || gw == "" || gw == "0.0.0.0") ?
+                                        'Disabled' : gw;
+
+                    var allocPools = getValueByJsonPath(subnetObj,
+                            "allocation_pools", []);
+                    var allocPoolStr = "-";
+                    _.each(allocPools, function(pool, index) {
+                        pool = pool.start + ' - ' + pool.end;
+                        if(index === 0) {
+                            allocPoolStr = pool;
+                        } else {
+                            allocPoolStr += "<br/>" + pool;
+                        }
+                    });
+                    subnetString += "<tr style='vertical-align:top'><td>";
+                    subnetString += cidr + "</td><td>";
+                    subnetString += gw + "</td><td>";
+                    subnetString += dhcp + "</td><td>";
+                    subnetString += allocPoolStr+ "</td>";
+                    subnetString += "</tr>";
+                });
+            }
+            if(subnetString != ""){
+                var subnetHeader =
+                    "<table style='width:100%'><thead><tr>\
+                    <th style='width:25%'>CIDR</th>\
+                    <th style='width:25%'>Gateway</th>\
+                    <th style='width:15%'>DHCP</th>\
+                    <th style='width:30%'>Allocation Pools</th>\
+                    </tr></thead><tbody>";
+                returnString += subnetHeader + subnetString;
+                returnString += "</tbody></table>";
+            } else {
+                returnString += "";
+            }
+            return returnString;
+        };
+
+        /*
+         * @subnetHostRouteFormatter
+         */
+        this.subnetHostRouteFormatter = function(d, c, v, cd, dc) {
+            var subnetList = getValueByJsonPath(dc,
+                    "ipam_subnets;subnets", []),
+                len = subnetList.length, returnArr = [], returnStr = '';
+
+            if (!len) {
+               return cd == -1 ? []: '-';
+            }
+
+            _.each(subnetList, function(subnetObj) {
+                var hostRoutes = getValueByJsonPath(subnetObj,
+                        'host_routes;route', []);
+                if (hostRoutes.length) {
+                    returnArr.push(hostRoutes);
+                 }
+            });
+
+            returnArr = _.flatten(returnArr);
+            returnArr = _.uniq(returnArr, function(hostRoute){
+                    return JSON.stringify(hostRoute)
+            });
+
+            if (cd == -1) {
+                return returnArr;
+            }
+
+            $.each(returnArr, function (i, obj) {
+                returnStr += obj.prefix + ' ' + obj.next_hop + '<br/>';
+            });
+
+            return returnStr;
+        };
+
+        /*
+         * @subnetDNSFormatter
+         */
+        this.subnetDNSFormatter = function(d, c, v, cd, dc) {
+            var subnetList = getValueByJsonPath(dc,
+                    "ipam_subnets;subnets", []);
+
+            var len = subnetList.length, count = 0, returnArr = [];
+
+            if (!len) {
+                if (cd != -1 ) {
+                   return '-';
+                } else {
+                    return [];
+                }
+            }
+
+            _.each(subnetList, function(subnetObj){
+                var dhcpOpts = getValueByJsonPath(subnetObj,
+                        'dhcp_option_list;dhcp_option', []);
+                if (dhcpOpts.length) {
+                    returnArr.push(formatVNCfg.
+                            getdhcpValuesByOption(dhcpOpts, 6).split(' '));
+                }
+            });
+
+            returnArr = _.flatten(returnArr);
+                        returnArr = _.uniq(returnArr, function(dnsObj){
+                                                return JSON.stringify(dnsObj)
+                                        });
+            if (returnArr.length) {
+                returnArr = _.without(returnArr, '0.0.0.0');
+                returnArr = _.without(returnArr, '');
+            }
+
+            return returnArr.length ?
+                (cd == -1 ? [returnArr.join(' ')] : returnArr.join('<br/>')):
+                (cd == -1 ? [] : '-');
+        };
     }
     return ipamCfgFormatters;
 });

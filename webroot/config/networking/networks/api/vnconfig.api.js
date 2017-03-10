@@ -1025,7 +1025,6 @@ function updateBridgeDomains(vnId, vnPutData, appData, callback)
                          return;
                      }
                      deleteBridgeDomainAsync(deleteBDObjList, function(deleteBDError, deleteBDData){
-                         console.log("deleteBDError:", deleteBDError);
                          if(deleteBDError) {
                              callback(deleteBDError, null);
                              return;
