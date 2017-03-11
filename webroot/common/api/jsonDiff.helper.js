@@ -70,8 +70,8 @@ var configJsonModifyObj = {
     'virtual-machine-interface': {
         'isConfig': true,
         'preProcessCB': {
-            'applyOnOldJSON': modifyConfigDataByHrefUUID,
-            'applyOnNewJSON': modifyConfigDataByHrefUUID
+            'applyOnOldJSON': modifyConfigDataByAttrHrefUUID,
+            'applyOnNewJSON': modifyConfigDataByAttrHrefUUID
         },
         'optFields': ['ecmp_hashing_include_fields', 'virtual_machine_interface_bindings',
             'virtual_machine_interface_allowed_address_pairs',
@@ -85,7 +85,6 @@ var configJsonModifyObj = {
             'virtual_network_refs', 'virtual_machine_interface_device_owner',
             'virtual_machine_interface_disable_policy',
             'qos_config_refs',
-            'bridge_domain_refs',
             'port_security_enabled',
             'perms2'
         ],
