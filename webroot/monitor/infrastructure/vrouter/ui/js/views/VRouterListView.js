@@ -50,6 +50,24 @@ define(
                                                   defaultHeight: 10
                                               },
                                               widgetCfgList: [
+                                                  {id:'vrouter-summary-cpu-mem-scatter-chart'},
+                                                  {id:'vrouter-crossfilters-chart'},
+                                                  {id:'vrouter-summary-grid'}
+                                              ]
+                                          }
+                                      },
+                                  },
+                                  {
+                                      page: {
+                                          view: 'GridStackView',
+                                          elementId: 'grid-stack-view-page-2',
+                                          viewConfig: {
+                                              elementId: 'grid-stack-view-page-2',
+                                              gridAttr: {
+                                                  defaultWidth: 12,
+                                                  defaultHeight: 10
+                                              },
+                                              widgetCfgList: [
                                                   {id:'vrouter-flow-rate-area-chart'},
                                                   {id:'vrouter-cpu-mem-scatter-chart'},
                                                   {id:'vrouter-drop-packets-chart'},
@@ -78,9 +96,9 @@ define(
 
                                       page : {
                                           view: 'GridStackView',
-                                          elementId: 'grid-stack-view-page-2',
+                                          elementId: 'grid-stack-view-page-3',
                                           viewConfig: {
-                                              elementId: 'grid-stack-view-page-2',
+                                              elementId: 'grid-stack-view-page-3',
                                               gridAttr: {
                                                   defaultWidth: 12,
                                                   defaultHeight: 10
