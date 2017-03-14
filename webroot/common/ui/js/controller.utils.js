@@ -185,6 +185,88 @@ define([
             });
             return formattedValue;
         };
+        this.getLocationGrid = function(e, obj, tenantName, id){
+            var rowCount = $('#'+id).data("contrailGrid").selectedRow,
+            locationName,headerName;
+            var row = e.currentTarget.firstChild.nextElementSibling.getAttribute('data-cgrid').split('_')[1];
+            var rowIndex = parseInt(row);
+            var index = rowCount + rowIndex;
+            var rowIndex = 'div[data-cgrid*="id_'+index+'"]';
+            var content = $($(e.currentTarget).children(rowIndex)[1]).find('.detail-section-content')[0];
+            if(tenantName === 'network_policies'){
+                $(content.firstChild).find('.detail-block-list-content')[0].setAttribute('style','width:54%;padding-left:12px;');
+            }else{
+                $(content.firstChild).find('.detail-block-list-content')[0].setAttribute('style','width:50%');
+            }
+            if($(content).find('.region-location-based-grid').length !== 0){
+                content.lastChild.remove();
+            }
+            if(tenantName === 'service_templates'){
+                locationName = 'local_service_templates';
+                headerName = 'Local Service Template';
+            }else if(tenantName === 'network_policies'){
+                locationName = 'local_network_policies';
+                headerName = 'Local Network Policy';
+            }else if (tenantName === 'service_instances'){
+                locationName = 'local_service_instance';
+                headerName = 'Local Service Instance';
+            }else if(tenantName === 'networks'){
+            	locationName = 'local_networks';
+                headerName = 'Local Network';
+            }else if(tenantName === 'security_groups'){
+            	locationName = 'local_security_groups';
+                headerName = 'Local Security Group';
+            }
+            var ajaxConfig = {
+                    url: './gohan_contrail/v1.0/tenant/'+tenantName+'/'+obj.id+'/'+locationName+'?sort_key=id&sort_order=asc&limit=25&offset=0',
+                    type:'GET',
+                    async: false
+                };
+            contrail.ajaxHandler(ajaxConfig, null, function(model){
+                var arr = model[Object.keys(model)[0]];
+                var region = $('<div></div>').addClass('region-location-based-grid');
+                var header = $('<h6></h6>').text(headerName);
+                region.append(header);
+                var table = $('<table></table>').addClass('region-details-table');
+                var thead = $('<thead></thead>');
+                var tbody = $('<tbody></tbody>');
+                var tr = $('<tr></tr>');
+                if(tenantName === 'networks'){
+                	var headerContent = ['Location ID', 'Status', 'Name', 'Description','Subnet','Task Status'];
+                }else{
+                	var headerContent = ['Location ID', 'Status', 'Name', 'Description', 'Task Status'];
+                }
+                for(var k = 0; k < headerContent.length; k++){
+                    var node = $('<th></th>').addClass('col-xs-2 region-th-border').text(headerContent[k]);
+                    tr.append(node);
+                }
+                thead.append(tr);
+                table.append(thead);
+                for(var i = 0; i < arr.length; i++){
+                  var tbodyTr = $('<tr></tr>');
+                  var locationNode = $('<td></td>').addClass('col-xs-2 region-td-border').text(arr[i].location.name);
+                  tbodyTr.append(locationNode);
+                  var statusNode = $('<td></td>').addClass('col-xs-2 region-td-border').text(arr[i].status);
+                  tbodyTr.append(statusNode);
+                  var nameNode = $('<td></td>').addClass('col-xs-2 region-td-border').text(arr[i].name);
+                  tbodyTr.append(nameNode);
+                  var descriptionNode = $('<td></td>').addClass('col-xs-2 region-td-border').text(arr[i].description);
+                  tbodyTr.append(descriptionNode);
+                  if(tenantName === 'networks'){
+                	  var cidrNode = $('<td></td>').addClass('col-xs-2 region-td-border').text(arr[i].cidr);
+                      tbodyTr.append(cidrNode);  
+                  }
+                  var taskStatusNode = $('<td></td>').addClass('col-xs-2 region-td-border').text(arr[i].task_status);
+                  tbodyTr.append(taskStatusNode);
+                  tbody.append(tbodyTr);
+                }
+                table.append(tbody);
+                region.append(table);
+                $(content).append(region);
+            },function(error){
+                contrail.showErrorMsg(error.responseText);
+            });
+        };
 
         this.isServiceVN = function (vnFQN) {
             var fqnArray = vnFQN.split(":");
