@@ -350,7 +350,71 @@ define([
            }
            return retArr;
         };
-
+        this.gohanServiceTempDataParser = function(response) {
+            var retArr = [];
+            if(response != null &&
+               'service_templates' in response &&
+                response['service_templates'] != null &&
+                response['service_templates'].length > 0) {
+                var length = response['service_templates'].length
+                for (var i = 0; i < length; i++) {
+                   retArr.push(response['service_templates'][i]);
+                }
+            }
+            return retArr;
+         };
+         this.gohanServiceInstanceDataParser = function(response){
+             var retArr = [];
+             if(response != null &&
+                'service_instances' in response &&
+                 response['service_instances'] != null &&
+                 response['service_instances'].length > 0) {
+                 var length = response['service_instances'].length
+                 for (var i = 0; i < length; i++) {
+                    retArr.push(response['service_instances'][i]);
+                 }
+             }
+             return retArr;
+         };
+         this.gohanSecurityGroupDataParser = function(response){
+             var retArr = [];
+             if(response != null &&
+                'security_groups' in response &&
+                 response['security_groups'] != null &&
+                 response['security_groups'].length > 0) {
+                 var length = response['security_groups'].length
+                 for (var i = 0; i < length; i++) {
+                    retArr.push(response['security_groups'][i]);
+                 }
+             }
+             return retArr;
+         };
+         this.gohanNetworkPolicyDataParser = function(response){
+             var retArr = [];
+             if(response != null &&
+                'network_policies' in response &&
+                 response['network_policies'] != null &&
+                 response['network_policies'].length > 0) {
+                 var length = response['network_policies'].length
+                 for (var i = 0; i < length; i++) {
+                    retArr.push(response['network_policies'][i]);
+                 }
+             }
+             return retArr;
+         };
+         this.gohanNetworksParser = function(response){
+        	 var retArr = [];
+             if(response != null &&
+                'networks' in response &&
+                 response['networks'] != null &&
+                 response['networks'].length > 0) {
+                 var length = response['networks'].length
+                 for (var i = 0; i < length; i++) {
+                    retArr.push(response['networks'][i]);
+                 }
+             }
+             return retArr;
+         };
         this.vmTrafficStatsParser = function (response) {
             return [response];
         };
