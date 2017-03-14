@@ -790,9 +790,11 @@ define([
             var addr = getValueByJsonPath(vmDetails[i], 'server;addresses', {});
             var addrStr = "";
             for (key in addr) {
+                addrStr +='<span class="vn_key">';
                 addrStr += key.toString();
+                addrStr +='</span>';
                 if (addr[key].length > 0) {
-                    addrStr += ':';
+                    addrStr += '<span class="vn_seperator">:</span>';
                     addrStr += (null != addr[key][0]['addr']) ?
                         addr[key][0]['addr'] : '-';
                     addrStr += ' <br>';
@@ -857,7 +859,7 @@ define([
                 '\');"> View Console </a></td>';
             returnHtml += '</tr>';
         }
-        returnHtml = "<table style='width:1000px !important;'>" + returnHtml + "</table>";
+        returnHtml = "<table width='100%'>" + returnHtml + "</table>";
         return returnHtml;
     }
 
