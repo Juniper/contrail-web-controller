@@ -185,7 +185,224 @@ define([
             });
             return formattedValue;
         };
-
+        this.getLocationGrid = function(e, obj, tenantName, id){
+            var rowCount = $('#'+id).data("contrailGrid").selectedRow,
+            locationName,headerName;
+            var row = e.currentTarget.firstChild.nextElementSibling.getAttribute('data-cgrid').split('_')[1];
+            var rowIndex = parseInt(row);
+            var index = rowCount + rowIndex;
+            var rowIndex = 'div[data-cgrid*="id_'+index+'"]';
+            var content = $($(e.currentTarget).children(rowIndex)[1]).find('.detail-section-content')[0];
+            if(tenantName === 'network_policies'){
+                $(content.firstChild).find('.detail-block-list-content')[0].setAttribute('style','width:54%;padding-left:12px;');
+            }else{
+                $(content.firstChild).find('.detail-block-list-content')[0].setAttribute('style','width:50%');
+            }
+            if($(content).find('.region-location-based-grid').length !== 0){
+                content.lastChild.remove();
+            }
+            if(tenantName === 'service_templates'){
+                locationName = 'local_service_templates';
+                headerName = 'Local Service Template';
+            }else if(tenantName === 'network_policies'){
+                locationName = 'local_network_policies';
+                headerName = 'Local Network Policy';
+            }else if (tenantName === 'service_instances'){
+                locationName = 'local_service_instance';
+                headerName = 'Local Service Instance';
+            }
+            var ajaxConfig = {
+                    url: './gohan_contrail/v1.0/tenant/'+tenantName+'/'+obj.id+'/'+locationName+'?sort_key=id&sort_order=asc&limit=25&offset=0&tenant_id='+obj.tenant_id,
+                    type:'GET',
+                    async: false
+                };
+            contrail.ajaxHandler(ajaxConfig, null, function(model){
+                var arr = model[Object.keys(model)[0]];
+                var region =  document.createElement('div');
+                region.classList = 'region-location-based-grid';
+                var header = document.createElement('h6');
+                header.innerText = headerName;
+                region.appendChild(header);
+                var table = document.createElement('table');
+                table.classList = 'region-details-table'
+                var thead = document.createElement('thead');
+                var tbody = document.createElement('tbody');
+                var tr = document.createElement('tr');
+                var headerContent = ['Location ID', 'Status', 'Name', 'Description', 'Task Status'];
+                for(var k = 0; k < headerContent.length; k++){
+                    var node = document.createElement('th');
+                    node.classList = 'col-xs-2 region-th-border';
+                    node.innerText = headerContent[k];
+                    tr.appendChild(node);
+                }
+                thead.appendChild(tr);
+                table.appendChild(thead);
+                for(var i = 0; i < arr.length; i++){
+                  var tbodyTr = document.createElement('tr');
+                  var locationNode = document.createElement('td');
+                  locationNode.classList = 'col-xs-2 region-td-border';
+                  locationNode.innerText = arr[i].location.name;
+                  tbodyTr.appendChild(locationNode);
+                  var statusNode = document.createElement('td');
+                  statusNode.classList = 'col-xs-2 region-td-border';
+                  statusNode.innerText = arr[i].status;
+                  tbodyTr.appendChild(statusNode);
+                  var nameNode = document.createElement('td');
+                  nameNode.classList = 'col-xs-2 region-td-border';
+                  nameNode.innerText = arr[i].name;
+                  tbodyTr.appendChild(nameNode);
+                  var descriptionNode = document.createElement('td');
+                  descriptionNode.classList = 'col-xs-2 region-td-border';
+                  descriptionNode.innerText = arr[i].description;
+                  tbodyTr.appendChild(descriptionNode);
+                  var taskStatusNode = document.createElement('td');
+                  taskStatusNode.classList = 'col-xs-2 region-td-border';
+                  taskStatusNode.innerText = arr[i].task_status;
+                  tbodyTr.appendChild(taskStatusNode);
+                  tbody.appendChild(tbodyTr);
+                }
+                table.appendChild(tbody);
+                region.appendChild(table);
+                content.appendChild(region);
+            },function(error){
+                contrail.showErrorMsg(error.responseText);
+            });
+        };
+        this.getSecurityRulesGrid = function(e, obj, tenantName, id){
+            var rowCount = $('#'+id).data("contrailGrid").selectedRow,
+            locationName,headerName;
+            var self = this;
+            var row = e.currentTarget.firstChild.nextElementSibling.getAttribute('data-cgrid').split('_')[1];
+            var rowIndex = parseInt(row);
+            var index = rowCount + rowIndex;
+            var rowIndex = 'div[data-cgrid*="id_'+index+'"]';
+            var content = $($(e.currentTarget).children(rowIndex)[1]).find('.detail-section-content')[0];
+            $(content.firstChild).find('.detail-block-list-content')[0].setAttribute('style','width:50%');
+            if($(content).find('.region-location-based-grid').length !== 0){
+                content.lastChild.remove();
+            }
+            var ajaxConfig = {
+                    url: './gohan_contrail/v1.0/tenant/'+tenantName+'/'+obj.id+'/security_group_rules?sort_key=id&sort_order=asc&limit=25&offset=0&tenant_id='+obj.tenant_id,
+                    type:'GET',
+                    async: false
+                };
+            contrail.ajaxHandler(ajaxConfig, null, function(model){
+                var arr = model[Object.keys(model)[0]];
+                var region =  document.createElement('div');
+                region.classList = 'region-location-based-grid';
+                var header = document.createElement('h6');
+                header.innerText = 'Security Group Rules';
+                region.appendChild(header);
+                var table = document.createElement('table');
+                table.classList = 'region-details-table'
+                var thead = document.createElement('thead');
+                var tbody = document.createElement('tbody');
+                var tr = document.createElement('tr');
+                var headerContent = ['Direction', 'EtherType', 'Protocol', 'Port Range Min', 'Port Range Max', 'Remote Group ID','Remote IP Prefix'];
+                for(var k = 0; k < headerContent.length; k++){
+                    var node = document.createElement('th');
+                    node.classList = 'col-xs-1 region-th-border';
+                    node.innerText = headerContent[k];
+                    tr.appendChild(node);
+                }
+                thead.appendChild(tr);
+                table.appendChild(thead);
+                for(var i = 0; i < arr.length; i++){
+                  var tbodyTr = document.createElement('tr');
+                  var directionNode = document.createElement('td');
+                  directionNode.classList = 'col-xs-1 region-td-border';
+                  directionNode.innerText = arr[i].direction;
+                  tbodyTr.appendChild(directionNode);
+                  var etherType = document.createElement('td');
+                  etherType.classList = 'col-xs-1 region-td-border';
+                  etherType.innerText = arr[i].ethertype;
+                  tbodyTr.appendChild(etherType);
+                  var protocol = document.createElement('td');
+                  protocol.classList = 'col-xs-1 region-td-border';
+                  protocol.innerText = arr[i].protocol;
+                  tbodyTr.appendChild(protocol);
+                  var portRangeMin = document.createElement('td');
+                  portRangeMin.classList = 'col-xs-1 region-td-border';
+                  portRangeMin.innerText = arr[i].port_range_min;
+                  tbodyTr.appendChild(portRangeMin);
+                  var portRangeMax = document.createElement('td');
+                  portRangeMax.classList = 'col-xs-1 region-td-border';
+                  portRangeMax.innerText = arr[i].port_range_max;
+                  tbodyTr.appendChild(portRangeMax);
+                  var remoteGroupID = document.createElement('td');
+                  remoteGroupID.classList = 'col-xs-1 region-td-border';
+                  remoteGroupID.innerText = arr[i].remote_group_id;
+                  tbodyTr.appendChild(remoteGroupID);
+                  var remoteIpPrefix = document.createElement('td');
+                  remoteIpPrefix.classList = 'col-xs-1 region-td-border';
+                  remoteIpPrefix.innerText = arr[i].remote_ip_prefix;
+                  tbodyTr.appendChild(remoteIpPrefix);
+                  tbody.appendChild(tbodyTr);
+                }
+                table.appendChild(tbody);
+                region.appendChild(table);
+                self.getLocalSecurityGroup(region, content, obj);
+            },function(error){
+                contrail.showErrorMsg(error.responseText);
+            });
+        };
+        this.getLocalSecurityGroup = function(region, content, obj){
+            var ajaxConfig = {
+                    url: './gohan_contrail/v1.0/tenant/security_groups/'+obj.id+'/local_security_groups?sort_key=id&sort_order=asc&limit=25&offset=0&tenant_id='+obj.tenant_id,
+                    type:'GET',
+                    async: false
+                };
+            contrail.ajaxHandler(ajaxConfig, null, function(model){
+                var arr = model[Object.keys(model)[0]];
+                var header = document.createElement('h6');
+                header.classList = 'pull-down-25';
+                header.innerText = 'Local Security Group';
+                region.appendChild(header);
+                var table = document.createElement('table');
+                table.classList = 'region-details-table'
+                var thead = document.createElement('thead');
+                var tbody = document.createElement('tbody');
+                var tr = document.createElement('tr');
+                var headerContent = ['Location ID', 'Status', 'Name', 'Description', 'Task Status'];
+                for(var k = 0; k < headerContent.length; k++){
+                    var node = document.createElement('th');
+                    node.classList = 'col-xs-2 region-th-border';
+                    node.innerText = headerContent[k];
+                    tr.appendChild(node);
+                }
+                thead.appendChild(tr);
+                table.appendChild(thead);
+                for(var i = 0; i < arr.length; i++){
+                  var tbodyTr = document.createElement('tr');
+                  var locationNode = document.createElement('td');
+                  locationNode.classList = 'col-xs-2 region-td-border';
+                  locationNode.innerText = arr[i].location.name;
+                  tbodyTr.appendChild(locationNode);
+                  var statusNode = document.createElement('td');
+                  statusNode.classList = 'col-xs-2 region-td-border';
+                  statusNode.innerText = arr[i].status;
+                  tbodyTr.appendChild(statusNode);
+                  var nameNode = document.createElement('td');
+                  nameNode.classList = 'col-xs-2 region-td-border';
+                  nameNode.innerText = arr[i].name;
+                  tbodyTr.appendChild(nameNode);
+                  var descriptionNode = document.createElement('td');
+                  descriptionNode.classList = 'col-xs-2 region-td-border';
+                  descriptionNode.innerText = arr[i].description;
+                  tbodyTr.appendChild(descriptionNode);
+                  var taskStatusNode = document.createElement('td');
+                  taskStatusNode.classList = 'col-xs-2 region-td-border';
+                  taskStatusNode.innerText = arr[i].task_status;
+                  tbodyTr.appendChild(taskStatusNode);
+                  tbody.appendChild(tbodyTr);
+                }
+                table.appendChild(tbody);
+                region.appendChild(table);
+                content.appendChild(region);
+                },function(error){
+                    contrail.showErrorMsg(error.responseText);
+                });
+       };
         this.isServiceVN = function (vnFQN) {
             var fqnArray = vnFQN.split(":");
 
