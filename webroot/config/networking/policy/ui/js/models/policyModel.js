@@ -34,6 +34,7 @@ define([
             if (rulesList != null && rulesList.length > 0) {
                 for (var i = 0; i < rulesList.length; i++) {
                     var rule_obj = rulesList[i];
+                    rule_obj['direction'] = cowu.deSanitize(rule_obj['direction']);
                     var ruleModel = new RuleModel(rule_obj);
                     this.showHideServiceInstance(ruleModel);
                     ruleModels.push(ruleModel)
