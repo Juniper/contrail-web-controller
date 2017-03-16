@@ -795,6 +795,9 @@ define([
         /* Policy */
         this.VN_SUBNET_DELIMITER = ":";
         this.SUBNET_ONLY = "subnet_only";
+        this.ANALYZER_INSTANCE = "analyzer_instance";
+        this.NIC_ASSISTED = "nic_assisted";
+        this.ANALYZER_IP = "analyzer_ip";
 
         /* BGP as a Service */
         this.CONFIG_BGP_AS_A_SERVICE_LIST_ID = "config-bgp-as-a-service-list";

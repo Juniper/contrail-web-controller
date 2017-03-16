@@ -31,13 +31,13 @@
 #PolicyRules #simple_action .select2-container-disabled .select2-choice,
 #PolicyRules #simple_action .select2-container,
 #PolicyRules #protocol .custom-combobox .input-group-addon,
+#PolicyRules .data-cell-protocol input,
 #PolicyRules #src_address .select2-container,
 #PolicyRules #direction .select2-container,
 #PolicyRules #direction .select2-container-disabled .select2-choice,
 #PolicyRules #dst_address .select2-container,
-#PolicyRules #dst_ports_text,
-#PolicyRules #src_ports_text,
-#PolicyRules input{
+#PolicyRules .data-cell-src_ports_text input,
+#PolicyRules .data-cell-dst_ports_text input {
     border: 0px !important;
     color: #3182bd;
 }
@@ -54,6 +54,33 @@
 #PolicyRules #dst_address .select2-arrow
 {
     display: none !important;
+}
+#PolicyRules td.data-cell-mirroringOptions .custom-combobox-input+span i.fa-caret-down{
+   display:block;
+ }
+#PolicyRules td.data-cell-mirroringOptions .custom-combobox>span.input-group-addon
+{
+    padding-left: 7px;
+    padding-right: 15px;
+    background-color: #fff;
+    position: absolute;
+    right: 0;
+    z-index: 1040;
+    border: 1px solid #dadada;
+    top:0px;
+}
+#PolicyRules td.data-cell-mirroringOptions .custom-combobox-input+span i.fa-caret-down{
+   display:block;
+ }
+#PolicyRules td.data-cell-mirroringOptions .custom-combobox>span.input-group-addon
+{
+    padding-left: 7px;
+    border: 1px solid #dadada;
+    top:0px;
+}
+#PolicyRules .radio-group {
+    padding-left: 83px;
+    padding-bottom: 10px;
 }
 
 #windowCreatePolicy .rule-item .select2-chosen {
@@ -243,7 +270,7 @@ div.vis-network canvas{
     width:23.08% !important;
 }
 #bgp-grid ul.item-list .value{
-    width:57.26%; !important;
+    width:57.26% !important;
 }
 
 
@@ -525,3 +552,17 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
 }
 .vn_seperator{
     padding-right:8px;}
+.data-cell-mirroringOptions .form-label{
+    text-align:left;
+    padding-left:6px;}
+.data-cell-QoS .form-label{
+    text-align:left;
+    padding-left:21px;}
+.data-cell-mirroringOptions .form-element{
+    padding-left:10px;}
+ .data-cell-QoS .form-element{
+     padding-left:8px;}
+.data-cell-mirroringOptions .form-element .help-block{
+    text-align:left;}
+.data-cell-mirroringOptions{
+    padding-bottom:0px;}
