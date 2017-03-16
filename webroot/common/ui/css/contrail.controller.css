@@ -340,7 +340,7 @@ div.vis-network canvas{
     width:250px;
     padding-top:0px;}
 #prefix_limit{width:213px}
-#bgp-grid ul.item-list .key, #config-vn-list ul.item-list .key, #service-instances-grid ul.item-list .key{
+#bgp-grid ul.item-list .key, #config-vn-list ul.item-list .key, #config-ipam-list ul.item-list .key, #service-instances-grid ul.item-list .key{
     width:23% !important;
 }
 #bgp-grid ul.item-list .value, #service-instances-grid ul.item-list .value{
