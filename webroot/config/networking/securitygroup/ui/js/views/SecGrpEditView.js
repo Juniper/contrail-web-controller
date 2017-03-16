@@ -157,7 +157,7 @@ define([
                                     label: "",
                                     visible: 'showConfigSecGrpID',
                                     path: 'configured_security_group_id',
-                                    class: 'col-xs-6',
+                                    class: 'col-xs-6 no-label-input',
                                     dataBindValue:
                                             'configured_security_group_id',
                                     placeHolder: 'Enter Security Group ID'
