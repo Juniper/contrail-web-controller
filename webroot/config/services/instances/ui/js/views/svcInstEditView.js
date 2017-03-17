@@ -23,7 +23,7 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.configureSvcInst(options['isEdit'],
+                self.model.configureSvcInst(self.selectedProjectFQN, options['isEdit'],
                                             options['dataItem'], {
                     init: function () {
                         cowu.enableModalLoading(modalId);
@@ -130,8 +130,7 @@ define([
                     timeout: 60000,
                     data: {'data': [{
                         'type': 'virtual-networks',
-                        'parent_fq_name_str': contrail.getCookie('domain') +
-                            ':' + contrail.getCookie('project'),
+                        'parent_fq_name_str': self.selectedProjectFQN,
                         'parent_type': 'project'
                     },
                     {

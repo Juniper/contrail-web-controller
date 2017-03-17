@@ -70,7 +70,8 @@ function listAllProjects (request, response, appData)
     var dataObjArr = [], i, identityProj, identityProjLen, apiProj,
         apiProjLen, projList = [], tempProjMap = {},
         parentId = commonUtils.getValueByJsonPath(request,
-                "query;domainId", null, false);
+                "query;domainId", null, false),
+        tempProjIdToIdxMap = {};
     dataObjArr.push({type : identity, request: request,
         appData: appData, parentId: parentId});
     dataObjArr.push({type : apiServer, request: request,
@@ -86,22 +87,35 @@ function listAllProjects (request, response, appData)
         apiProj = commonUtils.getValueByJsonPath(projData,
                 "1;data;projects", [], false);
         apiProjLen = apiProj.length;
-        for (i = 0; i < identityProjLen; i++) {
-            var identityProjFQN = commonUtils.getValueByJsonPath(identityProj[i],
-                    "fq_name", [], false).join(":");
-            tempProjMap[identityProjFQN] = identityProj[i];
+        var allProjects = [];
+        for (var i = 0; i < apiProjLen; i++) {
+            var apiProjName = commonUtils.getValueByJsonPath(apiProj[i],
+                                                             "fq_name;1", null);
+            if (apiProjName == defaultProject) {
+                continue;
+            }
+            var apiProjID = commonUtils.getValueByJsonPath(apiProj[i], "uuid",
+                                                           null);
+            apiProj[i]["display_name"] = apiProjName;
+            allProjects.push(apiProj[i]);
+            tempProjIdToIdxMap[apiProjID] = allProjects.length - 1;
         }
-        for (i = 0; i < apiProjLen; i++) {
-            var apiProjFQN = commonUtils.getValueByJsonPath(apiProj[i],
-                    "fq_name", [], false).join(":"),
-                projectName = commonUtils.getValueByJsonPath(apiProj[i],
-                    "fq_name;1", "", false);
-            if (tempProjMap[apiProjFQN] == null &&
-                    projectName !== defaultProject) {
-                identityProj.push(apiProj[i]);
+        for (i = 0; i < identityProjLen; i++) {
+            var identityProjID = commonUtils.getValueByJsonPath(identityProj[i],
+                                                                "uuid", null);
+            var idx = tempProjIdToIdxMap[identityProjID];
+            var identityProjName =
+                commonUtils.getValueByJsonPath(identityProj[i], "fq_name;1",
+                                               null);
+            if (null != idx) {
+                /* Exists in API Server, so take display_name from keystone */
+                allProjects[idx]["display_name"] = identityProjName;
+            } else {
+                identityProj[i]["display_name"] = identityProjName;
+                allProjects.push(identityProj[i]);
             }
         }
-        commonUtils.handleJSONResponse(null, response, {projects: identityProj});
+        commonUtils.handleJSONResponse(null, response, {projects: allProjects});
     });
 };
 

@@ -169,7 +169,7 @@ define([
             return actMPLSExpEntries;
         },
 
-        configQOS: function (callbackObj, options) {
+        configQOS: function (projFQN, callbackObj, options) {
             var ajaxConfig = {}, returnFlag = false, mode, isGlobal, qosType,
                 postQOSConfigData = {},
                 newQOSConfigData, attr,
@@ -220,12 +220,12 @@ define([
                     newQOSConfigData["parent_type"] = "global-qos-config";
 
                 } else {
+                    projFqnArr = projFQN.split(":");
                     if(newQOSConfigData["fq_name"] === [] ||
                         newQOSConfigData["fq_name"] === null) {
                         newQOSConfigData["fq_name"] =
                             [
-                                contrail.getCookie(cowc.COOKIE_DOMAIN),
-                                contrail.getCookie(cowc.COOKIE_PROJECT),
+                                projFqnArr[0], projFqnArr[1],
                                 newQOSConfigData["name"]
                             ];
                     }

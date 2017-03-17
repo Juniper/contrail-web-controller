@@ -31,7 +31,7 @@ define([
             self.bgpAsAServiceRenderView4Config(options);
         },
         configEditBGPAsAService : function(options) {
-            self.model.configBGPAsAService({
+            self.model.configBGPAsAService(self.selectedProjectFQN, {
                 init: function () {
                     cowu.enableModalLoading(modalId);
                 },
@@ -52,7 +52,7 @@ define([
                 (options.mode === ctwl.CREATE_ACTION) ?  false : true;
             self.renderView4Config($("#" + modalId).find("#" + prefixId + "-form"),
                 self.model,
-                self.getBGPASAServiceViewConfig(disableFlag),
+                self.getBGPASAServiceViewConfig(self.selectedProjectFQN, disableFlag),
                 "configureValidation", null, null,
                 function () {
                     self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
@@ -101,7 +101,7 @@ define([
             Knockback.applyBindings(self.model, document.getElementById(modalId));
             kbValidation.bind(self);
         },
-        getBGPASAServiceViewConfig : function(disableId) {
+        getBGPASAServiceViewConfig : function(projFQN, disableId) {
             var bgpViewConfig = {
                 elementId: cowu.formatElementId([prefixId,
                                    ctwl.TITLE_ADD_BGP_AS_A_SERVICE]),
@@ -174,8 +174,7 @@ define([
                                                 type: "remote",
                                                 requestType: "GET",
                                                 url: "/api/tenants/config/get-virtual-machine-details?proj_fqn=" +
-                                                    contrail.getCookie(cowc.COOKIE_DOMAIN) + ":"
-                                                    + contrail.getCookie(cowc.COOKIE_PROJECT),
+                                                    projFQN,
                                                 parse : bgpAsAServiceFomatter.parseVMIDetails
                                             }
                                         }

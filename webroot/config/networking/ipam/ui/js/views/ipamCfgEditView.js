@@ -24,7 +24,7 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.addEditIpamCfg({
+                self.model.addEditIpamCfg(self.selectedProjFQN, {
                     init: function () {
                         cowu.enableModalLoading(modalId);
                     },
@@ -74,7 +74,7 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.addEditIpamCfg({
+                self.model.addEditIpamCfg(self.selectedProjFQN, {
                     init: function () {
                         cowu.enableModalLoading(modalId);
                     },

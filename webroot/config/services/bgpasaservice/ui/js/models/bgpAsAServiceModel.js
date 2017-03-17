@@ -158,7 +158,7 @@ define([
             return vmiRefs;
         },
 
-        configBGPAsAService: function (callbackObj, ajaxMethod) {
+        configBGPAsAService: function (projFQN, callbackObj, ajaxMethod) {
             var self = this, ajaxConfig = {}, returnFlag = false,
                 postBGPAsAServiceData = {}, sessionAttrs,
                 validations = [
@@ -185,11 +185,7 @@ define([
                 if(newBGPAsAServiceData["fq_name"] == [] ||
                     newBGPAsAServiceData["fq_name"] == null) {
                     newBGPAsAServiceData["fq_name"] =
-                        [
-                            contrail.getCookie(cowc.COOKIE_DOMAIN),
-                            contrail.getCookie(cowc.COOKIE_PROJECT),
-                            newBGPAsAServiceData["name"]
-                        ];
+                        projFQN.split(":").concat([newBGPAsAServiceData["name"]]);
                 }
                 sessionAttrs =
                     newBGPAsAServiceData["bgpaas_session_attributes"];

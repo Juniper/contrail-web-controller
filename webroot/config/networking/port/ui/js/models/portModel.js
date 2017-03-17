@@ -891,7 +891,7 @@ define([
                 'ip_protocol': false, 'source_port': false,
                 'destination_port': false};
         },
-        configurePorts: function (mode, callbackObj) {
+        configurePorts: function (projFQN, mode, callbackObj) {
             var ajaxConfig = {}, returnFlag = true;
             var temp_val;
             var validations = [
@@ -929,14 +929,11 @@ define([
                 ctwu.getPermissionsValidation()
             ];
             if(this.isDeepValid(validations)) {
-                var newPortData = $.extend(true, {}, this.model().attributes),
-                    selectedDomain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                    selectedProject = contrail.getCookie(cowc.COOKIE_PROJECT);
+                var newPortData = $.extend(true, {}, this.model().attributes);
 
                 ctwu.setNameFromDisplayName(newPortData);
 
-                newPortData.fq_name = [selectedDomain,
-                                     selectedProject];
+                newPortData.fq_name = projFQN.split(":");
                 if(newPortData["name"] && newPortData["name"].trim() != "") {
                     newPortData["fq_name"][2] = newPortData["name"].trim();
                 } else {

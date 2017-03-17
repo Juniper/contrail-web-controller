@@ -43,8 +43,7 @@ define([
                     viewPathPrefix : ctwc.URL_PORT_VIEW_PATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     viewConfig: $.extend(true, {}, viewConfig,
-                                     {selectedProjectId:
-                                     projectSelectedValueData.value})
+                        {projectSelectedValueData: projectSelectedValueData})
                 }
             }
         }

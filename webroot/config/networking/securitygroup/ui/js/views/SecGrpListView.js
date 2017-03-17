@@ -35,7 +35,7 @@ define([
                     completeCallback: function(response) {
                         self.renderView4Config(self.$el,
                             contrailListModel,
-                            getSecGrpViewConfig(self.sgDataObj));
+                            getSecGrpViewConfig(viewConfig, self.sgDataObj));
                     }
                 }
             };
@@ -127,7 +127,7 @@ define([
         return secGrpList;
     };
 
-    var getSecGrpViewConfig = function (sgDataObj) {
+    var getSecGrpViewConfig = function (viewConfig, sgDataObj) {
         return {
             elementId: cowu.formatElementId([ctwl.CONFIG_SEC_GRP_SECTION_ID]),
             view: "SectionView",
@@ -142,7 +142,11 @@ define([
                                 viewPathPrefix: "config/networking/securitygroup/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
-                                    sgDataObj: sgDataObj
+                                    sgDataObj: sgDataObj,
+                                    selectedProjId:
+                                        viewConfig.projectSelectedValueData.value,
+                                    selectedProjFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
                                 }
                             }
                         ]

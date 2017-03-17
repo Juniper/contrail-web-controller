@@ -28,7 +28,7 @@ define([
                               'title': options['title'],
                               'body': editLayout,
                               'onSave': function () {
-                self.model.configurePolicy(options['mode'],
+                self.model.configurePolicy(self.selectedProjFQN, options['mode'],
                 {
                     init: function () {
                         self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,

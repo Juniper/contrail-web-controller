@@ -62,7 +62,7 @@ define([
             }
         },
 
-        addEditSvcHealthChkCfg: function (callbackObj, ajaxMethod) {
+        addEditSvcHealthChkCfg: function (projFQN, callbackObj, ajaxMethod) {
             var ajaxConfig = {}, returnFlag = false;
             var postData = {'service-health-check':{}};
 
@@ -79,18 +79,14 @@ define([
                 var newsvcHealthChkCfgData = $.extend(true,
                                                 {}, self.model().attributes);
 
-                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                var project = contrail.getCookie(cowc.COOKIE_PROJECT);
-
                 if (newsvcHealthChkCfgData['display_name'] == '') {
                     newsvcHealthChkCfgData['display_name'] = newsvcHealthChkCfgData['name'];
                 }
                 if (newsvcHealthChkCfgData['fq_name'] == [] ||
                     newsvcHealthChkCfgData['fq_name'] == null) {
                     newsvcHealthChkCfgData['fq_name'] = [];
-                    newsvcHealthChkCfgData['fq_name'][0] = domain;
-                    newsvcHealthChkCfgData['fq_name'][1] = project;
-                    newsvcHealthChkCfgData['fq_name'][2] = newsvcHealthChkCfgData['name'];
+                    newsvcHealthChkCfgData['fq_name'] =
+                        projFQN.split(":").concat([newsvcHealthChkCfgData['name']]);
                 }
 
                 var delay, timeout, max_retries;

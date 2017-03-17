@@ -374,7 +374,7 @@ define([
             }
         },
 
-        addEditIpamCfg: function (callbackObj, ajaxMethod) {
+        addEditIpamCfg: function (projFQN, callbackObj, ajaxMethod) {
             var ajaxConfig = {}, returnFlag = false;
             var postData = {'network-ipam':{}};
             var validation = [{
@@ -410,10 +410,8 @@ define([
                 }
                 if (newipamCfgData['fq_name'] == [] ||
                     newipamCfgData['fq_name'] == null) {
-                    newipamCfgData['fq_name'] = [];
-                    newipamCfgData['fq_name'][0] = domain;
-                    newipamCfgData['fq_name'][1] = project;
-                    newipamCfgData['fq_name'][2] = newipamCfgData['name'];
+                    newipamCfgData['fq_name'] =
+                        projFQN.split(":").concat([newipamCfgData['name']]);
                 }
 
                 var dnsMethod = getValueByJsonPath(newipamCfgData,

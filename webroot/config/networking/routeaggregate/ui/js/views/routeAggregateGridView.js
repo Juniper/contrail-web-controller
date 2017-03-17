@@ -20,6 +20,10 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+            routeAggregateEditView.selectedProjectId =
+                viewConfig.selectedProjectId;
+            routeAggregateEditView.selectedProjectFQN =
+                viewConfig.selectedProjectFQN;
             self.renderView4Config(self.$el, self.model,
                 getRouteAggregateGridViewConfig(pagerOptions));
         }

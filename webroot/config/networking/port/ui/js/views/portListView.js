@@ -24,7 +24,7 @@ define([
                 remote: {
                     ajaxConfig: {
                         url: ctwc.get(ctwc.URL_GET_PORT_UUID,
-                                      viewConfig.selectedProjectId),
+                                      viewConfig.projectSelectedValueData.value),
                         type: "GET"
                     },
                     dataParser: self.fetchPortData
@@ -121,7 +121,10 @@ define([
                                          pageSizeSelect: [10, 50, 100, 500]
                                          }
                                     },
-                                    selectedProjectId : viewConfig.selectedProjectId
+                                    selectedProjectId :
+                                        viewConfig.projectSelectedValueData.value,
+                                    selectedProjectFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
                                 }
                             }
                         ]

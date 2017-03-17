@@ -23,7 +23,7 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.allocateFipCfg({
+                self.model.allocateFipCfg(self.selectedProjFQN, {
                     init: function () {
                         cowu.enableModalLoading(modalId);
                     },
@@ -46,7 +46,7 @@ define([
             }});
             self.renderView4Config($("#" + modalId).find("#" + prefixId + "-form"),
                                    self.model,
-                                   getAllocateFipCfgViewConfig(false),
+                                   getAllocateFipCfgViewConfig(self.selectedProjFQN, false),
                                    "fipCfgConfigValidations", null, null,
                                    function () {
                     self.model.showErrorAttr(prefixId +
@@ -180,8 +180,9 @@ define([
         }
     });
 
-    function getAllocateFipCfgViewConfig(disableOnEdit) {
+    function getAllocateFipCfgViewConfig(projFQN, disableOnEdit) {
         var prefixId = ctwl.CFG_FIP_PREFIX_ID;
+        var projFqnArr = projFQN.split(":");
         var fipCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId, ctwl.CFG_FIP_TITLE_ALLOCATE]),
             title: "Floating IP",
@@ -207,8 +208,8 @@ define([
                                             //Fix, find a way to get proj id
                                             //here. For now try using name
                                             url: '/api/tenants/config/floating-ip-pools/' +
-                                                contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
-                                                contrail.getCookie(cowc.COOKIE_PROJECT),
+                                                projFqnArr[0] + ":" +
+                                                projFqnArr[1],
                                             parse: formatFipCfg.fipPoolDropDownFormatter
                                         }
                                     }

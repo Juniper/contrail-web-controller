@@ -21,6 +21,8 @@ define([
         render: function () {
             self = this;
             var viewConfig = self.attributes.viewConfig;
+            qosEditView.selectedProjectId = viewConfig.selectedProjectId;
+            qosEditView.selectedProjectFQN = viewConfig.selectedProjectFQN;
             self.renderView4Config(self.$el, self.model,
                 getQOSGridViewConfig(viewConfig));
         }

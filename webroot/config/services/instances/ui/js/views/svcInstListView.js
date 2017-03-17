@@ -20,6 +20,7 @@ define([
         render: function () {
             self = this;
             var viewConfig = this.attributes.viewConfig;
+            self.viewConfig = this.attributes.viewConfig;
             self.selectedProject = viewConfig['projectSelectedValueData'];
             self.siSlicedData = [];
             self.siRefStatusBackupData = [];
@@ -367,18 +368,17 @@ define([
                 self.contrailListModel.updateData(dataItems);
                 self.svcInstanceDataObj.svcInstTmplts = svcTmplObjsByFqn;
                 self.renderView4Config(self.$el, self.contrailListModel,
-                           getSvcInstViewConfig(self.svcInstanceDataObj));
+                           getSvcInstViewConfig(self.viewConfig, self.svcInstanceDataObj));
             },
             failureCallback: function(error, contrailListModel) {
                 self.renderView4Config(self.$el, self.contrailListModel,
-                        getSvcInstViewConfig(self.svcInstanceDataObj));
+                        getSvcInstViewConfig(self.viewConfig, self.svcInstanceDataObj));
             }
         },
         {
             getAjaxConfig: function(response) {
                 var lazyAjaxConfig = {
-                    url: '/api/service/networking/web-server-info?project=' +
-                        contrail.getCookie('project'),
+                    url: '/api/service/networking/web-server-info',
                     type: 'GET'
                 };
                 return lazyAjaxConfig;
@@ -405,7 +405,7 @@ define([
         return retArr;
     }
 
-    var getSvcInstViewConfig = function (svcInstanceDataObj) {
+    var getSvcInstViewConfig = function (viewConfig, svcInstanceDataObj) {
         return {
             elementId: cowu.formatElementId([ctwl.CONFIG_SERVICE_INSTANCES_SECTION_ID]),
             view: "SectionView",
@@ -425,7 +425,11 @@ define([
                                             pageSize: 10, pageSizeSelect: [10, 50, 100]
                                         }
                                     },
-                                    svcInstanceDataObj: svcInstanceDataObj
+                                    svcInstanceDataObj: svcInstanceDataObj,
+                                    selectedProjectId:
+                                        viewConfig.projectSelectedValueData.value,
+                                    selectedProjectFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
                                 }
                             }
                         ]

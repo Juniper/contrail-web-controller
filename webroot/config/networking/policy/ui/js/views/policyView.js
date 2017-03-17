@@ -47,13 +47,15 @@ define([
                 ctwu.setGlobalVariable("domain", domain);
                 ctwu.setGlobalVariable("project", project);
                 return {
-                elementId: cowu.formatElementId(
+                    elementId: cowu.formatElementId(
                                 [ctwl.CONFIG_POLICIES_PAGE_ID]),
-                view: "policyListView",
-                viewPathPrefix : ctwc.URL_POLICIES_VIEW_PATH_PREFIX,
-                app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewConfig: viewConfig
-            }
+                    view: "policyListView",
+                    viewPathPrefix : ctwc.URL_POLICIES_VIEW_PATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: $.extend(true, {}, viewConfig,
+                                         {projectSelectedValueData:
+                                         projectSelectedValueData})
+                }
             }
         }
     });

@@ -31,7 +31,7 @@ define([
                               'title': options['title'],
                               'body': editLayout,
                               'onSave': function () {
-                self.model.configurePorts(options['mode'],
+                self.model.configurePorts(self.selectedProjectFQN, options['mode'],
                 {
                     init: function () {
                         self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,

@@ -29,7 +29,8 @@ define([
             };
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                    contrailListModel, getRouteAggregateGridViewConfig());
+                    contrailListModel,
+                    getRouteAggregateGridViewConfig(viewConfig));
         },
 
         parseRouteAggregateData : function(result){
@@ -43,7 +44,7 @@ define([
         }
     });
 
-    var getRouteAggregateGridViewConfig = function () {
+    var getRouteAggregateGridViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwc.CONFIG_ROUTE_AGGREGATE_SECTION_ID]),
             view: "SectionView",
@@ -62,7 +63,11 @@ define([
                                             pageSize: 10,
                                             pageSizeSelect: [10, 50, 100]
                                         }
-                                    }
+                                    },
+                                    selectedProjectId:
+                                        viewConfig.projectSelectedValueData.value,
+                                    selectedProjectFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
                                 }
                             }
                         ]

@@ -25,11 +25,12 @@ define([
             };
 
             var contrailListModel = new ContrailListModel(listModelConfig);
-            this.renderView4Config(this.$el, contrailListModel, getFipCfgListViewConfig());
+            this.renderView4Config(this.$el, contrailListModel,
+                                   getFipCfgListViewConfig(viewConfig));
         }
     });
 
-    var getFipCfgListViewConfig = function () {
+    var getFipCfgListViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwl.CFG_FIP_LIST_ID]),
             view: "SectionView",
@@ -44,7 +45,12 @@ define([
                                 viewPathPrefix:
                                     "config/networking/fip/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {}
+                                viewConfig: {
+                                    selectedProjId:
+                                        viewConfig.projectSelectedValueData.value,
+                                    selectedProjFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
+                                }
                             }
                         ]
                     }

@@ -28,7 +28,7 @@ define([
             };
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                    contrailListModel, getBGPAsAServiceGridViewConfig(currentProject));
+                    contrailListModel, getBGPAsAServiceGridViewConfig(viewConfig));
         },
         parseBGPAsAServiceData : function(result){
             var gridDS = [];
@@ -42,7 +42,7 @@ define([
         }
     });
 
-    var getBGPAsAServiceGridViewConfig = function (currentProject) {
+    var getBGPAsAServiceGridViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwc.CONFIG_BGP_AS_A_SERVICE_SECTION_ID]),
             view: "SectionView",
@@ -63,7 +63,10 @@ define([
                                             pageSizeSelect: [10, 50, 100]
                                         }
                                     },
-                                    currentProjectUUID: currentProject.value
+                                    selectedProjectId:
+                                        viewConfig.projectSelectedValueData.value,
+                                    selectedProjectFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
                                 }
                             }
                         ]

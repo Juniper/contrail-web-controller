@@ -8,7 +8,7 @@ define([
     'contrail-config-model',
     'config/networking/securitygroup/ui/js/SecGrpUtils',
     'config/networking/securitygroup/ui/js/models/SecGrpRulesModel'
-], function (_, ContrailConfigModel, SecGrpUtils, SecGrpRulesModel) {
+], function (_, ContrailConfigModel, SecGrpUtils, SecGrpRulesModel, ConfigUtils) {
     var sgUtils = new SecGrpUtils();
     var SecGrpModel = ContrailConfigModel.extend({
         defaultConfig: {
@@ -172,13 +172,12 @@ define([
                 if (null != newSecGrpData['fq_name']) {
                     fqnArr = newSecGrpData['fq_name'];
                 } else {
-                    fqnArr = projFqn;
                     newSecGrpData['fq_name'] =
-                        fqnArr.concat([newSecGrpData['name']]);
+                        projFqn.split(":").concat([newSecGrpData['name']]);
                 }
                 var configRules =
-                    sgUtils.buildUIToConfigSGList(fqnArr[0],
-                                                  fqnArr[1], ruleList);
+                    sgUtils.buildUIToConfigSGList(newSecGrpData['fq_name'][0],
+                                                  newSecGrpData['fq_name'][1], ruleList);
                 newSecGrpData['parent_type'] = 'project';
                 newSecGrpData['security_group_entries'] = {};
                 newSecGrpData['security_group_entries']['policy_rule'] =

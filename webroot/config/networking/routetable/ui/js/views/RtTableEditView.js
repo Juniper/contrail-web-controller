@@ -24,7 +24,7 @@ define([
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 self.model.configureRtTable(options['type'],
-                                            options['projFqn'],
+                                            self.selectedProjFQN,
                                             options['dataItem'], {
                     init: function () {
                         cowu.enableModalLoading(modalId);

@@ -31,7 +31,7 @@ define([
         },
 
         configEditQOS : function(options) {
-            self.model.configQOS({
+            self.model.configQOS(self.selectedProjectFQN, {
                 init: function () {
                     cowu.enableModalLoading(modalId);
                 },

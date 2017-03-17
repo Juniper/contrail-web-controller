@@ -18,7 +18,7 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig;
 
-            var selectedProjectVal = ctwu.getGlobalVariable('project').uuid;
+            var selectedProjectVal = viewConfig.projectSelectedValueData.value;
 
             var listModelConfig = {
                 remote: {
@@ -35,11 +35,11 @@ define([
 
             var contrailListModel = new ContrailListModel(listModelConfig);
             self.renderView4Config(this.$el, contrailListModel,
-                                   getPoliciesListViewConfig(selectedProjectVal));
+                                   getPoliciesListViewConfig(viewConfig));
         }
     });
 
-    var getPoliciesListViewConfig = function (selectedProjectVal) {
+    var getPoliciesListViewConfig = function (viewConfig) {
         return {
             elementId:
               cowu.formatElementId([ctwl.CONFIG_POLICY_FORMAT_ID]),
@@ -63,7 +63,10 @@ define([
                                                   pageSize: 10,
                                                   pageSizeSelect: [10, 50, 100]
                                                   }},
-                                             selectedProjId: selectedProjectVal
+                                             selectedProjectId:
+                                                 viewConfig.projectSelectedValueData.value,
+                                             selectedProjectFQN:
+                                                 viewConfig.projectSelectedValueData.fq_name
                                             }
                             }
                         ]

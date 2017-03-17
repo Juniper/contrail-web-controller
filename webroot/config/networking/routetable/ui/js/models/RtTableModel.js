@@ -136,9 +136,10 @@ define([
                 var newRtTableData = $.extend({}, true, this.model().attributes);
 
                 var routesList = this.getRoutesList(newRtTableData, type);
+                var projFqnArr = projFqn.split(":");
                 if (null == newRtTableData['fq_name']) {
                     newRtTableData['fq_name'] =
-                        projFqn.concat([newRtTableData['display_name']]);
+                        projFqnArr.concat([newRtTableData['display_name']]);
                 }
                 newRtTableData['parent_type'] = 'project';
                 var rtKey = 'interface_route_table_routes';

@@ -30,7 +30,8 @@ define([
             };
             contrailListModel = new ContrailListModel(listModelConfig);
             self.renderView4Config(self.$el,
-                    contrailListModel, self.getQOSProjectGridViewConfig());
+                    contrailListModel,
+                    self.getQOSProjectGridViewConfig(viewConfig));
         },
 
         parseQOSProjectData: function(result) {
@@ -46,7 +47,7 @@ define([
             return qosConfigDataSrc;
         },
 
-        getQOSProjectGridViewConfig: function() {
+        getQOSProjectGridViewConfig: function(viewConfig) {
             return {
                 elementId:
                     cowu.formatElementId([ctwc.CONFIG_QOS_PROJECT_SECTION_ID]),
@@ -61,7 +62,11 @@ define([
                                     "config/networking/qos/common/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
-                                    isGlobal: false
+                                    isGlobal: false,
+                                    selectedProjectId:
+                                        viewConfig.projectSelectedValueData.value,
+                                    selectedProjectFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
                                 }
                             }
                         ]

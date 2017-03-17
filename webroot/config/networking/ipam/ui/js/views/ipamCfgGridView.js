@@ -21,7 +21,8 @@ define([
         render: function () {
             var self = this;
             var viewConfig = this.attributes.viewConfig;
-
+            ipamCfgEditView.selectedProjId = viewConfig.selectedProjectId;
+            ipamCfgEditView.selectedProjFQN = viewConfig.selectedProjectFQN;
             this.renderView4Config(self.$el, self.model,
                                    getIpamCfgGridViewConfig());
         }

@@ -21,8 +21,8 @@ define([
         render: function () {
             var self = this;
             var viewConfig = this.attributes.viewConfig;
-            vnCfgEditView.selectedProjId =
-                viewConfig.selectedProjId;
+            vnCfgEditView.selectedProjId = viewConfig.selectedProjId;
+            vnCfgEditView.selectedProjFQN = viewConfig.selectedProjFQN;
             this.renderView4Config(self.$el, self.model,
                                    getVNCfgGridViewConfig());
         }

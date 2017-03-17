@@ -79,7 +79,7 @@ define([
             }
         },
 
-        allocateFipCfg: function (callbackObj) {
+        allocateFipCfg: function (projFQN, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
             var postData = {'floating-ip':{}};
 
@@ -98,8 +98,9 @@ define([
 
                 var newFipCfgData = $.extend(true, {}, self.model().attributes);
 
-                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+                projFqnArr = projFQN.split(":");
+                var domain = projFqnArr[0];
+                var project = projFqnArr[1];
                 var allocType  = newFipCfgData['user_created_alloc_type'];
                 var fqName = newFipCfgData['user_created_floating_ip_pool'].split(":");
                 //permissions

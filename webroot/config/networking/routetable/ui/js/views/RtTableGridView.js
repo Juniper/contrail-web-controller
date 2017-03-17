@@ -20,6 +20,8 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+                rtTableEditView.selectedProjId = viewConfig.selectedProjId;
+                rtTableEditView.selectedProjFQN = viewConfig.selectedProjFQN;
             self.renderView4Config(self.$el, self.model,
                                    getRtTableGridViewConfig(pagerOptions));
         }
@@ -161,15 +163,12 @@ define([
                 "title": ctwl.TITLE_CREATE_RT_TABLE,
                 "iconClass": 'fa fa-plus',
                 "onClick": function() {
-                    var projFqn = [contrail.getCookie(cowc.COOKIE_DOMAIN),
-                        getCookie(cowc.COOKIE_PROJECT)];
                     rtTableModel = new RtTableModel();
                     rtTableEditView.model = rtTableModel;
                     rtTableEditView.renderConfigureRtTable({
                                   "title": ctwl.CREATE,
                                   "isEdit": false,
                                   type: networkRTType,
-                                  projFqn: projFqn,
                                   callback: function() {
                         var dataView =
                             $(gridElId).data("contrailGrid")._dataView;

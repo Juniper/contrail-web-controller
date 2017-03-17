@@ -21,7 +21,8 @@ define([
         render: function () {
             var self = this;
             var viewConfig = this.attributes.viewConfig;
-
+            fipCfgEditView.selectedProjId = viewConfig.selectedProjId;
+            fipCfgEditView.selectedProjFQN = viewConfig.selectedProjFQN;
             this.renderView4Config(self.$el, self.model,
                                    getFipCfgGridViewConfig());
         }

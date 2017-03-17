@@ -1024,7 +1024,7 @@ define([
             }
         },
 
-        addEditVNCfg: function (callbackObj, ajaxMethod) {
+        addEditVNCfg: function (projFQN, callbackObj, ajaxMethod) {
             var ajaxConfig = {}, returnFlag = false;
             var postData = {'virtual-network':{}};
 
@@ -1084,17 +1084,12 @@ define([
                 var newVNCfgData = $.extend(true,
                                             {}, this.model().attributes);
 
-                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                var project = contrail.getCookie(cowc.COOKIE_PROJECT);
-
                 ctwu.setNameFromDisplayName(newVNCfgData);
 
                 if (newVNCfgData['fq_name'] == [] ||
                     newVNCfgData['fq_name'] == null) {
-                    newVNCfgData['fq_name'] = [];
-                    newVNCfgData['fq_name'][0] = domain;
-                    newVNCfgData['fq_name'][1] = project;
-                    newVNCfgData['fq_name'][2] = newVNCfgData['name'];
+                    newVNCfgData['fq_name'] =
+                        projFQN.split(":").concat([newVNCfgData['name']]);
                 }
 
                 this.getFipPools(newVNCfgData);

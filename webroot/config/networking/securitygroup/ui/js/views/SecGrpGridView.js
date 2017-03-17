@@ -21,6 +21,8 @@ define([
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
             secGrpEditView.sgDataObj = viewConfig.sgDataObj;
+            secGrpEditView.selectedProjId = viewConfig.selectedProjId;
+            secGrpEditView.selectedProjFQN = viewConfig.selectedProjFQN;
             self.renderView4Config(self.$el, self.model,
                                    getSecGrpGridViewConfig(pagerOptions));
         }
@@ -252,15 +254,12 @@ define([
                 "title": ctwl.TITLE_CREATE_SEC_GRP,
                 "iconClass": 'fa fa-plus',
                 "onClick": function() {
-                    var projFqn = [getCookie('domain'),
-                        getCookie('project')];
                     secGrpModel = new SecGrpModel();
                     showHideModelAttr(secGrpModel);
                     secGrpEditView.model = secGrpModel;
                     secGrpEditView.renderConfigureSecGrp({
                                   "title": ctwl.CREATE,
                                   "isEdit": false,
-                                  projFqn: projFqn,
                                   callback: function() {
                         var dataView =
                             $(gridElId).data("contrailGrid")._dataView;

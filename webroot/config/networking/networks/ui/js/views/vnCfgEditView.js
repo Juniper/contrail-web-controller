@@ -23,7 +23,7 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-980',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.addEditVNCfg({
+                self.model.addEditVNCfg(self.selectedProjFQN, {
                     init: function () {
                         cowu.enableModalLoading(modalId);
                     },
@@ -87,7 +87,7 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-980',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.addEditVNCfg({
+                self.model.addEditVNCfg(self.selectedProjFQN, {
                     init: function () {
                         cowu.enableModalLoading(modalId);
                     },

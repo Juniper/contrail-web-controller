@@ -1551,7 +1551,7 @@ define([
             ctwu.getPermissionsValidation()];
             return validationList;
         },
-        configureSvcInst: function (isEdit, dataItem, callbackObj) {
+        configureSvcInst: function (projFQN, isEdit, dataItem, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
             var putData = {};
 
@@ -1595,8 +1595,7 @@ define([
                                            1);
                 }
                 newSvcInst['fq_name'] =
-                    [getCookie('domain'), getCookie('project'),
-                    newSvcInst['display_name']];
+                    projFQN.split(":").concat([newSvcInst['display_name']]);
                 if (1 == svcTmplVersion) {
                     newSvcInst['service_instance_properties']['scale_out'] = {};
                     newSvcInst['service_instance_properties']['scale_out']

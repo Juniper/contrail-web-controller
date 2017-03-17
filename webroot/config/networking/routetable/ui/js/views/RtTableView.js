@@ -22,7 +22,7 @@ define([
                 'uuid':projectSelectedValueData.parentSelectedValueData.value,
             }
             var project = {
-                'name':projectSelectedValueData.name,
+                'name':projectSelectedValueData.fq_name.split(":")[1],
                 'uuid':projectSelectedValueData.value,
             }
             //Store the domain and project along with uuid to be used later.

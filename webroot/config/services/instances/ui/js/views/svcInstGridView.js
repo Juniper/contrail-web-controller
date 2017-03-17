@@ -19,6 +19,8 @@ define([
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
             svcInstEditView.svcInstanceDataObj = viewConfig.svcInstanceDataObj;
+            svcInstEditView.selectedProjectId = viewConfig.selectedProjectId;
+            svcInstEditView.selectedProjectFQN = viewConfig.selectedProjectFQN;
             self.renderView4Config(self.$el, self.model,
                                    getSvcInstGridViewConfig(pagerOptions,
                                    viewConfig.svcInstanceDataObj));

@@ -338,7 +338,7 @@ define([
                         return  $.map(response.projects, function (n, i) {
                             return {
                                 fq_name: n.fq_name.join(':'),
-                                name: n.fq_name[1],
+                                name: n.display_name,
                                 value: n.uuid
                             };
                         });

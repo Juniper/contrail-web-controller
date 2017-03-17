@@ -41,7 +41,7 @@ define([
                     'uuid':projectSelectedValueData.parentSelectedValueData.value,
                 }
                 var project = {
-                    'name':projectSelectedValueData.name,
+                    'name':projectSelectedValueData.fq_name.split(":")[1],
                     'uuid':projectSelectedValueData.value,
                 }
                 ctwu.setGlobalVariable("domain", domain);

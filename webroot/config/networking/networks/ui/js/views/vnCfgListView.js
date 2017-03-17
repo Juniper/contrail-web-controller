@@ -123,7 +123,9 @@ define([
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
                                     selectedProjId:
-                                      viewConfig.projectSelectedValueData.value
+                                      viewConfig.projectSelectedValueData.value,
+                                    selectedProjFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
                                 }
                             }
                         ]

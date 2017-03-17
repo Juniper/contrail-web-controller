@@ -150,7 +150,7 @@ define([
             }
         },
 
-        configurePolicy: function (mode, callbackObj) {
+        configurePolicy: function (projFQN, mode, callbackObj) {
             var ajaxConfig = {}, returnFlag = true;
             var validations = [
                 {
@@ -168,11 +168,12 @@ define([
             ];
             if (this.isDeepValid(validations)) {
                 var newPolicyData = $.extend(true,{},this.model().attributes),
-                    selectedProjectUUID = ctwu.getGlobalVariable('project').uuid,
-                    selectedDomain = ctwu.getGlobalVariable('domain').name,
-                    selectedProject = ctwu.getGlobalVariable('project').name;
+                    selectedProjectUUID =
+                        ctwu.getGlobalVariable('project').uuid;
                 newPolicyData["fq_name"] =
-                    [selectedDomain,selectedProject,newPolicyData.policyName];
+                    projFQN.split(":").concat([newPolicyData.policyName]);
+                var selectedDomain = newPolicyData["fq_name"][0],
+                    selectedProject = newPolicyData["fq_name"][1];
                 newPolicyData["parent_uuid"] = selectedProjectUUID;
                 newPolicyData["parent_type"] = "project";
                 var policeyRuleJSON =

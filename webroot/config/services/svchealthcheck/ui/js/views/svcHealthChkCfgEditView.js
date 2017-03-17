@@ -22,7 +22,7 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.addEditSvcHealthChkCfg({
+                self.model.addEditSvcHealthChkCfg(self.selectedProjectFQN, {
                     init: function () {
                         cowu.enableModalLoading(modalId);
                     },
@@ -69,7 +69,7 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.addEditSvcHealthChkCfg({
+                self.model.addEditSvcHealthChkCfg(self.selectedProjectFQN, {
                     init: function () {
                         cowu.enableModalLoading(modalId);
                     },

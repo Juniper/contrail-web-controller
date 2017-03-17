@@ -55,13 +55,14 @@ define([
             return actRoutes;
         },
 
-        configRouteAggregate: function (callbackObj, ajaxMethod) {
+        configRouteAggregate: function (projFQN, callbackObj, ajaxMethod) {
+            var projFqnArr = projFQN.split(":");
             var ajaxConfig = {}, returnFlag = false,
                 postRouteAggregateData = {},
                 newRouteAggregateData, attr,
                 self  = this,
-                domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                project = contrail.getCookie(cowc.COOKIE_PROJECT),
+                domain = projFqnArr[0],
+                project = projFqnArr[1],
                 validations = [
                     {
                         key : null,

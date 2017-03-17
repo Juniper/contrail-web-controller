@@ -30,7 +30,7 @@ define([
         },
 
         configEditRouteAggregate : function(options) {
-            self.model.configRouteAggregate({
+            self.model.configRouteAggregate(self.selectedProjectFQN, {
                 init: function () {
                     cowu.enableModalLoading(modalId);
                 },

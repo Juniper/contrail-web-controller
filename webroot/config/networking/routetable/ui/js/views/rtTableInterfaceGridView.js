@@ -20,6 +20,8 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+                rtTableEditView.selectedProjId = viewConfig.selectedProjId;
+                rtTableEditView.selectedProjFQN = viewConfig.selectedProjFQN;
             self.renderView4Config(self.$el, self.model,
                                    getRtTableGridViewConfig(pagerOptions));
         }

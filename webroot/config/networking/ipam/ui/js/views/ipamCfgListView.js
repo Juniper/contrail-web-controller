@@ -25,11 +25,12 @@ define([
             };
 
             var contrailListModel = new ContrailListModel(listModelConfig);
-            this.renderView4Config(this.$el, contrailListModel, getipamCfgListViewConfig());
+            this.renderView4Config(this.$el, contrailListModel,
+                                   getipamCfgListViewConfig(viewConfig));
         }
     });
 
-    var getipamCfgListViewConfig = function () {
+    var getipamCfgListViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwl.CFG_IPAM_LIST_ID]),
             view: "SectionView",
@@ -44,7 +45,12 @@ define([
                                 viewPathPrefix:
                                     "config/networking/ipam/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {}
+                                viewConfig: {
+                                    selectedProjectId:
+                                        viewConfig.projectSelectedValueData.value,
+                                    selectedProjectFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
+                                }
                             }
                         ]
                     }

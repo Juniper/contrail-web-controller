@@ -35,7 +35,7 @@ define([
                     dataParser: rtTableParser,
                     completeCallback: function(resp) {
                         self.renderView4Config(self.$el, contrailListModel,
-                                               getRtTableViewConfig(selectedProject),
+                                               getRtTableViewConfig(viewConfig),
                                                null, null, null, function() {
                         });
                     }
@@ -66,7 +66,7 @@ define([
         return results;
     };
 
-    var getRtTableViewConfig = function () {
+    var getRtTableViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwl.CONFIG_RT_TABLE_SECTION_ID]),
             view: "SectionView",
@@ -81,7 +81,11 @@ define([
                                 viewPathPrefix: "config/networking/routetable/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
-                                    gridId: 'networkgrid'
+                                    gridId: 'networkgrid',
+                                    selectedProjId:
+                                        viewConfig.projectSelectedValueData.value,
+                                    selectedProjFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
                                 }
                             }
                         ]

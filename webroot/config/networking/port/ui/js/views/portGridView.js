@@ -23,6 +23,7 @@ define([
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
             portEditView.selectedProjectId = viewConfig.selectedProjectId;
+            portEditView.selectedProjectFQN = viewConfig.selectedProjectFQN;
             self.renderView4Config(self.$el, self.model,
                                   getPortGridViewConfig(viewConfig));
         }

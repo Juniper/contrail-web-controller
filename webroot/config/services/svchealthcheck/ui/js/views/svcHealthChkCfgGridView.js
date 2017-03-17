@@ -18,7 +18,10 @@ define([
         render: function () {
             var self = this;
             var viewConfig = this.attributes.viewConfig;
-
+            svcHealthChkEditView.selectedProjectId =
+                viewConfig.selectedProjectId;
+            svcHealthChkEditView.selectedProjectFQN =
+                viewConfig.selectedProjectFQN;
             this.renderView4Config(self.$el, self.model,
                                    getSvcHealthChkGridViewConfig());
         }

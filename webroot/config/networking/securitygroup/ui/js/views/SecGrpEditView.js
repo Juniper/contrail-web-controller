@@ -23,7 +23,7 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-840',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.configureSecGrp(options['projFqn'],
+                self.model.configureSecGrp(self.selectedProjFQN,
                                            options['dataItem'], {
                     init: function () {
                         cowu.enableModalLoading(modalId);

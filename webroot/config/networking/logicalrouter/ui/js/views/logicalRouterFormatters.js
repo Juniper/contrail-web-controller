@@ -109,8 +109,8 @@ define([
                         "virtual_machine_interface_refs", [], false);
             if(vmiRefs.length > 0) {
                 var vmi_length = vmiRefs.length;
-                var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                var projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
+                var domainName = ctwu.getGlobalVariable('domain').name;
+                var projectName = ctwu.getGlobalVariable('project').name;
                 for(var i = 0; i < vmi_length && i < 3 ;i++) {
                     var vmiNetworks = getValueByJsonPath(vmiRefs[i],
                             "virtual_network_refs;0;to", [], false);
@@ -147,8 +147,8 @@ define([
                         "virtual_machine_interface_refs", [], false);
             if(vmiRefs.length > 0) {
                 var vmi_length = vmiRefs.length;
-                var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN)
-                var projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
+                var domainName = ctwu.getGlobalVariable('domain').name;
+                var projectName = ctwu.getGlobalVariable('project').name;
                 for(var i = 0; i < vmi_length;i++) {
                     var vmiNetworks = getValueByJsonPath(vmiRefs[i],
                             "virtual_network_refs;0;to", [], false);

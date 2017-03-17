@@ -27,11 +27,12 @@ define([
             };
 
             var contrailListModel = new ContrailListModel(listModelConfig);
-            this.renderView4Config(this.$el, contrailListModel, getsvcHealthChkCfgListViewConfig());
+            this.renderView4Config(this.$el, contrailListModel,
+                                   getsvcHealthChkCfgListViewConfig(viewConfig));
         }
     });
 
-    var getsvcHealthChkCfgListViewConfig = function () {
+    var getsvcHealthChkCfgListViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwl.CFG_SVC_HEALTH_CHK_LIST_ID]),
             view: "SectionView",
@@ -46,7 +47,12 @@ define([
                                 viewPathPrefix:
                                     "config/services/svchealthcheck/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {}
+                                viewConfig: {
+                                    selectedProjectId:
+                                        viewConfig.projectSelectedValueData.value,
+                                    selectedProjectFQN:
+                                        viewConfig.projectSelectedValueData.fq_name
+                                }
                             }
                         ]
                     }
