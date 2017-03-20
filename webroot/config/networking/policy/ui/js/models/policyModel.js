@@ -86,6 +86,14 @@ define([
 
             rulesList.add([newRuleModel]);
         },
+        addRuleByIndex: function(data,rules) {
+            var selectedRuleIndex = data.model().collection.indexOf(rules.model());
+            var rulesList = this.model().attributes['PolicyRules'],
+                newRuleModel = new RuleModel();
+            this.showHideServiceInstance(newRuleModel);
+
+            rulesList.add([newRuleModel],{at: selectedRuleIndex+1});
+        },
         deleteRules: function(data, rules) {
             var rulesCollection = data.model().collection,
                 delRule = rules.model();

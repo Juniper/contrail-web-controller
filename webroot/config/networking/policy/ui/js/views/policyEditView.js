@@ -426,7 +426,7 @@ define([
                             collection: "PolicyRules",
                             rows:[{
                                rowActions: [
-                                   {onClick: "function() { $root.addRule(); }",
+                                   {onClick: "function() { $root.addRuleByIndex($data, this); }",
                                    iconClass: 'fa fa-plus'},
                                    {onClick:
                                    "function() { $root.deleteRules($data, this); }",
