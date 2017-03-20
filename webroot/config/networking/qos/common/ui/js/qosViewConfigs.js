@@ -172,7 +172,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                             ctwc.QOS_DSCP_VALUES),
                     rowActions: [
                         {onClick: "function() {\
-                            $root.addDSCPEntry();\
+                            $root.addDSCPEntryByIndex($data, this);\
                             }",
                          iconClass: 'fa fa-plus'},
                         {onClick: "function() {\
@@ -207,7 +207,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                             ctwc.QOS_VLAN_PRIORITY_VALUES),
                     rowActions: [
                         {onClick: "function() {\
-                            $root.addVlanPriorityEntry();\
+                            $root.addVlanPriorityEntryByIndex($data, this);\
                             }",
                          iconClass: 'fa fa-plus'},
                         {onClick: "function() {\
@@ -242,7 +242,7 @@ define(["underscore", "config/networking/qos/common/ui/js/qosFormatters"],
                             ctwc.QOS_MPLS_EXP_VALUES),
                     rowActions: [
                         {onClick: "function() {\
-                            $root.addMPLSExpEntry();\
+                            $root.addMPLSExpEntryByIndex($data, this);\
                             }",
                          iconClass: 'fa fa-plus'},
                         {onClick: "function() {\

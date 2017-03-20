@@ -1015,6 +1015,7 @@ define([
             }
             return;
         },
+
         addPortTuple: function() {
             var svcInstName = this.model().get('display_name');
             var self = this;
@@ -1148,6 +1149,17 @@ define([
                                        interfaceTypesData: types});
             svcHealtchChecks.add([newEntry]);
         },
+        addPropSvcHealthChkByIndex: function($data, property) {
+            var selectedRuleIndex = data.model().collection.indexOf(property.model());
+            var svcHealtchChecks = this.model().get('svcHealtchChecks');
+            var svcHealthChkEntry = null;
+            var types = this.getIntfTypes(false);
+            var newEntry =
+                new SvcHealthChkModel({service_health_check: null,
+                                       interface_type: null,
+                                       interfaceTypesData: types});
+            svcHealtchChecks.add([newEntry],{at: selectedRuleIndex+1});
+        },
         addPropIntfRtTable: function() {
             var intfRtTables = this.model().get('intfRtTables');
             var types = this.getIntfTypes(false);
@@ -1156,6 +1168,16 @@ define([
                                       interface_type: null,
                                       interfaceTypesData: types});
             intfRtTables.add([newEntry]);
+        },
+        addPropIntfRtTableByIndex: function($data,property) {
+            var selectedRuleIndex = data.model().collection.indexOf(property.model());
+            var intfRtTables = this.model().get('intfRtTables');
+            var types = this.getIntfTypes(false);
+            var newEntry =
+                new IntfRtTableModel({interface_route_table: null,
+                                      interface_type: null,
+                                      interfaceTypesData: types});
+            intfRtTables.add([newEntry],{at: selectedRuleIndex+1});
         },
         addPropStaticRtTable: function() {
             var staticRtTables = this.model().get('staticRoutes');
@@ -1170,6 +1192,20 @@ define([
                                    community_attributes: ''});
             staticRtTables.add([newEntry]);
         },
+        addPropStaticRtTableByIndex: function($data,property) {
+            var selectedRuleIndex = data.model().collection.indexOf(property.model());
+            var staticRtTables = this.model().get('staticRoutes');
+            var svcTmplStr = this.model().get('service_template');
+            var types = svcInstUtils.getStaticRtsInterfaceTypesByStr(svcTmplStr, false,
+                self.svcInstanceDataObj.svcInstTmplts);
+            var newEntry =
+                new StaticRTModel({prefix: null,
+                                   next_hop: null,
+                                   interface_type: null,
+                                   interfaceTypesData: types,
+                                   community_attributes: ''});
+            staticRtTables.add([newEntry],{at: selectedRuleIndex+1});
+        },
         addPropRtPolicy: function() {
             var rtPolicys = this.model().get('rtPolicys');
             var types = [{text: 'left', id: 'left'},
@@ -1179,6 +1215,17 @@ define([
                                    interface_type: null,
                                    rtPolicyInterfaceTypesData: types});
             rtPolicys.add([newEntry]);
+        },
+        addPropRtPolicyByIndex: function($data,property) {
+            var selectedRuleIndex = data.model().collection.indexOf(property.model());
+            var rtPolicys = this.model().get('rtPolicys');
+            var types = [{text: 'left', id: 'left'},
+                {text: 'right', id: 'right'}];
+            var newEntry =
+                new RtPolicyModel({routing_policy: null,
+                                   interface_type: null,
+                                   rtPolicyInterfaceTypesData: types});
+            rtPolicys.add([newEntry],{at: selectedRuleIndex+1});
         },
         addPropRtAggregate: function() {
             var rtAggregates = this.model().get('rtAggregates');
@@ -1195,12 +1242,36 @@ define([
                                       interfaceTypesData: rtAggIntfTypes});
             rtAggregates.add([newEntry]);
         },
+        addPropRtAggregateByIndex: function($data,property) {
+          var selectedRuleIndex = data.model().collection.indexOf(property.model());
+            var rtAggregates = this.model().get('rtAggregates');
+            var rtAgg = "";
+            var types = this.getIntfTypes(true);
+            var rtAggIntfTypes = [];
+            if (null != types) {
+                rtAggIntfTypes =
+                    svcInstUtils.getRouteAggregateInterfaceTypes(types);
+            }
+            var newEntry =
+                new RtAggregateModel({route_aggregate: null,
+                                      interface_type: null,
+                                      interfaceTypesData: rtAggIntfTypes});
+            rtAggregates.add([newEntry],{at: selectedRuleIndex+1});
+        },
         addAAP: function() {
             var types = this.getIntfTypes(false);
             var aapList = this.model().attributes['allowedAddressPairCollection'],
                 allowAddressPairModel = new
                 AllowedAddressPairModel({'interfaceTypesData': types});
             aapList.add([allowAddressPairModel]);
+        },
+        addAAPByIndex: function($data,property) {
+          var selectedRuleIndex = data.model().collection.indexOf(property.model());
+            var types = this.getIntfTypes(false);
+            var aapList = this.model().attributes['allowedAddressPairCollection'],
+                allowAddressPairModel = new
+                AllowedAddressPairModel({'interfaceTypesData': types});
+            aapList.add([allowAddressPairModel],{at: selectedRuleIndex+1});
         },
         deleteSvcInstProperty: function(data, property) {
             var collection = data.model().collection;
@@ -1727,4 +1798,3 @@ define([
     });
     return SvcInstModel;
 });
-

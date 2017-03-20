@@ -200,7 +200,7 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                     ],
                     rowActions: [
                         {onClick: "function() {\
-                            $root.addRulePerm();\
+                            $root.addRulePermByIndex($data, this);\
                             }",
                          iconClass: 'fa fa-plus'},
                         {onClick: "function() {\

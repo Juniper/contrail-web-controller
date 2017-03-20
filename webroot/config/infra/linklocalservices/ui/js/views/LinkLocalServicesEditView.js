@@ -246,7 +246,7 @@ define([
                                         }
                                     }],
                                     rowActions: [
-                                         {onClick: "function() { $root.addAddress(); }",
+                                         {onClick: "function() { $root.addAddressByIndex($data, this); }",
                                          iconClass: 'fa fa-plus'},
                                         {onClick: "function() { $root.deleteAddress($data, this); }",
                                          iconClass: 'fa fa-minus'}
@@ -285,4 +285,3 @@ define([
 
     return LinkLocalServicesEditView;
 });
-

@@ -38,10 +38,14 @@ define([
         },
 
         addRoute: function() {
-            var routes = this.model().attributes["routes"];
-            routes.add([new RouteAggregateRoutesModel()]);
+          var routes = this.model().attributes["routes"];
+          routes.add([new RouteAggregateRoutesModel()]);
         },
-
+        addRouteByIndex($data, kbInterface){
+          var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
+          var routes = this.model().attributes["routes"];
+          routes.add([new RouteAggregateRoutesModel()],{at: selectedRuleIndex+1});
+        };
         deleteRoute: function(data, kbInterface) {
             data.model().collection.remove(kbInterface.model())
         },

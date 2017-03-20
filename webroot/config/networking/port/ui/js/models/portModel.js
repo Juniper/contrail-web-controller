@@ -784,6 +784,35 @@ define([
                 }*/
             }
         },
+        // fixed IP collection Adding
+        addFixedIPByIndex: function(data, fixedIP) {
+            if(self.subnetDataSource instanceof Array) {
+                var selectedRuleIndex = data.model().collection.indexOf(fixedIP.model());
+                var fixedIPList = this.model().attributes['fixedIPCollection'];
+                if(fixedIPList.length < self.subnetDataSource.length) {
+                    var fixedIPModel = new FixedIPModel(
+                        {
+                            subnetDataSource: self.subnetDataSource,
+                            subnet_uuid: self.subnetDataSource[0].value,
+                            fixedIp: ""
+                        }
+                    );
+                    /*var fixedIPModel = new FixedIPModel();
+                    fixedIPModel.subnetDataSource= self.subnetDataSource;
+                    fixedIPModel.subnet_uuid= self.subnetDataSource[0].value;*/
+                    fixedIPList.add([fixedIPModel],{at: selectedRuleIndex+1});
+                }
+                /*var addbtn = $("#fixedIPCollection").find(".editable-grid-add-link")[0];
+                if(addbtn != undefined) {
+                    if(fixedIPList.length >= self.subnetDataSource.length) {
+                        //remove the add Fixed IP Button
+                        $(addbtn).addClass("hide");
+                    } else {
+                        $(addbtn).removeClass("hide");
+                    }
+                }*/
+            }
+        },
         //fixed IP Delete
         deleteFixedIP: function(data, fixedIP) {
             var fixedIPCollection = data.model().collection,
@@ -799,6 +828,13 @@ define([
                 allowAddressPairModel = new AllowAddressPairModel();
             aapList.add([allowAddressPairModel]);
         },
+        addAAPByIndex: function(data, aap) {
+            var selectedRuleIndex = data.model().collection.indexOf(aap.model());
+            var aapList = this.model().attributes['allowedAddressPairCollection'],
+                allowAddressPairModel = new AllowAddressPairModel();
+            aapList.add([allowAddressPairModel],{at: selectedRuleIndex+1});
+        },
+
         //Allow Address Pair Delete
         deleteAAP: function(data, aap) {
             var aapCollection = data.model().collection,
@@ -811,6 +847,12 @@ define([
             var dhcpList = this.model().attributes['dhcpOptionCollection'],
                 dhcpOptionModel = new DHCPOptionModel();
             dhcpList.add([dhcpOptionModel]);
+        },
+        addDHCPByIndex: function(data, dhcp) {
+            var selectedRuleIndex = data.model().collection.indexOf(dhcp.model());
+            var dhcpList = this.model().attributes['dhcpOptionCollection'],
+                dhcpOptionModel = new DHCPOptionModel();
+            dhcpList.add([dhcpOptionModel],{at: selectedRuleIndex+1});
         },
 
         //DHCP Delete
@@ -826,6 +868,15 @@ define([
                 fatFlowModel = new FatFlowModel();
             this.enableDisablePort(fatFlowModel);
             fatFlowList.add([fatFlowModel]);
+        },
+
+        //Fat Flow Add
+        addFatFlowByIndex: function(data, fatFlow) {
+            var selectedRuleIndex = data.model().collection.indexOf(fatFlow.model());
+            var fatFlowList = this.model().attributes['fatFlowCollection'],
+                fatFlowModel = new FatFlowModel();
+            this.enableDisablePort(fatFlowModel);
+            fatFlowList.add([fatFlowModel],{at: selectedRuleIndex+1});
         },
         //Fat Flow Delete
         deleteFatFlow: function(data, fatFlow) {
@@ -855,6 +906,15 @@ define([
                 this.enableDisablePortBindingValue(portBindingModel, "add");
             portBindingList.add([portBindingModel]);
         },
+
+        addPortBindingByIndex: function(data, binding) {
+            var selectedRuleIndex = data.model().collection.indexOf(binding.model());
+            var portBindingList = this.model().attributes['portBindingCollection'],
+                portBindingModel = new PortBindingModel();
+                this.enableDisablePortBindingValue(portBindingModel, "add");
+            portBindingList.add([portBindingModel],{at: selectedRuleIndex+1});
+        },
+
         //Binding Delete
         deletePortBinding: function(data, binding) {
             var portBindingCollection = data.model().collection,

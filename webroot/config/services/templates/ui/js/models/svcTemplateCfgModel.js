@@ -69,6 +69,7 @@ define([
             return modelConfig;
         },
 
+
         addSvcTemplateInterface: function() {
             var interfaces =
                 this.model().attributes['interfaces'];
@@ -167,7 +168,105 @@ define([
 
             interfaces.add([newInterface]);
         },
+        addSvcTemplateInterfaceByIndex: function(data,kbInterfaces) {
+          var selectedRuleIndex = data.model().collection.indexOf(kbInterfaces.model());
+            var interfaces =
+                this.model().attributes['interfaces'];
+            /*
+            //create in following order Mgmt, Left, Right, Others
+            var ifType = 'management', hasLeft = false,
+                hasMgmt = false, hasRight = false;
+            var ifCollection = interfaces.toJSON();
 
+            for(var i = 0; i < ifCollection.length; i++) {
+                var intf = ifCollection[i];
+                if (intf.service_interface_type() == 'management') {
+                   hasMgmt = true;
+                }
+                if (intf.service_interface_type() == 'left') {
+                   hasLeft = true;
+                }
+                if (intf.service_interface_type() == 'right') {
+                    hasRight = true;
+                }
+            }
+
+            if (hasMgmt) {
+                if (!hasLeft) {
+                    ifType = 'left';
+                } else if (!hasRight) {
+                    ifType = 'right';
+                } else {
+                    ifType = 'other'
+                }
+            } else if (hasLeft) {
+                if (!hasMgmt) {
+                    ifType = 'management';
+                } else if (!hasRight) {
+                    ifType = 'right';
+                } else {
+                    ifType = 'other'
+                }
+            } else if (hasRight) {
+                if (!hasMgmt) {
+                    ifType = 'management';
+                } else if (!hasLeft) {
+                    ifType = 'left';
+                } else {
+                    ifType = 'other'
+                }
+            }
+            */
+            var svcType = this.model().get('user_created_service_type');
+            var intfTypes = svcType == "analyzer" ? ['left', 'management'] :
+                ['management', 'left', 'right', 'other0'];
+            var intfColl = this.model().get('interfaces');
+            var len = intfColl.length;
+            var intfTypesList = [];
+            var tmpIntfList = intfTypes;
+            var otherIntfIdxList = [];
+            if (('analyzer' == svcType) && (len >= 2)) {
+                /* Analyzer, only two interface types can be added */
+                return;
+            }
+            for (var i = 0; i < len; i++) {
+                var modIntf = intfColl.at(i).get('service_interface_type')();
+                intfTypesList.push(modIntf);
+                intfTypes.push('other' + (i + 1).toString());
+            }
+            var newIntfTypes = _.difference(intfTypes, intfTypesList);
+            var newIntfType = "";
+            if (newIntfTypes.length > 0) {
+                newIntfType = newIntfTypes[0];
+            }
+            var intfText = newIntfType;
+            /*
+            if (newIntfType.length > 0) {
+                intfText = newIntfType.replace(newIntfType[0],
+                                                  newIntfType[0].toUpperCase());
+            }
+            */
+            var intfTypes = [];
+            var cnt = tmpIntfList.length;
+            for (var i = 0; i < cnt; i++) {
+                if ('analyzer' == svcType) {
+                    if (('management' != tmpIntfList[i]) &&
+                        ('left' != tmpIntfList[i])) {
+                        continue;
+                    }
+                }
+                intfTypes.push({text: tmpIntfList[i], id: tmpIntfList[i]});
+            }
+            var newInterface
+                = new SvcTemplateInterfaceModel(
+                        {'static_route_enable': false,
+                         'shared_ip': false,
+                         'service_interface_type': intfText,
+                         interfaceTypesData: intfTypes
+                        });
+
+            interfaces.add([newInterface],{at: selectedRuleIndex+1});
+        },
         deleteSvcTemplateInterface: function(parentModel, data, kbInterfaces) {
             /* Remove any error message if any */
             var ifCollection = data.model().collection,

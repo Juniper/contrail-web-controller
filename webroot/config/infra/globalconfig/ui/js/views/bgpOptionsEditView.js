@@ -205,7 +205,7 @@ define([
                             }
                         }],
                         rowActions: [
-                            { onClick: "function() { $root.addSubnet(); }",
+                            { onClick: "function() { $root.addSubnetByIndex($data, this); }",
                               iconClass: 'fa fa-plus'},
                             { onClick:
                                 "function() {$root.deleteSubnet($data, this); }",
@@ -223,4 +223,3 @@ define([
 
     return bgpOptionsEditView;
 });
-

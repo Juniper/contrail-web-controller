@@ -157,7 +157,7 @@ define([
                                                         rowActions: [
                                                             {
                                                                 onClick: "function() {\
-                                                                $root.addRoute(); }",
+                                                                $root.addRouteByIndex($data, this); }",
                                                                 iconClass: 'fa fa-plus'
                                                             },
                                                             {
@@ -188,4 +188,3 @@ define([
 
     return routeAggregateEditView;
 });
-

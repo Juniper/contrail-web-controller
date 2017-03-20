@@ -330,7 +330,7 @@ define([
                                                       ],
                                                      rowActions: [
                                                          {onClick: "function() {\
-                                                             $root.addSvcTemplateInterface();\
+                                                             $root.addSvcTemplateInterfaceByIndex($data, this);\
                                                              }",
                                                              iconClass: 'fa fa-plus'},
                                                          {onClick: "function() {\
@@ -395,7 +395,7 @@ define([
                                                       ],
                                                      rowActions: [
                                                          {onClick: "function() {\
-                                                             $root.addSvcTemplateInterface();\
+                                                             $root.addSvcTemplateInterfaceByIndex($data, this);\
                                                              }",
                                                              iconClass: 'fa fa-plus'},
                                                          {onClick: "function() {\

@@ -102,7 +102,11 @@ define([
             var dscpFCPair = this.model().attributes["dscp_entries_fc_pair"];
             dscpFCPair.add([new FCPairModel()]);
         },
-
+        addDSCPEntryByIndex: function(data, kbInterface) {
+            var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
+            var dscpFCPair = this.model().attributes["dscp_entries_fc_pair"];
+            dscpFCPair.add([new FCPairModel()],{at: selectedRuleIndex+1});
+        },
         deleteDSCPEntry: function(data, kbInterface) {
             data.model().collection.remove(kbInterface.model())
         },
@@ -126,7 +130,12 @@ define([
                 this.model().attributes["vlan_priority_entries_fc_pair"];
             vlanFCPair.add([new FCPairModel()]);
         },
-
+        addVlanPriorityEntryByIndex: function(data, kbInterface) {
+            var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
+            var vlanFCPair =
+                this.model().attributes["vlan_priority_entries_fc_pair"];
+            vlanFCPair.add([new FCPairModel()],{at: selectedRuleIndex+1});
+        },
         deleteVlanPriorityEntry: function(data, kbInterface) {
             data.model().collection.remove(kbInterface.model())
         },
@@ -150,7 +159,11 @@ define([
             var mplsFCPair = this.model().attributes["mpls_exp_entries_fc_pair"];
             mplsFCPair.add([new FCPairModel()]);
         },
-
+        addMPLSExpEntryByIndex: function(data, kbInterface) {
+            var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
+            var mplsFCPair = this.model().attributes["mpls_exp_entries_fc_pair"];
+            mplsFCPair.add([new FCPairModel()],{at: selectedRuleIndex+1});
+        },
         deleteMPLSExpEntry: function(data, kbInterface) {
             data.model().collection.remove(kbInterface.model())
         },
