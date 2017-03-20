@@ -222,6 +222,23 @@ define([
             }
             return model;
         },
+        addServerByIndex: function(data, kbInterface) {
+            self = this;
+            var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
+            var servers = this.model().attributes['servers'];
+            var newServer = new ServersModel(
+                {
+                    user_created_mac_address: "",
+                    user_created_instance_ip_address : "",
+                    isVMICreate : false,
+                    dataSource : this.infEditView.vmiDataSrc
+                }
+            );
+            self.subscribeServerModelChangeEvents(newServer);
+            servers.add([newServer],{at: selectedRuleIndex+1});
+        },
+
+
         deleteServer: function(data, kbInterface) {
             var serverCollection = data.model().collection,
                 server = kbInterface.model();
@@ -1052,4 +1069,3 @@ define([
     });
     return InterfacesModel;
 });
-

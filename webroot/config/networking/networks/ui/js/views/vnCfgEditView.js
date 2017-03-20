@@ -344,7 +344,7 @@ define([
                                                  rowActions: [
                                                      {onClick: "function() {\
                                                          if (!isVCenter())\
-                                                             $root.addSubnet();\
+                                                             $root.addSubnetByIndex($data, this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                      {onClick: "function() {\
@@ -560,7 +560,7 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
-                                                         $root.addHostRoute();\
+                                                         $root.addHostRouteByIndex($data, this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                      {onClick: "function() {\
@@ -1072,7 +1072,7 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
-                                                         $root.addSubnetDNS();\
+                                                         $root.addSubnetDNSByIndex($data, this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                     {onClick: "function() {\
@@ -1168,7 +1168,7 @@ define([
                                                 ],
                                                  rowActions: [
                                                      {onClick: "function() {\
-                                                         $root.addFipPool();\
+                                                         $root.addFipPoolByIndex($data, this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                      {onClick: "function() {\
@@ -1251,7 +1251,7 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
-                                                         $root.addRouteTarget('user_created_route_targets');\
+                                                         $root.addRouteTargetByIndex('user_created_route_targets',this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                      {onClick: "function() {\
@@ -1334,7 +1334,7 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
-                                                         $root.addRouteTarget('user_created_export_route_targets');\
+                                                         $root.addRouteTargetByIndex('user_created_export_route_targets',this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                      {onClick: "function() {\
@@ -1417,7 +1417,7 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
-                                                         $root.addRouteTarget('user_created_import_route_targets');\
+                                                         $root.addRouteTargetByIndex('user_created_import_route_targets',this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                      {onClick: "function() {\
@@ -1553,7 +1553,7 @@ define([
                                                  }],
                                                  rowActions: [
                                                      {onClick: "function() {\
-                                                         $root.addBridgeDomain();\
+                                                         $root.addBridgeDomainByIndex($data, this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                     {onClick: "function() {\

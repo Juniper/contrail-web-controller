@@ -178,7 +178,7 @@ define([
                                 }
                             }],
                             rowActions: [
-                                {onClick: "function() { $root.addKeyValuePair(); }",
+                                {onClick: "function() { $root.addKeyValuePairByIndex($data, this); }",
                                  iconClass: 'fa fa-plus'},
                                 {onClick: "function() { $root.deleteKeyValuePair($data, this); }",
                                  iconClass: 'fa fa-minus'}
@@ -298,4 +298,3 @@ define([
 
     return SvcApplianceSetEditView;
 });
-

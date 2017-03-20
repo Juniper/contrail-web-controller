@@ -45,6 +45,12 @@ define([
             routes.add([new RBACRulePermsModel()]);
         },
 
+        addRulePermByIndex: function(data, kbInterface) {
+            var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
+            var routes = this.model().attributes["rule_perms"];
+            routes.add([new RBACRulePermsModel()],{at: selectedRuleIndex+1});
+        },
+
         deleteRulePerm: function(data, kbInterface) {
             data.model().collection.remove(kbInterface.model())
         },

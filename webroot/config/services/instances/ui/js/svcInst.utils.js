@@ -660,7 +660,7 @@ define([
                                 }],
                                 rowActions: [{
                                     onClick: "function() {\
-                                        $root.addPropSvcHealthChk();\
+                                        $root.addPropSvcHealthChkByIndex($data, this);\
                                     }",
                                     iconClass: 'fa fa-plus'
                                 },
@@ -743,7 +743,7 @@ define([
                                 }],
                                 rowActions: [{
                                     onClick: "function() {\
-                                        $root.addPropIntfRtTable();\
+                                        $root.addPropIntfRtTableByIndex($data, this);\
                                     }",
                                     iconClass: 'fa fa-plus'
                                 },
@@ -836,7 +836,7 @@ define([
                                 }],
                                 rowActions: [{
                                     onClick: "function() {\
-                                        $root.addPropStaticRtTable();\
+                                        $root.addPropStaticRtTableByIndex($data, this);;\
                                     }",
                                     iconClass: 'fa fa-plus'
                                 },
@@ -920,7 +920,7 @@ define([
                                 }],
                                 rowActions: [{
                                     onClick: "function() {\
-                                        $root.addPropRtPolicy();\
+                                        $root.addPropRtPolicyByIndex($data, this);\
                                     }",
                                     iconClass: 'fa fa-plus'
                                 },
@@ -1006,7 +1006,7 @@ define([
                                     }
                                 }],
                                 rowActions: [{
-                                 onClick: "function() { $root.addAAP(); }",
+                                 onClick: "function() { $root.addAAPByIndex($data, this); }",
                                 iconClass: 'fa fa-plus',
                                 },
                                 {
@@ -1087,7 +1087,7 @@ define([
                                 }],
                                 rowActions: [{
                                     onClick: "function() {\
-                                        $root.addPropRtAggregate();\
+                                        $root.addPropRtAggregateByIndex($data, this);\
                                     }",
                                     iconClass: 'fa fa-plus'
                                 },
@@ -1138,4 +1138,3 @@ define([
     };
     return new svcInstUtils();
 });
-

@@ -53,6 +53,12 @@ define([
                 newRoutingPolicyModel = new RoutingPolicyTermModel();
             termList.add([newRoutingPolicyModel]);
         },
+        addRuleByIndex: function (data, rules) {
+            var selectedRuleIndex = data.model().collection.indexOf(rules.model());
+            var termList = this.model().attributes['termCollection'],
+                newRoutingPolicyModel = new RoutingPolicyTermModel();
+            termList.add([newRoutingPolicyModel],{at: selectedRuleIndex+1});
+        },
         deleteRules: function (data, rules) {
             var termsCollection = data.model().collection,
                 delTerm = rules.model();

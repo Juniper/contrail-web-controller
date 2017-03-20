@@ -62,7 +62,7 @@ define([
                 getValueByJsonPath(modelConfig,
                 'network_ipam_mgmt;ipam_dns_method', 'default-dns-server');
 
-           modelConfig['user_created_dns_method'] = 
+           modelConfig['user_created_dns_method'] =
                         modelConfig['network_ipam_mgmt']['ipam_dns_method'];
 
            vDnsName =
@@ -207,7 +207,13 @@ define([
             self.setSubnetChangeEvent(subnetModel);
             subnet.add([subnetModel]);
         },
-
+        addSubnetByIndex: function(data, kbSubnet) {
+          var selectedRuleIndex = data.model().collection.indexOf(kbSubnet.model());
+          var subnet = this.model().attributes['user_created_ipam_subnets'],
+              subnetModel = new SubnetModel({user_created_ipam_fqn: 'dummy'});
+          self.setSubnetChangeEvent(subnetModel);
+          subnet.add([subnetModel],{at: selectedRuleIndex+1});
+        },
         deleteSubnet: function(data, kbSubnet) {
             var subnetCollection = data.model().collection,
                 subnet = kbSubnet.model();
@@ -324,7 +330,13 @@ define([
 
             dns.add([newDNS]);
         },
+        addTenantDNSByIndex: function(data,kbTenantDNS) {
+            var selectedRuleIndex = data.model().collection.indexOf(kbTenantDNS.model());
+            var dns = this.model().attributes['tenant_dns_server'],
+                newDNS = new IpamTenantDNSModel({'ip_addr': ""});
 
+            rulesList.add([newDNS],{at: selectedRuleIndex+1});
+        },
         deleteTenantDNS: function(data, kbTenantDNS) {
             var dnsCollection = data.model().collection,
                 dns = kbTenantDNS.model();
@@ -467,7 +479,7 @@ define([
                 }
 
                 if (!ntp.length && !domain.length) {
-                    delete 
+                    delete
                         newipamCfgData['network_ipam_mgmt']['dhcp_option_list'];
                 } else {
                     newipamCfgData

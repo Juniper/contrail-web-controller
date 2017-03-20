@@ -456,7 +456,7 @@ define([
                                     ],
                                     rowActions: [{
                                         onClick: "function() {\
-                                            $root.addSecGrpRule();\
+                                            $root.addSecGrpRuleByIndex($data, this);\
                                         }",
                                         iconClass: 'fa fa-plus'
                                     },{
@@ -583,4 +583,3 @@ define([
     };
     return secGrpUtils;
 });
-

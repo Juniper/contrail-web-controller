@@ -44,6 +44,15 @@ define([
             var flowAgeEntry = flowAgeTuple.model();
             flowAgeCollection.remove(flowAgeEntry);
         },
+        addFlowAgingTupleByIndex: function(data, flowAgeTuple) {
+          var selectedRuleIndex = data.model().collection.indexOf(flowAgeTuple.model());
+          var flowAgeCollection = this.model().get('flowAgingTimeout');
+          var newFlowAgeEntry =
+              new FlowAgingTimeoutModel({protocol: "", port: "",
+                                        timeout_in_seconds: ""});
+          this.flowAgingTimeoutAttrs(newFlowAgeEntry, this);
+          flowAgeCollection.add([newFlowAgeEntry],{at: selectedRuleIndex+1});
+        },
         addFlowAgingTuple: function() {
             var flowAgeCollection = this.model().get('flowAgingTimeout');
             var newFlowAgeEntry =
@@ -160,4 +169,3 @@ define([
     });
     return flowAgingModel;
 });
-

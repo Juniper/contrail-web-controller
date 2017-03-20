@@ -296,7 +296,7 @@ define([
                                                      ],
                                                      rowActions: [
                                                          {onClick: "function() {\
-                                                             $root.addTenantDNS();\
+                                                             $root.addTenantDNSByIndex($data, this);\
                                                              }",
                                                              iconClass: 'fa fa-plus'},
                                                          {onClick: "function() {\
@@ -391,7 +391,7 @@ define([
                                           rowActions: [{
                                               onClick: "function() {\
                                                   if (!isVCenter())\
-                                                      $root.addSubnet();\
+                                                      $root.addSubnetByIndex($data, this);\
                                                   }",
                                               iconClass: 'fa fa-plus'
                                               }, {
