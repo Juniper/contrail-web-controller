@@ -115,7 +115,7 @@
                          }
                      }],
                      rowActions: [{
-                         onClick: "function() { $root.addFixedIP(); }",
+                         onClick: "function() { $root.addFixedIPByIndex($data, this); }",
                          iconClass: 'fa fa-plus',
                      },
                      {
@@ -171,7 +171,7 @@
                              }
                          }],
                          rowActions: [{
-                          onClick: "function() { $root.addAAP(); }",
+                          onClick: "function() { $root.addAAPByIndex($data, this); }",
                          iconClass: 'fa fa-plus',
                          },
                          {
@@ -531,7 +531,7 @@
                                          }
                                      }],
                                      rowActions: [{
-                                         onClick: "function() { $root.addPortBinding(); }",
+                                         onClick: "function() { $root.addPortBindingByIndex($data, this); }",
                                          iconClass: 'fa fa-plus',
                                          },
                                          {
@@ -950,7 +950,7 @@
                                              }
                                          }],
                                          rowActions: [{
-                                             onClick: "function() { $root.addDHCP(); }",
+                                             onClick: "function() { $root.addDHCPByIndex($data, this); }",
                                              iconClass: 'fa fa-plus',
                                              },
                                              {
@@ -1031,7 +1031,7 @@
                                              }
                                          }],
                                          rowActions: [{
-                                             onClick: "function() { $root.addFatFlow(); }",
+                                             onClick: "function() { $root.addFatFlowByIndex($data, this); }",
                                              iconClass: 'fa fa-plus',
                                              },
                                              {

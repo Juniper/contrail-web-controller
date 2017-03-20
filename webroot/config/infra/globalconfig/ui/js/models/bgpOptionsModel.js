@@ -116,6 +116,12 @@ define([
             var newSubnet = new IPSubnetModel({'ip_fabric_subnets': ""});
             subnet.add([newSubnet]);
         },
+        addSubnetByIndex: function(data, kbAddr) {
+            var selectedRuleIndex = data.model().collection.indexOf(kbAddr.model());
+            var subnet = this.model().attributes['ipFabricSubnets'];
+            var newSubnet = new IPSubnetModel({'ip_fabric_subnets': ""});
+            subnet.add([newSubnet],{at: selectedRuleIndex+1});
+        },
         deleteSubnet: function(data, kbAddr) {
             var subnetCollection = data.model().collection;
             var subnet = kbAddr.model();
@@ -235,4 +241,3 @@ define([
     });
     return bgpOptionsModel;
 });
-

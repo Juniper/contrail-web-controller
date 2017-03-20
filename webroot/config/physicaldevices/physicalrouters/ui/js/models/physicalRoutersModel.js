@@ -181,6 +181,12 @@ define([
                 newPort = new ServicePortModel({portName: ""});
             ports.add([newPort]);
         },
+        addPortByIndex: function(data, kbInterface) {
+          var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
+            var ports = this.model().attributes['servicePorts'],
+                newPort = new ServicePortModel({portName: ""});
+            ports.add([newPort],{at: selectedRuleIndex+1});
+        },
         deletePort: function(data, kbInterface) {
             var portCollection = data.model().collection,
                 port = kbInterface.model();
@@ -807,4 +813,3 @@ define([
     });
     return PhysicalRouterModel;
 });
-

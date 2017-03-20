@@ -198,7 +198,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                         rows: [{
                                         rowActions: [
                                             {
-                                                onClick: "function() { $root.addPeer(); }",
+                                                onClick: "function() { $root.addPeerByIndex($data, this); }",
                                                 iconClass: 'fa fa-plus'
                                             },
                                             {

@@ -301,7 +301,7 @@ define([
                                             ],
                                             rowActions: [
                                                 {onClick: "function() {\
-                                                    $root.addRouteTarget('user_created_configured_route_target_list');\
+                                                    $root.addRouteTargetByIndex('user_created_configured_route_target_list', $data,this);\
                                                     }",
                                                  iconClass: 'fa fa-plus'},
                                                 {onClick: "function() {\

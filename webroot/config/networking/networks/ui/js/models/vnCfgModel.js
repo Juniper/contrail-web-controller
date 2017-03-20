@@ -168,7 +168,15 @@ define([
             }
             bridgeDomains.add([newBridgeDomain]);
         },
-
+        addBridgeDomainByIndex: function(data, kbHostRoute) {
+          var selectedRuleIndex = data.model().collection.indexOf(kbHostRoute.model());
+            var bridgeDomains = this.model().attributes['bridge_domains'],
+                newBridgeDomain = new BridgeDomainModel();
+            if(bridgeDomains.length > 0) {
+                return;
+            }
+            bridgeDomains.add([newBridgeDomain],{at: selectedRuleIndex+1}););
+        },
         deleteBridgeDomain: function(data, kbHostRoute) {
             var bridgeDomainCollection = data.model().collection,
                 bridgeDomain = kbHostRoute.model();
@@ -254,7 +262,14 @@ define([
                                                    });
             hostRoute.add([newHostRoute]);
         },
-
+        addHostRouteByIndex: function(data, kbHostRoute) {
+          var selectedRuleIndex = data.model().collection.indexOf(kbHostRoute.model());
+          var hostRoute = this.model().attributes['user_created_host_routes'],
+              newHostRoute = new HostRouteModel({'prefix': null,
+                                                  'next_hop': null,
+                                                 });
+          hostRoute.add([newHostRoute],{at: selectedRuleIndex+1});
+        },
         deleteHostRoute: function(data, kbHostRoute) {
             var hostRouteCollection = data.model().collection,
                 hostRoute = kbHostRoute.model();
@@ -317,6 +332,15 @@ define([
 
             routeTarget.add([newRouteTarget]);
         },
+        addRouteTargetByIndex: function(type, kbRouteTarget) {
+            var selectedRuleIndex = type.model().collection.indexOf(kbRouteTarget.model());
+            var routeTarget = this.model().attributes[type],
+                newRouteTarget = new RouteTargetModel({'asn': null,
+                                                    'target': null,
+                                                      });
+
+            routeTarget.add([newRouteTarget],{at: selectedRuleIndex+1});
+        },
 
         deleteRouteTarget: function(data, kbRouteTarget) {
             var routeTargetCollection = data.model().collection,
@@ -362,7 +386,14 @@ define([
                                                 'disable': false});
             fipPool.add([newFipPool]);
         },
-
+        addFipPoolByIndex: function(data, kbFipPool) {
+            var selectedRuleIndex = data.model().collection.indexOf(kbFipPool.model());
+            var fipPool = this.model().attributes['floating_ip_pools'],
+                newFipPool = new FipPoolModel({'name': null,
+                                               'projects': null,
+                                                'disable': false});
+            fipPool.add([newFipPool],{at: selectedRuleIndex+1});
+        },
         deleteFipPool: function(data, kbFipPool) {
             var fipPoolCollection = data.model().collection,
                 fipPool = kbFipPool.model();
@@ -428,7 +459,13 @@ define([
 
             subnetDNS.add([newSubnetDNS]);
         },
+        addSubnetDNSByIndex: function(data, kbSubnetDNS) {
+            var selectedRuleIndex = data.model().collection.indexOf(kbSubnetDNS.model());
+            var subnetDNS = this.model().attributes['user_created_dns_servers'],
+                newSubnetDNS = new SubnetDNSModel({'ip_address': null});
 
+            subnetDNS.add([newSubnetDNS],{at: selectedRuleIndex+1});
+        },
         deleteSubnetDNS: function(data, kbSubnetDNS) {
             var subnetDNSCollection = data.model().collection,
                 subnetDNS = kbSubnetDNS.model();
@@ -495,7 +532,13 @@ define([
             self.setSubnetChangeEvent(subnetModel);
             subnet.add([subnetModel]);
         },
-
+        addSubnetByIndex: function(data, kbSubnet) {
+          var selectedRuleIndex = data.model().collection.indexOf(kbSubnet.model());
+          var subnet = this.model().attributes['network_ipam_refs'],
+              subnetModel = new SubnetModel();
+          self.setSubnetChangeEvent(subnetModel);
+          subnet.add([subnetModel],{at: selectedRuleIndex+1});
+        },
         deleteSubnet: function(data, kbSubnet) {
             var subnetCollection = data.model().collection,
                 subnet = kbSubnet.model();

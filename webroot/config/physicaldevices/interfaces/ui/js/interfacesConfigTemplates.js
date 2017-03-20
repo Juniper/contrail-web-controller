@@ -301,7 +301,7 @@ define([
                                         rowActions: [
                                             {
                                                 onClick: "function() {\
-                                                $root.addServer(); }",
+                                                $root.addServerByIndex($data, this); }",
                                                 iconClass: 'fa fa-plus'
                                             },
                                             {
