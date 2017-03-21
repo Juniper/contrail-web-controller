@@ -78,22 +78,7 @@ define([
                    },
                    renderOnActivate: true
                }
-           }/*,{
-               elementId: 'rbac_global_tab',
-               title: 'RBAC',
-               view: "rbacGlobalListView",
-               viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
-               viewConfig: viewConfig,
-               tabConfig: {
-                   activate: function(event, ui) {
-                       var gridId = $('#' + ctwc.RBAC_GRID_ID);
-                       if (gridId.data('contrailGrid')) {
-                           gridId.data('contrailGrid').refreshView();
-                       }
-                   },
-                   renderOnActivate: true
-               }
-           }*/,{
+           },{
                elementId: 'fc_global_tab',
                title: 'Forwarding Classes',
                view: "forwardingClassListView",
@@ -117,6 +102,21 @@ define([
                tabConfig: {
                    activate: function(event, ui) {
                        var gridId = $('#' + ctwc.QOS_GRID_ID);
+                       if (gridId.data('contrailGrid')) {
+                           gridId.data('contrailGrid').refreshView();
+                       }
+                   },
+                   renderOnActivate: true
+               }
+           },{
+               elementId: 'qos_control_traffic_global_tab',
+               title: 'Control Traffic',
+               view: "qosControlTrafficListView",
+               viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
+               viewConfig: viewConfig,
+               tabConfig: {
+                   activate: function(event, ui) {
+                       var gridId = $('#' + ctwc.GLOBAL_CONTROL_TRAFFIC_GRID_ID);
                        if (gridId.data('contrailGrid')) {
                            gridId.data('contrailGrid').refreshView();
                        }
