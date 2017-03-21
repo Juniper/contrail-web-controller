@@ -49,6 +49,7 @@ function GlobalConfigPageLoader ()
         ctwu.destroyDOMResources(ctwc.QOS_PREFIX_ID);
         ctwu.destroyDOMResources(ctwc.ALARM_PREFIX_ID);
         ctwu.destroyDOMResources(ctwc.GLOBAL_COUNTERS_PREFIX_ID);
+        ctwu.destroyDOMResources(ctwc.GLOBAL_CONTROL_TRAFFIC_PREFIX_ID);
     };
 }
 
