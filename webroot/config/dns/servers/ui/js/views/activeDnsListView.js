@@ -2,8 +2,8 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define(
-    ['underscore', 'contrail-view', 'contrail-list-model'],
-    function(_, ContrailView, ContrailListModel) {
+    ['underscore', 'contrail-view', 'contrail-list-model', 'contrail-utils'],
+    function(_, ContrailView, ContrailListModel, coUtils) {
         var ActiveDnsListView = ContrailView
             .extend({
                 el: $(contentContainer),
@@ -16,7 +16,8 @@ define(
                     var listModelConfig = {
                         remote: {
                             ajaxConfig: {
-                                url: ctwc.ACTIVE_DNS_DATA + getCookie('domain') +
+                                url: ctwc.ACTIVE_DNS_DATA +
+                                    coUtils.getCurrentDomain() +
                                     ":" + currentDNSServer,
                                 type: "GET"
                             },

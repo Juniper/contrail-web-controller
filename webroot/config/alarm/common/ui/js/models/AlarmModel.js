@@ -7,8 +7,9 @@ define([
     'backbone',
     'knockout',
     'contrail-config-model',
+    'contrail-utils',
     'config/alarm/common/ui/js/models/AlarmRuleOrModel'
-], function (_, Backbone, Knockout, ContrailConfigModel, AlarmRuleOrModel) {
+], function (_, Backbone, Knockout, ContrailConfigModel, coUtils, AlarmRuleOrModel) {
     var AlarmModel = ContrailConfigModel.extend({
 
         defaultConfig: {
@@ -124,9 +125,8 @@ define([
                         fqName = ['default-global-system-config', newRuleData['name']];
                     if (options.isProject) {
                         parent = 'project',
-                        fqName = [contrail.getCookie(cowc.COOKIE_DOMAIN),
-                                  contrail.getCookie(cowc.COOKIE_PROJECT),
-                                  newRuleData['name']];
+                        fqName =
+                            coUtils.getCurrentProjectFQN().concat([newRuleData['name']]);
                     }
                     newRuleData['fq_name'] = fqName;
                     newRuleData['parent_type'] = parent;

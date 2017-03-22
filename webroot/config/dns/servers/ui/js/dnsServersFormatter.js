@@ -2,7 +2,9 @@
  * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved
  */
 
- define(['underscore'], function(_){
+ define(['underscore',
+        'contrail-utils'],
+    function(_, coUtils){
      var dnsServersFormatter = function() {
 
          /*
@@ -35,7 +37,7 @@
              }
              var dispStr = "";
              var cnt = nwIpams.length;
-             var domain = getCookie('domain');
+             var domain = coUtils.getCurrentDomain();
              for (var i = 0; i < cnt; i++) {
                  if (domain == nwIpams[i]['to'][0]) {
                      dispStr += nwIpams[i]['to'][1] + ":" + nwIpams[i][

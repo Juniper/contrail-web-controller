@@ -4,8 +4,9 @@
 
 define([
     'underscore',
-    'contrail-config-model'
-], function (_, ContrailConfigModel) {
+    'contrail-config-model',
+    'contrail-utils'
+], function (_, ContrailConfigModel, coUtils) {
 
     var fipCfgModel = ContrailConfigModel.extend({
 
@@ -98,8 +99,8 @@ define([
 
                 var newFipCfgData = $.extend(true, {}, self.model().attributes);
 
-                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+                var domain = coUtils.getCurrentDomain();
+                var project = coUtils.getCurrentProject();
                 var allocType  = newFipCfgData['user_created_alloc_type'];
                 var fqName = newFipCfgData['user_created_floating_ip_pool'].split(":");
                 //permissions

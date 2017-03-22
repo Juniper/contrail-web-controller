@@ -5,9 +5,10 @@
 define([
     'underscore',
     'contrail-model',
+    'contrail-utils',
     'monitor/debug/packetcapture/ui/js/models/analyzerRulesModel',
     'monitor/debug/packetcapture/ui/js/packetCaptureFormatter'
-], function (_, ContrailModel, AnalyzerRulesModel, PacketCaptureFormatter) {
+], function (_, ContrailModel, coUtils, AnalyzerRulesModel, PacketCaptureFormatter) {
     var packetCaptureFormatter = new PacketCaptureFormatter();
     var packetCaptureModel = ContrailModel.extend({
         defaultConfig: {
@@ -75,7 +76,7 @@ define([
         getRules: function(attr) {
             var self = this, rules = attr.rules.toJSON();
             var mirrorTo =
-                getCookie("domain") + ":" + getCookie("project") + ":" + attr.name.trim();
+                (coUtils.getCurrentProjectFQN().concat([attr.name.trim()])).join(":");
             var actRules = [], rule;
             _.each(rules, function(r, i){
                 rule = {};
@@ -177,8 +178,8 @@ define([
         },
         getAnalyzer: function(attr) {
             var self = this, leftVN, analyzerInstance = {};
-            var selectedDomain = getCookie("domain");
-            var selectedProject = getCookie("project");
+            var selectedDomain = coUtils.getCurrentDomain();
+            var selectedProject = coUtils.getCurrentProject();
 
             analyzerInstance["ui_analyzer_flag"] = true;
             leftVN = getValueByJsonPath(attr,
@@ -208,8 +209,8 @@ define([
             return analyzerInstance;
         },
         getAnalyzerPolicy: function(attr) {
-            var selectedDomain = getCookie("domain"),
-                selectedProject = getCookie("project"),
+            var selectedDomain = coUtils.getCurrentDomain(),
+                selectedProject = coUtils.getCurrentProject(),
                 self = this,
                 ruleTuples, networks, validNetwork,
                 analyzerPolicy = {},

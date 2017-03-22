@@ -5,8 +5,9 @@
 define([
     'underscore',
     'contrail-config-model',
+    'contrail-utils',
     'config/networking/routeaggregate/ui/js/models/rtAggregateRoutesModel'
-], function (_, ContrailConfigModel, RouteAggregateRoutesModel) {
+], function (_, ContrailConfigModel, coUtils, RouteAggregateRoutesModel) {
     var routeAggreagteModel = ContrailConfigModel.extend({
         defaultConfig: {
             "name": null,
@@ -60,8 +61,8 @@ define([
                 postRouteAggregateData = {},
                 newRouteAggregateData, attr,
                 self  = this,
-                domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                project = contrail.getCookie(cowc.COOKIE_PROJECT),
+                domain = coUtils.getCurrentDomain(),
+                project = coUtils.getCurrentProject(),
                 validations = [
                     {
                         key : null,

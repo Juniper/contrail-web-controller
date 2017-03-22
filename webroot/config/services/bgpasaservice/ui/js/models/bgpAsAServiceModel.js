@@ -4,9 +4,10 @@
 
 define([
     'underscore',
-    'contrail-config-model'/*,
+    'contrail-config-model',
+    'contrail-utils'/*,
     'config/services/bgpasaservice/ui/js/models/bgpAsAServiceFamilyAttrModel'*/
-], function (_, ContrailConfigModel/*, BGPAsAServiceFamilyAttrModel*/) {
+], function (_, ContrailConfigModel, coUtils/*, BGPAsAServiceFamilyAttrModel*/) {
     var bgpAsAServiceModel = ContrailConfigModel.extend({
         defaultConfig: {
             "name": null,
@@ -185,11 +186,7 @@ define([
                 if(newBGPAsAServiceData["fq_name"] == [] ||
                     newBGPAsAServiceData["fq_name"] == null) {
                     newBGPAsAServiceData["fq_name"] =
-                        [
-                            contrail.getCookie(cowc.COOKIE_DOMAIN),
-                            contrail.getCookie(cowc.COOKIE_PROJECT),
-                            newBGPAsAServiceData["name"]
-                        ];
+                        coUtils.getCurrentProjectFQN().concat([newBGPAsAServiceData["name"]]);
                 }
                 sessionAttrs =
                     newBGPAsAServiceData["bgpaas_session_attributes"];

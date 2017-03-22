@@ -35,17 +35,6 @@ define([
 
     function getPacketCapture(viewConfig) {
         return function (projectSelectedValueData) {
-            selectedDomainProjectData = projectSelectedValueData;
-            var domain = {
-                'name':projectSelectedValueData.parentSelectedValueData.name,
-                'uuid':projectSelectedValueData.parentSelectedValueData.value,
-            }
-            var project = {
-                'name':projectSelectedValueData.name,
-                'uuid':projectSelectedValueData.value,
-            }
-            ctwu.setGlobalVariable("domain", domain);
-            ctwu.setGlobalVariable("project", project);
             return {
                 elementId: cowu.formatElementId([ctwc.PACKET_CAPTURE_LIST_ID]),
                 view: "packetCaptureListView",

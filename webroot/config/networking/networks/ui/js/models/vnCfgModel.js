@@ -5,6 +5,7 @@
 define([
     'underscore',
     'contrail-config-model',
+    'contrail-utils',
     'config/networking/networks/ui/js/models/bridgeDomainModel',
     'config/networking/networks/ui/js/models/subnetModel',
     'config/networking/networks/ui/js/models/hostRouteModel',
@@ -12,7 +13,7 @@ define([
     'config/networking/networks/ui/js/models/fipPoolModel',
     'config/networking/networks/ui/js/models/subnetDNSModel',
     'config/networking/networks/ui/js/views/vnCfgFormatters'
-], function (_, ContrailConfigModel, BridgeDomainModel, SubnetModel, HostRouteModel,
+], function (_, ContrailConfigModel, coUtils, BridgeDomainModel, SubnetModel, HostRouteModel,
             RouteTargetModel, FipPoolModel,SubnetDNSModel, VNCfgFormatters) {
     var formatVNCfg = new VNCfgFormatters();
 
@@ -1084,8 +1085,8 @@ define([
                 var newVNCfgData = $.extend(true,
                                             {}, this.model().attributes);
 
-                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+                var domain = coUtils.getCurrentDomain();
+                var project = coUtils.getCurrentProject();
 
                 ctwu.setNameFromDisplayName(newVNCfgData);
 

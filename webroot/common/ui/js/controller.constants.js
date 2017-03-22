@@ -155,8 +155,6 @@ define([
         this.TMPL_FORM_RESULT = 'form-result-page-template';
         this.TMPL_SESSION_ANALYZER = "session-analyzer-view-template";
 
-        this.COOKIE_DOMAIN = contrail.getCookie(this.TYPE_DOMAIN);
-        this.COOKIE_PROJECT = contrail.getCookie(this.TYPE_PROJECT);
         this.COOKIE_VIRTUAL_NETWORK = contrail.getCookie(this.TYPE_VIRTUAL_NETWORK);
         this.UCID_PREFIX_MN = "monitor-networking";
         this.UCID_PREFIX_BREADCRUMB = "breadcrumb";

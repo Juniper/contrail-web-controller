@@ -7,16 +7,17 @@ define([
     'backbone',
     'contrail-list-model',
     'contrail-view',
-    'config/networking/routingpolicy/ui/js/views/routingPolicyFormatter'
+    'config/networking/routingpolicy/ui/js/views/routingPolicyFormatter',
+    'contrail-utils'
 ], function (_, Backbone, ContrailListModel, ContrailView,
-             RoutingPolicyFormatter) {
+             RoutingPolicyFormatter, coUtils) {
     var routingPolicyFormatter = new RoutingPolicyFormatter();
     var RoutingPolicyListView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig;
-            var selectedProjectVal = ctwu.getGlobalVariable('project').uuid;
+            var selectedProjectVal = coUtils.getCurrentProjectId();
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {

@@ -36,16 +36,6 @@ define([
         },
         getLogicalRouter: function (viewConfig) {
             return function (projectSelectedValueData) {
-                var domain = {
-                    'name':projectSelectedValueData.parentSelectedValueData.name,
-                    'uuid':projectSelectedValueData.parentSelectedValueData.value,
-                }
-                var project = {
-                    'name':projectSelectedValueData.name,
-                    'uuid':projectSelectedValueData.value,
-                }
-                ctwu.setGlobalVariable("domain", domain);
-                ctwu.setGlobalVariable("project", project);
                 return {
                     elementId: cowu.formatElementId(
                                     [ctwl.CONFIG_LOGICAL_ROUTER_PAGE_ID]),

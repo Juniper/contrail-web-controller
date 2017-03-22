@@ -3,8 +3,9 @@
  */
 
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    'contrail-utils'
+], function (_, coUtils) {
     var svcInstUtils = function() {
         var self = this;
         this.svcInstStatusIntervals =
@@ -15,10 +16,10 @@ define([
         this.doFetchSvcInstHlthChk = false;
         this.getVNNameFormatter = function (vnFqn, domain, project) {
             if (null == domain) {
-                domain = getCookie('domain');
+                domain = coUtils.getCurrentDomain();
             }
             if (null == project) {
-                project = getCookie('project');
+                project = coUtils.getCurrentProject();
             }
             if ((null == vnFqn) || (null == vnFqn[0]) ||
                 (null == vnFqn[1])) {
@@ -40,8 +41,8 @@ define([
                                                     'fq_name;0', null);
                     var project = getValueByJsonPath(vnListResp[i], 'fq_name;1',
                                                      null);
-                    if ((domain == contrail.getCookie('domain')) &&
-                        (project == contrail.getCookie('project'))) {
+                    if ((domain == coUtils.getCurrentDomain()) &&
+                        (project == coUtils.getCurrentProject())) {
                         continue;
                     }
                 }
@@ -56,8 +57,8 @@ define([
             if (null == vmi) {
                 return {};
             }
-            var domain = contrail.getCookie('domain');
-            var project = contrail.getCookie('project');
+            var domain = coUtils.getCurrentDomain();
+            var project = coUtils.getCurrentProject();
             var results = [];
             var text = "";
 
@@ -146,8 +147,8 @@ define([
             if ((null == configListObj[type]) || (!configListObj[type].length)) {
                 return [];
             }
-            var domain = contrail.getCookie('domain');
-            var project = contrail.getCookie('project');
+            var domain = coUtils.getCurrentDomain();
+            var project = coUtils.getCurrentProject();
             var results = [];
 
             var configList = configListObj[type];
@@ -216,7 +217,7 @@ define([
             if (null == svcTmplStr) {
                 return null;
             }
-            var svcTmplFqn = getCookie('domain') + ":" +
+            var svcTmplFqn = coUtils.getCurrentDomain() + ":" +
                 svcTmplStr.split(' - [')[0];
             return svcInstTmplts ? svcInstTmplts[svcTmplFqn] : null;
         },
@@ -280,8 +281,8 @@ define([
                 nameList[i] = {};
                 var name = attr['portTupleName']();
                 var portTupleData = attr['portTupleData']();
-                nameList[i]['to'] = [contrail.getCookie('domain'),
-                    contrail.getCookie('project'), svcInstName, name];
+                nameList[i]['to'] =
+                    coUtils.getCurrentProjectFQN().concat([svcInstName, name]);
                 if ((null != portTupleData) && (null != portTupleData['uuid'])) {
                     nameList[i]['uuid'] = portTupleData['uuid'];
                 }

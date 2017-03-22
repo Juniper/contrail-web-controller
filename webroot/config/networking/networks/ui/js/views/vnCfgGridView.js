@@ -5,10 +5,11 @@
 define([
     'underscore',
     'contrail-view',
+    'contrail-utils',
     'config/networking/networks/ui/js/models/vnCfgModel',
     'config/networking/networks/ui/js/views/vnCfgEditView',
     'config/networking/networks/ui/js/views/vnCfgFormatters'],
-    function (_, ContrailView,
+    function (_, ContrailView, coUtils,
         VNCfgModel, VNCfgEditView, VNCfgFormatters) {
     var formatVNCfg = new VNCfgFormatters();
     var dataView;
@@ -77,8 +78,8 @@ define([
                     actionCell: function(dc) {
                         var isShared = getValueByJsonPath(dc,
                                             'is_shared', false);
-                        var domain  = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                        var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+                        var domain  = coUtils.getCurrentDomain();
+                        var project = coUtils.getCurrentProject();
                         var fqName  = getValueByJsonPath(dc, 'fq_name', []);
 
                         if ((fqName.length == 3 &&

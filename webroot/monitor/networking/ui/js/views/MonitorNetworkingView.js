@@ -4,8 +4,9 @@
 
 define([
     'underscore',
-    'contrail-view'
-], function (_, ContrailView) {
+    'contrail-view',
+    'contrail-utils'
+], function (_, ContrailView, coUtils) {
     var MonitorNetworkingView = ContrailView.extend({
         el: $(contentContainer),
 
@@ -205,8 +206,7 @@ define([
     function getProjectViewConfig() {
 
         return function(projectSelectedValueData) {
-            var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                projectFQN = domain + ':' + projectSelectedValueData.name,
+            var projectFQN = coUtils.getCurrentProjectFQN().join(":"),
                 projectUUID = projectSelectedValueData.value;
 
             return {
@@ -221,8 +221,7 @@ define([
 
     function getNetworkViewConfig() {
         return function (networkSelectedValueData) {
-            var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                projectFQN = domain + ':' + contrail.getCookie(cowc.COOKIE_PROJECT),
+            var projectFQN = coUtils.getCurrentProjectFQN().join(":"),
                 networkFQN = projectFQN + ':' + networkSelectedValueData.name,
                 networkUUID = networkSelectedValueData.value;
 
@@ -242,8 +241,7 @@ define([
     function getInstanceViewConfig(hashParams) {
         return function (instanceSelectedValueData, parentSelectedValueData) {
             var networkSelectedValueData = parentSelectedValueData,
-                domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                projectFQN = domain + ':' + contrail.getCookie(cowc.COOKIE_PROJECT),
+                projectFQN = coUtils.getCurrentProjectFQN().join(":"),
                 networkFQN = projectFQN + ':' + networkSelectedValueData.name,
                 instanceUUID = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.uuid')) ? hashParams.focusedElement.uuid : null,
                 networkUUID = networkSelectedValueData.value;
@@ -307,8 +305,7 @@ define([
 
     function getNetworkChangeCB(hashParams) {
         return function (networkSelectedValueData) {
-            var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                projectFQN = domain + ':' + contrail.getCookie(cowc.COOKIE_PROJECT),
+            var projectFQN = coUtils.getCurrentProjectFQN().join(":"),
                 networkFQN = projectFQN + ':' + networkSelectedValueData.name,
                 networkUUID = networkSelectedValueData.value;
 
@@ -319,8 +316,7 @@ define([
 
     function getProjectChangeCB(hashParams) {
         return function(projectSelectedValueData) {
-            var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                projectFQN = domain + ':' + projectSelectedValueData.name,
+            var projectFQN = coUtils.getCurrentProjectFQN().join(":"),
                 projectUUID = projectSelectedValueData.value;
 
             delete hashParams.clickedElement;

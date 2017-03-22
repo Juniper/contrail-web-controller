@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-config-model',
     'config/networking/policy/ui/js/models/ruleModel',
-    'config/networking/policy/ui/js/views/policyFormatters'
-], function (_, ContrailConfigModel, RuleModel, PolicyFormatters) {
+    'config/networking/policy/ui/js/views/policyFormatters',
+    'contrail-utils'
+], function (_, ContrailConfigModel, RuleModel, PolicyFormatters, coUtils) {
     var policyFormatters = new PolicyFormatters();
     var SIDataSource;
     var self;
@@ -168,9 +169,9 @@ define([
             ];
             if (this.isDeepValid(validations)) {
                 var newPolicyData = $.extend(true,{},this.model().attributes),
-                    selectedProjectUUID = ctwu.getGlobalVariable('project').uuid,
-                    selectedDomain = ctwu.getGlobalVariable('domain').name,
-                    selectedProject = ctwu.getGlobalVariable('project').name;
+                    selectedProjectUUID = coUtils.getCurrentProjectId(),
+                    selectedDomain = coUtils.getCurrentDomain(),
+                    selectedProject = coUtils.getCurrentProject();
                 newPolicyData["fq_name"] =
                     [selectedDomain,selectedProject,newPolicyData.policyName];
                 newPolicyData["parent_uuid"] = selectedProjectUUID;

@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-view',
     'knockback',
+    'contrail-utils',
     'config/services/bgpasaservice/ui/js/bgpAsAServiceFormatter'
-], function (_, ContrailView, Knockback, BGPAsAServiceFomatter) {
+], function (_, ContrailView, Knockback, coUtils, BGPAsAServiceFomatter) {
     var bgpAsAServiceFomatter = new BGPAsAServiceFomatter();
     var prefixId = ctwc.BGP_AS_A_SERVICE_PREFIX_ID;
     var modalId = 'configure-' + prefixId;
@@ -174,8 +175,7 @@ define([
                                                 type: "remote",
                                                 requestType: "GET",
                                                 url: "/api/tenants/config/get-virtual-machine-details?proj_fqn=" +
-                                                    contrail.getCookie(cowc.COOKIE_DOMAIN) + ":"
-                                                    + contrail.getCookie(cowc.COOKIE_PROJECT),
+                                                    coUtils.getCurrentProjectFQN().join(":"),
                                                 parse : bgpAsAServiceFomatter.parseVMIDetails
                                             }
                                         }

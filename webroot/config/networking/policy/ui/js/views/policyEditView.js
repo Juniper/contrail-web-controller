@@ -8,9 +8,10 @@ define([
     'contrail-list-model',
     'knockback',
     'contrail-view',
-    'config/networking/policy/ui/js/views/policyFormatters'
+    'config/networking/policy/ui/js/views/policyFormatters',
+    'contrail-utils'
 ], function (_, Backbone, ContrailListModel, Knockback, ContrailView,
-             PolicyFormatters) {
+             PolicyFormatters, coUtils) {
     var policyFormatters = new PolicyFormatters();
     var prefixId = ctwl.POLICY_PREFIX_ID,
         modalId = 'configure-' + prefixId,
@@ -126,9 +127,9 @@ define([
         },
         fetchAllData : function(self, callback) {
             var getAjaxs = [];
-            var selectedDomainUUID = ctwu.getGlobalVariable('domain').uuid;;
-            var selectedDomain = ctwu.getGlobalVariable('domain').name;;
-            var selectedProject = ctwu.getGlobalVariable('project').name;;
+            var selectedDomainUUID = coUtils.getCurrentDomainId();
+            var selectedDomain = coUtils.getCurrentDomain();
+            var selectedProject = coUtils.getCurrentProject();
 
             getAjaxs[0] = $.ajax({
                 url:"/api/tenants/config/virtual-networks",

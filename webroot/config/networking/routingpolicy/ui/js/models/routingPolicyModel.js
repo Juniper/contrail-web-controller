@@ -6,8 +6,10 @@ define([
     'underscore',
     'contrail-config-model',
     'config/networking/routingpolicy/ui/js/views/routingPolicyFormatter',
-    'config/networking/routingpolicy/ui/js/models/routingPolicyTermModel'
-], function (_, ContrailConfigModel, RoutingPolicyFormatter, RoutingPolicyTermModel) {
+    'config/networking/routingpolicy/ui/js/models/routingPolicyTermModel',
+    'contrail-utils'
+], function (_, ContrailConfigModel, RoutingPolicyFormatter,
+             RoutingPolicyTermModel, coUtils) {
     var routingPolicyFormatter = new RoutingPolicyFormatter();
     var RoutingPolicyModel = ContrailConfigModel.extend({
         defaultConfig: {
@@ -86,8 +88,8 @@ define([
                 ];
             if (this.isDeepValid(validations)) {
                 var newRoutingPolicyData = $.extend(true, {}, this.model().attributes),
-                    selectedDomain = ctwu.getGlobalVariable('domain').name,
-                    selectedProject = ctwu.getGlobalVariable('project').name;
+                    selectedDomain = coUtils.getCurrentDomain(),
+                    selectedProject = coUtils.getCurrentProject();
 
                 newRoutingPolicyData["fq_name"] = [selectedDomain, selectedProject, newRoutingPolicyData.routingPolicyname];
                 newRoutingPolicyData["parent_type"] = "project";

@@ -7,8 +7,10 @@ define([
     'underscore',
     'contrail-config-model',
     'config/networking/logicalrouter/ui/js/views/logicalRouterFormatters',
-    'config/common/ui/js/routeTarget.utils'
-], function (_, ContrailConfigModel, logicalRouterFormatters, RouteTargetUtils) {
+    'config/common/ui/js/routeTarget.utils',
+    'contrail-utils'
+], function (_, ContrailConfigModel, logicalRouterFormatters, RouteTargetUtils,
+             coUtils) {
     var lRFormatters = new logicalRouterFormatters();
     var routeTargetUtils = new RouteTargetUtils();
     var LogicalRouterModel = ContrailConfigModel.extend({
@@ -89,11 +91,10 @@ define([
             ];
             if (this.isDeepValid(validation)) {
                 var newLRData = $.extend({},this.model().attributes),
-                    selectedDomain = ctwu.getGlobalVariable('domain').name,
-                    selectedProject = ctwu.getGlobalVariable('project').name;
-                newLRData.fq_name = [selectedDomain,
-                                     selectedProject,
-                                     newLRData["name"]];
+                    selectedDomain = coUtils.getCurrentDomain(),
+                    selectedProject = coUtils.getCurrentProject();
+                newLRData.fq_name =
+                    coUtils.getCurrentProjectFQN().concat([newLRData["name"]]);
                 if(newLRData.virtual_network_refs.length == 1
                    && newLRData.virtual_network_refs[0].to == ""
                    && newLRData.virtual_network_refs[0].uuid == ""){

@@ -3,8 +3,9 @@
  */
 define([
     'underscore',
-    'contrail-config-model'
-], function(_, ContrailConfigModel) {
+    'contrail-config-model',
+    'contrail-utils'
+], function(_, ContrailConfigModel, coUtils) {
     var self;
     var dnsRecordsModel = ContrailConfigModel.extend({
         defaultConfig: {
@@ -52,8 +53,8 @@ define([
                 var newdnsRecordsData = $.extend(true, {},
                     self.model().attributes);
 
-                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+                var domain = coUtils.getCurrentDomain();
+                var project = coUtils.getCurrentProject();
 
                 if (newdnsRecordsData['uuid'] == '') {
                     newdnsRecordsData['display_name'] =
