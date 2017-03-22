@@ -6,8 +6,9 @@ define([
     'underscore',
     "protocol",
     'contrail-view-model',
+    'contrail-utils',
     'core-basedir/reports/qe/ui/js/common/qe.utils'
-], function (_, protocolUtils, ContrailViewModel, qeUtils) {
+], function (_, protocolUtils, ContrailViewModel, coUtils, qeUtils) {
     var CTViewConfig = function () {
         var self = this;
 
@@ -202,7 +203,25 @@ define([
             var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
                 defaultDropdownoptions = {
                     urlValue: (urlValue !== null) ? urlValue.split(':').splice(0,1).join(':') : null,
-                    cookieKey: cowc.COOKIE_DOMAIN
+                    cookieKey: cowc.COOKIE_DOMAIN_DISPLAY_NAME,
+                    preSelectCB : function(selectedValueData) {
+                        var domainDispName =
+                            getValueByJsonPath(selectedValueData, "name");
+                        var domainFqn = getValueByJsonPath(selectedValueData,
+                                                           "fq_name",
+                                                           domainDispName);
+                        var domainId = getValueByJsonPath(selectedValueData,
+                                                          "uuid", null);
+                        /* While setting domain in domain drop-down,
+                         * cookie for key COOKIE_DOMAIN_DISPLAY_NAME
+                         * will be set in BreadcrumbDropdownView.js, so
+                         * let us set cookie for cowc.COOKIE_DOMAIN here
+                        */
+                        if (null != domainFqn) {
+                            contrail.setCookie(cowc.COOKIE_DOMAIN, domainFqn);
+                        }
+                        coUtils.setCurrentDomainData(selectedValueData);
+                    }
                 },
                 dropdownOptions = $.extend(true, {}, defaultDropdownoptions, customDomainDropdownOptions);
 
@@ -272,16 +291,36 @@ define([
 
                 var defaultDropdownOptions = {
                         urlValue: (urlValue !== null) ? urlValue.split(':').splice(1, 1).join(':') : null,
-                        cookieKey: cowc.COOKIE_PROJECT,
+                        cookieKey: cowc.COOKIE_PROJECT_DISPLAY_NAME,
                         parentSelectedValueData: domainSelectedValueData,
                         preSelectCB : function(selectedValueData) {
-                            if(getValueByJsonPath(selectedValueData,'value') != null) {
+                            var projId =
+                                getValueByJsonPath(selectedValueData, "value");
+                            if (null != projId) {
+                                var projFqn =
+                                    getValueByJsonPath(selectedValueData,
+                                                       "fq_name");
+                                if (null != projFqn) {
+                                    projFqnArr = projFqn.split(":");
+                                    projFqn = projFqnArr[1];
+                                }
+                                var projDisplayName =
+                                    getValueByJsonPath(selectedValueData, "name");
+                                projFqn = (null != projFqn) ? projFqn :
+                                    projDisplayName;
+                                /* While selection of project from drop-down,
+                                 * cookie for key COOKIE_PROJECT_DISPLAY_NAME
+                                 * will be set in BreadcrumbDropdownView.js, so
+                                 * let us set cookie for cowc.COOKIE_PROJECT here
+                                 */
+                                contrail.setCookie(cowc.COOKIE_PROJECT,
+                                                   projFqn);
+                                coUtils.setCurrentProjectData(selectedValueData);
                                 return $.ajax({
                                             type:"GET",
                                             url:'/api/tenants/get-project-role?id=' +
-                                                selectedValueData['value'] +
-                                                '&project=' +
-                                                selectedValueData['name']
+                                                projId + '&project=' +
+                                                projDisplayName
                                         });
                             } else {
                                 var defObj = $.Deferred();
@@ -331,8 +370,7 @@ define([
             var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null);
 
             return function(projectSelectedValueData) {
-                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                    projectFQN = domain + ':' + projectSelectedValueData.name,
+                var projectFQN = coUtils.getCurrentProjectFQN().join(":"),
                     defaultDropdownOptions = {
                         urlValue: (urlValue !== null) ? urlValue.split(':').splice(2, 1).join(':') : null,
                         cookieKey: cowc.COOKIE_VIRTUAL_NETWORK,

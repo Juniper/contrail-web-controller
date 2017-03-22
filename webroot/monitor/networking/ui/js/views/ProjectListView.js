@@ -6,8 +6,9 @@ define([
     "underscore",
     "contrail-view",
     "contrail-list-model",
-    "core-basedir/reports/qe/ui/js/common/qe.utils"
-], function (_, ContrailView, ContrailListModel, qeUtils) {
+    "core-basedir/reports/qe/ui/js/common/qe.utils",
+    "contrail-utils"
+], function (_, ContrailView, ContrailListModel, qeUtils, coUtils) {
     var ProjectListView = ContrailView.extend({
         el: $(contentContainer),
 
@@ -23,7 +24,8 @@ define([
         return {
             remote: {
                 ajaxConfig: {
-                        url: ctwc.getProjectsURL({name: ctwc.COOKIE_DOMAIN}, {getProjectsFromIdentity: true}),
+                        url: ctwc.getProjectsURL({name: coUtils.getCurrentDomain()},
+                                                 {getProjectsFromIdentity: true}),
                         type: 'GET'
                 },
                 dataParser: nmwp.projectDataParser,

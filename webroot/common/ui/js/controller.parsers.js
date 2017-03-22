@@ -3,8 +3,9 @@
  */
 
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    'contrail-utils'
+], function (_, coUtils) {
     var CTParsers = function() {
         var self = this;
 
@@ -495,8 +496,8 @@ define([
 
         this.vnCfgDataParser = function(response, isShared) {
             var retArr = [];
-            var domain  = contrail.getCookie(cowc.COOKIE_DOMAIN);
-            var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+            var domain  = coUtils.getCurrentDomain();
+            var project = coUtils.getCurrentProject();
 
             if(response != null &&
                 'virtual-networks' in response &&

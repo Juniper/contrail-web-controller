@@ -6,6 +6,7 @@ define([
     'underscore',
     'contrail-config-model',
     'knockout',
+    'contrail-utils',
     'config/services/instances/ui/js/models/InterfacesModel',
     'config/services/instances/ui/js/svcInst.utils',
     'config/services/instances/ui/js/models/PortTupleModel',
@@ -15,7 +16,7 @@ define([
     'config/services/instances/ui/js/models/RtAggregateModel',
     'config/services/instances/ui/js/models/AllowedAddressPairModel',
     'config/services/instances/ui/js/models/StaticRTModel'
-], function (_, ContrailConfigModel, Knockout, InterfacesModel, svcInstUtils,
+], function (_, ContrailConfigModel, Knockout, coUtils, InterfacesModel, svcInstUtils,
              PortTupleModel, SvcHealthChkModel, IntfRtTableModel, RtPolicyModel,
              RtAggregateModel, AllowedAddressPairModel, StaticRTModel) {
     var self;
@@ -49,7 +50,7 @@ define([
                 'no_of_instances': function(val, attr, data) {
                     var svcTmpl = data.service_template;
                     var svcTmpls = self.svcInstanceDataObj.svcInstTmplts;
-                    var svcTmplFqn = getCookie('domain') + ":" +
+                    var svcTmplFqn = coUtils.getCurrentDomain() + ":" +
                         svcTmpl.split(' - [')[0];
                     var svcTmplObj = svcTmpls[svcTmplFqn];
 
@@ -244,7 +245,7 @@ define([
                     if (null == val) {
                         return "Select Service Template";
                     }
-                    var svcTmpl = getCookie('domain') + ":" +
+                    var svcTmpl = coUtils.getCurrentDomain() + ":" +
                         val.split(' - [')[0];
                     var svcTmpls = self.svcInstanceDataObj.svcInstTmplts;
                     if (null == svcTmpls[svcTmpl]) {
@@ -574,6 +575,7 @@ define([
 
             self = this;
             self.configDetails = configDetails;
+            var currentDomain = coUtils.getCurrentDomain();
             modelConfig.host_list = [{'text': 'ANY', 'id': 'ANY'}];
             var intfTypes = [];
             if ((null != modelConfig) &&
@@ -597,8 +599,7 @@ define([
                 intfTypes = intfTypes.split(', ');
                 var svcTmplObjsByFqn = svcInstDataObj.svcInstTmplts;
                 if (null != tmpl) {
-                    var tmplFqn = getCookie('domain') + ':' +
-                    tmpl.split(' - [')[0];
+                    var tmplFqn = currentDomain + ':' + tmpl.split(' - [')[0];
                     svcTmpl = {'service-template': svcTmplObjsByFqn[tmplFqn]};
                 } else {
                     svcTmpl = null;
@@ -618,8 +619,7 @@ define([
                                    []);
             var svcTmpls = svcInstDataObj.svcInstTmplts;
             var tmpl = modelConfig['service_template'];
-            var svcTmplFqn = getCookie('domain') + ":" +
-                tmpl.split(' - [')[0];
+            var svcTmplFqn = currentDomain + ":" + tmpl.split(' - [')[0];
 
             var tmplVer =
                 getValueByJsonPath(svcTmpls[svcTmplFqn],
@@ -952,7 +952,7 @@ define([
             }
             var cnt = intfTypes.length;
             var svcTmpl = this.model().get('service_template');
-            var svcTmplFqn = getCookie('domain') + ":" +
+            var svcTmplFqn = coUtils.getCurrentDomain() + ":" +
                 svcTmpl.split(' - [')[0];
 
             var tmplVer = getValueByJsonPath(svcTmpls[svcTmplFqn],
@@ -1035,7 +1035,7 @@ define([
              */
             var svcTmpl = this.model().get('service_template');
             var svcTmpls = self.svcInstanceDataObj.svcInstTmplts;
-            var svcTmplFqn = getCookie('domain') + ":" +
+            var svcTmplFqn = coUtils.getCurrentDomain() + ":" +
                 svcTmpl.split(' - [')[0];
             var tmplVer = getValueByJsonPath(svcTmpls[svcTmplFqn],
                                              'service_template_properties;version',
@@ -1215,7 +1215,7 @@ define([
                 return false;
             }
             tmplStr = tmplStr.trim();
-            tmplStr = contrail.getCookie('domain') + ":" + tmplStr.split(' - [')[0];
+            tmplStr = coUtils.getCurrentDomain() + ":" + tmplStr.split(' - [')[0];
             var tmplData = self.svcInstanceDataObj.svcInstTmplts;
             if (null == tmplData[tmplStr]) {
                 return false;
@@ -1555,6 +1555,8 @@ define([
             var ajaxConfig = {}, returnFlag = false;
             var putData = {};
 
+            var currentDomain = coUtils.getCurrentDomain();
+            var currentProject = coUtils.getCurrentProject();
             var validationList = this.deepValidationList();
             if (this.isDeepValid(validationList)) {
                 var locks = this.model().attributes.locks.attributes;
@@ -1578,7 +1580,7 @@ define([
                 newSvcInst['service_template_refs'] = [];
                 newSvcInst['service_template_refs'][0] = {};
                 newSvcInst['service_template_refs'][0]['to'] =
-                    [getCookie('domain'), tmpl];
+                    [currentDomain, tmpl];
                 newSvcInst['parent_type'] = 'project';
                 newSvcInst['parent_uuid'] =
                     self.svcInstanceDataObj.currentProject.value;
@@ -1595,8 +1597,7 @@ define([
                                            1);
                 }
                 newSvcInst['fq_name'] =
-                    [getCookie('domain'), getCookie('project'),
-                    newSvcInst['display_name']];
+                    [currentDomain, currentProject, newSvcInst['display_name']];
                 if (1 == svcTmplVersion) {
                     newSvcInst['service_instance_properties']['scale_out'] = {};
                     newSvcInst['service_instance_properties']['scale_out']

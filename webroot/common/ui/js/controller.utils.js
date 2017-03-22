@@ -4,12 +4,12 @@
 
 define([
     'underscore',
-    'contrail-list-model'
-], function (_, ContrailListModel) {
+    'contrail-list-model',
+    'contrail-utils'
+], function (_, ContrailListModel, coUtils) {
 
     var CTUtils = function () {
         var self = this;
-        var utilVariable = [];
         self.getInstanceDetailsTemplateConfig = function () {
             return {
 
@@ -338,7 +338,7 @@ define([
                         return  $.map(response.projects, function (n, i) {
                             return {
                                 fq_name: n.fq_name.join(':'),
-                                name: n.fq_name[1],
+                                name: n.display_name,
                                 value: n.uuid
                             };
                         });
@@ -568,15 +568,6 @@ define([
                  }
             }
         };
-        this.setGlobalVariable = function(key, value) {
-            utilVariable[key] = value;
-        };
-        this.getGlobalVariable = function(key) {
-            return utilVariable[key];
-        };
-        this.getAllGlobalVariable = function() {
-            return utilVariable;
-        };
         // Accept fqname as array and
         // currentDomainProject as string format domain:project
         // if currentDomainProject is empty it will try taking utilVariable
@@ -584,18 +575,14 @@ define([
         this.formatCurrentFQName = function(argFqname, currentDomainProject){
             var domain = "", project = "";
             var fqname = _.clone(argFqname);
+            project = coUtils.getCurrentProject();
+            domain = coUtils.getCurrentDomain();
             if(currentDomainProject != null && currentDomainProject != ""){
                 var domainProjectArr = currentDomainProject.split(":");
                 if(domainProjectArr.length === 2) {
                     domain = domainProjectArr[0];
                     project = domainProjectArr[1];
                 }
-            } else if(utilVariable["domain"] != null &&
-                      utilVariable["project"] != null){
-                domain = utilVariable["domain"].name;
-                project = utilVariable["project"].name;
-            } else {
-                return false;
             }
             if(fqname.length >= 3) {
                 if(fqname[0] == domain && fqname[1] == project) {
@@ -876,8 +863,8 @@ define([
          * Used to get current domain project from stored cookie
          */
         this.getCurrentDomainProject = function() {
-            var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
+            var domainName = coUtils.getCurrentDomain(),
+                projectName = coUtils.getCurrentProject();
             return domainName + ":" + projectName;
         };
     };

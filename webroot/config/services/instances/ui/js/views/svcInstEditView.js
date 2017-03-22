@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-view',
     'knockback',
+    'contrail-utils',
     'config/services/instances/ui/js/svcInst.utils'
-], function (_, ContrailView, Knockback, svcInstUtils) {
+], function (_, ContrailView, Knockback, coUtils, svcInstUtils) {
     var gridElId = '#' + ctwl.SERVICE_INSTANCES_GRID_ID,
         prefixId = ctwl.SERVICE_INSTANCES_PREFIX_ID,
         modalId = 'configure-' + prefixId,
@@ -130,8 +131,8 @@ define([
                     timeout: 60000,
                     data: {'data': [{
                         'type': 'virtual-networks',
-                        'parent_fq_name_str': contrail.getCookie('domain') +
-                            ':' + contrail.getCookie('project'),
+                        'parent_fq_name_str':
+                            coUtils.getCurrentProjectFQN().join(":"),
                         'parent_type': 'project'
                     },
                     {

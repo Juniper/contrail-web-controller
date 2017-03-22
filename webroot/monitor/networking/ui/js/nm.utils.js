@@ -3,8 +3,9 @@
  */
 
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    'contrail-utils'
+], function (_, coUtils) {
 
     var NMUtils = function () {
         var self = this;
@@ -109,7 +110,7 @@ define([
 
         if (fqNameLength == 2) {
             $.ajax({
-                url: ctwc.getProjectsURL({name: ctwc.COOKIE_DOMAIN}),
+                url: ctwc.getProjectsURL({name: coUtils.getCurrentDomain()}),
                 async: false
             }).done(function (response) {
                 $.each(response['projects'], function (idx, projObj) {

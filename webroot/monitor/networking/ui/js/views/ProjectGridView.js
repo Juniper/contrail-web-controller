@@ -4,8 +4,9 @@
 
 define([
     'underscore',
-    'contrail-view'
-], function (_, ContrailView) {
+    'contrail-view',
+    'contrail-utils'
+], function (_, ContrailView, coUtils) {
     var ProjectGridView = ContrailView.extend({
         el: $(contentContainer),
 
@@ -15,7 +16,7 @@ define([
                 pagerOptions = viewConfig['pagerOptions'];
 
             var projectsRemoteConfig = {
-                url: ctwc.getProjectsURL({name: ctwc.COOKIE_DOMAIN}, {getProjectsFromIdentity: true}),
+                url: ctwc.getProjectsURL({name: coUtils.getCurrentDomain()}, {getProjectsFromIdentity: true}),
                 type: 'GET'
             };
 
