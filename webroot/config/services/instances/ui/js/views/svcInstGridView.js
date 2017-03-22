@@ -7,8 +7,9 @@ define([
     'contrail-view',
     'config/services/instances/ui/js/models/svcInstModel',
     'config/services/instances/ui/js/views/svcInstEditView',
-    'config/services/instances/ui/js/svcInst.utils'
-], function (_, ContrailView, SvcInstModel, SvcInstEditView, svcUtils) {
+    'config/services/instances/ui/js/svcInst.utils',
+    'contrail-utils'
+], function (_, ContrailView, SvcInstModel, SvcInstEditView, svcUtils, coUtils) {
     var svcInstEditView = new SvcInstEditView(),
     gridElId = "#" + ctwl.SERVICE_INSTANCES_GRID_ID;
 
@@ -550,8 +551,8 @@ define([
                 getValueByJsonPath(val[i], 'attr;left_sequence',
                                    null);
             var rtPolicyStr =
-                ((contrail.getCookie('domain') == val[i]['to'][0]) &&
-                 (contrail.getCookie('project') == val[i]['to'][1])) ?
+                ((val[i]['to'][0] == coUtils.getCurrentDomain()) &&
+                 (val[i]['to'][1] == coUtils.getCurrentProject())) ?
                 val[i]['to'][2] : val[i]['to'][2] + ' (' +
                     val[i]['to'][0] + ':' + val[i]['to'][1] + ')';
             if (null != leftIntfSeq) {
@@ -612,8 +613,8 @@ define([
                 refObjs[intfType] = [];
             }
             var value =
-                ((contrail.getCookie('domain') == val[i]['to'][0]) &&
-                 (contrail.getCookie('project') == val[i]['to'][1])) ?
+                ((val[i]['to'][0] == coUtils.getCurrentDomain()) &&
+                 (val[i]['to'][1] == coUtils.getCurrentProject())) ?
                 val[i]['to'][2] : val[i]['to'][2] + ' (' +
                     val[i]['to'][0] + ':' + val[i]['to'][1] + ')';
             refObjs[intfType].push(value);
@@ -723,8 +724,8 @@ define([
                     }
                 }
                 var vmiFqn = vmi.split(':');
-                var curProject = contrail.getCookie('project');
-                var curDomain = contrail.getCookie('domain');
+                var curProject = coUtils.getCurrentProject();
+                var curDomain = coUtils.getCurrentDomain();
                 if ((vmiFqn[0] == curDomain) && (vmiFqn[1] == curProject)) {
                     vmi = vmiFqn[2];
                 } else {
@@ -864,7 +865,7 @@ define([
     }
 
     this.showViewConsoleWindow = function(vmUUID, name) {
-        var selectedProject = contrail.getCookie(cowc.COOKIE_PROJECT);
+        var selectedProject = coUtils.getCurrentProject();
         var ajaxConfig = {
             url: '/api/tenants/config/service-instance-vm?project_id=' +
                      selectedProject + "&vm_id=" + vmUUID,
@@ -1110,7 +1111,7 @@ define([
         if (null == uiSvcTmplStr) {
             return null;
         }
-        var tmpl = getCookie('domain') + ':' + uiSvcTmplStr.split(' - [')[0];
+        var tmpl = coUtils.getCurrentDomain() + ':' + uiSvcTmplStr.split(' - [')[0];
         if (null == svcInstTmplts[tmpl]) {
             return null;
         }

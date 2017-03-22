@@ -7,6 +7,7 @@ define(['underscore'], function (_) {
         "domains": [
             {
                 "href"   : "http://10.84.30.249:8082/domain/f8a71b82-ec17-4869-8e34-5e967e6fce50",
+                "display_name": "default-domain",
                 "fq_name": [
                     "default-domain"],
                 "uuid"   : "f8a71b82-ec17-4869-8e34-5e967e6fce50"
@@ -20,6 +21,7 @@ define(['underscore'], function (_) {
                     "default-domain",
                     "admin"
                 ],
+                "display_name": "admin",
                 "uuid": "1c899f5a-6494-4355-b2ac-7e282566724a"
             },
             {
@@ -27,6 +29,7 @@ define(['underscore'], function (_) {
                     "default-domain",
                     "default-project"
                 ],
+                "display_name": "default-project",
                 "uuid": "390a0374-239f-40c3-ac87-d0918d2abf8b"
             }
         ]

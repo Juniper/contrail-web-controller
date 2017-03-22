@@ -5,10 +5,12 @@
 define([
     'underscore',
     'contrail-view',
+    'contrail-utils',
     'config/networking/routetable/ui/js/models/RtTableModel',
     'config/networking/routetable/ui/js/views/RtTableEditView',
     'config/networking/routetable/ui/js/rtTableUtils'
-], function (_, ContrailView, RtTableModel, RtTableEditView, RTTableUtils) {
+], function (_, ContrailView, coUtils, RtTableModel, RtTableEditView,
+             RTTableUtils) {
     var rtTableEditView = new RtTableEditView(),
         rtTableUtils = new RTTableUtils(),
         gridElId = "#" + ctwl.RT_TABLE_GRID_ID,
@@ -161,8 +163,7 @@ define([
                 "title": ctwl.TITLE_CREATE_RT_TABLE,
                 "iconClass": 'fa fa-plus',
                 "onClick": function() {
-                    var projFqn = [contrail.getCookie(cowc.COOKIE_DOMAIN),
-                        getCookie(cowc.COOKIE_PROJECT)];
+                    var projFqn = coUtils.getCurrentProjectFQN();
                     rtTableModel = new RtTableModel();
                     rtTableEditView.model = rtTableModel;
                     rtTableEditView.renderConfigureRtTable({

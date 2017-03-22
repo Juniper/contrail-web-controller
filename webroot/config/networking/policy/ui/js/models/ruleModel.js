@@ -5,8 +5,9 @@
 define([
     'underscore',
     'contrail-model',
-    'config/networking/policy/ui/js/views/policyFormatters'
-], function (_, ContrailModel, PolicyFormatters) {
+    'config/networking/policy/ui/js/views/policyFormatters',
+    'contrail-utils'
+], function (_, ContrailModel, PolicyFormatters, coUtils) {
     var policyFormatters = new PolicyFormatters(),
         self;
     var RuleModel = ContrailModel.extend({
@@ -77,8 +78,8 @@ define([
         },
         formatModelConfig: function (modelConfig) {
             self = this;
-            var domain = ctwu.getGlobalVariable('domain').name,
-                project = ctwu.getGlobalVariable('project').name,
+            var domain = coUtils.getCurrentDomain(),
+                project = coUtils.getCurrentProject(),
                 simpleAction = getValueByJsonPath(modelConfig,
                                "action_list;simple_action", "");
             if (simpleAction != "") {

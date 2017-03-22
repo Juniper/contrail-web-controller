@@ -5,8 +5,9 @@
 define([
     'underscore',
     "protocol",
-    "core-basedir/reports/qe/ui/js/common/qe.utils"
-], function (_, protocolUtils, qeUtils) {
+    "core-basedir/reports/qe/ui/js/common/qe.utils",
+    "contrail-utils"
+], function (_, protocolUtils, qeUtils, coUtils) {
     var NMGridConfig = function () {
         var self = this;
         this.projectNetworksColumns = [
@@ -249,8 +250,8 @@ define([
                 return item['name'];
             });
 
-            var domCookie = ctwc.COOKIE_DOMAIN;
-            var projCookie = ctwc.COOKIE_PROJECT;
+            var domCookie = coUtils.getCurrentDomain();
+            var projCookie = coUtils.getCurrentProject();
             var vnCookie = ctwc.COOKIE_VIRTUAL_NETWORK;
             var whereClause = "(name Starts with " + domCookie + ":" + projCookie + ":)";
             if (ctwc.ALL_PROJECTS === projCookie) {

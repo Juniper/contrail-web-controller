@@ -5,9 +5,10 @@
 define([
     "underscore",
     "contrail-config-model",
+    "contrail-utils",
     "config/networking/qos/common/ui/js/models/forwardingClassPairModel",
     "config/infra/globalconfig/ui/js/globalConfig.utils"
-], function (_, ContrailConfigModel, FCPairModel, globalConfigUtils) {
+], function (_, ContrailConfigModel, coUtils, FCPairModel, globalConfigUtils) {
     var gcUtils = new globalConfigUtils();
     var rbacModel = ContrailConfigModel.extend({
         defaultConfig: {
@@ -223,11 +224,7 @@ define([
                     if(newQOSConfigData["fq_name"] === [] ||
                         newQOSConfigData["fq_name"] === null) {
                         newQOSConfigData["fq_name"] =
-                            [
-                                contrail.getCookie(cowc.COOKIE_DOMAIN),
-                                contrail.getCookie(cowc.COOKIE_PROJECT),
-                                newQOSConfigData["name"]
-                            ];
+                            coUtils.getCurrentProjectFQN().concat([newQOSConfigData["name"]]);
                     }
                     newQOSConfigData["parent_type"] = "project";
                 }

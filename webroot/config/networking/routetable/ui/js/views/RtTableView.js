@@ -17,17 +17,6 @@ define([
 
     var getRtTableTabViewConfig = function(viewConfig) {
         return function (projectSelectedValueData) {
-            var domain = {
-                'name':projectSelectedValueData.parentSelectedValueData.name,
-                'uuid':projectSelectedValueData.parentSelectedValueData.value,
-            }
-            var project = {
-                'name':projectSelectedValueData.name,
-                'uuid':projectSelectedValueData.value,
-            }
-            //Store the domain and project along with uuid to be used later.
-            ctwu.setGlobalVariable("domain", domain);
-            ctwu.setGlobalVariable("project", project);
             var newViewConfig =
                 $.extend(true, {}, viewConfig,
                          {projectSelectedValueData: projectSelectedValueData})

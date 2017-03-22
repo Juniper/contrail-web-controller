@@ -5,8 +5,9 @@
 define([
     'underscore',
     'web-utils',
-    "core-basedir/reports/qe/ui/js/common/qe.utils"
-], function (_, webUtils, qeUtils) {
+    "core-basedir/reports/qe/ui/js/common/qe.utils",
+    "contrail-utils"
+], function (_, webUtils, qeUtils, coUtils) {
     var CTGridConfig = function () {
 
         this.bgpRouterColumns = [
@@ -332,8 +333,8 @@ define([
                         for (var i = 0; i < len; i++) {
                             uuids.push(responseJSON[i].name);
                         }
-                        var domCookie = ctwc.COOKIE_DOMAIN;
-                        var projCookie = ctwc.COOKIE_PROJECT;
+                        var domCookie = coUtils.getCurrentDomain();
+                        var projCookie = coUtils.getCurrentProject();
                         var vnCookie = ctwc.COOKIE_VIRTUAL_NETWORK;
                         whereClause = "(name Starts with " + domCookie + ":" + projCookie +
                             ":)";

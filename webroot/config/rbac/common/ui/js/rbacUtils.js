@@ -2,7 +2,9 @@
  * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 
- define(["underscore"], function(_){
+ define(["underscore",
+        "contrail-utils"],
+    function(_, coUtils){
      var rbacUtils = function(){
          this.configRBAC = function(model, callbackObj, options) {
              var ajaxConfig = {}, ajaxMethod, returnFlag = false,
@@ -10,7 +12,7 @@
              defaultAALName = "default-api-access-list",
              rbacRuleObj, attr, uuid,
              domain = options.isGlobal ? "default-domain":
-                 contrail.getCookie(cowc.COOKIE_DOMAIN),
+                 coUtils.getCurrentDomain(),
              project, fqName = [], parentType,
              validations = [
                  {
@@ -47,7 +49,7 @@
                  if (null == uuid) {
                      if(options.isProject) {
                          parentType = "project";
-                         project = contrail.getCookie(cowc.COOKIE_PROJECT);
+                         project = coUtils.getCurrentProject();
                          fqName.push(domain);
                          fqName.push(project);
                      } else if(options.isGlobal) {

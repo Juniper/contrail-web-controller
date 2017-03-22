@@ -5,10 +5,11 @@
 define([
     'underscore',
     'contrail-view',
+    'contrail-utils',
     'config/networking/securitygroup/ui/js/models/SecGrpModel',
     'config/networking/securitygroup/ui/js/views/SecGrpEditView',
     'config/networking/securitygroup/ui/js/SecGrpUtils'
-], function (_, ContrailView, SecGrpModel, SecGrpEditView, SecGrpUtils) {
+], function (_, ContrailView, coUtils, SecGrpModel, SecGrpEditView, SecGrpUtils) {
     var secGrpEditView = new SecGrpEditView(),
         gridElId = "#" + ctwl.SEC_GRP_GRID_ID;
 
@@ -252,8 +253,7 @@ define([
                 "title": ctwl.TITLE_CREATE_SEC_GRP,
                 "iconClass": 'fa fa-plus',
                 "onClick": function() {
-                    var projFqn = [getCookie('domain'),
-                        getCookie('project')];
+                    var projFqn = coUtils.getCurrentProjectFQN(),
                     secGrpModel = new SecGrpModel();
                     showHideModelAttr(secGrpModel);
                     secGrpEditView.model = secGrpModel;

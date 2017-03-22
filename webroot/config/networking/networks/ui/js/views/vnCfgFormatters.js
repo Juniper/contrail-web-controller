@@ -4,8 +4,9 @@
  */
 
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    'contrail-utils'
+], function (_, coUtils) {
     var vnCfgFormatters = function() {
         var self = this;
 
@@ -165,8 +166,8 @@ define([
          * @polColFormatter
          */
         this.polColFormatter = function(d, c, v, cd, dc) {
-            var domain  = contrail.getCookie(cowc.COOKIE_DOMAIN); 
-            var project = contrail.getCookie(cowc.COOKIE_PROJECT); 
+            var domain  = coUtils.getCurrentDomain();
+            var project = coUtils.getCurrentProject();
             var polStr = '';
             var pols   =
                 getValueByJsonPath(dc, 'network_policy_refs', []);
@@ -369,8 +370,8 @@ define([
         var flatSubnetIPAMsFormatter = function(d, c, v, cd, dc) {
             var ipamString,
                 ipamObjs = getValueByJsonPath(dc,"network_ipam_refs", [], false),
-                domain  = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                project = contrail.getCookie(cowc.COOKIE_PROJECT),
+                domain  = coUtils.getCurrentDomain();
+                project = coUtils.getCurrentProject();
                 flatSubnetIpams = [];
             _.each(ipamObjs, function(ipamObj) {
                 var isFlatSubnetIPAM = getValueByJsonPath(ipamObj,
@@ -833,8 +834,8 @@ define([
             var ipamResponse = getValueByJsonPath(response,
                     '0;network-ipams', []);
             var ipamList = [];
-            var domain  = contrail.getCookie(cowc.COOKIE_DOMAIN);
-            var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+            var domain  = coUtils.getCurrentDomain();
+            var project = coUtils.getCurrentProject();
             var vCenter = isVCenter();
 
             $.each(ipamResponse, function (i, ipam) {
@@ -877,8 +878,8 @@ define([
             var ipamResponse = getValueByJsonPath(response,
                     '0;network-ipams', []);
             var ipamList = [];
-            var domain  = contrail.getCookie(cowc.COOKIE_DOMAIN);
-            var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+            var domain  = coUtils.getCurrentDomain();
+            var project = coUtils.getCurrentProject();
             var vCenter = isVCenter();
 
             $.each(ipamResponse, function (i, ipam) {

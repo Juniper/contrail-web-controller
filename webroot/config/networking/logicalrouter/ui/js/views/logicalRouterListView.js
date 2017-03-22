@@ -8,16 +8,17 @@ define([
     'contrail-list-model',
     'contrail-view',
     'config/networking/logicalrouter/ui/js/models/logicalRouterModel',
-    'config/networking/logicalrouter/ui/js/views/logicalRouterFormatters'
+    'config/networking/logicalrouter/ui/js/views/logicalRouterFormatters',
+    'contrail-utils',
 ], function (_, Backbone, ContrailListModel, ContrailView, LogicalRouterModel,
-             logicalRouterFormatters) {
+             logicalRouterFormatters, coUtils) {
     var lRFormatters = new logicalRouterFormatters();
     var logicalRouterListView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig,
-                selectedProjectValue = ctwu.getGlobalVariable('project').uuid;
+                selectedProjectValue = coUtils.getCurrentProjectId();
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {

@@ -5,13 +5,14 @@
 define([
     'underscore',
     'contrail-config-model',
+    'contrail-utils',
     'config/networking/ipam/ui/js/models/ipamTenantDNSModel',
     'config/networking/ipam/ui/js/views/ipamCfgFormatters',
     'config/networking/networks/ui/js/models/subnetModel',
     'config/networking/networks/ui/js/models/hostRouteModel',
     'config/networking/networks/ui/js/models/subnetDNSModel',
     'config/networking/networks/ui/js/views/vnCfgFormatters'
-], function (_, ContrailConfigModel, IpamTenantDNSModel, IpamCfgFormatters,
+], function (_, ContrailConfigModel, coUtils, IpamTenantDNSModel, IpamCfgFormatters,
     SubnetModel, HostRouteModel, SubnetDNSModel, VNCfgFormatters) {
     var formatipamCfg = new IpamCfgFormatters(),
         formatVNCfg = new VNCfgFormatters();
@@ -402,8 +403,8 @@ define([
                 var newipamCfgData = $.extend(true,
                                                 {}, self.model().attributes);
 
-                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+                var domain = coUtils.getCurrentDomain();
+                var project = coUtils.getCurrentProject();
 
                 if (newipamCfgData['display_name'] == '') {
                     newipamCfgData['display_name'] = newipamCfgData['name'];

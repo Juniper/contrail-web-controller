@@ -8,9 +8,10 @@ define([
     'contrail-list-model',
     'knockback',
     'contrail-view',
+    'contrail-utils',
     'config/networking/logicalrouter/ui/js/views/logicalRouterFormatters'
 ], function (_, Backbone, ContrailListModel, Knockback, ContrailView,
-             logicalRouterFormatters) {
+             coUtils, logicalRouterFormatters) {
     var lRFormatters = new logicalRouterFormatters();
     var prefixId = ctwl.LOGICAL_ROUTER_PREFIX_ID,
         modalId = 'configure-' + prefixId,
@@ -135,7 +136,7 @@ define([
             });
         },
         fetchAllVirtualNetworks : function(callback) {
-            var selectedValue = ctwu.getGlobalVariable('project').uuid;
+            var selectedValue = coUtils.getCurrentProjectId();
             contrail.ajaxHandler({url : ctwc.get(
                                         ctwc.URL_All_NETWORK_IN_PROJECT,
                                         selectedValue) ,type :'GET'},
