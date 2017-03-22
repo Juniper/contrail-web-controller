@@ -4,8 +4,9 @@
  */
 
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    'contrail-utils'
+], function (_, coUtils) {
     var PolicyFormatters = function() {
         var self = this;
         //Formating the result from api//
@@ -359,8 +360,8 @@ define([
             var vnBackRef = getValueByJsonPath(dc, "virtual_network_back_refs", []);
             if (vnBackRef.length > 0) {
                 var vnLen = vnBackRef.length,
-                    domainName = ctwu.getGlobalVariable('domain').name,
-                    projectName = ctwu.getGlobalVariable('project').name;
+                    domainName = coUtils.getCurrentDomain(),
+                    projectName = coUtils.getCurrentProject();
                 if (showAll == true || count > vnLen) {
                     count = vnLen;
                 }
@@ -397,8 +398,8 @@ define([
             if (policyRule.length > 0) {
                 var rule = policyRule;
                 var ruleLen = rule.length
-                var domainName = ctwu.getGlobalVariable('domain').name;
-                var projectName = ctwu.getGlobalVariable('project').name;
+                var domainName = coUtils.getCurrentDomain();
+                var projectName = coUtils.getCurrentProject();
                 if (showAll == true || count > ruleLen) {
                     count = ruleLen;
                 }

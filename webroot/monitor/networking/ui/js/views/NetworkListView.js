@@ -6,18 +6,20 @@ define([
     'underscore',
     'contrail-view',
     'contrail-list-model',
+    'contrail-utils',
     'core-basedir/reports/qe/ui/js/common/qe.utils'
-], function (_, ContrailView, ContrailListModel, qeUtils) {
+], function (_, ContrailView, ContrailListModel, coUtils, qeUtils) {
     var NetworkListView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig,
-                domainFQN = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 projectSelectedValueData = viewConfig.projectSelectedValueData,
-                projectFQN = (projectSelectedValueData.value === 'all') ? null : domainFQN + ':' + projectSelectedValueData.name,
-                projectUUID = (projectSelectedValueData.value === 'all') ? null : projectSelectedValueData.value,
+                projectFQN = (projectSelectedValueData.value === 'all') ? null : 
+                    coUtils.getCurrentProjectFQN().join(":"),
+                projectUUID = (projectSelectedValueData.value === 'all') ? null :
+                    coUtils.getCurrentProjectId(),
                 contrailListModel = new ContrailListModel(getNetworkListModelConfig(projectFQN,
                                                                                     projectUUID));
 

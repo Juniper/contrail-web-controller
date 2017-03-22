@@ -5,8 +5,9 @@
 define([
     'underscore',
     'contrail-view',
-    'knockback'
-], function (_, ContrailView, Knockback) {
+    'knockback',
+    'contrail-utils'
+], function (_, ContrailView, Knockback, coUtils) {
     var prefixId = ctwc.PACKET_CAPTURE_PREFIX_ID;
     var modalId = 'configure-' + prefixId;
     var self;
@@ -33,7 +34,7 @@ define([
         fetchVirtualNetworks: function(callback) {
             var vns, formattedValue, leftVNFormattedValue, fqName, ajaxConfig = {
                 url : "/api/tenants/config/virtual-networks?tenant_id=" +
-                    getCookie("domain") + ":" + getCookie("project"),
+                    coUtils.getCurrentProjectFQN().join(":"),
                 type : 'GET'
             };
             var networkList = [];

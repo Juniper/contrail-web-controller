@@ -8,9 +8,10 @@ define([
     'contrail-list-model',
     'config/networking/policy/ui/js/models/policyModel',
     'contrail-view',
+    'contrail-utils',
     'config/networking/policy/ui/js/views/policyFormatters'
 ], function (_, Backbone, ContrailListModel, PolicyModel, ContrailView,
-             PolicyFormatters) {
+             coUtils, PolicyFormatters) {
     var policyFormatters = new PolicyFormatters();
     var PoliciesListView = ContrailView.extend({
         el: $(contentContainer),
@@ -18,7 +19,7 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig;
 
-            var selectedProjectVal = ctwu.getGlobalVariable('project').uuid;
+            var selectedProjectVal = coUtils.getCurrentProjectId();
 
             var listModelConfig = {
                 remote: {

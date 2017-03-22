@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-view',
     'knockback',
+    'contrail-utils',
     'config/networking/fip/ui/js/views/fipCfgFormatters'
-], function (_, ContrailView, Knockback, FipCfgFormatters) {
+], function (_, ContrailView, Knockback, coUtils, FipCfgFormatters) {
     var formatFipCfg = new FipCfgFormatters();
     var gridElId = '#' + ctwl.CFG_FIP_GRID_ID;
     var prefixId = ctwl.CFG_FIP_PREFIX_ID;
@@ -207,8 +208,7 @@ define([
                                             //Fix, find a way to get proj id
                                             //here. For now try using name
                                             url: '/api/tenants/config/floating-ip-pools/' +
-                                                contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
-                                                contrail.getCookie(cowc.COOKIE_PROJECT),
+                                                coUtils.getCurrentProjectFQN().join(":"),
                                             parse: formatFipCfg.fipPoolDropDownFormatter
                                         }
                                     }
@@ -315,8 +315,7 @@ define([
                                             //here. Right now we can only get
                                             //name.
                                             url: '/api/tenants/config/get-virtual-machine-details?proj_fqn=' +
-                                                contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
-                                                contrail.getCookie(cowc.COOKIE_PROJECT),
+                                                coUtils.getCurrentProjectFQN().join(":"),
                                             parse: formatFipCfg.fipPortDropDownFormatter
                                         }
                                     }

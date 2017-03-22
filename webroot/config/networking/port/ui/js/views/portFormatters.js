@@ -4,8 +4,9 @@
  */
 
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    'contrail-utils'
+], function (_, coUtils) {
     var PortFormatters = function() {
         var self = this;
         ////Data formating with the result from API////
@@ -860,7 +861,7 @@ define([
                 vmiArray = getValueByJsonPath(response, 'data', ''),
                 vmiArrayLen = vmiArray.length,
                 subInterfaceParentDatas = [],
-                projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
+                projectName = coUtils.getCurrentProject();
             for(var j=0;j < vmiArrayLen;j++){
                 var val="";
                 var mac_text = "";
@@ -950,8 +951,8 @@ define([
         }
 
         self.interfaceDetailFormater = function(d, c, v, cd, dc) {
-            var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN);
-            var projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
+            var domainName = coUtils.getCurrentDomain();;
+            var projectName = coUtils.getCurrentProject();
             if("virtual_machine_interface_refs" in dc &&
                dc["virtual_machine_interface_refs"] != null &&
                dc["virtual_machine_interface_refs"].length > 0) {
@@ -1001,8 +1002,7 @@ define([
         };
         self.getProjectFqn = function(fqn) {
             if (null == fqn) {
-                return getCookie('domain') + ':' +
-                    getCookie('project');
+                return coUtils.getCurrentProjectFQN().join(":");
             }
             return fqn;
         };

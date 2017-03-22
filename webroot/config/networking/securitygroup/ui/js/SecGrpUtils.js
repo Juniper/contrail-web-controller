@@ -2,8 +2,9 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    'contrail-utils'
+], function (_, coUtils) {
     var secGrpUtils = function() {
         var self = this;
         self.getSGDirection = function(rule) {
@@ -480,8 +481,7 @@ define([
         },
         self.getProjectFqn = function(fqn) {
             if (null == fqn) {
-                return getCookie('domain') + ':' +
-                    getCookie('project');
+                return coUtils.getCurrentProjectFQN();
             }
             return fqn;
         }
@@ -514,8 +514,8 @@ define([
             try {
                 var secGrpName = $('#display_name').find('input').val();
                 if ((null != secGrpName) && ("" != secGrpName.trim())) {
-                    secGrpName = getCookie('domain') + ":" + getCookie('project') +
-                        ":" + secGrpName.trim();
+                    secGrpName =
+                        (coUtils.getCurrentProjectFQN().concat([secGrpName.trim()])).join(":");
                 }
             } catch(e) {
                 secGrpName = "";
@@ -564,10 +564,10 @@ define([
         },
         self.formatSGAddrDropDownEntry = function(sgFqn, domain, project) {
             if (null == domain) {
-                domain = getCookie('domain');
+                domain = coUtils.getCurrentDomain();
             }
             if (null == project) {
-                project = getCookie('project');
+                project = coUtils.getCurrentProject();
             }
             var fqNameValue = sgFqn.join(':');
             if ((sgFqn[0] == domain) && (sgFqn[1] == project)) {

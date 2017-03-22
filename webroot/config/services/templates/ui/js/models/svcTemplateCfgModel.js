@@ -5,8 +5,9 @@
 define([
     'underscore',
     'contrail-config-model',
+    'contrail-utils',
     'config/services/templates/ui/js/models/svcTemplateInterfaceModel'
-], function (_, ContrailConfigModel, SvcTemplateInterfaceModel) {
+], function (_, ContrailConfigModel, coUtils, SvcTemplateInterfaceModel) {
     var svcTemplateCfgModel = ContrailConfigModel.extend({
 
         defaultConfig: {
@@ -416,7 +417,7 @@ define([
 
                 var newSvcTemplateCfgData = $.extend(true, {}, self.model().attributes);
 
-                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
+                var domain = coUtils.getCurrentDomain();
 
                 if (newSvcTemplateCfgData['display_name'] == '') {
                     newSvcTemplateCfgData['display_name'] = newSvcTemplateCfgData['name'];

@@ -4,8 +4,9 @@
  */
 
 define([
-    'underscore'
-], function (_) {
+    'underscore',
+    'contrail-utils'
+], function (_, coUtils) {
     var logicalRouterFormatters = function() {
         var self = this;
         this.idPermsFormatter = function(d, c, v, cd, dc) {
@@ -25,8 +26,8 @@ define([
             if(dc["virtual_network_refs"] != "" &&
                         dc["virtual_network_refs"] != undefined &&
                         dc["virtual_network_refs"] != null){
-                var domainName = ctwu.getGlobalVariable('domain').name;
-                var projectName = ctwu.getGlobalVariable('project').name;
+                var domainName = coUtils.getCurrentDomain();
+                var projectName = coUtils.getCurrentProject();
                 var externalNet = dc["virtual_network_refs"][0]["to"];
                 if(externalNet[0] == domainName &&
                    externalNet[1] == projectName){
@@ -43,8 +44,8 @@ define([
             return "Enabled";
         }
         this.interfaceDetailFormatter = function(d, c, v, cd, dc) {
-            var domainName = ctwu.getGlobalVariable('domain').name;
-            var projectName = ctwu.getGlobalVariable('project').name;
+            var domainName = coUtils.getCurrentDomain();
+            var projectName = coUtils.getCurrentProject();
             if("virtual_machine_interface_refs" in dc &&
                dc["virtual_machine_interface_refs"] != null &&
                dc["virtual_machine_interface_refs"].length > 0) {
@@ -109,8 +110,8 @@ define([
                         "virtual_machine_interface_refs", [], false);
             if(vmiRefs.length > 0) {
                 var vmi_length = vmiRefs.length;
-                var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                var projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
+                var domainName = coUtils.getCurrentDomain();
+                var projectName = coUtils.getCurrentProject();
                 for(var i = 0; i < vmi_length && i < 3 ;i++) {
                     var vmiNetworks = getValueByJsonPath(vmiRefs[i],
                             "virtual_network_refs;0;to", [], false);
@@ -147,8 +148,8 @@ define([
                         "virtual_machine_interface_refs", [], false);
             if(vmiRefs.length > 0) {
                 var vmi_length = vmiRefs.length;
-                var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN)
-                var projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
+                var domainName = coUtils.getCurrentDomain();
+                var projectName = coUtils.getCurrentProject();
                 for(var i = 0; i < vmi_length;i++) {
                     var vmiNetworks = getValueByJsonPath(vmiRefs[i],
                             "virtual_network_refs;0;to", [], false);
@@ -228,7 +229,7 @@ define([
 
         this.connectedNetworkParser = function(results) {
             var returnNetwork = [];
-            var selectedProjectName = ctwu.getGlobalVariable('project').name;
+            var selectedProjectName = coUtils.getCurrentProject();
             var localNetworks = results;
             for(var j=0;j < localNetworks.length;j++){
                 var val="";
@@ -260,7 +261,7 @@ define([
         }
         this.externalNetworkParser = function(results) {
             var returnExternalNetwork = [];
-            var selectedProjectName = ctwu.getGlobalVariable('project').name;
+            var selectedProjectName = coUtils.getCurrentProject();
             var localNetworks = results;
             returnExternalNetwork.push({'text':"None",
                                         'value':"None",

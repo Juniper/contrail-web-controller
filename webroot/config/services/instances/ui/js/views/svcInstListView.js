@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-view',
     'contrail-list-model',
+    'contrail-utils',
     'config/services/instances/ui/js/svcInst.utils'
-], function (_, ContrailView, ContrailListModel, svcInstUtils) {
+], function (_, ContrailView, ContrailListModel, coUtils, svcInstUtils) {
     var self;
     var chunkCnt = 10;
     var svcInstTimerLevel = 0;
@@ -378,7 +379,7 @@ define([
             getAjaxConfig: function(response) {
                 var lazyAjaxConfig = {
                     url: '/api/service/networking/web-server-info?project=' +
-                        contrail.getCookie('project'),
+                        coUtils.getCurrentProject(),
                     type: 'GET'
                 };
                 return lazyAjaxConfig;

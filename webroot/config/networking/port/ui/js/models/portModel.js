@@ -6,13 +6,14 @@
 define([
     'underscore',
     'contrail-config-model',
+    'contrail-utils',
     'config/networking/port/ui/js/views/portFormatters',
     'config/networking/port/ui/js/models/fixedIPModel',
     'config/networking/port/ui/js/models/allowAddressPairModel',
     'config/networking/port/ui/js/models/dhcpOptionModel',
     'config/networking/port/ui/js/models/fatFlowModel',
     'config/networking/port/ui/js/models/portBindingModel'
-], function (_, ContrailConfigModel, PortFormatters, FixedIPModel,
+], function (_, ContrailConfigModel, coUtils, PortFormatters, FixedIPModel,
              AllowAddressPairModel, DHCPOptionModel, FatFlowModel,
              PortBindingModel) {
     var portFormatters = new PortFormatters();
@@ -930,8 +931,8 @@ define([
             ];
             if(this.isDeepValid(validations)) {
                 var newPortData = $.extend(true, {}, this.model().attributes),
-                    selectedDomain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                    selectedProject = contrail.getCookie(cowc.COOKIE_PROJECT);
+                    selectedDomain = coUtils.getCurrentDomain(),
+                    selectedProject = coUtils.getCurrentProject();
 
                 ctwu.setNameFromDisplayName(newPortData);
 
