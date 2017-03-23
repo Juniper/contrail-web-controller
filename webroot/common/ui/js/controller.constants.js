@@ -967,6 +967,36 @@ define([
             "config-forwarding-class-list-view";
         this.FORWARDING_CLASS_PREFIX_ID = "forwarding_class";
 
+        /* Analytics Node Config Constants */
+        this.CONFIG_ANALYTICS_NODE_LIST_ID = "config-analytics-node-list";
+        this.ANALYTICS_NODE_GRID_ID = "analytics-node-grid";
+        this.CONFIG_ANALYTICS_NODE_SECTION_ID = "config-analytics-node-section";
+        this.CONFIG_ANALYTICS_NODE_ID = "config-analytics-node";
+        this.CONFIG_ANALYTICS_NODE_LIST_VIEW_ID = "config-analytics-node-list-view";
+        this.ANALYTICS_NODE_PREFIX_ID = "analytics_node";
+        this.URL_CREATE_ANALYTICS_NODE = "/analytics-nodes";
+        this.URL_UPDATE_ANALYTICS_NODE = "/analytics-node/";
+
+        /* Config Node Cfg Constants */
+        this.CFG_CONFIG_NODE_LIST_ID = "cfg-config-node-list";
+        this.CONFIG_NODE_GRID_ID = "config-node-grid";
+        this.CFG_CONFIG_NODE_SECTION_ID = "config-config-node-section";
+        this.CFG_CONFIG_NODE_ID = "config-config-node";
+        this.CFG_CONFIG_NODE_LIST_VIEW_ID = "config-config-node-list-view";
+        this.CONFIG_NODE_PREFIX_ID = "config_node";
+        this.URL_CREATE_CONFIG_NODE = "/config-nodes";
+        this.URL_UPDATE_CONFIG_NODE = "/config-node/";
+
+        /* Database Node Config Constants */
+        this.CONFIG_DATABASE_NODE_LIST_ID = "config-database-node-list";
+        this.DATABASE_NODE_GRID_ID = "database-node-grid";
+        this.CONFIG_DATABASE_NODE_SECTION_ID = "config-database-node-section";
+        this.CONFIG_DATABASE_NODE_ID = "config-database-node";
+        this.CONFIG_DATABASE_NODE_LIST_VIEW_ID = "config-database-node-list-view";
+        this.DATABASE_NODE_PREFIX_ID = "database_node";
+        this.URL_CREATE_DATABASE_NODE = "/database-nodes";
+        this.URL_UPDATE_DATABASE_NODE = "/database-node/";
+
         /* Packet Capture Constants */
         this.PACKET_CAPTURE_LIST_ID = "packet-capture-list";
         this.PACKET_CAPTURE_GRID_ID = "packet-capture-grid";
