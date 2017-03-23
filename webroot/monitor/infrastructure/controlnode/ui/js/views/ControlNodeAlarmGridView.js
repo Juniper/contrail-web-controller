@@ -49,6 +49,7 @@ define([
         return {
             elementId : ctwl.CONTROL_NODE_ALARMS_GRID_SECTION_ID,
             view : "AlarmGridView",
+            viewPathPrefix: cowc.ALARMS_VIEWPATH_PREFIX,
             viewConfig : viewConfig
         };
     }
