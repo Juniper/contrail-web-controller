@@ -121,6 +121,12 @@ define([
                 newFabAddr = new IpFabricAddressModel({ip_fabric_service_ip: ""});
             fabAddres.add([newFabAddr]);
         },
+        addAddressByIndex: function($data, kbInterface){
+          var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
+          var fabAddres = this.model().attributes['ipFabAddresses'],
+              newFabAddr = new IpFabricAddressModel({ip_fabric_service_ip: ""});
+          fabAddres.add([newFabAddr],{at: selectedRuleIndex+1});
+        },
         deleteAddress: function(data, kbInterface) {
             var addrCollection = data.model().collection,
                 fabAddr = kbInterface.model();
@@ -290,4 +296,3 @@ define([
     });
     return LinkLocalServicesModel;
 });
-

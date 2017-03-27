@@ -225,7 +225,7 @@ define([
                             class: "col-xs-12",
                             columns: getRouteTableColViewConfigs(),
                             rowActions: [
-                                { onClick: "function() { $root.addRtTable($data, this); }",
+                                { onClick: "function() { $root.addRtTableByIndex($data, this); }",
                                   iconClass: 'fa fa-plus'},
                                 { onClick: "function() { $root.deleteRtTable($data, this); }",
                                   iconClass: 'fa fa-minus'},
@@ -248,5 +248,3 @@ define([
 
     return RtTableEditView;
 });
-
-

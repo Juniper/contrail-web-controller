@@ -104,6 +104,17 @@ define([
                 delRule = rules.model();
             rulesCollection.remove(delRule);
         },
+        addSecGrpRuleByIndex: function(data,rules) {
+            var selectedRuleIndex = data.model().collection.indexOf(rules.model());
+            var ruleName = this.model().attributes['display_name'];
+            var rules = this.model().attributes['rules'];
+            var newRule = new SecGrpRulesModel(
+                {direction: 'Ingress', ethertype: 'IPv4', protocol: 'TCP',
+                 remotePorts: '0 - 65535',
+                 remoteAddr: '0.0.0.0/0'+cowc.DROPDOWN_VALUE_SEPARATOR+'subnet'});
+            rules.add([newRule],{at: selectedRuleIndex+1});
+        },
+
         addSecGrpRule: function() {
             var ruleName = this.model().attributes['display_name'];
             var rules = this.model().attributes['rules'];
@@ -271,5 +282,3 @@ define([
     });
     return SecGrpModel;
 });
-
-

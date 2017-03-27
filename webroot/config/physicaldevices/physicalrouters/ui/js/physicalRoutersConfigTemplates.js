@@ -390,7 +390,7 @@ define([
                             rowActions: [
                              {
                                     onClick: "function() {\
-                                    $root.addPort(); }",
+                                    $root.addPortByIndex($data, this); }",
                                     iconClass: 'fa fa-plus'
                                 },
                                 {
@@ -720,4 +720,3 @@ define([
     };
     return pRouterConfigTemplates;
 });
-

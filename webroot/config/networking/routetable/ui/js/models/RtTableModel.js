@@ -52,6 +52,13 @@ define([
                 delRule = rules.model();
             rulesCollection.remove(delRule);
         },
+        addRtTableByIndex: function(data, rules) {
+            var selectedRuleIndex = data.model().collection.indexOf(rules.model());
+            var routes = this.model().attributes['routes'];
+            var newRoute = new RtTableRoutesModel(
+                {prefix: '', next_hop: '', next_hop_type: 'ip-address'});
+            routes.add([newRoute],{at: selectedRuleIndex+1});
+        },
         addRtTable: function() {
             var routes = this.model().attributes['routes'];
             var newRoute = new RtTableRoutesModel(
@@ -227,5 +234,3 @@ define([
     });
     return RtTableModel;
 });
-
-

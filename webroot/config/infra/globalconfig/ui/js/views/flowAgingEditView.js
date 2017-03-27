@@ -146,7 +146,7 @@ define([
                                     }],
                                     rowActions: [
                                         {onClick: "function() {\
-                                            $root.addFlowAgingTuple();\
+                                            $root.addFlowAgingTupleByIndex($data, this);\
                                         }",
                                         iconClass: 'fa fa-plus'},{
                                         onClick: "function() {\
@@ -171,4 +171,3 @@ define([
 
     return flowAgingEditView;
 });
-

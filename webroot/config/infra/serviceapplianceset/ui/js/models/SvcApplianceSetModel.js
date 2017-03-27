@@ -30,6 +30,12 @@ define([
                 newPair = new SvcAppliPropModel({key: "", value: ""});
             pairColl.add([newPair]);
         },
+        addKeyValuePairByIndex: function(data, kbData) {
+          var selectedRuleIndex = data.model().collection.indexOf(kbData.model());
+          var pairColl = this.model().get('svcApplProperties'),
+              newPair = new SvcAppliPropModel({key: "", value: ""});
+          pairColl.add([newPair],{at: selectedRuleIndex+1});
+        },
         getKeyValuePairList: function(attr) {
             var pairArr = [];
             var pairCollection = attr.svcApplProperties.toJSON();
@@ -190,4 +196,3 @@ define([
     });
     return SvcApplianceSetModel;
 });
-

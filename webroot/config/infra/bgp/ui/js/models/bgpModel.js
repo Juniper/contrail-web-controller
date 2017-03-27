@@ -195,6 +195,27 @@ define([
                 {collection: newPeer.model().attributes.family_attrs});
             peers.add([newPeer]);
         },
+        addPeerByIndex: function(data, kbInterface) {
+          var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
+          var peers = this.model().attributes['peers'],
+                peersArry = peers.toJSON();
+            newPeer = new BGPPeersModel({
+                peerName : null,
+                disabled: false,
+                auth_data : null,
+                admin_state : true,
+                passive : false,
+                hold_time : null,
+                loop_count : null,
+                family_attributes: [],
+                user_created_auth_key_type : null,
+                user_created_auth_key: null
+            });
+            this.subscribePeerModelChangeEvents(newPeer);
+            kbValidation.bind(this.editView,
+                {collection: newPeer.model().attributes.family_attrs});
+            peers.add([newPeer],{at: selectedRuleIndex+1});
+        },
 
         deletePeer: function(data, kbInterface) {
             data.model().collection.remove(kbInterface.model());
