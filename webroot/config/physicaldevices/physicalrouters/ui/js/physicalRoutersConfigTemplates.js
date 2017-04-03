@@ -472,7 +472,7 @@ define([
                             label : "",
                             path: "user_created_torAgent2",
                             dataBindValue: "user_created_torAgent2",
-                            class: "col-xs-6",
+                            class: "col-xs-6 no-label-input",
                             elementConfig:{
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_TOR_AGENT_NAME,
@@ -498,7 +498,7 @@ define([
                             label: "TSN(s)",
                             path: "user_created_tsn1",
                             dataBindValue: "user_created_tsn1",
-                            class: "col-xs-6",
+                            class: "col-xs-6 ",
                             elementConfig:{
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_TSN_NAME,
@@ -518,7 +518,7 @@ define([
                             label : "",
                             path: "user_created_tsn2",
                             dataBindValue: "user_created_tsn2",
-                            class: "col-xs-6",
+                            class: "col-xs-6 no-label-input",
                             elementConfig:{
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_TSN_NAME,
