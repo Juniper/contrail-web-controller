@@ -27,9 +27,14 @@ define([
             $(contentContainer).find('.copy-config-object').on('click', ConfigObjectDetailUtils.getCopiedContent);
             $(contentContainer).find('.config-jSon-form-edit').on('click',function(){
                 var disableKeys = ['to','security_group_id','parent_href','uuid','href','fq_name','owner','creator','created','last_modified','timer','parent_uuid','parent_type'];
-                ConfigObjectDetailUtils.loadConfigEditorModal(schema, formJson, viewConfig, disableKeys, modelRefs, configList, []);
+                ConfigObjectDetailUtils.loadConfigEditorModal(schema, formJson, viewConfig, disableKeys, modelRefs, configList, [],
+                     function(updatedObj, viewConfig, formSaved ,utilSelf){
+                	              self.saveObjectDetails(updatedObj, viewConfig, formSaved, utilSelf);
+                });
             });
-            $(contentContainer).find('.delete-config-object').on('click', function(){ConfigObjectDetailUtils.deleteConformModal(viewConfig)});
+            $(contentContainer).find('.delete-config-object').on('click', function(){ConfigObjectDetailUtils.deleteConformModal(viewConfig, function(viewConfig){
+            	self.deleteConfigObjectDetails(viewConfig);
+            })});
          },
          loadConfigObject: function(viewConfig, rawJosnSave, formSave){
              var options = {type:viewConfig.hashParams.objName+'/'+viewConfig.hashParams.uuid};
