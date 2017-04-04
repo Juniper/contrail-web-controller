@@ -91,7 +91,10 @@ define([
             },
             createNewConfigObj: function(){
                 var disableKeys = ['security_group_id','uuid','href','fq_name','owner','creator','created','last_modified','timer','parent_uuid','parent_type'];
-                ConfigObjectDetailUtils.loadConfigEditorModal(schema, {}, self.viewConfig, disableKeys,[], undefined, enumKeys);
+                ConfigObjectDetailUtils.loadConfigEditorModal(schema, {}, self.viewConfig, disableKeys,[], undefined, enumKeys,
+                        function(updatedObj, utilSelf){
+                            self.saveNewObject(updatedObj, utilSelf);
+                });
             },
             updateObjList: function(){
                 contrail.ajaxHandler(ConfigObjectListUtils.getObjListUrl(self.viewConfig), null, function(model) {
