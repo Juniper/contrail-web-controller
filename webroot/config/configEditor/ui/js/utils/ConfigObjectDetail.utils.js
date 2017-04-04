@@ -1,11 +1,8 @@
 define([
-    'lodash','config/configEditor/ui/js/views/ConfigObjectDetailsView',
-    'config/configEditor/ui/js/views/ConfigObjectListView'
-], function (lodash, ConfigObjectDetailsView, ConfigObjectListView) {
+    'lodash','jdorn-jsoneditor'
+], function (lodash) {
     var ConfigObjectDetailUtils = function () {
         var self = this;
-        self.objectDetailsView = new ConfigObjectDetailsView;
-        self.objectListView = new ConfigObjectListView;
         self.previousObj = [];
         self.deletedKeyStack = [];
         self.formRadioFlag = true;
@@ -91,7 +88,7 @@ define([
             $("#config-error-container").css('display','none');
         }
      //Config Editor Pop up
-        self.loadConfigEditorModal = function(schema, json, viewConfig, disableKeys, refs, oldJson, enumKeys){
+        self.loadConfigEditorModal = function(schema, json, viewConfig, disableKeys, refs, oldJson, enumKeys, onSaveCB){
             self.formRadioFlag = true;
             self.formJson = json;
             self.deletedKeyStack = [];
@@ -102,7 +99,7 @@ define([
             if(Object.keys(self.formJson).length == 0){
                 self.schema = schema;
                 var modelTitle = self.parseParentKeyLowerToUpper(Object.keys(schema.properties)[0]);
-                self.generateConfigModal(modelTitle, viewConfig, oldJson, enumKeys, refs);
+                self.generateConfigModal(modelTitle, viewConfig, oldJson, enumKeys, refs, onSaveCB);
                 self.loadSchemaBasedForm(self.formJson, self.schema, true);
                 self.oldFormData = $.extend(true, {}, jsoneditor.getValue()[0]);
                 var rawJson = $.extend(true, {}, jsoneditor.getValue()[0]);
@@ -124,7 +121,7 @@ define([
                 var areaModel = $.extend(true,{},self.formJson);
                 var oldModel = $.extend(true,{},self.formJson);
                 var modelTitle = self.parseParentKeyLowerToUpper(Object.keys(self.formJson)[0]);
-                self.generateConfigModal(modelTitle, viewConfig, oldJson, enumKeys, refs);
+                self.generateConfigModal(modelTitle, viewConfig, oldJson, enumKeys, refs, onSaveCB);
                 self.formJson = self.updateModelForSchema(self.formJson,false);
                 self.loadSchemaBasedForm(self.formJson, self.schema, false);
                 self.oldFormData = $.extend(true, self.formJson, jsoneditor.getValue()[0]);
@@ -242,11 +239,11 @@ define([
                         if(model[i].constructor !== Array){
                             self.dirtyCheckForObj(model[i]);
                         }else{
-                            if(typeof cowu.checkArrayContainsObject(model[i]) === 'object'){
+                            if(typeof self.checkArrayContainsObject(model[i]) === 'object'){
                                 for(var j = 0; j < model[i].length; j++){
                                     self.dirtyCheckForObj(model[i][j]);
                                 }
-                            }else if(typeof cowu.checkArrayContainsString(model[i]) === 'string'){
+                            }else if(typeof self.checkArrayContainsString(model[i]) === 'string'){
                                 for(var k = 0; k < model[i].length; k++){
                                     if(model[i][k] !== '' || model[i][k] !== 0){
                                         self.isDirty = true;
@@ -258,6 +255,29 @@ define([
             }
             return model;
         }
+
+        self.checkArrayContainsObject = function(array){
+            var obj;
+            for(var i = 0; i < array.length; i++){
+                if(typeof array[i] == 'object' && array[i].constructor !== Array){
+                    obj = array[i];
+                    break;
+                }
+            }
+           return obj;
+        }
+
+        self.checkArrayContainsString = function(array){
+            var str;
+            for(var i = 0; i < array.length; i++){
+                if(typeof array[i] == 'string' || typeof array[i] == 'number'){
+                    str = array[i];
+                    break;
+                }
+            }
+           return str;
+        }
+
         self.removeSelectedKeys = function(model, keyInfo){
             var self = this;
             for (var i in model) {
@@ -286,7 +306,7 @@ define([
                                }else{
                                    delete model[i];
                                }
-                           }else if(typeof cowu.checkArrayContainsObject(model[i]) === 'object' && i == keyInfo.parentKey){
+                           }else if(typeof self.checkArrayContainsObject(model[i]) === 'object' && i == keyInfo.parentKey){
                                 if(keyInfo.keys.length == 0){
                                     delete model[i][keyInfo.deletedItem];
                                 }else{
@@ -309,13 +329,13 @@ define([
                                  }
                                  self.isDirty = false;
                                  keyInfo.directChild = false;
-                             }else if(typeof cowu.checkArrayContainsObject(model[i]) !== 'object'){
+                             }else if(typeof self.checkArrayContainsObject(model[i]) !== 'object'){
                                 if(isNumber(keyInfo.deletedItem) && i === keyInfo.adjecentParentKey){
                                      delete  model[i][keyInfo.deletedItem];
                                 }
-                            }else if(typeof cowu.checkArrayContainsObject(model[i]) === 'object' && isNumber(keyInfo.deletedItem) && i === keyInfo.adjecentParentKey){
+                            }else if(typeof self.checkArrayContainsObject(model[i]) === 'object' && isNumber(keyInfo.deletedItem) && i === keyInfo.adjecentParentKey){
                                 delete  model[i][keyInfo.deletedItem];
-                            }else if((typeof cowu.checkArrayContainsObject(model[i]) === 'object' && (isNumber(keyInfo.deletedItem) || !isNumber(keyInfo.deletedItem))) && (keyInfo.keys.indexOf(keyInfo.adjecentParentKey) != -1)){
+                            }else if((typeof self.checkArrayContainsObject(model[i]) === 'object' && (isNumber(keyInfo.deletedItem) || !isNumber(keyInfo.deletedItem))) && (keyInfo.keys.indexOf(keyInfo.adjecentParentKey) != -1)){
                                 for(var m = 0; m < model[i].length; m++){
                                     if(keyInfo.keys.indexOf(i) != -1){
                                         var index = keyInfo.keys.indexOf(i) + 1;
@@ -351,7 +371,7 @@ define([
                         if(model[i].constructor === Array){
                             model[i] = model[i].filter(function(n){ return n != undefined });
                             if(model[i].length > 0){
-                                if(typeof cowu.checkArrayContainsObject(model[i]) == 'object'){
+                                if(typeof self.checkArrayContainsObject(model[i]) == 'object'){
                                     for(var j = 0; j < model[i].length; j++){
                                         self.removeUndefinedFromModel(model[i][j]);
                                     }
@@ -541,14 +561,14 @@ define([
             }
           return schemaProp;
         }
-        self.generateConfigModal = function(title, viewConfig, oldJson, enumKeys, refs){
+        self.generateConfigModal = function(title, viewConfig, oldJson, enumKeys, refs, onSaveCB){
             cowu.createModal({
                 'modalId': ctwc.MODAL_CONFIG_EDITOR_CONTAINER,
-               'className': 'modal-980',
-                 'title': title,
+                'className': 'modal-980',
+                'title': title,
                 'body': self.modelLayout,
-                'onSave': function() {
-                    self.deletedKeyStack = [];
+                'onSave': function(){
+                	self.deletedKeyStack = [];
                     if(self.formRadioFlag){
                         var editedJson = jsoneditor.getValue()[0];
                         var oldKeys = self.oldFormData[Object.keys(self.oldFormData)[0]];
@@ -566,9 +586,9 @@ define([
                         updatedObj[Object.keys(editedJson)[0]] = updatedRefs;
                         if(oldKeys.uuid !== undefined){
                             updatedObj[Object.keys(updatedObj)[0]].uuid = oldKeys.uuid;
-                            self.objectDetailsView.saveObjectDetails(updatedObj, viewConfig, true, self);
+                            onSaveCB(updatedObj, viewConfig, true, self);
                         }else{
-                            self.objectListView.saveNewObject(updatedObj, self);
+                        	onSaveCB(updatedObj, self);
                         }
                     }else{
                         try{
@@ -580,15 +600,15 @@ define([
                             areaObj[Object.keys(self.oldAreaModel)[0]] = diff;
                             if(self.oldAreaModel[Object.keys(self.oldAreaModel)[0]].uuid !== undefined){
                                 areaObj[Object.keys(areaObj)[0]].uuid = self.oldAreaModel[Object.keys(self.oldAreaModel)[0]].uuid;
-                                self.objectDetailsView.saveObjectDetails(areaObj, viewConfig, true, self);
+                                onSaveCB(areaObj, viewConfig, true, self);
                             }else{
-                                self.objectListView.saveNewObject(areaObj, self);
+                            	onSaveCB(areaObj, self);
                             }
                         }catch(err){
                             self.showConfigErrorMsg(err);
                         }
                     }
-                },
+                 },
                 'onCancel': function() {
                     self.deletedKeyStack = [];
                     $("#json-editor-form-view").modal('hide');
@@ -851,7 +871,7 @@ define([
             json[Object.keys(json)[0]] = data;
             return json;
         }
-        self.deleteConformModal = function(viewConfig){
+        self.deleteConformModal = function(viewConfig,onDeleteCB){
             cowu.createModal({
                 'modalId': 'config-object-details-modal',
                 'className': 'modal-480',
@@ -859,7 +879,7 @@ define([
                 'body': self.conformMsg,
                 'btnName': 'Confirm',
                 'onSave': function() {
-                    self.objectDetailsView.deleteConfigObjectDetails(viewConfig);
+                    onDeleteCB(viewConfig);
                 },
                 'onCancel': function() {
                     $("#config-object-details-modal").modal('hide');
