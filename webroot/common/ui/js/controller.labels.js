@@ -1079,6 +1079,7 @@ define([
         //Policy Labels
         this.CONFIG_POLICIES_PAGE_ID = "config-policies-page";
         this.CONFIG_POLICIES_TITLE = "Policies";
+        this.GC_POLICIES_TITLE = "Network Policies";
         this.TITLE_POLICY_RULE = "Policy Rules";
         this.TITLE_ADD_POLICY = "Create Policy";
         this.CONFIG_POLICIES_LIST_VIEW_ID = "config-policies-list-view";

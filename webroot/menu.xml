@@ -414,6 +414,191 @@ and need to add the iconClass tag wherever we need to show some icons
             </resources>
             <iconClass>fa fa-wrench</iconClass>
             <items>
+             <item>
+                <name>Config Gohan</name>
+                <label>Global Controller</label>
+                <hash>config_gohan</hash>
+                <iconClass>menu-icon fa fa-link</iconClass>
+                <access>
+                    <orchModels>
+                        <model>openstack</model>
+                        <model>cloudstack</model>
+                    </orchModels>
+                    <roles>
+                        <role>globalController</role>
+                     </roles>
+                </access>
+                <items>
+                    <item>
+                        <label>Location</label>
+                        <hash>config_gc_location</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>configGohan.main.js</js>
+                                <class>configGohanUiLoader</class>
+                                <function>render</function>
+                                <searchStrings>Location</searchStrings>
+                            </resource>
+                    </resources>
+                        <searchStrings>Location</searchStrings>
+                    </item>
+                    <item>
+                        <label>Heat Instance</label>
+                        <hash>config_gc_heatInstance</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>configGohan.main.js</js>
+                                <class>configGohanUiLoader</class>
+                                <function>render</function>
+                                <searchStrings>Heat Instance</searchStrings>
+                            </resource>
+                        </resources>
+                        <searchStrings>Heat Instance</searchStrings>
+                    </item>
+                    <item>
+                        <label>Image</label>
+                        <hash>config_gc_image</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>configGohan.main.js</js>
+                                <class>configGohanUiLoader</class>
+                                <function>render</function>
+                                <searchStrings>Image</searchStrings>
+                            </resource>
+                        </resources>
+                        <searchStrings>Image</searchStrings>
+                    </item>
+                    <item>
+                        <label>Flavor</label>
+                        <hash>config_gc_flavor</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>configGohan.main.js</js>
+                                <class>configGohanUiLoader</class>
+                                <function>render</function>
+                                <searchStrings>Flavor</searchStrings>
+                            </resource>
+                        </resources>
+                        <searchStrings>Flavor</searchStrings>
+                    </item>
+                    <item>
+                        <label>Service Templates</label>
+                        <hash>config_gc_serviceTemplates</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderSvcTemplateCfg</function>
+                                <searchStrings>Service Template</searchStrings>
+                            </resource>
+                        </resources>
+                       <searchStrings>Service Template</searchStrings>
+                    </item>
+                    <item>
+                        <label>Service Instances</label>
+                        <hash>config_gc_serviceInstance</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderSvcInst</function>
+                                <searchStrings>Service Instance</searchStrings>
+                            </resource>
+                        </resources>
+                       <searchStrings>Service Instance</searchStrings>
+                    </item>
+                    <item>
+                        <label>Security Groups</label>
+                        <hash>config_gc_securityGroup</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderSecGrp</function>
+                                <searchStrings>Security Group</searchStrings>
+                            </resource>
+                        </resources>
+                       <searchStrings>Security Group</searchStrings>
+                    </item>
+                    <item>
+                        <label>Network Policies</label>
+                        <hash>config_gc_networkPolicy</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderPolicies</function>
+                                <searchStrings>Network Policy</searchStrings>
+                            </resource>
+                        </resources>
+                       <searchStrings>Network Policy</searchStrings>
+                    </item>
+                    <item>
+                        <label>Networks</label>
+                        <hash>config_gc_network</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderNetwork</function>
+                                <searchStrings>Networks</searchStrings>
+                            </resource>
+                        </resources>
+                       <searchStrings>Network</searchStrings>
+                    </item>
+                    <item>
+                        <label>Server</label>
+                        <hash>config_gc_server</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>configGohan.main.js</js>
+                                <class>configGohanUiLoader</class>
+                                <function>render</function>
+                                <searchStrings>Server</searchStrings>
+                            </resource>
+                        </resources>
+                       <searchStrings>Server</searchStrings>
+                    </item>
+                    <item>
+                        <label>ID Pool</label>
+                        <hash>config_gc_idPool</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>configGohan.main.js</js>
+                                <class>configGohanUiLoader</class>
+                                <function>render</function>
+                                <searchStrings>ID Pool</searchStrings>
+                            </resource>
+                        </resources>
+                       <searchStrings>ID Pool</searchStrings>
+                    </item>
+                    <item>
+                        <label>Route Target Association</label>
+                        <hash>config_gc_association</hash>
+                        <resources>
+                            <resource>
+                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <js>configGohan.main.js</js>
+                                <class>configGohanUiLoader</class>
+                                <function>render</function>
+                                <searchStrings>Route Target Association</searchStrings>
+                            </resource>
+                        </resources>
+                       <searchStrings>Route Target Association</searchStrings>
+                    </item>
+                  </items>
+                </item>
                 <item>
                     <label>Infrastructure</label>
                     <access>
@@ -429,12 +614,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     </access>
                     <iconClass>menu-icon fa fa-desktop</iconClass>
                     <items>
-                        <!--
-                                    <item>
-                                        <label>Server Setup</label>
-                                    </item>
-                                    -->
-                        <item>
+                       <item>
                             <label>Global Config</label>
                             <hash>config_infra_gblconfig</hash>
                             <resources>
