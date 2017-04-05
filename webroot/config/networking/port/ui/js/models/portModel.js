@@ -530,11 +530,13 @@ define([
                 },
                 'virtual_machine_interface_properties.local_preference' :
                     function(value, attr, finalObj) {
-                    if(value != "") {
-                        if (!isNumber(String(value).trim()) ||
-                                (value.toString() !== "100" &&
-                                value.toString() !== "200")){
-                            return "Local Preference has to be 100 or 200.";
+                    if(value){
+                        var numVal = Number(value);
+                        if(isNaN(numVal) || !Number.isInteger(numVal)){
+                            return "Local Preference has to be a integer";
+                        }
+                        if(numVal < 0 || numVal > 4294967295){
+                            return "Local Preference has to be between 0 - 4294967295";
                         }
                     }
                 },

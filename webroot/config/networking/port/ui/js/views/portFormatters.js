@@ -143,7 +143,7 @@ define([
             var localPrefValue = getValueByJsonPath(dc,
                                 "virtual_machine_interface_properties;local_preference",
                                 "")
-            if(localPrefValue != ""){
+            if(localPrefValue !== ""){
                 localPref = localPrefValue;
             }
             return localPref;
