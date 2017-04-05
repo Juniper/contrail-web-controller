@@ -170,6 +170,23 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                          elementId : 'vrouter-cpu-mem-chart',
                          view:"ZoomScatterChartView",
                          viewConfig: {
+                             widgetConfig: {
+                                 elementId: ctwl.VROUTER_SUMMARY_CHART_ID + '-widget',
+                                 view: "WidgetView",
+                                 viewConfig: {
+                                     header: {
+                                         title: ctwl.VROUTER_SUMMARY_TITLE,
+                                         // iconClass: "icon-search"
+                                     },
+                                     controls: {
+                                         top: {
+                                             default: {
+                                                 collapseable: false
+                                             }
+                                         }
+                                     }
+                                 }
+                             },
                              chartOptions: {
                                  xLabel: 'CPU Share (%)',
                                  yLabel: 'Memory (MB)',
