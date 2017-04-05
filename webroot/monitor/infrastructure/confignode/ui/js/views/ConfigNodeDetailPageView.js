@@ -268,7 +268,7 @@ define([
                                    "$..Config:contrail-api:0")[0];
 
            anlNode = jsonPath(contrailApiDetails,
-                   "$..ModuleClientState..primary")[0].split(':')[0];
+                   "$..ModuleClientState..collector_ip")[0].split(':')[0];
            status = jsonPath(contrailApiDetails,
                    "$..ModuleClientState..status")[0];
            secondaryAnlNode = ifNull(jsonPath(contrailApiDetails,
