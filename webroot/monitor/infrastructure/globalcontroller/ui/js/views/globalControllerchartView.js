@@ -48,18 +48,18 @@ define([
                 }
             };
         return {
-            elementId: ctwl.GLOBAL_CONTROLLER_CHARTVIEW_CPU_MAX+region,
+            elementId: ctwc.GLOBAL_CONTROLLER_CHARTVIEW_CPU_MAX_SECTION_ID+region,
             view: "SectionView",
             viewConfig: {
                 rows: [{
                     columns: [{
-                        elementId: ctwl.GLOBAL_CONTROLLER_CHARTVIEW_CPU_MAX_SECTION+region,
+                        elementId: ctwc.GLOBAL_CONTROLLER_CHARTVIEW_CPU_MAX+region,
                         view: "LineWithFocusChartView",
                         viewConfig: {
                             modelConfig: {
                                 remote: {
                                     ajaxConfig : {
-                                        url : ctwl.GLOBAL_CONTROLLER_CHARTS_URL+ region,
+                                        url : ctwc.GLOBAL_CONTROLLER_CHARTS_URL+ region,
                                         type: 'POST',
                                         data: JSON.stringify(postData)
                                     },
@@ -132,18 +132,18 @@ define([
                 }
             };
         return {
-            elementId: ctwl.GLOBAL_CONTROLLER_CHARTVIEW_MEMORY_MAX+region,
+            elementId: ctwc.GLOBAL_CONTROLLER_CHARTVIEW_MEMORY_MAX_SECTION_ID+region,
             view: "SectionView",
             viewConfig: {
                 rows: [{
                     columns: [{
-                        elementId: ctwl.GLOBAL_CONTROLLER_CHARTVIEW_MEMORY_MAX_SECTION+region,
+                        elementId: ctwc.GLOBAL_CONTROLLER_CHARTVIEW_MEMORY_MAX+region,
                         view: "LineWithFocusChartView",
                         viewConfig: {
                             modelConfig: {
                                 remote: {
                                     ajaxConfig : {
-                                        url : ctwl.GLOBAL_CONTROLLER_CHARTS_URL+ region,
+                                        url : ctwc.GLOBAL_CONTROLLER_CHARTS_URL+ region,
                                         type: 'POST',
                                         data: JSON.stringify(postData)
                                     },
@@ -214,18 +214,18 @@ define([
                 }
             };
         return {
-            elementId: "chartview_bandwdth_percentile"+region,
+            elementId: ctwc.GLOBAL_CONTROLLER_CHARTVIEW_BANDWDTH_PERCENTILE_SECTION_ID+region,
             view: "SectionView",
             viewConfig: {
                 rows: [{
                     columns: [{
-                        elementId: "chartview_grid_bandwdth"+region,
+                        elementId: ctwc.GLOBAL_CONTROLLER_CHARTVIEW_BANDWDTH_PERCENTILE+region,
                         view: "LineWithFocusChartView",
                         viewConfig: {
                             modelConfig: {
                                 remote: {
                                     ajaxConfig : {
-                                        url : ctwl.GLOBAL_CONTROLLER_CHARTS_URL+region,
+                                        url : ctwc.GLOBAL_CONTROLLER_CHARTS_URL+region,
                                         type: 'POST',
                                         data: JSON.stringify(postData)
                                     },
@@ -295,18 +295,18 @@ define([
                 }
             };
         return {
-            elementId: ctwl.GLOBAL_CONTROLLER_CHARTVIEW_DISK_USAGE+region,
+            elementId: ctwc.GLOBAL_CONTROLLER_CHARTVIEW_DISK_USAGE_SECTION_ID+region,
             view: "SectionView",
             viewConfig: {
                 rows: [{
                     columns: [{
-                        elementId: ctwl.GLOBAL_CONTROLLER_CHARTVIEW_DISK_USAGE_SECTION+region,
+                        elementId: ctwc.GLOBAL_CONTROLLER_CHARTVIEW_DISK_USAGE+region,
                         view: "LineWithFocusChartView",
                         viewConfig: {
                             modelConfig: {
                                 remote: {
                                     ajaxConfig : {
-                                        url : ctwl.GLOBAL_CONTROLLER_CHARTS_URL+ region,
+                                        url : ctwc.GLOBAL_CONTROLLER_CHARTS_URL+ region,
                                         type: 'POST',
                                         data: JSON.stringify(postData)
                                     },

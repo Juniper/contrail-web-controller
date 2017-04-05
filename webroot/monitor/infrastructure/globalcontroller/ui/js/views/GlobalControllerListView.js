@@ -46,7 +46,7 @@ define(
                        };
                 return {
                     elementId : cowu.formatElementId([
-                         ctwl.GLOBAL_CONTROLER_LIST_VIEW_SECTION_ID ]),
+                         ctwc.GLOBAL_CONTROLER_LIST_VIEW_SECTION_ID ]),
                     view : "SectionView",
                     viewConfig : viewConfig
                 };

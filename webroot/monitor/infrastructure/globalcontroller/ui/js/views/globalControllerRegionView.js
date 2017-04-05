@@ -20,7 +20,7 @@ define([
                 renderRegionView();
             }
             function renderRegionView(){
-                var cfgDashbaordViewTemplate = contrail.getTemplate4Id("globalController-dashbaord-template");
+                var cfgDashbaordViewTemplate = contrail.getTemplate4Id("globalController-dashboard-template");
                 var headInfo = globalControllerListModel.getItems()[0];
                 self.$el.html(cfgDashbaordViewTemplate({headInfo}));
                 var objectCntSection = self.$el.find(".container .objectcntsection"),

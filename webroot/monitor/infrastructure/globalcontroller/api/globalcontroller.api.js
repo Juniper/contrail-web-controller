@@ -60,8 +60,8 @@ function getGlobalControllerOverview (req, res, appData)
     reqUrl = "/analytics/alarms";
     commonUtils.createReqObj(dataObjArr, reqUrl, null, null, opApiServer, null,
                              appData);
-    reqUrl = "/virtual-networks";
-    commonUtils.createReqObj(dataObjArr, reqUrl, null, null, configApiServer, null,
+    reqUrl = "/analytics/uves/virtual-network/*?cfilt=UveVirtualNetworkAgent";
+    commonUtils.createReqObj(dataObjArr, reqUrl, null, null, opApiServer, null,
                                   appData);
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(opApiServer, true),
@@ -76,41 +76,18 @@ function getGlobalControllerOverview (req, res, appData)
         var svcInsts = commonUtils.getValueByJsonPath(results, "7", []);
         var fips = commonUtils.getValueByJsonPath(results, "8;floating-ips", []);
         var alarms = commonUtils.getValueByJsonPath(results, "9", {});
-        var vns = commonUtils.getValueByJsonPath(results, "10;virtual-networks", []);
-
-        resultJSON["vRoutersCnt"] = vrNodes.length;
+        var vns = commonUtils.getValueByJsonPath(results, "10;value", []);
         resultJSON['vRoutersNodes'] = vrNodes;
-        resultJSON["controlNodesCnt"] = controlNodes.length;
         resultJSON["controlNodes"] = controlNodes;
-        resultJSON["analyticsNodesCnt"] = analyticsNodes.length;
         resultJSON["analyticsNodes"] = analyticsNodes;
-        resultJSON["configNodesCnt"] = configNodes.length;
         resultJSON["configNodes"] = configNodes;
-        resultJSON["databaseNodesCnt"] = databaseNodes.length;
         resultJSON["databaseNodes"] = databaseNodes;
-        resultJSON["vmCnt"] = vms.length;
-        resultJSON["vmiCnt"] = vmis.length;
-        resultJSON["svcInstsCnt"] = svcInsts.length;
-        resultJSON["fipsCnt"] = fips.length;
-        resultJSON["vnCnt"] = vns.length;
-        var alarmsCnt = 0;
-        for (var key in alarms) {
-            var alarmTypes = alarms[key];
-            var len = alarmTypes.length;
-            for (var i = 0; i < len; i++) {
-                var alrms = commonUtils.getValueByJsonPath(alarmTypes,
-                                                           i + ";value;UVEAlarms;alarms",
-                                                           []);
-                var unackedCnt = 0;
-                _.each(alrms, function(alrm,key) {
-                    if(!alrm.ack) {
-                        unackedCnt++;
-                    }
-                });
-                alarmsCnt += unackedCnt;
-            }
-        }
-        resultJSON["alarmsCnt"] = alarmsCnt;
+        resultJSON["vms"] = vms;
+        resultJSON["vmis"] = vmis;
+        resultJSON["svcInsts"] = svcInsts;
+        resultJSON["fips"] = fips;
+        resultJSON["vns"] = vns;
+        resultJSON["alarms"] = alarms;
         commonUtils.handleJSONResponse(null, res, resultJSON);
     });
 }

@@ -2,43 +2,51 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define([
-    'contrail-list-model'
-], function (ContrailListModel) {
+    'contrail-list-model',
+    'core-alarm-utils'
+], function (ContrailListModel,coreAlarmUtils) {
     var self = this;
    var GlobalControllerListModel = function (modelConfig) {
        var listModelConfig = {
            remote : {
                     ajaxConfig : {
-                        url : ctwl.GLOBALCONTROLLER_REGIONS_SUMMARY_URL+ modelConfig.region
+                        url : ctwc.GLOBALCONTROLLER_REGIONS_SUMMARY_URL+ modelConfig.region
                     },
-                    dataParser : function (response) {
-                        return self.parseGlobalControllerModelData(response);
-                    },
+                    dataParser : parseGlobalControllerModelData
                 },
                 cacheConfig : {
-                    // ucid: ctwc.GLOBAL_CONTROLLER_NODESCOUNT+modelConfig
                  }
             };
         return ContrailListModel(listModelConfig);
     };
-    return GlobalControllerListModel;
-    }
-);
-    var  parseGlobalControllerModelData = function(response){
+    function parseGlobalControllerModelData(response){
         var vRoutersNodes = response.data.vRoutersNodes,
             controlNodes = response.data.controlNodes,
             analyticsNodes = response.data.analyticsNodes,
             configNodes =  response.data.configNodes,
             databaseNodes = response.data.databaseNodes;
-            self.getNodesDownList(response,vRoutersNodes, 'vRoutersNodesDownCnt');
-            self.getNodesDownList(response,controlNodes, 'controlNodesDownCnt');
-            self.getNodesDownList(response,analyticsNodes, 'analyticsNodesDownCnt');
-            self.getNodesDownList(response,configNodes, 'configNodesDownCnt');
-            self.getNodesDownList(response,databaseNodes, 'databaseNodesDownCnt');
+            alarms = response.data.alarms;
+            response.data['vnCnt'] = response.data.vns.length;
+            response.data['vRoutersCnt'] = response.data.vRoutersNodes.length;
+            response.data['controlNodesCnt'] = response.data.controlNodes.length;
+            response.data['analyticsNodesCnt'] = response.data.analyticsNodes.length;
+            response.data['configNodesCnt'] = response.data.configNodes.length;
+            response.data['databaseNodesCnt'] = response.data.databaseNodes.length;
+            response.data['vmCnt'] = response.data.vms.length;
+            response.data['vmiCnt'] = response.data.vmis.length;
+            response.data['svcInstsCnt'] = response.data.svcInsts.length;
+            response.data['fips'] = response.data.fips.length;
+            //called the same method getAlarmCounts used in Infra dashbaord
+            response.data['alarmsCnt'] = getValueByJsonPath(coreAlarmUtils.getAlarmCounts(alarms,false),'unacked', 0);
+            getNodesDownCounts(response,vRoutersNodes, 'vRoutersNodesDownCnt');
+            getNodesDownCounts(response,controlNodes, 'controlNodesDownCnt');
+            getNodesDownCounts(response,analyticsNodes, 'analyticsNodesDownCnt');
+            getNodesDownCounts(response,configNodes, 'configNodesDownCnt');
+            getNodesDownCounts(response,databaseNodes, 'databaseNodesDownCnt');
             return [response];
     };
-   var getNodesDownList = function(response,NodesAlarmsList, nodesDownName){
-       var DownAlarmsCnt = 0,
+    function getNodesDownCounts(response,NodesAlarmsList, nodesDownCnt){
+       var downAlarmsCnt = 0,
            severity,
            ack,
            checkUVEAlarms;
@@ -50,13 +58,16 @@ define([
                         ack = NodesAlarmsList[i].value.UVEAlarms.alarms[0].ack;
                     }
                     if((severity == 0 || severity == 1) && (ack === false)){
-                    DownAlarmsCnt++;
-                    response.data[nodesDownName] = DownAlarmsCnt;
+                    downAlarmsCnt++;
+                    response.data[nodesDownCnt] = downAlarmsCnt;
                     }
                 }
             }
           else{
-              response.data[nodesDownName] = 0;
+              response.data[nodesDownCnt] = 0;
            }
     return response;
   }
+    return GlobalControllerListModel;
+    }
+);
