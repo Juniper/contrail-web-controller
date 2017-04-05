@@ -1026,7 +1026,7 @@ define([
         this.TEXT_AREA_PLACEHOLDER = 'Copy / Paste JSON data for ';
         this.MODAL_CONFIG_EDITOR_CONTAINER = 'json-editor-form-view';
         //Gohan Constants
-        this.GOHAN_HASH_LIST = ['config_gc_location','config_gc_heatInstance','config_gc_image','config_gc_flavor','config_gc_server','config_gc_idPool','config_gc_association'];
+        this.GOHAN_HASH_LIST = ['config_gc_serviceTemplates','config_gc_serviceInstance','config_gc_securityGroup','config_gc_networkPolicy','config_gc_network'];
 
         this.MULTISELECT_VALUE_SEPARATOR = ";;";
     };

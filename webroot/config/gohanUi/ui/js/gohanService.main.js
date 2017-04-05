@@ -31,7 +31,7 @@ function gohanCommanServiceLoader() {
         }else if(hash === 'networkPolicy'){
             pathView = ctBaseDir + 'config/gohanUi/ui/js/views/networkpolicy/policyView.js';
         }else if(hash === 'network'){
-        	pathView = ctBaseDir + 'config/gohanUi/ui/js/views/networks/vnCfgView.js';
+            pathView = ctBaseDir + 'config/gohanUi/ui/js/views/networks/vnCfgView.js';
         }
         if (self.gohanCommonService == null) {
             requirejs([pathView], function (gohanCommonService) {
@@ -54,5 +54,12 @@ function gohanCommanServiceLoader() {
 
     this.destroy = function () {
         ctwu.destroyDOMResources(ctwl.CFG_SVC_TEMPLATE_PREFIX_ID);
+        var latestHash = layoutHandler.getURLHashObj().p;
+        if(ctwc.GOHAN_HASH_LIST.indexOf(latestHash) === -1){
+            $("#main-content").show();
+            $("#gohanGrid").hide();
+            $("#page-content").show();
+            $("#alarms-popup-link").show();
+        }
     };
 }
