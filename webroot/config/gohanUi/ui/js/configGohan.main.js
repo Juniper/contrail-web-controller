@@ -37,13 +37,10 @@ function ConfigGohanUiLoader() {
         });
     };
     this.destroy = function() {
-    	//var latestHash = layoutHandler.getURLHashObj().p;
-    	//if(ctwc.GOHAN_HASH_LIST.indexOf(latestHash) === -1){
-    		$('iframe').remove();
-    		$("#main-content").show();
-            $("#gohanGrid").hide();
-            $("#page-content").show();
-            $("#alarms-popup-link").show();
-    	//}         
+        $('iframe').remove();
+        $("#main-content").show();
+        $("#gohanGrid").hide();
+        $("#page-content").show();
+        $("#alarms-popup-link").show();
     };
 }
