@@ -1149,7 +1149,7 @@ define([
                                        interfaceTypesData: types});
             svcHealtchChecks.add([newEntry]);
         },
-        addPropSvcHealthChkByIndex: function($data, property) {
+        addPropSvcHealthChkByIndex: function(data, property) {
             var selectedRuleIndex = data.model().collection.indexOf(property.model());
             var svcHealtchChecks = this.model().get('svcHealtchChecks');
             var svcHealthChkEntry = null;
@@ -1169,7 +1169,7 @@ define([
                                       interfaceTypesData: types});
             intfRtTables.add([newEntry]);
         },
-        addPropIntfRtTableByIndex: function($data,property) {
+        addPropIntfRtTableByIndex: function(data,property) {
             var selectedRuleIndex = data.model().collection.indexOf(property.model());
             var intfRtTables = this.model().get('intfRtTables');
             var types = this.getIntfTypes(false);
@@ -1192,7 +1192,7 @@ define([
                                    community_attributes: ''});
             staticRtTables.add([newEntry]);
         },
-        addPropStaticRtTableByIndex: function($data,property) {
+        addPropStaticRtTableByIndex: function(data,property) {
             var selectedRuleIndex = data.model().collection.indexOf(property.model());
             var staticRtTables = this.model().get('staticRoutes');
             var svcTmplStr = this.model().get('service_template');
@@ -1216,7 +1216,7 @@ define([
                                    rtPolicyInterfaceTypesData: types});
             rtPolicys.add([newEntry]);
         },
-        addPropRtPolicyByIndex: function($data,property) {
+        addPropRtPolicyByIndex: function(data,property) {
             var selectedRuleIndex = data.model().collection.indexOf(property.model());
             var rtPolicys = this.model().get('rtPolicys');
             var types = [{text: 'left', id: 'left'},
@@ -1242,7 +1242,7 @@ define([
                                       interfaceTypesData: rtAggIntfTypes});
             rtAggregates.add([newEntry]);
         },
-        addPropRtAggregateByIndex: function($data,property) {
+        addPropRtAggregateByIndex: function(data,property) {
           var selectedRuleIndex = data.model().collection.indexOf(property.model());
             var rtAggregates = this.model().get('rtAggregates');
             var rtAgg = "";
@@ -1265,7 +1265,7 @@ define([
                 AllowedAddressPairModel({'interfaceTypesData': types});
             aapList.add([allowAddressPairModel]);
         },
-        addAAPByIndex: function($data,property) {
+        addAAPByIndex: function(data,property) {
           var selectedRuleIndex = data.model().collection.indexOf(property.model());
             var types = this.getIntfTypes(false);
             var aapList = this.model().attributes['allowedAddressPairCollection'],

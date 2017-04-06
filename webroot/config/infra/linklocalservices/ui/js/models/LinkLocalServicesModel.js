@@ -121,7 +121,7 @@ define([
                 newFabAddr = new IpFabricAddressModel({ip_fabric_service_ip: ""});
             fabAddres.add([newFabAddr]);
         },
-        addAddressByIndex: function($data, kbInterface){
+        addAddressByIndex: function(data, kbInterface){
           var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
           var fabAddres = this.model().attributes['ipFabAddresses'],
               newFabAddr = new IpFabricAddressModel({ip_fabric_service_ip: ""});
