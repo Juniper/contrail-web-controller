@@ -48,6 +48,14 @@ define([
     };
 
     var getProjectNetworkGridConfig = function (networkRemoteConfig, ucid, pagerOptions) {
+        var currentCookie =  contrail.getCookie('region');
+        var columns;
+        if(currentCookie === "All Regions"){
+            columns = nmwgc.projectNetworksColumnsAllregions;
+        }
+        else{
+            columns = nmwgc.projectNetworksColumns;
+        }
         var gridElementConfig = {
             header: {
                 title: {
@@ -62,6 +70,7 @@ define([
             },
             body: {
                 options: {
+                    lazyLoading:false,
                     autoRefresh: false,
                     checkboxSelectable: false,
                     detail: {
@@ -91,7 +100,7 @@ define([
                 }
             },
             columnHeader: {
-                columns: nmwgc.projectNetworksColumns
+                    columns: columns
             },
             footer: {
                 pager: contrail.handleIfNull(pagerOptions, { options: { pageSize: 5, pageSizeSelect: [5, 10, 50, 100] } })

@@ -17,16 +17,76 @@ define([
                 domainFQN = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 projectSelectedValueData = viewConfig.projectSelectedValueData,
                 projectFQN = (projectSelectedValueData.value === 'all') ? null : domainFQN + ':' + projectSelectedValueData.name,
-                projectUUID = (projectSelectedValueData.value === 'all') ? null : projectSelectedValueData.value,
-                contrailListModel = new ContrailListModel(getNetworkListModelConfig(projectFQN,
-                                                                                    projectUUID));
-
-            self.renderView4Config(self.$el, contrailListModel,
-                                   getNetworkListViewConfig(projectFQN, projectUUID));
-            ctwu.setProject4NetworkListURLHashParams(projectFQN);
+                projectUUID = (projectSelectedValueData.value === 'all') ? null : projectSelectedValueData.value;
+                var ucid;
+                var cgcEnabled = getValueByJsonPath(globalObj,
+                        'webServerInfo;cgcEnabled', false, false);
+                var regionList = globalObj['webServerInfo']['regionList'];
+                var index = regionList.indexOf('All Regions');
+                if (index > -1) {
+                  regionList.splice(index, 1);
+                }
+                var currentCookie =  contrail.getCookie('region');
+                if(cgcEnabled && currentCookie === "All Regions"){
+                  $("#page-content").removeClass("dashboard-no-padding");
+                  //Create new model for each Region
+                  var parentContrailListModel =  new ContrailListModel({data:[]});
+                  var allVnList = [];
+                  self.renderView4Config(self.$el, parentContrailListModel,//parentLIstModel
+                          getNetworkListViewConfig(projectFQN, projectUUID));
+                          ctwu.setProject4NetworkListURLHashParams(projectFQN);
+                  var count = 0, regionListModelArray = [];
+                      for(i=0;i<regionList.length;i++){
+                          var regionListModel = new ContrailListModel(getNetworkListModelConfig(projectFQN,
+                                  projectUUID,regionList[i]));
+                          regionListModelArray.push(regionListModel);
+                          var vnMap  = {};
+                          var region1Arr = [];
+                          regionListModel.onAllRequestsComplete.subscribe(function () {
+                                 if (regionListModelArray[count].getItems() != 'undefined'){
+                                      var regionModelgetItems = regionListModelArray[count].getItems();
+                                 }
+                                 vnMap[count] = regionListModelArray[count].getItems();
+                                 count++;
+                                 //count the number of time the onAllREquestComplet is called if it equal the count of regino call the render.
+                                  if(count === regionList.length){
+                                      var otherRegMapArry = [];
+                                      for(var i in vnMap) {
+                                          if(i === 0){
+                                              continue;
+                                          }
+                                          var otherRegMap = {};
+                                          _.each(vnMap[i], function(vn){
+                                              otherRegMap[vn.name] = vn;
+                                          });
+                                          otherRegMapArry.push(otherRegMap);
+                                      }
+                                      region1Arr = vnMap[0];
+                                      _.each(region1Arr, function(vn){
+                                          var vnName = vn.name;
+                                          _.each(otherRegMapArry, function(otherVN){
+                                              if(otherVN[vnName] != null) {
+                                                  vn.instCnt = vn.instCnt + otherVN[vnName].instCnt;
+                                                  vn.intfCnt = vn.instCnt + otherVN[vnName].intfCnt;
+                                                  vn.inThroughput = vn.instCnt + otherVN[vnName].inThroughput;
+                                                  vn.outThroughput = vn.instCnt + otherVN[vnName].outThroughput;
+                                              }
+                                          });
+                                      });
+                                      parentContrailListModel.setData(region1Arr);
+                                  }
+                          });
+                      }
+                  }
+                  else {
+                     contrailListModel = new ContrailListModel(getNetworkListModelConfig(projectFQN,
+                            projectUUID,null));
+                     self.renderView4Config(self.$el, contrailListModel,
+                            getNetworkListViewConfig(projectFQN, projectUUID));
+                            ctwu.setProject4NetworkListURLHashParams(projectFQN);
+                }
         }
     });
-
     function updateNetworkModel (contrailListModel, parentListModelArray) {
         var fqnList = contrailListModel.getItems();
         var detailsList = parentListModelArray[0].getItems();
@@ -34,9 +94,26 @@ define([
         parentListModelArray[0].addData(uniqList);
     }
 
-    function getNetworkListModelConfig(parentFQN, parentUUID) {
+    function getNetworkListModelConfig(parentFQN, parentUUID,regions) {
+        var ucid;
+        var currentCookie =  contrail.getCookie('region');
+        if(currentCookie === "All Regions"){
+            ucid = null;
+         }
+        else{
+            ucid = parentFQN != null ? (ctwc.UCID_PREFIX_MN_LISTS + parentFQN + ":virtual-networks") : ctwc.UCID_ALL_VN_LIST;
+        }
+        var virtual_networks_url, virtual_network_list_url;
+        if(regions != null){
+            virtual_networks_url = ctwc.get(ctwc.URL_GET_VIRTUAL_NETWORKS+'&reqRegion='+regions, 100, 1000, $.now());
+            virtual_network_list_url = ctwc.get(ctwc.URL_GET_VIRTUAL_NETWORKS_LIST+'&reqRegion='+regions, $.now());
+        }
+        else{
+            virtual_networks_url = ctwc.get(ctwc.URL_GET_VIRTUAL_NETWORKS, 100, 1000, $.now());
+            virtual_network_list_url = ctwc.get(ctwc.URL_GET_VIRTUAL_NETWORKS_LIST, $.now());
+        }
         var ajaxConfig = {
-            url : ctwc.get(ctwc.URL_GET_VIRTUAL_NETWORKS, 100, 1000, $.now()),
+            url : virtual_networks_url,
             type: 'POST',
             data: JSON.stringify({
                 id: qeUtils.generateQueryUUID(),
@@ -52,7 +129,7 @@ define([
                 hlRemoteConfig: {
                     remote: {
                         ajaxConfig: {
-                            url: ctwc.get(ctwc.URL_GET_VIRTUAL_NETWORKS_LIST, $.now()),
+                            url: virtual_network_list_url,
                             type: 'POST',
                             data: JSON.stringify({
                                 reqId: qeUtils.generateQueryUUID(),
@@ -104,7 +181,7 @@ define([
                 },
             },
             cacheConfig: {
-                ucid: parentFQN != null ? (ctwc.UCID_PREFIX_MN_LISTS + parentFQN + ":virtual-networks") : ctwc.UCID_ALL_VN_LIST
+                ucid: ucid
             }
         };
     }
