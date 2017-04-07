@@ -267,7 +267,13 @@ define([
 
         self.getProjectBreadcrumbDropdownViewConfig = function(hashParams, customProjectDropdownOptions) {
             var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null);
-
+            var regionList = globalObj['webServerInfo']['regionList'];
+            var index = regionList.indexOf('All Regions');
+            var currentCookie =  contrail.getCookie('region');
+            var url;
+            if (index > -1) {
+                regionList.splice(index, 1);
+            }
             return function(domainSelectedValueData) {
 
                 var defaultDropdownOptions = {
@@ -276,12 +282,21 @@ define([
                         parentSelectedValueData: domainSelectedValueData,
                         preSelectCB : function(selectedValueData) {
                             if(getValueByJsonPath(selectedValueData,'value') != null) {
+                                if(currentCookie === "All Regions"){
+                                    url = '/api/tenants/get-project-role?id='+
+                                    selectedValueData['value'] +
+                                    '&project=' +
+                                    selectedValueData['name']+'&reqRegion='+regionList[0]
+                                }
+                                else{
+                                    url = '/api/tenants/get-project-role?id='+
+                                    selectedValueData['value'] +
+                                    '&project=' +
+                                    selectedValueData['name'];
+                                }
                                 return $.ajax({
                                             type:"GET",
-                                            url:'/api/tenants/get-project-role?id=' +
-                                                selectedValueData['value'] +
-                                                '&project=' +
-                                                selectedValueData['name']
+                                            url:url
                                         });
                             } else {
                                 var defObj = $.Deferred();

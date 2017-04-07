@@ -8,7 +8,15 @@ define([
     var NMParsers = function() {
         var self = this;
         this.networkDataParser = function(response) {
-            var retArr = $.map(ifNull(response['data']['value'], response), function (currObject) {
+            var currentCookie =  contrail.getCookie('region');
+            var responseData;
+            if(currentCookie === "All Regions"){
+                responseData = response['data']['data']['value'];
+            }
+            else{
+                responseData = response['data']['value'];
+            }
+            var retArr = $.map(ifNull(responseData, response), function (currObject) {
                 if(!ctwu.isServiceVN(currObject['name'])) {
                     currObject['rawData'] = $.extend(true, {}, currObject);
                     currObject['url'] = '/api/tenant/networking/virtual-network/summary?fqNameRegExp=' + currObject['name'];
