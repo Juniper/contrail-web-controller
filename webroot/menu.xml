@@ -45,6 +45,25 @@ and need to add the iconClass tag wherever we need to show some icons
                     </access>
                     <items>
                         <item>
+                            <label>Regions</label>
+                            <hash>mon_gc_globalcontroller</hash>
+                            <access>
+                                <roles>
+                                    <role>cloudAdmin</role>
+                                </roles>
+                                <accessFn>showGlobalController</accessFn>
+                            </access>
+                            <resources>
+                             <resource>
+                                 <rootDir>/monitor/infrastructure/globalcontroller/ui</rootDir>
+                                 <js>globalControllerDashboard.main.js</js>
+                                 <class>globalControllerDashbaordLoader</class>
+                                 <function>renderCGCView</function>
+                              </resource>
+                             </resources>
+                            <searchStrings>GlobalController, All regions</searchStrings>
+                        </item>
+                        <item>
                             <hash>mon_infra_dashboard</hash>
                             <label>Dashboard</label>
                             <searchStrings>Infrastructure Dashboard</searchStrings>
@@ -52,6 +71,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 <roles>
                                     <role>cloudAdmin</role>
                                 </roles>
+                                <accessFn>hideGlobalController</accessFn>
                             </access>
                             <resources>
                                 <resource>
@@ -77,6 +97,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <roles>
                                 <role>cloudAdmin</role>
                             </roles>
+                            <accessFn>hideGlobalController</accessFn>
                             </access>
                             <resources>
                                 <resource>
@@ -94,6 +115,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <roles>
                                 <role>cloudAdmin</role>
                             </roles>
+                            <accessFn>hideGlobalController</accessFn>
                             </access>
                             <resources>
                                 <resource>
@@ -111,6 +133,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <roles>
                                 <role>cloudAdmin</role>
                             </roles>
+                            <accessFn>hideGlobalController</accessFn>
                             </access>
                             <resources>
                                 <resource>
@@ -129,6 +152,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <roles>
                                 <role>cloudAdmin</role>
                             </roles>
+                            <accessFn>hideGlobalController</accessFn>
                             </access>
                             <resources>
                                 <resource>
@@ -147,6 +171,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <roles>
                                 <role>cloudAdmin</role>
                             </roles>
+                            <accessFn>hideGlobalController</accessFn>
                             </access>
                             <resources>
                                 <resource>
@@ -165,6 +190,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <roles>
                                 <role>cloudAdmin</role>
                             </roles>
+                            <accessFn>hideGlobalController</accessFn>
                             </access>
                             <resources>
                                 <resource>
@@ -183,6 +209,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <roles>
                                 <role>cloudAdmin</role>
                             </roles>
+                            <accessFn>hideGlobalController</accessFn>
                             </access>
                             <resources>
                                 <resource>
@@ -198,42 +225,13 @@ and need to add the iconClass tag wherever we need to show some icons
                     </items>
                 </item>
                 <item>
-                <name>cgcinfrastrure</name>
-                <label>Infrastructure</label>
-                <iconClass>menu-icon fa fa-puzzle-piece</iconClass>
-                <access>
-                    <orchModels>
-                        <model>openstack</model>
-                        <model>cloudstack</model>
-                    </orchModels>
-                    <roles>
-                        <role>globalController</role>
-                    </roles>
-                </access>
-                        <items>
-                            <item>
-                                <label>Regions</label>
-                                <hash>mon_gc_globalcontroller</hash>
-                                <resources>
-                                 <resource>
-                                     <rootDir>/monitor/infrastructure/globalcontroller/ui</rootDir>
-                                     <js>globalControllerDashboard.main.js</js>
-                                     <class>globalControllerDashbaordLoader</class>
-                                     <function>renderCGCView</function>
-                                  </resource>
-                                 </resources>
-                                <searchStrings>GlobalController, All regions</searchStrings>
-                            </item>
-                        </items>
-                        </item>
-                <item>
                     <label>Networking</label>
                     <iconClass>menu-icon fa fa-sitemap</iconClass>
                     <access>
-                    <roles>
-                        <role>cloudAdmin</role>
-                        <role>member</role>
-                    </roles>
+                        <roles>
+                            <role>cloudAdmin</role>
+                            <role>member</role>
+                        </roles>
                     </access>
                     <resources>
                         <resource>
@@ -245,6 +243,13 @@ and need to add the iconClass tag wherever we need to show some icons
                     <items>
                         <item>
                             <hash>mon_networking_dashboard</hash>
+                            <access>
+                                <roles>
+                                    <role>cloudAdmin</role>
+                                    <role>member</role>
+                                </roles>
+                                <accessFn>hideGlobalController</accessFn>
+                            </access>
                             <label>Dashboard</label>
                             <loader>
                                 <class>mnPageLoader</class>
@@ -259,6 +264,13 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_networking_projects</hash>
                             <label>Projects</label>
+                            <access>
+                                <roles>
+                                    <role>cloudAdmin</role>
+                                    <role>member</role>
+                                </roles>
+                                <accessFn>hideGlobalController</accessFn>
+                            </access>
                             <loader>
                                 <class>mnPageLoader</class>
                                 <function>renderProjects</function>
@@ -270,6 +282,33 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Monitor Projects</searchStrings>
                         </item>
                         <item>
+                            <access>
+                                <roles>
+                                    <role>cloudAdmin</role>
+                                    <role>member</role>
+                                </roles>
+                            <accessFn>showGlobalController</accessFn>
+                            </access>
+                            <hash>mon_gc_networks</hash>
+                            <label>Networks</label>
+                            <loader>
+                                <class>mnPageLoader</class>
+                                <function>renderNetworks</function>
+                            </loader>
+                            <queryParams>
+                                <view>list</view>
+                                <type>network</type>
+                            </queryParams>
+                            <searchStrings>Monitor Networks</searchStrings>
+                        </item>
+                        <item>
+                            <access>
+                                <roles>
+                                    <role>cloudAdmin</role>
+                                    <role>member</role>
+                                </roles>
+                            <accessFn>hideGlobalController</accessFn>
+                            </access>
                             <hash>mon_networking_networks</hash>
                             <label>Networks</label>
                             <loader>
@@ -285,6 +324,13 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Instances</label>
                             <hash>mon_networking_instances</hash>
+                            <access>
+                                <roles>
+                                    <role>cloudAdmin</role>
+                                    <role>member</role>
+                                </roles>
+                                <accessFn>hideGlobalController</accessFn>
+                            </access>
                             <loader>
                                 <class>mnPageLoader</class>
                                 <function>renderInstances</function>
@@ -298,6 +344,13 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Interfaces</label>
                             <hash>mon_networking_interfaces</hash>
+                            <access>
+                                <roles>
+                                    <role>cloudAdmin</role>
+                                    <role>member</role>
+                                </roles>
+                                <accessFn>hideGlobalController</accessFn>
+                            </access>
                             <loader>
                                 <class>mnPageLoader</class>
                                 <function>renderInterfaces</function>
@@ -323,6 +376,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <role>cloudAdmin</role>
                             <role>member</role>
                         </roles>
+                        <accessFn>hideGlobalController</accessFn>
                     </access>
                     <items>
                         <item>
@@ -378,6 +432,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <orchModels>
                             <model>openstack</model>
                         </orchModels>
+                        <accessFn>hideGlobalController</accessFn>
                     </access>
                     <resources>
                         <resource>
@@ -425,8 +480,9 @@ and need to add the iconClass tag wherever we need to show some icons
                         <model>cloudstack</model>
                     </orchModels>
                     <roles>
-                        <role>globalController</role>
-                     </roles>
+                        <role>cloudAdmin</role>
+                    </roles>
+                     <accessFn>showGlobalController</accessFn>
                 </access>
                 <items>
                     <item>
@@ -610,7 +666,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>cloudstack</model>
                             <model>vcenter</model>
                         </orchModels>
-                        <accessFn>hideInFederatedvCenter</accessFn>
+                        <accessFn>hideConfigInFederatedvCenter</accessFn>
                     </access>
                     <iconClass>menu-icon fa fa-desktop</iconClass>
                     <items>
@@ -766,6 +822,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>openstack</model>
                             <model>vcenter</model>
                         </orchModels>
+                        <accessFn>hideGlobalController</accessFn>
                     </access>
                     <iconClass>menu-icon fa fa-tasks</iconClass>
                     <resources>
@@ -814,6 +871,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>openstack</model>
                             <model>vcenter</model>
                         </orchModels>
+                        <accessFn>hideGlobalController</accessFn>
                     </access>
                     <iconClass>menu-icon fa fa-sitemap</iconClass>
                     <items>
@@ -1022,6 +1080,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>openstack</model>
                             <model>vcenter</model>
                         </orchModels>
+                        <accessFn>hideGlobalController</accessFn>
                     </access>
                     <iconClass>menu-icon fa fa-link</iconClass>
                     <items>
@@ -1108,6 +1167,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>openstack</model>
                             <model>vcenter</model>
                         </orchModels>
+                        <accessFn>hideGlobalController</accessFn>
                     </access>
                     <iconClass>menu-icon fa fa-globe</iconClass>
                     <items>
@@ -1203,6 +1263,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <orchModels>
                             <model>openstack</model>
                         </orchModels>
+                        <accessFn>hideGlobalController</accessFn>
                     </access>
                     <iconClass>menu-icon fa fa-bell</iconClass>
                     <items>
