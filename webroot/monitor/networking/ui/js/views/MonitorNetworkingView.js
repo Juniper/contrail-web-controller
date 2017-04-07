@@ -107,15 +107,20 @@ define([
                 defaultValueIndex: 1,
                 childView: {
                     init: getNetworkListViewConfig(viewConfig)
-                },
-                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION
+                }/*,
+                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION*/
             },
             customDomainDropdownOptions = {
                 childView: {
                     init: ctwvc.getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
                 }
             };
-
+            var currentCookie =  contrail.getCookie('region');
+            if (currentCookie != cowc.GLOBAL_CONTROLLER_ALL_REGIONS){
+                customProjectDropdownOptions['allDropdownOption']
+                    = ctwc.ALL_PROJECT_DROPDOWN_OPTION;
+                customProjectDropdownOptions['defaultValueIndex'] = 1;
+            }
         return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions)
     };
 

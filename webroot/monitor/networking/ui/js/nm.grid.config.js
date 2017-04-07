@@ -57,6 +57,45 @@ define([
             }
         ];
 
+      this.projectNetworksColumnsAllregions = [
+                                       {
+               field: 'name',
+               name: 'Network',
+               formatter: function (r, c, v, cd, dc) {
+                   return cowf.formatElementName({name: 'network', value: dc['name'], cssClass: 'cell-hyperlink-blue'});
+               },
+               events: {
+                   onClick: ctwu.onClickNetworkMonitorGrid
+               },
+               minWidth: 300,
+               searchFn: function (d) {
+                   return d['name'];
+               },
+               searchable: true,
+               exportConfig: {
+                   allow: true,
+                   stdFormatter: false
+               }
+           },
+           {
+               field: 'instCnt',
+               name: 'Instances',
+               minWidth: 80
+           },
+           {
+               field: 'intfCnt',
+               name: 'Interfaces',
+               minWidth: 80
+           },
+           {
+               field: '',
+               name: 'Throughput In/Out',
+               minWidth: 200,
+               formatter: function (r, c, v, cd, dc) {
+                   return contrail.format("{0} / {1}", formatThroughput(dc['inThroughput'], true), formatThroughput(dc['outThroughput'], true));
+               }
+           }
+       ];
         this.projectsColumns = [
             {
                 field: 'name',
