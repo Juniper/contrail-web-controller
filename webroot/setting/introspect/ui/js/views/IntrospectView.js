@@ -12,19 +12,39 @@ define([
         el: $(window.contentContainer),
 
         renderControlNodeIntrospect: function (viewConfig) {
-            this.renderView4Config(this.$el, null, getFeatureIntrospectViewConfig(viewConfig, ctwc.INTROSPECT_CONTROL_NODE_PORTS));
+            var nodePortObjs = getValueByJsonPath(globalObj,
+                                                  "webServerInfo;proxyPortList;control_node_ports;introspect",
+                                                  ctwc.INTROSPECT_CONTROL_NODE_PORTS);
+            this.renderView4Config(this.$el, null,
+                                   getFeatureIntrospectViewConfig(viewConfig,
+                                                                  nodePortObjs));
         },
 
         renderVirtualRouterIntrospect: function (viewConfig) {
-            this.renderView4Config(this.$el, null, getFeatureIntrospectViewConfig(viewConfig, ctwc.INTROSPECT_VIRTUAL_ROUTER_PORTS));
+            var nodePortObjs = getValueByJsonPath(globalObj,
+                                                  "webServerInfo;proxyPortList;vrouter_node_ports;introspect",
+                                                  ctwc.INTROSPECT_VIRTUAL_ROUTER_PORTS);
+            this.renderView4Config(this.$el, null,
+                                   getFeatureIntrospectViewConfig(viewConfig,
+                                                                  nodePortObjs));
         },
 
         renderConfigNodeIntrospect: function (viewConfig) {
-            this.renderView4Config(this.$el, null, getFeatureIntrospectViewConfig(viewConfig, ctwc.INTROSPECT_CONFIG_NODE_PORTS));
+            var nodePortObjs = getValueByJsonPath(globalObj,
+                                                  "webServerInfo;proxyPortList;config_node_ports;introspect",
+                                                  ctwc.INTROSPECT_CONFIG_NODE_PORTS);
+            this.renderView4Config(this.$el, null,
+                                   getFeatureIntrospectViewConfig(viewConfig,
+                                                                  nodePortObjs));
         },
 
         renderAnalyticsNodeIntrospect: function (viewConfig) {
-            this.renderView4Config(this.$el, null, getFeatureIntrospectViewConfig(viewConfig, ctwc.INTROSPECT_ANALYTICS_NODE_PORTS));
+            var nodePortObjs = getValueByJsonPath(globalObj,
+                                                  "webServerInfo;proxyPortList;analytics_node_ports;introspect",
+                                                  ctwc.INTROSPECT_ANALYTICS_NODE_PORTS);
+            this.renderView4Config(this.$el, null,
+                                   getFeatureIntrospectViewConfig(viewConfig,
+                                                                  nodePortObjs));
         },
         renderIntrospectXML: function (viewConfig) {
             this.attributes = {viewConfig: viewConfig};
@@ -37,13 +57,22 @@ define([
         }
     });
 
-    function getFeatureIntrospectViewConfig(config, featurePorts) {
+    function getFeatureIntrospectViewConfig(config, nodePortObjs) {
         var hashParams = config.hashParams,
             introspectNode = hashParams.node,
             activeTab = 0;
 
-        if (contrail.checkIfExist(hashParams.port)) {
-            activeTab = _.keys(featurePorts).indexOf(hashParams.port);
+        var nodeTypeList = _.keys(nodePortObjs);
+        nodeTypeList = _.sortBy((nodeTypeList), function(nodeType) {
+            return nodeType.toLowerCase();
+        });
+        var nodeTypeListLen = nodeTypeList.length;
+        var activeTab = 0;
+        for (var i = 0; i < nodeTypeListLen; i++) {
+            if (hashParams.port == nodePortObjs[nodeTypeList[i]]) {
+                activeTab = i;
+                break;
+            }
         }
 
         return {
@@ -52,7 +81,7 @@ define([
             viewConfig: {
                 theme: cowc.TAB_THEME_OVERCAST,
                 active: (activeTab !== -1) ? activeTab : 0,
-                tabs: getFeatureTabsConfig(featurePorts, introspectNode)
+                tabs: getFeatureTabsConfig(nodePortObjs, nodeTypeList, introspectNode)
             }
         };
     }
@@ -92,12 +121,19 @@ define([
         return introViewConfig;
     }
 
-    function getFeatureTabsConfig(featurePorts, introspectNode) {
+    function getFeatureTabsConfig(nodePortObjs, sortedNodeTypeList, introspectNode) {
         var tabs = [];
 
-        _.each(featurePorts, function(key, value) {
-            tabs.push(getIntrospectViewConfig(key, value, introspectNode));
-        });
+        var nodeTypeList = [];
+        if (null == nodePortObjs) {
+            return tabs;
+        }
+        var nodeTypesCnt = sortedNodeTypeList.length;
+        for (var i = 0; i < nodeTypesCnt; i++) {
+            var nodeType = sortedNodeTypeList[i];
+            var port = nodePortObjs[nodeType];
+            tabs.push(getIntrospectViewConfig(nodeType, port, introspectNode));
+        }
         return tabs;
     }
 
