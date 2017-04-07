@@ -267,7 +267,9 @@ define([
 
         self.getProjectBreadcrumbDropdownViewConfig = function(hashParams, customProjectDropdownOptions) {
             var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null);
-
+            var firstRegion = ctwu.getRegionList()[0];
+            var currentCookie =  contrail.getCookie('region');
+            var url;
             return function(domainSelectedValueData) {
 
                 var defaultDropdownOptions = {
@@ -276,12 +278,21 @@ define([
                         parentSelectedValueData: domainSelectedValueData,
                         preSelectCB : function(selectedValueData) {
                             if(getValueByJsonPath(selectedValueData,'value') != null) {
+                                if(currentCookie === cowc.GLOBAL_CONTROLLER_ALL_REGIONS){
+                                    url = '/api/tenants/get-project-role?id='+
+                                    selectedValueData['value'] +
+                                    '&project=' +
+                                    selectedValueData['name']+'&reqRegion='+firstRegion
+                                }
+                                else{
+                                    url = '/api/tenants/get-project-role?id='+
+                                    selectedValueData['value'] +
+                                    '&project=' +
+                                    selectedValueData['name'];
+                                }
                                 return $.ajax({
                                             type:"GET",
-                                            url:'/api/tenants/get-project-role?id=' +
-                                                selectedValueData['value'] +
-                                                '&project=' +
-                                                selectedValueData['name']
+                                            url:url
                                         });
                             } else {
                                 var defObj = $.Deferred();
