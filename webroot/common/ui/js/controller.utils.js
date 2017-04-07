@@ -279,13 +279,33 @@ define([
         };
 
         this.getDomainListModelConfig = function() {
+            var regionList = globalObj['webServerInfo']['regionList'];
+            var index = regionList.indexOf('All Regions');
+            var currentCookie =  contrail.getCookie('region');
+            var url;
+            var responseDomains;
+            if (index > -1) {
+                regionList.splice(index, 1);
+            }
+            if(currentCookie === "All Regions"){
+                url = ctwc.URL_ALL_DOMAINS+'?reqRegion='+regionList[0]
+            }
+            else{
+                url = ctwc.URL_ALL_DOMAINS;
+            }
             return {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.URL_ALL_DOMAINS
+                        url: url
                     },
                     dataParser: function(response) {
-                        return  $.map(response.domains, function (n, i) {
+                        if(currentCookie === "All Regions"){
+                            responseDomains = response.data.domains;
+                        }
+                        else{
+                            responseDomains = response.domains;
+                        }
+                        return  $.map(responseDomains, function (n, i) {
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[0],
@@ -376,13 +396,33 @@ define([
         };
 
         this.getAllDomains = function() {
+            var regionList = globalObj['webServerInfo']['regionList'];
+            var index = regionList.indexOf('All Regions');
+            var currentCookie =  contrail.getCookie('region');
+            var responseDomains;
+            var url;
+            if (index > -1) {
+                regionList.splice(index, 1);
+            }
+            if(currentCookie === "All Regions"){
+                url = ctwc.URL_ALL_DOMAINS+'?reqRegion='+regionList[0]
+            }
+            else{
+                url = ctwc.URL_ALL_DOMAINS;
+            }
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.URL_ALL_DOMAINS
+                        url: url
                     },
                     dataParser: function(response) {
-                        return  $.map(response.domains, function (n, i) {
+                        if(currentCookie === "All Regions"){
+                            responseDomains = response.data.domains;
+                        }
+                        else{
+                            responseDomains = response.domains;
+                        }
+                        return  $.map(responseDomains, function (n, i) {
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[0],
@@ -410,14 +450,35 @@ define([
         };
 
         this.getProjectListModelConfig = function(domainObj, dropdownOptions) {
+            var regionList = globalObj['webServerInfo']['regionList'];
+            var index = regionList.indexOf('All Regions');
+            var currentCookie =  contrail.getCookie('region');
+            var responseProjects;
+            var url;
+            if (index > -1) {
+                regionList.splice(index, 1);
+            }
+            if(currentCookie === "All Regions"){
+                url = ctwc.URL_ALL_PROJECTS +
+                "?domainId=" + domainObj.value+'&reqRegion='+regionList[0]
+            }
+            else{
+                url = ctwc.URL_ALL_PROJECTS +
+                "?domainId=" + domainObj.value;
+            }
             var modelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.URL_ALL_PROJECTS +
-                            "?domainId=" + domainObj.value
+                        url: url
                     },
                     dataParser: function(response) {
-                        return  $.map(response.projects, function (n, i) {
+                        if(currentCookie === "All Regions"){
+                            responseProjects = response.data.projects;
+                        }
+                        else{
+                            responseProjects = response.projects;
+                        }
+                        return  $.map(responseProjects, function (n, i) {
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
