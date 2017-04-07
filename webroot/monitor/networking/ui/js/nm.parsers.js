@@ -8,40 +8,46 @@ define([
     var NMParsers = function() {
         var self = this;
         this.networkDataParser = function(response) {
-            var retArr = $.map(ifNull(response['data']['value'], response), function (currObject) {
-                if(!ctwu.isServiceVN(currObject['name'])) {
-                    currObject['rawData'] = $.extend(true, {}, currObject);
-                    currObject['url'] = '/api/tenant/networking/virtual-network/summary?fqNameRegExp=' + currObject['name'];
-                    /*
-                    currObject['outBytes'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;out_bytes', 0);
-                    currObject['inBytes'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;in_bytes', 0);
-                    currObject['out_tpkts'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;out_tpkts', 0);
-                    currObject['in_tpkts'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;in_tpkts', 0);
-                    */
-                    currObject['egress_flow_count'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;egress_flow_count', 0);
-                    currObject['ingress_flow_count'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;ingress_flow_count', 0);
-                    currObject['outBytes60'] = '-';
-                    currObject['inBytes60'] = '-';
-                    currObject['instCnt'] = ifNull(jsonPath(currObject, '$..virtualmachine_list')[0], []).length;
-                    currObject['inThroughput'] = ifNull(jsonPath(currObject, '$..in_bandwidth_usage')[0], 0);
-                    currObject['outThroughput'] = ifNull(jsonPath(currObject, '$..out_bandwidth_usage')[0], 0);
+            var currentCookie =  contrail.getCookie('region');
+            var responseData;
+            if(currentCookie === cowc.GLOBAL_CONTROLLER_ALL_REGIONS){
+                responseData = response['data']['data']['value'];
+            }
+            else{
+                responseData = response['data']['value'];
+            }
+          //  var regionList = ctwu.getRegionList();
+            if(typeof(responseData) != 'undefined'){
+                var retArr = $.map(ifNull(responseData, response), function (currObject) {
+                    var regionList = ctwu.getRegionList();
+                    if(!ctwu.isServiceVN(currObject['name'])) {
+                        currObject['rawData'] = $.extend(true, {}, currObject);
+                        currObject['url'] = '/api/tenant/networking/virtual-network/summary?fqNameRegExp=' + currObject['name'];
+                        currObject['egress_flow_count'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;egress_flow_count', 0);
+                        currObject['ingress_flow_count'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;ingress_flow_count', 0);
+                        currObject['outBytes60'] = '-';
+                        currObject['inBytes60'] = '-';
+                        currObject['instCnt'] = ifNull(jsonPath(currObject, '$..virtualmachine_list')[0], []).length;
+                        currObject['inThroughput'] = ifNull(jsonPath(currObject, '$..in_bandwidth_usage')[0], 0);
+                        currObject['outThroughput'] = ifNull(jsonPath(currObject, '$..out_bandwidth_usage')[0], 0);
 
-                    currObject['intfCnt'] = ifNull(jsonPath(currObject, '$..interface_list')[0], []).length;
-                    currObject['vnCnt'] = ifNull(jsonPath(currObject, '$..connected_networks')[0], []).length;
-                    currObject['throughput'] = currObject['inThroughput'] + currObject['outThroughput'];
-                    currObject['x'] = currObject['intfCnt'];
-                    currObject['y'] = currObject['vnCnt'];
-                    currObject['size'] = currObject['throughput'];
-                    currObject['type'] = 'network';
-                    currObject['name'] = currObject['name'];
-                    currObject['uuid'] = currObject['uuid'];
-                    currObject['project'] = currObject['name'].split(':').slice(0, 2).join(':');
+                        currObject['intfCnt'] = ifNull(jsonPath(currObject, '$..interface_list')[0], []).length;
+                        currObject['vnCnt'] = ifNull(jsonPath(currObject, '$..connected_networks')[0], []).length;
+                        currObject['throughput'] = currObject['inThroughput'] + currObject['outThroughput'];
+                        currObject['x'] = currObject['intfCnt'];
+                        currObject['y'] = currObject['vnCnt'];
+                        currObject['size'] = currObject['throughput'];
+                        currObject['type'] = 'network';
+                        currObject['name'] = currObject['name'];
+                        currObject['uuid'] = currObject['uuid'];
+                        currObject['project'] = currObject['name'].split(':').slice(0, 2).join(':');
 
-                    return currObject;
-                }
-            });
+                        return currObject;
+                    }
+                });
             return retArr;
-        };
+          }
+       };
 
         this.statsOracleParseFn = function(response,type) {
             response = contrail.handleIfNull(response, {});
