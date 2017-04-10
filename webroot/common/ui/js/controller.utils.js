@@ -269,12 +269,14 @@ define([
         };
 
         this.isServiceVN = function (vnFQN) {
-            var fqnArray = vnFQN.split(":");
+            var fqnArray = [];
+            if(vnFQN){
+                fqnArray = vnFQN.split(":");
 
-            if(ctwc.SERVICE_VN_EXCLUDE_LIST.indexOf(fqnArray[2]) != -1) {
-                return true;
+                if(ctwc.SERVICE_VN_EXCLUDE_LIST.indexOf(fqnArray[2]) != -1) {
+                    return true;
+                }
             }
-
             return false;
         };
 
