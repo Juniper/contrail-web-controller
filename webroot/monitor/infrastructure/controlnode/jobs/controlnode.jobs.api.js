@@ -4,7 +4,6 @@
 
 var rest = require(process.mainModule.exports["corePath"] +
         '/src/serverroot/common/rest.api'),
-    config = process.mainModule.exports["config"],
     adminapi = module.exports,
     logutils = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/utils/log.utils'),
@@ -29,10 +28,6 @@ var rest = require(process.mainModule.exports["corePath"] +
     opServer;
 
 bgpNode = module.exports;
-
-opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
-                    server:config.analytics.server_ip,
-                    port:config.analytics.server_port });
 
 /**
  * Add BGP Routers to result JSON (all control and compute nodes).

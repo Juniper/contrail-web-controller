@@ -4,22 +4,30 @@
 
 var cdbqueryapi = module.exports,
     commonUtils = require(process.mainModule.exports.corePath + "/src/serverroot/utils/common.utils"),
-    config = process.mainModule.exports.config,
-    editEnabled = config.cassandra.enable_edit,
+    configUtils = require(process.mainModule.exports.corePath +
+            "/src/serverroot/common/config.utils"),
+    editEnabled,
     logutils = require(process.mainModule.exports.corePath + "/src/serverroot/utils/log.utils"),
     cassandra = require("cassandra-driver");
 
-var hosts = getCassandraHostList(config.cassandra.server_ips, config.cassandra.server_port),
-    cClient = new cassandra.Client({ contactPoints: hosts, keyspace: "config_db_uuid"});
-
-cClient.on("error", function (err) {
-    logutils.logger.error(err.stack);
-});
+function getCassandraClient ()
+{
+    var config = configUtils.getConfig(),
+        hosts = getCassandraHostList(config.cassandra.server_ips,
+                config.cassandra.server_port),
+        cClient = new cassandra.Client({ contactPoints: hosts,
+            keyspace: "config_db_uuid"});
+    cClient.on("error", function (err) {
+        logutils.logger.error(err.stack);
+    });
+    editEnabled = config.cassandra.enable_edit;
+    return cClient;
+}
 
 cdbqueryapi.listKeys4Table = function (req, res) {
     var table = req.param("table"),
+        cClient = getCassandraClient(),
         responseJSON = {"table": table, "keys": [], "editEnabled": editEnabled};
-
     cClient.execute("SELECT DISTINCT key FROM " + table, [], function (err, results) {
         console.log(err);
         if (err) {
@@ -37,6 +45,7 @@ cdbqueryapi.listKeys4Table = function (req, res) {
 cdbqueryapi.listValues4Key = function (req, res) {
     var key = req.param("key"),
         table = req.param("table"),
+        cClient = getCassandraClient(),
         responseJSON = {"editEnabled": editEnabled, "keyvalues": []};
 
     cClient.execute("SELECT * FROM " + table + " WHERE key = asciiAsBlob('" + key + "')", [], function (err, results) {
@@ -55,7 +64,8 @@ cdbqueryapi.listValues4Key = function (req, res) {
 cdbqueryapi.deleteValue4Key = function (req, res) {
     var key = req.param("key"),
         table = req.param("table"),
-        value = req.param("value");
+        value = req.param("value"),
+        cClient = getCassandraClient ();
     if (value && value === "") {
         value = null;
     }
@@ -73,7 +83,8 @@ cdbqueryapi.deleteValue4Key = function (req, res) {
 
 cdbqueryapi.deleteKeyFromTable = function (req, res) {
     var table = req.param("table"),
-        key = req.param("key");
+        key = req.param("key"),
+        cClient = getCassandraClient ();
 
     //TODO:
     cClient.execute("DELETE FROM " + table + " WHERE KEY = asciiAsBlob('" + key + "')", [], function (err, results) {

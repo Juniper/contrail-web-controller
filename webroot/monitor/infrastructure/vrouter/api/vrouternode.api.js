@@ -4,7 +4,8 @@
 
 var rest = require(process.mainModule.exports["corePath"] +
         '/src/serverroot/common/rest.api'),
-    config = process.mainModule.exports["config"],
+    configUtils = require(process.mainModule.exports["corePath"] +
+        '/src/serverroot/common/config.utils'),
     async = require('async'),
     qs = require('querystring'),
     commonUtils = require(process.mainModule.exports["corePath"] +
@@ -196,6 +197,7 @@ function getvRoutersSummaryByJob (req, res, appData)
     var url = '/virtual-routers';
     var forceRefresh = req.param('forceRefresh');
     var key = global.STR_GET_VROUTERS_SUMMARY;
+    var config = configUtils.getConfig();
 
     if (null == forceRefresh) {
         forceRefresh = false;
@@ -220,6 +222,7 @@ function getvRouterGenerators (req, res, appData)
     var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
     var reqObj = {req: req, res: res, jobName: key, reqUrl: url,
         sendToJobServerAlways: forceRefresh, appData: objData};
+    var config = configUtils.getConfig();
     if (true == config.serviceEndPointFromConfig) {
         reqObj.nextRunDelay = global.VROUTER_SUMM_JOB_REFRESH_TIME;
         reqObj.jobRunCount = 0; /* Infinite time */

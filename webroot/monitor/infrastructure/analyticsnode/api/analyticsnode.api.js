@@ -20,7 +20,7 @@ var rest = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
     contrailService = require(process.mainModule.exports["corePath"] +
-            '/src/serverroot/jobs/core/contrailservice.api'),
+            '/src/serverroot/common/contrailservice.api'),
     configApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/configServer.api');
 
