@@ -259,6 +259,11 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_networking_projects</hash>
                             <label>Projects</label>
+                            <access>
+                            <roles>
+                                <role>cloudAdmin</role>
+                            </roles>
+                            </access>
                             <loader>
                                 <class>mnPageLoader</class>
                                 <function>renderProjects</function>

@@ -91,7 +91,7 @@ define([
                 successCallback: function (graphView) {
                     var configGraphModel = graphView.model;
 
-                    $(configSelectorId).data('graph-size', {height: configGraphModel.elementsDataObj.configSVGHeight});
+                    $(configSelectorId).data('graph-size', {height: configGraphModel.elementsDataObj.configSVGHeight ? configGraphModel.elementsDataObj.configSVGHeight : 0});
 
                     if (adjustGraphDimension(configGraph, connectedGraph, selectorId, connectedSelectorId, configSelectorId, true)) {
                         onAdjustGraphDimension(configGraph, selectorId, connectedSelectorId, self);
@@ -1249,11 +1249,13 @@ define([
 
     function createNodeElements(nodes, elements, elementMap, config) {
         var newElement, nodeName;
-        for (var i = 0; i < nodes.length; i++) {
-            newElement = createNodeElement(nodes[i], config);
-            nodeName = nodes[i]['name'];
-            elements.push(newElement);
-            elementMap.node[nodeName] = newElement.id;
+        if (nodes && nodes.length){
+            for (var i = 0; i < nodes.length; i++) {
+                newElement = createNodeElement(nodes[i], config);
+                nodeName = nodes[i]['name'];
+                elements.push(newElement);
+                elementMap.node[nodeName] = newElement.id;
+            }
         }
     }
 
@@ -1373,84 +1375,86 @@ define([
 
     function createLinkElements(links, elements, elementMap) {
         var link, linkedElements = [];
-        for (var i = 0; i < links.length; i++) {
-            var sInstances = links[i] ['service_inst'],
-                dir = links[i]['dir'],
-                source = {}, target = {};
+        if (links && links.length){
+            for (var i = 0; i < links.length; i++) {
+                var sInstances = links[i] ['service_inst'],
+                    dir = links[i]['dir'],
+                    source = {}, target = {};
 
-            if (sInstances == null || sInstances.length == 0) {
-                source = {
-                    id: elementMap.node[links[i]['src']],
-                    name: links[i]['src']
-                };
-                target = {
-                    id: elementMap.node[links[i]['dst']],
-                    name: links[i]['dst']
-                };
-
-                link = createLinkElement(source, target, links[i], elements, elementMap);
-                linkedElements.push(link);
-            } else {
-                var linkElements = [],
-                    linkElementKeys = [],
-                    linkElementKeyString = '',
-                    linkElementKeyStringBi = '';
-                for (var j = 0; j < sInstances.length; j++) {
-                    if (j == 0) {
-                        source = {
-                            id: elementMap.node[links[i]['src']],
-                            name: links[i]['src']
-                        };
-                    } else {
-                        source = {
-                            id: elementMap.node[sInstances[j - 1]],
-                            name: sInstances[j - 1]
-                        };
-                    }
+                if (sInstances == null || sInstances.length == 0) {
+                    source = {
+                        id: elementMap.node[links[i]['src']],
+                        name: links[i]['src']
+                    };
                     target = {
-                        id: elementMap.node[sInstances[j]],
-                        name: sInstances[j]
+                        id: elementMap.node[links[i]['dst']],
+                        name: links[i]['dst']
+                    };
+
+                    link = createLinkElement(source, target, links[i], elements, elementMap);
+                    linkedElements.push(link);
+                } else {
+                    var linkElements = [],
+                        linkElementKeys = [],
+                        linkElementKeyString = '',
+                        linkElementKeyStringBi = '';
+                    for (var j = 0; j < sInstances.length; j++) {
+                        if (j == 0) {
+                            source = {
+                                id: elementMap.node[links[i]['src']],
+                                name: links[i]['src']
+                            };
+                        } else {
+                            source = {
+                                id: elementMap.node[sInstances[j - 1]],
+                                name: sInstances[j - 1]
+                            };
+                        }
+                        target = {
+                            id: elementMap.node[sInstances[j]],
+                            name: sInstances[j]
+                        };
+                        linkElements.push({
+                            source: source,
+                            target: target
+                        });
+                        linkElementKeys.push(source.name);
+                    }
+
+                    source = {
+                        id: elementMap.node[sInstances[j - 1]],
+                        name: sInstances[j - 1]
+                    };
+
+                    target = {
+                        id: elementMap.node[links[i]['dst']],
+                        name: links[i]['dst']
                     };
                     linkElements.push({
                         source: source,
                         target: target
                     });
                     linkElementKeys.push(source.name);
-                }
+                    linkElementKeys.push(target.name);
 
-                source = {
-                    id: elementMap.node[sInstances[j - 1]],
-                    name: sInstances[j - 1]
-                };
+                    linkElementKeyString = linkElementKeys.join('<->');
+                    elementMap.link[linkElementKeyString] = [];
 
-                target = {
-                    id: elementMap.node[links[i]['dst']],
-                    name: links[i]['dst']
-                };
-                linkElements.push({
-                    source: source,
-                    target: target
-                });
-                linkElementKeys.push(source.name);
-                linkElementKeys.push(target.name);
-
-                linkElementKeyString = linkElementKeys.join('<->');
-                elementMap.link[linkElementKeyString] = [];
-
-                if (dir == 'bi') {
-                    linkElementKeyStringBi = linkElementKeys.reverse().join('<->');
-                    elementMap.link[linkElementKeyStringBi] = [];
-                }
-
-                $.each(linkElements, function (linkElementKey, linkElementValue) {
-                    link = createLinkElement(linkElementValue.source, linkElementValue.target, links[i], elements, elementMap);
-                    linkedElements.push(link);
-
-                    elementMap.link[linkElementKeyString].push(link.id);
                     if (dir == 'bi') {
-                        elementMap.link[linkElementKeyStringBi].push(link.id);
+                        linkElementKeyStringBi = linkElementKeys.reverse().join('<->');
+                        elementMap.link[linkElementKeyStringBi] = [];
                     }
-                });
+
+                    $.each(linkElements, function (linkElementKey, linkElementValue) {
+                        link = createLinkElement(linkElementValue.source, linkElementValue.target, links[i], elements, elementMap);
+                        linkedElements.push(link);
+
+                        elementMap.link[linkElementKeyString].push(link.id);
+                        if (dir == 'bi') {
+                            elementMap.link[linkElementKeyStringBi].push(link.id);
+                        }
+                    });
+                }
             }
         }
         elementMap['linkedElements'] = linkedElements;
