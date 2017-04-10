@@ -373,7 +373,7 @@ function makeBulkDataByFqn(fqName, data) {
 }
 
 function parseServiceChainUVE(fqName, resultJSON, scUVE) {
-    var cnt = scUVE.length;
+    var cnt = scUVE ? scUVE.length : 0;
     for (var i = 0; i < cnt; i++) {
         resultJSON = getServiceChainNode(fqName, resultJSON, scUVE[i]);
     }
@@ -808,9 +808,10 @@ function getNetworkConnectedGraph(req, res, appData) {
 
     reqUrl = '/analytics/uves/virtual-network/' + fqName + '?cfilt=' + networkFilters.join(',');
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
-
-    reqUrl = '/analytics/uves/service-chain/*';
-    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
+    if (req.session.userRole.indexOf(global.STR_ROLE_USER) === -1) {
+        reqUrl = '/analytics/uves/service-chain/*';
+        commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
+    }
 
     reqUrl = '/virtual-networks';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, configApiServer, null, appData);
@@ -900,9 +901,10 @@ function getProjectConnectedGraph(req, res, appData) {
 
     reqUrl = '/analytics/uves/virtual-network/' + fqName + ':*?cfilt=' + networkFilters.join(',');
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
-
-    reqUrl = '/analytics/uves/service-chain/*';
-    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
+    if (req.session.userRole.indexOf(global.STR_ROLE_USER) === -1) {
+        reqUrl = '/analytics/uves/service-chain/*';
+        commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
+    }
 
     reqUrl = '/virtual-networks';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, configApiServer, null, appData);
@@ -998,7 +1000,6 @@ function getInstanceConnectedGraph(req, res, appData) {
         interfaceList = req.query['interfaceList'],
         instanceUrl, interfaceUrl, networkUrl,
         dataObjArr = [];
-
     instanceUrl = '/analytics/uves/virtual-machine/' + instanceUUID + '?cfilt=' + instanceFilters.join(',');
     commonUtils.createReqObj(dataObjArr, instanceUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 

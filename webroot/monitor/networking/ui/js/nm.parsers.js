@@ -9,7 +9,7 @@ define([
         var self = this;
         this.networkDataParser = function(response) {
             var retArr = $.map(ifNull(response['data']['value'], response), function (currObject) {
-                if(!ctwu.isServiceVN(currObject['name'])) {
+                if (currObject && !ctwu.isServiceVN(currObject['name'])) {
                     currObject['rawData'] = $.extend(true, {}, currObject);
                     currObject['url'] = '/api/tenant/networking/virtual-network/summary?fqNameRegExp=' + currObject['name'];
                     /*
@@ -35,7 +35,8 @@ define([
                     currObject['type'] = 'network';
                     currObject['name'] = currObject['name'];
                     currObject['uuid'] = currObject['uuid'];
-                    currObject['project'] = currObject['name'].split(':').slice(0, 2).join(':');
+                    if (currObject['name'] && typeof currObject['name'] === 'string')
+                        currObject['project'] = currObject['name'].split(':').slice(0, 2).join(':');
 
                     return currObject;
                 }

@@ -96,26 +96,30 @@ define([
                     init: ctwvc.getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
                 }
             };
-        
         return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions);
     };
 
     function getNetworkListConfig(viewConfig) {
         var hashParams = viewConfig.hashParams,
+            roles = globalObj.webServerInfo.role,
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
-                defaultValueIndex: 1,
+                defaultValueIndex: 0,
                 childView: {
                     init: getNetworkListViewConfig(viewConfig)
-                },
-                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION
+                }/*,
+                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION*/
             },
             customDomainDropdownOptions = {
                 childView: {
                     init: ctwvc.getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
                 }
             };
-
+        if (roles.indexOf(cowc.MEMBER_ROLE) < 0){
+            customProjectDropdownOptions['allDropdownOption'] 
+                = ctwc.ALL_PROJECT_DROPDOWN_OPTION;
+            customProjectDropdownOptions['defaultValueIndex'] = 1;
+        }
         return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions)
     };
 
@@ -152,53 +156,69 @@ define([
 
     function getInstanceListConfig(viewConfig) {
         var hashParams = viewConfig.hashParams,
+            roles = globalObj.webServerInfo.role,
             customNetworkDropdownOptions = {
-                defaultValueIndex: 1,
+                defaultValueIndex: 0,
                 childView: {
                     init: getInstanceListViewConfig(viewConfig)
-                },
-                allDropdownOption: ctwc.ALL_NETWORK_DROPDOWN_OPTION
+                }/*,
+                allDropdownOption: ctwc.ALL_NETWORK_DROPDOWN_OPTION*/
             },
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
-                defaultValueIndex: 1,
+                defaultValueIndex: 0,
                 childView: {
                     init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
-                },
-                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION
+                }/*,
+                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION*/
             },
             customDomainDropdownOptions = {
                 childView: {
                     init: ctwvc.getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
                 }
             };
-
+        if (roles.indexOf(cowc.MEMBER_ROLE) < 0){
+            customProjectDropdownOptions['allDropdownOption']
+                = ctwc.ALL_PROJECT_DROPDOWN_OPTION;
+            customProjectDropdownOptions['defaultValueIndex'] = 1;
+            customNetworkDropdownOptions['allDropdownOption']
+                = ctwc.ALL_NETWORK_DROPDOWN_OPTION;
+            customNetworkDropdownOptions['defaultValueIndex'] = 1;
+        }
         return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions)
     };
 
     function getInterfaceListConfig(viewConfig) {
         var hashParams = viewConfig.hashParams,
+            roles = globalObj.webServerInfo.role,
             customNetworkDropdownOptions = {
-                defaultValueIndex: 1,
+                defaultValueIndex: 0,
                 childView: {
                     init: getInterfaceListViewConfig(viewConfig)
-                },
-                allDropdownOption: ctwc.ALL_NETWORK_DROPDOWN_OPTION
+                }/*,
+                allDropdownOption: ctwc.ALL_NETWORK_DROPDOWN_OPTION*/
             },
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
-                defaultValueIndex: 1,
+                defaultValueIndex: 0,
                 childView: {
                     init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
-                },
-                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION
+                }/*,
+                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION*/
             },
             customDomainDropdownOptions = {
                 childView: {
                     init: ctwvc.getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
                 }
             };
-
+        if (roles.indexOf(cowc.MEMBER_ROLE) < 0){
+            customProjectDropdownOptions['allDropdownOption']
+                = ctwc.ALL_PROJECT_DROPDOWN_OPTION;
+            customProjectDropdownOptions['defaultValueIndex'] = 1;
+            customNetworkDropdownOptions['allDropdownOption']
+                = ctwc.ALL_NETWORK_DROPDOWN_OPTION;
+            customNetworkDropdownOptions['defaultValueIndex'] = 1;
+        }
         return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions)
     }
 

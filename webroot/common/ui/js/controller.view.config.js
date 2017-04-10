@@ -115,7 +115,8 @@ define([
                         tabConfig: {
                             activate: function(event, ui) {
                                 $('#' + ctwl.INSTANCE_PORT_DIST_CHART_ID).trigger('refresh');
-                            }
+                            },
+                            deniedRoles: ['member']
                         },
                         viewConfig: {
                             modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
