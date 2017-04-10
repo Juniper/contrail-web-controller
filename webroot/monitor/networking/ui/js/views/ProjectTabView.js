@@ -94,7 +94,8 @@ define([
                             activate: function(event, ui) {
                                 $('#' + ctwl.PROJECT_PORTS_SCATTER_CHART_ID).trigger('refresh');
                             },
-                            renderOnActivate: true
+                            renderOnActivate: true,
+                            visible: cowu.isAdmin()
                         },
                         viewConfig: {
                             modelConfig: {
