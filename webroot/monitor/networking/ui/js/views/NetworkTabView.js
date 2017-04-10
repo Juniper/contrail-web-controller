@@ -117,7 +117,8 @@ define([
                         tabConfig: {
                             activate: function(event, ui) {
                                 $('#' + ctwl.NETWORK_PORT_DIST_ID).trigger('refresh');
-                            }
+                            },
+                            visible: cowu.isAdmin()
                         },
                         viewConfig: {
                             modelConfig: {
