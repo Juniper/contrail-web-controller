@@ -9,7 +9,6 @@ var rest = require(process.mainModule.exports["corePath"] +
                      '/src/serverroot/utils/log.utils'),
   commonUtils = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/utils/common.utils'),
-  config = process.mainModule.exports["config"],
   global = require(process.mainModule.exports["corePath"] +
                    '/src/serverroot/common/global'),
   appErrors = require(process.mainModule.exports["corePath"] +

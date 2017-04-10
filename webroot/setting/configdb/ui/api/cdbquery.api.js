@@ -4,7 +4,9 @@
 
 var cdbqueryapi = module.exports,
     commonUtils = require(process.mainModule.exports.corePath + "/src/serverroot/utils/common.utils"),
-    config = process.mainModule.exports.config,
+    configUtils = require(process.mainModule.exports.corePath +
+            "/src/serverroot/common/config.utils"),
+    config =  configUtils.getConfig(),
     editEnabled = config.cassandra.enable_edit,
     logutils = require(process.mainModule.exports.corePath + "/src/serverroot/utils/log.utils"),
     cassandra = require("cassandra-driver");

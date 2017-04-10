@@ -5,7 +5,8 @@
 
 var jobsApi = require(process.mainModule.exports["corePath"]  +
                       "/src/serverroot/jobs/core/jobs.api"),
-    config = process.mainModule.exports.config,
+    configUtils = require(process.mainModule.exports["corePath"] +
+                      "/src/serverroot/common/config.utils"),
     global = require(process.mainModule.exports["corePath"]  +
                      "/src/serverroot/common/global");
 
@@ -41,6 +42,7 @@ function createVRouterGeneratorsJob ()
 
 function featureInit()
 {
+    var config = configUtils.getConfig();
     if (true != config.serviceEndPointFromConfig) {
         return;
     }
