@@ -325,25 +325,15 @@
                                  columns: [{
                                      elementId: 'local_preference',
                                      name: "Local Preference",
-                                     view: "FormComboboxView",
+                                     view: "FormInputView",
                                      viewConfig: {
                                          path: 'virtual_machine_interface_properties.local_preference',
                                          label: 'Local Preference',
+                                         placeholder: '0 - 4294967295',
                                          dataBindValue: 'virtual_machine_interface_properties().local_preference',
-                                         class: 'col-xs-6',
-                                         elementConfig: {
-                                             dataTextField: "text",
-                                             dataValueField: "value",
-                                             placeholder: "Select Local Preference",
-                                             dataSource:{
-                                                 type: "local",
-                                                 data: [
-                                                    {text: "100", value: "100"},
-                                                    {text: "200", value: "200"}]
-                                             }
-                                         }
+                                         class: "col-xs-6"
                                      }
-                                 },{
+                                 }, {
                                      elementId: 'bridge_domain_refs',
                                      view: "FormDropdownView",
                                      viewConfig: {
