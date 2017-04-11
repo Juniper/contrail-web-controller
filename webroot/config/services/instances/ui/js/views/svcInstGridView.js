@@ -204,7 +204,7 @@ define([
                                         }
                                     },
                                     {
-                                        key: 'service_instance_properties',
+                                        key: 'service_instance_properties.ha_mode',
                                         label: 'HA Mode',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -220,7 +220,8 @@ define([
                                         }
                                     },
                                     {
-                                        key: 'svcTmplDetails',
+                                        key: 'svcTmplDetails[0].' +
+                                        'service_template_properties.image_name',
                                         label: 'Image',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -268,7 +269,8 @@ define([
                                         }
                                     },
                                     {
-                                        key: 'svcTmplDetails',
+                                        key: 'svcTmplDetails[0].' +
+                                           'service_template_properties.flavor',
                                         label: 'Flavor',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -276,7 +278,9 @@ define([
                                         }
                                     },
                                     {
-                                        key: 'service_instance_properties',
+                                        key: 'svcTmplDetails[0].' +
+                                            'service_template_properties.' +
+                                            'availability_zone_enable',
                                         label: 'Availability Zone',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -500,8 +504,8 @@ define([
 
     function imagesFormatter (row, col, val, d, rowData) {
         if (null != val) {
-            return getValueByJsonPath(val[0],
-                                      'service_template_properties;image_name',
+            return getValueByJsonPath(rowData,
+                                      'svcTmplDetails;0;service_template_properties;image_name',
                                       '-');
         } else {
             return "-";
@@ -510,8 +514,8 @@ define([
 
     function flavorsFormatter (row, col, val, d, rowData) {
         if (null != val) {
-            return getValueByJsonPath(val[0],
-                                      'service_template_properties;flavor',
+            return getValueByJsonPath(rowData,
+                                      'svcTmplDetails;0;service_template_properties;flavor',
                                       '-');
         } else {
             return "-";
