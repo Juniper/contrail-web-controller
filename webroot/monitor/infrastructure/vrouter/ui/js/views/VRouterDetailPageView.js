@@ -244,7 +244,7 @@ define([
         var secondaryAnlNode, status;
         try{
             anlNode = jsonPath(vrouterData,
-                    "$..ModuleClientState..primary")[0].split(':')[0];
+                    "$..ModuleClientState..collector_ip")[0].split(':')[0];
             status = jsonPath(vrouterData,"$..ModuleClientState..status")[0];
             secondaryAnlNode = ifNull(jsonPath(vrouterData,
                     "$..ModuleClientState..secondary")[0],'').split(':')[0];

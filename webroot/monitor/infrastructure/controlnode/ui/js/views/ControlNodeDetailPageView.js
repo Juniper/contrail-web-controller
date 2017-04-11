@@ -273,7 +273,7 @@ define([
         var secondaryAnlNode, status;
         try{
            anlNode = jsonPath(ctrlNodeData,
-                   "$..ModuleClientState..primary")[0].split(':')[0];
+                   "$..ModuleClientState..collector_ip")[0].split(':')[0];
            status = jsonPath(ctrlNodeData,"$..ModuleClientState..status")[0];
            secondaryAnlNode = ifNull(jsonPath(ctrlNodeData,
                    "$..ModuleClientState..secondary")[0],"").split(':')[0];
