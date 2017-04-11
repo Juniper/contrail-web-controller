@@ -55,7 +55,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                                 'webServerInfo;sessionTimeout', 3600000)
             }
         };
-        var globalcontrollerlistModelConfig = {
+        var uncachedVrouterModelConfig = {
                 remote : {
                     ajaxConfig : {
                         url:monitorInfraConstants.monitorInfraUrls.VROUTER_CACHED_SUMMARY + '?forceRefresh',
@@ -66,9 +66,9 @@ define(['contrail-list-model'], function(ContrailListModel) {
                 vlRemoteConfig: vlRemoteConfig,
                 cacheConfig : {}
             };
-        //Use the globalcontroller modelconfig if the cgcEnabled is true
+        //Use the uncachedVrouterModelConfig if the cgcEnabled is true
         if(globalObj.webServerInfo.cgcEnabled === true){
-            return ContrailListModel(globalcontrollerlistModelConfig);
+            return ContrailListModel(uncachedVrouterModelConfig);
         }
         else{
             return ContrailListModel(listModelConfig);

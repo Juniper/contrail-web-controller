@@ -193,7 +193,6 @@ define([
         this.UCID_INSTANCE_CPU_MEMORY_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:cpu-memory";
 
         this.UCID_NODE_CPU_MEMORY_LIST = 'node_details' + "{0}:cpu-memory";
-        this.GLOBAL_CONTROLLER_NODESCOUNT = "global_controller_nodescnt";
 
         this.GRAPH_DIR_LR = "LR";
         this.GRAPH_DIR_TB = "TB";
@@ -579,7 +578,22 @@ define([
             text: 'Go to configure network page',
             href: '/#p=config_net_vn'
         };
-
+        //GLOBALCONTROLLER Constants
+        this.GLOBAL_CONTROLER_LIST_VIEW_SECTION_ID = "global-controller-listview-sectionid";
+        this.GLOBAL_CONTROLLER_REGION_BAR_SECTION_ID = "global_controller_region_bar_section_id";
+        this.GLOBAL_CONTROLLER_REGION_SECTION_ID = "global_controller_region_section_id";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_CPU_MAX_SECTION_ID = "globalcontroller_chartview_cpu_max_section_id";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_MEMORY_MAX_SECTION_ID = "globalcontroller_chartview_memory_max_section_id";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_DISK_USAGE_SECTION_ID= "globalcontroller_chartview_disk_usage_section_id";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_BANDWDTH_PERCENTILE_SECTION_ID= "globalcontroller_chartview_bandwdth_percentile_section_id";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_CPU_MAX = "globalcontroller_chartview_cpu_max";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_MEMORY_MAX = "globalcontroller_chartview_memory_max";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_DISK_USAGE= "globalcontroller_chartview_disk_usage";
+        //this.GLOBAL_CONTROLLER_NODESCOUNT = "global_controller_nodescnt";
+        this.GLOBAL_CONTROLLER_CHARTVIEW_BANDWDTH_PERCENTILE = "globalcontroller_chartview_bandwdth_percentile";
+        this.GLOBALCONTROLLER_REGIONS_SUMMARY_URL =
+            '/api/tenant/networking/global-controller-overview?reqRegion=';
+        this.GLOBAL_CONTROLLER_CHARTS_URL = "/api/qe/query/?reqRegion=";
         /* Global Config Constants*/
         this.GLOBAL_CONFIG_TAB_ID = "global-config-tab";
         this.GLOBAL_BGP_OPTIONS_MAP = [

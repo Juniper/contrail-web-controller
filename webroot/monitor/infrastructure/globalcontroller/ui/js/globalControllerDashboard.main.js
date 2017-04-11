@@ -10,7 +10,7 @@ function globalControllerDashbaordLoader() {
             pathGCView = rootDir + '/js/views/GlobalControllerListView.js',
             renderFn = paramObject['function'];
             // Remove padding of page content if the page is multi-region dashbaord
-            $("#page-content").css("padding","0px");
+            $("#page-content").removeClass("dashboard-padding").addClass("dashboard-no-padding");
             //hide the project dropdown in multiregion dashbaord
             $('#gohan-config-role').hide();
             if (self.globalControllerDashboardView == null) {
@@ -35,7 +35,5 @@ function globalControllerDashbaordLoader() {
         this.load({hashParams: hashObj, 'function': renderFn});
     };
     this.destroy = function () {
-        $("#page-content").css("padding","2px 10px 5px");
-        ctwu.destroyDOMResources(ctwl.GLOBAL_CONTROLLER_PREFIX_ID);
     };
 }

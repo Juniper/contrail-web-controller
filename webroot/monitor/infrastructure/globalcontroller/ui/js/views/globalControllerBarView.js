@@ -32,8 +32,14 @@ define([
                          analyticsNodesCnt = 0, configNodesCnt = 0;controlNodesCnt=0,
                          databaseNodesCnt = 0, vRoutersCnt = 0, vnCnt = 0, zeroAlarmsFlag = 0,
                          vRoutersNodesDownCnt = 0, configNodesDownCnt = 0, controlNodesDownCnt = 0,
-                         analyticsNodesDownCnt = 0, databaseNodesDownCnt = 0,totalNodesDownCnt = 0;
+                         analyticsNodesDownCnt = 0, databaseNodesDownCnt = 0,totalNodesDownCnt = 0,aggregateVns = [];
                      for(i=0;i<items.length;i++){
+                       var vnsItems = items[i].data.vns;
+                           for(j=0;j<vnsItems.length;j++){
+                               aggregateVns.push(vnsItems[j]);
+                            }
+                       var filterAggVns = [];
+                       filterAggVns = _.uniq(aggregateVns, 'name');
                        alarmsCnt += items[i].data.alarmsCnt;
                        servivceInstanceCnt += items[i].data.svcInstsCnt;
                        interfacesCnt += items[i].data.vmiCnt;
@@ -65,13 +71,14 @@ define([
                        totalNodesDownCnt = vRoutersNodesDownCnt + configNodesDownCnt + controlNodesDownCnt +
                                            analyticsNodesDownCnt + databaseNodesDownCnt;
                       }
-                    if(alarmsCnt > 0) {
-                        $('#alert_info').css("background-color", "#e4564f");
+                     vnCnt = filterAggVns.length;
+                     if(alarmsCnt > 0) {
+                        $("#alert_info").addClass("alarms-container-bgcolor-on").removeClass("alarms-container-bgcolor-off");
                         $('#pageHeader').find('#alert_info').text(alarmsCnt);
-                    }
-                    else{
-                        $('#alert_info').css("background-color", "#fff");
-                    }
+                     }
+                     else{
+                         $("#alert_info").addClass("alarms-container-bgcolor-off").removeClass("alarms-container-bgcolor-on");
+                     }
                      self.$el.html(globalControllerBarViewTemplate({zeroAlarmsFlag:zeroAlarmsFlag, alarmCnt:alarmsCnt,regionListLen:regionListLen,
                          interfacesCnt:interfacesCnt,servivceInstanceCnt:servivceInstanceCnt,floatIps:floatIps, vnCnt:vnCnt,totalNodesCnt:totalNodesCnt,
                          totalNodesDownCnt: totalNodesDownCnt}));
