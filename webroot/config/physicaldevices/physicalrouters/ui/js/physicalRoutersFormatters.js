@@ -23,6 +23,14 @@ define([
                 dc['physical_router_dataplane_ip'] : '-';
         };
 
+       /*
+         * @loopbackIPFormatter
+         */
+        self.loopbackIPFormatter = function(r, c, v, cd, dc) {
+            return dc['physical_router_loopback_ip'] ?
+                dc['physical_router_loopback_ip'] : '-';
+        };
+
         /*
          * @infCntFormatter
          */

@@ -119,6 +119,12 @@ define([
                     formatter : pRoutersFormatters.dataplaneIPFormatter
                 },
                 {
+                    field : 'physical_router_loopback_ip',
+                    name : 'Loopback IP',
+                    sorter : comparatorIP,
+                    formatter : pRoutersFormatters.loopbackIPFormatter
+                },
+                {
                     field : 'totalIntfCount',
                     name : 'Interfaces',
                     cssClass :'cell-hyperlink-blue',
@@ -456,6 +462,11 @@ define([
                 {
                     key: 'physical_router_dataplane_ip',
                     label: 'VTEP Address',
+                    templateGenerator: 'TextGenerator'
+                },
+                {
+                    key: 'physical_router_loopback_ip',
+                    label: 'Loopback IP',
                     templateGenerator: 'TextGenerator'
                 },
                 {
