@@ -332,8 +332,8 @@ define([
                         for (var i = 0; i < len; i++) {
                             uuids.push(responseJSON[i].name);
                         }
-                        var domCookie = ctwc.COOKIE_DOMAIN;
-                        var projCookie = ctwc.COOKIE_PROJECT;
+                        var domCookie = contrail.getCookie(cowc.COOKIE_DOMAIN);
+                        var projCookie = contrail.getCookie(cowc.COOKIE_PROJECT);
                         var vnCookie = ctwc.COOKIE_VIRTUAL_NETWORK;
                         whereClause = "(name Starts with " + domCookie + ":" + projCookie +
                             ":)";

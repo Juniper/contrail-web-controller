@@ -288,9 +288,9 @@ define([
                 return item['name'];
             });
 
-            var domCookie = ctwc.COOKIE_DOMAIN;
-            var projCookie = ctwc.COOKIE_PROJECT;
-            var vnCookie = ctwc.COOKIE_VIRTUAL_NETWORK;
+            var domCookie = contrail.getCookie(cowc.COOKIE_DOMAIN);
+            var projCookie = contrail.getCookie(cowc.COOKIE_PROJECT);
+            var vnCookie = contrail.getCookie(ctwc.TYPE_VIRTUAL_NETWORK);
             var whereClause = "(name Starts with " + domCookie + ":" + projCookie + ":)";
             if (ctwc.ALL_PROJECTS === projCookie) {
                 whereClause = "(name Starts with " + domCookie + ":)";

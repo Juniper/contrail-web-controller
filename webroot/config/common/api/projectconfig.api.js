@@ -70,7 +70,8 @@ function listAllProjects (request, response, appData)
     var dataObjArr = [], i, identityProj, identityProjLen, apiProj,
         apiProjLen, projList = [], tempProjMap = {},
         parentId = commonUtils.getValueByJsonPath(request,
-                "query;domainId", null, false);
+                "query;domainId", null, false),
+        tempProjIdToIdxMap = {};
     dataObjArr.push({type : identity, request: request,
         appData: appData, parentId: parentId});
     dataObjArr.push({type : apiServer, request: request,
@@ -86,22 +87,35 @@ function listAllProjects (request, response, appData)
         apiProj = commonUtils.getValueByJsonPath(projData,
                 "1;data;projects", [], false);
         apiProjLen = apiProj.length;
-        for (i = 0; i < identityProjLen; i++) {
-            var identityProjFQN = commonUtils.getValueByJsonPath(identityProj[i],
-                    "fq_name", [], false).join(":");
-            tempProjMap[identityProjFQN] = identityProj[i];
+        var allProjects = [];
+        for (var i = 0; i < apiProjLen; i++) {
+            var apiProjName = commonUtils.getValueByJsonPath(apiProj[i],
+                                                             "fq_name;1", null);
+            if (apiProjName == defaultProject) {
+                continue;
+            }
+            var apiProjID = commonUtils.getValueByJsonPath(apiProj[i], "uuid",
+                                                           null);
+            apiProj[i]["display_name"] = apiProjName;
+            allProjects.push(apiProj[i]);
+            tempProjIdToIdxMap[apiProjID] = allProjects.length - 1;
         }
-        for (i = 0; i < apiProjLen; i++) {
-            var apiProjFQN = commonUtils.getValueByJsonPath(apiProj[i],
-                    "fq_name", [], false).join(":"),
-                projectName = commonUtils.getValueByJsonPath(apiProj[i],
-                    "fq_name;1", "", false);
-            if (tempProjMap[apiProjFQN] == null &&
-                    projectName !== defaultProject) {
-                identityProj.push(apiProj[i]);
+        for (i = 0; i < identityProjLen; i++) {
+            var identityProjID = commonUtils.getValueByJsonPath(identityProj[i],
+                                                                "uuid", null);
+            var idx = tempProjIdToIdxMap[identityProjID];
+            var identityProjName =
+                commonUtils.getValueByJsonPath(identityProj[i], "fq_name;1",
+                                               null);
+            if (null != idx) {
+                /* Exists in API Server, so take display_name from keystone */
+                allProjects[idx]["display_name"] = identityProjName;
+            } else {
+                identityProj[i]["display_name"] = identityProjName;
+                allProjects.push(identityProj[i]);
             }
         }
-        commonUtils.handleJSONResponse(null, response, {projects: identityProj});
+        commonUtils.handleJSONResponse(null, response, {projects: allProjects});
     });
 };
 
@@ -145,8 +159,9 @@ function getAllProjectAsync (dataObj, callback)
  */
 function listAllDomains (request, response, appData)
 {
-    var dataObjArr = [], i, identityDomain, identityDomainLen, apiDomain,
-        apiDomainLen, domainList = [], tempDomainMap = {};
+    var dataObjArr = [], i, identityDomains, identityDomainsLen, apiDomains,
+        apiDomainsLen, domainList = [], tempDomainMap = {},
+        tempDomainIdToIdxMap = {};
     dataObjArr.push({type : identity, request: request, appData: appData});
     dataObjArr.push({type : apiServer, request: request, appData: appData});
     async.map(dataObjArr, getAllDomainAsync, function(error, domainData) {
@@ -154,28 +169,44 @@ function listAllDomains (request, response, appData)
             commonUtils.handleJSONResponse(domainData[0].error, response, null);
             return;
         }
-        identityDomain = commonUtils.getValueByJsonPath(domainData,
-                "0", [], false);
-        identityDomainLen = identityDomain.length;
-        apiDomain = commonUtils.getValueByJsonPath(domainData,
+        identityDomains = commonUtils.getValueByJsonPath(domainData,
+                "0;data", [], false);
+        identityDomainsLen = identityDomains.length;
+        apiDomains = commonUtils.getValueByJsonPath(domainData,
                 "1;data;domains", [], false);
-        apiDomainLen = apiDomain.length;
-        for (i = 0; i < apiDomainLen; i++) {
-            var apiDomainFQN = commonUtils.getValueByJsonPath(apiDomain[i],
+        apiDomainsLen = apiDomains.length;
+        var allDomains = [];
+        for (i = 0; i < apiDomainsLen; i++) {
+            var apiDomainFQN = commonUtils.getValueByJsonPath(apiDomains[i],
                     "fq_name", [], false).join(":");
-            tempDomainMap[apiDomainFQN] = apiDomain[i];
+            var apiDomainId =
+                commonUtils.getValueByJsonPath(apiDomains[i],
+                                               "uuid", null);
+            apiDomains[i]["display_name"] = apiDomainFQN;
+            allDomains.push(apiDomains[i]);
+            tempDomainIdToIdxMap[apiDomainId] = allDomains.length - 1;
+            tempDomainMap[apiDomainFQN] = apiDomains[i];
         }
 
-        for (i = 0; i < identityDomainLen; i++) {
+        for (i = 0; i < identityDomainsLen; i++) {
             var identityDomainFQN = commonUtils.getValueByJsonPath(
-                    identityDomain[i], "fq_name", [], false).join(":");
-            if (tempDomainMap[identityDomainFQN] == null) {
-                apiDomain.push(identityDomain[i]);
+                    identityDomains[i], "fq_name", [], false).join(":");
+            var identityDomainId =
+                commonUtils.getValueByJsonPath(identityDomains[i], "uuid", null);
+            var idx = tempDomainIdToIdxMap[identityDomainId];
+            if (null != idx) {
+                /* Exists in API Server, so take display_name from keystone */
+                allDomains[idx]["display_name"] = identityDomainFQN;
+            } else {
+                if (null == tempDomainMap[identityDomainFQN]) {
+                    identityDomains[i]["display_name"] = identityDomainFQN;
+                    allDomains.push(identityDomains[i]);
+                }
             }
         }
 
         commonUtils.handleJSONResponse(null, response,
-                {domains: apiDomain});
+                {domains: allDomains});
     });
 };
 

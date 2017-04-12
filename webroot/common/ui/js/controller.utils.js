@@ -306,9 +306,15 @@ define([
                             responseDomains = response.domains;
                         }
                         return  $.map(responseDomains, function (n, i) {
+                            var domainName = getValueByJsonPath(n,
+                                                                "fq_name;0");
+                            var displayName = getValueByJsonPath(n,
+                                                                 "display_name",
+                                                                 domainName);
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[0],
+                                display_name: displayName,
                                 value: n.uuid
                             };
                         });
@@ -339,6 +345,7 @@ define([
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[0],
+                                display_name: n.fq_name[0],
                                 value: n.uuid
                             };
                         });
@@ -372,6 +379,7 @@ define([
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
+                                display_name: n.fq_name[1],
                                 value: n.uuid
                             };
                         });
@@ -419,9 +427,15 @@ define([
                             responseDomains = response.domains;
                         }
                         return  $.map(responseDomains, function (n, i) {
+                            var domainName = getValueByJsonPath(n,
+                                                                "fq_name;0");
+                            var displayName = getValueByJsonPath(n,
+                                                                 "display_name",
+                                                                 domainName);
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[0],
+                                display_name: displayName,
                                 value: n.uuid
                             };
                         });
@@ -471,9 +485,15 @@ define([
                             responseProjects = response.projects;
                         }
                         return  $.map(responseProjects, function (n, i) {
+                            var projectName = getValueByJsonPath(n,
+                                                                 "fq_name;1");
+                            var displayName = getValueByJsonPath(n,
+                                                                 "display_name",
+                                                                 projectName);
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
+                                display_name: displayName,
                                 value: n.uuid
                             };
                         });
@@ -510,6 +530,7 @@ define([
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
+                                display_name: n.fq_name[1],
                                 value: n.uuid
                             };
                         });
@@ -536,9 +557,15 @@ define([
                     },
                     dataParser: function(response) {
                         return  $.map(response.projects, function (n, i) {
+                            var projName = getValueByJsonPath(n,
+                                                              "fq_name;1");
+                            var displayName = getValueByJsonPath(n,
+                                                                 "display_name",
+                                                                 projName);
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
+                                display_name: displayName,
                                 value: n.uuid
                             };
                         });
