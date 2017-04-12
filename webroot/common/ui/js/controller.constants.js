@@ -146,8 +146,12 @@ define([
         this.TYPE_VIRTUAL_MACHINE = "virtual-machine";
         this.TYPE_VIRTUAL_MACHINE_INTERFACE = "virtual-machine-interface";
 
-        this.ALL_PROJECT_DROPDOWN_OPTION = [{name: 'all projects', value: 'all', fq_name: 'all'}];
-        this.ALL_NETWORK_DROPDOWN_OPTION = [{name: 'all networks', value: 'all', fq_name: 'all'}];
+        this.ALL_PROJECT_DROPDOWN_OPTION = [{
+            name: 'all projects', value: 'all', fq_name: 'all', display_name: 'all projects'
+        }];
+        this.ALL_NETWORK_DROPDOWN_OPTION = [{
+            name: 'all networks', value: 'all', fq_name: 'all', display_name: 'all networks'
+        }];
 
         this.TMPL_VN_PORT_HEAT_CHART = "network-port-heat-chart-template";
         this.TMPL_TRAFFIC_STATS_TAB = "traffic-stats-tab-template";
