@@ -49,6 +49,7 @@ global.NODE_CHASSIS_TYPE_NOT_RESOLVED = 'not-resolved';
 
 /* 5 Minutes */
 global.INSTANCE_SPAWNING_TIMEOUT = 5 * 60 * 1000;
+global.PROJECT_NOT_FOUND_IN_KEYSTONE = '(Error: project not exists in keystone)';
 
 module.exports = global;
 

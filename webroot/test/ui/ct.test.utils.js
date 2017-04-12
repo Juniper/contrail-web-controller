@@ -10,6 +10,7 @@ define([
     this.getRegExForUrl = function (url) {
         var regexUrlMap = {
             '/api/tenants/config/domains': /\/api\/tenants\/config\/domains.*$/,
+            '/api/tenants/config/all-domains': /\/api\/tenants\/config\/all-domains.*$/,
             '/api/tenants/config/projects': /\/api\/tenants\/config\/projects.*$/,
             '/api/tenants/projects': /\/api\/tenants\/projects.*$/,
             '/api/tenants/config/all-projects': /\/api\/tenants\/config\/all-projects.*$/,

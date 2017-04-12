@@ -10,6 +10,7 @@ define([
     var CTUtils = function () {
         var self = this;
         var utilVariable = [];
+        var fqnToDisplayNameMap = {project: {}, domain: {}};
         self.getInstanceDetailsTemplateConfig = function () {
             return {
 
@@ -197,9 +198,17 @@ define([
                     },
                     dataParser: function(response) {
                         return  $.map(response.domains, function (n, i) {
+                            var domainName = getValueByJsonPath(n,
+                                                                "fq_name;0");
+                            var displayName = getValueByJsonPath(n,
+                                                                 "display_name",
+                                                                 domainName);
+                            fqnToDisplayNameMap.domain[domainName] =
+                                displayName;
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[0],
+                                display_name: displayName,
                                 value: n.uuid
                             };
                         });
@@ -230,6 +239,7 @@ define([
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[0],
+                                display_name: n.fq_name[0],
                                 value: n.uuid
                             };
                         });
@@ -263,6 +273,7 @@ define([
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
+                                display_name: n.fq_name[1],
                                 value: n.uuid
                             };
                         });
@@ -294,9 +305,15 @@ define([
                     },
                     dataParser: function(response) {
                         return  $.map(response.domains, function (n, i) {
+                            var domainName = getValueByJsonPath(n,
+                                                                "fq_name;0");
+                            var displayName = getValueByJsonPath(n,
+                                                                 "display_name",
+                                                                 domainName);
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[0],
+                                display_name: displayName,
                                 value: n.uuid
                             };
                         });
@@ -324,15 +341,30 @@ define([
             var modelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.URL_ALL_PROJECTS
+                        url: ctwc.URL_ALL_PROJECTS +
+                            "?domainId=" + domainObj.value
                     },
                     dataParser: function(response) {
                         return  $.map(response.projects, function (n, i) {
-                            return {
+                            var projectName = getValueByJsonPath(n,
+                                                                 "fq_name;1");
+                            var displayName = getValueByJsonPath(n,
+                                                                 "display_name",
+                                                                 projectName);
+                            var errorStr = getValueByJsonPath(n, "error_string",
+                                                              null);
+                            fqnToDisplayNameMap.project[projectName] =
+                                displayName;
+                            var projObj = {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
+                                display_name: displayName,
                                 value: n.uuid
                             };
+                            if (null != errorStr) {
+                                projObj.error_string = errorStr;
+                            }
+                            return projObj;
                         });
                     },
                     failureCallback: function(xhr, ContrailListModel) {
@@ -367,6 +399,7 @@ define([
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
+                                display_name: n.fq_name[1],
                                 value: n.uuid
                             };
                         });
@@ -393,9 +426,15 @@ define([
                     },
                     dataParser: function(response) {
                         return  $.map(response.projects, function (n, i) {
+                            var projName = getValueByJsonPath(n,
+                                                              "fq_name;1");
+                            var displayName = getValueByJsonPath(n,
+                                                                 "display_name",
+                                                                 projName);
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
+                                display_name: displayName,
                                 value: n.uuid
                             };
                         });
@@ -600,6 +639,24 @@ define([
             }
         };
 
+        this.getFQNByDomainProjectDisplayName = function(fqName) {
+            if (null == fqName) {
+                return fqName;
+            }
+            /* In Project drop down breadcrumb, we have
+             * display_name, but API Server/OpServer we have
+             * fq_name, so set the drop down with corresponding
+             * display_name
+             */
+            var fqnArr = fqName.split(":");
+            if (fqnArr.length > 2) {
+                var domain = fqnToDisplayNameMap.domain[fqnArr[0]];
+                var project = fqnToDisplayNameMap.project[fqnArr[1]];
+                fqnArr[0] = (null != domain) ? domain : fqnArr[0];
+                fqnArr[1] = (null != project) ? project : fqnArr[1];
+            }
+            return fqnArr.join(":");
+        };
         this.onClickNetworkMonitorGrid = function (e, selRowDataItem) {
             if (!$(e.target).hasClass('cell-no-link')) {
                 var name = $(e.target).attr('name'),
@@ -611,12 +668,15 @@ define([
 
                 } else if ($.inArray(name, ['network']) > -1) {
                     fqName = selRowDataItem['name'];
+                    fqName = self.getFQNByDomainProjectDisplayName(fqName);
                     ctwu.setNetworkURLHashParams(null, fqName, true)
                 } else if ($.inArray(name, ['vn']) > -1) {
                     fqName = selRowDataItem['vnFQN'];
+                    fqName = self.getFQNByDomainProjectDisplayName(fqName);
                     ctwu.setNetworkURLHashParams(null, fqName, true)
                 } else if ($.inArray(name, ['instance']) > -1) {
                     fqName = selRowDataItem['vnFQN'];
+                    fqName = self.getFQNByDomainProjectDisplayName(fqName);
                     uuid = selRowDataItem['name'];
                     vmName = selRowDataItem['vmName'];
                     if (contrail.checkIfExist(fqName) && !ctwu.isServiceVN(fqName)) {

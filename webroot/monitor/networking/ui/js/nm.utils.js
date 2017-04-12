@@ -75,7 +75,8 @@ define([
 
         if (fqNameLength == 2) {
             $.ajax({
-                url: ctwc.getProjectsURL({name: ctwc.COOKIE_DOMAIN}),
+                url: ctwc.getProjectsURL({name:
+                                         contrail.getCookie(cowc.COOKIE_DOMAIN)}),
                 async: false
             }).done(function (response) {
                 $.each(response['projects'], function (idx, projObj) {
