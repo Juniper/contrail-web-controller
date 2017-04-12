@@ -7,6 +7,7 @@
          "domains": [
            {
              "href": "http://10.204.217.42:9100/domain/cd1ace9d-60c0-4cbf-aa12-6958722718d1",
+             "display_name": "default-domain",
              "fq_name": [
                "default-domain"
              ],
@@ -18,6 +19,7 @@
          "projects": [
            {
              "uuid": "90ab868a-da21-4ed9-922f-a309967eb0a0",
+             "display_name": "admin",
              "fq_name": [
                "default-domain",
                "admin"
@@ -25,6 +27,7 @@
            },
            {
              "uuid": "7943296d-ee0f-47ba-8d7e-ea276eeac9fb",
+             "display_name": "demo",
              "fq_name": [
                "default-domain",
                "demo"

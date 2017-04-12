@@ -11,8 +11,9 @@ define([
 
     var CTConstants = function () {
 
-        this.URL_ALL_DOMAINS = '/api/tenants/config/domains';
-        this.URL_ALL_PROJECTS = '/api/tenants/config/projects';
+        this.URL_ALL_DOMAINS = '/api/tenants/config/all-domains';
+        this.URL_ALL_PROJECTS = '/api/tenants/config/all-projects';
+        this.URL_PROJECTS = '/api/tenants/config/projects';
         this.URL_ALL_PROJECTS_VCENTER_OR_CONFIG = '/api/tenants/projects';
 
         this.URL_PROJECT_CONNECTED_GRAPH = '/api/tenant/monitoring/project-connected-graph?fqName={0}';
@@ -133,8 +134,12 @@ define([
         this.TYPE_VIRTUAL_NETWORK = "virtual-network";
         this.TYPE_VIRTUAL_MACHINE = "virtual-machine";
 
-        this.ALL_PROJECT_DROPDOWN_OPTION = [{name: 'all projects', value: 'all', fq_name: 'all'}];
-        this.ALL_NETWORK_DROPDOWN_OPTION = [{name: 'all networks', value: 'all', fq_name: 'all'}];
+        this.ALL_PROJECT_DROPDOWN_OPTION = [{
+            name: 'all projects', value: 'all', fq_name: 'all', display_name: 'all projects'
+        }];
+        this.ALL_NETWORK_DROPDOWN_OPTION = [{
+            name: 'all networks', value: 'all', fq_name: 'all', display_name: 'all networks'
+        }];
 
         this.TMPL_VN_PORT_HEAT_CHART = "network-port-heat-chart-template";
         this.TMPL_TRAFFIC_STATS_TAB = "traffic-stats-tab-template";
