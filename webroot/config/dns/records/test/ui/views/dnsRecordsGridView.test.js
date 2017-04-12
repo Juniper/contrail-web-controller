@@ -20,7 +20,7 @@ define([
     var fakeServerResponsesConfig = function() {
         var responses = [];
         responses.push(cotr.createFakeServerResponse({
-            url :  /\/api\/tenants\/config\/domains.*$/,
+            url : cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
             body: JSON.stringify(TestMockdata.dnsRecordsDomainMockData)
         }));
         responses.push(cotr.createFakeServerResponse({
