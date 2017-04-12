@@ -545,15 +545,9 @@ define([
                             disabled: disableId,
                             path: "name",
                             dataBindValue: "name",
-                            class: "col-xs-12"
+                            class: "col-xs-6"
                         }
-                    }
-                ]
-            };
-        };
-        self.vendorModelSection = function() {
-            return {
-                columns: [
+                    },
                     {
                         elementId: 'physical_router_vendor_name',
                         view: "FormInputView",
@@ -563,7 +557,13 @@ define([
                             dataBindValue: "physical_router_vendor_name",
                             class: "col-xs-6"
                         }
-                    },
+                    }
+                ]
+            };
+        };
+        self.vendorModelSection = function() {
+            return {
+                columns: [
                     {
                         elementId: 'physical_router_product_name',
                         view: "FormInputView",
@@ -573,13 +573,7 @@ define([
                             dataBindValue: "physical_router_product_name",
                             class: "col-xs-6"
                         }
-                    }
-                ]
-            };
-        };
-        self.mgmntIPdataIPSection = function(){
-            return {
-                columns : [
+                    },
                     {
                         elementId: 'physical_router_management_ip',
                         view: "FormInputView",
@@ -589,7 +583,13 @@ define([
                             dataBindValue: "physical_router_management_ip",
                             class: "col-xs-6"
                         }
-                    },
+                    }
+                ]
+            };
+        };
+        self.dataIPLoopIPSection = function(){
+            return {
+                columns : [
                     {
                         elementId: 'physical_router_dataplane_ip',
                         view: "FormInputView",
@@ -597,6 +597,16 @@ define([
                             label : "VTEP Address",
                             path: "physical_router_dataplane_ip",
                             dataBindValue: "physical_router_dataplane_ip",
+                            class: "col-xs-6"
+                        }
+                    },
+                    {
+                        elementId: 'physical_router_loopback_ip',
+                        view: "FormInputView",
+                        viewConfig: {
+                            label : "Loopback IP",
+                            path: "physical_router_loopback_ip",
+                            dataBindValue: "physical_router_loopback_ip",
                             class: "col-xs-6"
                         }
                     }

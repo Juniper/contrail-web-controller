@@ -27,6 +27,7 @@ var configJsonModifyObj = {
                       "physical_router_product_name",
                       "physical_router_management_ip",
                       "physical_router_dataplane_ip",
+                      "physical_router_loopback_ip",
                       "physical_router_snmp_credentials",
                       "physical_router_user_credentials",
                       "physical_router_junos_service_ports",
