@@ -25,9 +25,13 @@ var configApiServer  = require(process.mainModule.exports["corePath"] + '/src/se
 var configUtils      = require(process.mainModule.exports["corePath"] + 
                                '/src/serverroot/common/configServer.utils');
 var async            = require('async');
+var ctrlGlobal       = require('../../../common/api/global');
 
 var defaultDomainId = "default",
-    defaultDomainName = "default-domain";
+    defaultDomainName = "default-domain",
+    defaultProject = "default-project",
+    identity = "identity",
+    apiServer = "apiServer";
 
 /**
  * Bail out if called directly as "nodejs projectconfig.api.js"
@@ -63,46 +67,106 @@ function listProjects (request, response, appData)
  */
 function listAllProjects (request, response, appData)
 {
-    var dataObjArr = [], i, keystoneProj, keystoneProjLen, apiProj,
-        apiProjLen, projList = [], tempProjMap = {};
-    dataObjArr.push({type :"keystone", request: request, appData: appData});
-    dataObjArr.push({type : "api", request: request, appData: appData});
+    var dataObjArr = [], i, identityProj, identityProjLen, apiProj,
+        apiProjLen, projList = [], tempProjMap = {},
+        parentId = commonUtils.getValueByJsonPath(request,
+                "query;domainId", null, false),
+        tempProjIdToIdxMap = {};
+    var tempProjFqnToIDMap = {};
+    dataObjArr.push({type : identity, request: request,
+        appData: appData, parentId: parentId});
+    dataObjArr.push({type : apiServer, request: request,
+        appData: appData, parentId: parentId});
     async.map(dataObjArr, getAllProjectAsync, function(error, projData) {
         if (projData[0].error && projData[1].error) {
             commonUtils.handleJSONResponse(projData[0].error, response, null);
             return;
         }
-        keystoneProj = commonUtils.getValueByJsonPath(projData,
+        identityProj = commonUtils.getValueByJsonPath(projData,
                 "0;data;projects", [], false);
-        keystoneProjLen = keystoneProj.length;
+        identityProjLen = identityProj.length;
         apiProj = commonUtils.getValueByJsonPath(projData,
                 "1;data;projects", [], false);
         apiProjLen = apiProj.length;
-        for (i = 0; i < keystoneProjLen; i++) {
-            var keystoneProjFQN = commonUtils.getValueByJsonPath(keystoneProj[i],
-                    "fq_name", [], false).join(":");
-            tempProjMap[keystoneProjFQN] = keystoneProj[i];
-        }
-        for (i = 0; i < apiProjLen; i++) {
+        var allProjects = [];
+        for (var i = 0; i < apiProjLen; i++) {
             var apiProjFQN = commonUtils.getValueByJsonPath(apiProj[i],
-                    "fq_name", [], false).join(":");
-            if (tempProjMap[apiProjFQN] == null) {
-                keystoneProj.push(apiProj[i]);
+                                                            "fq_name", null);
+            var apiProjName = commonUtils.getValueByJsonPath(apiProjFQN, "1",
+                                                             null);
+            if (apiProjName == defaultProject) {
+                continue;
+            }
+            var apiProjID = commonUtils.getValueByJsonPath(apiProj[i], "uuid",
+                                                           null);
+            apiProj[i]["display_name"] = apiProjName;
+            allProjects.push(apiProj[i]);
+            tempProjIdToIdxMap[apiProjID] = allProjects.length - 1;
+            tempProjFqnToIDMap[apiProjFQN.join(":")] = apiProjID;
+        }
+
+        for (i = 0; i < identityProjLen; i++) {
+            var identityProjID = commonUtils.getValueByJsonPath(identityProj[i],
+                                                                "uuid", null);
+            var idx = tempProjIdToIdxMap[identityProjID];
+            var identityProjFQN =
+                commonUtils.getValueByJsonPath(identityProj[i], "fq_name",
+                                               null);
+            var identityProjName =
+                commonUtils.getValueByJsonPath(identityProjFQN, "1", null);
+            if (null != idx) {
+                /* Exists in API Server, so take display_name from keystone */
+                allProjects[idx]["display_name"] = identityProjName;
+            } else {
+                identityProj[i]["display_name"] = identityProjName;
+                allProjects.push(identityProj[i]);
+            }
+            /* If fqn matches both in Api Server and keystone, but their UUID is
+             * different, then the project was deleted and recreated and the
+             * project entry had child, so it did not get cleaned up from API
+             * Server yet
+             */
+            var apiID = tempProjFqnToIDMap[identityProjFQN.join(":")];
+            if ((null != apiID) && (apiID != identityProjID)) {
+                idx = tempProjIdToIdxMap[apiID];
+                if (null != idx) {
+                    allProjects[idx]["display_name"] = identityProjName +
+                        ctrlGlobal.PROJECT_NOT_FOUND_IN_KEYSTONE;
+                    allProjects[idx]["error_string"] =
+                        ctrlGlobal.PROJECT_NOT_FOUND_IN_KEYSTONE;
+                }
             }
         }
-        commonUtils.handleJSONResponse(null, response, {projects: keystoneProj});
+        commonUtils.handleJSONResponse(null, response, {projects: allProjects});
     });
 };
 
 function getAllProjectAsync (dataObj, callback)
 {
-     if(dataObj.type === "keystone") {
+    var projURL, cookieDomain, projects, currentDomain;
+    if(dataObj.type === identity) {
          authApi.getProjectList(dataObj.request, dataObj.appData,
-                                function(error, keystoneData) {
-             callback(null, {error: error, data: keystoneData});
+                                function(error, identityData) {
+             if(dataObj.parentId) {
+                 cookieDomain = commonUtils.getValueByJsonPath(dataObj,
+                         "request;cookies;domain", "", false);
+                 projects = commonUtils.getValueByJsonPath(identityData,
+                         "projects", [], false);
+                 projects = _.filter(projects, function(project){
+                     currentDomain = commonUtils.getValueByJsonPath(project,
+                             "fq_name;0", [], false);
+                     return cookieDomain === currentDomain ? true : false;
+                 });
+                 identityData = {"projects": projects};
+             }
+             callback(null, {error: error, data: identityData});
          });
      } else {
-         configApiServer.apiGet("/projects", dataObj.appData,
+         projURL = "/projects";
+         if(dataObj.parentId) {
+             projURL += "?parent_id=" + dataObj.parentId;
+         }
+         configApiServer.apiGet(projURL, dataObj.appData,
                                 function(error, configData) {
              callback(null, {error: error, data: configData});
          });
@@ -118,34 +182,54 @@ function getAllProjectAsync (dataObj, callback)
  */
 function listAllDomains (request, response, appData)
 {
-    var dataObjArr = [], i, keystoneDomain, keystoneDomainLen, apiDomain,
-        apiDomainLen, domainList = [], tempDomainMap = {};
-    dataObjArr.push({type :"keystone", request: request, appData: appData});
-    dataObjArr.push({type : "api", request: request, appData: appData});
+    var dataObjArr = [], i, identityDomains, identityDomainsLen, apiDomains,
+        apiDomainsLen, domainList = [], tempDomainMap = {},
+        tempDomainIdToIdxMap = {};
+    dataObjArr.push({type : identity, request: request, appData: appData});
+    dataObjArr.push({type : apiServer, request: request, appData: appData});
     async.map(dataObjArr, getAllDomainAsync, function(error, domainData) {
         if (domainData[0].error && domainData[1].error) {
             commonUtils.handleJSONResponse(domainData[0].error, response, null);
             return;
         }
-        keystoneDomain = commonUtils.getValueByJsonPath(domainData,
-                "0;data;domains", [], false);
-        keystoneDomainLen = keystoneDomain.length;
-        apiDomain = commonUtils.getValueByJsonPath(domainData,
+        identityDomains = commonUtils.getValueByJsonPath(domainData,
+                "0;data", [], false);
+        identityDomainsLen = identityDomains.length;
+        apiDomains = commonUtils.getValueByJsonPath(domainData,
                 "1;data;domains", [], false);
-        apiDomainLen = apiDomain.length;
-        for (i = 0; i < keystoneDomainLen; i++) {
-            var keystoneDomainFQN = commonUtils.getValueByJsonPath(
-                    keystoneDomain[i], "fq_name", [], false).join(":");
-            tempDomainMap[keystoneDomainFQN] = keystoneDomain[i];
-        }
-        for (i = 0; i < apiDomainLen; i++) {
-            var apiDomainFQN = commonUtils.getValueByJsonPath(apiDomain[i],
+        apiDomainsLen = apiDomains.length;
+        var allDomains = [];
+        for (i = 0; i < apiDomainsLen; i++) {
+            var apiDomainFQN = commonUtils.getValueByJsonPath(apiDomains[i],
                     "fq_name", [], false).join(":");
-            if (tempDomainMap[apiDomainFQN] == null) {
-                keystoneDomain.push(apiDomain[i]);
+            var apiDomainId =
+                commonUtils.getValueByJsonPath(apiDomains[i],
+                                               "uuid", null);
+            apiDomains[i]["display_name"] = apiDomainFQN;
+            allDomains.push(apiDomains[i]);
+            tempDomainIdToIdxMap[apiDomainId] = allDomains.length - 1;
+            tempDomainMap[apiDomainFQN] = apiDomains[i];
+        }
+
+        for (i = 0; i < identityDomainsLen; i++) {
+            var identityDomainFQN = commonUtils.getValueByJsonPath(
+                    identityDomains[i], "fq_name", [], false).join(":");
+            var identityDomainId =
+                commonUtils.getValueByJsonPath(identityDomains[i], "uuid", null);
+            var idx = tempDomainIdToIdxMap[identityDomainId];
+            if (null != idx) {
+                /* Exists in API Server, so take display_name from keystone */
+                allDomains[idx]["display_name"] = identityDomainFQN;
+            } else {
+                if (null == tempDomainMap[identityDomainFQN]) {
+                    identityDomains[i]["display_name"] = identityDomainFQN;
+                    allDomains.push(identityDomains[i]);
+                }
             }
         }
-        commonUtils.handleJSONResponse(null, response, {domains: keystoneDomain});
+
+        commonUtils.handleJSONResponse(null, response,
+                {domains: allDomains});
     });
 };
 
@@ -153,25 +237,35 @@ function getAllDomainAsync (dataObj, callback)
 {
     var appData = dataObj.appData;
     var request = dataObj.request;
-     if(dataObj.type === "keystone") {
-         var isDomainListFromApiServer = config.getDomainsFromApiServer;
-         if (null == isDomainListFromApiServer) {
-             isDomainListFromApiServer = true;
-         }
+     if(dataObj.type === identity) {
+         var identityData = [], domainObj, domainId;
          if (('v2.0' == request.session.authApiVersion) ||
-             (null == request.session.authApiVersion)) {
-             isDomainListFromApiServer = true;
+                 (null == request.session.authApiVersion)) {
+                 identityData.push({uuid: defaultDomainId,
+                     fq_name: [defaultDomainName]});
+                 callback(null, {error: null, data: identityData});
+                 return;
          }
-         if (true == isDomainListFromApiServer) {
-             configUtils.getDomainsFromApiServer(appData, function(error, data) {
-                 callback(null, {error: error, data: data});
-             });
+         domainObj = commonUtils.getValueByJsonPath(request,
+                 "session;last_token_used;project;domain", null, false);
+         domainId = commonUtils.getValueByJsonPath(domainObj, 'id', '', false);
+         if(domainId === defaultDomainId) {
+             identityData.push({uuid: domainId, fq_name: [defaultDomainName]});
          } else {
-             getDomainsFromIdentityManager(request, appData,
-                                     function(error, keystoneData) {
-                 callback(null, {error: error, data: keystoneData});
+             //sync domain to api server
+             var domainUrl = "/domain/" + domainId + "?exclude_children=true" +
+                               "&exclude_back_refs=true";
+             configApiServer.apiGet(domainUrl, appData,
+                 function(error, data){
+                     if ((null != error) || (null == data)) {
+                         logutils.logger.error(
+                                 'Domain Sync failed for ' + domainObj.name);
+                     }
              });
+             identityData.push({uuid: commonUtils.convertUUIDToString(domainId),
+                 fq_name: [domainObj.name]})
          }
+         callback(null, {error: null, data: identityData});
      } else {
          configApiServer.apiGet("/domains", appData,
                                 function(error, configData) {

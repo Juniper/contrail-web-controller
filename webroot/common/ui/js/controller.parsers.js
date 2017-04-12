@@ -217,6 +217,7 @@ define([
                     return {
                         fq_name: n.fq_name.join(':'),
                         name: n.fq_name[2],
+                        display_name: n.fq_name[2],
                         value: n.uuid
                     };
                 }
