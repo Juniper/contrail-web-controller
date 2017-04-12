@@ -202,7 +202,17 @@ define([
             var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
                 defaultDropdownoptions = {
                     urlValue: (urlValue !== null) ? urlValue.split(':').splice(0,1).join(':') : null,
-                    cookieKey: cowc.COOKIE_DOMAIN
+                    cookieKey: cowc.COOKIE_DOMAIN_DISPLAY_NAME,
+                    preSelectCB : function(selectedValueData) {
+                        var domainDispName =
+                            getValueByJsonPath(selectedValueData, "display_name");
+                        var domainFqn = getValueByJsonPath(selectedValueData,
+                                                           "fq_name",
+                                                           domainDispName);
+                        if (null != domainFqn) {
+                            contrail.setCookie(cowc.COOKIE_DOMAIN, domainFqn);
+                        }
+                    }
                 },
                 dropdownOptions = $.extend(true, {}, defaultDropdownoptions, customDomainDropdownOptions);
 
@@ -272,16 +282,32 @@ define([
 
                 var defaultDropdownOptions = {
                         urlValue: (urlValue !== null) ? urlValue.split(':').splice(1, 1).join(':') : null,
-                        cookieKey: cowc.COOKIE_PROJECT,
+                        cookieKey: cowc.COOKIE_PROJECT_DISPLAY_NAME,
                         parentSelectedValueData: domainSelectedValueData,
                         preSelectCB : function(selectedValueData) {
+                            var projDispName =
+                                getValueByJsonPath(selectedValueData,
+                                                   "display_name");
+                            if (null != projDispName) {
+                                projDispName = projDispName + ":" +
+                                    projDispName;
+                            }
+                            var projFqn = getValueByJsonPath(selectedValueData,
+                                                             "fq_name",
+                                                             projDispName);
+                            if (null != projFqn) {
+                                projFqnArr = projFqn.split(":");
+                                projFqn = projFqnArr[1];
+                                contrail.setCookie(cowc.COOKIE_PROJECT,
+                                                   projFqn);
+                            }
                             if(getValueByJsonPath(selectedValueData,'value') != null) {
                                 return $.ajax({
                                             type:"GET",
                                             url:'/api/tenants/get-project-role?id=' +
                                                 selectedValueData['value'] +
                                                 '&project=' +
-                                                selectedValueData['name']
+                                                selectedValueData['display_name']
                                         });
                             } else {
                                 var defObj = $.Deferred();
