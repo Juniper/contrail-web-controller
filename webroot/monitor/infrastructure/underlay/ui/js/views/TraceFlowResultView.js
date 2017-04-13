@@ -143,7 +143,7 @@ define([
             resultGrid.removeGridLoading('loading');
             resultGrid.removeGridMessage('loading');
             response = monitorInfraParsers.parseVRouterFlowsData(response);
-            resultGrid._dataView.setData(response);
+            resultGrid._dataView.setData(cowu.getValueByJsonPath(response, 'data', []));
         }).fail(function () {
             resultGrid.removeGridLoading('loading');
             resultGrid.removeGridMessage('loading');
@@ -683,7 +683,6 @@ define([
                 }
                 return;
             }
-            var postData = graphModel.underlayPathReqObj();
             var statusMsg = "";
             if(status == 'timeout') {
                 statusMsg = "Timeout";
