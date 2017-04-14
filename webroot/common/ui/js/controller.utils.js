@@ -10,6 +10,7 @@ define([
     var CTUtils = function () {
         var self = this;
         var utilVariable = [];
+        var projectFqnToDisplayNameMap = {};
         self.getInstanceDetailsTemplateConfig = function () {
             return {
 
@@ -437,6 +438,8 @@ define([
                             var displayName = getValueByJsonPath(n,
                                                                  "display_name",
                                                                  projectName);
+                            projectFqnToDisplayNameMap[projectName] =
+                                displayName;
                             return {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
@@ -728,6 +731,21 @@ define([
 
                 } else if ($.inArray(name, ['network']) > -1) {
                     fqName = selRowDataItem['name'];
+                    if (null != fqName) {
+                        /* In Project drop down breadcrumb, we have
+                         * display_name, but API Server/OpServer we have
+                         * fq_name, so set the drop down with corresponding
+                         * display_name
+                         */
+                        var fqnArr = fqName.split(":");
+                        if (3 == fqnArr.length) {
+                            var project = projectFqnToDisplayNameMap[fqnArr[1]];
+                            if (null != project) {
+                                fqnArr[1] = project;
+                                fqName = fqnArr.join(":");
+                            }
+                        }
+                    }
                     ctwu.setNetworkURLHashParams(null, fqName, true)
                 } else if ($.inArray(name, ['vn']) > -1) {
                     fqName = selRowDataItem['vnFQN'];
