@@ -1457,7 +1457,15 @@ define([
         }
 
         self.onIntrospectLinkClick = function (nodeIp, introspectPort) {
-            var nodeName = ctwc.INTROSPECT_PORT_NODE_MAP[introspectPort]
+            var nodeList = _.keys(ctwc.INTROSPECT_PORT_NODE_MAP);
+            var idx =
+                _.values(ctwc.INTROSPECT_PORT_NODE_MAP).indexOf(introspectPort);
+            if (idx > -1) {
+                nodeName = nodeList[idx];
+            } else {
+                nodeName = nodeList[0];
+                introspectPort = ctwc.INTROSPECT_PORT_NODE_MAP[nodeName];
+            }
             window.open("/#p=setting_introspect_" + nodeName + "&q[node]=" + nodeName + "&q[ip_address]=" + nodeIp + "&q[port]=" + introspectPort, "_blank");
         };
 

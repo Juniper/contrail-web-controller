@@ -242,36 +242,37 @@ define([
         this.TMPL_INTROSPECT_PAGE = "introspect-page-template";
         this.INTROSPECT_FORM_TYPE_RESULTS = "results";
         this.INTROSPECT_CONTROL_NODE_PORTS = {
-            8083: 'control',
-            8092: 'dns',
-            8101: 'control-nodemgr'
+            "control-node"      :"8083",
+            "dns"               :"8092",
+            "node-manager"      :"8101"
         };
         this.INTROSPECT_VIRTUAL_ROUTER_PORTS = {
-            8085: 'vrouter-agent',
-            8102: 'vrouter-nodemgr'
+            "agent"             :"8085",
+            "node-manager"      :"8102"
         };
         this.INTROSPECT_CONFIG_NODE_PORTS = {
-            // 5998: '',
-            // 8082: '',
-            8084: 'api',
-            8087: 'schema',
-            8088: 'svc-monitor',
-            8096: 'device-manager',
-            8100: 'config-nodemgr',
+            "api"               :"8084",
+            "schema"            :"8087",
+            "service-monitor"   :"8088",
+            "device-manager"    :"8096",
+            "node-manager"      :"8100"
         };
         this.INTROSPECT_ANALYTICS_NODE_PORTS = {
             // 8081: '',
-            8089: 'collector',
-            8090: 'analytics-api',
-            8091: 'query-engine',
-            8104: 'analytics-nodemgr',
+            "collector"         :"8089",
+            "analytics-api"     :"8090",
+            "query-engine"      :"8091",
+            "node-manager"      :"8104",
+            "alarm-generator"   :"5995",
+            "SNMP-collector"    :"5920",
+            "topology"          :"5921"
         };
 
         this.INTROSPECT_PORT_NODE_MAP = {
-            "8083": "control",
-            "8084": "config",
-            "8085": "vrouter",
-            "8089": "analytics",
+            "control"           :"8083",
+            "config"            :"8084",
+            "vrouter"           :"8085",
+            "analytics"         :"8089"
         };
 
         // Underlay constants
