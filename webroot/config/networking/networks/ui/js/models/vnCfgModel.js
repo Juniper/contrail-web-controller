@@ -169,7 +169,7 @@ define([
             bridgeDomains.add([newBridgeDomain]);
         },
         addBridgeDomainByIndex: function(data, kbHostRoute) {
-          var selectedRuleIndex = data.model().collection.indexOf(kbHostRoute.model());
+            var selectedRuleIndex = data.model().collection.indexOf(kbHostRoute.model());
             var bridgeDomains = this.model().attributes['bridge_domains'],
                 newBridgeDomain = new BridgeDomainModel();
             if(bridgeDomains.length > 0) {
@@ -533,6 +533,7 @@ define([
             subnet.add([subnetModel]);
         },
         addSubnetByIndex: function(data, kbSubnet) {
+          var self = this;
           var selectedRuleIndex = data.model().collection.indexOf(kbSubnet.model());
           var subnet = this.model().attributes['network_ipam_refs'],
               subnetModel = new SubnetModel();
