@@ -902,7 +902,7 @@ function processDataObjects (error, DataObjectArr, DataObjectDelArr, vmiData, po
         });
     } else if (DataObjectArr.length > 0) {
         async.map(DataObjectArr,
-        commonUtils.getServerResponseByRestApi(configApiServer, true),
+        commonUtils.getServerResponseByRestApi(configApiServer, false),
         function(error, result) {
             if(error){
                 callback(error, result);
