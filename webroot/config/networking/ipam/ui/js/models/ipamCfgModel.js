@@ -208,6 +208,7 @@ define([
             subnet.add([subnetModel]);
         },
         addSubnetByIndex: function(data, kbSubnet) {
+          var self = this;
           var selectedRuleIndex = data.model().collection.indexOf(kbSubnet.model());
           var subnet = this.model().attributes['user_created_ipam_subnets'],
               subnetModel = new SubnetModel({user_created_ipam_fqn: 'dummy'});
@@ -335,7 +336,7 @@ define([
             var dns = this.model().attributes['tenant_dns_server'],
                 newDNS = new IpamTenantDNSModel({'ip_addr': ""});
 
-            rulesList.add([newDNS],{at: selectedRuleIndex+1});
+            dns.add([newDNS],{at: selectedRuleIndex+1});
         },
         deleteTenantDNS: function(data, kbTenantDNS) {
             var dnsCollection = data.model().collection,
