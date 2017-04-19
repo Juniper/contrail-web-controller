@@ -346,13 +346,14 @@ define([
                     var subnetObj = {};
                     var ip_block = getValueByJsonPath(ipam,
                             'attr;' + field + ';' + j, null, false);
-                    subnetObj['user_created_ipam_fqn'] = ipamFQN;
                     if(!ip_block || !ip_block.subnet){
+                        subnetObj['user_created_ipam_fqn'] = ipamFQN;
                         subnetObj['disable'] = true;
                         returnArr.push(subnetObj);
                         continue;
                     }
                     subnetObj = ip_block;
+                    subnetObj['user_created_ipam_fqn'] = ipamFQN;
                     var cidr = ip_block.subnet.ip_prefix + '/' +
                                ip_block.subnet.ip_prefix_len;
                     subnetObj['user_created_cidr'] = cidr;
