@@ -42,6 +42,13 @@
         <callback>siconfigapi.getServiceInstanceStatusByProject</callback>
     </item>
     <item>
+        <url>/api/tenants/config/service-instances-nova-status</url>
+        <method>get</method>
+        <feature>siconfig</feature>
+        <timeout>900</timeout>
+        <callback>siconfigapi.getNovaVMIStatusPaginated</callback>
+    </item>
+    <item>
         <url>/api/tenants/config/service-instance/:id</url>
         <method>get</method>
         <feature>siconfig</feature>
@@ -91,6 +98,12 @@
     </item>
     <item>
         <url>/api/tenants/config/service-instances-details</url>
+        <method>get</method>
+        <feature>siconfig</feature>
+        <callback>siconfigapi.listAllServiceInstancesDetails</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/service-instances-details/:id</url>
         <method>get</method>
         <feature>siconfig</feature>
         <callback>siconfigapi.listAllServiceInstancesDetails</callback>

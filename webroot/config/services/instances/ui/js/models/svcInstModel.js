@@ -1706,6 +1706,7 @@ define([
                 delete newSvcInst['staticRoutes'];
                 delete newSvcInst['user_created_ha_mode'];
                 delete newSvcInst['haModeList'];
+                delete newSvcInst['svcInstanceDataObj'];
 
                 if (null == newSvcInst['uuid']) {
                     delete newSvcInst['uuid'];
