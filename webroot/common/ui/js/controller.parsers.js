@@ -352,68 +352,91 @@ define([
         };
         this.gohanServiceTempDataParser = function(response) {
             var retArr = [];
-            if(response != null &&
-               'service_templates' in response &&
-                response['service_templates'] != null &&
-                response['service_templates'].length > 0) {
-                var length = response['service_templates'].length
-                for (var i = 0; i < length; i++) {
-                   retArr.push(response['service_templates'][i]);
+            var svcTempList = getValueByJsonPath(response,'service_templates',[]);
+                for (var i = 0; i < svcTempList.length; i++) {
+                   retArr.push(svcTempList[i]);
                 }
-            }
             return retArr;
          };
          this.gohanServiceInstanceDataParser = function(response){
              var retArr = [];
-             if(response != null &&
-                'service_instances' in response &&
-                 response['service_instances'] != null &&
-                 response['service_instances'].length > 0) {
-                 var length = response['service_instances'].length
-                 for (var i = 0; i < length; i++) {
-                    retArr.push(response['service_instances'][i]);
+             var svcInstList = getValueByJsonPath(response,'service_instances',[]);
+                 for (var i = 0; i < svcInstList.length; i++) {
+                    retArr.push(svcInstList[i]);
                  }
-             }
              return retArr;
          };
          this.gohanSecurityGroupDataParser = function(response){
              var retArr = [];
-             if(response != null &&
-                'security_groups' in response &&
-                 response['security_groups'] != null &&
-                 response['security_groups'].length > 0) {
-                 var length = response['security_groups'].length
-                 for (var i = 0; i < length; i++) {
-                    retArr.push(response['security_groups'][i]);
+             var secGrpList = getValueByJsonPath(response,'security_groups',[]);
+                 for (var i = 0; i < secGrpList.length; i++) {
+                    retArr.push(secGrpList[i]);
                  }
-             }
              return retArr;
          };
          this.gohanNetworkPolicyDataParser = function(response){
              var retArr = [];
-             if(response != null &&
-                'network_policies' in response &&
-                 response['network_policies'] != null &&
-                 response['network_policies'].length > 0) {
-                 var length = response['network_policies'].length
-                 for (var i = 0; i < length; i++) {
-                    retArr.push(response['network_policies'][i]);
+             var netPolicyList = getValueByJsonPath(response,'network_policies',[]);
+                 for (var i = 0; i < netPolicyList.length; i++) {
+                    retArr.push(netPolicyList[i]);
                  }
-             }
              return retArr;
          };
          this.gohanNetworksParser = function(response){
-        	 var retArr = [];
-             if(response != null &&
-                'networks' in response &&
-                 response['networks'] != null &&
-                 response['networks'].length > 0) {
-                 var length = response['networks'].length
-                 for (var i = 0; i < length; i++) {
-                    retArr.push(response['networks'][i]);
+             var retArr = [];
+             var networkList = getValueByJsonPath(response,'networks',[]);
+                 for (var i = 0; i < networkList.length; i++) {
+                    retArr.push(networkList[i]);
                  }
-             }
              return retArr;
+         };
+         this.gohanServerParser = function(response){
+             var retArr = [];
+             var serverList = getValueByJsonPath(response,'servers',[]);
+                 for (var i = 0; i < serverList.length; i++) {
+                    retArr.push(serverList[i]);
+                 }
+            return retArr;
+         };
+         this.gohanIdPoolParser = function(response){
+             var retArr = [];
+             var idPoolList = getValueByJsonPath(response,'id_pools',[]);
+                 for (var i = 0; i < idPoolList.length; i++) {
+                    retArr.push(idPoolList[i]);
+                 }
+            return retArr;
+         };
+         this.gohanRouteTargetParser = function(response){
+             var retArr = [];
+             var routeTargetList = getValueByJsonPath(response,'route_target_associations',[]);
+                 for (var i = 0; i < routeTargetList.length; i++) {
+                    retArr.push(routeTargetList[i]);
+                 }
+            return retArr;
+         };
+         this.gohanFlavorParser = function(response){
+             var retArr = [];
+             var flavorList = getValueByJsonPath(response,'flavors',[]);
+                 for (var i = 0; i < flavorList.length; i++) {
+                    retArr.push(flavorList[i]);
+                 }
+            return retArr;
+         };
+         this.gohanImageParser = function(response){
+             var retArr = [];
+             var imageList = getValueByJsonPath(response,'images',[]);
+                 for (var i = 0; i < imageList.length; i++) {
+                    retArr.push(imageList[i]);
+                 }
+            return retArr;
+         };
+         this.gohanLocationParser = function(response){
+             var retArr = [];
+             var locationList = getValueByJsonPath(response,'locations',[]);
+                 for (var i = 0; i < locationList.length; i++) {
+                    retArr.push(locationList[i]);
+                 }
+            return retArr;
          };
         this.vmTrafficStatsParser = function (response) {
             return [response];
