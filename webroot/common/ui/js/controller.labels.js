@@ -942,6 +942,48 @@ define([
 
         /* Global Config */
         this.CONFIG_GLOBAL_CONFIG_PAGE_ID = 'config-global-config-page';
+        this.CFG_SERVER_PAGE_ID = 'config-server-page';
+        this.CFG_SERVER_LIST_ID = 'config-server-list';
+        this.CFG_SERVER_TITLE = 'Server';
+        this.CFG_SERVER_GRID_ID = 'config-server-grid';
+        this.CFG_SERVER_PREFIX_ID = 'server';
+        this.CFG_SERVER_TITLE_CREATE = 'Create Server';
+        this.CFG_SERVER_LIST_VIEW_ID = 'config-server-list-view';
+        this.CFG_ID_POOL_PAGE_ID = 'config-id-pool-page';
+        this.CFG_ID_POOL_LIST_ID = 'config-id-pool-list';
+        this.CFG_ID_POOL_TITLE = 'ID Pool';
+        this.CFG_ID_POOL_LIST_VIEW_ID = 'config-id-pool-list-view';
+        this.CFG_ID_POOL_GRID_ID = 'config-id-pool-grid';
+        this.CFG_ID_POOL_TITLE_CREATE = 'Create ID Pool';
+        this.CFG_ID_POOL_PREFIX_ID = 'idpool';
+        this.CFG_ROUTE_TARGET_PAGE_ID = 'config-route-target-page';
+        this.CFG_ROUTE_TARGET_LIST_ID = 'config-route-target-list';
+        this.CFG_ROUTE_TARGET_TITLE = 'Route Target Association';
+        this.CFG_ROUTE_TARGET_LIST_VIEW_ID = 'config-route-target-list-view';
+        this.CFG_ROUTE_TARGET_GRID_ID = 'config-route-target-grid';
+        this.CFG_ROUTE_TARGET_TITLE_CREATE = 'Create Route Target Association';
+        this.CFG_ROUTE_TARGET_PREFIX_ID = 'routeTarget';
+        this.CFG_FLAVOR_PAGE_ID = 'config-flavor-page';
+        this.CFG_FLAVOR_LIST_ID = 'config-flavor-list';
+        this.CFG_FLAVOR_LIST_VIEW_ID = 'config-flavor-list-view';
+        this.CFG_FLAVOR_GRID_ID = 'config-flavor-grid';
+        this.CFG_FLAVOR_TITLE = 'Flavor';
+        this.CFG_FLAVOR_PREFIX_ID = 'flavor';
+        this.CFG_FLAVOR_TITLE_CREATE = 'Create Flavor';
+        this.CFG_IMAGE_PAGE_ID = 'config-image-page';
+        this.CFG_IMAGE_LIST_ID = 'config-image-list';
+        this.CFG_IMAGE_TITLE = 'Image';
+        this.CFG_IMAGE_LIST_VIEW_ID = 'config-image-list-view';
+        this.CFG_IMAGE_GRID_ID = 'config-image-grid';
+        this.CFG_IMAGE_TITLE_CREATE = 'Create Image';
+        this.CFG_IMAGE_PREFIX_ID = 'image';
+        this.CFG_LOCATION_PAGE_ID = 'config-location-page';
+        this.CFG_LOCATION_LIST_ID = 'config-location-list';
+        this.CFG_LOCATION_TITLE = 'Location';
+        this.CFG_lOCATION_LIST_VIEW_ID = 'config-location-list-view';
+        this.CFG_LOCATION_GRID_ID = 'config-location-grid';
+        this.CFG_LOCATION_TITLE_CREATE = 'Create Location';
+        this.CFG_LOCATION_PREFIX_ID = 'location';
         this.TITLE_BGP_OPTIONS = "BGP Options";
         this.TITLE_EDIT_BGP_OPTIONS = "Edit BGP Options";
 
@@ -1324,6 +1366,8 @@ define([
         this.TITLE_PACKET_CAPTURE_MULTI_DELETE = 'Delete Analyzer(s)';
         this.TITLE_ADD_PACKET_CAPTURE = 'Create Analyzer';
         this.ERROR_LABEL_PACKET_CAPTURE = 'Analyzer';
+        
+        this.CONFIG_SEC_GRP_PAGE_ID = 'config-sec-grp-page';
     };
     return CTLabels;
 });

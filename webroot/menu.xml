@@ -434,10 +434,10 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_location</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
-                                <js>configGohan.main.js</js>
-                                <class>configGohanUiLoader</class>
-                                <function>render</function>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderLocation</function>
                                 <searchStrings>Location</searchStrings>
                             </resource>
                     </resources>
@@ -448,7 +448,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_heatInstance</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
                                 <js>configGohan.main.js</js>
                                 <class>configGohanUiLoader</class>
                                 <function>render</function>
@@ -462,10 +462,10 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_image</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
-                                <js>configGohan.main.js</js>
-                                <class>configGohanUiLoader</class>
-                                <function>render</function>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderImage</function>
                                 <searchStrings>Image</searchStrings>
                             </resource>
                         </resources>
@@ -476,10 +476,10 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_flavor</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
-                                <js>configGohan.main.js</js>
-                                <class>configGohanUiLoader</class>
-                                <function>render</function>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderFlavor</function>
                                 <searchStrings>Flavor</searchStrings>
                             </resource>
                         </resources>
@@ -490,7 +490,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_serviceTemplates</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
                                 <js>gohanService.main.js</js>
                                 <class>gohanCommanServiceLoader</class>
                                 <function>renderSvcTemplateCfg</function>
@@ -504,7 +504,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_serviceInstance</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
                                 <js>gohanService.main.js</js>
                                 <class>gohanCommanServiceLoader</class>
                                 <function>renderSvcInst</function>
@@ -518,7 +518,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_securityGroup</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
                                 <js>gohanService.main.js</js>
                                 <class>gohanCommanServiceLoader</class>
                                 <function>renderSecGrp</function>
@@ -532,7 +532,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_networkPolicy</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
                                 <js>gohanService.main.js</js>
                                 <class>gohanCommanServiceLoader</class>
                                 <function>renderPolicies</function>
@@ -546,7 +546,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_network</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
                                 <js>gohanService.main.js</js>
                                 <class>gohanCommanServiceLoader</class>
                                 <function>renderNetwork</function>
@@ -560,10 +560,10 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_server</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
-                                <js>configGohan.main.js</js>
-                                <class>configGohanUiLoader</class>
-                                <function>render</function>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderServer</function>
                                 <searchStrings>Server</searchStrings>
                             </resource>
                         </resources>
@@ -574,10 +574,10 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_idPool</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
-                                <js>configGohan.main.js</js>
-                                <class>configGohanUiLoader</class>
-                                <function>render</function>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderIdPool</function>
                                 <searchStrings>ID Pool</searchStrings>
                             </resource>
                         </resources>
@@ -588,10 +588,10 @@ and need to add the iconClass tag wherever we need to show some icons
                         <hash>config_gc_association</hash>
                         <resources>
                             <resource>
-                                <rootDir>/config/gohanUi/ui</rootDir>
-                                <js>configGohan.main.js</js>
-                                <class>configGohanUiLoader</class>
-                                <function>render</function>
+                                <rootDir>/config/gohanUi/common/ui</rootDir>
+                                <js>gohanService.main.js</js>
+                                <class>gohanCommanServiceLoader</class>
+                                <function>renderRouteTarget</function>
                                 <searchStrings>Route Target Association</searchStrings>
                             </resource>
                         </resources>
