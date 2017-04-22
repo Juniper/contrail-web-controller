@@ -1532,7 +1532,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
-                <item>
+                <!--<item>
                     <label>User Dashboards</label>
                     <iconClass>menu-icon fa fa-dashboard</iconClass>
                     <init>/reports/udd/ui/js/controller.udd.init.js</init>
@@ -1546,7 +1546,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>User Dashboard</searchStrings>
                         </item>
                     </items>
-                </item>
+                </item>-->
             </items>
         </item>
     </items>
