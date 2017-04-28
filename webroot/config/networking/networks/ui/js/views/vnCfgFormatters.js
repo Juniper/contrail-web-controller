@@ -589,7 +589,7 @@ define([
          */
         this.fwdModeFormatter = function(d, c, v, cd, dc) {
             var fwdMode = getValueByJsonPath(dc,
-                'virtual_network_properties;forwarding_mode', 'l2_l3');
+                'virtual_network_properties;forwarding_mode', null);
 
             if (fwdMode == 'l2_l3') {
                 return 'L2 and L3';
@@ -597,6 +597,8 @@ define([
                 return 'L2 only';
             } else if (fwdMode == 'l3') {
                 return 'L3 only';
+            } else {
+                return '-';
             }
         };
 
