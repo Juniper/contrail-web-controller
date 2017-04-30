@@ -341,18 +341,12 @@
                                          path: 'bridge_domain_refs',
                                          dataBindValue: 'bridge_domain_refs',
                                          label: 'Bridge Domain',
+                                         dataBindOptionList: 'user_created_bridge_domain_list',
                                          elementConfig: {
                                              placeholder: 'Select Bridge Domain',
                                              dataTextField: "text",
                                              dataValueField: "id",
                                              dropdownAutoWidth : false,
-                                             dataSource : {
-                                                 type: 'remote',
-                                                 requestType: 'post',
-                                                 postData: JSON.stringify(bridgeDomain),
-                                                 url:'/api/tenants/config/get-config-list',
-                                                 parse: portFormatter.bridgeDomainDDFormatter
-                                             }
                                          }
                                      }
                                  }]

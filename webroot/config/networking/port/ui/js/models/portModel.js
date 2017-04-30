@@ -110,6 +110,8 @@ define([
             'virtual_machine_interface_disable_policy': false,
             'qos_config_refs': [],
             'bridge_domain_refs': [],
+            'user_created_bridge_domain': '',
+            'user_created_bridge_domain_list': []
         },
         onVNSelectionChanged: function(portFormatters, newValue, mode) {
             var subnetDS = portFormatters.fixedIpSubnetDDFormatter(
@@ -125,7 +127,29 @@ define([
                 self.model().attributes.fixedIPCollection.reset();
                 self.addFixedIP();
             }
+            this.getBridgeDomains(newValue);
         },
+
+        getBridgeDomains: function(vnName) {
+            if(!vnName) {
+                return;
+            }
+            var self = this, ajaxConfig = {};
+            ajaxConfig.type = 'POST';
+            ajaxConfig.data = JSON.stringify({data: [{type: "bridge-domains",
+                parent_type: "virtual-network",
+                parent_fq_name_str: vnName}]});
+            ajaxConfig.url = ctwc.URL_GET_CONFIG_DETAILS;
+            contrail.ajaxHandler(ajaxConfig, null,
+                function(response) {
+                    self.user_created_bridge_domain_list(
+                            portFormatters.bridgeDomainDDFormatter(response));
+                    self.bridge_domain_refs(self.user_created_bridge_domain());
+                },
+                function(error){
+                });
+        },
+
         setVNData: function(allNetworks) {
             self.allNetworks = allNetworks;
         },
@@ -315,6 +339,8 @@ define([
                     cowc.DROPDOWN_VALUE_SEPARATOR + bdRef[1] +
                     cowc.DROPDOWN_VALUE_SEPARATOR + bdRef[2] +
                     cowc.DROPDOWN_VALUE_SEPARATOR + bdRef[3];
+                modelConfig["user_created_bridge_domain"] =
+                    modelConfig["bridge_domain_refs"];
             } else {
                 modelConfig["bridge_domain_refs"] = "";
             }
@@ -1506,6 +1532,8 @@ define([
                 delete(newPortData.mirrorToRoutingInstance);
                 delete(newPortData.isParent);
                 delete(newPortData.mirrorToNHMode);
+                delete(newPortData.user_created_bridge_domain);
+                delete(newPortData.user_created_bridge_domain_list);
                 if("parent_href" in newPortData) {
                     delete(newPortData.parent_href);
                 }
