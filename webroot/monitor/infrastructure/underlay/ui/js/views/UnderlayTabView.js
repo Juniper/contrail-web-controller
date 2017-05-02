@@ -35,8 +35,14 @@ define([
                    if(nodeType == ctwc.PROUTER) {
                        showPRouterTabs(nodeDetails, underlayTabView);
                    } else if (nodeType == ctwc.VROUTER) {
+                     $("input[name='traceflow_radiobtn_name'][value='vRouter']").prop("checked", true);
+                     $("input[name='traceflow_radiobtn_name'][value='vRouter']").trigger('click');
+                     $("#vrouter_dropdown_name_dropdown").val(nodeDetails.label).trigger('change');
                        showVRouterTabs(nodeDetails, underlayTabView);
                    } else if (nodeType == ctwc.VIRTUALMACHINE) {
+                     $("input[name='traceflow_radiobtn_name'][value='instance']").prop("checked", true);
+                     $("input[name='traceflow_radiobtn_name'][value='instance']").trigger('click');
+                     $("#instance_dropdown_name_dropdown").val(nodeDetails.name).trigger('change');
                        showVMTabs(nodeDetails, underlayTabView);
                    } else if (nodeType == ctwc.UNDERLAY_LINK) {
                        showLinkTrafficStatistics(nodeDetails, underlayTabView);
