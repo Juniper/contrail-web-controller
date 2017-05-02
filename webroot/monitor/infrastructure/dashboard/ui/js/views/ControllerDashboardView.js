@@ -33,7 +33,7 @@ define([
             var self = this;
             //No need to instantiate as it's a singleton class
             var monitorInfraDashboardView = MonitorInfraDashboardView;
-            monitorInfraDashboardView.addInfoboxes(getInfoboxesConfig());
+            monitorInfraDashboardView.addInfoboxes(getInfoboxesConfig().reverse(), {prepend: true});
         }
     });
 
