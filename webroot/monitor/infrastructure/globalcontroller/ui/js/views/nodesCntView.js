@@ -10,8 +10,8 @@ define([
             var self = this,
                 nodesCountViewTemplate = contrail.getTemplate4Id("nodeCntView-template"),
                 model = this.model,
-                dataNodesCnt = getValueByJsonPath(model.getItems()[0], 'data', null);
-                this.$el.append(nodesCountViewTemplate({dataNodesCnt}));
+                regionsInfo = model.getItems()[0];
+                this.$el.append(nodesCountViewTemplate({regionsInfo}));
         }
     });
     return nodesCntView;
