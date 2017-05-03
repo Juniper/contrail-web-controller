@@ -1099,6 +1099,7 @@ define([
                  bridgeDomains = getValueByJsonPath(response,
                                       "0;bridge-domains", [], false);
             _.each(bridgeDomains, function(bd) {
+                bd = getValueByJsonPath(bd, "bridge-domain", {}, false);
                 bdFqName = (bd.fq_name && bd.fq_name.length === 4) ?
                         bd.fq_name : null;
                 if(bdFqName) {
