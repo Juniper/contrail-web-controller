@@ -112,9 +112,24 @@ define([
             'bridge_domain_refs': [],
         },
         onVNSelectionChanged: function(portFormatters, newValue, mode) {
-            var subnetDS = portFormatters.fixedIpSubnetDDFormatter(
+            var subnetDSDetails = portFormatters.fixedIpSubnetDDFormatter(
                     self.getVNData(),
                     newValue);
+            if(subnetDSDetails.flatSubnetIPAMIds.length > 0) {
+                self.getFlatSubnets(newValue, subnetDSDetails.flatSubnetIPAMIds,
+                        function(flatSubnets) {
+                    subnetDSDetails.SubnetDS =
+                        subnetDSDetails.SubnetDS.concat(flatSubnets);
+                    self.manageFixedIPSection(subnetDSDetails.SubnetDS,
+                            mode);
+                });
+            } else {
+                self.manageFixedIPSection(subnetDSDetails.SubnetDS,
+                        mode);
+            }
+        },
+
+        manageFixedIPSection: function(subnetDS, mode){
             if(subnetDS.length > 0) {
                 self.setSubnetDataSource(subnetDS);
                 self.subnetGroupVisible(true);
@@ -132,6 +147,27 @@ define([
         getVNData: function() {
             return self.allNetworks;
         },
+
+        getFlatSubnets(vnName, ipamIds, callback) {
+            if(!vnName || !ipamIds ||
+                    !ipamIds.length) {
+                return;
+            }
+            var uniqueIPAMIds = _.unique(ipamIds);
+            var self = this, ajaxConfig = {};
+            ajaxConfig.type = 'POST';
+            ajaxConfig.data = JSON.stringify({data: [{type: "network-ipams",
+               obj_uuids: uniqueIPAMIds}]});
+            ajaxConfig.url = ctwc.URL_GET_CONFIG_DETAILS;
+            contrail.ajaxHandler(ajaxConfig, null,
+                function(response) {
+                    callback(portFormatters.flatSubnetsDDFormatter(response));
+                },
+                function(error){
+                    callback([]);
+                });
+        },
+
         setSubnetDataSource: function(subnetDataSource) {
             self.subnetDataSource = subnetDataSource;
         },
