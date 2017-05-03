@@ -73,10 +73,25 @@ define([
             }
             if(value === null) {
                 //converts binary to integer
+                txt = Number(txt);
                 value = parseInt(txt, 2);
                 value = isNaN(value) ? parseInt(txt, 10) : value;
             }
             return value;
+        },
+
+        this.isValidBits =  function(arry, txt) {
+            var i, arryCnt = arry.length, value = Number(txt), isValid = true;
+            for(i = 0; i < arryCnt; i++) {
+                if(arry[i].text === txt){
+                    value = arry[i].value;
+                    break;
+                }
+            }
+            if(isNaN(parseInt(value, 2)) && isNaN(parseInt(value, 10))) {
+                isValid = false;
+            }
+            return isValid;
         }
     }
     return globalConfigUtils;

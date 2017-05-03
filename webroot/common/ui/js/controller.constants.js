@@ -656,6 +656,17 @@ define([
         this.GLOBAL_MAC_LEARNING_PREFIX_ID = "global_mac_learning";
         this.GLOBAL_MAC_LEARNING_LIST_VIEW_ID = "global-mac-learning-list-view";
 
+        //QoS Control Traffic
+        this.GLOBAL_CONTROL_TRAFFIC_MAP =
+            [{"key": "control_traffic_dscp;control", "name": "Control DSCP bits"},
+            {"key": "control_traffic_dscp;analytics", "name": "Analytics DSCP bits"},
+            {"key": "control_traffic_dscp;dns", "name": "DNS DSCP bits"}];
+        this.GLOBAL_CONTROL_TRAFFIC_SECTION_ID = "global-control-traffic-section";
+        this.GLOBAL_CONTROL_TRAFFIC_ID = "global-control-traffic";
+        this.GLOBAL_CONTROL_TRAFFIC_GRID_ID = "global-control-traffic-grid";
+        this.GLOBAL_CONTROL_TRAFFIC_PREFIX_ID = "global_control_traffic";
+        this.GLOBAL_CONTROL_TRAFFIC_LIST_VIEW_ID = "global-control-traffic-list-view";
+
         //BGP
         this.URL_GET_BGP = '/api/tenants/config/bgp/get-bgp-routers';
         this.URL_GET_ASN = '/api/tenants/admin/config/global-asn';
