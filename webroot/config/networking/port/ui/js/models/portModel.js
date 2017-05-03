@@ -1546,6 +1546,8 @@ define([
                 if(newPortData.name == "") {
                     delete(newPortData.href);
                 }
+                delete newPortData.user_created_juniper_header;
+                delete newPortData.user_created_nic_assisted;
 
                 var type = "";
                 var url = "";

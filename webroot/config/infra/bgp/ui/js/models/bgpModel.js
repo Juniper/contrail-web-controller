@@ -402,6 +402,7 @@ define([
                 delete newBGPRouterCfgData.addressFamilyData;
                 delete newBGPRouterCfgData.isAutoMeshEnabled;
                 delete newBGPRouterCfgData.peers;
+                delete newBGPRouterCfgData.user_created_admin_state;
 
                 postBGPData['bgp-router'] = newBGPRouterCfgData;
                 if(peers.length > 0) {

@@ -109,9 +109,9 @@ define([
             modelConfig['route_table_refs'] =
                     formatVNCfg.staticRouteFormatter(null, null,
                                                         null, -1, modelConfig);
-            modelConfig['uuid'] = getValueByJsonPath(modelConfig, 'uuid', null);
+            var vnUUID = getValueByJsonPath(modelConfig, 'uuid', null);
 
-            if (modelConfig['uuid'] != null) {
+            if (vnUUID != null) {
                 modelConfig['disable'] = true;
                 delete modelConfig['sVlanId'];
             } else if (!isVCenter()) {
