@@ -955,8 +955,9 @@ define(['underscore'], function (_) {
         self.tabsRendered = function(tabView, deferredObj) {
             var allTabsRendered = false;
             while(allTabsRendered == false) {
-                if(tabView.childViewMap[ctwc.UNDERLAY_TAB_ID].
-                    tabRendered.indexOf(false) == -1) {
+                var tabs = _.result(tabView, 'childViewMap.'+ctwc.UNDERLAY_TAB_ID+'.tabs', []),
+                    tabRendered = _.pluck(tabs, '_rendered');
+                if (tabRendered.indexOf(false) == -1) {
                     allTabsRendered = true;
                     return true;
                 }
