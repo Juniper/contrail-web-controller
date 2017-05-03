@@ -132,6 +132,14 @@ function parseVNSubnets (error, vnConfig, callback)
             for (var j = 0; j < ipamSubnetsLen; j++) {
                 nwIpamRefsClone[k] = {};
                 nwIpamRefsClone[k]['subnet'] = {};
+                if(ipamSubnets[j]['subnet'] == null) {
+                    nwIpamRefsClone[k]['subnet']['ipam_uuid'] =
+                        nwIpamRefs[i].uuid;
+                    nwIpamRefsClone[k]['subnet']['subnet_uuid'] =
+                        ipamSubnets[j]['subnet_uuid'];
+                    k++;
+                    continue;
+                }
                 nwIpamRefsClone[k]['subnet']['ipam_subnet'] =
                     ipamSubnets[j]['subnet']['ip_prefix'] + '/' +
                     ipamSubnets[j]['subnet']['ip_prefix_len'];
