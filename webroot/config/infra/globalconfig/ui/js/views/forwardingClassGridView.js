@@ -239,6 +239,10 @@ define([
                                 },{
                                     key: "uuid",
                                     templateGenerator: "TextGenerator",
+                                    label: "UUID"
+                                },{
+                                    key: "uuid",
+                                    templateGenerator: "TextGenerator",
                                     label: "DSCP bits",
                                     templateGeneratorConfig: {
                                         formatter: "FormatForwardingClassDSCP"
