@@ -32,6 +32,7 @@
       },
       "display_name": "pr1",
       "physical_router_dataplane_ip": "13.13.13.13",
+      "physical_router_loopback_ip": "11.11.11.11",
       "uuid": "a76f35a4-3edf-4cde-8dc8-f3cc28b48ded",
       "physical_router_management_ip": "12.12.12.12",
       "fq_name": [

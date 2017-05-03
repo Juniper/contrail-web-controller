@@ -540,7 +540,7 @@ define([
                     rows: [
                         pRouterConfigTemplates.pRouterName(disableId),
                         pRouterConfigTemplates.vendorModelSection(),
-                        pRouterConfigTemplates.mgmntIPdataIPSection(),
+                        pRouterConfigTemplates.dataIPLoopIPSection(),
                         pRouterConfigTemplates.torAgentSection(self.torAgentVrouterDS),
                         pRouterConfigTemplates.tsnSection(self.tsnVrouterDS),
                         pRouterConfigTemplates.snmpMntdChkboxView(),
@@ -558,20 +558,6 @@ define([
                     rows: [
                         pRouterConfigTemplates.pRouterName(disableId),
                         pRouterConfigTemplates.vendorModelSection(),
-                        {
-                            columns: [
-                                {
-                                    elementId: 'physical_router_management_ip',
-                                    view: "FormInputView",
-                                    viewConfig: {
-                                        label : "Management IP",
-                                        path: "physical_router_management_ip",
-                                        dataBindValue: "physical_router_management_ip",
-                                        class: "col-xs-12"
-                                    }
-                                }
-                            ]
-                        },
                         {
                             columns: [
                                 {
@@ -611,8 +597,32 @@ define([
                 title: "vCPE Router",
                 viewConfig: {
                     rows: [
-                        pRouterConfigTemplates.pRouterName(disableId),
-                        pRouterConfigTemplates.mgmntIPdataIPSection()
+                        {
+                            columns: [
+                              {
+                                  elementId: 'name',
+                                  view: "FormInputView",
+                                  viewConfig: {
+                                      label: 'Name',
+                                      disabled: disableId,
+                                      path: "name",
+                                      dataBindValue: "name",
+                                      class: "col-xs-6"
+                                  }
+                              },
+                              {
+                                  elementId: 'physical_router_management_ip',
+                                  view: "FormInputView",
+                                  viewConfig: {
+                                      label : "Management IP",
+                                      path: "physical_router_management_ip",
+                                      dataBindValue: "physical_router_management_ip",
+                                      class: "col-xs-6"
+                                  }
+                              }
+                            ]
+                        },
+                        pRouterConfigTemplates.dataIPLoopIPSection()
                     ]
                 }
             };
@@ -626,7 +636,7 @@ define([
                     rows: [
                         pRouterConfigTemplates.pRouterName(disableId),
                         pRouterConfigTemplates.vendorModelSection(),
-                        pRouterConfigTemplates.mgmntIPdataIPSection(),
+                        pRouterConfigTemplates.dataIPLoopIPSection(),
                         {
                             columns: [
                                 {

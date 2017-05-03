@@ -16,6 +16,7 @@ define([
             'physical_router_product_name' : "",
             'physical_router_management_ip' : null,
             'physical_router_dataplane_ip' : null,
+            'physical_router_loopback_ip' : null,
             'snmpMntd' : false,
             'physical_router_snmp_credentials' : {
                 'v2_community' : null,
@@ -227,6 +228,8 @@ define([
                     attr.physical_router_management_ip;
                 postObject["physical-router"]["physical_router_dataplane_ip"] =
                     attr.physical_router_dataplane_ip;
+                postObject["physical-router"]["physical_router_loopback_ip"] =
+                    attr.physical_router_loopback_ip;
                 //Decide the creation vrouter based on the type
                 if(type === ctwl.OVSDB_TYPE) {
                     //Given the tor and tsn name create them without ips
@@ -721,7 +724,7 @@ define([
                     }
                 },
                 'physical_router_management_ip' : function(value, attr, finalObj){
-                    if(value != null){
+                    if(value || value === 0){
                          if(!validateIPAddress(value.trim())){
                             return "Enter a valid Management IP address\
                             in xxx.xxx.xxx.xxx format";
@@ -729,9 +732,17 @@ define([
                     }
                 },
                 'physical_router_dataplane_ip' : function(value, attr, finalObj){
-                    if(value != null){
+                    if(value || value === 0){
                          if(!validateIPAddress(value.trim())){
                             return "Enter a valid Dataplane IP address\
+                            in xxx.xxx.xxx.xxx format";
+                         }
+                    }
+                },
+                'physical_router_loopback_ip' : function(value, attr, finalObj){
+                    if(value || value === 0){
+                         if(!validateIPAddress(value.trim())){
+                            return "Enter a valid Loopback IP address\
                             in xxx.xxx.xxx.xxx format";
                          }
                     }
