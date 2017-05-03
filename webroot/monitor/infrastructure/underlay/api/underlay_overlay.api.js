@@ -582,7 +582,8 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData, prConfigData)
     linkCnt = pRouterLinkTable.length;
     var index = 0;
     for (var j = 0; j < linkCnt; j++) {
-        if (null == tempNodeObjs[pRouterLinkTable[j]['remote_system_name']]) {
+        if ((null != pRouterLinkTable[j]['remote_system_name']) &&
+            (null = tempNodeObjs[pRouterLinkTable[j]['remote_system_name']])) {
             var prLinkType =
                 getpRouterLinkType(pRouterLinkTable[j]['type']);
             nodeObj =
@@ -858,7 +859,9 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
             linkCnt = pRouterLinkTable.length;
         }
         for (var j = 0; j < linkCnt; j++) {
-            if (null == tempNodeObjs[pRouterLinkTable[j]['remote_system_name']]) {
+            if ((null != pRouterLinkTable[j]['remote_system_name']) &&
+                (null ==
+                 tempNodeObjs[pRouterLinkTable[j]['remote_system_name']])) {
                 var prLinkType =
                     getpRouterLinkType(pRouterLinkTable[j]['type']);
                 nodeObj =
@@ -958,7 +961,9 @@ function computePathByNodeList (allPaths, topoData)
     var nodeCnt = topoData['nodes'].length;
     var endpoints = [];
     for (var i = 0; i < nodeCnt; i++) {
-        nodeList.push(topoData['nodes'][i]['name']);
+        if (topoData['nodes'][i]['name']) {
+            nodeList.push(topoData['nodes'][i]['name']);
+        }
     }
     var allPathsCnt = allPaths.length;
     for (var i = 0; i < allPathsCnt; i++) {
