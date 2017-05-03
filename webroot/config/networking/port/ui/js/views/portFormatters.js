@@ -913,9 +913,10 @@ define([
         self.fixedIpSubnetDDFormatter = function(allNetworkData, selectedNetwork) {
             var selectedFqname = selectedNetwork;
             var fqname;
-            var currentVNSubnetDetail = [];
+            var currentVNSubnetDetail = [], flatSubnetIPAMIds = [];
             if(allNetworkData == null || allNetworkData.length <= 0) {
-                return[];
+                return { SubnetDS: currentVNSubnetDetail,
+                    flatSubnetIPAMIds: flatSubnetIPAMIds};
             }
             var networkLen = allNetworkData.length;
             for(var i = 0;i < networkLen; i++){
@@ -927,6 +928,11 @@ define([
                     if(subnet.length > 0){
                         for(var subnetInc = 0; subnetInc < subnet.length;
                             subnetInc++){
+                            if(subnet[subnetInc]["subnet"]["ipam_uuid"]){
+                                flatSubnetIPAMIds.push(
+                                        subnet[subnetInc]["subnet"]["ipam_uuid"]);
+                                continue;
+                            }
                             var ipam_subnet =
                                 subnet[subnetInc]["subnet"]["ipam_subnet"];
                             var default_gateway =
@@ -946,8 +952,44 @@ define([
                     break;
                 }
             }
-            return currentVNSubnetDetail;
+            return { SubnetDS: currentVNSubnetDetail,
+                     flatSubnetIPAMIds: flatSubnetIPAMIds};
         }
+
+        self.flatSubnetsDDFormatter =  function(flatSubnetIPAMs) {
+            var currentVNFlatSubnets = [], flatSubnets = [],
+                flatIPAMList = getValueByJsonPath(flatSubnetIPAMs,
+                    '0;network-ipams', [], false);
+            _.each(flatIPAMList, function(flatIPAM) {
+                flatSubnets = flatSubnets.concat(getValueByJsonPath(flatIPAM,
+                        'network-ipam;ipam_subnets;subnets', [], false));
+            });
+            if(flatSubnets.length) {
+                _.each(flatSubnets, function(flatSubnet) {
+                    var ipPrefix = getValueByJsonPath(flatSubnet,
+                            'subnet;ip_prefix', '', false),
+                        ipPrefixLen = getValueByJsonPath(flatSubnet,
+                            'subnet;ip_prefix_len', '', false),
+                        ipam_subnet = ipPrefix && ipPrefixLen ?
+                                ipPrefix + '/' + ipPrefixLen : '',
+                        default_gateway = getValueByJsonPath(flatSubnet,
+                            'default_gateway', '', false),
+                        subnet_uuid = getValueByJsonPath(flatSubnet,
+                                'subnet_uuid', '', false),
+                        SubnetVal = {};
+                    if(ipam_subnet) {
+                        SubnetVal.default_gateway = default_gateway;
+                        SubnetVal.ipam_subnet = ipam_subnet;
+                        SubnetVal.subnet_uuid = subnet_uuid;
+                        currentVNFlatSubnets.push({
+                                       "text" : ipam_subnet,
+                                       "value":JSON.stringify(SubnetVal)
+                                    });
+                    }
+                });
+            }
+            return currentVNFlatSubnets;
+        };
 
         self.interfaceDetailFormater = function(d, c, v, cd, dc) {
             var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN);
@@ -1042,21 +1084,6 @@ define([
                 self.networkDDFormatter(result),
                 selectedVN, subnetDS;
             portEditView.model.setVNData(result);
-            if(!formattedNetworks || !formattedNetworks.length){
-                return formattedNetworks;
-            }
-            selectedVN = formattedNetworks[0].value;
-            subnetDS = self.fixedIpSubnetDDFormatter(
-                                     result, selectedVN);
-            portEditView.model.setSubnetDataSource(subnetDS);
-            if(mode == ctwl.CREATE_ACTION) {
-                if(subnetDS.length > 0) {
-                    portEditView.model.addFixedIP();
-                    portEditView.model.subnetGroupVisible(true);
-                } else {
-                    portEditView.model.subnetGroupVisible(false);
-                }
-            }
             return formattedNetworks;
         };
 
