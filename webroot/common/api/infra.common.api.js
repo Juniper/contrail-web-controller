@@ -22,7 +22,7 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
     rest = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/rest.api'),
     contrailService = require(process.mainModule.exports.corePath +
-            "/src/serverroot/jobs/core/contrailservice.api"),
+            "/src/serverroot/common/contrailservice.api"),
     config = process.mainModule.exports.config,
     async = require('async');
 

@@ -4,7 +4,6 @@
 
 var rest = require(process.mainModule.exports["corePath"] +
         '/src/serverroot/common/rest.api'),
-    config = process.mainModule.exports["config"],
     async = require('async'),
     commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
@@ -24,10 +23,6 @@ var rest = require(process.mainModule.exports["corePath"] +
     ctrlGlobal = require('../../../../common/api/global'),
     configApiServer = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/configServer.api');
-
-opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
-                             server:config.analytics.server_ip,
-                             port:config.analytics.server_port });
 
 function getDatabaseNodesList (req, res, appData)
 {

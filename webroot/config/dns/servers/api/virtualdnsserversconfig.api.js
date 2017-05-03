@@ -33,7 +33,7 @@ var infraCmn = require('../../../../common/api/infra.common.api');
 var jsonDiff = require(process.mainModule.exports["corePath"] +
     '/src/serverroot/common/jsondiff');
 var contrailService = require(process.mainModule.exports["corePath"] +
-    '/src/serverroot/jobs/core/contrailservice.api');
+    '/src/serverroot/common/contrailservice.api');
 
 
 /**
