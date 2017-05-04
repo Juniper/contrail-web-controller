@@ -143,7 +143,7 @@ function buildvRouterVMTopology (nodeList, appData, callback)
     // Once it start working need to pass virtual_router_type
     vrPostData['cfilt'] = ['VrouterAgent:self_ip_list',
         'VrouterAgent:sandesh_http_port','VrouterStatsAgent:flow_rate',
-        'ContrailConfig:elements'];
+        'ContrailConfig:elements', 'VrouterAgent:control_ip'];
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST, vrPostData,
                              opApiServer, null, appData);
     var vmiUrl = '/analytics/uves/virtual-machine-interface';
@@ -1331,10 +1331,10 @@ function getUnderlayPath (req, res, appData)
             for (var i = 0; i < nodeCnt; i++) {
                 var endPt1 = getNodeNameByPVData(result[i]['u_prouter'],
                                                   ipPrTable, results[1]);
-                if (null == endPt1) {
+                var nodeName = commonUtils.getValueByJsonPath(endPt1,
+                                                              "nodeName", null);
+                if (null == nodeName) {
                     nodeName = result[i]['u_prouter'];
-                } else {
-                    nodeName = endPt1['nodeName'];
                 }
                 tmppRouterListObjs[nodeName] = nodeName;
                 topoData['nodes'].push({"name": nodeName,
@@ -1707,10 +1707,7 @@ function getUnderlayStats (req, res, appData)
  */
 function getNodeNameByPVData (hop, ipPrTable, vrouterData)
 {
-    var nodeObj = {};
     var vrCnt = 0;
-    nodeObj['nodeName'] = null;
-    nodeObj['nodeType'] = null;
 
     for (key in ipPrTable) {
         if (hop == key) {
@@ -1724,13 +1721,18 @@ function getNodeNameByPVData (hop, ipPrTable, vrouterData)
         vrCnt = 0;
     }
     for (var i = 0; i < vrCnt; i++) {
-        try {
-            var ipList =
-                vrouterData['value'][i]['value']['VrouterAgent']['self_ip_list'];
-            var ipLen = ipList.length;
-        } catch(e) {
-            ipLen = 0;
+        var controlIP =
+            commonUtils.getValueByJsonPath(vrouterData, "value;" + i +
+                                           ";value;VrouterAgent;control_ip",
+                                           "-");
+        var ipList =
+            commonUtils.getValueByJsonPath(vrouterData, "value;" + i +
+                                           ";value;VrouterAgent;self_ip_list",
+                                           []);
+        if (!ipList.length) {
+            ipList = [controlIP];
         }
+        var ipLen = ipList.length;
         for (var j = 0; j < ipLen; j++) {
             if (ipList[j] == hop) {
                 return {'nodeName': vrouterData['value'][i]['name'],
@@ -1738,7 +1740,7 @@ function getNodeNameByPVData (hop, ipPrTable, vrouterData)
             }
         }
     }
-    return nodeObj;
+    return null;
 }
 
 function getIPToProuterMapTable (prouterData)
@@ -1807,7 +1809,8 @@ function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, srcVN, destVN,
                                  prPostData, null, null, appData);
         url = '/analytics/uves/vrouter';
         var vrPostData = {};
-        vrPostData['cfilt'] = ['VrouterAgent:self_ip_list'];
+        vrPostData['cfilt'] = ['VrouterAgent:self_ip_list',
+            'VrouterAgent:control_ip'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  vrPostData, null, null, appData);
         var vmPostData = {};
@@ -1831,8 +1834,10 @@ function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, srcVN, destVN,
             for (var i = 0; i < hopCnt; i++) {
                 var nodeObj = getNodeNameByPVData(hopList[i]['_'], ipPrTable,
                                                   results[1]);
-                var nodeName = nodeObj['nodeName'];
-                var nodeType = nodeObj['nodeType'];
+                var nodeName = commonUtils.getValueByJsonPath(nodeObj,
+                                                              "nodeName", null);
+                var nodeType = commonUtils.getValueByJsonPath(nodeObj,
+                                                              "nodeType", null);
                 if (null != nodeName) {
                     topoData['nodes'].push({'name': nodeName,
                                            'node_type': nodeType})
