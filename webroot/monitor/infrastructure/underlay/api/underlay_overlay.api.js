@@ -143,7 +143,7 @@ function buildvRouterVMTopology (nodeList, appData, callback)
     // Once it start working need to pass virtual_router_type
     vrPostData['cfilt'] = ['VrouterAgent:self_ip_list',
         'VrouterAgent:sandesh_http_port','VrouterStatsAgent:flow_rate',
-        'ContrailConfig:elements'];
+        'ContrailConfig:elements', 'VrouterAgent:control_ip'];
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST, vrPostData,
                              opApiServer, null, appData);
     var vmiUrl = '/analytics/uves/virtual-machine-interface';
@@ -1724,13 +1724,18 @@ function getNodeNameByPVData (hop, ipPrTable, vrouterData)
         vrCnt = 0;
     }
     for (var i = 0; i < vrCnt; i++) {
-        try {
-            var ipList =
-                vrouterData['value'][i]['value']['VrouterAgent']['self_ip_list'];
-            var ipLen = ipList.length;
-        } catch(e) {
-            ipLen = 0;
+        var controlIP =
+            commonUtils.getValueByJsonPath(vrouterData, "value;" + i +
+                                           ";value;VrouterAgent;control_ip",
+                                           "-");
+        var ipList =
+            commonUtils.getValueByJsonPath(vrouterData, "value;" + i +
+                                           ";value;VrouterAgent;self_ip_list",
+                                           []);
+        if (!ipList.length) {
+            ipList = [controlIP];
         }
+        var ipLen = ipList.length;
         for (var j = 0; j < ipLen; j++) {
             if (ipList[j] == hop) {
                 return {'nodeName': vrouterData['value'][i]['name'],
@@ -1807,7 +1812,8 @@ function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, srcVN, destVN,
                                  prPostData, null, null, appData);
         url = '/analytics/uves/vrouter';
         var vrPostData = {};
-        vrPostData['cfilt'] = ['VrouterAgent:self_ip_list'];
+        vrPostData['cfilt'] = ['VrouterAgent:self_ip_list',
+            'VrouterAgent:control_ip'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  vrPostData, null, null, appData);
         var vmPostData = {};
