@@ -88,7 +88,10 @@ define([
                     from_time_utc: 'now-10m',
                     to_time_utc: 'now',
                     filters : "limit: 5000",
-                    select: 'agg-bytes,agg-packets,vrouter_ip,other_vrouter_ip',
+                    select: 'agg-bytes,agg-packets,vrouter_ip,other_vrouter_ip,' +
+                        'vrouter,sourcevn,sourceip,sport,destvn,destip,dport,' +
+                        'protocol,direction_ing,UuidKey,action,sg_rule_uuid,' +
+                        'nw_ace_uuid,underlay_proto,underlay_source_port'
                 }
                 var intfData = getValueByJsonPath(vmData,
                     'more_attributes;interface_list',[]);
@@ -113,7 +116,8 @@ define([
                 ajaxData['engQueryStr'] = JSON.stringify(ajaxData);
                 traceFlowRemoteConfig = {
                     url: '/api/qe/query',
-                    data: ajaxData,
+                    data: JSON.stringify(ajaxData),
+                    type: 'POST',
                     dataParser: function (response) {
                         return underlayParsers.parseUnderlayFlowRecords(
                             response, vRouters);
