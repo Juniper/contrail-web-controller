@@ -96,6 +96,8 @@ define([
                     false, false);
             modelConfig["graceful_restart_parameters"]["bgp_helper_enable"] =
                 bgpHelperEnble.toString();
+            modelConfig['ibgp_auto_mesh'] =
+                (($.trim(modelConfig['ibgp_auto_mesh']).length === 0) ? "true" : modelConfig['ibgp_auto_mesh'].toString());
 
             return modelConfig;
         },
@@ -212,6 +214,9 @@ define([
                                 "reqUrl": "/global-system-config/" +
                                 newBGPOptionsConfig['uuid']}]}
                 }
+
+                globalSysConfigData['global-system-config']['ibgp_auto_mesh'] =
+                    $.parseJSON(newBGPOptionsConfig['ibgp_auto_mesh']);
 
                 ajaxConfig.type = "POST";
                 ajaxConfig.data = JSON.stringify(putData);
