@@ -7,8 +7,10 @@ define([
     'contrail-view',
     'contrail-list-model',
     'underlay-graph-model',
-    'monitor/infrastructure/underlay/ui/js/underlay.parsers'
-], function (_, ContrailView, ContrailListModel, UnderlayGraphModel, underlayParsers) {
+    'monitor/infrastructure/underlay/ui/js/underlay.parsers',
+    'monitor/networking/ui/js/nm.grid.config',
+], function (_, ContrailView, ContrailListModel, UnderlayGraphModel, underlayParsers, NMGridConfig) {
+    nmwgc = new NMGridConfig();
     var UnderlayListView = ContrailView.extend({
         el: $(contentContainer),
         render: function (viewConfig) {
