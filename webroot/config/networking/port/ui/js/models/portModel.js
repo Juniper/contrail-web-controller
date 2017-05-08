@@ -129,6 +129,7 @@ define([
                 self.manageFixedIPSection(subnetDSDetails.SubnetDS,
                         mode);
             }
+            this.getBridgeDomains(newValue);
         },
 
         manageFixedIPSection: function(subnetDS, mode){
@@ -142,7 +143,6 @@ define([
                 self.model().attributes.fixedIPCollection.reset();
                 self.addFixedIP();
             }
-            this.getBridgeDomains(newValue);
         },
 
         getBridgeDomains: function(vnName) {
