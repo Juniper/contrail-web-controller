@@ -169,7 +169,6 @@ define([
                                             dataTextField: "text",
                                             dataValueField: "value",
                                             separator: ctwc.MULTISELECT_VALUE_SEPARATOR,
-                                            maximumSelectionSize: 1,
                                             dataSource: {
                                                 type: "remote",
                                                 requestType: "GET",
