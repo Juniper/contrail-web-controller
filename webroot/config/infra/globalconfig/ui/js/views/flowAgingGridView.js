@@ -97,7 +97,7 @@ define([
         },
         {
             field: 'timeout_in_seconds',
-            name: 'Timeout (seconds)',
+            name: 'Timeout (secs)',
             sortable: true
         },
     ];
