@@ -1058,8 +1058,42 @@ define([
         this.TEXT_AREA_PLACEHOLDER = 'Copy / Paste JSON data for ';
         this.MODAL_CONFIG_EDITOR_CONTAINER = 'json-editor-form-view';
         //Gohan Constants
-        this.GOHAN_HASH_LIST = ['config_gc_location','config_gc_heatInstance','config_gc_image','config_gc_flavor','config_gc_server','config_gc_idPool','config_gc_association'];
-
+        this.GOHAN_HASH_LIST = ['config_gc_serviceTemplates','config_gc_serviceInstance','config_gc_securityGroup','config_gc_networkPolicy','config_gc_network',
+                                'config_gc_server','config_gc_idPool','config_gc_association','config_gc_flavor','config_gc_image','config_gc_location'];
+        this.GOHAN_PRE_URL = './gohan_contrail/v1.0/tenant/';
+        this.GOHAN_PAGE_URL = ['serviceTemplates','config/gohanUi/templates/ui/js/views/gcSvcTemplateCfgView.js',
+                               'serviceInstance','config/gohanUi/instances/ui/js/views/gcSvcInstView.js',
+                               'securityGroup','config/gohanUi/securitygroup/ui/js/views/gcSecGrpView.js',
+                               'networkPolicy','config/gohanUi/networkpolicy/ui/js/views/gcPolicyView.js',
+                               'network','config/gohanUi/networks/ui/js/views/gcVnCfgView.js',
+                               'server','config/gohanUi/server/ui/js/views/gcServerView.js',
+                               'idPool','config/gohanUi/idpool/ui/js/views/gcIdPoolView.js',
+                               'association','config/gohanUi/routetarget/ui/js/views/gcRouteTargetView.js',
+                               'flavor','config/gohanUi/flavor/ui/js/views/gcFlavorView.js',
+                               'image','config/gohanUi/image/ui/js/views/gcImageView.js',
+                               'location','config/gohanUi/location/ui/js/views/gcLocationView.js'];
+        this.BREADCRUMB_EXCEPTION_LIST = ['location','idPool','association'];
+ 
+        this.GOHAN_URL = './gohan_contrail/v1.0/';
+        this.GOHAN_TENANT_URL = './gohan_contrail/v1.0/tenant/';
+        this.GOHAN_PROJECT_URL = '/api/tenants/config/projects';
+        this.GOHAN_FLAVOR_URL = './gohan_contrail/v1.0/tenant/flavors';
+        this.GOHAN_LOCATION = './gohan_contrail/v1.0/locations';
+        this.GOHAN_ID_POOL = './gohan_contrail/v1.0/admin/id_pools';
+        this.GOHAN_IMAGES = './gohan_contrail/v1.0/tenant/images';
+        this.SVC_INSTANCES = './gohan_contrail/v1.0/tenant/service_instances';
+        this.SVC_TEMPLATES = './gohan_contrail/v1.0/tenant/service_templates';
+        this.GOHAN_NETWORK = './gohan_contrail/v1.0/tenant/networks';
+        this.GOHAN_NETWORK_POLICY = './gohan_contrail/v1.0/tenant/network_policies';
+        this.GOHAN_ROUTE_TARGET = './gohan_contrail/v1.0/admin/route_target_associations';
+        this.GOHAN_PARAM = '?sort_key=id&sort_order=asc&limit=25&offset=0';
+        this.GOHAN_TENANT_PARAM = '?sort_key=id&sort_order=asc&limit=25&offset=0&tenant_id=';
+        this.GOHAN_SEC_GROUP = './gohan_contrail/v1.0/tenant/security_groups';
+        this.GOHAN_SEC_GRP_RULES = './gohan_contrail/v1.0/tenant/security_group_rules';
+        this.GOHAN_SERVER = './gohan_contrail/v1.0/servers';
+        this.NETWORK_LOCATION_GRID_HEADER = ['Location ID', 'Status', 'Name', 'Description','Subnet','Task Status'];
+        this.SERVER_LOCATION_GRID_HEADER = ['Location ID', 'Status', 'Name', 'Description','Instance ID','Console','Task Status'];
+        this.LOCATION_GRID_HEADER = ['Location ID', 'Status', 'Name', 'Description', 'Task Status'];
         this.MULTISELECT_VALUE_SEPARATOR = ";;";
     };
 
