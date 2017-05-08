@@ -374,13 +374,16 @@ define(['underscore'], function (_) {
                     formatter: function(r,c,v,cd,dc){
                         var name = $.grep(computeNodes,function(value,idx){
                                         return (getValueByJsonPath(value.attributes.model().attributes,
-                                            'more_attributes;VrouterAgent;self_ip_list;0','-') == dc['peer_vrouter']);
+                                            'more_attributes;VrouterAgent;control_ip','-') == dc['peer_vrouter']);
                                    });
                         if(name && name.length >= 1) {
                             name = name[0].attributes.name();
-                        }
-                        if(name && name.trim() == "")
+                            if (("string" === typeof name) && ("" === name.trim())) {
+                                name = "-";
+                            }
+                        } else {
                             name = "-";
+                        }
                         if(validateIPAddress(dc['peer_vrouter']))
                             return contrail.format('{0} ({1})',name ,dc['peer_vrouter']);
                         else
