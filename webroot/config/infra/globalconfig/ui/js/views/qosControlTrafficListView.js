@@ -38,7 +38,7 @@ define([
                     value: gcUtils.getTextByValue(
                         ctwc.QOS_DSCP_VALUES,
                             getValueByJsonPath(globalSysConfig,
-                                qosControlTraffic.key), "-", false)});
+                                qosControlTraffic.key, "-", false))});
             });
             return gridDS;
         }
