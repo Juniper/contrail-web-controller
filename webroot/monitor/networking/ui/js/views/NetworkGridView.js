@@ -74,7 +74,11 @@ define([
                     autoRefresh: false,
                     checkboxSelectable: false,
                     detail: {
-                        template: cowu.generateDetailTemplateHTML(getNetworkDetailsTemplateConfig(), cowc.APP_CONTRAIL_CONTROLLER, 'rawData')
+                        template: cowu.generateDetailTemplateHTML(getNetworkDetailsTemplateConfig(), cowc.APP_CONTRAIL_CONTROLLER, 'rawData'),
+                        onExpand : function() {
+                            $(".key:contains(RegionName)").css({"font-weight" : "600", "color" : "#787878", "font-size":"11px"});
+                            $(".key:contains(RegionName)~span").css({"font-weight" : "600", "color" : "#3182bd", "font-size":"11px"});
+                        }
                     },
                     fixedRowHeight: 30
                 },
