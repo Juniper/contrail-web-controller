@@ -7,12 +7,8 @@ define(['underscore', 'contrail-view', 'legend-view',
         function(_, ContrailView, LegendView, GlobalControllerListModel,ContrailListModel){
     var GlobalControllerViewConfig = function () {
         var self = this,
-            regionList = globalObj['webServerInfo']['regionList'],
-            index = regionList.indexOf(cowc.GLOBAL_CONTROLLER_ALL_REGIONS),
+            regionList = ctwu.getRegionList(),
             defaulConfig = {};
-        if (index > -1) {
-              regionList.splice(index, 1);
-        }
         var barViewListModel;
         defaulConfig['bar-view'] = function(){
             barViewListModel = new ContrailListModel([]);
