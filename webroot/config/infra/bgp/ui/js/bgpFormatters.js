@@ -67,7 +67,7 @@ define(['underscore'], function(_){
                     <th class='col-xs-1'>Hold Time (seconds)</th>\
                     <th class='col-xs-1'>Loop Count</th>\
                     <th class='col-xs-1'>Auth Mode</th>\
-                    <th class='col-xs-1'>Family Attributes</th></tr></thead>";
+                    <th class='col-xs-2'>Family Attributes</th></tr></thead>";
                 bgpRefs.forEach(function(bgp){
                     var attr = getValueByJsonPath(bgp,
                         "attr;session;0;attributes;0", {});
@@ -95,12 +95,12 @@ define(['underscore'], function(_){
                         for(var i = 0 ; i < familyAttrs.length; i++) {
                             var familyAttr = familyAttrs[i];
                             peerString += "<span class='sec_label'>Address Family :</span> " +  getValueByJsonPath(familyAttr, "address_family", "-");
-                            peerString += ",&nbsp;&nbsp;<span class='sec_label'>Loop Count :</span> " + getValueByJsonPath(familyAttr, "loop_count", "-");
-                            peerString += ",&nbsp;&nbsp;<span class='sec_label'>Prefix Limit :</span> " + getValueByJsonPath(familyAttr, "prefix_limit;maximum", "-");
+                            peerString += ",</br><span class='sec_label'>Loop Count :</span> " + getValueByJsonPath(familyAttr, "loop_count", "-");
+                            peerString += ",</br><span class='sec_label'>Prefix Limit :</span> " + getValueByJsonPath(familyAttr, "prefix_limit;maximum", "-");
                             if(i === familyAttrs.length - 1) {
                                 peerString +="</br></br>";
                             } else {
-                                peerString +="</br>";
+                                peerString +="<hr/>";
                             }
                         }
                     } else {
