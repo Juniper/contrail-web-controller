@@ -74,7 +74,11 @@ define([
                     autoRefresh: false,
                     checkboxSelectable: false,
                     detail: {
-                        template: cowu.generateDetailTemplateHTML(getNetworkDetailsTemplateConfig(), cowc.APP_CONTRAIL_CONTROLLER, 'rawData')
+                        template: cowu.generateDetailTemplateHTML(getNetworkDetailsTemplateConfig(), cowc.APP_CONTRAIL_CONTROLLER, 'rawData'),
+                        onExpand : function() {
+                            $(".detail-foundation-content-advanced .key:contains(RegionName)").addClass('grid-regionname-heading regionname-label-text');
+                            $(".detail-foundation-content-advanced .key:contains(RegionName)~span").addClass('grid-regionname-heading regionname-value-text');
+                        }
                     },
                     fixedRowHeight: 30
                 },
