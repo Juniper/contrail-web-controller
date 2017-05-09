@@ -56,11 +56,7 @@ define(
     function getGCViewConfigList () {
         var gcArray = [],
             regionVC,
-            regionList = globalObj['webServerInfo']['regionList'],
-            index = regionList.indexOf(cowc.GLOBAL_CONTROLLER_ALL_REGIONS);
-            if (index > -1) {
-                regionList.splice(index, 1);
-            }
+            regionList = ctwu.getRegionList();
             gcArray = [{
                   "id": "bar-view"
                 }];
