@@ -566,3 +566,8 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
     text-align:left;}
 .data-cell-mirroringOptions{
     padding-bottom:0px;}
+#bgp-grid .detail-block-list-content span.sec_label~hr{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border: none;
+    }
