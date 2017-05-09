@@ -192,9 +192,9 @@ define([
                                     disabled: disableOnEdit,
                                     label: 'Subnet Method',
                                     elementConfig: {
-                                         dataObj: [{"label": "User Defined",
+                                         dataObj: [{"label": "user-defined-subnet",
                                            "value": "user-defined-subnet"},
-                                           {"label": "Flat", "value": "flat-subnet"}]
+                                           {"label": "flat-subnet", "value": "flat-subnet"}]
                                     }
                                 }
                             }

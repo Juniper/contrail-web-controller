@@ -282,15 +282,15 @@ define([
                                             viewConfig: {
                                                 label: 'Allocation Mode',
                                                 path: 'address_allocation_mode',
-                                                class: 'col-xs-12',
+                                                class: 'col-xs-13',
                                                 dataBindValue: 'address_allocation_mode',
                                                 templateId: cowc.TMPL_FOUR_OPTNS_RADIO_BUTTON_VIEW,
                                                 elementConfig: {
                                                     dataObj: [{
-                                                        value: 'user-defined-subnet-only', label:'User Defined'},
-                                                        {value: 'flat-subnet-only', label:'Flat'},
-                                                        {value: 'user-defined-subnet-preferred', label:'User Defined Hybrid'},
-                                                        {value: 'flat-subnet-preferred', label:'Flat Hybrid'}]
+                                                        value: 'user-defined-subnet-only', label:'user-defined-subnet-only'},
+                                                        {value: 'flat-subnet-only', label:'flat-subnet-only'},
+                                                        {value: 'user-defined-subnet-preferred', label:'user-defined-subnet-preferred'},
+                                                        {value: 'flat-subnet-preferred', label:'flat-subnet-preferred'}]
                                                 }
                                             }
                                         }]
