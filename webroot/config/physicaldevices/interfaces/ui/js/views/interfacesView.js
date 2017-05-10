@@ -63,8 +63,14 @@ define([
                          var physicalRouters = result['physical-routers'];
                          for(var i = 0; i < physicalRouters.length;i++) {
                              var physicalRouter = physicalRouters[i];
-                             pRoutersDS.push({name : physicalRouter.fq_name[1],
-                                 value : physicalRouter.uuid});
+                             var name = getValueByJsonPath(physicalRouter,
+                                                           "fq_name;1", null);
+                             if (null == name) {
+                                 continue;
+                             }
+                             pRoutersDS.push({name : name,
+                                 value : physicalRouter.uuid,
+                                 display_name: name});
                          }
                      }
                      return pRoutersDS;
