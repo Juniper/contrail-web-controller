@@ -14,7 +14,8 @@ var projectconfigapi = module.exports;
 var logutils         = require(process.mainModule.exports["corePath"] +
                                '/src/serverroot/utils/log.utils');
 var commonUtils      = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils');
-var config           = process.mainModule.exports["config"];
+var configUtils      = require(process.mainModule.exports["corePath"] +
+                         '/src/serverroot/common/config.utils');
 var messages         = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages');
 var global           = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global');
 var appErrors        = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors.js');
@@ -22,7 +23,7 @@ var util             = require('util');
 var url              = require('url');
 var authApi          = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/auth.api');
 var configApiServer  = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
-var configUtils      = require(process.mainModule.exports["corePath"] + 
+var configServerUtils      = require(process.mainModule.exports["corePath"] +
                                '/src/serverroot/common/configServer.utils');
 var async            = require('async');
 var _                = require('underscore');
@@ -277,6 +278,7 @@ function listDomains (request, response, appData)
 {
     var domains = {'domains': []};
     var domainsURL = '/domains';
+    var config = configUtils.getConfig();
     var isDomainListFromApiServer = config.getDomainsFromApiServer;
     if (null == isDomainListFromApiServer) {
         isDomainListFromApiServer = true;
@@ -289,7 +291,7 @@ function listDomains (request, response, appData)
         return;
     }
     if (true == isDomainListFromApiServer) {
-        configUtils.getDomainsFromApiServer(appData, function(error, data) {
+        configServerUtils.getDomainsFromApiServer(appData, function(error, data) {
             commonUtils.handleJSONResponse(error, response, data);
         });
     } else {
@@ -324,7 +326,7 @@ function getDomainsFromIdentityManager (request, appData, callback)
     /* /v3/users/<userid>/domains is not working, so get the domain list from
      * project list
      */
-    configUtils.getTenantListAndSyncDomain(request, appData, callback);
+    configServerUtils.getTenantListAndSyncDomain(request, appData, callback);
 }
 
 /**
