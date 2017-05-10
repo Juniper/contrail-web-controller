@@ -14,7 +14,6 @@ var cacheApi = require(process.mainModule.exports["corePath"] + '/src/serverroot
     configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
     logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
     appErrors = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors'),
-    config = process.mainModule.exports["config"],
     infraCmn = require('../../../common/api/infra.common.api'),
     nwMonUtils = require('../../../common/api/nwMon.utils'),
     assert = require('assert'),
