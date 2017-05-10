@@ -924,13 +924,13 @@ define([
                 returnString = "";
             switch(allocType) {
                 case 'user-defined-subnet-preferred' :
-                    returnString = "User Defined Hybrid";
+                    returnString = "User Defined Preferred";
                     break;
                 case 'user-defined-subnet-only' :
                     returnString = "User Defined";
                     break;
                 case 'flat-subnet-preferred' :
-                    returnString = "Flat Hybrid";
+                    returnString = "Flat Preferred";
                     break;
                 case 'flat-subnet-only' :
                     returnString = "Flat";

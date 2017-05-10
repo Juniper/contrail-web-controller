@@ -289,8 +289,8 @@ define([
                                                     dataObj: [{
                                                         value: 'user-defined-subnet-only', label:'User Defined'},
                                                         {value: 'flat-subnet-only', label:'Flat'},
-                                                        {value: 'user-defined-subnet-preferred', label:'User Defined Hybrid'},
-                                                        {value: 'flat-subnet-preferred', label:'Flat Hybrid'}]
+                                                        {value: 'user-defined-subnet-preferred', label:'User Defined Preferred'},
+                                                        {value: 'flat-subnet-preferred', label:'Flat Preferred'}]
                                                 }
                                             }
                                         }]
