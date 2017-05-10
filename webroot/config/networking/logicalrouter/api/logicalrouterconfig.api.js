@@ -19,7 +19,8 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils');
                           
 var portConfig = require('../../../networking/port/api/portsconfig.api');
-var config = process.mainModule.exports["config"];
+var configUtils = require(process.mainModule.exports["corePath"] +
+                 '/src/serverroot/common/config.utils');
 var messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages');
 var global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global');
 var appErrors = require(process.mainModule.exports["corePath"] +
@@ -215,6 +216,7 @@ function createLogicalRouter(request, response, appData)
     var logicalRouterCreateURL = '/logical-routers';
     var logicalRouterPostData = request.body;
     var orginalDataFromUI = commonUtils.cloneObj(request.body);
+    var config = configUtils.getConfig();
     if (typeof(logicalRouterPostData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
         commonUtils.handleJSONResponse(error, response, null);
@@ -315,6 +317,7 @@ function updateLogicalRouter(request, response, appData)
     var logicalRouterPostData = request.body;
     var orginalDataFromUI = commonUtils.cloneObj(request.body);
     var error;
+    var config = configUtils.getConfig();
 
     if (typeof(logicalRouterPostData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Router Data');
@@ -629,6 +632,7 @@ function deleteLogicalRouterCb(error, logicalRouterGetURL, datafromAPI, request,
         callback(error, null);
         return;
     }
+    var config = configUtils.getConfig();
     if(config.network.router_L3Enable === true){
         var networkUUID = null; 
         if("logical-router" in datafromAPI && 
