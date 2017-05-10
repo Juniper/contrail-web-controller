@@ -133,7 +133,7 @@ define([
                                     },
                                     {
                                         elementId: 'timeout_in_seconds',
-                                        name: 'Timeout (seconds)',
+                                        name: 'Timeout (secs)',
                                         view: 'FormInputView',
                                         class: "",
                                         viewConfig: {
