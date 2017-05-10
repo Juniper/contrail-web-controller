@@ -187,8 +187,8 @@ define([
             return formattedValue;
         };
         self.getRegionList = function(){
-            var regionList = globalObj['webServerInfo']['regionList'];
-            regionList = _.without(regionList, 'All Regions');
+            var regionList = getValueByJsonPath(globalObj, "webServerInfo;regionList", []);
+                regionList = _.without(regionList, cowc.GLOBAL_CONTROLLER_ALL_REGIONS);
             return regionList;
         }
 

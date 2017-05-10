@@ -11,12 +11,8 @@ define([
                 viewConfig = this.attributes.viewConfig,
                 selector = $(contentContainer),
                 globalControllerBarViewTemplate = contrail.getTemplate4Id("barView-template");
-                var regionList = globalObj['webServerInfo']['regionList'];
-                var index = regionList.indexOf('All Regions');
+                var regionList = ctwu.getRegionList();
                 var defaulConfig = {};
-                if (index > -1) {
-                      regionList.splice(index, 1);
-                }
                 var regionListLen = regionList.length;
                 var totalNodesCnt =0;
                 if (self.model.loadedFromCache == true){
