@@ -308,6 +308,11 @@ define([
                         return "Only 'ANY' protocol allowed while mirroring services."
                     }
                 },
+                'qos': function(val, attr, data) {
+                    if (data.qos_action_check && !val) {
+                        return "Select QoS to apply";
+                    }
+                },
                 'src_ports_text' : function(val, attr, data) {
                     var result = self.validatePort(val);
                     if (result != "") {
