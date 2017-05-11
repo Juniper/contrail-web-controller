@@ -19,7 +19,6 @@ var cacheApi = require(process.mainModule.exports["corePath"] + '/src/serverroot
     ctrlGlobal = require('../../../common/api/global'),
     nwMonJobs = require('../jobs/network.mon.jobs.js'),
     appErrors = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors'),
-    config = process.mainModule.exports["config"],
     async = require('async'),
     jsonPath = require('JSONPath').eval,
     flowCache = require('../../../common/api/flowCache.api'),

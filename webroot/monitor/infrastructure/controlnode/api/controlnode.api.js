@@ -4,7 +4,6 @@
 
 var rest = require(process.mainModule.exports["corePath"] +
         '/src/serverroot/common/rest.api'),
-    config = process.mainModule.exports["config"],
     async = require('async'),
     commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
