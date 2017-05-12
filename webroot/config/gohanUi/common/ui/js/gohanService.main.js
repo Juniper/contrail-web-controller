@@ -31,7 +31,7 @@ function gohanCommanServiceLoader() {
                 url: ctwc.GOHAN_PROJECT_URL
             }).done(function(response,textStatus,xhr) {
                 var roleList = response[Object.keys(response)[0]], gohanProject = [], selectedKey;
-                var projectName = loadUtils.getCookie('project');
+                var projectName = loadUtils.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
                 for(var k = 0; k < roleList.length; k++){
                     var roleName = roleList[k].fq_name;
                     var drpText = roleName[roleName.length - 1];
@@ -51,7 +51,7 @@ function gohanCommanServiceLoader() {
                       .on("change",function(projectName){
                           contrail.setCookie('gohanProject', projectName.val);
                           var role = $("#gohanProject").select2('data').text;
-                          contrail.setCookie('project', role);
+                          contrail.setCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME, role);
                           var modRole = '\"'+role+'\"';
                           sessionStorage.setItem('tenant',JSON.stringify(modRole));
                           changeGohanProject(hashParams, renderFn, pathView);
