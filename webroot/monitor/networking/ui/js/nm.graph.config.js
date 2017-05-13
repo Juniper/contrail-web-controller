@@ -151,7 +151,7 @@ define([
 
                         actions.push({
                             callback: function (key, options) {
-                                loadFeature({p: 'config_net_ipam'});
+                                loadFeature({p: 'config_networking_ipam'});
                             }
                         });
 
