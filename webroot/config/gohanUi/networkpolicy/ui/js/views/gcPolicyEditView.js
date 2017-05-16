@@ -274,7 +274,7 @@ define([
                         view: "FormCollectionView",
                         //view: "FormEditableGridView",
                         viewConfig: {
-                            label:"Policy Rule(s)",
+                            label:"Policy Rule (s)",
                             path: "PolicyRules",
                             class: 'col-xs-12',
                             validation: 'ruleValidation',
@@ -544,7 +544,6 @@ define([
                                       width: 220,
                                       viewConfig: {
                                          disabled: 'showLocation()',
-                                         placeholder: 'Name',
                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                          path: 'name',
                                          dataBindValue: 'name()'

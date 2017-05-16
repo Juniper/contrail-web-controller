@@ -175,61 +175,61 @@ define([
                                                 {
                                                     label: 'ID',
                                                     key: 'id',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Name',
                                                     key: 'name',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Tenant ID',
                                                     key: 'tenant_id',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Description',
                                                     key: 'description',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Keystone endpoint',
                                                     key: 'keystone_endpoint',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Contrail endpoint',
                                                     key: 'contrail_endpoint',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Horizon WebUI',
                                                     key: 'webui',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Contrail WebUI',
                                                     key: 'contrail_webui',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Region',
                                                     key: 'region',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Endpoint address',
                                                     key: 'address',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 }
                                             ]

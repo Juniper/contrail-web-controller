@@ -158,37 +158,37 @@ define([
                                                 {
                                                     label: 'Name',
                                                     key: 'name',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Group',
                                                     key: 'group',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'ID',
                                                     key: 'id',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Start',
                                                     key: 'start',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'End',
                                                     key: 'end',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Assigned',
                                                     key: 'assigned',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 }
                                             ]

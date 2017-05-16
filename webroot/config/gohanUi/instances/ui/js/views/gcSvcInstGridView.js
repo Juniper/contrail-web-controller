@@ -98,7 +98,7 @@ define([
                             }
                           },
                           {
-                              name: '# Instance(s)',
+                              name: '# Instance (s)',
                               formatter: function(row, col, val, d, rowData) {
                                   return instCountFormatter(row, col, val, d, rowData);
                               },
@@ -216,7 +216,7 @@ define([
                                     {
                                         key: 'service_instance_properties.scale_out.max_instances',
                                         keyClass:'col-xs-5',
-                                        label: '# Instance(s)',
+                                        label: '# Instance (s)',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
                                             formatter: 'instCountFormatter'

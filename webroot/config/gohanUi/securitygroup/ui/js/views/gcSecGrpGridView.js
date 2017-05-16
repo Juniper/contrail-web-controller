@@ -103,26 +103,26 @@ define([
                                     {
                                         key: 'name',
                                         label: 'Display Name',
-                                        keyClass:'col-xs-5',
+                                        keyClass:'col-xs-3',
                                         templateGenerator: 'TextGenerator'
                                     },
                                     {
                                         key: 'description',
                                         label: 'Description',
-                                        keyClass:'col-xs-5',
+                                        keyClass:'col-xs-3',
                                         templateGenerator: 'TextGenerator'
                                     },
                                     {
                                         key: 'id',
                                         label: 'Id',
-                                        keyClass:'col-xs-5',
+                                        keyClass:'col-xs-3',
                                         templateGenerator: 'TextGenerator'
                                     },
                                     {
                                         key: 'sgRules',
                                         templateGenerator: 'TextGenerator',
                                         label: 'Rules',
-                                        keyClass:'col-xs-5',
+                                        keyClass:'col-xs-3',
                                         templateGeneratorConfig: {
                                             formatter: 'secGrpRulesFormatter'
                                         }

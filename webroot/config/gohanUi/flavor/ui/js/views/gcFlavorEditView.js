@@ -252,8 +252,8 @@ define([
                                 elementId: 'ram',
                                 view: 'FormInputView',
                                 viewConfig: {
-                                    label: 'RAM(mb)',
-                                    placeholder: 'RAM(mb)',
+                                    label: 'RAM (MB)',
+                                    placeholder: 'RAM (MB)',
                                     path: 'ram',
                                     class: 'col-xs-6',
                                     dataBindValue: 'ram',
@@ -278,8 +278,8 @@ define([
                                 elementId: 'disk',
                                 view: 'FormInputView',
                                 viewConfig: {
-                                    label: 'Disk(GB)',
-                                    placeholder: 'Disk(GB)',
+                                    label: 'Disk (GB)',
+                                    placeholder: 'Disk (GB)',
                                     path: 'disk',
                                     class: 'col-xs-6',
                                     dataBindValue: 'disk',
@@ -289,8 +289,8 @@ define([
                                 elementId: 'swap',
                                 view: 'FormInputView',
                                 viewConfig: {
-                                    label: 'Swap(GB)',
-                                    placeholder: 'Swap(GB)',
+                                    label: 'Swap (GB)',
+                                    placeholder: 'Swap (GB)',
                                     path: 'swap',
                                     class: 'col-xs-6',
                                     dataBindValue: 'swap',
@@ -304,8 +304,8 @@ define([
                                 elementId: 'ephemeral',
                                 view: 'FormInputView',
                                 viewConfig: {
-                                    label: 'Ephemeral(GB)',
-                                    placeholder: 'Ephemeral(GB)',
+                                    label: 'Ephemeral (GB)',
+                                    placeholder: 'Ephemeral (GB)',
                                     path: 'ephemeral',
                                     class: 'col-xs-6',
                                     dataBindValue: 'ephemeral',
@@ -407,7 +407,6 @@ define([
                                       width: 220,
                                       viewConfig: {
                                          disabled: 'showLocation()',
-                                         placeholder: 'Name',
                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                          path: 'name',
                                          dataBindValue: 'name()'
