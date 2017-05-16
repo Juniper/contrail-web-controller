@@ -571,3 +571,6 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
     margin-bottom: 5px;
     border: none;
     }
+#monitor-alarms-grid .alarms-circle-display-flex{
+ display:inline-block;
+    }
