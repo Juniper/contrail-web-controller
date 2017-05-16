@@ -200,11 +200,6 @@ define([
             var index = rowCount + rowIndex;
             var rowIndex = 'div[data-cgrid*="id_'+index+'"]';
             var content = $($(e.currentTarget).children(rowIndex)[1]).find('.detail-section-content')[0];
-            if(objProp.name === 'network_policies'){
-                $(content.firstChild).find('.detail-block-list-content')[0].setAttribute('style','width:55%;padding-left:12px;');
-            }else{
-                $(content.firstChild).find('.detail-block-list-content')[0].setAttribute('style','width:55%');
-            }
             if($(content).find('.region-location-based-grid').length !== 0){
                 content.lastChild.remove();
             }

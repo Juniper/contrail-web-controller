@@ -100,7 +100,7 @@ define([
                     },
                     {
                       field:  'interface_type',
-                      name:   'Interface(s)',
+                      name:   'Interface (s)',
                       formatter: formatSvcTemplateCfg.interfaceFormatter,
                       sortable: {
                                sortBy: 'formattedValue'
@@ -221,43 +221,43 @@ define([
                                                 'BlockListTemplateGenerator',
                                             templateGeneratorConfig: [
                                                 {
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     key: 'name',
                                                     label: 'Name',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     key: 'description',
                                                     label: 'Description',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     key: 'id',
                                                     label: 'ID',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     key: 'service_mode',
                                                     label: 'Mode',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     key: 'image.name',
                                                     label: 'Image',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     key: 'flavor.name',
                                                     label: 'Flavor',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     key: 'interface_type',
                                                     label: 'Interface Type (s)',
                                                     templateGenerator: 'TextGenerator',

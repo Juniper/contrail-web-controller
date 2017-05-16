@@ -92,7 +92,7 @@ define([
                      },
                      {
                          field: 'ram',
-                         name: 'RAM(mb)',
+                         name: 'RAM (MB)',
                          id: 'ram'
                      },
                      {
@@ -102,17 +102,17 @@ define([
                      },
                      {
                          field: 'disk',
-                         name: 'Disk(GB)',
+                         name: 'Disk (GB)',
                          id: 'disk'
                      },
                      {
                          field: 'swap',
-                         name: 'Swap(GB)',
+                         name: 'Swap (GB)',
                          id: 'swap'
                      },
                      {
                          field: 'ephemeral',
-                         name: 'Ephemeral(GB)',
+                         name: 'Ephemeral (GB)',
                          id: 'ephemeral'
                      }
 
@@ -217,55 +217,55 @@ define([
                                                 {
                                                     label: 'ID',
                                                     key: 'id',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Name',
                                                     key: 'name',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Tenant ID',
                                                     key: 'tenant_id',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Description',
                                                     key: 'description',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    label: 'RAM(mb)',
+                                                    label: 'RAM (MB)',
                                                     key: 'ram',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'VCPUs',
                                                     key: 'vcpus',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    label: 'Disk(GB)',
+                                                    label: 'Disk (GB)',
                                                     key: 'disk',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    label: 'Swap(GB)',
+                                                    label: 'Swap (GB)',
                                                     key: 'swap',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    label: 'Ephemeral(GB)',
+                                                    label: 'Ephemeral (GB)',
                                                     key: 'ephemeral',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 }
                                             ]

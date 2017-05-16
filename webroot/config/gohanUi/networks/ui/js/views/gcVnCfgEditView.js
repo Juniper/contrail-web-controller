@@ -297,7 +297,7 @@ define([
                                     elementId: 'policies',
                                     view: "FormMultiselectView",
                                     viewConfig: {
-                                        label: 'Network Policy(s)',
+                                        label: 'Network Policy (s)',
                                         class: "col-xs-12",
                                         path: "policies",
                                         dataBindValue: "policies",
@@ -382,7 +382,6 @@ define([
                                       width: 220,
                                       viewConfig: {
                                          disabled: 'showLocation()',
-                                         placeholder: 'Name',
                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                          path: 'name',
                                          dataBindValue: 'name()'

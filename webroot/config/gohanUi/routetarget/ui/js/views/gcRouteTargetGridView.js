@@ -148,7 +148,7 @@ define([
                                                     key: 'network_id',
                                                     templateGenerator: 'TextGenerator',
                                                     label: 'Network ID',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGeneratorConfig: {
                                                         formatter: 'networkIdFormatter'
                                                     }
@@ -156,7 +156,7 @@ define([
                                                 {
                                                     label: 'Route Target',
                                                     key: 'route_target',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 }
                                             ]

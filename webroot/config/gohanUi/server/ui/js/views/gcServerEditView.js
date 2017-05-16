@@ -440,7 +440,6 @@ define([
                                       width: 180,
                                       viewConfig: {
                                          disabled: 'showLocation()',
-                                         placeholder: 'Name',
                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                          path: 'name',
                                          dataBindValue: 'name()'
@@ -482,7 +481,6 @@ define([
                                         width: 150,
                                         viewConfig: {
                                            disabled: 'showLocation()',
-                                           placeholder: 'Link for console',
                                            templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                            path: 'console',
                                            dataBindValue: 'console()'
