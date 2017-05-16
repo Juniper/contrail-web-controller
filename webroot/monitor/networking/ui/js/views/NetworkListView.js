@@ -31,7 +31,7 @@ define([
                   self.renderView4Config(self.$el, parentContrailListModel,//parentLIstModel
                           getNetworkListViewConfig(projectFQN, projectUUID));
                           ctwu.setProject4NetworkListURLHashParams(projectFQN);
-                  var count = 0, regionListModelArray = [];
+                  var count = 0, regionListModelArray = [],regionNameObj = {}, rawData = [];
                       for(i=0;i<regionList.length;i++){
                           var regionListModel = new ContrailListModel($.extend(getNetworkListModelConfig(projectFQN,
                                   projectUUID,regionList[i]), {isDataWrapped:true}));
@@ -53,6 +53,8 @@ define([
                                       for(var i in vnMap) {
                                           var otherRegMap = {};
                                           _.each(vnMap[i], function(vn){
+                                              regionNameObj['RegionName'] = regionList[i];
+                                              vn.rawData = $.extend(true, {}, regionNameObj, vn.rawData);
                                               otherRegMap[vn.name] = vn;
                                           });
                                           otherRegMapArry.push(otherRegMap);
@@ -62,14 +64,18 @@ define([
                                       region1Arr = vnMap[0];
                                       _.each(region1Arr, function(vn){
                                           var vnName = vn.name;
+                                          rawData = [];
+                                          rawData.push(vn.rawData);
                                           _.each(otherRegMapArry, function(otherVN){
                                               if(otherVN[vnName] != null) {
                                                   vn.instCnt = vn.instCnt + otherVN[vnName].instCnt;
                                                   vn.intfCnt = vn.intfCnt + otherVN[vnName].intfCnt;
                                                   vn.inThroughput = vn.inThroughput + otherVN[vnName].inThroughput;
                                                   vn.outThroughput = vn.outThroughput + otherVN[vnName].outThroughput;
+                                                  rawData.push(otherVN[vnName].rawData);
                                               }
                                           });
+                                          vn.rawData = rawData;
                                       });
                                       parentContrailListModel.setData(region1Arr);
                                   }
