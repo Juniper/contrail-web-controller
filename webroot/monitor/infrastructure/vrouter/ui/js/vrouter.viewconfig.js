@@ -6,7 +6,8 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
         function(_, ContrailView, ContrailListModel, CFDataSource, LegendView, VRouterListModel){
     var VRouterViewConfig = function () {
         var self = this;
-        var vRouterListModel,vRouterUIListModel;
+        self.vRouterListModel = new ContrailListModel({data:[]});
+        self.vRouterUIListModel = new ContrailListModel({data:[]});
         self.currentRegion = null;
         self.isRegionChanged = function() {
             var currentRegionFromCookie = contrail.getCookie('region');
@@ -18,10 +19,9 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
             }
         }
         self.populateVRouterListModels = function() {
-            vRouterListModel = new VRouterListModel();
-            self.vRouterListModel = vRouterListModel;
+            self.vRouterListModel = new VRouterListModel();
             //ListModel that is kept in sync with crossFilter
-            vRouterUIListModel = new ContrailListModel({data:[]});
+            self.vRouterUIListModel = new ContrailListModel({data:[]});
             var cfDataSource = new CFDataSource();
             self.cfDataSource = cfDataSource;
             //vRouterListModel -> crossFilter(optional) & vRouterUIListModel
@@ -40,21 +40,21 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
             }
 
             function onUpdatevRouterListModel() {
-                cfDataSource.updateData(vRouterListModel.getItems());
+                cfDataSource.updateData(self.vRouterListModel.getItems());
 
                 cfDataSource.fireCallBacks({source:'fetch'});
             }
 
             function onUpdatevRouterUIListModel() {
-                if(vRouterUIListModel.updateFromcrossFilter != true) {
-                    var selRecords = vRouterUIListModel.getFilteredItems();
+                if(self.vRouterUIListModel.updateFromcrossFilter != true) {
+                    var selRecords = self.vRouterUIListModel.getFilteredItems();
                     var selIds = $.map(selRecords,function(obj,idx) {
                         return obj.name;
                     });
 
                     self.vRouterListModel.updateFromUIListModel = true;
                     //Apply filter only if filteredRows is < totalRows else remove the filter
-                    if(vRouterUIListModel.getFilteredItems().length < vRouterUIListModel.getItems().length) {
+                    if(self.vRouterUIListModel.getFilteredItems().length < self.vRouterUIListModel.getItems().length) {
                         cfDataSource.applyFilter('gridFilter',function(d) {
                             return $.inArray(d,selIds) > -1;
                         });
@@ -67,7 +67,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                         }
                     }
                 } else {
-                    vRouterUIListModel.updateFromcrossFilter = false;
+                    self.vRouterUIListModel.updateFromcrossFilter = false;
                 }
             }
 
@@ -77,25 +77,25 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
             //  2. crossfilter, update grid
             //  3. grid, update crossfilter
             cfDataSource.addCallBack('updateCFListModel',function(data) {
-                vRouterUIListModel.updateFromcrossFilter = false;
+                self.vRouterUIListModel.updateFromcrossFilter = false;
                 //Update listUIModel with crossfilter data
                 if(data['cfg']['source'] != 'grid') {
                     //Need to get the data after filtering from dimensions other than gridFilter
                     var currGridFilter = cfDataSource.removeFilter('gridFilter');
-                    vRouterUIListModel.setData(cfDataSource.getDimension('gridFilter').top(Infinity).sort(dashboardUtils.sortNodesByColor));
+                    self.vRouterUIListModel.setData(cfDataSource.getDimension('gridFilter').top(Infinity).sort(dashboardUtils.sortNodesByColor));
                     if(currGridFilter != null) {
                         cfDataSource.applyFilter('gridFilter',currGridFilter);
                     }
                 }
                 if(data['cfg']['source'] == 'crossFilter')
-                    vRouterUIListModel.updateFromcrossFilter = true;
+                    self.vRouterUIListModel.updateFromcrossFilter = true;
             });
 
             //Need to trigger/register the event once callbacks are registered
-            vRouterListModel.onDataUpdate.subscribe(onUpdatevRouterListModel);
+            self.vRouterListModel.onDataUpdate.subscribe(onUpdatevRouterListModel);
             //Adding grid search filter
-            vRouterUIListModel.onDataUpdate.subscribe(onUpdatevRouterUIListModel);
-            if(vRouterListModel.loadedFromCache) {
+            self.vRouterUIListModel.onDataUpdate.subscribe(onUpdatevRouterUIListModel);
+            if(self.vRouterListModel.loadedFromCache) {
                 onUpdatevRouterListModel();
             }
         }
@@ -142,7 +142,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                     self.populateVRouterListModels();
                  }
                  return {
-                     modelCfg: {listModel:vRouterUIListModel},
+                     modelCfg: {listModel:self.vRouterUIListModel},
                      viewCfg: {
                          elementId : 'vrouter-cpu-mem-chart',
                          view:"ZoomScatterChartView",
@@ -176,7 +176,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                     self.populateVRouterListModels();
                  }
                  return {
-                     modelCfg: {listModel:vRouterUIListModel},
+                     modelCfg: {listModel:self.vRouterUIListModel},
                      viewCfg: {
                          elementId : 'vrouter-cpu-mem-chart',
                          view:"ZoomScatterChartView",
@@ -423,7 +423,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                     self.populateVRouterListModels();
                  }
                  return {
-                     modelCfg: {listModel: vRouterUIListModel},
+                     modelCfg: {listModel: self.vRouterUIListModel},
                      viewCfg: {
                          elementId: ctwl.VROUTER_SUMMARY_GRID_ID,
                          class:"y-overflow-scroll",
@@ -447,7 +447,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                     self.populateVRouterListModels();
                  }
                  return {
-                     modelCfg: {listModel: vRouterUIListModel},
+                     modelCfg: {listModel: self.vRouterUIListModel},
                      viewCfg: {
                          elementId: ctwl.VROUTER_SUMMARY_CROSSFILTER_ID,
                          title: ctwl.VROUTER_SUMMARY_TITLE,
@@ -485,7 +485,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                  return {
                      modelCfg: {
                          modelId:'VROUTER_LIST_MODEL',
-                         listModel: vRouterUIListModel
+                         listModel: self.vRouterUIListModel
                      },
                      viewCfg: {
                          elementId : 'vrouter-system-cpu-mem-chart',
@@ -544,7 +544,7 @@ define(['underscore', 'contrail-view','contrail-list-model', 'cf-datasource', 'l
                     self.populateVRouterListModels();
                  }
                  return {
-                     modelCfg: {listModel:vRouterUIListModel},
+                     modelCfg: {listModel:self.vRouterUIListModel},
                      viewCfg: {
                          elementId : 'vrouter-vn-int-chart',
                          view: 'ZoomScatterChartView',
