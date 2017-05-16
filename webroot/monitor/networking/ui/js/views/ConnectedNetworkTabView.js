@@ -124,21 +124,11 @@ define([
                                                 dataColumn: [
                                                     {
                                                         key: 'src',
-                                                        templateGenerator: 'LinkGenerator',
-                                                        templateGeneratorConfig: {
-                                                            formatter: 'link',
-                                                            template: ctwc.URL_NETWORK,
-                                                            params: {}
-                                                        }
+                                                        templateGenerator: 'TextGenerator',
                                                     },
                                                     {
                                                         key: 'dst',
-                                                        templateGenerator: 'LinkGenerator',
-                                                        templateGeneratorConfig: {
-                                                            formatter: 'link',
-                                                            template: ctwc.URL_NETWORK,
-                                                            params: {}
-                                                        }
+                                                        templateGenerator: 'TextGenerator',
                                                     },
                                                     {
                                                         key: 'pkts',
@@ -181,21 +171,11 @@ define([
                                                 dataColumn: [
                                                     {
                                                         key: 'src',
-                                                        templateGenerator: 'LinkGenerator',
-                                                        templateGeneratorConfig: {
-                                                            formatter: 'link',
-                                                            template: ctwc.URL_NETWORK,
-                                                            params: {}
-                                                        }
+                                                        templateGenerator: 'TextGenerator'
                                                     },
                                                     {
                                                         key: 'dst',
-                                                        templateGenerator: 'LinkGenerator',
-                                                        templateGeneratorConfig: {
-                                                            formatter: 'link',
-                                                            template: ctwc.URL_NETWORK,
-                                                            params: {}
-                                                        }
+                                                        templateGenerator: 'TextGenerator'
                                                     },
                                                     {
                                                         key: 'pkts',

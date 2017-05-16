@@ -480,14 +480,11 @@ function getVNNodeAttributes(vnUVENode) {
     try {
         uveVirtualNetworkAgent = vnUVENode['value']['UveVirtualNetworkAgent'];
         if (uveVirtualNetworkAgent != null) {
-            var vmList = uveVirtualNetworkAgent['virtualmachine_list'],
-                vmiList = uveVirtualNetworkAgent['interface_list'];
-
-            moreAttributes['vm_count'] = vmList.length;
-            moreAttributes['vmi_count'] = vmiList.length;
-            moreAttributes['in_throughput'] = uveVirtualNetworkAgent['in_bandwidth_usage'];
-            moreAttributes['out_throughput'] = uveVirtualNetworkAgent['out_bandwidth_usage'];
-            moreAttributes['virtualmachine_list'] = uveVirtualNetworkAgent['virtualmachine_list'];
+            moreAttributes['vm_count'] = commonUtils.getValueByJsonPath(uveVirtualNetworkAgent, 'virtualmachine_list', []).length;
+            moreAttributes['vmi_count'] = commonUtils.getValueByJsonPath(uveVirtualNetworkAgent, 'interface_list', []).length;
+            moreAttributes['in_throughput'] = commonUtils.getValueByJsonPath(uveVirtualNetworkAgent, 'in_bandwidth_usage', 0);
+            moreAttributes['out_throughput'] = commonUtils.getValueByJsonPath(uveVirtualNetworkAgent, 'out_bandwidth_usage', 0);
+            moreAttributes['virtualmachine_list'] = commonUtils.getValueByJsonPath(uveVirtualNetworkAgent,'virtualmachine_list', []);
         }
     } catch (e) {
         logutils.logger.error(e.stack);
