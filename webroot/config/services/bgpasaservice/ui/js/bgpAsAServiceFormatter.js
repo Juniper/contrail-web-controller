@@ -110,6 +110,25 @@
           };
 
          /*
+          * originOverrideFormatter
+          */
+         this.originOverrideFormatter = function(r, c, v, cd, dc) {
+             var origin;
+             var originOverride = getValueByJsonPath(dc,
+                 "bgpaas_session_attributes;route_origin_override;origin_override",
+                 false);
+             var originState =  getValueByJsonPath(dc,
+                 "bgpaas_session_attributes;route_origin_override;origin", "IGP");
+             if(originOverride == true) {
+                 origin = originState;
+             } else {
+                 origin = "-";
+             }
+
+             return origin;
+         };
+
+         /*
           * passiveFormatter
           */
           this.passiveFormatter = function(r, c, v, cd, dc) {

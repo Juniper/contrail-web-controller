@@ -205,6 +205,37 @@ define([
                                                     }
                                                 }
                                             ]},{
+                                            columns: [
+                                                {
+                                                    elementId: "origin_override",
+                                                    view: "FormCheckboxView",
+                                                    viewConfig: {
+                                                        label: "Route Origin Override",
+                                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                        dataBindValue: "bgpaas_session_attributes().route_origin_override.origin_override",
+                                                        path: "bgpaas_session_attributes.route_origin_override.origin_override",
+                                                        class: "col-xs-6",
+                                                    }
+                                                }, {
+                                                    elementId: "origin",
+                                                    view: "FormDropdownView",
+                                                    viewConfig: {
+                                                        label: "Route Origin",
+                                                        dataBindValue: "bgpaas_session_attributes().route_origin_override.origin",
+                                                        path: "bgpaas_session_attributes.route_origin_override.origin",
+                                                        class: "col-xs-6",
+                                                        elementConfig: {
+                                                        dataTextField: "text",
+                                                        dataValueField: "id",
+                                                        placeholder: "Select Route Origin",
+                                                        data: [ { id: 'IGP', text: 'IGP' },
+                                                                { id: 'EGP', text: 'EGP' },
+                                                                { id: 'INCOMPLETE', text: 'INCOMPLETE' } 
+                                                    ]
+                                                    }
+                                                    }
+                                                }
+                                            ]},{
                                             columns: [{
                                                 elementId: "hold_time",
                                                 view: "FormInputView",
