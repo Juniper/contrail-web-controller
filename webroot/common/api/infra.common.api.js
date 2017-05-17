@@ -12,7 +12,10 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
     logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
     jsonPath = require('JSONPath').eval,
     assert = require('assert'),
+    url = require("url"),
     request = require('request'),
+    http = require('http'),
+    https = require('https'),
     proxyApi = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/common/proxy.api'),
     appErrors = require(process.mainModule.exports["corePath"] +
@@ -23,7 +26,8 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
             '/src/serverroot/common/rest.api'),
     contrailService = require(process.mainModule.exports.corePath +
             "/src/serverroot/common/contrailservice.api"),
-    config = process.mainModule.exports.config,
+    proxyHelper = require(process.mainModule.exports["corePath"] +
+            "/src/serverroot/common/proxy.helper"),
     async = require('async');
 
 var redisInfraClient = null;
@@ -884,8 +888,7 @@ function getNetworkReachableIP (dataObj, callback)
     var req = dataObj['req'];
     var isConfig = dataObj['isConfig'];
     var resultJSON = {};
-    var options = {};
-    options['method'] = 'GET';
+    var options = url.parse("/", true);
     options.headers = {
         accept: '*/*',
         'content-length': 0
@@ -916,28 +919,68 @@ function getNetworkReachableIP (dataObj, callback)
             }
         }
     }
-    var nwReachReqUrl = global.HTTP_URL + ip + ':' + port + '/';
-    options['uri'] = nwReachReqUrl;
+    options.protocol = 'http:';
+    var sslOptions = proxyHelper.getSSLOptionsByProxyPort(req, port);
+    if ((null != sslOptions) &&
+        (global.PROTOCOL_HTTPS == sslOptions.authProtocol)) {
+        try {
+            options.cert = fs.readFileSync(sslOptions.cert);
+        } catch(e) {
+            logutils.logger.error("SSL Cert file read error:" +
+                                  sslOptions.cert);
+            options.cert = "";
+        }
+        try {
+            options.key = fs.readFileSync(sslOptions.key);
+        } catch(e) {
+            logutils.logger.error("SSL Key file read error:" +
+                                  sslOptions.key);
+            options.key = "";
+        }
+        try {
+            options.ca = fs.readFileSync(sslOptions.ca);
+        } catch(e) {
+            logutils.logger.error("SSL CA file read error:" +
+                                  sslOptions.ca);
+            options.ca = "";
+        }
+        options.rejectUnauthorized = sslOptions.strictSSL;
+        options.protocol = "https:";
+    }
     resultJSON['error'] = null;
     resultJSON['data'] = null;
+    resultJSON['ip'] = ip;
+    resultJSON['port'] = port;
 
     if ('true' == isConfig) {
         getConfigApiNetworkReachableIP(dataObj, callback);
         return;
     }
 
-    request(options, commonUtils.doEnsureExecution(function(err, data) {
-        if ((err === undefined) && (data === undefined)) {
-            var errStr = 'API timeout Server:' + ip + ':' + port;
-            err = new appErrors.RESTServerError(errStr);
-            logutils.logger.error(errStr);
+    options.hostname = ip;
+    options.port = port;
+
+    var protocol = (null != sslOptions) ? https : http;
+    var rqst = protocol.request(options, function(res) {
+        var body = '';
+        res.on('end', function() {
+            resultJSON['data'] = body;
+            callback(null, resultJSON);
+        });
+        res.on('data', function(chunk) {
+            body += chunk;
+        });
+    }).on("error", function(err) {
+        var msg = "Connection error";
+        if (null != err.code) {
+            msg = err.code;
         }
-        resultJSON['error'] = err;
-        resultJSON['data'] = data;
-        resultJSON['ip'] = ip;
-        resultJSON['port'] = port;
+        var error = new appErrors.RESTServerError(msg);
+        resultJSON['error'] = error;
         callback(null, resultJSON);
-    }, 10000));
+        logutils.logger.error(err.stack);
+    });
+    rqst.end();
 }
 
 function checkValidIP (ipAddrStr)
