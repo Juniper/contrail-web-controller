@@ -230,32 +230,32 @@ define([
                                                 {
                                                     label: 'Name',
                                                     key: 'name',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Description',
                                                     key: 'description',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'ID',
                                                     key: 'id',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Tenant ID',
                                                     key: 'tenant_id',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     key: 'image',
                                                     templateGenerator: 'TextGenerator',
                                                     label: 'Image ID',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGeneratorConfig: {
                                                         formatter: 'serverImageFormatter'
                                                     }
@@ -264,7 +264,7 @@ define([
                                                     key: 'network',
                                                     templateGenerator: 'TextGenerator',
                                                     label: 'Network ID',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGeneratorConfig: {
                                                         formatter: 'serverNetworkFormatter'
                                                     }
@@ -273,7 +273,7 @@ define([
                                                     key: 'security_group',
                                                     templateGenerator: 'TextGenerator',
                                                     label: 'Security Group ID',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGeneratorConfig: {
                                                         formatter: 'serverSecGroupFormatter'
                                                     }
@@ -282,7 +282,7 @@ define([
                                                     key: 'flavor',
                                                     templateGenerator: 'TextGenerator',
                                                     label: 'Flavor ID',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGeneratorConfig: {
                                                         formatter: 'serverflavorFormatter'
                                                     }

@@ -469,7 +469,6 @@ define([
                                       width: 220,
                                       viewConfig: {
                                          disabled: 'showLocation()',
-                                         placeholder: 'Name',
                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                          path: 'name',
                                          dataBindValue: 'name()'

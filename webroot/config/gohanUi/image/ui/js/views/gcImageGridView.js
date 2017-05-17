@@ -230,67 +230,67 @@ define([
                                                 {
                                                     label: 'ID',
                                                     key: 'id',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Name',
                                                     key: 'name',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Tenant ID',
                                                     key: 'tenant_id',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Description',
                                                     key: 'description',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'URL',
                                                     key: 'url',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Is Public',
                                                     key: 'is_public',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Disk format',
                                                     key: 'disk_format',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Container format',
                                                     key: 'container_format',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Min Disk',
                                                     key: 'min_disk',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Min RAM',
                                                     key: 'min_ram',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     label: 'Protected',
                                                     key: 'protected',
-                                                    keyClass:'col-xs-5',
+                                                    keyClass:'col-xs-3',
                                                     templateGenerator: 'TextGenerator'
                                                 }
                                             ]

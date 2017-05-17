@@ -198,28 +198,28 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'row-fluid',
+                            class: 'col-xs-12',
                             rows: [{
                                 title: ctwl.TITLE_POLICY_DETAILS,
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [{
-                                    keyClass:'col-xs-6',
+                                    keyClass:'col-xs-3',
                                     key: 'name',
                                     label:'Display Name',
                                     templateGenerator: 'TextGenerator'
                                  },{
-                                    keyClass:'col-xs-6',
+                                    keyClass:'col-xs-3',
                                     key: 'description',
                                     label: 'Description',
                                     templateGenerator: 'TextGenerator'
                                 },{
-                                    keyClass:'col-xs-6',
+                                    keyClass:'col-xs-3',
                                     key: 'id',
                                     label: 'ID',
                                     templateGenerator: 'TextGenerator'
                                 },{
-                                    keyClass:'col-xs-6',
-                                    valueClass:'col-xs-11',
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     label:'Rules',
                                     key: 'entries',
                                     templateGenerator: 'TextGenerator',
