@@ -155,7 +155,6 @@ define([
                 options: {
                     autoRefresh: false,
                     checkboxSelectable: false,
-                    fixedRowHeight: 30,
                     sortable: false,
                     detail: ctwu.getDetailTemplateConfigToDisplayRawJSON(),
                     actionCell: [
