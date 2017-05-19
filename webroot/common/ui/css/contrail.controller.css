@@ -574,3 +574,5 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
 #monitor-alarms-grid .alarms-circle-display-flex{
  display:inline-block;
     }
+#configure-dns_record-form #record_name input[type="text"], #configure-dns_record-form #record_data input[type="text"]{
+width:100%;}
