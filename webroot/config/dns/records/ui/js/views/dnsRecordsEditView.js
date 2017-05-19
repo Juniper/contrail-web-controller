@@ -240,7 +240,7 @@ define([
                                 placeholder: 'record_name_placeholder',
                                 label: 'record_name_label',
                                 path: 'virtual_DNS_record_data.record_name',
-                                class: 'col-xs-12',
+                                class: 'col-xs-7',
                                 dataBindValue: 'virtual_DNS_record_data().record_name'
                             }
 
@@ -255,7 +255,7 @@ define([
                                 placeholder: 'record_data_placeholder',
                                 label: 'record_data_label',
                                 path: 'virtual_DNS_record_data.record_data',
-                                class: 'col-xs-12',
+                                class: 'col-xs-7',
                                 dataBindValue: 'virtual_DNS_record_data().record_data'
                             }
                         }]
