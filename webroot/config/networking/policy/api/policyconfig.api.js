@@ -520,25 +520,23 @@ function deletePolicy(request, response, appData)
 }
 
 function deletePolicyProcess(policyId, appData, request, callback){
-    console.log("deletePolicyProcess");
     var polDelURL = '/network-policy/';
     polDelURL += policyId;
     configApiServer.apiGet(polDelURL, appData, function (err, configData) {
-        console.log("configData"+JSON.stringify(configData))
+        if(err != null || configData == null) {
+          callback(err,null);
+          return;
+        }
         if ('virtual_network_back_refs' in configData['network-policy']) {
-            console.log("a");
             delete configData['network-policy']['virtual_network_back_refs'];
             updatePolicyWithVNs(configData, policyId, appData,
                 function (err, data) {
-            console.log("b");
                     configApiServer.apiDelete(polDelURL, appData,
                         function (error, data) {
-            console.log("c");
                             callback(error, data)
                         });
                 });
         } else {
-            console.log("else");
             configApiServer.apiDelete(polDelURL, appData,
                 function (error, data) {
                     callback(error, data)
