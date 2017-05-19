@@ -16,7 +16,7 @@ define([
             var listModelConfig = {
                     remote: {
                         ajaxConfig: {
-                            url: ctwc.GOHAN_ID_POOL + ctwc.GOHAN_TENANT_PARAM + tenantId,
+                            url: ctwc.GOHAN_ID_POOL + ctwc.GOHAN_PARAM,
                             type: "GET"
                         },
                         dataParser: ctwp.gohanIdPoolParser

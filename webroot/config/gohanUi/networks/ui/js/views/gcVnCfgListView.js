@@ -23,7 +23,7 @@ define([
                     }
              };
             getAjaxs[0] = $.ajax({
-                url: ctwc.GOHAN_NETWORK_POLICY + ctwc.GOHAN_PARAM,
+                url: ctwc.GOHAN_NETWORK_POLICY + ctwc.GOHAN_TENANT_PARAM + tenantId,
                 type:'GET'
             });
             getAjaxs[1] = $.ajax({

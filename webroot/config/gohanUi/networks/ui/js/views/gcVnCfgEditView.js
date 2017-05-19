@@ -231,6 +231,7 @@ define([
     };
     function getVNCfgViewConfig (isDisable) {
         var prefixId = ctwl.CFG_VN_PREFIX_ID;
+        var tenantId = contrail.getCookie('gohanProject');
         var vnCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
                                             ctwl.CFG_VN_TITLE_CREATE]),
@@ -308,7 +309,7 @@ define([
                                             separator: cowc.DROPDOWN_VALUE_SEPARATOR,
                                             dataSource : {
                                                 type: 'remote',
-                                                url: ctwc.GOHAN_NETWORK_POLICY + ctwc.GOHAN_PARAM,
+                                                url: ctwc.GOHAN_NETWORK_POLICY + ctwc.GOHAN_TENANT_PARAM + tenantId,
                                                 parse: function(result) {
                                                     return policiesDropDownFormatter(result);
                                                 }

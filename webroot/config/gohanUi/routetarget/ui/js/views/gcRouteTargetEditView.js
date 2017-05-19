@@ -126,7 +126,7 @@ define([
                                         dataValueField: 'id',
                                         dataSource : {
                                             type: 'remote',
-                                            url: ctwc.GOHAN_NETWORK + ctwc.GOHAN_TENANT_PARAM + tenantId,
+                                            url: ctwc.GOHAN_NETWORK + ctwc.GOHAN_PARAM,
                                             parse: function(result) {
                                                 return networkDropDownFormatter(result);
                                             }
