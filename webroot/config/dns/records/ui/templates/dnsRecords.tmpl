@@ -2,8 +2,8 @@
 
 <script type="text/x-handlebars-template" id="dns-records-input-view-template">
     <div data-bind="{{#if viewConfig.visible}} visible: {{viewConfig.visible}} {{/if}}">
-        <div class="row form-label">
-            <div class="col-xs-10">
+        <div class="form-label">
+            <div >
                 <label data-bind="text: {{label}}"></label>
             </div>
             <div class="col-xs-2">
@@ -12,8 +12,8 @@
                 </span>
             </div>
         </div>
-        <div class="row form-element">
-            <div class="input-append inset col-xs-12">
+        <div class="form-element">
+            <div class="input-append inset">
                     <input type="{{type}}" name="{{id}}" class="{{class}}"
                         data-bind="{{#if viewConfig.disabled}}disable: {{viewConfig.disabled}}, {{/if}}{{#if lockAttr}}disable: locks().{{name}}_locked, {{/if}}
                         value: {{viewConfig.dataBindValue}},
