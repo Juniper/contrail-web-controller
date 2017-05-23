@@ -231,8 +231,9 @@ define([
                                 }
                             }
                         }]
-                    }, {
-                        columns: [{
+                    },
+                    {
+                    columns: [{
                             elementId: 'record_name',
                             view: 'FormInputView',
                             viewConfig: {
@@ -240,13 +241,11 @@ define([
                                 placeholder: 'record_name_placeholder',
                                 label: 'record_name_label',
                                 path: 'virtual_DNS_record_data.record_name',
-                                class: 'col-xs-12',
+                                class: 'col-xs-6',
                                 dataBindValue: 'virtual_DNS_record_data().record_name'
                             }
 
-                        }]
-                    }, {
-                        columns: [{
+                        },{
                             elementId: 'record_data',
                             view: 'FormInputView',
                             viewConfig: {
@@ -255,22 +254,21 @@ define([
                                 placeholder: 'record_data_placeholder',
                                 label: 'record_data_label',
                                 path: 'virtual_DNS_record_data.record_data',
-                                class: 'col-xs-12',
+                                class: 'col-xs-6',
                                 dataBindValue: 'virtual_DNS_record_data().record_data'
                             }
-                        }]
-                    }, {
-                        columns: [{
+                        },
+                        {
                             elementId: 'dns_record_data',
                             view: 'FormComboboxView',
                             viewConfig: {
                                 visible: 'user_created_record_type() === "NS"',
                                 label: 'DNS Server',
                                 path: 'virtual_DNS_record_data.record_data',
-                                class: 'col-xs-12',
+                                class: 'col-xs-6',
                                 dataBindValue: 'virtual_DNS_record_data().record_data',
                                 elementConfig: {
-                                    placeholder: 'Enter Host Name or IP or Select a DNS Server',
+                                    placeholder: 'Enter Host Name or IP or Select a DNS',
                                     dataTextField: "text",
                                     dataValueField: "id",
                                     dataSource: {
@@ -281,7 +279,8 @@ define([
                                 }
                             }
                         }]
-                    }, {
+                 },
+                  {
                         columns: [{
                             elementId: 'record_class',
                             view: 'FormDropdownView',
