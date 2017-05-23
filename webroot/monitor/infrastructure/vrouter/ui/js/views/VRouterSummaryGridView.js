@@ -19,8 +19,8 @@ define(
                     null,
                     function() {
                         self.model.onDataUpdate.subscribe(function () {
-                            if($('#'+ctwl.VROUTER_SUMMARY_GRID_ID).data('contrailGrid')) {
-                                $('#'+ctwl.VROUTER_SUMMARY_GRID_ID).data('contrailGrid')._grid.invalidate();
+                            if(self.$el.data('contrailGrid')) {
+                                self.$el.data('contrailGrid')._grid.invalidate();
                             }
                         });
                     });
