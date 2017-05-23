@@ -576,3 +576,32 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
     }
 #configure-dns_record-form #record_name input[type="text"], #configure-dns_record-form #record_data input[type="text"]{
 width:100%;}
+
+#is_global input.ace-input[type=checkbox] + .ace-lbl::before, input.ace-input[type=radio] + .ace-lbl::before 
+{ margin-right:10px;}
+#fwrule-policy-tab-id ul.ui-tabs-nav, #fwrule-global-policy-tab-id ul.ui-tabs-nav {
+    margin: 10px;
+}
+#content-container h5{
+    padding: 5px 0px 0px 15px!important;
+    margin: 0px !important;
+    font-size: 15px;
+    color: #478fca;
+    text-transform: capitalize;
+}
+form#fwPolicy-form {
+    padding: 10px;
+}
+div#config-fw-rule {
+    padding: 0px 20px;
+}
+form h5.margin-0-0-10~.section-content {
+    padding-top: 15px;
+}
+
+#configure-firewallRule .modal-body #configure-firewallRule-form .section-content .select2-container[class*="col-xs-"] {
+    float: none;
+}
+#endpoint_2 .select2-choices i[class^="icon-contrail-"], #endpoint_1 .select2-choices i[class^="icon-contrail-"] {
+    font-size: 13px;
+}

@@ -53,7 +53,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.TITLE_QUOTAS
+                    text: "Quotas"
                 },
                 advanceControls: getHeaderActionConfig(viewConfig),
             },

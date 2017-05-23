@@ -232,6 +232,24 @@ define([
                                                 },
 
                                             ]
+                                        },{
+                                            title: ctwl.TITLE_TAGS,
+                                            templateGenerator: 'BlockListTemplateGenerator',
+                                            templateGeneratorConfig: [
+                                                {
+                                                    key: 'app',
+                                                    templateGenerator: 'TextGenerator',
+                                                },{
+                                                    key: 'deployment',
+                                                    templateGenerator: 'TextGenerator',
+                                                },{
+                                                    key: 'tier',
+                                                    templateGenerator: 'TextGenerator',
+                                                },{
+                                                    key: 'site',
+                                                    templateGenerator: 'TextGenerator',
+                                                }
+                                            ]
                                         },
                                         {
                                             title: ctwl.TITLE_FLOATING_IPS,

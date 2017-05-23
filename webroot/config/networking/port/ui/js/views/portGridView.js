@@ -192,17 +192,26 @@ define([
             id:"uuid",
             field:"uuid",
             name:"UUID",
-            minWidth : 280,
+            minWidth : 230,
             sortable: {
                sortBy: 'formattedValue'
             },
             formatter: portFormatters.uuidWithName
         },
         {
+            field:"tag_refs",
+            name:"Tags",
+            sortable: {
+               sortBy: 'formattedValue'
+            },
+            minWidth : 180,
+            formatter: ctwu.tagsPortGridFormatter
+        },
+        {
             id:"network",
             field:"network",
             name:"Network",
-            minWidth : 230,
+            minWidth : 180,
             sortable: {
                sortBy: 'formattedValue'
             },
@@ -215,7 +224,7 @@ define([
             sortable: {
                sortBy: 'formattedValue'
             },
-            minWidth : 200,
+            minWidth : 100,
             formatter: portFormatters.fixedIPFormater
         },
         {
@@ -224,7 +233,7 @@ define([
             sortable: {
                sortBy: 'formattedValue'
             },
-            minWidth : 200,
+            minWidth : 100,
             formatter: portFormatters.floatingIPFormatter
         },
         {
@@ -233,7 +242,7 @@ define([
             sortable: {
                sortBy: 'formattedValue'
             },
-            minWidth : 180,
+            minWidth : 100,
             formatter: portFormatters.deviceOwnerFormatter
         }
     ];
@@ -614,7 +623,7 @@ define([
                                 title: ctwl.TITLE_PORT_DETAILS,
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig:
-                                    getBlockListTemplateGeneratorCfg()
+                                    getBlockListTemplateGeneratorCfg().concat(ctwu.getTagsExpandDetails())
                             },
                             //permissions
                             ctwu.getRBACPermissionExpandDetails('col-xs-3')]

@@ -125,6 +125,15 @@ define([
                          },
                      },
                      {
+                         field:"tag_refs",
+                         name:"Tags",
+                         sortable: {
+                            sortBy: 'formattedValue'
+                         },
+                         minWidth : 200,
+                         formatter: ctwu.tagsPortGridFormatter
+                     },
+                     {
                          field:  'network_policy_refs',
                          name:   'Attached Policies',
                          formatter: formatVNCfg.polColFormatter,
@@ -151,7 +160,7 @@ define([
                 ]
             },
         };
-        return gridElementConfig;
+        return gridElementConfig
     };
 
 
@@ -571,7 +580,7 @@ define([
                                                             'BridgeDomainFormatter',
                                                     }
                                                 }
-                                            ]
+                                            ].concat(ctwu.getTagsExpandDetails())
                                         },
                                         //permissions
                                         ctwu.getRBACPermissionExpandDetails()

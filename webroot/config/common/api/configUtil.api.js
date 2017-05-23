@@ -33,6 +33,8 @@ var routingPolicyConfig =
     require('../../networking/routingpolicy/api/routingpolicyconfig.api');
 var svcInst =
     require('../../services/instances/api/serviceinstanceconfig.api');
+var fwPolicy =
+    require('../../firewall/common/fwpolicy/api/fwpolicyconfig.api');
 
 var errorData = [];
 var configCBDelete = 
@@ -44,7 +46,9 @@ var configCBDelete =
     'routing-policy': routingPolicyConfig.deleteRoutingPolicyAsync,
     'virtual-network': vnConfig.deleteVirtualNetworkAsync,
     'service-instance': svcInst.deleteServiceInstanceCB,
-    'service-analyzer':svcInst.deleteAnalyzerCB
+    'service-analyzer':svcInst.deleteAnalyzerCB,
+    'firewall-rule': fwPolicy.deleteFirewallRulesAsync,
+    'firewall-policy': fwPolicy.deleteFirewallPoliciesAsync
 }
 
 var getConfigPageRespCB = {

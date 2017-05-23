@@ -35,8 +35,8 @@ define([
     function getQuotas(viewConfig) {
         return function (projectSelectedValueData) {
             return {
-                elementId: cowu.formatElementId([ctwl.CONFIG_QUOTAS_PAGE_ID]),
-                view: "QuotasListView",
+                elementId: cowu.formatElementId([ctwl.CONFIG_QUOTAS_PAGE_ID+"1"]),
+                view: "projectSettingTabView",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix: "config/infra/quotas/ui/js/views/",
                 viewConfig: $.extend(true, {}, viewConfig,

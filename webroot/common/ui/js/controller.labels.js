@@ -121,6 +121,12 @@ define([
             inTpkts: "Total In Packets",
             throughput: "Total Throughput",
 
+            /* Tags */
+            app: "Application",
+            tier: "Tier",
+            deployment: "Deployment",
+            site: "Site",
+
             /* PortDistribution */
             sport: 'Source Port',
             dport: 'Destination Port',
@@ -240,6 +246,7 @@ define([
         this.NETWORK_INSTANCES_ID = "network-instances";
         this.NETWORK_INTERFACES_ID = "network-interfaces";
         this.NETWORK_TRAFFIC_STATS_ID = "network-traffic-stats";
+        this.NETWORK_TRAFFIC_VIEW_ID = "network-traffic-group-view";
         this.NETWORK_PORT_HEAT_CHART_ID = "network-port-heat-chart";
         this.NETWORKS_BREADCRUMB_DROPDOWN = "networks-breadcrumb-dropdown";
         this.NETWORK_INTERFACE_GRID_ID = "network-interface-grid";
@@ -315,6 +322,8 @@ define([
         this.TITLE_TRAFFIC_STATISTICS_OUT = "Traffic Statistics Out";
         this.TITLE_PORT_DISTRIBUTION = "Port Distribution";
         this.TITLE_PORT_MAP = "Port Map";
+
+        this.TITLE_TAGS = "Tags";
 
         this.TITLE_CPU = "CPU Share (%)";
         this.TITLE_CPU_LOAD = "CPU Load";
@@ -813,6 +822,21 @@ define([
         this.EDIT = "Edit";
         this.CREATE = "Create";
 
+        /* Firewall labels */
+        this.TITLE_FW_POLICY = 'Firewall Policies';
+        this.TITLE_FW_RULE = 'Firewall Rules';
+        this.CONFIG_SECURITY_POLICY_PAGE_ID = 'config-security-policy-page';
+        this.TITLE_SEC_GRP_TAG = "Tags";
+        this.TITLE_SEC_GRP_SERVICE_GROUP = "Service Groups";
+        this.TITLE_SEC_GRP_ADDRESS_GROUP = "Address Groups";
+        this.TITLE_FIREWALL_APPLICATION_POLICY = "Application Policy Sets";
+        this.TITLE_CREATE_FW_POLICY = 'Policy Info';
+        this.TITLE_CREATE_FW_RULES = 'Rules';
+        this.TITLE_SAVE_NEXT = "Save &amp; Next";
+        this.TITLE_SAVE = "Save";
+        this.TITLE_FW_POLICY_MULTI_DELETE = 'Delete Firewall Policy (s)';
+        this.TITLE_FW_POLICY_DELETE = 'Delete Firewall Policy';
+
         /* RBAC labels */
         this.TITLE_RBAC = 'API Access';
         this.TITLE_GLOBAL_RBAC = 'Global API Access';
@@ -939,6 +963,7 @@ define([
         this.QUOTAS_GRID_ID = 'quotas-grid';
         this.QUOTAS_PREFIX_ID = 'quotas';
         this.TITLE_EDIT_QUOTAS = 'Edit Project Quotas';
+        this.TITLE_EDIT_PROJECT_TAGS = "Select Project Tags"
 
         /* Global Config */
         this.CONFIG_GLOBAL_CONFIG_PAGE_ID = 'config-global-config-page';

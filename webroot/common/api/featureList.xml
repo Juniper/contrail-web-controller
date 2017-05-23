@@ -162,4 +162,7 @@
     <item>
         <feature>cgc</feature>
     </item>
+    <item>
+        <feature>fwpolicyconfig</feature>
+    </item>
 </featureLists>

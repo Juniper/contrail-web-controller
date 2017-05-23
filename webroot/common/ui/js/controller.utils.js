@@ -131,6 +131,72 @@ define([
             }
         };
 
+        self.getTagsExpandDetails = function() {
+            var tagsList = [
+            {
+                keyClass:'col-xs-3',
+                valueClass:'col-xs-9',
+                key: 'tag_refs',
+                name:"tag_refs",
+                label:"Associated Tags",
+                templateGenerator: 'TextGenerator',
+                templateGeneratorConfig:{
+                    formatter: "tagsFormatter"
+                }
+            }]
+            return tagsList;
+        };
+        self.getTagsApplicationDetails = function() {
+            var tagsList = [
+            {
+                keyClass:'col-xs-3',
+                valueClass:'col-xs-9',
+                key: 'tag_refs',
+                name:"tag_refs",
+                label:"Application Tags",
+                templateGenerator: 'TextGenerator',
+                templateGeneratorConfig:{
+                    formatter: "tagsFormatter"
+                }
+            }]
+            return tagsList;
+        };
+        self.tagsPortGridFormatter = function(d, c, v, cd, dc) {
+            var tags = "";
+            var formattedtags = "";
+            var tags_ref = getValueByJsonPath(dc, "tag_refs", "");
+            if(tags_ref != ""){
+                var tags_ref_length = tags_ref.length;
+                for(var i = 0; i < tags_ref_length; i++) {
+                    var tags_ref_to = getValueByJsonPath(tags_ref[i], "to", "");
+                    if(tags_ref_to.length === 3){
+                        var reverseTagsData = tags_ref_to.reverse();
+                        reverseTagsData = reverseTagsData[0];
+                        var tagsDataString = reverseTagsData.toString();
+                    }
+                    else if(tags_ref_to.length === 1){
+                        tagsDataString = tags_ref_to;
+                    }
+                    tags += tagsDataString;
+                    if(tags != "") {
+                        tags += "<br> ";
+                    }
+                }
+                var tags_length = (tags.match(/<br>/g) || []).length;
+                if(tags_length < 3){
+                    tags = tags;
+                }
+                else {
+                    var set_tags_length = tags_length-2;
+                    var delimiter = '<br>';
+                    var start = tags_length - 2;
+                    tags = tags.split(delimiter).slice(start);
+                    var result = tags.join(delimiter);
+                    tags = result+"   ("+set_tags_length+" more)";
+                }
+            }
+            return tags;
+        };
         self.getPermissionsValidation = function() {
             return {
                 key: 'share_list',
@@ -1096,6 +1162,36 @@ define([
         return retStr;
     };
 
+    this.tagsFormatter = function(v,dc) {
+        var tagsBinding = "";
+        var tagsData ="";
+        var data = getValueByJsonPath(dc,
+                "tag_refs",
+                []);
+        tagsBinding = "<table width='100%'><thead></thead><tbody>";
+        var data_length = data.length;
+        var tagsData ="";
+        var projectData = [];
+        for(var i = 0; i < data_length;i++) {
+            tagsData = data[i].to;
+            tagsBinding += "<tr><td>";
+            if(tagsData.length === 1){
+                tagsBinding += data[i].to;
+            }
+            else{
+                var reverseTagsData = tagsData.reverse();
+                var tagsDataString = reverseTagsData.toString();
+                tagsDataString = tagsDataString.replace(",", " (");
+                tagsDataString = tagsDataString+")";
+                tagsDataString = tagsDataString.replace(",", ":");
+                tagsBinding += tagsDataString;
+            }
+
+            tagsBinding += "</td></tr>";
+        }
+        tagsBinding += "</tbody></table>";
+        return tagsBinding;
+    };
     this.sharedPermissionFormatter = function(v, dc) {
         var formattedSharedPerms = "", sharedPermsStr = "",
             sharedPerms =  getValueByJsonPath(dc, "perms2;share", []),
