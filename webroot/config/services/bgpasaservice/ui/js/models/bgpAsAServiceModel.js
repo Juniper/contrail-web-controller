@@ -17,6 +17,10 @@ define([
             "autonomous_system": null,
             "bgpaas_session_attributes": {
                 "admin_down": false,
+                "route_origin_override": {
+                    "origin": "IGP",
+                    "origin_override": false
+                },
                 "as_override": false,
                 "hold_time": null,
                 "loop_count": null,

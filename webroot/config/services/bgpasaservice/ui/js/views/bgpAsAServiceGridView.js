@@ -298,6 +298,15 @@ define([
                                         formatter: "IPAddressFormatter"
                                     }
                                 },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
+                                    key: "bgpaas_session_attributes.route_origin_override",
+                                    templateGenerator: "TextGenerator",
+                                    label: "Route Origin Override",
+                                    templateGeneratorConfig: {
+                                        formatter: "originOverrideFormatter"
+                                    }
+                                },{
                                     key: "bgpaas_session_attributes.address_families",
                                     templateGenerator: "TextGenerator",
                                     label: "Address Family",
@@ -397,6 +406,9 @@ define([
 
     this.IPAddressFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.ipAddressFormatter("", "", v, "", dc);
+    };
+    this.originOverrideFormatter = function(v, dc) {
+        return bgpAsAServiceFormatter.originOverrideFormatter("", "", v, "", dc);
     };
     this.VMIFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.vmiFormatter("", "", v, "", dc);
