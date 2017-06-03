@@ -1178,13 +1178,8 @@ define([
             if(tagsData.length === 1){
                 tagsBinding += data[i].to;
             }
-            else{
-                var reverseTagsData = tagsData.reverse();
-                var tagsDataString = reverseTagsData.toString();
-                tagsDataString = tagsDataString.replace(",", " (");
-                tagsDataString = tagsDataString+")";
-                tagsDataString = tagsDataString.replace(",", ":");
-                tagsBinding += tagsDataString;
+            else if(tagsData.length === 3){
+                tagsBinding += tagsData[2];
             }
 
             tagsBinding += "</td></tr>";

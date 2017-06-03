@@ -8,8 +8,9 @@ define([
 ], function (_, ContrailView) {
     var serviceGroupProjectView = ContrailView.extend({
         el: $(contentContainer),
-        renderServiceGroup: function (viewConfig) {
-            var self = this;
+        renderServiceGroup: function () {
+            var self = this,
+                viewConfig = self.attributes.viewConfig;
             self.renderView4Config(self.$el, null,
                                    getServiceGroupConfig(viewConfig));
         }

@@ -6,48 +6,83 @@ define([
     'underscore',
     'contrail-view'
 ], function (_, ContrailView) {
-    var fwGlobalView = ContrailView.extend({
+    var fwProjectView = ContrailView.extend({
         el: $(contentContainer),
         renderFirewall: function (viewConfig) {
             var self = this;
-            self.renderView4Config(self.$el, null, getSecurityPolicy(viewConfig));
+            self.renderView4Config(self.$el, null, getDomainProjectDetails(viewConfig));
         },
-        renderInfraPolicyDetails: function(viewConfig) {
+        renderProjectPolicyDetails: function(viewConfig) {
             var self = this,
             currentHashParams = layoutHandler.getURLHashParams(),
             policyName = currentHashParams.focusedElement.policy;
-            self.renderView4Config(self.$el, null, getInfraPolicyDetails(viewConfig,policyName));            
+            self.renderView4Config(self.$el, null,
+                    getProjectPolicyDetails(viewConfig,policyName));
         }
     });
-    
-    function getInfraPolicyDetails(viewConfig,policyName){
+
+    function getDomainProjectDetails (viewConfig) {
+        var hashParams = viewConfig.hashParams,
+            customProjectDropdownOptions = {
+                config: true,
+                childView: {
+                    init: getSecurityTabsConfig(viewConfig),
+                }
+            },
+            customDomainDropdownOptions = {
+                childView: {
+                    init: ctwvc.getProjectBreadcrumbDropdownViewConfig(hashParams,
+                                                                 customProjectDropdownOptions)
+                }
+            };
+        return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams,
+                                                     customDomainDropdownOptions)
+    };
+
+    function getSecurityTabsConfig(viewConfig) {
+        return function (projectSelectedValueData) {
+            selectedDomainProjectData = projectSelectedValueData;
+            var domain = {
+                    'name':projectSelectedValueData.parentSelectedValueData.name,
+                    'uuid':projectSelectedValueData.parentSelectedValueData.value,
+                }
+                var project = {
+                    'name':projectSelectedValueData.name,
+                    'uuid':projectSelectedValueData.value,
+                }
+                ctwu.setGlobalVariable("domain", domain);
+                ctwu.setGlobalVariable("project", project);
+            var newViewConfig =
+                $.extend(true, {}, viewConfig,
+                         {projectSelectedValueData: projectSelectedValueData});
+            return {
+                elementId: 'fw_project_tab_section_view',
+                view: "SectionView",
+                viewConfig: {
+                    rows: [{
+                        columns: [{
+                            elementId: 'fw_project_tab_view',
+                            view: 'TabsView',
+                            viewConfig: getSecurityPolicyTabs(newViewConfig)
+                        }]
+                    }]
+                }
+            };
+        }
+    };
+
+    function getProjectPolicyDetails(viewConfig,policyName){
         return {
-            elementId: "fwrule-global-policy-page-id",
+            elementId: "fwrule-project-policy-page-id",
             view: "SectionView",
             viewConfig: {
                 title: ctwc.FIREWALL_POLICY_HEADING + " : " + policyName,
-                elementId: "fwrule-global-policy-page-tabs",
+                elementId: "fwrule-project-policy-page-tabs",
                 rows: [{
                     columns: [{
-                        elementId: "fwrule-global-policy-tab-id",
+                        elementId: "fwrule-project-policy-tab-id",
                         view: 'TabsView',
                         viewConfig: getfwRulePolicyTabs(viewConfig)
-                    }]
-                }]
-            }
-        };
-    };    
-
-    function getSecurityPolicy(viewConfig){
-        return {
-            elementId: cowu.formatElementId([ctwl.CONFIG_SECURITY_POLICY_PAGE_ID]),
-            view: "SectionView",
-            viewConfig: {
-                rows: [{
-                    columns: [{
-                        elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
-                        view: 'TabsView',
-                        viewConfig: getSecurityPolicyTabs(viewConfig)
                     }]
                 }]
             }
@@ -59,7 +94,7 @@ define([
             theme: 'default',
             active: 1,
             tabs: [{
-               elementId: 'global_policy_info_tab',
+               elementId: 'project_policy_info_tab',
                title: 'Policy Info',
                view: "fwPolicyInfoView",
                viewPathPrefix: "config/firewall/common/fwpolicy/ui/js/views/",
@@ -67,7 +102,7 @@ define([
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
-                       var gridId = $('#' + 'fw-policy-global-info');
+                       var gridId = $('#' + 'fw-policy-Project-info');
                        if (gridId.data('contrailGrid')) {
                            gridId.data('contrailGrid').refreshView();
                        }
@@ -75,7 +110,7 @@ define([
                    renderOnActivate: false
                }
            }, {
-               elementId: 'global_policy_rules',
+               elementId: 'project_policy_rules',
                title: 'Rules',
                view: "fwRuleProjectListView",
                viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
@@ -83,7 +118,7 @@ define([
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
-                       var gridId = $('#' + 'global_policy_rules_grid_id');
+                       var gridId = $('#' + 'Project_policy_rules_grid_id');
                        if (gridId.data('contrailGrid')) {
                            gridId.data('contrailGrid').refreshView();
                        }
@@ -91,14 +126,14 @@ define([
                    renderOnActivate: true
                }
            }, {
-               elementId: 'global_permissions',
+               elementId: 'project_permissions',
                title: 'Permissions',
                view: "fwPermissionView",
                viewPathPrefix: "config/firewall/common/fwpolicy/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
-                       var gridId = $('#' + 'global_permissions_grid_id');
+                       var gridId = $('#' + 'Project_permissions_grid_id');
                        if (gridId.data('contrailGrid')) {
                            gridId.data('contrailGrid').refreshView();
                        }
@@ -115,8 +150,8 @@ define([
             tabs: [{
                 elementId: 'fw_policy_tab',
                 title: 'Firewall Policies',
-                view: "fwPolicyGlobalListView",
-                viewPathPrefix: "config/infra/firewall/ui/js/views/",
+                view: "fwPolicyProjectListView",
+                viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
                 viewConfig: viewConfig,
                 tabConfig: {
                     activate: function(event, ui) {
@@ -131,8 +166,8 @@ define([
             {
                 elementId: 'application_policy_tab',
                 title: 'Application Policy Sets',
-                view: "applicationPolicyGlobalListView",
-                viewPathPrefix: "config/infra/firewall/ui/js/views/",
+                view: "applicationPolicyProjectListView",
+                viewPathPrefix: "config/firewall/project/applicationpolicy/ui/js/views/",
                 viewConfig: viewConfig,
                 tabConfig: {
                     activate: function(event, ui) {
@@ -147,8 +182,8 @@ define([
             {
                elementId: 'service_group_tab',
                title: 'Service Groups',
-               view: "serviceGroupGlobalListView",
-               viewPathPrefix: "config/infra/firewall/ui/js/views/",
+               view: "serviceGroupProjectListView",
+               viewPathPrefix: "config/firewall/project/servicegroup/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
@@ -162,8 +197,8 @@ define([
            }, {
                elementId: 'address_group_tab',
                title: 'Address Groups',
-               view: "addressGroupGlobalListView",
-               viewPathPrefix: "config/infra/firewall/ui/js/views/",
+               view: "addressGroupProjectListView",
+               viewPathPrefix: "config/firewall/project/addressgroup/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
                    activate: function(event, ui) {
@@ -177,5 +212,5 @@ define([
            }]
         };
     };
-    return fwGlobalView;
+    return fwProjectView;
 });

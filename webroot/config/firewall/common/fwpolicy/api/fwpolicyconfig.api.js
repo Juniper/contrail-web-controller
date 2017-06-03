@@ -25,8 +25,14 @@ var url         = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var _ = require('underscore');
-
-
+var CREATE = 'add';
+var INSERT_ABOVE = 'insert_above';
+var INSERT_BELOW = 'insert_below';
+var INSERT_AT_TOP = 'insert_at_top';
+var INSERT_AT_END = 'insert_at_end';
+var DEFAULT_SEQUENCE_TXT = '1.0';
+var DEFAULT_INS_ABOVE_TXT = '0';
+var DEFAULT_INS_BELOW_TXT = '1.1';
 function createFirewallRules (request, response, appData)
 {
     var fwPolicyId = commonUtils.getValueByJsonPath(request,
@@ -62,8 +68,8 @@ function createFirewallRules (request, response, appData)
                         return;
                     }
                     var fwRuleRefs = commonUtils.getValueByJsonPath(policyDetails,
-                            'firewall-policy;firewall_rule_refs', [])
-                    var highestSeq = getHighestSequence(fwRuleRefs);
+                            'firewall-policy;firewall_rule_refs', []);
+                    var highestSeq = getHighestLeastSequence(fwRuleRefs);
                     updateFirewallRuleRefs(fwPolicyId, fwRules, appData, rulesSequenceMap, highestSeq,
                             function(fwError, fwRulesRes) {
                             commonUtils.handleJSONResponse(fwError, response, fwRulesRes);
@@ -73,33 +79,149 @@ function createFirewallRules (request, response, appData)
         });
 }
 
-function getHighestSequence(fwRuleRefs)
+
+function createFirewallRule (request, response, appData)
 {
-    var sequenceStr = '', squenceArry = [];
+    var fwPolicyId = commonUtils.getValueByJsonPath(request,
+            'body;fwPolicyId', '', false),
+        rulesReqObj = commonUtils.getValueByJsonPath(request,
+                'body;firewall-rule', [], false),
+        mode = commonUtils.getValueByJsonPath(request, 'body;mode', '', false),
+        ruleSeq = commonUtils.getValueByJsonPath(rulesReqObj,
+                'sequenceData', '', true);
+        delete rulesReqObj.sequenceData;
+        configApiServer.apiPost('/firewall-rules', {'firewall-rule':rulesReqObj},
+            appData,
+            function(error, fwRule) {
+                if(error) {
+                    commonUtils.handleJSONResponse(error, response, null);
+                    return;
+                }
+                configApiServer.apiGet('/firewall-policy/' + fwPolicyId, appData,
+                    function(errorPolicy, policyDetails) {
+                        if(errorPolicy) {
+                            commonUtils.handleJSONResponse(error, response, null);
+                            return;
+                        }
+                        var fwRuleRefs = commonUtils.getValueByJsonPath(policyDetails,
+                                'firewall-policy;firewall_rule_refs', []);
+                        var sequence = '';
+                        if(mode === INSERT_ABOVE) {
+                            if(!ruleSeq.prev) {
+                                try{
+                                     ruleSeq.prev = Number(ruleSeq.current) - 1.0
+                                } catch(e){
+                                    ruleSeq.prev = DEFAULT_INS_ABOVE_TXT;
+                                }
+                            }
+                            sequence = getComputedSequence(mode, ruleSeq.prev, ruleSeq.current, null);
+                        } else if(mode === INSERT_BELOW){
+                            if(!ruleSeq.next) {
+                                try{
+                                     ruleSeq.next = Number(ruleSeq.current) + 1.0
+                                } catch(e){
+                                    ruleSeq.next = DEFAULT_INS_BELOW_TXT;
+                                }
+                            }
+                            sequence = getComputedSequence(mode, null, ruleSeq.current, ruleSeq.next);
+                        } else if(mode === INSERT_AT_TOP) {
+                            var leastSeq = getHighestLeastSequence(fwRuleRefs, 'least');
+                            var prevSeq;
+                            try{
+                                prevSeq = Number(leastSeq) - 1.0
+                            } catch(e){
+                                prevSeq = DEFAULT_INS_ABOVE_TXT;
+                            }
+                            sequence = getComputedSequence(mode, prevSeq, leastSeq, null);
+                        } else if(mode === INSERT_AT_END) {
+                            var highestSeq = getHighestLeastSequence(fwRuleRefs, 'highest');
+                            var nextSeq;
+                            try{
+                                nextSeq = Number(highestSeq) + 1.0
+                            } catch(e){
+                                nextSeq = DEFAULT_INS_BELOW_TXT;
+                            }
+                            sequence = getComputedSequence(mode, null, highestSeq, nextSeq);
+                        } else {
+                            var highestSeq = getHighestLeastSequence(fwRuleRefs, 'highest');
+                            var nextSeq;
+                            try{
+                                nextSeq = Number(highestSeq) + 1.0
+                            } catch(e){
+                                nextSeq = DEFAULT_INS_BELOW_TXT;
+                            }
+                            sequence = getComputedSequence(mode, null, highestSeq, nextSeq);
+                        }
+                        if(sequence == '') {
+                            sequence = DEFAULT_SEQUENCE_TXT;
+                        }
+                        var fwRules = [fwRule]
+                        updateFirewallRuleRefs(fwPolicyId, fwRules, appData, null, sequence,
+                                function(fwError, fwRulesRes) {
+                                commonUtils.handleJSONResponse(fwError, response, fwRulesRes);
+                        });
+                    }
+                );
+            }
+        );
+}
+
+function getComputedSequence(mode, prev, current, next)
+{
+   var actSequence = '';
+   if(mode === INSERT_ABOVE || mode === INSERT_AT_TOP) {
+       prev = Number(prev);
+       current = Number(current);
+       if(isNaN(prev) || isNaN(current)) {
+           return actSequence;
+       }
+       actSequence = (Math.random() * (current - prev) + prev);
+   } else if(mode === INSERT_BELOW || mode === INSERT_AT_END || mode === CREATE) {
+       if(current == '') {
+           return actSequence;
+       }
+       current = Number(current);
+       next = Number(next);
+       if(isNaN(current) || isNaN(next)) {
+           return actSequence;
+       }
+       actSequence = (Math.random() * (next - current) + current);
+   }
+   return actSequence;
+}
+
+function getHighestLeastSequence(fwRuleRefs, type)
+{
+    var sequenceStr = '', sequenceArry = [];
     _.each(fwRuleRefs, function(rule) {
         var sequence = commonUtils.getValueByJsonPath(rule,
                 'attr;sequence', '', false);
         if(sequence){
-            squenceArry.push(sequence);
+            sequenceArry.push(sequence);
         }
     });
-    if(squenceArry) {
-        squenceArry = squenceArry.sort(function(a,b) {return (a > b) ? 1 : ((b > a) ? -1 : 0);} );
-        sequenceStr = squenceArry[squenceArry.length -1];
+    if(sequenceArry.length > 0) {
+        sequenceArry = sequenceArry.sort(
+                function(a,b) {return (a > b) ? 1 : ((b > a) ? -1 : 0);} );
+        if(type === 'highest') {
+            sequenceStr = sequenceArry[sequenceArry.length -1];
+        } else {
+            sequenceStr = sequenceArry[0];
+        }
     } else {
         sequenceStr = '';
     }
     return sequenceStr;
 }
 
-function updateFirewallRuleRefs (fwPolicyId, fwRules, appData, rulesSequenceMap, highestSeq, callback)
+function updateFirewallRuleRefs (fwPolicyId, fwRules, appData, rulesSequenceMap, ruleSeq, callback)
 {
     var dataObjArr = [];
     _.each(fwRules, function(rule, i) {
         var ruleDetails = commonUtils.getValueByJsonPath(rule, 'firewall-rule', {}, false);
-        var order = rulesSequenceMap[ruleDetails['fq_name'].join(":")] ?
+        var order = (rulesSequenceMap && rulesSequenceMap[ruleDetails['fq_name'].join(":")]) ?
                 rulesSequenceMap[ruleDetails['fq_name'].join(":")].toString() :
-                    (highestSeq ? (highestSeq.toString() + 'aa1000') : i.toString());
+                    (ruleSeq ? (ruleSeq.toString()) : i.toString());
         var putData = {
                 'type': 'firewall-policy',
                 'uuid': fwPolicyId,
@@ -163,7 +285,7 @@ function deleteFirewalPolicyRefs (ruleId, appData, callback)
                         'uuid': policy.uuid,
                         'ref-type': 'firewall-rule',
                         'ref-uuid': ruleId,
-                        'operation': 'DELETE',
+                        'operation': 'DELETE'
                     };
                  var reqUrl = '/ref-update';
                  commonUtils.createReqObj(dataObjArr, reqUrl,
@@ -221,7 +343,6 @@ function deleteFirewallPoliciesAsync(dataObject, callback) {
 
 function deleteAssociatedFirewallRules(ruleDataObjArry, appData, callback)
 {
-    console.log("deleteAssociatedFirewallRules", ruleDataObjArry);
     async.map(ruleDataObjArry,
             commonUtils.getAPIServerResponse(configApiServer.apiDelete, false),
             function (error, deleteRulesSuccess){
@@ -231,5 +352,6 @@ function deleteAssociatedFirewallRules(ruleDataObjArry, appData, callback)
 }
 
 exports.createFirewallRules = createFirewallRules;
+exports.createFirewallRule = createFirewallRule;
 exports.deleteFirewallRulesAsync = deleteFirewallRulesAsync;
 exports.deleteFirewallPoliciesAsync = deleteFirewallPoliciesAsync;

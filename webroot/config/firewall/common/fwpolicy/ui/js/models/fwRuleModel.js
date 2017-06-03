@@ -102,7 +102,7 @@ define([
 
             if(endpoint.tags && endpoint.tags.length > 0){
                 _.each(endpoint.tags, function(tag){
-                    var grpName = tag ? tag.split('-')[0]: '';
+                    var grpName = tag ? tag.split(ctwc.TAG_SEPARATOR)[0]: '';
                     grpName = grpName.indexOf('global:') != -1 ? grpName.split(':')[1] : grpName;
                     var val = tag + cowc.DROPDOWN_VALUE_SEPARATOR + grpName.toLowerCase();
                     endpointArr.push(val);
@@ -253,6 +253,16 @@ define([
                 }
             });
         },
+        validations: {
+            fwRuleValidation: {
+                'endpoint_2' : function(value, attr, finalObj){
+                    return fwPolicyUtils.validateEndPoint('endpoint_2',finalObj);
+                },
+                'endpoint_1' : function(value, attr, finalObj){
+                    return fwPolicyUtils.validateEndPoint('endpoint_1',finalObj);
+                }
+            }
+        },
         addEditFirewallRule: function (callbackObj, options, serviceGroupList) {
             var validations = [
                 {
@@ -267,101 +277,99 @@ define([
                 var self = this;
                 var isGlobal = self.checkIsGlobal();
                 var attr = $.extend(true,{},this.model().attributes), newFWRuleData = {};
-                       if (options.mode == 'add') {
-                           attr.name = UUIDjs.create().hex;
-                           newFWRuleData['uuid'] = attr.name;
-                       }else{
-                           newFWRuleData['uuid'] = attr.uuid;
-                       }
-                       if(isGlobal) {
-                            newFWRuleData["fq_name"] =
-                                [
-                                  "default-policy-management",
-                                  attr.name
-                                ];
-                            newFWRuleData['parent_type'] = "policy-management";
-                        } else {
-                            newFWRuleData["fq_name"] =
-                                [
-                                  contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME),
-                                  contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME),
-                                  attr.name
-                                ];
-                            newFWRuleData['parent_type'] = "project";
-                        }
-                        newFWRuleData['name'] = attr.name;
-                        newFWRuleData['endpoint_1'] = self.populateEndpointData(attr['endpoint_1']);
-                        newFWRuleData['endpoint_2'] = self.populateEndpointData(attr['endpoint_2']);
-                        if(attr['user_created_service'] !== ''){
-                            var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
-                            if(getSelectedService.isServiceGroup){
-                                newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
-                                if(attr['service'] !== undefined){
-                                    newFWRuleData['service'] = null;
-                                }
-                            }else{
-                                if(getSelectedService['service'] !== undefined){
-                                    newFWRuleData['service'] = getSelectedService['service'];
-                                    newFWRuleData['service_group_refs'] = [];
-                                }
-                            }
-                        }
-                        newFWRuleData['action_list'] = {};
-                        newFWRuleData['action_list']['simple_action'] = attr['simple_action'];
-                        newFWRuleData['direction'] = attr['direction'];
-                        newFWRuleData['sequence'] = attr['sequence'];
-                        //newFWRuleData['id_perms'] = {};
-                        //newFWRuleData['id_perms']["enable"] = attr["enable"];
-                        newFWRuleData['match_tags'] = {};
-                        newFWRuleData['match_tags']['tag_list'] = attr.match_tags ? attr.match_tags.split(';') : [];
-                        postFWRules.push({'firewall-rule': $.extend(true, {}, newFWRuleData)});
-                        postFWRuleData['firewall-rules'] = postFWRules;
-                        ajaxConfig.type  = "POST";
-                        if (options.mode == 'add') {
-                            postFWRuleData['fwPolicyId'] = self.getPolicyId();
-                            ajaxConfig.async = false;
-                            ajaxConfig.url = ctwc.URL_CREATE_POLICY_RULES;
-                            ajaxConfig.data  = JSON.stringify(postFWRuleData);
-                        }else{
-                            var postData = {"data":[{"data":{"firewall-rule": newFWRuleData},
-                                "reqUrl": "/firewall-rule/" +
-                                attr.uuid}]};
-                            ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
-                            ajaxConfig.data  = JSON.stringify(postData);
-                        }
 
-                        contrail.ajaxHandler(ajaxConfig, function () {
-                            if (contrail.checkIfFunction(callbackObj.init)) {
-                                callbackObj.init();
-                            }
-                        }, function (response) {
-                            if (contrail.checkIfFunction(callbackObj.success)) {
-                                callbackObj.success();
-                            }
-                            returnFlag = true;
-                        }, function (error) {
-                            if (contrail.checkIfFunction(callbackObj.error)) {
-                                callbackObj.error(error);
-                            }
-                            returnFlag = false;
-                        });
-                return returnFlag;
+                newFWRuleData['endpoint_1'] = self.populateEndpointData(attr['endpoint_1']);
+                newFWRuleData['endpoint_2'] = self.populateEndpointData(attr['endpoint_2']);
+                if(attr['user_created_service'] !== ''){
+                    var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
+                    if(getSelectedService.isServiceGroup){
+                        newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
+                        if(attr['service'] !== undefined){
+                            newFWRuleData['service'] = null;
+                        }
+                    }else{
+                        if(getSelectedService['service'] !== undefined){
+                            newFWRuleData['service'] = getSelectedService['service'];
+                            newFWRuleData['service_group_refs'] = [];
+                        }
+                    }
+                }
+                newFWRuleData['action_list'] = {};
+                newFWRuleData['action_list']['simple_action'] = attr['simple_action'];
+                newFWRuleData['direction'] = attr['direction'];
+                //newFWRuleData['sequence'] = attr['sequence'];
+                //newFWRuleData['id_perms'] = {};
+                //newFWRuleData['id_perms']["enable"] = attr["enable"];
+                newFWRuleData['match_tags'] = {};
+                newFWRuleData['match_tags']['tag_list'] = attr.match_tags ? attr.match_tags.split(';') : [];
+                //postFWRules.push({'firewall-rule': $.extend(true, {}, newFWRuleData)});
+                //postFWRuleData['firewall-rules'] = postFWRules;
+                ajaxConfig.type  = "POST";
+                if(options.mode === 'edit'){
+                    var postData = {"data":[{"data":{"firewall-rule": newFWRuleData},
+                        "reqUrl": "/firewall-rule/" +
+                        attr.uuid}]};
+                    ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
+                    ajaxConfig.data  = JSON.stringify(postData);
+
+                } else {
+                    attr.name = UUIDjs.create().hex;
+                    newFWRuleData['uuid'] = attr.name;
+                    if(isGlobal) {
+                        newFWRuleData["fq_name"] =
+                            [
+                              "default-policy-management",
+                              attr.name
+                            ];
+                        newFWRuleData['parent_type'] = "policy-management";
+                    } else {
+                        newFWRuleData["fq_name"] =
+                            [
+                              contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME),
+                              contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME),
+                              attr.name
+                            ];
+                        newFWRuleData['parent_type'] = "project";
+                    }
+                    newFWRuleData['name'] = attr.name;
+                    if(options.mode === ctwc.INSERT_ABOVE || options.mode === ctwc.INSERT_BELOW) {
+                        newFWRuleData['sequenceData'] =
+                            options.sequenceData;
+                    } /*else {
+                        newFWRuleData['sequenceData'] =
+                            { prev: '0', current: '1.0', next: '1.1'};
+                    }*/
+                    postFWRuleData['firewall-rule'] = newFWRuleData;
+                    postFWRuleData['fwPolicyId'] = self.getPolicyId();
+                    postFWRuleData['mode'] = options.mode;
+                    ajaxConfig.url = ctwc.URL_CREATE_POLICY_RULE;
+                    ajaxConfig.data  = JSON.stringify(postFWRuleData);
+                }
+	
+                ajaxConfig.type  = "POST";
+	
+	            contrail.ajaxHandler(ajaxConfig, function () {
+	                if (contrail.checkIfFunction(callbackObj.init)) {
+	                    callbackObj.init();
+	                }
+	            }, function (response) {
+	                if (contrail.checkIfFunction(callbackObj.success)) {
+	                    callbackObj.success();
+	                }
+	                returnFlag = true;
+	            }, function (error) {
+	                if (contrail.checkIfFunction(callbackObj.error)) {
+	                    callbackObj.error(error);
+	                }
+	                returnFlag = false;
+	            });
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
                     callbackObj.error(this.getFormErrorText(
-                            ctwc.FW_RULE_PREFIX_ID));
+                                            ctwc.FW_RULE_PREFIX_ID));
                 }
             }
-        },
-        validations: {
-            fwRuleValidation: {
-                'endpoint_2' : function(value, attr, finalObj){
-                    return fwPolicyUtils.validateEndPoint('endpoint_2',finalObj);
-                },
-                'endpoint_1' : function(value, attr, finalObj){
-                    return fwPolicyUtils.validateEndPoint('endpoint_1',finalObj);
-                }
-            }
+	        return returnFlag;
         }
     });
     return fwRuleModel;

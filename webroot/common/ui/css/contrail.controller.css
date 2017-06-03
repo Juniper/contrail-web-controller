@@ -579,7 +579,7 @@ width:100%;}
 
 #is_global input.ace-input[type=checkbox] + .ace-lbl::before, input.ace-input[type=radio] + .ace-lbl::before 
 { margin-right:10px;}
-#fwrule-policy-tab-id ul.ui-tabs-nav, #fwrule-global-policy-tab-id ul.ui-tabs-nav {
+#fwrule-policy-tab-id ul.ui-tabs-nav, #fwrule-global-policy-tab-id ul.ui-tabs-nav, #fwrule-project-policy-tab-id ul.ui-tabs-nav {
     margin: 10px;
 }
 #content-container h5{
@@ -604,4 +604,13 @@ form h5.margin-0-0-10~.section-content {
 }
 #endpoint_2 .select2-choices i[class^="icon-contrail-"], #endpoint_1 .select2-choices i[class^="icon-contrail-"] {
     font-size: 13px;
+}
+[id^="fw-rule-grid-action-menu-"] li>a[data-original-title="Edit"] {
+    border-top: #dcdcdc solid 1px;
+    padding-top: 8px;
+}
+#fw-policy-grid .r3, #firewall-application-policy-grid .r3{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

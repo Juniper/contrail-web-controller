@@ -25,10 +25,11 @@ define(
                     self.$el.find('.widget-box').addClass('collapsed');
 
                     TrafficGroupsView.colorMap = {};
+                    TrafficGroupsView.colorArray = [];
                     TrafficGroupsView.tagMap = {};
                     TrafficGroupsView.ruleMap = {};
                     function formatAppLabel(label,type) {
-                        if(type) {
+                        if(type && label) {
                             label = label.replace(new RegExp('_'+ type, 'g'), '');
                         }
                         return label;
@@ -39,39 +40,93 @@ define(
                     }
                     function showLinkInfo(d,el,e,chartScope){
                         var data = {
-                                'src': d.link[0].data.id,
-                                'dest':d.link[1].data.id,
+                                'src': formatAppLabel(_.result(d, 'link.0.data.id'), _.result(d, 'link.0.data.arcType')),
+                                'dest': formatAppLabel(_.result(d, 'link.1.data.id'), _.result(d, 'link.1.data.arcType')),
                                 'linkData':[]
-                            }, ruleUUIDs = [], ruleKeys = [];
-                        data.dest = formatAppLabel(data.dest,d.link[1].data.arcType);
+                            }, ruleUUIDs = [], ruleKeys = [], level = 1;
+                        if (_.result(d, 'innerPoints.length') == 4)
+                            level = 2;
+                        var srcNodeData = _.filter(d.link, function (val, idx){
+                                return _.result(val, 'data.type') == 'src';
+                        });
+                        var dstNodeData = _.filter(d.link, function (val, idx){
+                                return _.result(val, 'data.type') == 'dst';
+                        });
+                        var srcId = formatAppLabel(_.result(srcNodeData, '0.data.currentNode.names.0'), d.link[0].data.arcType),
+                            dstId = formatAppLabel(_.result(dstNodeData, '0.data.currentNode.names.0'), d.link[1].data.arcType);
+                        if (level == 2) {
+                            srcId += ' && ' + formatAppLabel(_.result(srcNodeData, '0.data.currentNode.names.1'), d.link[0].data.arcType);
+                            dstId += ' && ' + formatAppLabel(_.result(dstNodeData, '0.data.currentNode.names.1'), d.link[1].data.arcType);
+                        }
+                        var childData = _.result(d, 'link.0.data.dataChildren', []);
+                        var srcSessionObjArr = _.chain(childData)
+                                .filter(function (val, idx) {
+                                    var app = formatAppLabel(_.result(srcNodeData, '0.data.currentNode.names.0'), d.link[0].data.arcType);
+                                    if (level == 1) {
+                                        return val['app'] == app;
+                                    } else if (level == 2) {
+                                        return val['app'] == app &&
+                                        val['tier'] == formatAppLabel(_.result(srcNodeData, '0.data.currentNode.names.1'), d.link[0].data.arcType);
+                                    }
+                                })
+                                .groupBy("eps.__key")
+                                .map(function (objs, key) {
+                                    var uuid;
+                                    if (key != null) {
+                                        try {
+                                            uuid = key.split(':').slice(-1)[0];
+                                        } catch(e) {
+                                            uuid = '-'
+                                        }
+                                    }
+                                    return {
+                                        'eps.__key': uuid,
+                                        'session_responded': _.sumBy(objs, 'SUM(eps.traffic.responder_session_count)'),
+                                        'session_initiated': _.sumBy(objs, 'SUM(eps.traffic.initiator_session_count)')
+                                    }
+                                }).value();
+                        var dstSessionObjArr, dstSessionObj;
+                        //If it is intralink no need to calculate endpoint2 sessions
+                        if (srcId != dstId) {
+                            dstSessionObjArr = _.chain(childData)
+                                .filter(function (val, idx) {
+                                    var app = formatAppLabel(_.result(dstNodeData, '0.data.currentNode.names.0'), d.link[1].data.arcType);
+                                    if (level == 1) {
+                                        return val['app'] == app;
+                                    } else if (level == 2) {
+                                        return val['app'] == app &&
+                                        val['tier'] == formatAppLabel(_.result(dstNodeData, '0.data.currentNode.names.1'), d.link[1].data.arcType);
+                                    }
+                                })
+                                .groupBy("eps.__key")
+                                .map(function (objs, key) {
+                                    var uuid;
+                                    if (key != null) {
+                                        try {
+                                            uuid = key.split(':').slice(-1)[0];
+                                        } catch(e) {
+                                            uuid = '-'
+                                        }
+                                    }
+                                    return {
+                                        'eps.__key': uuid,
+                                        'session_responded': _.sumBy(objs, 'SUM(eps.traffic.responder_session_count)'),
+                                        'session_initiated': _.sumBy(objs, 'SUM(eps.traffic.initiator_session_count)')
+                                    }
+                                }).value();
+                            dstSessionObj = _.groupBy(dstSessionObjArr, 'eps.__key');
+                        }
+                        var srcSessionObj = _.groupBy(srcSessionObjArr, 'eps.__key');
                         _.each(d.link, function(link) {
-                            var appObj = {
-                                app_name: formatAppLabel(link.data.id,link.data.arcType),
-                                trafficIn: formatBytes(_.sumBy(_.filter(link.data.dataChildren,
-                                    function(val,idx) {
-                                        return val.app == link.data.id;
-                                    }),
-                                function(bytes) {
-                                    return bytes['SUM(eps.traffic.in_bytes)'];
-                                })),
-                                trafficOut: formatBytes(_.sumBy(_.filter(link.data.dataChildren,
-                                    function(val,idx) {
-                                        return val.app == link.data.id;
-                                    }),
-                                function(bytes) {
-                                    return bytes['SUM(eps.traffic.in_bytes)'];
-                                }))
-                            };
                             ruleKeys = _.uniq(_.map(link['data']['dataChildren'], 'eps.__key'));
                             $.each(ruleKeys, function (idx, key) {
-                                if (key != null && key.split(':')[3] != null) {
-                                    ruleUUIDs.push(key.split(':')[3]);
-                                } else if (key != null) {
-                                    ruleUUIDs.push(key);
+                                if (key != null) {
+                                    var uuid = key.split(':').pop();
+                                    ruleUUIDs.push(uuid);
                                 }
                             });
-                            data.linkData.push(appObj);
                         });
+                        ruleUUIDs = _.uniq(ruleUUIDs);
                         _.each(chartScope.ribbons, function (ribbon) {
                            ribbon.selected = false;
                            ribbon.active = false;
@@ -79,10 +134,17 @@ define(
                         d.selected = true;
                         d.active = true;
                         chartScope._render();
-                        $('#traffic-groups-radial-chart')
-                            .addClass('showLinkInfo');
                         $('#traffic-groups-link-info')
                             .html(trafficLinkInfoTmpl(data));
+                        if($('#traffic-groups-radial-chart').hasClass('showLinkInfo')) {
+                            $('.trafficGroups_sidePanel').
+                                removeClass('animateLinkInfo');
+                        } else {
+                            $('.trafficGroups_sidePanel').
+                                addClass('animateLinkInfo');
+                            $('#traffic-groups-radial-chart')
+                            .addClass('showLinkInfo');
+                        }
                         $('#traffic-groups-radial-chart')
                          .on('click','',{ thisChart:chartScope,thisRibbon:d },
                           function(ev){
@@ -93,10 +155,10 @@ define(
                                    ribbon.selected = false;
                                    ribbon.active = false;
                                 });
-                                ev.data.thisChart._render();
                                 $('#traffic-groups-radial-chart')
                                 .removeClass('showLinkInfo');
                                 $('#traffic-groups-link-info').html('');
+                                ev.data.thisChart._render();
                             }
                         });
                         if (ruleUUIDs.length > 0) {
@@ -106,14 +168,16 @@ define(
                                         url: "/api/tenants/config/get-config-details",
                                         type: "POST",
                                         data: JSON.stringify(
-                                            {data: [{type: 'firewall-rules',obj_uuids: ruleUUIDs, fields: ['firewall_policy_back_refs']}]})
+                                            {data: [{type: 'firewall-rules',obj_uuids: ruleUUIDs, fields: ['firewall_policy_back_refs',
+                                             'service', 'service_group_refs']}]})
                                     },
                                     dataParser: function (data) {
                                         var ruleDetails = _.result(data, '0.firewall-rules', []),
                                             ruleMap = {}, formattedRuleDetails = [];
                                         $.each(ruleDetails, function (idx, detailsObj) {
                                             if (detailsObj['firewall-rule'] != null) {
-                                                var ruleDetailsObj = detailsObj['firewall-rule'];
+                                                var ruleDetailsObj = detailsObj['firewall-rule'],
+                                                    ruleUUID = detailsObj['firewall-rule']['uuid'];
                                                 ruleMap[detailsObj['firewall-rule']['uuid']] = ruleDetailsObj; 
                                                 var src = _.result(ruleDetailsObj, 'endpoint_1.tags', []);
                                                     srcType = 'tags';
@@ -153,20 +217,60 @@ define(
                                                     dstType = '';
                                                     dst = '-';
                                                 }
-                                                var policy_name = _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to.2', '-'),
-                                                    rule_name = _.result(ruleDetailsObj, 'display_name'); 
+                                                var policy_name_arr = _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to', []),
+                                                    service = _.result(ruleDetailsObj, 'service'),
+                                                    service_group_refs = _.result(ruleDetailsObj, 'service_group_refs'),
+                                                    serviceStr,
+                                                    service_dst_port_obj = _.result(ruleDetailsObj, 'service.dst_ports'),
+                                                    service_dst_port = '-',
+                                                    service_protocol = _.result(ruleDetailsObj, 'service.protocol'),
+                                                    policy_name = _.result(policy_name_arr.slice(-1), '0', '-'),
+                                                    rule_name = _.result(ruleDetailsObj, 'display_name'),
+                                                    direction = cowu.deSanitize(_.result(ruleDetailsObj, 'direction'));
+                                                if (service_dst_port_obj != null && service_dst_port_obj['start_port'] != null &&
+                                                    service_dst_port_obj['end_port'] != null) {
+                                                    if (service_dst_port_obj['start_port'] == service_dst_port_obj['end_port']) {
+                                                        service_dst_port = service_dst_port_obj['start_port'];
+                                                    } else {
+                                                        service_dst_port = contrail.format('{0}-{1}', service_dst_port_obj['start_port'], service_dst_port_obj['end_port']);
+                                                    }
+                                                    serviceStr = contrail.format('{0}: {1}', service_protocol, service_dst_port);
+                                                }
+                                                if (service_group_refs != null) {
+                                                    serviceStr = _.result(service_group_refs, '0.to.1');
+                                                }
                                                 formattedRuleDetails.push({
                                                     //policy_name: _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to.3', '-') +':'+
                                                       //          _.result(ruleDetailsObj, 'display_name'),
                                                     policy_name: policy_name,
+                                                    srcId: srcId,
+                                                    src_session_initiated: _.result(srcSessionObj, ruleUUID+'.0.session_initiated', 0),
+                                                    src_session_responded: _.result(srcSessionObj, ruleUUID+'.0.session_responded', 0),
+                                                    dstId: dstId,
+                                                    dst_session_initiated: _.result(dstSessionObj, ruleUUID+'.0.session_initiated', 0),
+                                                    dst_session_responded: _.result(dstSessionObj, ruleUUID+'.0.session_responded', 0),
                                                     rule_name: rule_name,
                                                     simple_action: _.result(ruleDetailsObj, 'action_list.simple_action', '-') == 'pass' ? 'permit': '-',
+                                                    service: serviceStr,
+                                                    direction: direction == '>' ? 'uni': 'bi',
                                                     srcType: srcType,
                                                     dstType: dstType,
                                                     src: src,
-                                                    dst: dst,
-                                                    //rule_name: 
-                                                    //json_formatted: contrail.formatJSON2HTML(ruleDetailsObj)
+                                                    dst: dst
+                                                });
+                                            }
+                                        });
+                                        var defaultRuleUUIDs = _.keys(cowc.DEFAULT_FIREWALL_RULES);
+                                        $.each(defaultRuleUUIDs, function (idx, uuid) {
+                                            if (ruleUUIDs.indexOf(uuid) > -1) {
+                                                var defaultRuleDetails = cowc.DEFAULT_FIREWALL_RULES[uuid];
+                                                formattedRuleDetails.push({
+                                                    policy_name: _.result(defaultRuleDetails, 'name'),
+                                                    rule_name: uuid,
+                                                    src_session_initiated: _.result(srcSessionObj, uuid+'.0.session_initiated', 0),
+                                                    src_session_responded: _.result(srcSessionObj, uuid+'.0.session_responded', 0),
+                                                    dst_session_initiated: _.result(dstSessionObj, uuid+'.0.session_initiated', 0),
+                                                    dst_session_responded: _.result(dstSessionObj, uuid+'.0.session_responded', 0),
                                                 });
                                             }
                                         });
@@ -207,20 +311,29 @@ define(
                                     arcWidth: [11,12],
                                     showArcLabels: true,
                                     parentSeparationShrinkFactor: 0.02,
+                                    arcLabelLetterWidth: 6,
+                                    labelDuration:0,
                                     labelFlow: 'along-arc',
                                     arcLabelXOffset: 0,
                                     arcLabelYOffset: [-12,-6],
                                     colorScale: function (item) {
                                         var levelKey = 'TRAFFIC_GROUP_COLOR_LEVEL'+item.level,
-                                            unassignedColors = _.difference(cowc[levelKey], _.values(TrafficGroupsView.colorMap[item.level]));
+                                            unassignedColors = _.difference(cowc[levelKey], _.values(TrafficGroupsView.colorMap[item.level])),
+                                            itemName = (item.level == 1) ? item.name : formatAppLabel(item.name,item.arcType),
+                                            extraColors = TrafficGroupsView.colorArray;
+                                        if(unassignedColors.length == 0) {
+                                            if(!extraColors[item.level] || extraColors[item.level].length == 0) {
+                                                extraColors[item.level] = cowc[levelKey].slice(0);
+                                            }
+                                            unassignedColors = extraColors[item.level];
+                                        }
                                         if ( TrafficGroupsView.colorMap[item.level] == null) {
                                             TrafficGroupsView.colorMap[item.level] = {};
-                                            TrafficGroupsView.colorMap[item.level][item.name] = unassignedColors.pop();
-                                        } else if (TrafficGroupsView.colorMap[item.level] != null &&
-                                            TrafficGroupsView.colorMap[item.level][item.name] == null) {
-                                            TrafficGroupsView.colorMap[item.level][item.name] = unassignedColors.pop();
+                                            TrafficGroupsView.colorMap[item.level][itemName] = unassignedColors.pop();
+                                        } else if (TrafficGroupsView.colorMap[item.level][itemName] == null) {
+                                            TrafficGroupsView.colorMap[item.level][itemName] = unassignedColors.pop();
                                         }
-                                        return TrafficGroupsView.colorMap[item.level][item.name];
+                                        return TrafficGroupsView.colorMap[item.level][itemName];
                                     },
                                     showLinkTooltip:true,
                                     showLinkInfo: showLinkInfo,
@@ -240,14 +353,24 @@ define(
                                                 srcHierarchy = [d['app'], d['tier']],
                                                 dstHierarchy = [d['eps.traffic.remote_app_id'], d['eps.traffic.remote_tier_id']];
                                             }
-                                            var remoteVN = d['eps.traffic.remote_vn'];
+                                            var remoteVN = d['eps.traffic.remote_vn'],
+                                                srcDeployment = d['deployment'],
+                                                dstDeployment = d['eps.traffic.remote_deployment_id'];
                                             if(remoteVN && remoteVN.indexOf(':') > 0){
                                                 var remoteProject = remoteVN.split(':')[1];
                                                 if(currentProject != remoteProject) {
                                                     externalProject = 'externalProject';
                                                 }
+                                                if(dstDeployment) {
+                                                    externalProject += ' '+dstDeployment;
+                                                }
                                             } else {
                                                 externalProject = 'external';
+                                            }
+                                            if(srcDeployment) {
+                                                $.each(srcHierarchy, function(i) {
+                                                    srcHierarchy[i] += '_ '+srcDeployment;
+                                                });
                                             }
                                             if(externalProject) {
                                                 $.each(dstHierarchy, function(i) {
@@ -262,6 +385,7 @@ define(
                                                 names: srcHierarchy,
                                                 labelAppend: d['deployment'],
                                                 id: srcHierarchy.join('-'),
+                                                type: ' '+srcDeployment,
                                                 value: d['SUM(eps.traffic.in_bytes)'] + d['SUM(eps.traffic.out_bytes)'],
                                                 inBytes: d['SUM(eps.traffic.in_bytes)'],
                                                 outBytes: d['SUM(eps.traffic.out_bytes)']
@@ -295,7 +419,9 @@ define(
                                             var content = { title: removeEmptyTags(arcTitle), items: [] };
                                             content.title += '<hr/>'
 
-                                            var childrenArr = data['children'];
+                                            var childrenArr = data['children'],
+                                                nameLevel1 = formatAppLabel(data.namePath[0], data.arcType),
+                                                nameLevel2 = formatAppLabel(data.namePath[1], data.arcType);
                                             //data is nested on hovering 1st-level arc while showing 2-level arcs
                                             //For intra-app traffic, there will be 2 children with same linkId
                                             //Remove 2nd-level duplicate intra links
@@ -317,8 +443,8 @@ define(
                                             content.items.push({
                                                 label: 'Traffic In',
                                                 value:  formatBytes(_.sumBy(dataChildren,function(currSession) {
-                                                    if((data.namePath.length == 1 && currSession.app == data.namePath[0]) ||
-                                                        (data.namePath.length == 2 && currSession.app == data.namePath[0] && currSession.tier == data.namePath[1])) {
+                                                    if((data.namePath.length == 1 && currSession.app == nameLevel1) ||
+                                                        (data.namePath.length == 2 && currSession.app == nameLevel1 && currSession.tier == nameLevel2)) {
                                                         if (currSession != null && currSession['nodata']) {
                                                             return 0;
                                                         }
@@ -329,8 +455,8 @@ define(
                                             }, {
                                                 label: 'Traffic Out',
                                                 value: formatBytes(_.sumBy(dataChildren,function(currSession) {
-                                                    if((data.namePath.length == 1 && currSession.app == data.namePath[0]) ||
-                                                        (data.namePath.length == 2 && currSession.app == data.namePath[0] && currSession.tier == data.namePath[1])) {
+                                                    if((data.namePath.length == 1 && currSession.app == nameLevel1) ||
+                                                        (data.namePath.length == 2 && currSession.app == nameLevel1 && currSession.tier == nameLevel2)) {
                                                         if (currSession != null && currSession['nodata']) {
                                                             return 0;
                                                         }
@@ -351,23 +477,27 @@ define(
                                                 dstNames[i] = formatAppLabel(dstNames[i],d.link[1].data.arcType);
                                             });
                                             var srcTags = removeEmptyTags(srcNames),
-                                                dstTags = removeEmptyTags(dstNames);
-                                            if((srcTags == dstTags) || (d.link[1].data.arcType)) {
+                                                dstTags = removeEmptyTags(dstNames),
+                                                dstIndex = _.findIndex(links, function(link) { return link.data.type == 'dst' });
+                                            if((srcTags == dstTags) || _.includes(d.link[dstIndex].data.arcType, 'externalProject')
+                                                 || _.includes(d.link[dstIndex].data.arcType, 'external')) {
                                                 links = d.link.slice(0,1);
                                             }
-                                            var content = { title : '', items: [] };
-                                            var linkData = {
+                                            var content = { title : '', items: [] },
+                                                linkData = {
                                                     src: srcTags,
                                                     dst: dstTags
                                                 };
                                             linkData.items = [];
                                             _.each(links, function(link) {
-                                                var data = {
+                                                var namePath = link.data.currentNode ? link.data.currentNode.names : '',
+                                                    nameLevel1 = formatAppLabel(namePath[0], link.data.arcType),
+                                                    nameLevel2 = formatAppLabel(namePath[1], link.data.arcType),
+                                                    data = {
                                                     trafficIn: formatBytes(_.sumBy(link.data.dataChildren,
                                                         function(bytes) {
-                                                            var namePath = link.data.currentNode ? link.data.currentNode.names : '';
-                                                            if((namePath.length == 1 && bytes.app ==  namePath[0])
-                                                                || namePath.length == 2 && bytes.app ==  namePath[0] && bytes.tier ==  namePath[1]) {
+                                                            if((namePath.length == 1 && bytes.app ==  nameLevel1)
+                                                                || namePath.length == 2 && bytes.app ==  nameLevel1 && bytes.tier ==  nameLevel2) {
                                                                 if (bytes != null && bytes['nodata']) {
                                                                     return 0;
                                                                 }
@@ -378,9 +508,8 @@ define(
                                                         })),
                                                     trafficOut: formatBytes(_.sumBy(link.data.dataChildren,
                                                         function(bytes) {
-                                                            var namePath = link.data.currentNode ? link.data.currentNode.names : '';
-                                                            if((namePath.length == 1 && bytes.app ==  namePath[0])
-                                                                || namePath.length == 2 && bytes.app ==  namePath[0] && bytes.tier ==  namePath[1]) {
+                                                            if((namePath.length == 1 && bytes.app ==  nameLevel1)
+                                                                || namePath.length == 2 && bytes.app ==  nameLevel1 && bytes.tier ==  nameLevel2) {
                                                                 if (bytes != null && bytes['nodata']) {
                                                                     return 0;
                                                                 }
@@ -407,8 +536,43 @@ define(
                                 }
                             }]
                         }
+                        $('#traffic-groups-radial-chart')
+                        .removeClass('showLinkInfo');
+                        $('#traffic-groups-link-info').html('');
                         viewInst.updateConfig(config);
-                        viewInst.render();
+                        var data = self.trafficData ? JSON.parse(JSON.stringify(self.trafficData))
+                                     : viewInst.model.getItems();
+                        data = self.formatEmptyBytes(data,(cfg.levels ? cfg.levels : 1));
+                        viewInst.render(data);
+                    },
+                    this.formatEmptyBytes = function(data, level) {
+                        // If sum of in-bytes and out-bytes of a link is 0, making in-bytes and out-bytes
+                        // of first record of link to 1 to plot the link
+                        self.level = level;
+                        var dataTrafficMap = _.groupBy(data, function(d) {
+                            if(self.level == 1) {
+                                return d.app + d['eps.traffic.remote_app_id'] +
+                                       d['deployment'] + d['eps.traffic.remote_deployment_id'];
+                            } else {
+                                return d.app + d.tier + d['eps.traffic.remote_app_id'] +
+                                       d['eps.traffic.remote_tier_id'] + d['deployment'] + d['eps.traffic.remote_deployment_id'];
+                            }
+                        });
+                        _.each(dataTrafficMap, function(link) {
+                            var linkSum = _.reduce(link, function(sum,value,key) {
+                                return sum+value['SUM(eps.traffic.in_bytes)']+value['SUM(eps.traffic.out_bytes)'];
+                            }, 0);
+                            if(linkSum == 0) {
+                                _.each(link, function(rec,idx) {
+                                    if(idx ==0) {
+                                        rec['SUM(eps.traffic.in_bytes)'] =
+                                        rec['SUM(eps.traffic.out_bytes)'] = 1;
+                                    }
+                                    rec.nodata = true;
+                                });
+                            }
+                        });
+                        return data;
                     }
                     var postData = {
                         "async": false,
@@ -420,7 +584,8 @@ define(
                             "select": "T=, eps.traffic.remote_app_id, eps.traffic.remote_tier_id, eps.traffic.remote_site_id,"+
                                  "eps.traffic.remote_deployment_id, eps.traffic.remote_prefix, eps.traffic.remote_vn, eps.__key,"+
                                  " app, tier, site, deployment, vn, name, SUM(eps.traffic.in_bytes),"+
-                                 " SUM(eps.traffic.out_bytes), SUM(eps.traffic.in_pkts), SUM(eps.traffic.out_pkts)",
+                                 " SUM(eps.traffic.out_bytes), SUM(eps.traffic.in_pkts), SUM(eps.traffic.initiator_session_count)," +
+                                 " SUM(eps.traffic.responder_session_count), SUM(eps.traffic.out_pkts)",
                             "table_type": "STAT",
                             "table_name": "StatTable.EndpointSecurityStats.eps.traffic",
                             "where": "(name Starts with " + contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' + contrail.getCookie(cowc.COOKIE_PROJECT) + ")",
@@ -480,7 +645,6 @@ define(
                                     });
                                     var chartData = [];
                                     $.each(data, function (idx, value) {
-                                        
                                         $.each(['eps.traffic.remote_app_id', 'eps.traffic.remote_deployment_id',
                                             'eps.traffic.remote_prefix', 'eps.traffic.remote_site_id',
                                             'eps.traffic.remote_tier_id'], function (idx, val) {
@@ -511,6 +675,8 @@ define(
                                         });
                                     });
                                     // cowu.populateTrafficGroupsData(data);
+                                    self.trafficData = JSON.parse(JSON.stringify(data));
+                                    data = self.formatEmptyBytes(data,1);
                                     return data;
                                 }
                             }]

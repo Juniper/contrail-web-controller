@@ -33,6 +33,7 @@ function TagGlobalPageLoader ()
         this.load({hashParams: hashObj, 'function': renderFn});
     };
     this.destroy = function () {
+        ctwu.destroyDOMResources(ctwc.SEC_POLICY_TAG_PREFIX_ID);
     };
 }
 
