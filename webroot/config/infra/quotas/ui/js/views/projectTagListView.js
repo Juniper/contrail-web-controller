@@ -31,25 +31,36 @@ define([
     });
 
     var projectsTagsList = [{key : "application", name : "Application"},
-        {key : "site", name :"Site"},
         {key : "deployment", name :"Deployment"},
+        {key : "site", name :"Site"},
         {key : "tier", name : "Tier"},
-        {key : "Labels", name :"Labels"}
+        {key : "label", name :"Labels"}
     ];
     var projectTagsDataParser = function (response) {
         var results = [];
+        var tagValue = '';
+        var tagValueLabel = '';
         var tagRefs = getValueByJsonPath(response, "0;projects;0;project;tag_refs", []);
-        console.log(response);
         var tagMap = {};
+        var tagDataLabel = [];
         for(var i = 0; i < tagRefs.length; i++) {
             var tagRef = tagRefs[i];
             var tagData = getValueByJsonPath(tagRef,"to",[]);
             var tagInfo = tagData[tagData.length -1 ];
-            var tagValue = tagInfo.substring(tagInfo.indexOf('-') + 1,tagInfo.length);
-            var tagKey = tagInfo.substring(0,tagInfo.indexOf('-'));
+            var tagValueTitle = tagInfo.substring(tagInfo.indexOf(ctwc.TAG_SEPARATOR),0);
+            if(tagValueTitle === "label"){
+                tagValueLabel += tagInfo.substring(tagInfo.indexOf(ctwc.TAG_SEPARATOR) + 1,tagInfo.length)+", ";
+                tagValue = tagValueLabel;
+                tagDataLabel.push(tagData);
+                tagData = tagDataLabel;
+            }else{
+                tagValue = tagInfo.substring(tagInfo.indexOf(ctwc.TAG_SEPARATOR) + 1,tagInfo.length);
+            }
+            tagValue = tagValue.replace(/,\s*$/, "");
+            var tagKey = tagInfo.substring(0,tagInfo.indexOf(ctwc.TAG_SEPARATOR));
             tagMap[tagKey] = {value:tagValue,fqName:tagData};
-            console.log(tagMap)
         }
+
         var projectsTagListCnt = projectsTagsList.length;
         for (var i = 0; i < projectsTagListCnt; i++) {
             var key = projectsTagsList[i]['key'];

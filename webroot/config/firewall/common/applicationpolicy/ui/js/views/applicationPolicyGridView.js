@@ -86,13 +86,15 @@ define([
                         {
                              field: 'name',
                              name: 'Name',
-                             id: 'name'
+                             id: 'name',
+                             minWidth : 150,
                         },
                         {
                             id: "description",
                             field: "description",
                             name: "Description",
                             formatter: descriptionFormatter,
+                            minWidth : 150,
                             sortable: {
                                 sortBy: 'formattedValue'
                             }
@@ -110,6 +112,7 @@ define([
                             id: "noofpolicies",
                             field: "noofpolicies",
                             name: "FW Policies",
+                            minWidth : 100,
                             formatter: noOfPoliciesFormatter,
                             sortable: {
                                 sortBy: 'formattedValue'
@@ -128,6 +131,7 @@ define([
                             id: "lastupdated",
                             field: "lastupdated",
                             name: "Last Updated",
+                            minWidth : 100,
                             formatter: lastUpdateFormatter,
                             sortable: {
                                 sortBy: 'formattedValue'
@@ -155,7 +159,7 @@ define([
                var dataItem = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
                applicationPolicyEditView.model = new ApplicationPolicyModel(dataItem);
                applicationPolicyEditView.renderDeleteApplicationPolicy ({
-                                      "title": 'Delete Application Policy Set',
+                                      "title": ctwl.TITLE_APP_POLICY_SET_DELETE,
                                       selectedGridData: [dataItem],
                                       callback: function () {
                                           var dataView = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView;
@@ -169,7 +173,7 @@ define([
     	var headerActionConfig = [
     		{
                 "type" : "link",
-                "title" : ctwl.TITLE_TAG_MULTI_DELETE,
+                "title" : ctwl.TITLE_APP_POLICY_SET_MULTI_DELETE,
                 "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnDeleteAppPolicy',
                 "onClick" : function() {
@@ -178,7 +182,7 @@ define([
                     if(checkedRows && checkedRows.length > 0) {
                     	applicationPolicyEditView.model = applicationPolicyModel;
                     	applicationPolicyEditView.renderDeleteApplicationPolicy(
-                            {"title": 'Delete Application Policy Set',
+                            {"title": ctwl.TITLE_APP_POLICY_SET_MULTI_DELETE,
                             	selectedGridData: checkedRows,
                                 callback: function () {
                                     var dataView =
@@ -194,12 +198,12 @@ define([
             },
             {
                 "type": "link",
-                "title": ctwc.SEC_POL_SEC_GRP_TITLE_CREATE,
+                "title": ctwl.TITLE_CREATE_APP_POLICY_SET,
                 "iconClass": "fa fa-plus",
                 "onClick": function () {
                 	applicationPolicyEditView.model = new ApplicationPolicyModel();
                 	applicationPolicyEditView.renderAddEditApplicationPolicy({
-                                              "title": 'Create',
+                                              "title": ctwl.TITLE_CREATE_APP_POLICY_SET,
                                               'mode': 'add',
                                               'isGlobal': viewConfig.isGlobal,
                                               callback: function () {

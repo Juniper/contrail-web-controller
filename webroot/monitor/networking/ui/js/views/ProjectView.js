@@ -10,6 +10,9 @@ define([
         el: $(contentContainer),
 
         render: function () {
+            if(layoutHandler.getURLHashObj()['p'] != 'mon_networking_dashboard') {
+                return;
+            }
             var self = this,
                 graphTabsTemplate = contrail.getTemplate4Id(cowc.TMPL_2ROW_CONTENT_VIEW),
                 viewConfig = this.attributes.viewConfig,

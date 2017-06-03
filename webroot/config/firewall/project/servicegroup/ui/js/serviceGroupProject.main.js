@@ -40,15 +40,7 @@ function ServiceGroupProjectPageLoader ()
     };
 
     this.destroy = function () {
-        /*ctwu.destroyDOMResources(ctwc.GLOBAL_FORWARDING_OPTIONS_PREFIX_ID);
-        ctwu.destroyDOMResources(ctwc.GLOBAL_BGP_OPTIONS_PREFIX_ID);
-        ctwu.destroyDOMResources(ctwc.GLOBAL_FLOW_AGING_PREFIX_ID);
-        ctwu.destroyDOMResources(ctwc.RBAC_PREFIX_ID);
-        ctwu.destroyDOMResources(ctwc.FORWARDING_CLASS_PREFIX_ID);
-        ctwu.destroyDOMResources(ctwc.QOS_PREFIX_ID);
-        ctwu.destroyDOMResources(ctwc.ALARM_PREFIX_ID);
-        ctwu.destroyDOMResources(ctwc.GLOBAL_COUNTERS_PREFIX_ID);
-        ctwu.destroyDOMResources(ctwc.GLOBAL_CONTROL_TRAFFIC_PREFIX_ID);*/
+        ctwu.destroyDOMResources(ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID);
     };
 }
 

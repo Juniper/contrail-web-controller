@@ -716,7 +716,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Configure Global Config</searchStrings>
                         </item>
-                        <item>
+                        <!--<item>
                             <label>Tags</label>
                             <hash>config_infra_tag</hash>
                             <resources>
@@ -731,8 +731,8 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resource>
                         </resources>
                         <searchStrings>Configure Tags</searchStrings>
-                        </item>
-                        <item>
+                        </item>-->
+                        <!-- <item>
                              <label>Firewall</label>
                              <hash>config_infra_firewall</hash>
                              <resources>
@@ -751,7 +751,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                  </resource>
                              </resources>
                              <searchStrings>Configure Firewall</searchStrings>
-                        </item>
+                        </item>-->
                         <item>
                             <label>BGP Routers</label>
                             <hash>config_infra_bgp</hash>
@@ -866,6 +866,108 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Service Appliance</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
+                    <label>Tags</label>
+                    <hash>config_tags</hash>
+                    <access>
+                        <roles>
+                            <role>cloudAdmin</role>
+                            <role>member</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                        </orchModels>
+                        <accessFn>hideInGlobalController</accessFn>
+                    </access>
+                    <iconClass>menu-icon fa fa-tags</iconClass>
+                    <items>
+                        <item>
+                            <label>Global Settings</label>
+                            <hash>config_tags_globalsettings</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/infra/tag/ui</rootDir>
+                                    <js>tagGlobal.main.js</js>
+                                    <class>tagGlobalPageLoader</class>
+                                    <function>renderTagView</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Tags, Global Settings</searchStrings>
+                        </item>
+                        <item>
+                            <label>Project Settings</label>
+                            <hash>config_tags_projectsettings</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/firewall/project/tag/ui</rootDir>
+                                    <js>tagProject.main.js</js>
+                                    <class>tagProjectPageLoader</class>
+                                    <function>renderProjectTag</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Tags, Project Settings</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
+                    <label>Security</label>
+                    <hash>config_security</hash>
+                    <access>
+                        <roles>
+                            <role>cloudAdmin</role>
+                            <role>member</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                        </orchModels>
+                        <accessFn>hideInGlobalController</accessFn>
+                    </access>
+                    <iconClass>menu-icon icon-contrail-network-policy</iconClass>
+                    <items>
+                        <item>
+                            <label>Global Settings</label>
+                            <hash>config_security_globalsettings</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/infra/firewall/ui</rootDir>
+                                    <js>fwGlobal.main.js</js>
+                                    <class>fwGlobalPageLoader</class>
+                                    <function>renderFirewall</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Security, Global Settings</searchStrings>
+                        </item>
+                        <item>
+                            <label>Project Settings</label>
+                            <hash>config_security_projectsettings</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/firewall/common/ui</rootDir>
+                                    <js>fwProject.main.js</js>
+                                    <class>fwProjectPageLoader</class>
+                                    <function>renderFirewall</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Security, Project Settings</searchStrings>
                         </item>
                     </items>
                 </item>
@@ -1128,7 +1230,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
-                <item>
+               <!-- <item>
                     <label>Firewall</label>
                     <access>
                         <roles>
@@ -1211,8 +1313,8 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Configure Address Group</searchStrings>
                         </item>
                     </items>
-                </item>
-                <item>
+                </item> -->
+                <!--<item>
                     <access>
                         <roles>
                             <role>member</role>
@@ -1239,7 +1341,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Configure Tags</searchStrings>
-                </item>
+                </item>-->
                 <item>
                     <label>Services</label>
                     <access>

@@ -23,10 +23,15 @@ define([
                 newProjectTags.fq_name = [];
                 _.each(newProjectTags, function(refs){
                     if(typeof refs === "string" && refs != '' && refs != '-'){
-                         var actRef = refs.split(':');
+                         var actRef = refs.split(',');
+                         if(actRef.length > 1){
+                             _.each(actRef, function(refsItems){
+                                 actRef =  $.makeArray(refsItems);
+                                 tagList.push({to: actRef});
+                             });
+                         }
                          tagList.push({to: actRef});
                     }
-                    //}
                 });
                 newProjectTags.fq_name.push(contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME));
                 newProjectTags.fq_name.push(contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME));
@@ -44,7 +49,6 @@ define([
                     updatedVal.uuid}]};
 
                 ajaxConfig.data = JSON.stringify(postData);
-              //  console.log(postData);
                 ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
 
                 contrail.ajaxHandler(ajaxConfig, function () {
@@ -52,7 +56,6 @@ define([
                         callbackObj.init();
                     }
                 }, function (response) {
-                    console.log(response);
                     if (contrail.checkIfFunction(callbackObj.success)) {
                         callbackObj.success();
                     }

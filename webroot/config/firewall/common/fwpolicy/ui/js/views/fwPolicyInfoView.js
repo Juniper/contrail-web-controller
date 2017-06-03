@@ -72,7 +72,7 @@ define([
                                     path: "display_name",
                                     dataBindValue: "display_name",
                                     label: "Policy Name",
-                                    class: "col-xs-2"
+                                    class: "col-xs-6"
                                 }
                             }
                         ]

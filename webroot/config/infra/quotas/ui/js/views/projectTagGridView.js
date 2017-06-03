@@ -19,7 +19,6 @@ define([
                 viewConfig = this.attributes.viewConfig,
                 selectedProject = viewConfig.selectedProject,
                 pagerOptions = viewConfig['pagerOptions'];
-                console.log(selectedProject);
 
             self.renderView4Config(self.$el, self.model,
                     getProjectTagGridViewConfig(selectedProject), null,
@@ -92,21 +91,10 @@ define([
         return gridElementConfig;
     };
     function getHeaderActionConfig(selectedProject,model) {
-        var applicationArray = [];
-        var tierArray = [];
-        var siteArray = [];
-        var deploymentArray = [];
-        var lablesArray = [];
         var data;
         var results = [];
         var tagMap = {};
         var actValue;
-        
-        deploymentArray.push({text:"None",value:"-"});
-        applicationArray.push({text:"None",value:"-"});
-        tierArray.push({text:"None",value:"-"});
-        siteArray.push({text:"None",value:"-"});
-        
         var tagsList = [{key : "application", name : "Application"},
             {key : "tier", name :"Tier"},
             {key : "site", name :"Site"},
@@ -126,7 +114,15 @@ define([
                                 {data: [{type: 'tags'}]})
                     };
                     contrail.ajaxHandler(ajaxConfig, null, function(response) {
-                        console.log(response);
+                        var applicationArray = [];
+                        var tierArray = [];
+                        var siteArray = [];
+                        var deploymentArray = [];
+                        var lablesArray = [];
+                        deploymentArray.push({text:"None",value:"-"});
+                        applicationArray.push({text:"None",value:"-"});
+                        tierArray.push({text:"None",value:"-"});
+                        siteArray.push({text:"None",value:"-"});
                         for(var i=0; i<response.length; i++){
                             tagsDetails = response[i].tags;
                             for(var j= 0; j<tagsDetails.length; j++){
@@ -141,9 +137,11 @@ define([
                                 }
                                 if(tagsDetails[j].tag.tag_type === "application") {
                                     data = {
-                                            "text":tagsDetails[j].tag.tag_value,
+                                            "text": (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                                    "global:" + tagsDetails[j].tag.name :
+                                                     tagsDetails[j].tag.name,
                                             "value":actValue
-                                       };
+                                   };
                                     applicationArray.push(data);
                                 }
                                 else if(tagsDetails[j].tag.tag_type === "tier") {
@@ -184,9 +182,8 @@ define([
                         var data = $(gridElId).data().getItems();
                         for(var i=0; i<data.length; i++){
                             var fqName = getValueByJsonPath(data[i],'fqName',[]);
-                            tagsBindItems[data[i]['type']] = (fqName != '-')?fqName.join(":"): '-';
+                            tagsBindItems[data[i]['type']] = (fqName != '-')?fqName.join(","): '-';
                         }
-                        console.log(tagsBindItems);
                         projectTagModel = new ProjectTagsModel(tagsBindItems);
                         projectTagEditView.model = projectTagModel;
                         projectTagEditView.renderEditTags({
