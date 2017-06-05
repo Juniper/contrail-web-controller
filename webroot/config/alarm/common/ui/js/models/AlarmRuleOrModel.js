@@ -50,7 +50,7 @@ define([
                         operand2Key = 'json_value';
                     }
                     var operand2 = getValueByJsonPath(ruleObj, 'operand2;'+operand2Key);
-                    var operation = ruleObj['operation'] + cowc.DROPDOWN_VALUE_SEPARATOR + operand2Key,
+                    var operation = cowu.deSanitize(ruleObj['operation'] + cowc.DROPDOWN_VALUE_SEPARATOR + operand2Key),
                     andRuleObj = {
                         operand1: ruleObj['operand1'],
                         operand2: operand2,
