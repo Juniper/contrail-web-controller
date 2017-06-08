@@ -389,7 +389,10 @@ define([
                           []);
             if(AAPData.length > 0) {
                 var AAP_length = AAPData.length;
-                AAP = "Enabled<br><table width='100%'><thead><tr><th class='col-xs-1'>IP</th><th class='col-xs-2'>MAC</th></tr></thead>"
+                AAP = "Enabled<br><table width='100%'><thead>" +
+                      "<tr><th class='col-xs-4'>IP</th>" +
+                      "<th class='col-xs-4'>MAC</th>" +
+                      "<th class='col-xs-4'>Address Mode</th></tr></thead>"
                 for(var i = 0; i < AAP_length;i++) {
                     var AAPVal = AAPData[i];
                     AAP += "<tbody><tr><td>";
@@ -397,6 +400,10 @@ define([
                            AAPVal["ip"]["ip_prefix_len"]
                     AAP += "</td><td>";
                     AAP += AAPVal["mac"] ? AAPVal["mac"] : "-";
+                    AAP += "</td><td>";
+                    AAP += AAPVal["address_mode"] ?
+                            (AAPVal["address_mode"] === 'active-standby' ?
+                                    'Active-Standby' : 'Active-Active') : "-";
                     AAP += "</td></tr>";
                 }
                 AAP += "</tbody></table>";
