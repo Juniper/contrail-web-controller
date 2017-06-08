@@ -749,6 +749,9 @@ define([
         this.TEXT_PORT = 'port';
         this.MIRROR_STATIC = 'static';
         this.MIRROR_DYNAMIC = 'dynamic';
+        this.AAP_MODE_DATA =
+            [{'text': 'Active-Standby', 'value': 'active-standby'},
+             {'text': 'Active-Active', 'value': 'active-active'}]
 
         /* Policy */
         this.VN_SUBNET_DELIMITER = ":";

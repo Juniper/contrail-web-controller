@@ -504,7 +504,7 @@ define([
             }
         }, {
             keyClass:'col-xs-3',
-            valueClass:'col-xs-9',
+            valueClass:'col-xs-5',
             key: 'virtual_machine_interface_allowed_address_pairs',
             name:"virtual_machine_interface_allowed_address_pairs",
             label:"Allowed address pairs",
