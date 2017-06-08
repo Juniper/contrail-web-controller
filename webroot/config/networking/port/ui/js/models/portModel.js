@@ -1130,7 +1130,7 @@ define([
                             aapLocal[i]["ip"]["ip_prefix"] = ip;
                             aapLocal[i]["ip"]["ip_prefix_len"] = prefix;
                         }
-                        aapLocal[i]["address_mode"] = "active-standby";
+                        aapLocal[i]["address_mode"] = aapCollection[i].address_mode();
                     }
                     newPortData.virtual_machine_interface_allowed_address_pairs.allowed_address_pair = aapLocal;
                 }

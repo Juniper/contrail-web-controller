@@ -154,7 +154,7 @@
                                  templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                  dataBindValue: 'ipPrefixVal()',
                                  placeholder: 'IP',
-                                 width:275,
+                                 width:200,
                                  label: 'IP'
                              }
                          }, {
@@ -166,8 +166,24 @@
                                  templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                  dataBindValue: 'mac()',
                                  placeholder: 'MAC',
-                                 width:275,
+                                 width:200,
                                  label: 'MAC'
+                             }
+                         }, {
+                             elementId: 'address_mode',
+                             view: 'FormDropdownView',
+                             name: 'Address Mode',
+                             viewConfig: {
+                                 path: 'mac',
+                                 templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                 dataBindValue: 'address_mode()',
+                                 placeholder: 'Select Mode',
+                                 width:200,
+                                 elementConfig: {
+                                     dataTextField: 'text',
+                                     dataValueField: 'value',
+                                     data: ctwc.AAP_MODE_DATA
+                                 }
                              }
                          }],
                          rowActions: [{
