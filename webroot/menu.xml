@@ -1763,12 +1763,12 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
-                <item optional="true">
+                <item>
                     <label>User Dashboards</label>
                     <iconClass>menu-icon fa fa-dashboard</iconClass>
                     <init>/reports/udd/ui/js/controller.udd.init.js</init>
                     <items>
-                        <item>
+                        <item optional="true">
                             <hash>query_udd_webController</hash>
                             <label>Controller</label>
                             <loader>
