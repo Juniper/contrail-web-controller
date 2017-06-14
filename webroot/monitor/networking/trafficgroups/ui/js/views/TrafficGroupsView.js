@@ -180,7 +180,7 @@ define(
                                                     ruleUUID = detailsObj['firewall-rule']['uuid'];
                                                 ruleMap[detailsObj['firewall-rule']['uuid']] = ruleDetailsObj; 
                                                 var src = _.result(ruleDetailsObj, 'endpoint_1.tags', []);
-                                                    srcType = 'tags';
+                                                    srcType = '';
                                                     src = src.join(' && ')
                                                 if (src.length == 0) {
                                                     src = _.result(ruleDetailsObj, 'endpoint_1.address_group', '-');
@@ -188,6 +188,9 @@ define(
                                                 }
                                                 if (!src || src == '-') {
                                                     src = _.result(ruleDetailsObj, 'endpoint_1.any', '-');
+                                                    if (src == true) {
+                                                        src = 'any';
+                                                    }
                                                     srcType = ''
                                                 }
                                                 if (!src || src == '-') {
@@ -195,7 +198,7 @@ define(
                                                     srcType = 'virtual_network';
                                                 }
                                                 var dst = _.result(ruleDetailsObj, 'endpoint_2.tags', []),
-                                                    dstType = 'tags';
+                                                    dstType = '';
                                                     dst = dst.join(' && ');
                                                 if (!dst || dst.length == 0) {
                                                     dst = _.result(ruleDetailsObj, 'endpoint_2.address_group', '-');
@@ -203,6 +206,8 @@ define(
                                                 }
                                                 if (!dst || dst == '-') {
                                                     dst = _.result(ruleDetailsObj, 'endpoint_2.any', '-');
+                                                    if (dst == true)
+                                                        dst = 'any';
                                                     dstType = ''
                                                 }
                                                 if (!dst || dst == '-') {
@@ -239,6 +244,10 @@ define(
                                                 if (service_group_refs != null) {
                                                     serviceStr = _.result(service_group_refs, '0.to.1');
                                                 }
+                                                var simple_action = _.result(ruleDetailsObj, 'action_list.simple_action', '-');
+                                                if (simple_action == 'pass') {
+                                                    simple_action = 'permit';
+                                                }
                                                 formattedRuleDetails.push({
                                                     //policy_name: _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to.3', '-') +':'+
                                                       //          _.result(ruleDetailsObj, 'display_name'),
@@ -250,7 +259,7 @@ define(
                                                     dst_session_initiated: _.result(dstSessionObj, ruleUUID+'.0.session_initiated', 0),
                                                     dst_session_responded: _.result(dstSessionObj, ruleUUID+'.0.session_responded', 0),
                                                     rule_name: rule_name,
-                                                    simple_action: _.result(ruleDetailsObj, 'action_list.simple_action', '-') == 'pass' ? 'permit': '-',
+                                                    simple_action: simple_action,
                                                     service: serviceStr,
                                                     direction: direction == '>' ? 'uni': 'bi',
                                                     srcType: srcType,
@@ -267,6 +276,8 @@ define(
                                                 formattedRuleDetails.push({
                                                     policy_name: _.result(defaultRuleDetails, 'name'),
                                                     rule_name: uuid,
+                                                    srcId: srcId,
+                                                    dstId: dstId,
                                                     src_session_initiated: _.result(srcSessionObj, uuid+'.0.session_initiated', 0),
                                                     src_session_responded: _.result(srcSessionObj, uuid+'.0.session_responded', 0),
                                                     dst_session_initiated: _.result(dstSessionObj, uuid+'.0.session_initiated', 0),
@@ -314,6 +325,7 @@ define(
                                     arcLabelLetterWidth: 6,
                                     labelDuration:0,
                                     labelFlow: 'along-arc',
+                                    linkCssClasses: ['implicitDeny'],
                                     arcLabelXOffset: 0,
                                     arcLabelYOffset: [-12,-6],
                                     colorScale: function (item) {
@@ -352,6 +364,11 @@ define(
                                             } else if(cfg['levels'] == 2) {
                                                 srcHierarchy = [d['app'], d['tier']],
                                                 dstHierarchy = [d['eps.traffic.remote_app_id'], d['eps.traffic.remote_tier_id']];
+                                            }
+                                            var defaultRuleUUIDs = _.keys(cowc.DEFAULT_FIREWALL_RULES);
+                                            if(typeof d['eps.__key'] == 'string' &&
+                                                d['eps.__key'].indexOf(defaultRuleUUIDs[0]) > -1) {
+                                                d.linkCssClass = 'implicitDeny';
                                             }
                                             var remoteVN = d['eps.traffic.remote_vn'],
                                                 srcDeployment = d['deployment'],
@@ -542,7 +559,7 @@ define(
                         viewInst.updateConfig(config);
                         var data = self.trafficData ? JSON.parse(JSON.stringify(self.trafficData))
                                      : viewInst.model.getItems();
-                        data = self.formatEmptyBytes(data,(cfg.levels ? cfg.levels : 1));
+                        //data = self.formatEmptyBytes(data,(cfg.levels ? cfg.levels : 1));
                         viewInst.render(data);
                     },
                     this.formatEmptyBytes = function(data, level) {
@@ -645,6 +662,10 @@ define(
                                     });
                                     var chartData = [];
                                     $.each(data, function (idx, value) {
+                                        if (value['SUM(eps.traffic.out_bytes)'] + value['SUM(eps.traffic.in_bytes)'] == 0) {
+                                            value['SUM(eps.traffic.in_bytes)'] = value['SUM(eps.traffic.out_bytes)'] = 1;
+                                            value.nodata = true;
+                                        }
                                         $.each(['eps.traffic.remote_app_id', 'eps.traffic.remote_deployment_id',
                                             'eps.traffic.remote_prefix', 'eps.traffic.remote_site_id',
                                             'eps.traffic.remote_tier_id'], function (idx, val) {
@@ -676,7 +697,7 @@ define(
                                     });
                                     // cowu.populateTrafficGroupsData(data);
                                     self.trafficData = JSON.parse(JSON.stringify(data));
-                                    data = self.formatEmptyBytes(data,1);
+                                    //data = self.formatEmptyBytes(data,1);
                                     return data;
                                 }
                             }]
