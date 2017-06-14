@@ -75,14 +75,13 @@ define([
                         }
                     }
                 },
-                'dst_port': function(value, attr, finalObj) {
-                    if(!value || (isNaN(value) ||
-                        Number(value) < 0 || Number(value) > 65535)) {
-                        return "Enter a valid port between 0 - 65535";
+                /*'dst_port': function(val, attr, data) {
+                   var result = self.validatePort(val);
+                   if (result != "") {
+                        return result;
                     }
-               },
-
-            }
+                }*/
+             }
         },
         validatePort: function(port) {
             if (_.isString(port)) {

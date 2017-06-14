@@ -180,7 +180,7 @@ define([
                 onClick : function(e, dc) {
                     var isGlobal = viewConfig.isGlobal;
                     var viewTab = isGlobal ? 'config_security_globalrules': 'config_security_projectrules';
-                    var hashP = isGlobal ?  'config_security_globalsettings' : 'config_security_projectsettings';
+                    var hashP = isGlobal ?  'config_security_globalpolicies' : 'config_security_projectscopedpolicies';
                     var hashParams = null,
                         hashObj = {
                             view: viewTab,
