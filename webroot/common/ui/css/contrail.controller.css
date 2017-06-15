@@ -589,8 +589,11 @@ width:100%;}
     color: #478fca;
     text-transform: capitalize;
 }
-form#fwPolicy-form {
-    padding: 10px;
+form#fwPolicy-form, #fwPermission-form {
+    padding-top: 10px;
+}
+#fwPermission-form .select2-choices{
+    border:none;
 }
 div#config-fw-rule {
     padding: 0px 20px;
@@ -613,4 +616,8 @@ form h5.margin-0-0-10~.section-content {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+#security_share_accordion h3{
+    margin-left:20px;
+    color:#3182bd;
 }
