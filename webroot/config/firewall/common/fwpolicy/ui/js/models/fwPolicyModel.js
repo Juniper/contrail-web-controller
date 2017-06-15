@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-config-model',
     'config/firewall/common/fwpolicy/ui/js/models/fwRuleCollectionModel',
-    'config/networking/policy/ui/js/views/policyFormatters'
-], function (_, ContrailConfigModel, RuleModel, PolicyFormatters) {
+    'config/networking/policy/ui/js/views/policyFormatters',
+    'core-basedir/js/models/RBACPermsShareModel'
+], function (_, ContrailConfigModel, RuleModel, PolicyFormatters,RBACPermsShareModel) {
     var self;
     var policyFormatters = new PolicyFormatters();
     var fwPolicyModel = ContrailConfigModel.extend({
@@ -17,17 +18,130 @@ define([
             "fq_name": null,
             "parent_type": '',
             "firewall_rules": [],
+            "perms2": {
+                "owner": "",
+                "owner_access": "",
+                "global_access": "",
+                "share": []
+            },
+            "tag_refs":[],
+            "tenant": null,
+            "tenant_access": "4,2,1",
             "id_perms": {"description": null}
         },
 
-        formatModelConfig : function(modelConfig) {
-            self = this;
+        formatModelConfig : function(modelData) {
+            modelData = (modelData == null) ? this.defaultConfig : modelData;
+            var self = this, shareModel, shareModelCol = [],
+            share;
             var fwRuleModel, fwRuleModelCol = [];
-            modelConfig["firewall_rules"] =
-                new Backbone.Collection(fwRuleModelCol);
-            return modelConfig;
-        },
+            modelData["firewall_rules"] = new Backbone.Collection(fwRuleModelCol);
+            if((modelData["perms2"]["owner_access"] != "") || (modelData["perms2"]["global_access"] != "")) {
+                modelData["perms2"]["owner_access"] =
+                    self.formatAccessList(modelData["perms2"]["owner_access"]);
+                modelData["perms2"]["global_access"] =
+                    self.formatAccessList(modelData["perms2"]["global_access"]);
+                modelData["owner_visible"] = true;
+            } else {//required for create case
+                modelData["perms2"] = {};
+                modelData["perms2"]["owner_access"] = "4,2,1";
+                modelData["perms2"]["global_access"] = "";
+                modelData["owner_visible"] = false;
+            }
 
+            share = getValueByJsonPath(modelData,
+                    "perms2;share", []);
+            _.each(share, function(s){
+                shareModel = new RBACPermsShareModel({
+                    tenant : s.tenant,
+                    tenant_access: self.formatAccessList(s.tenant_access)
+                });
+                shareModelCol.push(shareModel);
+            });
+            modelData["share_list"] =
+                new Backbone.Collection(shareModelCol);
+            var editApplicationRefs = "" , editagSiteRefs = "",
+                editagDeploymentRefs = "", editagTierRefs = "", editagLabelsRef = '';
+            var editTagsRefsArray = [];
+            var tagrefs = getValueByJsonPath(modelData,
+                    "tag_refs", []);
+            if(tagrefs.length > 0) {
+                _.each(tagrefs, function(refs){
+                    var fqName = refs.to;
+                    if((fqName[fqName.length -1].indexOf('application') > -1)) {
+                        if(editApplicationRefs === '') {
+                            editApplicationRefs = fqName.join(":");
+                        } else {
+                            editApplicationRefs += ',' + fqName.join(":");
+                        }
+                    }
+                    if((fqName[fqName.length -1].indexOf('site') > -1)) {
+                        if(editagSiteRefs === '') {
+                            editagSiteRefs = fqName.join(":");
+                        } else {
+                            editagSiteRefs += ',' + fqName.join(":");
+                        }
+                    }
+                    if((fqName[fqName.length -1].indexOf('deployment') > -1)) {
+                        if(editagDeploymentRefs === '') {
+                            editagDeploymentRefs = fqName.join(":");
+                        } else {
+                            editagDeploymentRefs += ',' + fqName.join(":");
+                        }
+                    }
+                    if((fqName[fqName.length -1].indexOf('tier') > -1)) {
+                        if(editagTierRefs === '') {
+                            editagTierRefs = fqName.join(":");
+                        } else {
+                            editagTierRefs += ',' + fqName.join(":");
+                        }
+                    }
+                    if((fqName[fqName.length -1].indexOf('label') > -1)) {
+                        if(editagLabelsRef === '') {
+                            editagLabelsRef = fqName.join(":");
+                        } else {
+                            editagLabelsRef += ',' + fqName.join(":");
+                        }
+                    }
+                });
+            }
+            modelData["Application"] = editApplicationRefs;
+            modelData["Site"] = editagSiteRefs;
+            modelData["Deployment"] = editagDeploymentRefs;
+            modelData["Tier"] = editagTierRefs;
+            modelData["Labels"] = editagLabelsRef;
+            return modelData;
+        },
+        formatAccessList: function(access) {
+            var retStr = "";
+            switch (access) {
+                case 1:
+                    retStr = "1";
+                    break;
+                case 2:
+                    retStr = "2";
+                    break;
+                case 3:
+                    retStr = "2,1";
+                    break;
+                case 4:
+                    retStr = "4";
+                    break;
+                case 5:
+                    retStr = "4,1";
+                    break;
+                case 6:
+                    retStr = "4,2";
+                    break;
+                case 7:
+                    retStr = "4,2,1";
+                    break;
+                default:
+                    retStr = "";
+                    break;
+            };
+            return retStr;
+        },
         setModelDataSources: function(allData) {
             self.SIDataSource = getValueByJsonPath(allData,
                     "service_instances_ref", []);
@@ -55,7 +169,6 @@ define([
             var rulesList = this.model().attributes['firewall_rules'],
                 newRuleModel = new RuleModel();
             this.showHideServiceInstance(newRuleModel);
-
             rulesList.add([newRuleModel]);
         },
         addRuleByIndex: function(data,rules) {
@@ -201,6 +314,7 @@ define([
                         ];
                     newFWPolicyData['parent_type'] = "project";
                 }
+                this.updateRBACPermsAttrs(newFWPolicyData);
 
                 ctwu.deleteCGridData(newFWPolicyData);
 

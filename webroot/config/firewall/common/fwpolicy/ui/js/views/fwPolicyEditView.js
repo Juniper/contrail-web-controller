@@ -343,7 +343,7 @@ define([
     };
     var createPolicyViewConfig = [{
         elementId: cowu.formatElementId([prefixId, ctwl.TITLE_DETAILS]),
-            title: ctwl.TITLE_DETAILS,
+        title: ctwl.TITLE_DETAILS,
         view: "SectionView",
         viewConfig: {
             rows: [
@@ -374,8 +374,352 @@ define([
                   }
             ]
         }
+    },
+    {
+        elementId: "tags_id",
+        view: 'SectionView',
+        title: "Tags",
+        viewConfig: {
+            rows: [
+                {
+                    columns: [
+                        {
+                            elementId: 'Application',
+                            view: 'FormDropdownView',
+                            viewConfig: {
+                                label: "Application",
+                                path: 'Application',
+                                dataBindValue: 'Application',
+                                class: 'col-xs-6',
+                                elementConfig: {
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    placeholder:
+                                        "Select Application Tag",
+                                        dataSource : getDataSourceForDropdown('application')
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    columns: [
+                        {
+                            elementId: 'Deployment',
+                            view: 'FormDropdownView',
+                            viewConfig: {
+                                label: "Deployment",
+                                path: 'Deployment',
+                                dataBindValue: 'Deployment',
+                                class: 'col-xs-6',
+                                elementConfig: {
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    placeholder:
+                                        "Select Deployment Tag",
+                                        dataSource : getDataSourceForDropdown('deployment')
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    columns: [
+                        {
+                            elementId: 'Site',
+                            view: 'FormDropdownView',
+                            viewConfig: {
+                                label: "Site",
+                                path: 'Site',
+                                dataBindValue: 'Site',
+                                class: 'col-xs-6',
+                                elementConfig: {
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    placeholder:
+                                        "Select Site Tag",
+                                        dataSource : getDataSourceForDropdown('site')
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    columns: [
+                        {
+                            elementId: 'Tier',
+                            view: 'FormDropdownView',
+                            viewConfig: {
+                                label: "Tier",
+                                path: 'Tier',
+                                dataBindValue: 'Tier',
+                                class: 'col-xs-6',
+                                elementConfig: {
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    placeholder:
+                                        "Select Tier Tag",
+                                        dataSource : getDataSourceForDropdown('tier')
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    columns: [
+                        {
+                            elementId: 'Labels',
+                            view: 'FormMultiselectView',
+                            viewConfig: {
+                                label: "Labels",
+                                path: 'Labels',
+                                dataBindValue: 'Labels',
+                                class: 'col-xs-6',
+                                elementConfig: {
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    placeholder:
+                                        "Select Labels",
+                                        dataSource : getDataSourceForDropdown('label')
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        elementId: "security_permissions",
+        view: 'SectionView',
+        title:"Permissions",
+        viewConfig: {
+            rows: [
+                {
+                    columns: [
+                        {
+                            elementId: 'owner_access_security',
+                            view: 'FormMultiselectView',
+                            viewConfig: {
+                                label: "Owner Permissions",
+                                path: 'perms2.owner_access',
+                                dataBindValue: 'perms2().owner_access',
+                                class: 'col-xs-6',
+                                elementConfig: {
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    placeholder:
+                                        "Select Permissions",
+                                    data: cowc.RBAC_ACCESS_TYPE_LIST
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    columns: [
+                        {
+                            elementId: 'global_access_secuirty',
+                            view: 'FormMultiselectView',
+                            viewConfig: {
+                                label: "Global Share Permissions",
+                                path: 'perms2.global_access',
+                                dataBindValue: 'perms2().global_access',
+                                class: 'col-xs-6',
+                                elementConfig: {
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    placeholder:
+                                        "Select Permissions",
+                                    data: cowc.RBAC_ACCESS_TYPE_LIST
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    columns:[{
+                        elementId: "security_share_accordion_create",
+                        view: "AccordianView",
+                        viewConfig:[{
+                           elementId: "security_share_accordion_create",
+                           view:  "SectionView",
+                           title: "Share List",
+                           viewConfig:{
+                               rows: [{
+                                   columns:
+                                      shareViewConfig()
+                                }]
+                            }
+                        }]
+                    }]
+                 }
+
+            ]
+        }
     }];
 
+   function shareViewConfig() {
+        return  [{
+            elementId: 'share_list',
+            view: "FormEditableGridView",
+            viewConfig: {
+                path : 'share_list',
+                class: 'col-xs-12',
+                validation:
+               'rbacPermsShareValidations',
+               templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                collection:
+                    'share_list',
+                columns: [
+                    {
+                        elementId: "tenant",
+                        name: "Project",
+                        view: 'FormComboboxView',
+                        viewConfig: {
+                            path : "tenant",
+                            width: 250,
+                            dataBindValue : "tenant()",
+                            templateId:
+                                cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
+                            elementConfig: {
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                placeholder: "Enter or Select Project",
+                                dataSource: {
+                                    type: "remote",
+                                    url:
+                                     "/api/tenants/config/all-projects/",
+                                    requestType: "GET",
+                                    parse: function(result){
+                                        var dataSource = [],
+                                           projects =
+                                           getValueByJsonPath(result,
+                                               "projects", []);
+                                        _.each(projects, function(project){
+                                            var projName =
+                                                getValueByJsonPath(project,
+                                                "fq_name;1", "", false),
+                                                projId =
+                                                getValueByJsonPath(project,
+                                                "uuid", "", false  );
+                                            if(projId && projName &&
+                                                projName !==
+                                                    "default-project") {
+                                                dataSource.push({
+                                                    text: projName + " (" + projId + ")",
+                                                    value: projId
+                                                });
+                                            }
+                                        });
+                                        return dataSource
+                                    }
+                                }
+                            }
+                       }
+                    },
+                    {
+                        elementId: "tenant_access",
+                        name: 'Permissions',
+                        view: "FormMultiselectView",
+                        viewConfig: {
+                            templateId: cowc.
+                                TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
+                            width: 250,
+                            path: "tenant_access",
+                            dataBindValue: "tenant_access()",
+                            elementConfig:{
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                placeholder: "Select Permissions",
+                                data: cowc.RBAC_ACCESS_TYPE_LIST
+                            }
+                        }
+                    }
+                 ],
+                rowActions: [
+                    {onClick: "function() {" +
+                        "$root.addShareByIndex($data, this);" +
+                        "}",
+                     iconClass: 'fa fa-plus'},
+                    {onClick: "function() {" +
+                        "$root.deleteShare($data, this);" +
+                       "}",
+                     iconClass: 'fa fa-minus'}
+                ],
+                gridActions: [
+                    {onClick: "function() {" +
+                        "addShare();" +
+                        "}",
+                     buttonTitle: ""}
+                ]
+            }
+        }];
+    }
+    function tagsParser(result, tagName) {
+        var textValue, actValue, tagsArray = [];
+        if(tagName != "label"){
+            tagsArray.push({'text':"None","value":"None"});
+        }
+        var pHashParam = getValueByJsonPath(layoutHandler.getURLHashObj(),"p");
+        var isGlobal = false;
+        if (pHashParam != null) {
+            var parts = pHashParam.split('_');
+            if(parts[0] != null && parts[0] == 'config' &&
+                    parts[1] != null && parts[1] == 'infra'){
+                isGlobal = true;
+            }
+        }
+        for(var i=0; i<result.length; i++){
+          tagsDetails = result[i].tags;
+          for(var j= 0; j < tagsDetails.length; j++){
+              //If its a global page and if the tags are from project then continue
+              //If not global and not from same project then continue
+              if (isGlobal && tagsDetails[j]['tag'].fq_name.length > 1) {
+                  continue;
+              } else if (!isGlobal && tagsDetails[j]['tag'].fq_name.length > 1) {
+                  var domain = contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME);
+                  var project = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
+                  if (domain != tagsDetails[j]['tag'].fq_name[0] ||
+                          project != tagsDetails[j]['tag'].fq_name[1]) {
+                      continue;
+                  }
+              }
+              if(tagsDetails[j].tag.fq_name &&
+                      tagsDetails[j].tag.fq_name.length === 1) {
+                  actValue = tagsDetails[j].tag.fq_name[0];
+              }
+              else{
+                  actValue =  tagsDetails[j].tag.fq_name[0] +
+                  ":" + tagsDetails[j].tag.fq_name[1] +
+                  ":" + tagsDetails[j].tag.fq_name[2];
+              }
+              data = {
+                      "text": (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                  "global:" + tagsDetails[j].tag.name :
+                                   tagsDetails[j].tag.name,
+                      "value":actValue
+                 };
+              if (tagsDetails[j].tag.tag_type === tagName) {
+                  tagsArray.push(data);
+              }
+          }
+        }
+        return tagsArray;
+    }
+
+    function getDataSourceForDropdown (tagName) {
+        return {
+            type: 'remote',
+            requestType: 'post',
+            postData: JSON.stringify(
+                  {data: [{type: 'tags'}]}),
+            url:'/api/tenants/config/get-config-details',
+            parse: function(result) {
+                return tagsParser(result,tagName);
+            }
+        }
+    }
     function serviceGroupDataFormatter(response){
         var serviceGrpList = [];
         serviceGroupList =[];
@@ -1117,7 +1461,6 @@ define([
         };
         createStepViewConfig.viewConfig[0].viewConfig.rows[0].columns[0].viewConfig.disabled = false;
         steps = steps.concat(createStepViewConfig);
-
         /*
             Appending Add Rules Steps
          */

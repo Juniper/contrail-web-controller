@@ -296,7 +296,7 @@ define([
                                     templateGeneratorConfig: {
                                         formatter: "lastUpdateExpFormatter"
                                     }
-                                }]
+                                }].concat(ctwu.getTagsExpandDetails())
                            }]
                       }]
                     }
