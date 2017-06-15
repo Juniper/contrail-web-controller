@@ -4,15 +4,18 @@
 
 define([
     'underscore',
-    'contrail-model'
-], function (_, ContrailModel) {
+    'contrail-model',
+    'core-basedir/js/models/RBACPermsShareModel'
+], function (_, ContrailModel,RBACPermsShareModel) {
     var fwPermissionModel = ContrailModel.extend({
         defaultConfig: {
             "perms2": {
                 "owner": "",
                 "owner_access": "",
                 "global_access": "",
-                "share": []
+                "share": [],
+                "tenant": null,
+                "tenant_access": "4,2,1"
             }
         },
         formatModelConfig: function(modelData) {
@@ -29,7 +32,20 @@ define([
                 modelData["perms2"] = {};
                 modelData["perms2"]["owner_access"] = "4,2,1";
                 modelData["perms2"]["global_access"] = "";
+                modelData["owner_visible"] = false;
             }
+
+            share = getValueByJsonPath(modelData,
+                    "perms2;share", []);
+            _.each(share, function(s){
+                shareModel = new RBACPermsShareModel({
+                    tenant : s.tenant,
+                    tenant_access: self.formatAccessList(s.tenant_access)
+                });
+                shareModelCol.push(shareModel);
+            });
+            modelData["share_list"] =
+                new Backbone.Collection(shareModelCol);
             return modelData;
         },
         formatAccessList: function(access) {
