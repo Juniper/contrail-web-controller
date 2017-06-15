@@ -1119,8 +1119,6 @@ define([
         /* common config url constants */
         this.URL_GET_CONFIG_OBJECTS = "/api/tenants/config/get-config-objects";
         this.URL_GET_CONFIG_DETAILS = "/api/tenants/config/get-config-details";
-        this.URL_CREATE_CONFIG_OBJECT = "/api/tenants/config/create-config-object";
-        this.URL_UPDATE_CONFIG_OBJECT = "/api/tenants/config/update-config-object";
         this.URL_GET_CONFIG_LIST = "/api/tenants/config/get-config-list";
        // Config Editor Constants
         this.CONFIG_OBJECT_LIST_VIEW = 'config-object-list-view';
@@ -1133,6 +1131,7 @@ define([
         this.CONFIG_HASH_PATH = '/#p=setting_config_editor&q[objName]=';
         this.TEXT_AREA_PLACEHOLDER = 'Copy / Paste JSON data for ';
         this.MODAL_CONFIG_EDITOR_CONTAINER = 'json-editor-form-view';
+        this.CONFIG_EDITOR_PATH = '/js/views/configEditor/';
         //Gohan Constants
         this.GOHAN_HASH_LIST = ['config_gc_serviceTemplates','config_gc_serviceInstance','config_gc_securityGroup','config_gc_networkPolicy','config_gc_network',
                                 'config_gc_server','config_gc_idPool','config_gc_association','config_gc_flavor','config_gc_image','config_gc_location'];

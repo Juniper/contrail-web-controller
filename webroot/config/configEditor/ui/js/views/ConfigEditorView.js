@@ -3,9 +3,8 @@
  */
 define([
     'underscore',
-    'contrail-view',
-    'config/configEditor/ui/js/models/ConfigEditorModel'],
-    function(_, ContrailView, ConfigEditorModel) {
+    'contrail-view'],
+    function(_, ContrailView) {
         var configData = [];
         var configEditorView = ContrailView.extend({
         el: $(contentContainer),
@@ -14,8 +13,7 @@ define([
             var hashParams = viewConfig.hashParams;
             if(viewConfig.hashParams.objName != undefined){
                 if(viewConfig.hashParams.uuid == undefined){
-                    var configEditorModel = new ConfigEditorModel();
-                    self.renderView4Config(this.$el, configEditorModel,{
+                    self.renderView4Config(this.$el, null,{
                         elementId: ctwc.CONFIG_OBJECT_LIST_VIEW,
                         view: "ConfigObjectListView",
                         viewPathPrefix : ctwc.CONFIG_PATH,
@@ -25,8 +23,7 @@ define([
                         }
                     });
                 }else{
-                    var configEditorModel = new ConfigEditorModel();
-                    self.renderView4Config(this.$el, configEditorModel,{
+                    self.renderView4Config(this.$el, null,{
                         elementId: ctwc.CONFIG_OBJECT_DETAILS_VIEW,
                         view: "ConfigObjectDetailsView",
                         viewPathPrefix : ctwc.CONFIG_PATH,
