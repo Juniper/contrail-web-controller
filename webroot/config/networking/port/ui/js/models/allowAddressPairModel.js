@@ -12,7 +12,8 @@ define([
             'ip': {'ip_prefix':'',
                   'ip_prefix_len':''},
             'ipPrefixVal': '',
-            'mac':''
+            'mac':'',
+            'address_mode': 'active-standby'
         },
         formatModelConfig: function (config) {
             var ipprefix = getValueByJsonPath(config, 'ip;ip_prefix', null);
