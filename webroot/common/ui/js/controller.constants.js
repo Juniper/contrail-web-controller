@@ -1133,6 +1133,17 @@ define([
         this.CONFIG_HASH_PATH = '/#p=setting_config_editor&q[objName]=';
         this.TEXT_AREA_PLACEHOLDER = 'Copy / Paste JSON data for ';
         this.MODAL_CONFIG_EDITOR_CONTAINER = 'json-editor-form-view';
+        this.CONFIG_EDITOR_MODAL_LAYOUT = '<div id="config-error-container" class="alert-error clearfix">'+
+									        '<div id="config-msg-container"><span class="error-font-weight">Error : </span><span id="config-error-msg-container"></span></div>'+
+									        '<div id="error-remove-icon"><button id="remove-error-popup" class="btn btn-mini"><i class="fa fa-remove"></i></button></div></div>'+
+									        '<div id="editorContainer"><div class="json-editor-form-view-header">'+
+									        '<div><input type="radio" name="switchFormJson" id="configFormMode" checked="true"></input><label>Form</label><input type="radio" name="switchFormJson" id="configJsonMode"></input><label>JSON</label></div></div>'+
+									        '<div id="jsonEditorContainer"></div><div id="rawJsonEdit" style="display:none;"><textarea id="rawJsonTextArea" spellcheck="false"></textarea></div>'+
+									        '</div>';
+        this.EDIT_DISABLE_KEYS = ['to','security_group_id','parent_href','uuid','href','fq_name','owner','creator','created','last_modified','timer','parent_uuid','parent_type'];
+        this.ADD_DISABLE_KEYS = ['security_group_id','uuid','href','fq_name','owner','creator','created','last_modified','timer','parent_uuid','parent_type'];
+    	this.EMPTY_SCHEMA = 'Please provide the schema for particular object';
+    	this.CONFIG_EDITOR_PATH = '/js/views/configEditor/';
         //Gohan Constants
         this.GOHAN_HASH_LIST = ['config_gc_serviceTemplates','config_gc_serviceInstance','config_gc_securityGroup','config_gc_networkPolicy','config_gc_network',
                                 'config_gc_server','config_gc_idPool','config_gc_association','config_gc_flavor','config_gc_image','config_gc_location'];
