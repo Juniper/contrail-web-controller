@@ -106,8 +106,8 @@ define([
                                 }
                             }
                         ]
-                    },
-                    {
+                    }
+                   /* {
                         columns: [
                             {
                                 elementId: "tag_refs",
@@ -126,7 +126,7 @@ define([
                                 }
                             }
                         ]
-                    }
+                    }*/
                 ]
             }
         }

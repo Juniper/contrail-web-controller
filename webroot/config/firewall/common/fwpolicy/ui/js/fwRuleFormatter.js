@@ -55,7 +55,8 @@
                         var endPort = getValueByJsonPath(service, 'dst_ports;end_port', '');
                         if(startPort !== '' && endPort !== ''){
                             if(startPort === endPort){
-                                serviceStr += ':'  + endPort;
+                                serviceStr += ':'  +
+                                    (endPort === -1 ? ctwl.FIREWALL_POLICY_ANY : endPort);
                             } else{
                                 serviceStr += ':' + (service && service.dst_ports ?
                                         startPort + '-' +

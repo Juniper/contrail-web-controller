@@ -35,7 +35,48 @@ define([
                 }
             }
 
-        }
+        };
+
+        this.validateServices = function(value, attr, finalObj) {
+            if(!value) {
+                return;
+            }
+            var serviceArry = value.split(':');
+            if(serviceArry.length !== 2) {
+                return;
+            }
+            var protocol = serviceArry[0],
+                port = serviceArry[1];
+            if($.inArray(protocol.toLowerCase(), ['tcp', 'udp', 'icmp']) === -1 &&
+                    isNaN(protocol) || Number(protocol) < 0 || Number(protocol) > 255) {
+                    return "Select a protocol or enter a code between 0 - 255";
+            }
+            if (_.isString(port)) {
+                if (port.toLowerCase() != "any") {
+                    var portArr = port.split(",");
+                    for (var i = 0; i < portArr.length; i++) {
+                        var portSplit = portArr[i].split("-");
+                        if (portSplit.length > 2) {
+                            return "Invalid Port Data";
+                        }
+                        for (var j = 0; j < portSplit.length; j++) {
+                            if (portSplit[j] == "") {
+                                return "Port has to be a number";
+                            }
+                            if (!isNumber(portSplit[j])) {
+                                return "Port has to be a number";
+                            }
+                            if (portSplit[j] % 1 != 0) {
+                                return "Port has to be a number";
+                            }
+                        }
+                    }
+                }
+            } else if (!isNumber(port)) {
+                return "Port has to be a number";
+            }
+            return;
+        };
     }
     return fwPolicyUtils;
 });

@@ -185,23 +185,7 @@ define([
                             }
                         }
                     }
-                 ],
-                rowActions: [
-                    {onClick: "function() {" +
-                        "$root.addShareByIndex($data, this);" +
-                        "}",
-                     iconClass: 'fa fa-plus'},
-                    {onClick: "function() {" +
-                        "$root.deleteShare($data, this);" +
-                       "}",
-                     iconClass: 'fa fa-minus'}
-                ],
-                gridActions: [
-                    {onClick: "function() {" +
-                        "addShare();" +
-                        "}",
-                     buttonTitle: ""}
-                ]
+                 ]
             }
         }];
     }

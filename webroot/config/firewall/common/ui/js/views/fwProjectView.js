@@ -15,9 +15,18 @@ define([
         renderProjectPolicyDetails: function(viewConfig) {
             var self = this,
             currentHashParams = layoutHandler.getURLHashParams(),
-            policyName = currentHashParams.focusedElement.policy;
+            policyName = currentHashParams.focusedElement.policy,
+            projectDisplayName = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME),
+            policyNameFormat;
+            if(currentHashParams.focusedElement.isGlobal === "false"){
+                policyNameFormat = policyName + " ("+projectDisplayName+")";
+            }
+            else{
+                policyNameFormat = policyName;
+            }
+            console.log(currentHashParams.focusedElement.isGlobal);
             self.renderView4Config(self.$el, null,
-                    getProjectPolicyDetails(viewConfig,policyName));
+                    getProjectPolicyDetails(viewConfig,policyNameFormat));
         }
     });
 
@@ -61,7 +70,7 @@ define([
                 viewConfig: {
                     rows: [{
                         columns: [{
-                            elementId: 'fw_project_tab_view',
+                            elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
                             view: 'TabsView',
                             viewConfig: getSecurityPolicyTabs(newViewConfig)
                         }]
@@ -71,12 +80,12 @@ define([
         }
     };
 
-    function getProjectPolicyDetails(viewConfig,policyName){
+    function getProjectPolicyDetails(viewConfig,policyNameFormat){
         return {
             elementId: "fwrule-project-policy-page-id",
             view: "SectionView",
             viewConfig: {
-                title: ctwc.FIREWALL_POLICY_HEADING + " : " + policyName,
+                title: ctwc.FIREWALL_POLICY_HEADING + " : " + policyNameFormat,
                 elementId: "fwrule-project-policy-page-tabs",
                 rows: [{
                     columns: [{

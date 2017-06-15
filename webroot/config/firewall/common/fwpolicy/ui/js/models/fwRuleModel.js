@@ -49,7 +49,7 @@ define([
                 var dstEndtPort = getValueByJsonPath(modelConfig, "service;dst_ports;end_port", '');
                 serviceList.push(protocol);
                 if(dstStartPort === dstEndtPort){
-                    port = dstStartPort;
+                    port = dstStartPort === -1 ? ctwl.FIREWALL_POLICY_ANY : dstStartPort;
                 }else{
                    port = dstStartPort + '-' + dstEndtPort;
                 }
@@ -211,18 +211,23 @@ define([
                 service['service_group_refs'] = [{to:svcListRef[svcListRef.length - 1]}];
                 service['isServiceGroup'] = true;
             }else{
-                var ports = selectedData.split(':');
-                if(ports.length === 2) {
+                var services = selectedData.split(':');
+                if(services.length === 2) {
                     service['service'] = {};
-                    service['service']['protocol'] = ports[0];
+                    service['service']['protocol'] = services[0];
                     service['service']['dst_ports'] =
-                        policyFormatters.formatPort(ports[1])[0];
+                        policyFormatters.formatPort(services[1])[0];
                     service['service']['src_ports'] =
                         policyFormatters.formatPort('0-65535')[0];
-                    service['isServiceGroup'] = false;
-                }else{
-                    service['isServiceGroup'] = false;
+                } else if(services.length === 1){
+                    service['service'] = {};
+                    service['service']['protocol'] = services[0];
+                    service['service']['dst_ports'] =
+                        policyFormatters.formatPort('-1')[0];
+                    service['service']['src_ports'] =
+                        policyFormatters.formatPort('0-65535')[0];
                 }
+                service['isServiceGroup'] = false;
             }
         return service;
         },
@@ -260,7 +265,8 @@ define([
                 },
                 'endpoint_1' : function(value, attr, finalObj){
                     return fwPolicyUtils.validateEndPoint('endpoint_1',finalObj);
-                }
+                },
+                'user_created_service' : fwPolicyUtils.validateServices
             }
         },
         addEditFirewallRule: function (callbackObj, options, serviceGroupList) {

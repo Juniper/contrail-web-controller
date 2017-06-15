@@ -329,6 +329,15 @@ define([
                                 "reqUrl": ctwc.URL_CREATE_FW_POLICY}]};
                     ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 } else {
+                  // Delete the all fields which not required for the Edit Firewall Policies
+                    delete newFWPolicyData.firewall_rule_refs;
+                    delete newFWPolicyData.firewall_rules;
+                    delete newFWPolicyData.href;
+                    delete newFWPolicyData.parent_type;
+                    delete newFWPolicyData.parent_uuid;
+                    delete newFWPolicyData.perms2;
+                    delete newFWPolicyData.tag_refs;
+                    postFWPolicyData['firewall-policy'] = newFWPolicyData;
                     postFWPolicyData = {"data":[{"data": postFWPolicyData,
                                 "reqUrl": ctwc.URL_UPDATE_FW_POLICY +
                                 newFWPolicyData['uuid']}]};

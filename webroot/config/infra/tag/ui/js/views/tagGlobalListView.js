@@ -5,8 +5,9 @@
 define([
     'underscore',
     'contrail-view',
-    'contrail-list-model'
-], function (_, ContrailView, ContrailListModel) {
+    'contrail-list-model',
+    'config/firewall/common/tag/ui/js/tagUtils'
+], function (_, ContrailView, ContrailListModel, tagUtils) {
     var tagGlobalListView = ContrailView.extend({
         el: $(contentContainer),
         renderTagView: function () {
@@ -22,11 +23,11 @@ define([
                                 'network_policy_back_refs','route_table_back_refs',
                                 'bgp_as_a_service_back_refs','security_group_back_refs','bgp_router_back_refs','service_template_back_refs']}]})
                     },
-                    dataParser: self.parseTagData,
+                    dataParser: self.parseTagData.bind(this),
                 }
             };
-            var contrailListModel = new ContrailListModel(listModelConfig);
-            this.renderView4Config(this.$el, contrailListModel, getTagGridViewConfig());
+            this.contrailListModel = new ContrailListModel(listModelConfig);
+            this.renderView4Config(this.$el, this.contrailListModel, getTagGridViewConfig());
         },
         parseTagData : function(response){
             var dataItems = [],
@@ -36,7 +37,9 @@ define([
                         dataItems.push(val.tag);
                     }
                 });
-            return dataItems.sort(tagsComparator);
+            dataItems = dataItems.sort(tagsComparator);
+            tagUtils.fetchVMIDetails(dataItems, this.contrailListModel);
+            return [];
         }
     });
 

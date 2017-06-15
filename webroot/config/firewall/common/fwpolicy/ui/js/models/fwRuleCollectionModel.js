@@ -447,7 +447,8 @@ define([
                 },
                 'endpoint_1' : function(value, attr, finalObj){
                     return fwPolicyUtils.validateEndPoint('endpoint_1',finalObj);
-                }
+                },
+                'user_created_service' : fwPolicyUtils.validateServices
             }
         },
         validatePort: function(port) {

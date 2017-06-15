@@ -11,8 +11,10 @@ define([
 ], function (_, ContrailView, Knockback, PolicyFormatters, FwPolicyFormatter) {
     var prefixId = ctwc.FW_POLICY_PREFIX_ID,serviceGroupList = [];
     var modalId = 'configure-' + prefixId;
+    var formId = '#' + modalId + '-form';
     var self;
     var fwPolicyFormatter = new FwPolicyFormatter();
+
     var fwPolicyEditEditView = ContrailView.extend({
         renderAddEditFWPolicy: function (options) {
             var editTemplate =
@@ -57,7 +59,52 @@ define([
                 });
             });
         },
-
+        renderEditFirewallPolicyDescription : function (options){
+            var editTemplate =
+                contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
+            var editLayout = editTemplate(
+                    {modalId: modalId, prefixId: prefixId});
+            disableElement = false;
+            self = this;
+            cowu.createModal({'modalId': modalId,
+                'className': 'modal-700',
+                'title': ctwl.TITLE_EDIT_FW_POLICY,
+                'body': editLayout,
+                'onSave': function () {
+                    self.model.configFWPolicy({
+                        init: function () {
+                            self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+                                    false);
+                            cowu.enableModalLoading(modalId);
+                        },
+                        success: function () {
+                            options['callback']();
+                            $("#" + modalId).modal('hide');
+                        },
+                        error: function (error) {
+                            cowu.disableModalLoading(modalId, function () {
+                                self.model.showErrorAttr(prefixId +
+                                                         cowc.FORM_SUFFIX_ID,
+                                                         error.responseText);
+                            });
+                        }
+                    },options);
+                    // TODO: Release binding on successful configure
+                }, 'onCancel': function () {
+              Knockback.release(self.model, document.getElementById(modalId));
+              kbValidation.unbind(self);
+              $("#" + modalId).modal('hide');
+            }});
+            self.renderView4Config($("#" + modalId).find(formId),
+                    self.model,
+                    getPolicyDescriptionEditViewConfig(options),
+                    null, null, null, function() {
+                self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
+                Knockback.applyBindings(self.model,
+                         document.getElementById(modalId));
+                kbValidation.bind(self);
+            });
+        },
         renderDeleteFWPolicies: function(options) {
             var delTemplate =
                 contrail.getTemplate4Id('core-generic-delete-form-template');
@@ -258,6 +305,48 @@ define([
 
     });
 
+    function getPolicyDescriptionEditViewConfig(options){
+        var policyViewConfig = {
+                elementId: cowu.formatElementId([prefixId, "description"]),
+                title: "Edit Policy",
+                view: "SectionView",
+                viewConfig: {
+                    rows: [
+                        {
+                            columns: [
+                                {
+                                    elementId: "name",
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        disabled: true,
+                                        path: "name",
+                                        dataBindValue: "name",
+                                        label: "Name",
+                                        class: "col-xs-12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: "description",
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        disabled: false,
+                                        path: "id_perms.description",
+                                        dataBindValue: "id_perms().description",
+                                        label: "Description",
+                                        class: "col-xs-12"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+        }
+        return policyViewConfig;
+    }
     function parseTags(tags) {
         var tagGroupData = {},
             applicationMap = { Application: [{ text: "Select Application",
@@ -375,7 +464,7 @@ define([
             ]
         }
     },
-    {
+    /*{
         elementId: "tags_id",
         view: 'SectionView',
         title: "Tags",
@@ -488,7 +577,7 @@ define([
                 }
             ]
         }
-    },
+    },*/
     {
         elementId: "security_permissions",
         view: 'SectionView',
@@ -901,7 +990,7 @@ define([
                                      dataBindValue: "direction()",
                                      disabled: "showService()",
                                      elementConfig:{
-                                         data:['<>', '>']
+                                         data:['<>', '>', '<']
                                      }}
                                 },
                                 {

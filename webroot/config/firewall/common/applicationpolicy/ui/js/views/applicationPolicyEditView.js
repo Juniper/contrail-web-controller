@@ -139,6 +139,8 @@ define([
                                    elementId: 'Application',
                                    view: 'FormMultiselectView',
                                    viewConfig: {
+                                       visible:
+                                           'name() !== "' + ctwc.GLOBAL_APPLICATION_POLICY_SET + '"',
                                        label: "Application Tags",
                                        path: 'Applicaton',
                                        dataBindValue: 'Application',

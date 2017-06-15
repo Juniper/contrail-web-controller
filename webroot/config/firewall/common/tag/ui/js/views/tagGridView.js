@@ -85,7 +85,8 @@ define([
                         {
                              field: 'name',
                              name: 'Name',
-                             id: 'name'
+                             id: 'name',
+                             width: 150
                         },
                         /*{
                             field: 'tag_type',
@@ -101,6 +102,7 @@ define([
                             id: "ref_obj",
                             field: "ref_obj",
                             name: "Associated Virtual Networks",
+                            width: 150,
                             formatter: virtualNetworkFormatter,
                             sortable: {
                                 sortBy: 'formattedValue'
@@ -110,15 +112,48 @@ define([
                             id: "ref_obj",
                             field: "ref_obj",
                             name: "Associated Ports",
+                            width: 180,
                             formatter: portsFormatter,
                             sortable: {
                                 sortBy: 'formattedValue'
-                            }
+                            }/*,
+                            cssClass :'cell-hyperlink-blue',
+                            events : {
+                                onClick : function(e, dc) {
+                                	var target = e.target.innerHTML;
+                                	if(target.search('more') == -1){
+                                		var hashP = 'config_net_ports';
+                                    	var port = target.split('(');
+                                    	var projectName = port[1].substring(port[1].length-1,0);
+                                        var hashParams = null,
+                                            hashObj = {
+                                                focusedElement: {
+                                                    uuid: port[0].trim(),
+                                                    projectName :projectName
+                                                }
+                                            };
+                                        if (contrail.checkIfKeyExistInObject(true,
+                                                hashParams,
+                                                'clickedElement')) {
+                                            hashObj.clickedElement =
+                                                hashParams.clickedElement;
+                                        }
+
+                                        layoutHandler.setURLHashParams(hashObj, {
+                                            p: hashP,
+                                            merge: false,
+                                            triggerHashChange: true
+                                        });
+                                	}
+                                	
+                                }
+                            }*/
                         },
                         {
                             id: "ref_obj",
                             field: "ref_obj",
                             name: "Associated Objects",
+                            width: 180,
                             formatter: othersFormatter,
                             sortable: {
                                 sortBy: 'formattedValue'
@@ -333,12 +368,19 @@ define([
     	var returnString = '',refList = [];
     	var vmi = getValueByJsonPath(dc, 'virtual_machine_interface_back_refs', []);
     	for(var j = 0; j < vmi.length; j++){
-    		var to = vmi[j].to;
-    		var name = to[to.length-1];
-    		var refText = '<span>'+ name +'</span>';
+            var vn = getValueByJsonPath(vmi, j + ';virtual_network_refs;0;to;2', '');
+            var formatterIpStr = '',fixedIps = getValueByJsonPath(vmi, j + ';instance_ip_back_refs', []);
+            _.each(fixedIps, function(fixedIpDetails, index) {
+                if(index === 0) {
+                    formatterIpStr = fixedIpDetails.fixedip.ip;
+                } else {
+                    formatterIpStr += ', ' + fixedIpDetails.fixedip.ip;
+                }
+            });
+            var refText = '<span>'+ vn +' ('+ (formatterIpStr ? formatterIpStr : '-') + ')</span>';
     		refList.push(refText);
     	}
-        
+
         if(refList.length > 0){
         	if ((null != showAll) && (true == showAll)) {
                 for (var q = 0; q < refList.length; q++) {
@@ -348,16 +390,16 @@ define([
                 }
                 return returnString;
             }
-            for(var l = 0; l< refList.length,l < 2; l++){
+            for(var l = 0; l< refList.length; l++){
                 if(refList[l]) {
                     returnString += refList[l] + "<br>";
                 }
             }
-            if (refList.length > 2) {
-                returnString += '<span class="moredataText">(' +
+            /*if (refList.length > 2) {
+                returnString += '<span class="moredataText" style="color: #393939 !important;cursor: default !important;">(' +
                     (refList.length-2) + ' more)</span> \
                     <span class="moredata" style="display:none;" ></span>';
-            }
+            }*/
         }else{
         	returnString = '-';
         }

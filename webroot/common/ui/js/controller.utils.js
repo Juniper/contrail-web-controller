@@ -195,7 +195,7 @@ define([
                     tags = result+"   ("+set_tags_length+" more)";
                 }
             }
-            return tags;
+            return tags ? tags : '-';
         };
         self.getPermissionsValidation = function() {
             return {

@@ -824,6 +824,7 @@ define([
 
         /* Firewall labels */
         this.TITLE_POLICY_INFO = "Policy Info";
+        this.TITLE_EDIT_FW_POLICY = "Edit Firewall Policy";
         this.TITLE_FW_POLICY = 'Firewall Policies';
         this.TITLE_FW_RULE = 'Firewall Rules';
         this.CONFIG_SECURITY_POLICY_PAGE_ID = 'config-security-policy-page';
@@ -831,7 +832,7 @@ define([
         this.TITLE_SEC_GRP_SERVICE_GROUP = "Service Groups";
         this.TITLE_SEC_GRP_ADDRESS_GROUP = "Address Groups";
         this.TITLE_FIREWALL_APPLICATION_POLICY = "Application Policy Sets";
-        this.TITLE_CREATE_FW_POLICY = 'Policy Info';
+        this.TITLE_CREATE_FW_POLICY = 'Firewall Policy';
         this.TITLE_CREATE_FW_RULES = 'Rules';
         this.TITLE_SAVE_NEXT = "Save &amp; Next";
         this.TITLE_SAVE = "Save";
@@ -853,6 +854,7 @@ define([
         this.TITLE_CREATE_SERVICE_GROUP = 'Create Service Group';
         this.TITLE_SERVICE_GROUP_MULTI_DELETE = 'Delete Service Group (s)';
         this.TITLE_SERVICE_GROUP_DELETE = 'Delete Service Group';
+        this.FIREWALL_POLICY_ANY = 'any';
 
         /* RBAC labels */
         this.TITLE_RBAC = 'API Access';
@@ -1412,6 +1414,10 @@ define([
         this.TITLE_ADD_PACKET_CAPTURE = 'Create Analyzer';
         this.ERROR_LABEL_PACKET_CAPTURE = 'Analyzer';
         this.CONFIG_SEC_GRP_PAGE_ID = 'config-sec-grp-page';
+
+        /*Traffic Groups Labels */
+        this.TRAFFIC_GROUPS_ENDPOINT_STATS = 'traffic-groups-endpoint-statistics';
+        this.TITLE_TRAFFIC_GROUPS_ENDPOINT_STATS = 'Endpoint Statistics';
     };
     return CTLabels;
 });

@@ -1166,6 +1166,44 @@ define([
             }
             return formattedStr;
         };
+        
+        self.portTagFormatter = function(d, c, v, cd, dc) {
+            var tags = "";
+            var formattedtags = "", refList = [];
+            var tags_ref = getValueByJsonPath(dc, "tag_refs", "");
+            if(tags_ref != ""){
+                var tags_ref_length = tags_ref.length;
+                for(var i = 0; i < tags_ref_length; i++) {
+                    var tags_ref_to = getValueByJsonPath(tags_ref[i], "to", "");
+                    if(tags_ref_to.length === 3){
+                        var reverseTagsData = tags_ref_to.reverse();
+                        reverseTagsData = reverseTagsData[0];
+                        var refText = '<span>'+ reverseTagsData.toString() +'</span>';
+                    }
+                    else if(tags_ref_to.length === 1){
+                        var refText = '<span>global:'+ tags_ref_to +'</span>';
+                    }
+                    refList.push(refText);
+                }
+                if(refList.length > 0){
+                	for(var l = 0; l< refList.length,l < 2; l++){
+                        if(refList[l]) {
+                        	tags += refList[l] + "<br>";
+                        }
+                    }
+                    if (refList.length > 2) {
+                    	tags += '<span class="moredataText" style="color: #393939 !important;cursor: default !important;">(' +
+                            (refList.length-2) + ' more)</span> \
+                            <span class="moredata" style="display:none;" ></span>';
+                    }
+                }else{
+                	tags = '-';
+                }
+            }else{
+            	tags = '-';
+            }
+            return tags;
+        };
     }
     return PortFormatters;
 });

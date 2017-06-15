@@ -131,6 +131,7 @@ define([
         return rowActionConfig;
     }
     var getConfiguration = function (viewConfig) {
+    	var uuid = getHashUuid();
         var gridElementConfig = {
             header: {
                 title: {
@@ -184,6 +185,9 @@ define([
                                     )
             }
         };
+        if(uuid != undefined){
+        	gridElementConfig.onInitFilter = uuid;
+        }
         return gridElementConfig;
     };
 
@@ -205,7 +209,37 @@ define([
                sortBy: 'formattedValue'
             },
             minWidth : 180,
-            formatter: ctwu.tagsPortGridFormatter
+            formatter: portFormatters.portTagFormatter/*,
+            cssClass :'cell-hyperlink-blue',
+            events : {
+                onClick : function(e, dc) {
+                	var target = e.target.innerHTML, hashP;
+                	if(target.search('more') == -1){
+                		var gb = target.split(':');
+                		if(gb[0] === 'global'){
+                			hashP = 'config_tags_globaltags';
+                		}else{
+                			hashP = 'config_tags_projectscopedtags';
+                		}
+                		var hashParams = null,
+                            hashObj = {
+                                focusedElement: {}
+                            };
+                        if (contrail.checkIfKeyExistInObject(true,
+                                hashParams,
+                                'clickedElement')) {
+                            hashObj.clickedElement =
+                                hashParams.clickedElement;
+                        }
+
+                        layoutHandler.setURLHashParams(hashObj, {
+                            p: hashP,
+                            merge: false,
+                            triggerHashChange: true
+                        });
+                	}
+                }
+            }*/
         },
         {
             id:"network",
@@ -246,7 +280,19 @@ define([
             formatter: portFormatters.deviceOwnerFormatter
         }
     ];
-
+    
+    function getHashUuid(){
+        var url = decodeURIComponent(location.hash).split('&'), uuid;
+        for(var i = 0; i < url.length; i++){
+            if(url[i].search('uuid') !== -1){
+                var spliturl = url[i].split('=').reverse();
+                uuid = spliturl[0];
+                break;
+            }
+        }
+        return uuid;
+    };
+    
     function getHeaderActionConfig(gridElId, viewConfig) {
         var dropdownActions;
         dropdownActions = [

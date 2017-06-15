@@ -12,9 +12,14 @@ define([
         el: $(contentContainer),
 
         renderPort: function (viewConfig) {
-            self = this,
-            this.renderView4Config(this.$el, null,
-                                   this.getPortConfig(viewConfig));
+            self = this;
+            var projectName = getValueByJsonPath(viewConfig,'hashParams;focusedElement;projectName',undefined);
+            if(projectName !== undefined){
+            	contrail.setCookie(cowc.COOKIE_PROJECT, projectName);
+            	contrail.setCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME, projectName);
+            }
+            self.renderView4Config(self.$el, null,
+                                   self.getPortConfig(viewConfig));
         },
         getPortConfig: function (viewConfig) {
             var hashParams = viewConfig.hashParams,
