@@ -927,7 +927,8 @@ define([
         this.FW_POLICY_PREFIX_ID = "firewall_policy";
         this.URL_CREATE_FW_POLICY = "/firewall-policys";
         this.URL_UPDATE_FW_POLICY = "/firewall-policy/";
-        this.URL_CREATE_POLICY_RULES = '/api/tenants/config/firewall-rules'
+        this.URL_CREATE_POLICY_RULES = '/api/tenants/config/firewall-rules';
+        this.URL_CREATE_POLICY_RULE = '/api/tenants/config/firewall-rule';
         this.RULE_MATCH_TAGS = [{text: "Application", value: "application"},
                                 {text: 'Tier', value: 'tier'},
                                 {text:'Deployment', value: 'deployment'},
@@ -941,7 +942,12 @@ define([
         this.SITE_TAG_TYPE = 'site';
         this.TIER_TAG_TYPE = 'tier';
         this.LABEL_TAG_TYPE = 'label';
-
+        this.TAG_SEPARATOR = '=';
+        this.INSERT_ABOVE = 'insert_above';
+        this.INSERT_BELOW = 'insert_below';
+        this.INSERT_AT_TOP = 'insert_at_top';
+        this.INSERT_AT_END = 'insert_at_end';
+        this.FIREWALL_POLICY_HEADING = 'Firewall Policy';
 
         /* RBAC constants */
         this.RBAC_GLOBAL_PAGE_ID = "config-rbac-global-list";

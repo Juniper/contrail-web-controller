@@ -43,9 +43,6 @@ define([
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
-
-  
-            console.log(self.model._modelAttributes);
             self.renderView4Config($("#" + modalId).find(formId),
                                    self.model,
                                    getEditProjectTagsViewConfig(options),

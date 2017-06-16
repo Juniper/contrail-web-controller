@@ -20,5 +20,11 @@
         <feature>fwpolicyconfig</feature>
         <callback>fwpolicyconfigapi.createFirewallRules</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/firewall-rule</url>
+        <method>post</method>
+        <feature>fwpolicyconfig</feature>
+        <callback>fwpolicyconfigapi.createFirewallRule</callback>
+    </item>
 </urlLists>
 

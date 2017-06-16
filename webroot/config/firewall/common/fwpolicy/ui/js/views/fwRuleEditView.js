@@ -153,8 +153,7 @@ define([
                     var project = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
                     if(tags.length > 0){
                         for(var i = 0; i < tags.length; i++){
-                            var fqName = tags[i]['tag']['fq_name'].reverse()[0].split('-');
-                            var tagType = fqName[0];
+                            var tagType = getValueByJsonPath(tags[i], 'tag;tag_type', '', false);
                             var val = tags[i]['tag'].fq_name.length === 1 ?
                                     'global:' + tags[i]['tag']['name'] : tags[i]['tag']['name'];
                             var txt = tags[i]['tag'].fq_name.length === 1 ?

@@ -44,7 +44,8 @@ function FWPolicyProjectPageLoader ()
     };
 
     this.destroy = function () {
-        /*ctwu.destroyDOMResources(ctwc.GLOBAL_FORWARDING_OPTIONS_PREFIX_ID);*/
+        ctwu.destroyDOMResources(ctwc.FW_POLICY_PREFIX_ID);
+        ctwu.destroyDOMResources(ctwc.FW_RULE_PREFIX_ID);
     };
 }
 

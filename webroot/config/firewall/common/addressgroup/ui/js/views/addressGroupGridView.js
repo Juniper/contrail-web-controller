@@ -117,7 +117,7 @@ define([
                var dataItem = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
                addressGroupEditView.model = new AddressGroupModel(dataItem);
                addressGroupEditView.renderDeleteAddressGrp({
-                                      "title": 'Delete Address Group',
+                                      "title": ctwl.TITLE_ADDRESS_GROUP_DELETE,
                                       selectedGridData: [dataItem],
                                       callback: function () {
                                           var dataView = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView;
@@ -131,7 +131,7 @@ define([
     	var headerActionConfig = [
     		{
                 "type" : "link",
-                "title" : ctwl.TITLE_TAG_MULTI_DELETE,
+                "title" : ctwl.TITLE_ADDRESS_GROUP_MULTI_DELETE,
                 "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnDeleteAddressGrp',
                 "onClick" : function() {
@@ -140,7 +140,7 @@ define([
                     if(checkedRows && checkedRows.length > 0) {
                     	addressGroupEditView.model = addressGroupModel;
                     	addressGroupEditView.renderDeleteAddressGrp(
-                            {"title": 'Delete Address Group',
+                            {"title": ctwl.TITLE_ADDRESS_GROUP_MULTI_DELETE,
                             	selectedGridData: checkedRows,
                                 callback: function () {
                                     var dataView =
@@ -156,7 +156,7 @@ define([
             },
             {
                 "type": "link",
-                "title": ctwc.SEC_POL_SEC_GRP_TITLE_CREATE,
+                "title": ctwl.TITLE_CREATE_ADDRESS_GROUP,
                 "iconClass": "fa fa-plus",
                 "onClick": function () {
                 	addressGroupEditView.model = new AddressGroupModel();

@@ -82,8 +82,8 @@ define([
 
     function ruleComparator (a,b) {
         // get the sequence for each and compare
-        if(fwRuleFormatter.sequenceFormatter(null,null,null,null,a) >
-                fwRuleFormatter.sequenceFormatter(null,null,null,null,b)) {
+        if(Number(fwRuleFormatter.sequenceFormatter(null,null,null,null,a)) >
+                Number(fwRuleFormatter.sequenceFormatter(null,null,null,null,b))) {
             return 1;
         } else {
             return -1;

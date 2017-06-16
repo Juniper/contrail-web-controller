@@ -8,8 +8,9 @@ define([
 ], function (_, ContrailView) {
     var addressGroupProjectView = ContrailView.extend({
         el: $(contentContainer),
-        renderAddressGroup: function (viewConfig) {
-            var self = this;
+        renderAddressGroup: function () {
+            var self = this,
+            viewConfig = self.attributes.viewConfig;
             self.renderView4Config(self.$el, null,
                                    getAddressGroupConfig(viewConfig));
         }

@@ -100,8 +100,10 @@ define([
         var firewallList = [];
         var policyList = getValueByJsonPath(response, "0;firewall-policys", []);
         $.each(policyList, function (i, obj) {
-            var fqName = obj['firewall-policy']['fq_name'].join(':');
-            firewallList.push({id: fqName, text: fqName});
+            var fqNameJoin = obj['firewall-policy']['fq_name'].join(':');
+            var fqName = obj['firewall-policy']['fq_name'];
+            fqName = fqName[fqName.length-1];
+            firewallList.push({id: fqNameJoin, text: fqName});
          });
         return firewallList;
     };
