@@ -263,7 +263,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                events: {
                                   onClick: onClickHostName
                                },
-                               cssClass: 'cell-hyperlink-blue',
+                               cssClass: 'cell-hyperlink-blue show-ellipses',
                                searchFn:function(d) {
                                    return d['name'];
                                },

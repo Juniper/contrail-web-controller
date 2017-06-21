@@ -584,7 +584,7 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                    events: {
                       onClick: onClickHostName
                    },
-                   cssClass: 'cell-hyperlink-blue',
+                   cssClass: 'cell-hyperlink-blue show-ellipses',
                    searchFn:function(d) {
                        return d['name'];
                    },
