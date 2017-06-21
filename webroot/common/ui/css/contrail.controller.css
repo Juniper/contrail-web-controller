@@ -614,3 +614,10 @@ form h5.margin-0-0-10~.section-content {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.slick-cell.show-ellipses {
+    color: #fff;
+}
+.slick-cell.show-ellipses .badge {
+    display:inherit;
+    vertical-align: baseline;
+}
