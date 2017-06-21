@@ -554,14 +554,20 @@ define([
                             var displayName = getValueByJsonPath(n,
                                                                  "display_name",
                                                                  projectName);
+                            var errorStr = getValueByJsonPath(n, "error_string",
+                                                              null);
                             fqnToDisplayNameMap.project[projectName] =
                                 displayName;
-                            return {
+                            var projObj = {
                                 fq_name: n.fq_name.join(':'),
                                 name: n.fq_name[1],
                                 display_name: displayName,
                                 value: n.uuid
                             };
+                            if (null != errorStr) {
+                                projObj.error_string = errorStr;
+                            }
+                            return projObj;
                         });
                     },
                     failureCallback: function(xhr, ContrailListModel) {
