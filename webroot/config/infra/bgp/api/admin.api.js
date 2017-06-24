@@ -369,8 +369,12 @@ function updatePhysicalRouters (error,appData,bgpFqName,prouterParams, callback)
                 callback(error, prouterJSON);
 	        return;
             }
-	    prouterJSON["physical-router"]["bgp_router_refs"] = [];
-	    configApiServer.apiPut(url, prouterJSON, appData, function (error, data) {
+        var newConfigJSON = commonUtils.cloneObj(prouterJSON);
+        newConfigJSON["physical-router"]["bgp_router_refs"] = [];
+        var deltaConfig = jsonDiff.getConfigJSONDiff('physical-router',
+                                                     prouterJSON,
+                                                     newConfigJSON);
+	    configApiServer.apiPut(url, deltaConfig, appData, function (error, data) {
     		if (error) {
                     callback(error, data);
                     return;
@@ -396,9 +400,14 @@ function updateNewProuter(newProuter,bgpFqName,appData, callback)
             callback(error,prouterJSON);
             return;
         } else {
+            var newConfigJSON = commonUtils.cloneObj(prouterJSON);
             var bgpRef =  [{"to":bgpFqName}];
-            prouterJSON["physical-router"]["bgp_router_refs"] = bgpRef;
-            configApiServer.apiPut(url, prouterJSON, appData, function (error,data) {
+            newConfigJSON["physical-router"]["bgp_router_refs"] = [];
+            newConfigJSON["physical-router"]["bgp_router_refs"] = bgpRef;
+            var deltaConfig = jsonDiff.getConfigJSONDiff('physical-router',
+                                                     prouterJSON,
+                                                     newConfigJSON);
+            configApiServer.apiPut(url, deltaConfig, appData, function (error,data) {
                 callback(error,data);
             }, bgpHeader);
         }
