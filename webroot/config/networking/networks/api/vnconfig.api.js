@@ -581,6 +581,7 @@ function updatePhysicalRouters (mode, newPRoutersUUIDS,error,newVnData,
                     }
                     //Remove the refs to this VN from the current Physical Routers
                     //Add the refs to this VN for the new Physical Routers
+                    var oldPRDetails = commonUtils.cloneObj(results);
                     for(var i=0; i < results.length; i++){
                         var currVns = results[i]['physical-router']['virtual_network_refs'];
                         currVns = (currVns == null)? [] : currVns;
@@ -604,8 +605,13 @@ function updatePhysicalRouters (mode, newPRoutersUUIDS,error,newVnData,
                     var dataObjArr        = [];
                     for(i = 0; i < results.length; i++) {
                         reqUrl = '/physical-router/' +  results[i]['physical-router']['uuid'];
+                        var deltaConfig = {};
+                        deltaConfig =
+                            jsonDiff.getConfigJSONDiff('physical-router',
+                                                       oldPRDetails[i],
+                                                       results[i]);
                         commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_PUT,
-                                results[i], null, null, appData);        
+                                deltaConfig, null, null, appData);
                     }
                     async.map(dataObjArr,
                         commonUtils.getAPIServerResponse(configApiServer.apiPut, false),
