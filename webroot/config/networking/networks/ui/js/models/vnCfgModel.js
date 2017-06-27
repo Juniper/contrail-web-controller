@@ -332,8 +332,8 @@ define([
 
             routeTarget.add([newRouteTarget]);
         },
-        addRouteTargetByIndex: function(type, kbRouteTarget) {
-            var selectedRuleIndex = type.model().collection.indexOf(kbRouteTarget.model());
+        addRouteTargetByIndex: function(type, data, kbRouteTarget) {
+            var selectedRuleIndex = data.model().collection.indexOf(kbRouteTarget.model());
             var routeTarget = this.model().attributes[type],
                 newRouteTarget = new RouteTargetModel({'asn': null,
                                                     'target': null,

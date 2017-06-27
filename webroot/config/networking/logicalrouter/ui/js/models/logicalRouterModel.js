@@ -241,7 +241,7 @@ define([
             routeTargetUtils.addRouteTarget(type, this.model());
         },
         addRouteTargetByIndex: function(type, data, kbRouteTarget) {
-           routeTargetUtils.addRouteTargetByIndex(type, data, kbRouteTarget);
+           routeTargetUtils.addRouteTargetByIndex(type, this.model(), data, kbRouteTarget);
         },
         deleteRouteTarget: function(data, kbRouteTarget) {
             routeTargetUtils.deleteRouteTarget(data, kbRouteTarget);
