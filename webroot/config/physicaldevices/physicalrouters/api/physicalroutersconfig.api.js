@@ -438,7 +438,7 @@ function getPhysicalRouter (request, response, appData)
     });
 }
 
-function updateBGPRouter(appData, postData, callback)
+function updateBGPRouter(appData, postData, callback, pRouterId)
 {
     var physicalRouterUUID, refUpdateData;
     var bgpRef = commonUtils.getValueByJsonPath(postData,
@@ -456,7 +456,7 @@ function updateBGPRouter(appData, postData, callback)
                     }
                     physicalRouterUUID = commonUtils.getValueByJsonPath(bgpData,
                         "bgp-router;physical_router_back_refs;0;uuid", null);
-                    if(physicalRouterUUID) {
+                    if(physicalRouterUUID && physicalRouterUUID != pRouterId) {
                         refUpdateData = {
                             "type": "physical-router",
                             "uuid": physicalRouterUUID,
@@ -740,7 +740,7 @@ function updatePRouter(request, response, pRouterId, postData, appData){
                 );
             }
         );
-    });
+    }, pRouterId);
 }
 
 /**
