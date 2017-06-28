@@ -332,13 +332,13 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-databasenod
                                sortField:"dbSpaceUsed"
                            }
                         ];
-                        var dbPurgeTemplate = contrail.getTemplate4Id('purge-action-template');
+                        //var dbPurgeTemplate = contrail.getTemplate4Id('purge-action-template');
                         var gridElementConfig = {
                             header : {
                                 title : {
                                     text : ctwl.DATABASENODE_SUMMARY_TITLE
-                                },
-                                customControls: [dbPurgeTemplate()]
+                                }/*,
+                                customControls: [dbPurgeTemplate()]*/
                             },
                             columnHeader : {
                                 columns : columns
