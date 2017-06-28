@@ -46,7 +46,7 @@ define([
              contrail.ajaxHandler(ajaxConfig, null, function(json){
                  ConfigObjectDetailUtils.hideErrorPopup();
                  ConfigObjectDetailUtils.hideHeaderIcons($(contentContainer));
-                 configList = json[0];
+                 configList = JSON.parse(cowu.deSanitize(JSON.stringify(json[0])));
                  var parentKey = ConfigObjectDetailUtils.parseParentKeyLowerToUpper(Object.keys(configList)[0]);
                  $(contentContainer).find('#object-header-title').text(parentKey);
                  if(rawJosnSave == undefined && formSave == undefined){
@@ -79,9 +79,9 @@ define([
                       data:ConfigObjectListUtils.getPostDataForGet(options)
                   };
               contrail.ajaxHandler(ajaxConfigForSchema, null, function(dsschema){
-                  schema = dsschema;
+                  schema = JSON.parse(cowu.deSanitize(JSON.stringify(dsschema)));
                   contrail.ajaxHandler(ajaxConfigForJson, null, function(model){
-                      formJson = model[0];
+                      formJson = JSON.parse(cowu.deSanitize(JSON.stringify(model[0])));;
                       modelRefs = [];
                       var obj = formJson[Object.keys(formJson)[0]];
                       var schemaProp = schema.properties[Object.keys(schema.properties)[0]].properties;
