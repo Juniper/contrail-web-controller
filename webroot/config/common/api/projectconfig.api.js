@@ -27,6 +27,7 @@ var configServerUtils      = require(process.mainModule.exports["corePath"] +
                                '/src/serverroot/common/configServer.utils');
 var async            = require('async');
 var _                = require('underscore');
+var ctrlGlobal       = require('../../../common/api/global');
 
 var defaultDomainId = "default",
     defaultDomainName = "default-domain",
@@ -73,6 +74,7 @@ function listAllProjects (request, response, appData)
         parentId = commonUtils.getValueByJsonPath(request,
                 "query;domainId", null, false),
         tempProjIdToIdxMap = {};
+    var tempProjFqnToIDMap = {};
     dataObjArr.push({type : identity, request: request,
         appData: appData, parentId: parentId});
     dataObjArr.push({type : apiServer, request: request,
@@ -90,8 +92,10 @@ function listAllProjects (request, response, appData)
         apiProjLen = apiProj.length;
         var allProjects = [];
         for (var i = 0; i < apiProjLen; i++) {
-            var apiProjName = commonUtils.getValueByJsonPath(apiProj[i],
-                                                             "fq_name;1", null);
+            var apiProjFQN = commonUtils.getValueByJsonPath(apiProj[i],
+                                                            "fq_name", null);
+            var apiProjName = commonUtils.getValueByJsonPath(apiProjFQN, "1",
+                                                             null);
             if (apiProjName == defaultProject) {
                 continue;
             }
@@ -100,20 +104,39 @@ function listAllProjects (request, response, appData)
             apiProj[i]["display_name"] = apiProjName;
             allProjects.push(apiProj[i]);
             tempProjIdToIdxMap[apiProjID] = allProjects.length - 1;
+            tempProjFqnToIDMap[apiProjFQN.join(":")] = apiProjID;
         }
+
         for (i = 0; i < identityProjLen; i++) {
             var identityProjID = commonUtils.getValueByJsonPath(identityProj[i],
                                                                 "uuid", null);
             var idx = tempProjIdToIdxMap[identityProjID];
-            var identityProjName =
-                commonUtils.getValueByJsonPath(identityProj[i], "fq_name;1",
+            var identityProjFQN =
+                commonUtils.getValueByJsonPath(identityProj[i], "fq_name",
                                                null);
+            var identityProjName =
+                commonUtils.getValueByJsonPath(identityProjFQN, "1", null);
             if (null != idx) {
                 /* Exists in API Server, so take display_name from keystone */
                 allProjects[idx]["display_name"] = identityProjName;
             } else {
                 identityProj[i]["display_name"] = identityProjName;
                 allProjects.push(identityProj[i]);
+            }
+            /* If fqn matches both in Api Server and keystone, but their UUID is
+             * different, then the project was deleted and recreated and the
+             * project entry had child, so it did not get cleaned up from API
+             * Server yet
+             */
+            var apiID = tempProjFqnToIDMap[identityProjFQN.join(":")];
+            if ((null != apiID) && (apiID != identityProjID)) {
+                idx = tempProjIdToIdxMap[apiID];
+                if (null != idx) {
+                    allProjects[idx]["display_name"] = identityProjName +
+                        ctrlGlobal.PROJECT_NOT_FOUND_IN_KEYSTONE;
+                    allProjects[idx]["error_string"] =
+                        ctrlGlobal.PROJECT_NOT_FOUND_IN_KEYSTONE;
+                }
             }
         }
         commonUtils.handleJSONResponse(null, response, {projects: allProjects});
