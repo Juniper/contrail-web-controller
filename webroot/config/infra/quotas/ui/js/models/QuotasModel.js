@@ -105,6 +105,10 @@ define([
             }
         },
         formatModelConfig: function(modelConfig) {
+            _.forEach(this.defaultConfig, function(value, key) {
+              if(modelConfig[key] === -2)
+                modelConfig[key] = null;
+            });
             return modelConfig;
         },
         configureQuotas: function (projUUID, callbackObj) {
