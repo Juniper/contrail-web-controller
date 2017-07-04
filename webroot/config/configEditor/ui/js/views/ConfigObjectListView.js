@@ -147,7 +147,7 @@ define([
                     };
                 contrail.ajaxHandler(ajaxConfigForSchema, null, function(generatedSchema){
                     enumKeys = [];
-                    schema = self.setOrderOfSchema(generatedSchema);
+                    schema = self.setOrderOfSchema(JSON.parse(cowu.deSanitize(JSON.stringify(generatedSchema))));
                     window.optionsList=[];
                     var obj={},count = 0;
                     obj.hashParams = {};
