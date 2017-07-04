@@ -125,6 +125,11 @@ define([
                     for (key in dataItem) {
                         if (null != dataItem[key]) {
                             dataItem[key] = dataItem[key];
+                        } else {
+                            /** In case of null, Contrail Model ignores null and considers default value,
+                                but to show 'Not Set' placeholder we need to retain null in model
+                                so treating null as -2 and formatting it back to null in formatModelConfig **/
+                            dataItem[key] = -2;
                         }
                     }
                     var selectedProject = $(gridElId).data('selectedProject');
