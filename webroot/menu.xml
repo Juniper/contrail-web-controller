@@ -487,6 +487,11 @@ and need to add the iconClass tag wherever we need to show some icons
                 <resource>
                     <rootDir>/common/ui</rootDir>
                     <css>contrail.controller.css</css>
+                    <css>config.editor.css</css>
+                </resource>
+                <resource>
+                     <rootDir>/assets/jquery-linedtextarea</rootDir>
+                     <css>jquery-linedtextarea.css</css>
                 </resource>
             </resources>
             <iconClass>fa fa-wrench</iconClass>
@@ -1603,6 +1608,11 @@ and need to add the iconClass tag wherever we need to show some icons
                 <resource>
                     <rootDir>/common/ui</rootDir>
                     <css>contrail.controller.css</css>
+                    <css>config.editor.css</css>
+                </resource>
+                <resource>
+                     <rootDir>/assets/jquery-linedtextarea</rootDir>
+                     <css>jquery-linedtextarea.css</css>
                 </resource>
             </resources>
             <iconClass>fa fa-cog</iconClass>
@@ -1732,14 +1742,9 @@ and need to add the iconClass tag wherever we need to show some icons
                     <iconClass>menu-icon fa fa-wpforms</iconClass>
                     <resources>
                         <resource>
-                            <rootDir>/assets/jquery-linedtextarea</rootDir>
-                            <css>jquery-linedtextarea.css</css>
-                        </resource>
-                        <resource>
                             <rootDir>/config/configEditor/ui</rootDir>
                             <js>configEditor.main.js</js>
                             <template>config.editor.tmpl</template>
-                            <css>ConfigEditor.css</css>
                             <class>configEditorLoader</class>
                             <function>render</function>
                             <searchStrings>Config Editor</searchStrings>
