@@ -1251,7 +1251,7 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
-                                                         $root.addRouteTargetByIndex('user_created_route_targets',this);\
+                                                         $root.addRouteTargetByIndex('user_created_route_targets', $data, this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                      {onClick: "function() {\
@@ -1334,7 +1334,7 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
-                                                         $root.addRouteTargetByIndex('user_created_export_route_targets',this);\
+                                                         $root.addRouteTargetByIndex('user_created_export_route_targets', $data, this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                      {onClick: "function() {\
@@ -1417,7 +1417,7 @@ define([
                                                  ],
                                                  rowActions: [
                                                      {onClick: "function() {\
-                                                         $root.addRouteTargetByIndex('user_created_import_route_targets',this);\
+                                                         $root.addRouteTargetByIndex('user_created_import_route_targets', $data, this);\
                                                          }",
                                                       iconClass: 'fa fa-plus'},
                                                      {onClick: "function() {\
