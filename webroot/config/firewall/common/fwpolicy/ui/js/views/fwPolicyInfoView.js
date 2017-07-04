@@ -17,6 +17,8 @@ define([
                 policyName = currentHashParams.focusedElement.policy,
                 policyId = currentHashParams.focusedElement.uuid;
                 var ajaxConfig = {};
+                var editTagRefs = '';
+                var tagsArray = [];
             ajaxConfig.type = "POST";
             ajaxConfig.url = "/api/tenants/config/get-config-details"
             ajaxConfig.data  = JSON.stringify(
@@ -32,11 +34,22 @@ define([
                         "0;firewall-policys;0;firewall-policy", {}, false);
                 currentPolicyInfoIds['description'] = getValueByJsonPath(response,
                         "0;firewall-policys;0;firewall-policy;id_perms;description", '-', false);
-                currentPolicyInfoIds['tags_refs'] = getValueByJsonPath(response,
-                        "0;firewall-policys;0;firewall-policy;tags_refs", '-', false);
+                var tagrefs = getValueByJsonPath(response,
+                        "0;firewall-policys;0;firewall-policy;tag_refs", []);
+                if(tagrefs.length > 0) {
+                    _.each(tagrefs, function(refs){
+                        var fqName = refs.to;
+                        editTagRefs += fqName.join(":") + ',' ;
+                        tagsArray.push({ text : fqName.join(":"), value: fqName.join(":")});
+                     });
+                    currentPolicyInfoIds['tag_refs'] = editTagRefs;
+                }
+                else{
+                    currentPolicyInfoIds['tag_refs'] = "-";
+                }
                 self.model = new FWPolicyInfoModel(currentPolicyInfoIds);
                 self.renderView4Config($(self.$el).find(formId),
-                        self.model, getFWPolicyInfoGridViewConfig(),
+                        self.model, getFWPolicyInfoGridViewConfig(tagsArray),
                         null,null,null,
                         function(){
                     self.model.showErrorAttr("fwPolicy-form",
@@ -55,7 +68,7 @@ define([
             return currentPolicyRuleIds;
         }
     });
-     function getFWPolicyInfoGridViewConfig(viewConfig) {
+     function getFWPolicyInfoGridViewConfig(tagsData) {
         return {
             elementId:
                 "policy-info-grid-view",
@@ -97,7 +110,7 @@ define([
                     {
                         columns: [
                             {
-                                elementId: "tags",
+                                elementId: "tag_refs",
                                 view: "FormMultiselectView",
                                 viewConfig: {
                                     disabled: true,
@@ -108,8 +121,7 @@ define([
                                     elementConfig: {
                                         dataTextField: "text",
                                         dataValueField: "value",
-                                        placeholder:
-                                            "-"
+                                        data: tagsData
                                     }
                                 }
                             }
