@@ -575,4 +575,12 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
  display:inline-block;
     }
 #configure-dns_record-form #record_name input[type="text"], #configure-dns_record-form #record_data input[type="text"]{
-width:100%;}
+    width:100%;
+}
+.slick-cell.show-ellipses {
+    color: #fff;
+}
+.slick-cell.show-ellipses .badge {
+    display:inherit;
+    vertical-align: baseline;
+}

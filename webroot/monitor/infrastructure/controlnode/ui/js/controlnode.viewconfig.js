@@ -412,7 +412,7 @@ define(['lodash', 'contrail-view', 'monitor-infra-controlnode-model', 'node-colo
                                events: {
                                   onClick: onClickHostName
                                },
-                               cssClass: 'cell-hyperlink-blue',
+                               cssClass: 'cell-hyperlink-blue show-ellipses',
                                minWidth:110,
                                exportConfig: {
                                    allow: true,
