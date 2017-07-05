@@ -40,7 +40,7 @@ define([
                                 },
                                 {
                                     label: 'Rule Count',
-                                    value: nodeDetails['network_policy_entries']['policy_rule'].length
+                                    value: cowu.getValueByJsonPath(nodeDetails, 'network_policy_entries;policy_rule', []).length
                                 }
 
                             ],
