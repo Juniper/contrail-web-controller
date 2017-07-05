@@ -9,10 +9,7 @@ define([
     var ProjectView = ContrailView.extend({
         el: $(contentContainer),
 
-        render: function () {
-            /*if(layoutHandler.getURLHashObj()['p'] != 'mon_networking_dashboard') {
-                return;
-            }*/
+        render: function () {            
             var self = this,
                 graphTabsTemplate = contrail.getTemplate4Id(cowc.TMPL_2ROW_CONTENT_VIEW),
                 viewConfig = this.attributes.viewConfig,
