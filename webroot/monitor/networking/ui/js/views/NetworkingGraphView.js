@@ -130,6 +130,7 @@ define([
         return {
             el: $(connectedSelectorId),
             linkView: joint.shapes.contrail.LinkView,
+            async: true,
             graphModelConfig: getConnectedGraphModelConfig(connectedGraph),
             tooltipConfig: nmwgrc.getConnectedGraphTooltipConfig(),
             clickEvents: {
@@ -1125,7 +1126,7 @@ define([
     };
 
     function highlightCurrentNodeElement(elementNodeId) {
-        if ($('g[model-id="' + elementNodeId + '"]').length != 0 && $('div.font-element[font-element-model-id="' + elementNodeId + '"]').length != 0) {
+        if ($('g[model-id="' + elementNodeId + '"]').length != 0) {
             faintAllElements();
 
             highlightElements([$('div.font-element[font-element-model-id="' + elementNodeId + '"]')]);
