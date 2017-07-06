@@ -341,6 +341,7 @@ define([
                                     class:'col-xs-12',
                                     path: 'endpoint_1',
                                     dataBindValue: 'endpoint_1',
+                                    selectOnBlur: false,
                                     elementConfig: {
                                         placeholder: 'Select Endpoint',
                                         //defaultValueId : 1,
@@ -387,6 +388,7 @@ define([
                                     class:'col-xs-12',
                                     path: 'endpoint_2',
                                     dataBindValue: 'endpoint_2',
+                                    selectOnBlur: false,
                                     elementConfig: {
                                         placeholder: 'Select Endpoint',
                                         //defaultValueId : 1,
