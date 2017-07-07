@@ -610,7 +610,7 @@ define(['underscore', 'contrail-view', 'legend-view', 'monitor-infra-analyticsno
                    events: {
                       onClick: onClickHostName
                    },
-                   cssClass: 'cell-hyperlink-blue',
+                   cssClass: 'cell-hyperlink-blue show-ellipses',
                    minWidth:110,
                    sortable:true
                },

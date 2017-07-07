@@ -621,3 +621,10 @@ form h5.margin-0-0-10~.section-content {
     margin-left:20px;
     color:#3182bd;
 }
+.slick-cell.show-ellipses {
+    color: #fff;
+}
+.slick-cell.show-ellipses .badge {
+    display:inherit;
+    vertical-align: baseline;
+}
