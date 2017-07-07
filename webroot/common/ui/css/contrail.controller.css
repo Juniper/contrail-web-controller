@@ -517,3 +517,11 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
 #configalarm_edit_alarm_rule #description .textarea-input-group{
     width:100%;}
 #configalarm_edit_alarm_rule .collection-table .data-cell>div.row{margin:0px;}
+
+.slick-cell.show-ellipses {
+    color: #fff;
+}
+.slick-cell.show-ellipses .badge {
+    display:inherit;
+    vertical-align: baseline;
+}
