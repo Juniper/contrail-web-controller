@@ -557,7 +557,8 @@ define([
             {"key": "autonomous_system", "name": "Global ASN"},
             {"key": "ibgp_auto_mesh", "name": "iBGP Auto Mesh"},
             {"key": "ip_fabric_subnets", "name": "IP Fabric Subnets"},
-            {"key": "graceful_restart_parameters", "name": "Graceful Restart"}
+            {"key": "graceful_restart_parameters", "name": "Graceful Restart"},
+            {"key": "bgpaas_parameters", "name": "BGP as a Service (Start Port - End Port)"}
         ];
         this.GLOBAL_BGP_OPTIONS_SECTION_ID = "global-bgp-options-section";
         this.GLOBAL_BGP_OPTIONS_ID = "global-bgp-options";

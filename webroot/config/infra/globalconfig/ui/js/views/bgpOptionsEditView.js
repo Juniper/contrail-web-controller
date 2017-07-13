@@ -90,6 +90,21 @@ define([
                         ]
                     },
                     {
+                        columns: [
+                            {
+                                elementId: 'user_created_bgpaas_parameters',
+                                view: 'FormInputView',
+                                viewConfig: {
+                                    path: 'user_created_bgpaas_parameters',
+                                    dataBindValue: 'user_created_bgpaas_parameters',
+                                    class: 'col-xs-6',
+                                    label: 'BGP as a Service (Start Port - End Port)',
+                                    placeholder: 'Start Port - End Port'
+                                }
+                            }
+                        ]
+                    },
+                    {
                         columns : [
                             {
                                 elementId: 'graceful_restart_enable',
