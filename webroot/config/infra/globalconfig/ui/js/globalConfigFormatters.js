@@ -26,6 +26,13 @@
                         return 'L2 and L3';
                     }
                 }
+                if('bgpaas_parameters' === rowData['key']) {
+                    if ((undefined === val) || (null === val) || ({} === val)) {
+                        return '-';
+                    } else {
+                        return val.port_start + ' - ' + val.port_end;
+                    }
+                }
                 if ('flow_export_rate' == rowData['key']) {
                     if ((undefined === val) || (null === val) || ("" === val)) {
                         return "-";
