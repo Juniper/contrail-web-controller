@@ -1442,6 +1442,12 @@ define([
 //            $('.monitor-infra-details-footer-links').remove();
             $(parent).find('.footer-links').remove();
             $(parent).append(template(config));
+            // If message of the day is enabled footer links
+            // may overlap with the message of the day so we are moving
+            // footerlinks by the height of the message of the day height.
+            if ($('.proprietary-info').is(':visible')) {
+                $(parent).find('.footer-links').css('bottom', $('.proprietary-info').height() + 10);
+            }
             $.each(config,function(i,d){
                 var label = (d.label != null)? d.label :
                     cowl.getFirstCharUpperCase(d.name);
