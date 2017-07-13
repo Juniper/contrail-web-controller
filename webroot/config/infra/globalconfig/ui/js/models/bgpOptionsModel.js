@@ -21,7 +21,12 @@ define([
                 "end_of_rib_timeout": 30,
                 "bgp_helper_enable": false
             },
-            "graceful_restart_enable": false
+            "graceful_restart_enable": false,
+            "bgpaas_parameters": {
+                "port_start": 50000,
+                "port_end": 50512
+            },
+            "user_created_bgpaas_parameters": "50000 - 50512"
         },
         validations: {
             bgpOptionsValidations: {
@@ -30,6 +35,23 @@ define([
                     if (isNaN(asn) || asn < 1 || asn > 65534) {
                         return "Enter ASN number between 1-65534";
                     }
+                },
+                'user_created_bgpaas_parameters': function(value, attr, finalObj) {
+                   if(value) {
+                       var ports =  value.split('-'), startPort, endPort;
+                       if(ports.length !== 2) {
+                           return "Enter Start Port - End Port";
+                       }
+                       startPort = Number(ports[0]);
+                       endPort = Number(ports[1]);
+                       if(startPort < 1 || endPort > 65535) {
+                           return "Enter port between 1 - 65535";
+                       }
+                       if(startPort > endPort) {
+                           return "Start Port should be less than" +
+                               " or equal to End Port";
+                       }
+                   }
                 },
                 "graceful_restart_parameters.restart_time":
                 function(value, attr, finalObj) {
@@ -87,6 +109,17 @@ define([
             if (null != modelConfig['ip_fabric_subnets']) {
                 delete modelConfig['ip_fabric_subnets'];
             }
+
+            //populate user_created_bgpaas_parameters
+            var bgpaasPortStart = getValueByJsonPath(modelConfig,
+                    'bgpaas_parameters;port_start', null),
+                bgpaasPortEnd = getValueByJsonPath(modelConfig,
+                            'bgpaas_parameters;port_end', null);
+            if(bgpaasPortStart && bgpaasPortEnd) {
+                modelConfig["user_created_bgpaas_parameters"] =
+                    bgpaasPortStart.toString() + ' - ' + bgpaasPortEnd.toString();
+            }
+
             //set graceful_restart_enable
             modelConfig["graceful_restart_enable"] =
                 getValueByJsonPath(modelConfig,
@@ -167,6 +200,22 @@ define([
                 //prepare graceful restart params post object
                 globalSysConfigData['global-system-config']
                     ["graceful_restart_parameters"] = {};
+
+                //bgp as a service parameters
+                var bgpaasPorts = getValueByJsonPath(newBGPOptionsConfig,
+                        'user_created_bgpaas_parameters', '');
+                globalSysConfigData['global-system-config']
+                    ['bgpaas_parameters'] = {};
+                if(bgpaasPorts !== '') {
+                    bgpaasPorts = bgpaasPorts.split('-');
+                    globalSysConfigData['global-system-config']
+                        ['bgpaas_parameters']['port_start'] = Number(bgpaasPorts[0]);
+                    globalSysConfigData['global-system-config']
+                        ['bgpaas_parameters']['port_end'] = Number(bgpaasPorts[1]);
+                } else {
+                    globalSysConfigData['global-system-config']
+                    ['bgpaas_parameters'] = null;
+                }
 
                 //gr
                 grTime = getValueByJsonPath(newBGPOptionsConfig,
