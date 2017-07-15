@@ -81,6 +81,7 @@ define([
                         viewConfig: {
                             parentType: ctwc.TYPE_VIRTUAL_NETWORK,
                             networkFQN: networkFQN,
+                            networkUUID: networkUUID,
                             elementId: ctwl.NETWORK_INTERFACE_GRID_ID
                         }
                     },
