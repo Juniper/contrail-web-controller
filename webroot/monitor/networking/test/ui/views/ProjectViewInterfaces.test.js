@@ -82,6 +82,23 @@ define([
             body: JSON.stringify(TestMockdata.virtualMachinesSummaryMockData)
         }));
 
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl('/api/tenant/networking/get-interfaces-list'),
+            body: JSON.stringify(TestMockdata.virtualMachineInterfaceList)
+        }));
+
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl('/api/tenant/networking/get-interfaces?count={0}&nextCount={1}'),
+            body: JSON.stringify(TestMockdata.virtualMachineInterfaceDetails)
+        }));
+
+        responses.push(cotr.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl(cowc.URL_QE_QUERY),
+            body: JSON.stringify(TestMockdata.virtualMachineInterfaceStats)
+        }));
         return responses;
     };
     fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;
