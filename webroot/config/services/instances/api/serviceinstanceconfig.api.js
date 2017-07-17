@@ -279,8 +279,8 @@ function getVMIUVEHealthCheckStatus (svcInstList, appData, callback)
             var vmis = commonUtils.getValueByJsonPath(portTuples[j],
                                                       "vmis", []);
             var vmisCnt = vmis.length;
-            for (var j = 0; j < vmisCnt; j++) {
-                var vmiFqn = commonUtils.getValueByJsonPath(vmis[j],
+            for (var k = 0; k < vmisCnt; k++) {
+                var vmiFqn = commonUtils.getValueByJsonPath(vmis[k],
                                                             "virtual-machine-interface;fq_name",
                                                             null);
                 if (null != vmiFqn) {
