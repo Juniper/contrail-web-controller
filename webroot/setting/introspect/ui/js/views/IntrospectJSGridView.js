@@ -113,7 +113,7 @@ define([
 
                 }
 
-                if (_.contains(["list", "struct", "sandesh"], value._type) ||
+                if (_.contains(["list", "struct", "sandesh", "map"], value._type) ||
                     (!contrail.checkIfExist(value._type) && _.isArray(value))) {
                     gridColumn.formatter = {
                         format: "json2html", options: {jsonValuePath: key, htmlValuePath: key + "HTML", expandLevel: 0}
@@ -143,7 +143,7 @@ define([
             textValueLength = textValue.length * strPixelFactor;
             columnWidth = (textValueLength > maxWidth) ? maxWidth : ((textValueLength < columnWidth) ? columnWidth : textValueLength);
 
-        } else if (_.contains(["list", "struct", "sandesh"], type)) {
+        } else if (_.contains(["list", "struct", "sandesh", "map"], type)) {
             columnWidth = 250;
         }
 
@@ -162,6 +162,76 @@ define([
         }
 
         return gridData;
+    }
+
+    function convertMapStringToUIStruct (mapObj)
+    {
+        var structObj = {_type: "struct", element: {}};
+        var elemArr = mapObj.element;
+        if (!contrail.checkIfExist(elemArr)) {
+            return null;
+        }
+        if (!elemArr.length) {
+            return null;
+        }
+        var elemArrLen = elemArr.length;
+        for (var i = 0; i < elemArrLen - 1; i++) {
+            structObj.element[elemArr[i]] = {
+                _type: "string",
+                __text: elemArr[i + 1]
+            };
+            i++;
+        }
+        return structObj;
+    }
+
+    function filterMapObjStructKey (mapObj)
+    {
+        for (var key in mapObj) {
+            if ("element" === key) {
+                continue;
+            }
+            return key;
+        }
+        return null;
+    }
+
+    function convertMapStructToUIStruct (mapObj)
+    {
+        var structObj = {_type: "struct"};
+        var structKey = filterMapObjStructKey(mapObj);
+        if (!contrail.checkIfExist(structKey) ||
+            !contrail.checkIfExist(mapObj[structKey]) ||
+            !contrail.checkIfExist(mapObj.element)) {
+            return null;
+        }
+        var mapArr = mapObj[structKey];
+        var mapArrLen = mapArr.length;
+        var elemArr = mapObj.element;
+        var elemArrLen = elemArr.length;
+        if (elemArrLen != mapArrLen) {
+            console.log("Mapped Structure is not proper:" + mapObj);
+        }
+        var len = (mapArrLen < elemArrLen) ? mapArrLen : elemArrLen;
+        structObj[structKey] = {};
+        for (var i = 0; i < len; i++) {
+            structObj[structKey][elemArr[i]] = mapArr[i];
+        }
+        return structObj;
+    }
+
+    function formatMapDataObj (mapObj)
+    {
+        if (!contrail.checkIfExist(mapObj) ||
+            (!contrail.checkIfExist(mapObj._value))) {
+            return null;
+        }
+        var valStr = mapObj._value;
+        if ("struct" == valStr) {
+            return convertMapStructToUIStruct(mapObj);
+        } else {
+            return convertMapStringToUIStruct(mapObj);
+        }
     }
 
     function cleanDataObj(data) {
@@ -189,7 +259,13 @@ define([
                 delete value._type;
                 delete value._identifier;
                 dataObj[key] = cleanDataObj(value);
-
+            } else if ("map" === value._type) {
+                dataObj[key] = formatMapDataObj(value.map);
+                if (dataObj[key]) {
+                    delete dataObj[key]._type;
+                    delete dataObj[key]._identifier;
+                    dataObj[key] = cleanDataObj(dataObj[key]);
+                }
             } else if (_.isArray(value)) {
                 dataObj[key] = cleanDataObj(value);
 
