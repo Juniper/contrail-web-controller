@@ -2285,7 +2285,7 @@ define([
             });
         };
 
-        self.purgeAnalyticsDB = function (purgePercentage) {
+        /*self.purgeAnalyticsDB = function (purgePercentage) {
             var ajaxConfig = {
                 type: "GET",
                 url: "/api/analytics/db/purge?purge_input=" + purgePercentage
@@ -2303,7 +2303,7 @@ define([
                 var errorMsg = contrail.parseErrorMsgFromXHR(response);
                 showInfoWindow(errorMsg, "Error");
             });
-        };
+        };*/
 
         self.doAjaxCallsForNodeDetails = function (options) {
             var ajaxConfigs = getValueByJsonPath(options, 'ajaxConfigList',[]);
