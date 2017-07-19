@@ -79,12 +79,20 @@ define([
                             },
                             {
                                 elementId: 'ibgp_auto_mesh',
-                                view: 'FormCheckboxView',
+                                view: 'FormRadioButtonView',
                                 viewConfig: {
-                                    label: 'Enable iBGP Auto Mesh',
+                                    label: 'iBGP Auto Mesh',
                                     path: 'ibgp_auto_mesh',
                                     dataBindValue: 'ibgp_auto_mesh',
-                                    class: 'col-xs-6'
+                                    class: 'col-xs-6',
+                                    elementConfig: {
+                                        dataObj: [
+                                            {'label': 'Enable',
+                                             'value': 'true'},
+                                            {'label': 'Disable',
+                                             'value': 'false'}
+                                        ]
+                                    }
                                 }
                             }
                         ]
