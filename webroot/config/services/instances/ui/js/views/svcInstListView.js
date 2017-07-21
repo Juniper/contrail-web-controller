@@ -222,14 +222,12 @@ define([
                 }
                 if ((null != idxArr) && (idxArr.length > 0)) {
                     var idxArrLen = idxArr.length;
-                    for (var j = 0; j < idxArrLen; j++) {
-                        idx = idxArr[j];
-                        if (null == dataItems[idx]['statusDetails']['VMDetails']) {
-                            dataItems[idx]['statusDetails']['VMDetails'] = [];
-                        }
-                        dataItems[idx]['statusDetails']['VMDetails'].push({server:
-                                                                        novaStatusData[i]});
+                    idx = idxArr[idxArrLen-1];
+                    if (null == dataItems[idx]['statusDetails']['VMDetails']) {
+                        dataItems[idx]['statusDetails']['VMDetails'] = [];
                     }
+                    dataItems[idx]['statusDetails']['VMDetails'].push({server:
+                                                                    novaStatusData[i]});
                 }
             }
             var cntObj = self.updateSIStatus(dataItems);
