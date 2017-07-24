@@ -141,6 +141,16 @@ define([
             }
             return connectedNetworks;
         };
+        this.physicalRouterFormatterExpand = function (d, c, v, cd, dc) {
+            var formattedPRStr, physicalRouterRefs = getValueByJsonPath(dc,
+                    'physical_router_refs;0;to', []);
+            if(physicalRouterRefs.length === 2) {
+                formattedPRStr = physicalRouterRefs[1]
+            } else {
+                formattedPRStr = 'None';
+            }
+            return formattedPRStr;
+        }
         this.conNetworkFormatterExpand = function(d, c, v, cd, dc) {
             var connectedNetworks = "",
                 vmiRefs = getValueByJsonPath(dc,

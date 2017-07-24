@@ -270,6 +270,20 @@ define([
                                         formatter: "conNetworkFormatterExpand"
                                     }
                                 }, {
+                                    key: 'uuid',
+                                    keyClass:'col-xs-3',
+                                    name: 'id_perms',
+                                    label:"Extend to Physical Router",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "physicalRouterFormatterExpand"
+                                    }
+                                }, {
+                                    key: 'vxlan_network_identifier',
+                                    keyClass:'col-xs-3',
+                                    label: 'VNI',
+                                    templateGenerator: 'TextGenerator'
+                                }, {
                                     key: 'id_perms',
                                     keyClass:'col-xs-3',
                                     name: 'id_perms',
@@ -305,6 +319,9 @@ define([
     };
     this.conNetworkFormatterExpand = function(v, dc) {
         return lRFormatters.conNetworkFormatterExpand("", "", v, "", dc);
+    };
+    this.physicalRouterFormatterExpand = function(v, dc) {
+        return lRFormatters.physicalRouterFormatterExpand("", "", v, "", dc);
     };
     this.showSNAT = function(v, dc) {
         return lRFormatters.showSNAT("", "", v, "", dc);

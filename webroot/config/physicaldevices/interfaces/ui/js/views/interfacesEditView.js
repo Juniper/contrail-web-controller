@@ -443,6 +443,19 @@ define([
                     rows: [
                         infConfigTemplates.infFixedSection(disableId,
                             self.model),
+                        {
+                            columns: [{
+                                elementId: 'ethernet_segment_identifier',
+                                view: "FormInputView",
+                                viewConfig: {
+                                    placeholder: 'xx:xx:xx:xx:xx:xx:xx:xx:xx:xx',
+                                    visible: 'type() === "physical"',
+                                    path: "ethernet_segment_identifier",
+                                    dataBindValue: "ethernet_segment_identifier",
+                                    class: "col-xs-12"
+                                }
+                            }]
+                        },
                         infConfigTemplates.infVariableSection(disableId, self)
                     ]
                 }
