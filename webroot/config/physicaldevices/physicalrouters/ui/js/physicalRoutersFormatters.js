@@ -125,6 +125,19 @@ define([
         };
 
         /*
+         * @physicalRouterRoleFormatter
+         */
+        self.physicalRouterRoleFormatter = function(r, c, v, cd, dc) {
+            var role = getValueByJsonPath(dc, 'physical_router_role', null);
+            if(role) {
+                role = role === 'spine' ? 'Spine' : 'Leaf';
+            } else {
+                role = '-';
+            }
+            return role;
+        };
+
+        /*
          * @autoConfigFormatter
          */
         self.autoConfigFormatter = function(r, c, v, cd, dc) {

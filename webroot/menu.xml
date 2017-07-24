@@ -762,7 +762,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Configure Nodes</searchStrings>
                         </item>
                         <item>
-                            <label>Project Quotas</label>
+                            <label>Project Settings</label>
                             <hash>config_net_quotas</hash>
                             <resources>
                                 <resource>

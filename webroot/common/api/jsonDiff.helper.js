@@ -34,7 +34,7 @@ var configJsonModifyObj = {
                       "virtual_router_refs",
                       "bgp_router_refs",
                       "physical_router_vnc_managed",
-                      "virtual_network_refs", "perms2"],
+                      "virtual_network_refs", "perms2", "physical_router_role"],
         "mandateFields":["fq_name", "uuid", "display_name"]
     },
     'virtual-network': {
@@ -115,7 +115,9 @@ var configJsonModifyObj = {
             'virtual_machine_interface_refs',
             'virtual_network_refs',
             'configured_route_target_list',
-            'perms2'
+            'perms2',
+            'vxlan_network_identifier',
+            'physical_router_refs'
         ],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
@@ -155,7 +157,7 @@ var configJsonModifyObj = {
     },
     'physical-interface': {
         'isConfig': true,
-        'optFields': ['physical_interface_refs', 'perms2'],
+        'optFields': ['physical_interface_refs', 'perms2', 'ethernet_segment_identifier'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'logical-interface': {
