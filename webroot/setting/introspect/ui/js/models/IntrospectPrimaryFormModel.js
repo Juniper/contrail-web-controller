@@ -81,8 +81,10 @@ define([
                                                     "value;derived-uve;ConfigData;analytics-node;analytics_node_ip_address",
                                                     null);
                         }
-                        ipAddressOptionList.push({id: ip, text: ip});
-                   })
+                        if(ip != null){
+                            ipAddressOptionList.push({id: ip, text: ip});
+                        }
+                  })
                    callback(ipAddressOptionList);
                 },
                 error: function(xhr) {
