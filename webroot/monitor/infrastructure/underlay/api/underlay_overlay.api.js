@@ -582,7 +582,7 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData, prConfigData)
     var index = 0;
     for (var j = 0; j < linkCnt; j++) {
         if ((null != pRouterLinkTable[j]['remote_system_name']) &&
-            (null = tempNodeObjs[pRouterLinkTable[j]['remote_system_name']])) {
+            (null == tempNodeObjs[pRouterLinkTable[j]['remote_system_name']])) {
             var prLinkType =
                 getpRouterLinkType(pRouterLinkTable[j]['type']);
             nodeObj =
