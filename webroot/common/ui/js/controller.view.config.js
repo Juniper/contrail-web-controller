@@ -943,6 +943,52 @@ define([
                 }
             };
         };
+
+        self.getTimeRangeConfig = function (format) {
+            var timeRangeConfig = {
+                columns: [
+                    {
+                        elementId: 'time_range',
+                        view: "FormDropdownView",
+                        viewConfig: {
+                            path: 'time_range',
+                            dataBindValue: 'time_range',
+                            class: "col-xs-4",
+                            elementConfig: {
+                                dataTextField: "text",
+                                dataValueField: "id",
+                                data: ctwc.TIMERANGE_DROPDOWN_VALUES
+                            }
+                        }
+                    },{
+                        elementId: 'from_time',
+                        view: "FormDateTimePickerView",
+                        viewConfig: {
+                            style: 'display: none;',
+                            path: 'from_time',
+                            dataBindValue: 'from_time',
+                            class: "col-xs-4",
+                            elementConfig:
+                                qeUtils.getFromTimeElementConfig('from_time', 'to_time', format),
+                            visible: "time_range() == -1"
+                        }
+                    },{
+                        elementId: 'to_time',
+                        view: "FormDateTimePickerView",
+                        viewConfig: {
+                            style: 'display: none;',
+                            path: 'to_time',
+                            dataBindValue: 'to_time',
+                            class: "col-xs-4",
+                            elementConfig:
+                                qeUtils.getToTimeElementConfig('from_time', 'to_time', format),
+                            visible: "time_range() == -1"
+                        }
+                    }
+                ]
+            };
+            return timeRangeConfig;
+        };
     };
 
     function getInstanceCPUMemModelConfig(networkFQN, instanceUUID) {
