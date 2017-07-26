@@ -93,6 +93,9 @@ define([
     });
     function updateNetworkModel (contrailListModel, parentListModelArray) {
         var fqnList = contrailListModel.getItems();
+        fqnList = _.filter(fqnList, function (item, idx) {
+            return !ctwu.isServiceVN(item['name']);
+        });
         var detailsList = parentListModelArray[0].getItems();
         var uniqList = nmwu.getUniqElements(detailsList, fqnList, "name");
         parentListModelArray[0].addData(uniqList);
