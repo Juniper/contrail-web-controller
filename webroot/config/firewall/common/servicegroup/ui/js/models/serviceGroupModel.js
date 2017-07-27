@@ -112,6 +112,9 @@ define([
 	                	var srcStr = collection[j].src_port().toString();
 	                    var srcPort = srcStr.split('-');
 	                    var dstStr = collection[j].dst_port().toString();
+	                    if(dstStr === ''){
+	                        dstStr = '0-65535';
+	                    }
 	                    var dstPort = dstStr.split('-');
 	                	if(srcPort[0] === ''){
 	                		var srcStartPort = 0;

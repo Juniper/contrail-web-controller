@@ -890,8 +890,8 @@ and need to add the iconClass tag wherever we need to show some icons
                     <iconClass>menu-icon fa fa-tags</iconClass>
                     <items>
                         <item>
-                            <label>Global Settings</label>
-                            <hash>config_tags_globalsettings</hash>
+                            <label>Global Tags</label>
+                            <hash>config_tags_globaltags</hash>
                             <resources>
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
@@ -904,11 +904,11 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <function>renderTagView</function>
                                 </resource>
                             </resources>
-                            <searchStrings>Configure Tags, Global Settings</searchStrings>
+                            <searchStrings>Configure Tags, Global Tags</searchStrings>
                         </item>
                         <item>
-                            <label>Project Settings</label>
-                            <hash>config_tags_projectsettings</hash>
+                            <label>Project Scoped Tags</label>
+                            <hash>config_tags_projectscopedtags</hash>
                             <resources>
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
@@ -921,7 +921,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <function>renderProjectTag</function>
                                 </resource>
                             </resources>
-                            <searchStrings>Configure Tags, Project Settings</searchStrings>
+                            <searchStrings>Configure Tags, Project Scoped Tags</searchStrings>
                         </item>
                     </items>
                 </item>
@@ -941,8 +941,8 @@ and need to add the iconClass tag wherever we need to show some icons
                     <iconClass>menu-icon icon-contrail-network-policy</iconClass>
                     <items>
                         <item>
-                            <label>Global Settings</label>
-                            <hash>config_security_globalsettings</hash>
+                            <label>Global Policies</label>
+                            <hash>config_security_globalpolicies</hash>
                             <resources>
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
@@ -955,11 +955,11 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <function>renderFirewall</function>
                                 </resource>
                             </resources>
-                            <searchStrings>Configure Security, Global Settings</searchStrings>
+                            <searchStrings>Configure Security, Global Policies</searchStrings>
                         </item>
                         <item>
-                            <label>Project Settings</label>
-                            <hash>config_security_projectsettings</hash>
+                            <label>Project Scoped Policies</label>
+                            <hash>config_security_projectscopedpolicies</hash>
                             <resources>
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
@@ -972,7 +972,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <function>renderFirewall</function>
                                 </resource>
                             </resources>
-                            <searchStrings>Configure Security, Project Settings</searchStrings>
+                            <searchStrings>Configure Security, Project Scoped Policies</searchStrings>
                         </item>
                     </items>
                 </item>
