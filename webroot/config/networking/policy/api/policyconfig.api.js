@@ -25,11 +25,12 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var jsonDiff      = require(process.mainModule.exports["corePath"] +
 '/src/serverroot/common/jsondiff');
+var _ = require('underscore');
 
 /**
  * Bail out if called directly as "nodejs policyconfig.api.js"
  */
-if (!module.parent) 
+if (!module.parent)
 {
     logutils.logger.warn(util.format(messages.warn.invalid_mod_call,
         module.filename));
@@ -547,6 +548,54 @@ function deletePolicyProcess(policyId, appData, request, callback){
     });
 }
 
+function deleteNetworkPolicy (policyId, appData, request, callback)
+{
+    var polDelURL = '/network-policy/',
+        vnBackRefs, dataObjArr;
+    polDelURL += policyId;
+    configApiServer.apiGet(polDelURL, appData, function (err, configData) {
+        if(err != null || configData == null) {
+          callback(err, null);
+          return;
+        }
+        vnBackRefs = commonUtils.getValueByJsonPath(configData,
+                'network-policy;virtual_network_back_refs', [], false);
+        if (vnBackRefs.length > 0) {
+            dataObjArr = [];
+            _.each(vnBackRefs, function(vn) {
+                var putData = {
+                        'type': 'virtual-network',
+                        'uuid': vn.uuid,
+                        'ref-type': 'network-policy',
+                        'ref-uuid': policyId,
+                        'operation': 'DELETE'
+                    };
+                    var reqUrl = '/ref-update';
+                    commonUtils.createReqObj(dataObjArr, reqUrl,
+                                             global.HTTP_REQUEST_POST,
+                                             commonUtils.cloneObj(putData), null,
+                                             null, appData);
+            });
+            async.map(dataObjArr,
+                    commonUtils.getServerResponseByRestApi(configApiServer, false),
+                    function (error, vn){
+                        if(error) {
+                            callback(error, null);
+                        }
+                        configApiServer.apiDelete(polDelURL, appData,
+                            function (error, data) {
+                                callback(error, data)
+                            });
+            });
+        } else {
+            configApiServer.apiDelete(polDelURL, appData,
+                function (error, data) {
+                    callback(error, data)
+                });
+        }
+    });
+}
+
 /**
  * @deleteMultiplePolicyCB
  * public function
@@ -559,7 +608,7 @@ function deletePolicyAsync(dataObject, callback)
     var appData =  dataObject.appData;
     var policyId = dataObject.uuid;
     var request = dataObject.request;
-    deletePolicyProcess(policyId, appData, request,
+    deleteNetworkPolicy(policyId, appData, request,
                        function(err, policyData){
         callback(null, {'error': err, 'data': policyData});
     });
