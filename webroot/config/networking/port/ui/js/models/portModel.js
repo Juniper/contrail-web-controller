@@ -1227,6 +1227,11 @@ define([
                     newPortData.service_health_check_refs[0] = {};
                     newPortData.service_health_check_refs[0].to = healthCheckArr[0].split(":");
                     newPortData.service_health_check_refs[0].uuid = healthCheckArr[1];
+                    /* This annotation is required to attach service
+                      health check object to non service vmi */
+                    newPortData["annotations"] = {};
+                    newPortData["annotations"]["key_value_pair"] =
+                        [{ "key": "_service_vm_", "value": "False"}];
                 } else {
                     newPortData.service_health_check_refs = [];
                 }
