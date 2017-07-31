@@ -877,7 +877,7 @@ define(
                 this.parseVRouterDetails = function (data) {
                     var vRouterDetails = {};
                     //If IP address is not available in UVE,pick it from ConfigData
-                    vRouterDetails['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',
+                    vRouterDetails['ip'] = getValueByJsonPath(data,'VrouterAgent;control_ip',
                             getValueByJsonPath(data,'derived-uve;ConfigData;virtual-router;virtual_router_ip_address'));
                     vRouterDetails['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',
                             monitorInfraConstants.defaultIntrospectPort);
