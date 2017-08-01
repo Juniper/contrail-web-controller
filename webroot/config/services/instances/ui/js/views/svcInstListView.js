@@ -199,7 +199,10 @@ define([
                         if (null == tmpVMToPTSIMaps[vmId]) {
                             tmpVMToPTSIMaps[vmId] = [];
                         }
-                        tmpVMToPTSIMaps[vmId].push(i);
+                        //Check if index not already added and then add
+                        if(tmpVMToPTSIMaps[vmId][tmpVMToPTSIMaps[vmId].length -1] != i) {
+                            tmpVMToPTSIMaps[vmId].push(i);
+                        }
                     }
                 }
             }
