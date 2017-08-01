@@ -158,7 +158,7 @@ define([
                 "iconClass": "fa fa-plus",
                 "onClick": function () {
                     svcHealthChkEditView.model = new SvcHealthChkModel();
-
+                    subscribeModelAttrChanges(svcHealthChkEditView.model);
                     svcHealthChkEditView.renderAddSvcHealthChkCfg({
                                               "title": ctwl.CREATE,
                                               callback: function () {
@@ -171,10 +171,26 @@ define([
         return headerActionConfig;
     }
 
+    function subscribeModelAttrChanges(model) {
+        model.__kb.view_model.model().on('change:user_created_monitor_type',
+            function(healthCheckModel, monitorType) {
+                if(monitorType === ctwc.BFD) {
+                    model.delay_label('Desired Min Tx Interval (secs)');
+                    model.timeout_label('Required Min Rx Interval (secs)');
+                    model.max_retries_label('Multiplier');
+                } else {
+                    model.delay_label('Delay (secs)');
+                    model.timeout_label('Timeout (secs)');
+                    model.max_retries_label('Retries');
+                }
+            });
+    }
+
     var rowActionConfig = [
         ctwgc.getEditConfig('Edit', function(rowIndex) {
             dataView = $('#' + ctwl.CFG_SVC_HEALTH_CHK_GRID_ID).data("contrailGrid")._dataView;
             svcHealthChkEditView.model = new SvcHealthChkModel(dataView.getItem(rowIndex));
+            subscribeModelAttrChanges(svcHealthChkEditView.model);
             svcHealthChkEditView.renderEditSvcHealthChkCfg({
                                   "title": ctwl.EDIT,
                                   callback: function () {
@@ -242,6 +258,16 @@ define([
                                                 {
                                                     label: 'Timeout (secs)',
                                                     key: 'service_health_check_properties.timeout',
+                                                    templateGenerator: 'TextGenerator',
+                                                },
+                                                {
+                                                    label: 'Desired Min Tx Interval (micro secs)',
+                                                    key: 'service_health_check_properties.delayUsecs',
+                                                    templateGenerator: 'TextGenerator',
+                                                },
+                                                {
+                                                    label: 'Required Min Rx Interval (micro secs)',
+                                                    key: 'service_health_check_properties.timeoutUsecs',
                                                     templateGenerator: 'TextGenerator',
                                                 },
                                                 {

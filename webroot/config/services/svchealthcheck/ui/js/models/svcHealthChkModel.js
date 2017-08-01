@@ -24,8 +24,14 @@ define([
                                         // 192.168.2.1,
                                         // http://my-vm-hostname:8080
                 'expected_codes': null,  // Unsupported
-                'health_check_type': 'link-local'
+                'health_check_type': 'link-local',
+                'delayUsecs': 0,
+                'timeoutUsecs': 0
             },
+            delay_label: 'Delay (secs)',
+            timeout_label: 'Timeout (secs)',
+            max_retries_label: 'Retries',
+            user_created_monitor_type: 'PING'
         },
 
         formatModelConfig: function(modelConfig) {
@@ -58,7 +64,7 @@ define([
                     required: false,
                     min: 1,
                     max: 65535
-                },
+                }
             }
         },
 
@@ -93,7 +99,8 @@ define([
                     newsvcHealthChkCfgData['fq_name'][2] = newsvcHealthChkCfgData['name'];
                 }
 
-                var delay, timeout, max_retries;
+                var delay, timeout, max_retries,
+                    monitorType = newsvcHealthChkCfgData["user_created_monitor_type"];
 
                 delay = getValueByJsonPath(newsvcHealthChkCfgData,
                                 'service_health_check_properties;delay', '').toString();
@@ -109,6 +116,23 @@ define([
                 max_retries = max_retries.trim().length != 0 ? Number(max_retries) : null;
                 newsvcHealthChkCfgData['service_health_check_properties']['max_retries'] = max_retries;
 
+                //BFD
+                if(monitorType === ctwc.BFD) {
+                    var delayUsecs =  getValueByJsonPath(newsvcHealthChkCfgData,
+                            'service_health_check_properties;delayUsecs', '').toString();
+                    var timeoutUsecs =  getValueByJsonPath(newsvcHealthChkCfgData,
+                            'service_health_check_properties;timeoutUsecs', '').toString();
+
+                    delayUsecs = delayUsecs.trim().length !== 0 ? Number(delayUsecs) : null;
+                    timeoutUsecs = timeoutUsecs.trim().length !== 0 ? Number(timeoutUsecs) : null;
+                    newsvcHealthChkCfgData['service_health_check_properties']['delayUsecs'] = delayUsecs;
+                    newsvcHealthChkCfgData['service_health_check_properties']['timeoutUsecs'] = timeoutUsecs;
+                } else {
+                    delete newsvcHealthChkCfgData.service_health_check_properties.delayUsecs;
+                    delete newsvcHealthChkCfgData.service_health_check_properties.timeoutUsecs;
+                }
+                newsvcHealthChkCfgData['service_health_check_properties']['monitor_type'] = monitorType;
+
                 //permissions
                 this.updateRBACPermsAttrs(newsvcHealthChkCfgData);
 
@@ -118,6 +142,10 @@ define([
                 delete newsvcHealthChkCfgData.href;
                 delete newsvcHealthChkCfgData.parent_href;
                 delete newsvcHealthChkCfgData.parent_uuid;
+                delete newsvcHealthChkCfgData.user_created_monitor_type;
+                delete newsvcHealthChkCfgData.delay_label;
+                delete newsvcHealthChkCfgData.timeout_label;
+                delete newsvcHealthChkCfgData.max_retries_label;
 
  
 

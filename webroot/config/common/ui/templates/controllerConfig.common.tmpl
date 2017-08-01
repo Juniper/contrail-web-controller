@@ -1,0 +1,26 @@
+<!--Copyright (c) 2017 Juniper Networks, Inc. All rights reserved.-->
+
+<script type="text/x-handlebars-template" id="controller-config-input-view-template">
+    <div data-bind="{{#if viewConfig.visible}} visible: {{viewConfig.visible}} {{/if}}">
+        <div class="form-label">
+            <div >
+                <label data-bind="text: {{label}}"></label>
+            </div>
+            <div class="col-xs-2">
+                <span class="pull-right" style="display:none;" data-bind="visible: {{lockAttr}}, event: { click: function() { toggleLockAttr('{{name}}') }}">
+                    <i class="fa fa-pencil blue" data-bind="css: {'grey': locks().{{name}}_locked }"></i>
+                </span>
+            </div>
+        </div>
+        <div class="form-element">
+            <div class="input-append inset">
+            <input type="{{type}}" name="{{id}}" placeholder="{{viewConfig.placeholder}}" class="form-control"
+                data-bind="{{#if viewConfig.disabled}}disable: {{viewConfig.disabled}}, {{/if}}{{#if lockAttr}}disable: locks().{{name}}_locked, {{/if}}
+                value: {{viewConfig.dataBindValue}},
+                event: { focusout: function() { validateAttr('{{viewConfig.path}}', '{{validation}}') } }"
+            />
+            </div>
+            <span class="help-block red" data-bind="visible: errors().{{name}}_error, text: errors().{{name}}_error"></span>
+        </div>
+    </div>
+</script>

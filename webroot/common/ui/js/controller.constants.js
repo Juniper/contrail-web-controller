@@ -748,6 +748,10 @@ define([
                                     ];
         this.BGP_AAS_ROUTERS = ["bgpaas-server", "bgpaas-client"];
 
+        this.CONTROLLER_CONFIG_INPUT_VIEW_TEMPLATE =
+            'controller-config-input-view-template';
+        this.BFD = 'BFD';
+
         //Physical Routers constants
         this.URL_PHYSICAL_ROUTERS_DETAILS_IN_CHUNKS =
             '/api/tenants/config/physical-routers-with-intf-count';

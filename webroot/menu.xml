@@ -493,6 +493,10 @@ and need to add the iconClass tag wherever we need to show some icons
                      <rootDir>/assets/jquery-linedtextarea</rootDir>
                      <css>jquery-linedtextarea.css</css>
                 </resource>
+                <resource>
+                    <rootDir>/config/common/ui</rootDir>
+                    <template>controllerConfig.common.tmpl</template>
+                </resource>
             </resources>
             <iconClass>fa fa-wrench</iconClass>
             <items>
