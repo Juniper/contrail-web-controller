@@ -1194,7 +1194,9 @@ function createServiceInstance(request, response, appData)
                         'parent_type': 'project',
                         'port_tuple_refs':
                             vmiDetails[i]['virtual-machine-interface']['port_tuple_refs'],
-                        'virtual_machine_interface_properties': vmiProp
+                        'virtual_machine_interface_properties': vmiProp,
+                        'annotations': { "key_value_pair":
+                            [{ "key": "_service_vm_", "value": "True"}]}
                     }
                 };
                 var reqUrl = '/virtual-machine-interface/' +
