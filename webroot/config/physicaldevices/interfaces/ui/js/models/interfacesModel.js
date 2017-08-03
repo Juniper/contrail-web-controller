@@ -32,7 +32,8 @@ define([
             },
             'parent_type' : null,
             'physical_interface_refs' : [],
-            'user_created_physical_interface' : null
+            'user_created_physical_interface' : null,
+            'ethernet_segment_identifier': '0'
         },
         formatModelConfig: function (modelConfig) {
             self = this;
@@ -560,6 +561,9 @@ define([
             } else {
                 postObject["physical-interface"]["physical_interface_refs"] = [];
             }
+            //ethernet segment identifier
+            postObject["physical-interface"]["ethernet_segment_identifier"] =
+                attr.ethernet_segment_identifier ? attr.ethernet_segment_identifier : "0";
             if(ajaxOpt.type === 'PUT') {
                 postObject["physical-interface"]["uuid"] = attr.uuid;
                 ajaxConfig.url = ajaxConfig.url + '/' + attr.uuid;

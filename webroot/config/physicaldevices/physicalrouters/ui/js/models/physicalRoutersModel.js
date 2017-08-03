@@ -59,6 +59,7 @@ define([
             'physical_router_vnc_managed' : false,
             'virtual_network_refs' : [],
             'user_created_virtual_network' : null,
+            'physical_router_role': 'none',
         },
         formatModelConfig: function (modelConfig) {
             /*
@@ -279,6 +280,13 @@ define([
                     } else {
                         postObject["physical-router"]
                             ["physical_router_junos_service_ports"] =  null;
+                    }
+                    if(attr.physical_router_role !== 'none') {
+                        postObject["physical-router"]["physical_router_role"] =
+                            attr.physical_router_role;
+                    } else {
+                        postObject["physical-router"]["physical_router_role"] =
+                            null;
                     }
                 }
                 if(type === ctwl.PHYSICAL_ROUTER_TYPE) {

@@ -583,6 +583,24 @@ define([
                                  }
                             ]
                         },
+                        {
+                            columns: [{
+                                elementId: 'physical_router_role',
+                                view: "FormDropdownView",
+                                viewConfig: {
+                                    label : "Role",
+                                    path: "physical_router_role",
+                                    dataBindValue: "physical_router_role",
+                                    class: "col-xs-6",
+                                    elementConfig:{
+                                        placeholder: 'Select a Role',
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        data : ctwc.PHYSICAL_ROUTER_ROLE_DATA
+                                    }
+                                }
+                            }]
+                        },
                         pRouterConfigTemplates.svcPortsSection(),
                         pRouterConfigTemplates.snmpMntdChkboxView(),
                         pRouterConfigTemplates.snmpMntdView()
@@ -640,13 +658,29 @@ define([
                         {
                             columns: [
                                 {
+                                    elementId: 'physical_router_role',
+                                    view: "FormDropdownView",
+                                    viewConfig: {
+                                        label : "Role",
+                                        path: "physical_router_role",
+                                        dataBindValue: "physical_router_role",
+                                        class: "col-xs-6",
+                                        elementConfig:{
+                                            placeholder: 'Select a Role',
+                                            dataTextField: "text",
+                                            dataValueField: "value",
+                                            data : ctwc.PHYSICAL_ROUTER_ROLE_DATA
+                                        }
+                                    }
+                                },
+                                {
                                     elementId: 'user_created_bgp_router',
                                     view: "FormDropdownView",
                                     viewConfig: {
                                         label : "BGP Router",
                                         path: "user_created_bgp_router",
                                         dataBindValue: "user_created_bgp_router",
-                                        class: "col-xs-12",
+                                        class: "col-xs-6",
                                         elementConfig: {
                                             allowClear: true,
                                             dataTextField: "text",

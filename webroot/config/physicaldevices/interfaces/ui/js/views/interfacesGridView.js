@@ -347,6 +347,12 @@ define([
                                                    }
                                                 },
                                                 {
+                                                    key : 'ethernet_segment_identifier',
+                                                    label: 'Ethernet Segment Identifier',
+                                                    templateGenerator:ctwl.INF_TG
+
+                                                },
+                                                {
                                                    key : 'logical_interfaces',
                                                    label : 'Logical Interfaces',
                                                    templateGenerator:ctwl.INF_TG,

@@ -531,6 +531,14 @@ define([
                     }
                 },
                 {
+                    key: 'physical_router_role',
+                    label: 'Physical Router Role',
+                    templateGenerator: 'TextGenerator',
+                    templateGeneratorConfig : {
+                        formatter : "PhysicalRouterRoleFormatter"
+                    }
+                },
+                {
                     key: 'physical_router_vnc_managed',
                     label: 'Auto Configuration',
                     templateGenerator: 'TextGenerator',
@@ -552,6 +560,9 @@ define([
 
     this.NetConfUserNameFormatter = function(v, dc) {
         return pRoutersFormatters.netConfUserNameFormatter("", "", v, "", dc);
+    };
+    this.PhysicalRouterRoleFormatter = function(v, dc) {
+        return pRoutersFormatters.physicalRouterRoleFormatter("", "", v, "", dc);
     };
     this.AutoConfigFormatter = function(v, dc) {
         return pRoutersFormatters.autoConfigFormatter("", "", v, "", dc);

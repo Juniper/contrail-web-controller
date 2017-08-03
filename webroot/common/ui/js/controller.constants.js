@@ -661,6 +661,28 @@ define([
         this.GLOBAL_MAC_LEARNING_PREFIX_ID = "global_mac_learning";
         this.GLOBAL_MAC_LEARNING_LIST_VIEW_ID = "global-mac-learning-list-view";
 
+        //Project settings
+        this.CONFIG_PROJECT_SETTINGS_PAGE_ID = "config-project-settings-page-id";
+        this.CONFIG_PROJECT_SETTINGS_TAB_ID = "config-project-settings-tab-id";
+        this.CONFIG_QUOTAS_PAGE_ID = "config-quotas-page";
+        this.CONFIG_QUOTAS_GRID_ID = 'quotas-grid';
+        this.CONFIG_PROJECT_OTHER_SETTINGS_PAGE_ID =
+            "config-project-other-settings-page-id";
+        this.CONFIG_PROJECT_OTHER_SETTINGS_MAP =
+            [{"key": "vxlan_routing", "name": "VxLAN Routing"}];
+        this.CONFIG_PROJECT_OTHER_SETTINGS_GRID_ID =
+            "config-project-other-settings-grid";
+        this.CONFIG_PROJECT_OTHER_SETTINGS_SECTION_ID =
+            "config-project-other-settings-section";
+        this.CONFIG_PROJECT_OTHER_SETTINGS_LIST_ID =
+            "config-project-other-settings-list";
+        this.CONFIG_PROJECT_OTHER_SETTINGS_VIEW_CONFIG_SECTION_ID =
+            'config-project-other-settings-view-config-section';
+        this.CONFIG_PROJECT_OTHER_SETTINGS_ID = "config-project-other-settings";
+        this.CONFIG_PROJECT_OTHER_SETTINGS_PREFIX_ID = "project_other_settings";
+        this.CONFIG_VXLAN_ROUTING_ENABLED = 'enabled';
+        this.CONFIG_VXLAN_ROUTING_DISABLED = 'disabled';
+
         //QoS Control Traffic
         this.GLOBAL_CONTROL_TRAFFIC_MAP =
             [{"key": "control_traffic_dscp;control", "name": "Control DSCP bits"},
@@ -772,6 +794,11 @@ define([
             {'value' : 'none', "text" : 'None'},
             {'value' : 'embedded', "text" : 'Embedded'},
             {'value' : 'torAgent', "text" : 'TOR Agent'}
+        ];
+        this.PHYSICAL_ROUTER_ROLE_DATA = [
+            {'value' : 'none', "text" : 'None'},
+            {'value' : 'spine', "text" : 'Spine'},
+            {'value' : 'leaf', "text" : 'Leaf'}
         ];
 
         // VRouter Config Constants

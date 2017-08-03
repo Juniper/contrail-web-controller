@@ -28,7 +28,10 @@ define([
             'configured_route_target_list': {
                 'route_target': [], //collection
             },
-            'user_created_configured_route_target_list': [] //fake created for rt_list.rt collection
+            'user_created_configured_route_target_list': [], //fake created for rt_list.rt collection
+            'physical_router_refs': [],
+            'user_created_physical_router': 'none',
+            'vxlan_network_identifier': null
         },
         formatModelConfig: function (config) {
             var modelConfig = $.extend({},true,config);
@@ -57,6 +60,14 @@ define([
                               modelConfig['connectedNetwork'].push(vnfqName);
                           }
                    }
+            }
+
+            //populate user_created_physical_router
+            var prRefs = getValueByJsonPath(modelConfig, 'physical_router_refs;0;to', []);
+            if(prRefs.length === 2) {
+                modelConfig["user_created_physical_router"] = prRefs[0] + ':' + prRefs[1];
+            } else {
+                modelConfig["user_created_physical_router"] = 'none';
             }
             routeTargetUtils.readRouteTargetList(modelConfig, 'user_created_configured_route_target_list');
             //permissions
@@ -130,6 +141,15 @@ define([
                             break;
                         }
                     }
+                }
+
+                //extend to physical router
+                newLRData["physical_router_refs"] = [];
+                if(newLRData.user_created_physical_router !== 'none') {
+                    var toArray = newLRData.user_created_physical_router.split(':');
+                    newLRData["physical_router_refs"].push({"to": toArray});
+                } else {
+                    newLRData["physical_router_refs"] = [];
                 }
 
                 //Connected Networks.
