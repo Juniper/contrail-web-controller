@@ -620,6 +620,640 @@ define(['underscore'], function (_) {
                     ]
 
                 }
+            },
+            "interfaceDataParser": {
+                "input": {
+                    "test1": {
+                          "data": {
+                            "value": [
+                              {
+                                "name": "default-domain:admin:c4045ee4-a2cf-4ca7-854b-f695e0b5be53",
+                                "value": {
+                                  "ContrailConfig": {
+                                    "deleted": false,
+                                    "elements": {
+                                      "routing_instance_refs": "[{\"to\": [\"default-domain\", \"admin\", \"test1\", \"test1\"], \"attr\": {\"direction\": \"both\", \"protocol\": null, \"ipv6_service_chain_address\": null, \"dst_mac\": null, \"mpls_label\": null, \"vlan_tag\": null, \"src_mac\": null, \"service_chain_address\": null}, \"uuid\": \"825072f9-b522-43d4-be72-8683e2befe94\"}]",
+                                      "parent_uuid": "\"f8c4849f-d86f-44a2-bdec-1756e3034d79\"",
+                                      "virtual_machine_interface_bindings": "{\"key_value_pair\": [{\"key\": \"host_id\", \"value\": \"nodeg3\"}, {\"key\": \"vif_type\", \"value\": \"vrouter\"}, {\"key\": \"vnic_type\", \"value\": \"normal\"}]}",
+                                      "security_group_refs": "[{\"to\": [\"default-domain\", \"admin\", \"default\"], \"attr\": null, \"uuid\": \"f262afaf-45db-42b7-b6ee-32f66589c672\"}]",
+                                      "virtual_machine_interface_disable_policy": "false",
+                                      "parent_type": "\"project\"",
+                                      "uuid": "\"c4045ee4-a2cf-4ca7-854b-f695e0b5be53\"",
+                                      "virtual_network_refs": "[{\"to\": [\"default-domain\", \"admin\", \"test1\"], \"attr\": null, \"uuid\": \"4a5429be-8bc3-484a-9315-fb87bdf3851d\"}]",
+                                      "display_name": "\"c4045ee4-a2cf-4ca7-854b-f695e0b5be53\"",
+                                      "perms2": "{\"owner\": \"f8c4849fd86f44a2bdec1756e3034d79\", \"owner_access\": 7, \"global_access\": 0, \"share\": []}",
+                                      "virtual_machine_refs": "[{\"to\": [\"76ebc798-5f58-4fb9-a3ef-2271e83ca32e\"], \"attr\": null, \"uuid\": \"76ebc798-5f58-4fb9-a3ef-2271e83ca32e\"}]",
+                                      "id_perms": "{\"enable\": true, \"description\": \"\", \"created\": \"2017-07-21T11:50:59.902602\", \"creator\": null, \"uuid\": {\"uuid_mslong\": 14124518667417767079, \"uuid_lslong\": 9605041753878281811}, \"user_visible\": true, \"last_modified\": \"2017-07-21T11:50:59.931897\", \"permissions\": {\"owner\": \"neutron\", \"owner_access\": 7, \"other_access\": 7, \"group\": \"admin\", \"group_access\": 7}}",
+                                      "virtual_machine_interface_device_owner": "\"compute:nova\"",
+                                      "port_security_enabled": "true",
+                                      "fq_name": "[\"default-domain\", \"admin\", \"c4045ee4-a2cf-4ca7-854b-f695e0b5be53\"]",
+                                      "vlan_tag_based_bridge_domain": "false",
+                                      "virtual_machine_interface_mac_addresses": "{\"mac_address\": [\"02:c4:04:5e:e4:a2\"]}"
+                                    }
+                                  },
+                                  "UveVMInterfaceAgent": {
+                                    "ip6_active": false,
+                                    "if_stats": {
+                                      "out_bytes": 126,
+                                      "in_pkts": 0,
+                                      "out_pkts": 3,
+                                      "in_bytes": 0
+                                    },
+                                    "vm_uuid": "76ebc798-5f58-4fb9-a3ef-2271e83ca32e",
+                                    "port_bucket_bmap": {
+                                      "udp_sport_bitmap": [
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0"
+                                      ],
+                                      "tcp_dport_bitmap": [
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0"
+                                      ],
+                                      "tcp_sport_bitmap": [
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0"
+                                      ],
+                                      "udp_dport_bitmap": [
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0"
+                                      ]
+                                    },
+                                    "ip6_address": "::",
+                                    "label": 20,
+                                    "gateway": "10.10.10.1",
+                                    "rx_vlan": 65535,
+                                    "tx_vlan": 65535,
+                                    "ip4_active": true,
+                                    "mac_address": "02:c4:04:5e:e4:a2",
+                                    "if_out_pkts_ewm": {
+                                      "config": "0.1",
+                                      "metric": 3,
+                                      "state": {
+                                        "stddev": "6.3171",
+                                        "mean": "6.74603"
+                                      },
+                                      "algo": "EWM",
+                                      "samples": 16,
+                                      "sigma": -0.592998
+                                    },
+                                    "l2_active": true,
+                                    "added_flows_ewm": {
+                                      "config": "0.1",
+                                      "metric": 0,
+                                      "state": {
+                                        "stddev": "0",
+                                        "mean": "0"
+                                      },
+                                      "algo": "EWM",
+                                      "samples": 10,
+                                      "sigma": 0
+                                    },
+                                    "vm_name": "test1-inst",
+                                    "out_bw_usage": 33,
+                                    "deleted_flows_ewm": {
+                                      "config": "0.1",
+                                      "metric": 0,
+                                      "state": {
+                                        "stddev": "0",
+                                        "mean": "0"
+                                      },
+                                      "algo": "EWM",
+                                      "samples": 10,
+                                      "sigma": 0
+                                    },
+                                    "is_health_check_active": true,
+                                    "flow_rate": {
+                                      "active_flows": 0,
+                                      "max_flow_deletes_per_second": 0,
+                                      "added_flows": 0,
+                                      "deleted_flows": 0,
+                                      "min_flow_adds_per_second": 0,
+                                      "min_flow_deletes_per_second": 0,
+                                      "max_flow_adds_per_second": 0
+                                    },
+                                    "virtual_network": "default-domain:admin:test1",
+                                    "active": true,
+                                    "ip_address": "10.10.10.3",
+                                    "fixed_ip4_list": [
+                                      "10.10.10.3"
+                                    ],
+                                    "in_bw_usage": 0,
+                                    "vn_uuid": "4a5429be-8bc3-484a-9315-fb87bdf3851d",
+                                    "active_flows_ewm": {
+                                      "config": "0.1",
+                                      "metric": 0,
+                                      "state": {
+                                        "stddev": "0",
+                                        "mean": "0"
+                                      },
+                                      "algo": "EWM",
+                                      "samples": 10,
+                                      "sigma": 0
+                                    },
+                                    "uuid": "c4045ee4-a2cf-4ca7-854b-f695e0b5be53",
+                                    "admin_state": true,
+                                    "if_in_pkts_ewm": {
+                                      "config": "0.1",
+                                      "metric": 0,
+                                      "state": {
+                                        "stddev": "0",
+                                        "mean": "0"
+                                      },
+                                      "algo": "EWM",
+                                      "samples": 10,
+                                      "sigma": 0
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "name": "default-domain:admin:e718d077-f828-4c67-955e-e11e9c664e27",
+                                "value": {
+                                  "ContrailConfig": {
+                                    "deleted": false,
+                                    "elements": {
+                                      "routing_instance_refs": "[{\"to\": [\"default-domain\", \"admin\", \"test1\", \"test1\"], \"attr\": {\"direction\": \"both\", \"protocol\": null, \"ipv6_service_chain_address\": null, \"dst_mac\": null, \"mpls_label\": null, \"vlan_tag\": null, \"src_mac\": null, \"service_chain_address\": null}, \"uuid\": \"825072f9-b522-43d4-be72-8683e2befe94\"}]",
+                                      "parent_uuid": "\"f8c4849f-d86f-44a2-bdec-1756e3034d79\"",
+                                      "virtual_machine_interface_bindings": "{\"key_value_pair\": [{\"key\": \"host_id\", \"value\": \"nodeg3\"}, {\"key\": \"vif_type\", \"value\": \"vrouter\"}, {\"key\": \"vnic_type\", \"value\": \"normal\"}]}",
+                                      "security_group_refs": "[{\"to\": [\"default-domain\", \"admin\", \"default\"], \"attr\": null, \"uuid\": \"f262afaf-45db-42b7-b6ee-32f66589c672\"}]",
+                                      "virtual_machine_interface_disable_policy": "false",
+                                      "parent_type": "\"project\"",
+                                      "uuid": "\"e718d077-f828-4c67-955e-e11e9c664e27\"",
+                                      "virtual_network_refs": "[{\"to\": [\"default-domain\", \"admin\", \"test1\"], \"attr\": null, \"uuid\": \"4a5429be-8bc3-484a-9315-fb87bdf3851d\"}]",
+                                      "display_name": "\"e718d077-f828-4c67-955e-e11e9c664e27\"",
+                                      "perms2": "{\"owner\": \"f8c4849fd86f44a2bdec1756e3034d79\", \"owner_access\": 7, \"global_access\": 0, \"share\": []}",
+                                      "virtual_machine_refs": "[{\"to\": [\"8222e32c-0601-4d9f-bb3b-2f92ec9d65e0\"], \"attr\": null, \"uuid\": \"8222e32c-0601-4d9f-bb3b-2f92ec9d65e0\"}]",
+                                      "id_perms": "{\"enable\": true, \"description\": \"\", \"created\": \"2017-07-21T11:51:25.873178\", \"creator\": null, \"uuid\": {\"uuid_mslong\": 16652288835885485159, \"uuid_lslong\": 10763287681051282983}, \"user_visible\": true, \"last_modified\": \"2017-07-21T11:51:26.153485\", \"permissions\": {\"owner\": \"neutron\", \"owner_access\": 7, \"other_access\": 7, \"group\": \"admin\", \"group_access\": 7}}",
+                                      "virtual_machine_interface_device_owner": "\"compute:nova\"",
+                                      "port_security_enabled": "true",
+                                      "fq_name": "[\"default-domain\", \"admin\", \"e718d077-f828-4c67-955e-e11e9c664e27\"]",
+                                      "vlan_tag_based_bridge_domain": "false",
+                                      "virtual_machine_interface_mac_addresses": "{\"mac_address\": [\"02:e7:18:d0:77:f8\"]}"
+                                    }
+                                  },
+                                  "UveVMInterfaceAgent": {
+                                    "ip6_active": false,
+                                    "if_stats": {
+                                      "out_bytes": 126,
+                                      "in_pkts": 0,
+                                      "out_pkts": 3,
+                                      "in_bytes": 0
+                                    },
+                                    "vm_uuid": "8222e32c-0601-4d9f-bb3b-2f92ec9d65e0",
+                                    "port_bucket_bmap": {
+                                      "udp_sport_bitmap": [
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0"
+                                      ],
+                                      "tcp_dport_bitmap": [
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0"
+                                      ],
+                                      "tcp_sport_bitmap": [
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0"
+                                      ],
+                                      "udp_dport_bitmap": [
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0"
+                                      ]
+                                    },
+                                    "ip6_address": "::",
+                                    "label": 24,
+                                    "gateway": "10.10.10.1",
+                                    "rx_vlan": 65535,
+                                    "tx_vlan": 65535,
+                                    "ip4_active": true,
+                                    "mac_address": "02:e7:18:d0:77:f8",
+                                    "if_out_pkts_ewm": {
+                                      "config": "0.1",
+                                      "metric": 3,
+                                      "state": {
+                                        "stddev": "6.5234",
+                                        "mean": "7.06614"
+                                      },
+                                      "algo": "EWM",
+                                      "samples": 15,
+                                      "sigma": -0.623317
+                                    },
+                                    "l2_active": true,
+                                    "added_flows_ewm": {
+                                      "config": "0.1",
+                                      "metric": 0,
+                                      "state": {
+                                        "stddev": "0",
+                                        "mean": "0"
+                                      },
+                                      "algo": "EWM",
+                                      "samples": 10,
+                                      "sigma": 0
+                                    },
+                                    "vm_name": "test1-inst1",
+                                    "out_bw_usage": 33,
+                                    "deleted_flows_ewm": {
+                                      "config": "0.1",
+                                      "metric": 0,
+                                      "state": {
+                                        "stddev": "0",
+                                        "mean": "0"
+                                      },
+                                      "algo": "EWM",
+                                      "samples": 10,
+                                      "sigma": 0
+                                    },
+                                    "is_health_check_active": true,
+                                    "flow_rate": {
+                                      "active_flows": 0,
+                                      "max_flow_deletes_per_second": 0,
+                                      "added_flows": 0,
+                                      "deleted_flows": 0,
+                                      "min_flow_adds_per_second": 0,
+                                      "min_flow_deletes_per_second": 0,
+                                      "max_flow_adds_per_second": 0
+                                    },
+                                    "virtual_network": "default-domain:admin:test1",
+                                    "active": true,
+                                    "ip_address": "10.10.10.4",
+                                    "fixed_ip4_list": [
+                                      "10.10.10.4"
+                                    ],
+                                    "in_bw_usage": 0,
+                                    "vn_uuid": "4a5429be-8bc3-484a-9315-fb87bdf3851d",
+                                    "active_flows_ewm": {
+                                      "config": "0.1",
+                                      "metric": 0,
+                                      "state": {
+                                        "stddev": "0",
+                                        "mean": "0"
+                                      },
+                                      "algo": "EWM",
+                                      "samples": 10,
+                                      "sigma": 0
+                                    },
+                                    "uuid": "e718d077-f828-4c67-955e-e11e9c664e27",
+                                    "admin_state": true,
+                                    "if_in_pkts_ewm": {
+                                      "config": "0.1",
+                                      "metric": 0,
+                                      "state": {
+                                        "stddev": "0",
+                                        "mean": "0"
+                                      },
+                                      "algo": "EWM",
+                                      "samples": 10,
+                                      "sigma": 0
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "lastKey": null,
+                          "more": false
+                    }
+                },
+                "output": {
+                    "test1": [
+                          {
+                            "floating_ips": [],
+                            "ip6_active": false,
+                            "if_stats": {
+                              "out_bytes": 126,
+                              "in_pkts": 0,
+                              "out_pkts": 3,
+                              "in_bytes": 0
+                            },
+                            "vm_uuid": "76ebc798-5f58-4fb9-a3ef-2271e83ca32e",
+                            "port_bucket_bmap": {
+                              "udp_sport_bitmap": [
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0"
+                              ],
+                              "tcp_dport_bitmap": [
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0"
+                              ],
+                              "tcp_sport_bitmap": [
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0"
+                              ],
+                              "udp_dport_bitmap": [
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0"
+                              ]
+                            },
+                            "ip6_address": "::",
+                            "label": 20,
+                            "gateway": "10.10.10.1",
+                            "rx_vlan": 65535,
+                            "tx_vlan": 65535,
+                            "ip4_active": true,
+                            "mac_address": "02:c4:04:5e:e4:a2",
+                            "if_out_pkts_ewm": {
+                              "config": "0.1",
+                              "metric": 3,
+                              "state": {
+                                "stddev": "6.3171",
+                                "mean": "6.74603"
+                              },
+                              "algo": "EWM",
+                              "samples": 16,
+                              "sigma": -0.592998
+                            },
+                            "l2_active": true,
+                            "added_flows_ewm": {
+                              "config": "0.1",
+                              "metric": 0,
+                              "state": {
+                                "stddev": "0",
+                                "mean": "0"
+                              },
+                              "algo": "EWM",
+                              "samples": 10,
+                              "sigma": 0
+                            },
+                            "vm_name": "test1-inst",
+                            "out_bw_usage": 33,
+                            "deleted_flows_ewm": {
+                              "config": "0.1",
+                              "metric": 0,
+                              "state": {
+                                "stddev": "0",
+                                "mean": "0"
+                              },
+                              "algo": "EWM",
+                              "samples": 10,
+                              "sigma": 0
+                            },
+                            "is_health_check_active": true,
+                            "flow_rate": {
+                              "active_flows": 0,
+                              "max_flow_deletes_per_second": 0,
+                              "added_flows": 0,
+                              "deleted_flows": 0,
+                              "min_flow_adds_per_second": 0,
+                              "min_flow_deletes_per_second": 0,
+                              "max_flow_adds_per_second": 0
+                            },
+                            "virtual_network": "default-domain:admin:test1",
+                            "active": true,
+                            "ip_address": "10.10.10.3",
+                            "fixed_ip4_list": [
+                              "10.10.10.3"
+                            ],
+                            "in_bw_usage": 0,
+                            "vn_uuid": "4a5429be-8bc3-484a-9315-fb87bdf3851d",
+                            "active_flows_ewm": {
+                              "config": "0.1",
+                              "metric": 0,
+                              "state": {
+                                "stddev": "0",
+                                "mean": "0"
+                              },
+                              "algo": "EWM",
+                              "samples": 10,
+                              "sigma": 0
+                            },
+                            "uuid": "c4045ee4-a2cf-4ca7-854b-f695e0b5be53",
+                            "admin_state": true,
+                            "if_in_pkts_ewm": {
+                              "config": "0.1",
+                              "metric": 0,
+                              "state": {
+                                "stddev": "0",
+                                "mean": "0"
+                              },
+                              "algo": "EWM",
+                              "samples": 10,
+                              "sigma": 0
+                            },
+                            "name": "default-domain:admin:c4045ee4-a2cf-4ca7-854b-f695e0b5be53",
+                            "ip": "10.10.10.3",
+                            "count_floating_ips": 0,
+                            "floatingIP": [],
+                            "x": 33,
+                            "y": 0,
+                            "throughput": 33
+                          },
+                          {
+                            "floating_ips": [],
+                            "ip6_active": false,
+                            "if_stats": {
+                              "out_bytes": 126,
+                              "in_pkts": 0,
+                              "out_pkts": 3,
+                              "in_bytes": 0
+                            },
+                            "vm_uuid": "8222e32c-0601-4d9f-bb3b-2f92ec9d65e0",
+                            "port_bucket_bmap": {
+                              "udp_sport_bitmap": [
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0"
+                              ],
+                              "tcp_dport_bitmap": [
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0"
+                              ],
+                              "tcp_sport_bitmap": [
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0"
+                              ],
+                              "udp_dport_bitmap": [
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0",
+                                "0"
+                              ]
+                            },
+                            "ip6_address": "::",
+                            "label": 24,
+                            "gateway": "10.10.10.1",
+                            "rx_vlan": 65535,
+                            "tx_vlan": 65535,
+                            "ip4_active": true,
+                            "mac_address": "02:e7:18:d0:77:f8",
+                            "if_out_pkts_ewm": {
+                              "config": "0.1",
+                              "metric": 3,
+                              "state": {
+                                "stddev": "6.5234",
+                                "mean": "7.06614"
+                              },
+                              "algo": "EWM",
+                              "samples": 15,
+                              "sigma": -0.623317
+                            },
+                            "l2_active": true,
+                            "added_flows_ewm": {
+                              "config": "0.1",
+                              "metric": 0,
+                              "state": {
+                                "stddev": "0",
+                                "mean": "0"
+                              },
+                              "algo": "EWM",
+                              "samples": 10,
+                              "sigma": 0
+                            },
+                            "vm_name": "test1-inst1",
+                            "out_bw_usage": 33,
+                            "deleted_flows_ewm": {
+                              "config": "0.1",
+                              "metric": 0,
+                              "state": {
+                                "stddev": "0",
+                                "mean": "0"
+                              },
+                              "algo": "EWM",
+                              "samples": 10,
+                              "sigma": 0
+                            },
+                            "is_health_check_active": true,
+                            "flow_rate": {
+                              "active_flows": 0,
+                              "max_flow_deletes_per_second": 0,
+                              "added_flows": 0,
+                              "deleted_flows": 0,
+                              "min_flow_adds_per_second": 0,
+                              "min_flow_deletes_per_second": 0,
+                              "max_flow_adds_per_second": 0
+                            },
+                            "virtual_network": "default-domain:admin:test1",
+                            "active": true,
+                            "ip_address": "10.10.10.4",
+                            "fixed_ip4_list": [
+                              "10.10.10.4"
+                            ],
+                            "in_bw_usage": 0,
+                            "vn_uuid": "4a5429be-8bc3-484a-9315-fb87bdf3851d",
+                            "active_flows_ewm": {
+                              "config": "0.1",
+                              "metric": 0,
+                              "state": {
+                                "stddev": "0",
+                                "mean": "0"
+                              },
+                              "algo": "EWM",
+                              "samples": 10,
+                              "sigma": 0
+                            },
+                            "uuid": "e718d077-f828-4c67-955e-e11e9c664e27",
+                            "admin_state": true,
+                            "if_in_pkts_ewm": {
+                              "config": "0.1",
+                              "metric": 0,
+                              "state": {
+                                "stddev": "0",
+                                "mean": "0"
+                              },
+                              "algo": "EWM",
+                              "samples": 10,
+                              "sigma": 0
+                            },
+                            "name": "default-domain:admin:e718d077-f828-4c67-955e-e11e9c664e27",
+                            "ip": "10.10.10.4",
+                            "count_floating_ips": 0,
+                            "floatingIP": [],
+                            "x": 33,
+                            "y": 0,
+                            "throughput": 33
+                          }
+                        ]
+                }
             }
         };
 

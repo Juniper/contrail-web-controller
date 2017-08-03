@@ -4,8 +4,9 @@
 
 define([
     'underscore',
-    'contrail-view'
-], function (_, ContrailView) {
+    'contrail-view',
+    'contrail-list-model'
+], function (_, ContrailView, ContrailListModel) {
     var InterfaceGridView = ContrailView.extend({
         el: $(contentContainer),
 
@@ -14,6 +15,7 @@ define([
                 viewConfig = this.attributes.viewConfig,
                 modelMap = this.modelMap, parentType = viewConfig['parentType'],
                 domain = viewConfig['domain'], projectFQN = viewConfig['projectFQN'],
+                networkUUID = viewConfig['networkUUID'], projectUUID = viewConfig['projectUUID'],
                 networkFQN = viewConfig['networkFQN'], instanceUUID = viewConfig['instanceUUID'],
                 elementId = viewConfig['elementId'], interfaceList = [],
                 interfacesAjaxConfig, viewModel, ucid;
@@ -24,45 +26,51 @@ define([
                 viewModel = modelMap[viewConfig['modelKey']];
                 if (!(viewModel.isRequestInProgress())) {
                     interfaceList = contrail.checkIfExist(viewModel.attributes) ? viewModel.attributes['value']['UveVirtualMachineAgent']['interface_list'] : [];
-                    interfacesAjaxConfig = getInterfacesAjaxConfig(parentType, {interfaceList: interfaceList});
+                    interfacesAjaxConfig = getInterfacesAjaxConfig(parentType, {interfaceList: interfaceList}, ucid);
                     self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
                 }
 
                 viewModel.onAllRequestsComplete.subscribe(function () {
                     interfaceList = contrail.checkIfExist(viewModel.attributes) ? viewModel.attributes['value']['UveVirtualMachineAgent']['interface_list'] : [];
-                    interfacesAjaxConfig = getInterfacesAjaxConfig(parentType, {interfaceList: interfaceList});
+                    interfacesAjaxConfig = getInterfacesAjaxConfig(parentType, {interfaceList: interfaceList}, ucid);
                     self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
                 });
             } else if (parentType == ctwc.TYPE_VIRTUAL_NETWORK) {
-                ucid = ctwc.get(ctwc.UCID_NETWORK_INTERFACE_LIST, networkFQN);
-                interfacesAjaxConfig = getInterfacesAjaxConfig(parentType, {domain: domain, projectFQN: projectFQN, networkFQN: networkFQN});
+                interfacesAjaxConfig = nmwvc.getInterfaceListModelConfig(networkUUID, networkFQN);
                 self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
             } else if (parentType == ctwc.TYPE_PROJECT) {
-                ucid = ctwc.get(ctwc.UCID_PROJECT_INTERFACE_LIST, projectFQN);
-                interfacesAjaxConfig = getInterfacesAjaxConfig(parentType, {domain: domain, projectFQN: projectFQN, networkFQN: networkFQN});
+                interfacesAjaxConfig = nmwvc.getInterfaceListModelConfig(projectUUID, projectFQN);
                 self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
             }
         }
     });
 
-    function getInterfacesAjaxConfig(parentType, options) {
-        var ajaxConfig,
-            interfaceList = contrail.checkIfExist(options['interfaceList']) ? options['interfaceList'] : [];
-
-        ajaxConfig = {
-            url: ctwc.URL_VM_INTERFACES,
-            type: 'POST',
-            data: JSON.stringify({
-                parentType: parentType,
-                domain: options['domain'],
-                projectFQN: options['projectFQN'],
-                networkFQN: options['networkFQN'],
-                kfilt: interfaceList.join(','),
-                cfilt: ctwc.FILTERS_INSTANCE_LIST_INTERFACES.join(',')
-            })
-        };
-
-        return ajaxConfig;
+    function getInterfacesAjaxConfig(parentType, options, ucid) {
+        var interfaceList = contrail.checkIfExist(options['interfaceList']) ? options['interfaceList'] : [],
+            listModelConfig = {
+                remote: {
+                    ajaxConfig: {
+                        url: ctwc.URL_VM_INTERFACES,
+                        type: 'POST',
+                        data: JSON.stringify({
+                            parentType: parentType,
+                            domain: options['domain'],
+                            projectFQN: options['projectFQN'],
+                            networkFQN: options['networkFQN'],
+                            kfilt: interfaceList.join(','),
+                            cfilt: ctwc.FILTERS_INSTANCE_LIST_INTERFACES.join(',')
+                        })
+                    },
+                    dataParser: ctwp.interfaceDataParser
+                },
+                vlRemoteConfig: {
+                    vlRemoteList: nmwgc.getInterfaceStatsVLOfPrimaryRemoteConfig()
+                },
+                cacheConfig : {
+                    ucid: ucid
+                }
+            };
+        return listModelConfig;
     };
 
     function getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId) {
@@ -71,12 +79,12 @@ define([
             title: ctwl.TITLE_INTERFACES,
             view: "GridView",
             viewConfig: {
-                elementConfig: getInstanceInterfacesConfig(interfacesAjaxConfig, ucid)
+                elementConfig: getInstanceInterfacesConfig(interfacesAjaxConfig)
             }
         };
     };
 
-    function getInstanceInterfacesConfig(interfacesAjaxConfig, ucid) {
+    function getInstanceInterfacesConfig(interfacesAjaxConfig) {
         var gridElementConfig = {
             header: {
                 title: {
@@ -98,18 +106,7 @@ define([
                     },
                     fixedRowHeight: 30
                 },
-                dataSource: {
-                    remote: {
-                        ajaxConfig: interfacesAjaxConfig,
-                        dataParser: ctwp.interfaceDataParser
-                    },
-                    vlRemoteConfig: {
-                        vlRemoteList: nmwgc.getInterfaceStatsVLOfPrimaryRemoteConfig()
-                    },
-                    cacheConfig : {
-                        ucid: ucid
-                    }
-                },
+                dataSource: interfacesAjaxConfig,
                 statusMessages: {
                     loading: {
                         text: 'Loading Interfaces..'

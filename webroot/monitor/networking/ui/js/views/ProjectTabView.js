@@ -82,6 +82,7 @@ define([
                         viewConfig: {
                             parentType: ctwc.TYPE_PROJECT,
                             projectFQN: projectFQN,
+                            projectUUID: projectUUID,
                             elementId: ctwl.PROJECT_INTERFACE_GRID_ID
                         }
                     },
