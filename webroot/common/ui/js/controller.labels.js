@@ -975,7 +975,7 @@ define([
         this.CFG_SVC_TEMPLATE_TITLE_MULTI_DELETE = 'Delete Service Template(s)';
 
         /* Quotas */
-        this.TITLE_QUOTAS = 'Project Quotas';
+        this.TITLE_PROJECT_QUOTAS = 'Project Quotas';
         this.CONFIG_QUOTAS_PAGE_ID = 'config-quotas-page';
         this.CONFIG_QUOTAS_SECTION_ID = 'config-quotas-section';
         this.CONFIG_QUOTAS_ID = 'config-quotas';
@@ -983,6 +983,12 @@ define([
         this.QUOTAS_PREFIX_ID = 'quotas';
         this.TITLE_EDIT_QUOTAS = 'Edit Project Quotas';
         this.TITLE_EDIT_PROJECT_TAGS = "Select Project Tags"
+        this.TITLE_VXLAN_ROUTING_ENABLED = 'Enabled';
+        this.TITLE_VXLAN_ROUTING_DISABLED = 'Disabled';
+        this.TITLE_OTHER_SETTINGS = 'Other Settings';
+        this.TITLE_PROJECT_OTHER_SETTINGS = 'Project Other Settings';
+        this.TITLE_EDIT_PROJECT_OTHER_SETTINGS = 'Edit Other Settings';
+        this.TITLE_QUOTAS = 'Quotas';
 
         /* Global Config */
         this.CONFIG_GLOBAL_CONFIG_PAGE_ID = 'config-global-config-page';

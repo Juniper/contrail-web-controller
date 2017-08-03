@@ -243,6 +243,61 @@ define([
                                        data : allNetworksDS}}
                     }]
                 }, {
+                    columns: [{
+                            elementId: 'user_created_physical_router',
+                            view: 'FormDropdownView',
+                            viewConfig: {
+                                path:
+                                'user_created_physical_router',
+                                dataBindValue:
+                                'user_created_physical_router',
+                                label : 'Extend to Physical Router',
+                                class: 'col-xs-6',
+                                elementConfig : {
+                                    dataTextField :
+                                    'text',
+                                    dataValueField :
+                                    'value',
+                                    dataSource: {
+                                        type : 'remote',
+                                        url :
+                                        '/api/tenants/config/physical-routers-list',
+                                        parse : function(result) {
+                                            result = ifNull(result, []);
+                                            var prouters =
+                                            result['physical-routers'];
+                                            var ddData = [
+                                                {
+                                                    text:'None',
+                                                    value:'none'
+                                                }
+                                            ];
+                                            if(prouters.length > 0) {
+                                                for(var i = 0; i < prouters.length; i++){
+                                                    ddData.push({
+                                                        text: prouters[i]['fq_name'][1],
+                                                        value: prouters[i]['fq_name'][0] +
+                                                        ':' + prouters[i]['fq_name'][1]
+                                                    });
+                                                }
+                                            }
+                                             return  ddData;
+                                        }
+                                    }
+                                }
+                            }
+                    }, {
+                        elementId: 'vxlan_network_identifier',
+                        view: "FormInputView",
+                        viewConfig: {
+                            label: 'VNI',
+                            placeholder: 'Enter VxLAN Network Indetifier',
+                            path: 'vxlan_network_identifier',
+                            dataBindValue: 'vxlan_network_identifier',
+                            class: "col-xs-6"
+                        }
+                    }]
+                }, {
                 columns: [
                     {
                     elementId: 'route_target_accordian',

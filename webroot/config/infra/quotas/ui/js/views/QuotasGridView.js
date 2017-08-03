@@ -36,7 +36,6 @@ define([
                         columns: [
                             {
                                 elementId: ctwl.QUOTAS_GRID_ID,
-                                title: ctwl.TITLE_QUOTAS,
                                 view: "GridView",
                                 viewConfig: {
                                     elementConfig: getConfiguration(viewConfig)
@@ -53,7 +52,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: "Quotas"
+                    text: ctwl.TITLE_PROJECT_QUOTAS
                 },
                 advanceControls: getHeaderActionConfig(viewConfig),
             },
