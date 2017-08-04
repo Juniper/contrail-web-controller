@@ -661,6 +661,16 @@ define([
             graphModel.flowPath().model().set('nodes',[], {silent: true});
             graphModel.flowPath().model().set('edges',[], {silent: true});
         },
+        collapseNodes: function(params, contrailVisView){
+          var self = contrailVisView.caller;
+          self.removeElementsFromNetwork(
+              self.lastAddedElements.nodes,
+              self.lastAddedElements.edges);
+          self.lastAddedElements = {
+              "nodes": [],
+              "edges": []
+          };
+        },
         expandNodes: function(params, contrailVisView) {
             var self = contrailVisView.caller,
                 _network = contrailVisView.network,
@@ -2080,11 +2090,11 @@ define([
                             iconClass: 'fa fa-cog'
                         });
                         actions.push({
-                            text: 'Map Flow',
+                            text: 'Trace Flow',
                             iconClass: 'icon-exchange'
                         });
                         actions.push({
-                            text: 'Trace Flow',
+                            text: 'Map Flow',
                             iconClass: 'icon-exchange'
                         });
                         var tooltipContent = [{
@@ -2108,36 +2118,42 @@ define([
                         actions.push({
                             callback: function(key, options) {
                                 loadFeature({
-                                    p: 'config_infra_vrouters'
+                                    p: 'mon_infra_vrouter'
                                 });
                             }
                         });
 
                         actions.push({
                             callback: function(underlayGraphView) {
-                                graphModel.selectedElement().model().set({
+                              /*  graphModel.selectedElement().model().set({
                                     'nodeType': ctwc.VROUTER,
                                     'nodeDetail':
                                     node.data()["bs.popover"].
                                     options.data.attributes.
-                                    model().attributes});
-                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:0});
-                                $("#run_query").find("button").click();
-                                graphModel.selectedElement().model().set({
+                                    model().attributes});*/
+                                // Trace Flow Tab
+                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:1});
+                                /*graphModel.selectedElement().model().set({
                                     'nodeType': '',
                                     'nodeDetail': {}},{silent:true});
+                                    */
                             }
                         });
                         actions.push({
+
                             callback: function(underlayGraphView) {
-                                graphModel.selectedElement().model().set({
+                              /*  graphModel.selectedElement().model().set({
                                     'nodeType': ctwc.VROUTER,
                                     'nodeDetail':
                                     node.data()["bs.popover"].
                                     options.data.attributes.
                                     model().attributes});
-                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:1});
-                                underlayGraphView.rootView.viewMap.
+                                */
+                                // Map Flow Tab
+                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:0});
+                                // Re Run the query
+                                $("#run_query").find("button").click();
+                                /*underlayGraphView.rootView.viewMap.
                                     traceflow_radiobtn_name.model.
                                     traceflow_radiobtn_name('vRouter');
                                 underlayGraphView.rootView.viewMap.
@@ -2149,6 +2165,7 @@ define([
                                 graphModel.selectedElement().model().set({
                                     'nodeType': '',
                                     'nodeDetail': {}},{silent:true});
+                                    */
                             }
                         });
                         return actions;
@@ -2267,13 +2284,17 @@ define([
                         var actions = [];
                         actions.push({
                             callback: function(underlayGraphView) {
+                                /*
                                 graphModel.selectedElement().model().set({
                                     'nodeType': ctwc.VIRTUALMACHINE,
                                     'nodeDetail':
                                     node.data()["bs.popover"].
                                     options.data.attributes.
                                     model().attributes});
+                                  */
+
                                 $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:1});
+                                /*
                                 underlayGraphView.rootView.viewMap.
                                     traceflow_radiobtn_name.model.
                                     traceflow_radiobtn_name('instance');
@@ -2286,6 +2307,7 @@ define([
                                 graphModel.selectedElement().model().set({
                                     'nodeType': '',
                                     'nodeDetail': {}},{silent:true});
+                              */
                             }
                         });
                         return actions;
@@ -2805,7 +2827,8 @@ define([
                 var actionKey = $(this).data('action'),
                   actionsCallback = tooltipConfig.actionsCallback(tt);
                   actionsCallback[actionKey].callback(self);
-                  $(".vis-network-tooltip").popover("hide");
+                  $('.popover').hide();
+
             });
             $('.popover').find('i.fa-remove').on('click', function() {
                   $(".vis-network-tooltip").popover("hide");
@@ -2825,9 +2848,13 @@ define([
         doubleClickHandler: function(params, contrailVisView) {
             var self = contrailVisView.caller;
             self.doubleClickTime = new Date();
-            $(".vis-network-tooltip").popover("hide");
             if (params.nodes.length == 1) {
-                if(getCookie('nodeDoubleClick')+"" != "true" &&
+                var nodeName = getCookie('nodeDoubleClick_NodeName');
+                if(nodeName == params.nodes[0]){
+                    self.collapseNodes(params, contrailVisView);
+                    setCookie('nodeDoubleClick_NodeName', "");
+                }
+                else if(getCookie('nodeDoubleClick')+"" != "true" &&
                     (self.underlayPathIds.nodes.length > 0 ||
                     self.underlayPathIds.edges.length > 0)) {
                     var textTemplate =
@@ -2843,6 +2870,7 @@ define([
                             if($("#remember-reset-topology").prop("checked") ==
                                 true)
                                 setCookie('nodeDoubleClick', true);
+
                             self.expandNodes(params, contrailVisView);
                             $("#resetTopologyModal").modal('hide');
                         },
@@ -2855,14 +2883,18 @@ define([
                     });
                 } else {
                     self.expandNodes(params, contrailVisView);
+                    setCookie('nodeDoubleClick', true);
+                    setCookie('nodeDoubleClick_NodeName', params.nodes[0]);
                 }
+
             } else if(params.nodes.length == 0 && params.edges.length == 0) {
-                /*self.resetConnectedElements();
+                self.resetConnectedElements();
                 underlayUtils.removeUnderlayTabs(
                     self.rootView.childViewMap[ctwl.UNDERLAY_TOPOLOGY_PAGE_ID].
                     childViewMap[ctwc.UNDERLAY_TABS_VIEW_ID]
-                );*/
+                );
             }
+            $('.popover').hide();
         },
         refreshHandler: function(e, underlayGraphView) {
             var self = underlayGraphView;
@@ -2874,6 +2906,7 @@ define([
             };
             self.clearData();
             self.attributes.viewConfig.listModel.refreshData();
+            self.rearrangeHandler({}, self);
         },
         clearData: function() {
             var self = this;
