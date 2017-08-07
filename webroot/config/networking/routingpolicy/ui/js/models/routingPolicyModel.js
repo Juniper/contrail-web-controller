@@ -30,6 +30,15 @@ define([
             if (termList != null && termList.length > 0) {
                 for (var i = 0; i < termList.length; i++) {
                     var rule_obj = termList[i];
+                    //Check if "community" present convert it to list
+                    if(rule_obj['term_match_condition']['community']){
+                        if(rule_obj['term_match_condition']['community_list'] == null) {
+                            rule_obj['term_match_condition']['community_list'] = [];
+                        }
+                        rule_obj['term_match_condition']['community_list'].push
+                            (rule_obj['term_match_condition']['community']);
+                        rule_obj['term_match_condition']['community'] = null;
+                    }
                     var routingPolicyTermModel = new
                         RoutingPolicyTermModel(this, termList[i]);
                     ruleModels.push(routingPolicyTermModel)
