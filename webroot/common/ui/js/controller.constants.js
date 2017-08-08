@@ -1150,6 +1150,8 @@ define([
        // Config Editor Constants
         this.CONFIG_OBJECT_LIST_VIEW = 'config-object-list-view';
         this.CONFIG_OBJECT_DETAILS_VIEW = 'config-object-details-view';
+        this.URL_CREATE_CONFIG_OBJECT = "/api/tenants/config/create-config-object";
+        this.URL_UPDATE_CONFIG_OBJECT = "/api/tenants/config/update-config-object";
         this.CONFIG_API_LIST_VIEW = 'config-api-list-view';
         this.CONFIG_PATH = 'config/configEditor/ui/js/views/';
         this.TMPL_CONFIG_HREF = "config-editor-href-container";
