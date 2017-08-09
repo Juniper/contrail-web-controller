@@ -20,20 +20,82 @@ define([
             self.portGetChunkCnt = 50,
             self.portAjaxRef = 0,
             self.ajaxTimeout = 300000;
-            var listModelConfig = {
-                remote: {
-                    ajaxConfig: {
-                        url: ctwc.get(ctwc.URL_GET_PORT_UUID,
-                                      viewConfig.selectedProjectId),
-                        type: "GET"
-                    },
-                    dataParser: self.fetchPortData
-                }
-            };
+            var listModelConfig;
+            if(contrail.getCookie(cowc.COOKIE_PROJECT) === ctwc.DEFAULT_PROJECT) {
+                self.getVhostPortIds(function(error, vhostPortIds) {
+                    if(error || !vhostPortIds.length) {
+                        cowu.createModal({"modalId": "vhostError_conf", "className": "modal-280",
+                            "title": "Information",
+                            "btnName": "OK",
+                            "body": error ? error.responseText : "No vhost ports found",
+                            "onSave": function(){$("#vhostError_conf").modal("hide")}
+                        });
+                        return;
+                    }
+                    listModelConfig = {
+                            remote: {
+                                ajaxConfig: {
+                                    url: ctwc.URL_GET_CONFIG_DETAILS,
+                                    type: "POST",
+                                    data: JSON.stringify({data: [{type: "virtual-machine-interfaces",
+                                            obj_uuids: vhostPortIds}]})
+                                },
+                                dataParser: self.parseVhostPortsData,
+                            }
+                        };
+                    self.contrailListModel = new ContrailListModel(listModelConfig);
+                    self.renderView4Config(self.$el, self.contrailListModel,
+                                           getportListViewConfig(viewConfig));
+                });
+            } else {
+                listModelConfig = {
+                        remote: {
+                            ajaxConfig: {
+                                url: ctwc.get(ctwc.URL_GET_PORT_UUID,
+                                              viewConfig.selectedProjectId),
+                                type: "GET"
+                            },
+                            dataParser: self.fetchPortData
+                        }
+                    };
+                self.contrailListModel = new ContrailListModel(listModelConfig);
+                self.renderView4Config(this.$el, self.contrailListModel,
+                                       getportListViewConfig(viewConfig));
+            }
+        },
 
-            self.contrailListModel = new ContrailListModel(listModelConfig);
-            self.renderView4Config(this.$el, self.contrailListModel,
-                                   getportListViewConfig(viewConfig));
+        parseVhostPortsData: function(result) {
+            var vHostPorts = [],
+                formatted_data = portFormatters.formatVMIGridData(
+                        getValueByJsonPath(result, '0;virtual-machine-interfaces', [])),
+                resultLen = result.length;
+            return formatted_data;
+        },
+
+        getVhostPortIds: function(callback) {
+            var ajaxConfig = {};
+            ajaxConfig.type = 'POST';
+            ajaxConfig.data = JSON.stringify({data: [{type: "virtual-routers",
+                fields: ["virtual_machine_interfaces"]}]});
+            ajaxConfig.url = ctwc.URL_GET_CONFIG_DETAILS;
+            contrail.ajaxHandler(ajaxConfig, null,
+                function (response) {
+                    var vmiUUIDList = [],
+                        vRouters = getValueByJsonPath(response, '0;virtual-routers', []);
+                    _.each(vRouters, function(vrouterObj) {
+                        var vmiUUID = getValueByJsonPath(vrouterObj,
+                                'virtual-router;virtual_machine_interfaces;0;uuid',
+                                null, false);
+                        if(vmiUUID) {
+                            vmiUUIDList.push(vmiUUID);
+                        }
+                    });
+                    callback(null, vmiUUIDList);
+                },
+                function (error) {
+                    callback(error, null);
+                }
+           );
         },
 
     fetchPortData : function (result) {

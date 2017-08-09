@@ -52,7 +52,9 @@ define([
         }
     };
     function getRowActionConfig(dc) {
-        var rowActionConfig = [];
+        var rowActionConfig = [],
+            associatedVN = getValueByJsonPath(dc,
+                    'virtual_network_refs;0;to;2', '');
         rowActionConfig.push(ctwgc.getEditConfig('Edit', function(rowIndex) {
             var dataItem =
                 $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
@@ -75,7 +77,7 @@ define([
                 dataView.refreshData();
             }});
         }));
-        if(!portFormatters.isSubInterface(dc)) {
+        if(!portFormatters.isSubInterface(dc) && associatedVN !== ctwc.IP_FABRIC_VN) {
         rowActionConfig.push(ctwgc.getEditConfig('Add SubInterface',
             function(rowIndex) {
             var gridDataItem =
@@ -110,24 +112,25 @@ define([
             }});
         }));
         }
-        rowActionConfig.push(
-        ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-            var rowNum = this.rowIdentifier;
-            var dataItem =
-                $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
-
-            var portModel = new PortModel(dataItem);
-            portEditView.model = portModel;
-            portEditView.renderDeletePort({
-                                  "title": ctwl.TITLE_PORT_DETETE,
-                                  selectedGridData: [dataItem],
-                                  selectedProjectId: viewConfig.selectedProjectId,
-                                  callback: function() {
-                var dataView =
-                    $(gridElId).data("contrailGrid")._dataView;
-                dataView.refreshData();
-            }});
-        }));
+        if(associatedVN !== ctwc.IP_FABRIC_VN) {
+            rowActionConfig.push(
+            ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+                var rowNum = this.rowIdentifier;
+                var dataItem =
+                    $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
+                var portModel = new PortModel(dataItem);
+                portEditView.model = portModel;
+                portEditView.renderDeletePort({
+                                      "title": ctwl.TITLE_PORT_DETETE,
+                                      selectedGridData: [dataItem],
+                                      selectedProjectId: viewConfig.selectedProjectId,
+                                      callback: function() {
+                    var dataView =
+                        $(gridElId).data("contrailGrid")._dataView;
+                    dataView.refreshData();
+                }});
+            }));
+        }
         return rowActionConfig;
     }
     var getConfiguration = function (viewConfig) {
@@ -295,6 +298,10 @@ define([
     
     function getHeaderActionConfig(gridElId, viewConfig) {
         var dropdownActions;
+        var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+        if(project === ctwc.DEFAULT_PROJECT) {
+            return [];
+        }
         dropdownActions = [
             {
                 "title" : ctwl.TITLE_DELETE_CONFIG,
