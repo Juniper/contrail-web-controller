@@ -147,7 +147,7 @@
               var holdTime =  getValueByJsonPath(dc,
                   "bgpaas_session_attributes;hold_time", "-");
               if(holdTime !== "-") {
-                  holdTime = holdTime + " (seconds)";
+                  holdTime = holdTime + " (secs)";
               }
               return holdTime;
           };
@@ -175,6 +175,21 @@
                }
                return bgpaasASOverride;
            };
+
+           /*
+            * bgpassAsaSharedFormatter
+            */
+            this.bgpassAsaSharedFormatter = function(r, c, v, cd, dc) {
+                var bgpaasAsShared =  getValueByJsonPath(dc,"bgpaas_shared", "-");
+                if(bgpaasAsShared !== "-") {
+                    bgpaasAsShared =
+                        bgpaasAsShared.toString().toLowerCase() === "true" ?
+                                "Enabled" : "Disabled";
+                } else {
+                    bgpaasAsShared = "-";
+                }
+                return bgpaasAsShared;
+            };
 
            /*
             * ipV4MappedIPv6NexthopFormatter
@@ -250,10 +265,12 @@
                         var familyAttr = familyAttrs[i];
                        formattedFamilyAttr +=
                            "Address Family : " + getValueByJsonPath(familyAttr, "address_family", "-");
-                       formattedFamilyAttr +=
-                           ", Loop Count : " + getValueByJsonPath(familyAttr, "loop_count", "-");
+                       //formattedFamilyAttr +=
+                         //  ", Loop Count : " + getValueByJsonPath(familyAttr, "loop_count", "-");
                        formattedFamilyAttr +=
                            ", Prefix Limit : " + getValueByJsonPath(familyAttr, "prefix_limit;maximum", "-");
+                       formattedFamilyAttr +=
+                           ", Idle Timeout : " + getValueByJsonPath(familyAttr, "prefix_limit;idle_timeout", "-")+" (secs)";
                        if(i !== familyAttrs.length - 1) {
                             formattedFamilyAttr +="</br>";
                        }

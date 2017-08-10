@@ -6,8 +6,9 @@
      var bgpaasFamilyAttrsModel = ContrailModel.extend({
          defaultConfig: {
              "bgpaas_address_family": "inet",
-             "bgpaas_loop_count": 0,
-             "bgpaas_prefix_limit": 0
+             //"bgpaas_loop_count": 0,
+             "bgpaas_prefix_limit": 0,
+             "bgpaas_idle_timeout": ''
          },
          formatModelConfig: function(modelConfig){
              return modelConfig
@@ -30,14 +31,19 @@
                      required: true,
                      msg: "Address family is required"
                  },
-                 "bgpaas_loop_count" : function(value, attr, finalObj) {
+                 /*"bgpaas_loop_count" : function(value, attr, finalObj) {
                      if(value) {
                          if(isNaN(value) || Number(value) < 0 || Number(value) > 16) {
                              return "Loop count should be in 0-16 range"
                          }
                      }
-                 },
+                 },*/
                  "bgpaas_prefix_limit" : function(value, attr, finalObj) {
+                     if(value && isNaN(value)) {
+                         return "Prefix limit should be a number";
+                     }
+                 },
+                 "bgpaas_idle_timeout" : function(value, attr, finalObj) {
                      if(value && isNaN(value)) {
                          return "Prefix limit should be a number";
                      }

@@ -352,6 +352,15 @@ define([
                                 },{
                                     keyClass:'col-xs-3',
                                     valueClass:'col-xs-9',
+                                    key: 'bgpaas_shared',
+                                    templateGenerator: 'TextGenerator',
+                                    label: 'Shared',
+                                    templateGeneratorConfig: {
+                                        formatter: "bgpAsaSharedFormatter"
+                                    }
+                                },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: 'bgpaas_session_attributes.as_override',
                                     templateGenerator: 'TextGenerator',
                                     label: 'AS Override',
@@ -394,14 +403,14 @@ define([
                                     templateGeneratorConfig: {
                                         formatter: "AuthModeFormatter"
                                     }
-                                }/*,{
+                                },{
                                     key: "bgpaas_session_attributes.family_attributes",
                                     templateGenerator: "TextGenerator",
                                     label: "Address Family Attributes",
                                     templateGeneratorConfig: {
                                         formatter: "FamilyAttrsFormatter"
                                     }
-                                }*/]
+                                }]
                             },
                             //permissions
                             ctwu.getRBACPermissionExpandDetails('col-xs-3')]
@@ -427,6 +436,10 @@ define([
     };
     this.AdminStateFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.adminStateFormatter("", "", v, "", dc);
+    };
+    this.bgpAsaSharedFormatter = function(v, dc) {
+        return bgpAsAServiceFormatter.
+              bgpassAsaSharedFormatter("", "", v, "", dc);
     };
     this.ASOverrideFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.
@@ -455,9 +468,9 @@ define([
     this.AuthModeFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.authModeFormatter("", "", v, "", dc);
     };
-    /*this.FamilyAttrsFormatter = function(v, dc) {
+    this.FamilyAttrsFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.familyAttrsFormatter("", "", v, "", dc);
-    };*/
+    };
     return bgpAsAServiceGridView;
 });
 
