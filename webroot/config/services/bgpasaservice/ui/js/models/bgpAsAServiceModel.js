@@ -4,9 +4,9 @@
 
 define([
     'underscore',
-    'contrail-config-model'/*,
-    'config/services/bgpasaservice/ui/js/models/bgpAsAServiceFamilyAttrModel'*/
-], function (_, ContrailConfigModel/*, BGPAsAServiceFamilyAttrModel*/) {
+    'contrail-config-model',
+    'config/services/bgpasaservice/ui/js/models/bgpAsAServiceFamilyAttrModel'
+], function (_, ContrailConfigModel, BGPAsAServiceFamilyAttrModel) {
     var bgpAsAServiceModel = ContrailConfigModel.extend({
         defaultConfig: {
             "name": null,
@@ -22,15 +22,16 @@ define([
                 "loop_count": null,
                 "address_families": {
                     "family": []
-                }/*,
-                "family_attributes": []*/
+                },
+                "family_attributes": []
             },
             "virtual_machine_interface_refs": [],
             "user_created_virtual_machine_interface": null,
             /*"user_created_auth_key_type": "none",
             "user_created_auth_key": null*/
             "bgpaas_ipv4_mapped_ipv6_nexthop": false,
-            "bgpaas_suppress_route_advertisement": false
+            "bgpaas_suppress_route_advertisement": false,
+            "bgpaas_shared": false
         },
 
         formatModelConfig : function(modelConfig) {
@@ -41,29 +42,32 @@ define([
                 "bgpaas_session_attributes", null);
             var vmiRefs = [], editVMIRefs = [];
             if(bgpaasSessionAttrs) {
-                /*var familyAttrs = getValueByJsonPath(bgpaasSessionAttrs,
+                var familyAttrs = getValueByJsonPath(bgpaasSessionAttrs,
                     "family_attributes", []);
                 if(!modelConfig.uuid) {
                     familyAttrArray.push(new BGPAsAServiceFamilyAttrModel({
                                            bgpaas_address_family: "inet",
-                                           bgpaas_loop_count: 0,
+                                           //bgpaas_loop_count: 0,
+                                           bgpaas_idle_timeout: '',
                                            bgpaas_prefix_limit: 0
                                        }));
                     familyAttrArray.push(new BGPAsAServiceFamilyAttrModel({
                                            bgpaas_address_family: "inet6",
-                                           bgpaas_loop_count: 0,
+                                           //bgpaas_loop_count: 0,
+                                           bgpaas_idle_timeout:'',
                                            bgpaas_prefix_limit: 0
                                        }));
                 } else {
                     for(var i = 0; i < familyAttrs.length; i++) {
                         var familyAttr =  new BGPAsAServiceFamilyAttrModel({
                                                bgpaas_address_family: familyAttrs[i].address_family,
-                                               bgpaas_loop_count: familyAttrs[i].loop_count,
+                                               bgpaas_idle_timeout : getValueByJsonPath(familyAttrs[i], "prefix_limit;idle_timeout", null),
+                                               //bgpaas_loop_count: familyAttrs[i].loop_count,
                                                bgpaas_prefix_limit: getValueByJsonPath(familyAttrs[i], "prefix_limit;maximum", null)
                                            });
                         familyAttrArray.push(familyAttr);
                     }
-                }*/
+                }
 
                 if(!modelConfig.uuid) {
                     modelConfig["bgpaas_session_attributes"]["address_families"]["family"] =
@@ -97,14 +101,14 @@ define([
                 modelConfig["user_created_virtual_machine_interface"] =
                     editVMIRefs;
             }
-            /*modelConfig["familyAttrs"] = new Backbone.Collection(familyAttrArray);*/
+            modelConfig["familyAttrs"] = new Backbone.Collection(familyAttrArray);
 
             //permissions
             this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
 
-        /*addFamilyAttr: function() {
+        addFamilyAttr: function() {
             var familyAttrs = this.model().attributes["familyAttrs"],
                 familyAttrsArry = familyAttrs.toJSON();
             var addressFamily = "";
@@ -119,7 +123,7 @@ define([
                 return;
             }
             var newFamilyAttr = new BGPAsAServiceFamilyAttrModel({bgpaas_address_family: addressFamily,
-                bgpaas_loop_count: 0, bgpaas_prefix_limit: 0});
+                /*bgpaas_loop_count: 0*/bgpaas_idle_timeout:'', bgpaas_prefix_limit: 0});
             familyAttrs.add([newFamilyAttr]);
         },
         deleteFamilyAttr: function(data, kbInterface) {
@@ -133,13 +137,13 @@ define([
                     var familyAttr = familyAttrs[i];
                     actFamilyAttrs.push({
                         address_family: familyAttr.bgpaas_address_family(),
-                        loop_count: Number(familyAttr.bgpaas_loop_count()),
-                        prefix_limit: {maximum : Number(familyAttr.bgpaas_prefix_limit())}
+                        //loop_count: Number(familyAttr.bgpaas_loop_count()),
+                        prefix_limit: {maximum : Number(familyAttr.bgpaas_prefix_limit()), idle_timeout : Number(familyAttr.bgpaas_idle_timeout())}
                     });
                 }
             }
             return actFamilyAttrs;
-        },*/
+        },
         prepareVMIRefs: function(attr) {
             var vmiStr = attr.user_created_virtual_machine_interface;
             var vmiRefs = [];
@@ -166,12 +170,12 @@ define([
                     key : null,
                     type : cowc.OBJECT_TYPE_MODEL,
                     getValidation : "configureValidation"
-                }/*,
+                },
                 {
                     key : "familyAttrs",
                     type : cowc.OBJECT_TYPE_COLLECTION,
                     getValidation : "familyAttrValidation"
-                }*/
+                }
                 ,
                 //permissions
                 ctwu.getPermissionsValidation()
@@ -209,8 +213,8 @@ define([
                      sessionAttrs.address_families.family.split(",");
 
                 //family attrs
-                /*newBGPAsAServiceData["bgpaas_session_attributes"]
-                    ["family_attributes"] = self.getFamilyAttrs(attr);*/
+                newBGPAsAServiceData["bgpaas_session_attributes"]
+                    ["family_attributes"] = self.getFamilyAttrs(attr);
 
                 //admin down
                 newBGPAsAServiceData["bgpaas_session_attributes"]["admin_down"] =
@@ -249,7 +253,7 @@ define([
                 delete newBGPAsAServiceData.user_created_virtual_machine_interface;
                 /*delete newBGPAsAServiceData.user_created_auth_key_type;
                 delete newBGPAsAServiceData.user_created_auth_key;*/
-                /*delete newBGPAsAServiceData.familyAttrs;*/
+                delete newBGPAsAServiceData.familyAttrs;
 
                 postBGPAsAServiceData['bgp-as-a-service'] = newBGPAsAServiceData;
 
@@ -321,7 +325,13 @@ define([
                     msg: 'Enter BGP as a Service Name'
                 },
                 'bgpaas_ip_address' : function(value, attr, finalObj){
-                    if (value && (!isValidIP(value) || value.trim().indexOf("/") != -1)) {
+                    if(finalObj.bgpaas_shared){
+                        if(value == null){
+                            return "Enter an IP Address";
+                        }else if (value && (!isValidIP(value) || value.trim().indexOf("/") != -1)){
+                            return "Enter an IP Address in the format xxx.xxx.xxx.xxx";
+                        }
+                    }else if (value && (!isValidIP(value) || value.trim().indexOf("/") != -1)){
                         return "Enter an IP Address in the format xxx.xxx.xxx.xxx";
                     }
                 },
