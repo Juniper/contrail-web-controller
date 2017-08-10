@@ -237,6 +237,7 @@ define([
                     graphModel.flowPath().model().attributes.edges))
                     return false;
                 self.showFlowPath(nodes, edges);
+                self.rearrangeHandler({}, self);
                 return true;
             });
         },
@@ -670,6 +671,9 @@ define([
               "nodes": [],
               "edges": []
           };
+          self.removeUnderlayPathIds();
+          self.removeUnderlayEffects();
+
         },
         expandNodes: function(params, contrailVisView) {
             var self = contrailVisView.caller,
@@ -906,6 +910,9 @@ define([
                                     "nodes": [],
                                     "edges": []
                                 };
+                                self.resetTopology({
+                                    resetBelowTabs: true
+                                });
 
                             }
                         }
@@ -2118,7 +2125,7 @@ define([
                         actions.push({
                             callback: function(key, options) {
                                 loadFeature({
-                                    p: 'mon_infra_vrouter'
+                                    p: 'config_infra_nodes'
                                 });
                             }
                         });
@@ -2601,6 +2608,7 @@ define([
                 }
                 self.doubleClickTime = 0;
             }, self.threshold);
+
             }
         },
         blurNodeHandler: function(params, contrailVisView) {
@@ -2850,7 +2858,7 @@ define([
             self.doubleClickTime = new Date();
             if (params.nodes.length == 1) {
                 var nodeName = getCookie('nodeDoubleClick_NodeName');
-                if(nodeName == params.nodes[0]){
+                if(self.lastAddedElements.nodes.length > 0 && nodeName == params.nodes[0]){
                     self.collapseNodes(params, contrailVisView);
                     setCookie('nodeDoubleClick_NodeName', "");
                 }
@@ -2886,7 +2894,6 @@ define([
                     setCookie('nodeDoubleClick', true);
                     setCookie('nodeDoubleClick_NodeName', params.nodes[0]);
                 }
-
             } else if(params.nodes.length == 0 && params.edges.length == 0) {
                 self.resetConnectedElements();
                 underlayUtils.removeUnderlayTabs(
@@ -2894,6 +2901,7 @@ define([
                     childViewMap[ctwc.UNDERLAY_TABS_VIEW_ID]
                 );
             }
+            self.rearrangeHandler({}, self);
             $('.popover').hide();
         },
         refreshHandler: function(e, underlayGraphView) {
