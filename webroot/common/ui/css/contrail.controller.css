@@ -628,3 +628,12 @@ form h5.margin-0-0-10~.section-content {
     display:inherit;
     vertical-align: baseline;
 }
+#bgpaas_shared > div > div {
+    padding-top: 17px;
+}
+#configure-bgp_as_a_service input.ace-input[type=checkbox] + .ace-lbl::before, #configure-bgp_as_a_service input.ace-input[type=radio] + .ace-lbl::before{
+    margin-right:10px;
+}
+#origin_override {
+	margin-top: 17px;
+}
