@@ -101,7 +101,10 @@ define([
                                     function () {
                 var monitorType =  getValueByJsonPath(self.model.model(),
                         'attributes;service_health_check_properties;monitor_type', "PING");
+                var healthCheckType =  getValueByJsonPath(self.model.model(),
+                        'attributes;service_health_check_properties;health_check_type', "link-local");
                 self.model.user_created_monitor_type(monitorType);
+                self.model.user_created_health_check_type(healthCheckType);
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
@@ -181,6 +184,34 @@ define([
                 {
                     columns: [
                         {
+                            elementId: 'user_created_health_check_type',
+                            view: "FormDropdownView",
+                            viewConfig: {
+                                path :
+                                    'user_created_health_check_type',
+                                class: 'col-xs-6',
+                                dataBindValue :
+                                    'user_created_health_check_type',
+                                label: 'Health Check Type',
+                                elementConfig : {
+                                    dataTextField : "text",
+                                    dataValueField : "id",
+                                    placeholder : 'Select Health Check Type',
+                                    data : [{id: 'link-local',
+                                                text:'Link-Local'},
+                                            {id: 'end-to-end',
+                                                text:'End-To-End'},
+                                            {id: 'segment',
+                                                 text:'Segment'},
+                                                ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    columns: [
+                        {
                             elementId: 'user_created_monitor_type',
                             view: "FormDropdownView",
                             viewConfig: {
@@ -189,6 +220,7 @@ define([
                                 dataBindValue :
                                     'user_created_monitor_type',
                                 label: 'Protocol',
+                                disabled: 'user_created_health_check_type() == "segment"',
                                 elementConfig : {
                                     dataTextField : "text",
                                     dataValueField : "id",
@@ -210,6 +242,7 @@ define([
                                 path : 'service_health_check_properties.url_path',
                                 class: 'col-xs-6',
                                 dataBindValue : 'service_health_check_properties().url_path',
+                                visible: 'user_created_health_check_type() != "segment"',
                                 elementConfig: {
                                     placeholder: 'local-ip ' +
                                             'or URI or ip [ :port]',
@@ -296,29 +329,6 @@ define([
                                 dataBindValue : 'service_health_check_properties().max_retries',
                                 placeholder: 'Retries to attempt before declaring a failure'
                            }
-                        },
-                        {
-                            elementId: 'health_check_type',
-                            view: "FormDropdownView",
-                            viewConfig: {
-                                path :
-                                    'service_health_check_properties.' +
-                                    'health_check_type',
-                                class: 'col-xs-6',
-                                dataBindValue :
-                                    'service_health_check_properties().' +
-                                    'health_check_type',
-                                label: 'Health Check Type',
-                                elementConfig : {
-                                    dataTextField : "text",
-                                    dataValueField : "id",
-                                    placeholder : 'Select Health Check Type',
-                                    data : [{id: 'link-local',
-                                                text:'Link-Local'},
-                                            {id: 'end-to-end',
-                                                text:'End-To-End'}]
-                                }
-                            }
                         }
                     ]
                 },

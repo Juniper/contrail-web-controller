@@ -184,6 +184,12 @@ define([
                     model.max_retries_label('Retries');
                 }
             });
+        model.__kb.view_model.model().on('change:user_created_health_check_type',
+                function(healthCheckModel, monitorType) {
+                    if(monitorType === ctwc.SEGMENT) {
+                        model.user_created_monitor_type('PING');
+                    }
+                });
     }
 
     var rowActionConfig = [
@@ -374,7 +380,11 @@ define([
             formattedHealtChkType = "Link-Local";
         } else if(healthChkType === "end-to-end") {
             formattedHealtChkType = "End-To-End";
-        } else {
+        }
+        else if(healthChkType === ctwc.SEGMENT) {
+            formattedHealtChkType = "Segment";
+        }
+        else {
             formattedHealtChkType = "-"
         }
         return formattedHealtChkType;
