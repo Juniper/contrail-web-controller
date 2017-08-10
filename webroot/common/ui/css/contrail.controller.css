@@ -525,3 +525,8 @@ table td[class*="col-xs-"], table th[class*="col-xs-"], .row-fluid table td[clas
     display:inherit;
     vertical-align: baseline;
 }
+#bgpaas_shared > div > div {
+	padding-top: 17px;
+}
+#configure-bgp_as_a_service input.ace-input[type=checkbox] + .ace-lbl::before, #configure-bgp_as_a_service input.ace-input[type=radio] + .ace-lbl::before{
+    margin-right:10px;}
