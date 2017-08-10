@@ -197,7 +197,7 @@ function buildvRouterVMTopology (nodeList, appData, callback)
                     'chassis_type': ctrlGlobal.NODE_TYPE_NONE,
                     'more_attributes': moreAttr});
                 links.push({'endpoints': [vmData['value'][i]['name'],
-                           vrName], 
+                           vrName],
                            'more_attributes': '-'});
             } catch(e) {
                 logutils.logger.error("In buildvRouterVMTopology(): VM JSON " +
@@ -224,7 +224,7 @@ function buildTopology (req, appData, callback)
             callback(err, phyTopo);
             return;
         }
-        buildvRouterVMTopology(phyTopo['nodes'], appData, 
+        buildvRouterVMTopology(phyTopo['nodes'], appData,
                                function(err, vrTopo, vrData) {
             if ((null != vrData) && (null != vrData['value'])) {
                 vrData = vrData['value'];
@@ -393,7 +393,7 @@ function buildNodeChassisType (nodes, prouterLinkData)
         var nodeChassType = getNodeChassisType(nodes[i]['name'],
                                                nodes[i]['node_type'],
                                                prouterLinkData);
-        nodes[i]['chassis_type'] = nodeChassType; 
+        nodes[i]['chassis_type'] = nodeChassType;
         if (ctrlGlobal.NODE_CHASSIS_TYPE_NOT_RESOLVED == nodeChassType) {
             resolveNeeded = true;
         }
@@ -484,18 +484,18 @@ function createNodeObj (node, nodeType, prouterEntry, prConfigData)
         "name": node,
         "node_type": nodeType,
         "more_attributes": {
-            "lldpLocManAddr": 
-                ((null != lldpNode) && 
+            "lldpLocManAddr":
+                ((null != lldpNode) &&
                  (null != lldpNode['lldpLocManAddrEntry'])) ?
                 lldpNode['lldpLocManAddrEntry']['lldpLocManAddr'] : '-',
-            "lldpLocSysDesc": 
+            "lldpLocSysDesc":
                 (null != lldpNode) ?
                 lldpNode['lldpLocSysDesc'] : '-',
-            "lldpLocSysName": 
+            "lldpLocSysName":
                 (null != lldpNode) ?
                 lldpNode['lldpLocSysName'] : '-',
-            "ifTable": ((null != prouterEntry) && 
-                        (null != prouterEntry['value']) && 
+            "ifTable": ((null != prouterEntry) &&
+                        (null != prouterEntry['value']) &&
                         (null != prouterEntry['value']['PRouterEntry'])) ?
                 prouterEntry['value']['PRouterEntry']['ifTable'] : '-',
             "ifXTable": ((null != prouterEntry) &&
@@ -586,7 +586,7 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData, prConfigData)
             var prLinkType =
                 getpRouterLinkType(pRouterLinkTable[j]['type']);
             nodeObj =
-                createNodeObj(pRouterLinkTable[j]['remote_system_name'], 
+                createNodeObj(pRouterLinkTable[j]['remote_system_name'],
                               prLinkType,
                               getPRouterEntryByName(pRouterLinkTable[j]['remote_system_name'],
                                                     data),
@@ -824,7 +824,7 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
 
     for (var i = 0; i < prouterCnt; i++) {
         tempLinkObjs = {};
-        if ((null != data[i]['name']) && 
+        if ((null != data[i]['name']) &&
             (null == tempNodeObjs[data[i]['name']])) {
             nodeObj = createNodeObj(data[i]['name'],
                                     ctrlGlobal.NODE_TYPE_PROUTER,
@@ -858,6 +858,10 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
             linkCnt = pRouterLinkTable.length;
         }
         for (var j = 0; j < linkCnt; j++) {
+            if (pRouterLinkTable[j]['remote_system_name'] === undefined){
+              logutils.logger.error(data[i]['name'] + " --> one of the PRouterLinkEntry:link_table:remote_system_name is missing");
+              continue;
+            }
             if ((null != pRouterLinkTable[j]['remote_system_name']) &&
                 (null ==
                  tempNodeObjs[pRouterLinkTable[j]['remote_system_name']])) {
@@ -887,14 +891,14 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
                     }
                 }
                 topoData['nodes'].push(nodeObj);
-                tempNodeObjs[pRouterLinkTable[j]['remote_system_name']] = 
+                tempNodeObjs[pRouterLinkTable[j]['remote_system_name']] =
                     pRouterLinkTable[j]['remote_system_name'];
             }
             linkName1 = data[i]['name'] + ":" +
                 pRouterLinkTable[j]['remote_system_name'];
             linkName2 = pRouterLinkTable[j]['remote_system_name'] + ":" +
                 data[i]['name'];
-            if ((null == tempLinkObjs[linkName1]) && 
+            if ((null == tempLinkObjs[linkName1]) &&
                 (null == tempLinkObjs[linkName2])) {
                 topoData['links'].push({"endpoints": [data[i]['name'],
                                        pRouterLinkTable[j]['remote_system_name']],
@@ -1669,7 +1673,7 @@ function getUnderlayStats (req, res, appData)
         node1 = null;
         node2 = null;
     }
-    
+
     if ((null == node1) || (null == node2)) {
         commonUtils.handleJSONResponse(err, res, null);
         return;
@@ -1938,7 +1942,7 @@ function getTraceFlow (req, res, appData)
     var vrfUrl = '/Snh_VrfListReq?name=';
     urlLists[0] = resolveVrfId + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' + vrfUrl;
     if (null == vrfName) {
-        async.map(urlLists, 
+        async.map(urlLists,
                   commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
                                                         false,
                                                         vRouterSandeshParams),
@@ -2003,11 +2007,11 @@ function getIfStatsBypRouterLink (dataObj, callback)
     }
 
     var timeObj = qeUtils.createTimeQueryJsonObjByAppData(dataObj['more_attributes']);
-    var queryJSON1 = 
+    var queryJSON1 =
         commonUtils.cloneObj(ctrlGlobal.QUERY_JSON['StatTable.PRouterEntry.ifStats']);
     queryJSON1['where'][0][0]['value'] = prouter1;
     queryJSON1['where'][0][0]['suffix']['value'] = prouter1_ifidx;
-    var queryJSON2 = 
+    var queryJSON2 =
         commonUtils.cloneObj(ctrlGlobal.QUERY_JSON['StatTable.PRouterEntry.ifStats']);
     queryJSON2['where'][0][0]['value'] = prouter2;
     queryJSON2['where'][0][0]['suffix']['value'] = prouter2_ifidx;
@@ -2023,9 +2027,9 @@ function getIfStatsBypRouterLink (dataObj, callback)
                              queryJSON1, null, null, appData);
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                              queryJSON2, null, null, appData);
-    logutils.logger.debug("Executing pRouter Stats Query1:", 
+    logutils.logger.debug("Executing pRouter Stats Query1:",
                           JSON.stringify(queryJSON1) + "at:" + new Date());
-    logutils.logger.debug("Executing pRouter Stats Query2:", 
+    logutils.logger.debug("Executing pRouter Stats Query2:",
                           JSON.stringify(queryJSON2) + "at:" + new Date());
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(opApiServer, true),
@@ -2155,4 +2159,3 @@ exports.getUnderlayTopology = getUnderlayTopology;
 exports.getUnderlayStats = getUnderlayStats;
 exports.getTraceFlow = getTraceFlow;
 exports.getpRouterLinkStats = getpRouterLinkStats;
-
