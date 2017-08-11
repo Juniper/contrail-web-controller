@@ -14,7 +14,7 @@ define([
     var RoutingPolicyTermModel = ContrailModel.extend({
         defaultConfig: {
            "term_match_condition":{
-                "community":"",
+                "community_list":[],
                 "prefix":[]
             },
             "term_action_list":{
@@ -158,18 +158,6 @@ define([
 
         validations: {
             termValidation: {
-                'from_terms': function (value, attr, finalObj) {
-                    var fromModelObj = getValueByJsonPath(finalObj, "from_terms;models", []);
-                    var fromModelObjLen = fromModelObj.length;
-                    var elements = {"community":0,"prefix":0};
-                    for (var i = 0; i < fromModelObjLen; i++) {
-                        var name = getValueByJsonPath(fromModelObj[i], "attributes;name")();
-                        elements[name] += 1;
-                        if (elements["community"] > 1) {
-                            return "cannot have more than one community";
-                        }
-                    }
-                },
                 'then_terms': function (value, attr, finalObj) {
                     var thenModelObj = getValueByJsonPath(finalObj, "then_terms;models", []);
                     var thenModelObjLen = thenModelObj.length;
