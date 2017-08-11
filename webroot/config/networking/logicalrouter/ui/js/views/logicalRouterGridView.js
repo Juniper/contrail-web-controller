@@ -145,10 +145,14 @@ define([
 
     this.logicalRouterColumns = [
         {
-            field:"name",
-            name:"Name",
+            field:  'display_name',
+            name:   'Router',
             minWidth : 120,
-            sortable: true
+            sortable: true,
+            formatter: this.showName,
+            sortable: {
+               sortBy: 'formattedValue'
+            }
         },
         {
             field:"virtual_network_refs",
@@ -237,7 +241,13 @@ define([
                                     keyClass:'col-xs-3',
                                     name: 'name',
                                     templateGenerator: 'TextGenerator'
-                                }, {
+                                },{
+                                    label: 'Display Name',
+                                    keyClass:'col-xs-3',
+                                    key: 'display_name',
+                                    name: 'display_name',
+                                    templateGenerator: 'TextGenerator'
+                                },{
                                     key: 'uuid',
                                     keyClass:'col-xs-3',
                                     name: 'uuid',
@@ -300,6 +310,9 @@ define([
     this.extGatewayFormatter = function (v, dc) {
         return lRFormatters.extGatewayFormatter("", "", v, "", dc);
     };
+    this.showName = function (r, c, v, cd, dc) {
+        return ctwu.getDisplayNameOrName(dc);
+    }
     this.interfaceDetailFormatter = function (v, dc) {
         return lRFormatters.interfaceDetailFormatter("", "", v, "", dc);
     };

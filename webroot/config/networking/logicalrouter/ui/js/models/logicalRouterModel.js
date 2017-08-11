@@ -65,7 +65,7 @@ define([
         },
         validations: {
             logicalRouterValidations: {
-                'name': {
+                'display_name': {
                     required: true,
                     msg: 'Enter a valid Router name.'
                 }
@@ -91,6 +91,7 @@ define([
                 var newLRData = $.extend({},this.model().attributes),
                     selectedDomain = ctwu.getGlobalVariable('domain').name,
                     selectedProject = ctwu.getGlobalVariable('project').name;
+                ctwu.setNameFromDisplayName(newLRData);
                 newLRData.fq_name = [selectedDomain,
                                      selectedProject,
                                      newLRData["name"]];

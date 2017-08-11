@@ -179,14 +179,13 @@ define([
             viewConfig:{
             rows: [{
                     columns: [{
-                        elementId: 'name',
+                        elementId: 'display_name',
                         view: "FormInputView",
                         name: "Name",
                         viewConfig: {
-                                    disabled: isDisable,
-                                    placeHolder: ctwl.ENTER_NAME,
-                                    path: 'name',
-                                    dataBindValue: 'name',
+                                    path: 'display_name',
+                                    label: 'Name',
+                                    dataBindValue: 'display_name',
                                     class: "col-xs-6"}
                     },
                     {
