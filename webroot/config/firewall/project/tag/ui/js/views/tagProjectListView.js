@@ -41,8 +41,7 @@ define([
                         dataItems.push(val.tag);
                 });
             dataItems = dataItems.sort(tagsComparator);
-            tagUtils.fetchVMIDetails(dataItems, this.contrailListModel);
-            return [];
+            return tagUtils.fetchVMIDetails(dataItems, this.contrailListModel);
         }
     });
 
