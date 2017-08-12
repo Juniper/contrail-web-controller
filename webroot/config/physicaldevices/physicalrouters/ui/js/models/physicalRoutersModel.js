@@ -60,6 +60,7 @@ define([
             'virtual_network_refs' : [],
             'user_created_virtual_network' : null,
             'physical_router_role': 'none',
+            'evpn_peered_tor': false
         },
         formatModelConfig: function (modelConfig) {
             /*
@@ -164,6 +165,13 @@ define([
                         tsnCount++;
                     }
                 });
+            }
+            if(vrType !== "Embedded" &&
+                (modelConfig['user_created_torAgent1'] ||
+                        modelConfig['user_created_torAgent2'])) {
+                vrType = 'TOR Agent';
+            } else {
+                vrType = 'TSN';
             }
             modelConfig['virtualRouterType'] = vrType;
             //permissions
@@ -288,6 +296,18 @@ define([
                         postObject["physical-router"]["physical_router_role"] =
                             null;
                     }
+                    if(attr.evpn_peered_tor === true) {
+                        this.populateTORAgentVirtualRouterObjectToPostObj(
+                                postObject,
+                                {
+                                    user_created_tsn1 : attr.user_created_tsn1,
+                                    user_created_tsn2 : attr.user_created_tsn2
+                                },
+                                "TSN",
+                                editView,
+                                attr
+                            );
+                    }
                 }
                 if(type === ctwl.PHYSICAL_ROUTER_TYPE) {
                     if(attr.user_created_bgp_router != null &&
@@ -326,7 +346,7 @@ define([
                             this.populateEmbeddedVirtualRouterObjectToPostObj(
                                 postObject, attr.physical_router_management_ip, attr.name,
                                 editView);
-                        } else {//ToR Agent case
+                        } else if(attr.virtualRouterType == 'TOR Agent') {//ToR Agent case
                             this.populateTORAgentVirtualRouterObjectToPostObj(
                                 postObject,
                                 {
@@ -339,6 +359,17 @@ define([
                                 editView,
                                 attr
                             );
+                        } else if(attr.virtualRouterType == 'TSN') {
+                            this.populateTORAgentVirtualRouterObjectToPostObj(
+                                    postObject,
+                                    {
+                                        user_created_tsn1 : attr.user_created_tsn1,
+                                        user_created_tsn2 : attr.user_created_tsn2
+                                    },
+                                    attr.virtualRouterType,
+                                    editView,
+                                    attr
+                                );
                         }
                     } else {
                         postObject["physical-router"]["virtual_router_refs"] =
