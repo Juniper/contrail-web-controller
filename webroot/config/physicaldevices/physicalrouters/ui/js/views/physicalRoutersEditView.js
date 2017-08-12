@@ -601,6 +601,34 @@ define([
                                 }
                             }]
                         },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'evpn_peered_tor',
+                                    view: "FormCheckboxView",
+                                    viewConfig: {
+                                        label : "EVPN Peered TOR",
+                                        path: "evpn_peered_tor",
+                                        dataBindValue: "evpn_peered_tor",
+                                        class: "col-xs-12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns : [
+                                 {
+                                     elementId: 'evpn_tsn_section',
+                                     view: "SectionView",
+                                     viewConfig: {
+                                        visible: "evpn_peered_tor() === true",
+                                        rows: [
+                                            pRouterConfigTemplates.tsnSection(self.tsnVrouterDS)
+                                        ]
+                                     }
+                                 }
+                            ]
+                        },
                         pRouterConfigTemplates.svcPortsSection(),
                         pRouterConfigTemplates.snmpMntdChkboxView(),
                         pRouterConfigTemplates.snmpMntdView()
