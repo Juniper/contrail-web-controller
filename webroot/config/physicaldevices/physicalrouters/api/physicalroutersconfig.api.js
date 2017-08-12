@@ -545,7 +545,8 @@ function createPhysicalRouters (request, response, appData)
          }
          //If Tor Agent
          //Try to create the TOR Agent and TSN. Even if they fail go ahead and create physical router
-         else if(postData['physical-router']['virtual_router_type'] == 'TOR Agent'){
+         else if(postData['physical-router']['virtual_router_type'] == 'TOR Agent'
+             || postData['physical-router']['virtual_router_type'] == 'TSN'){
              var vrouterPostData = postData['physical-router']['virtual-routers'];
              if(vrouterPostData.length > 0){
                  var reqUrl = null;
@@ -675,7 +676,8 @@ function updatePhysicalRouters (request, response, appData)
         }
         //If Tor Agent
         //Try to create the TOR Agent and TSN. Even if they fail go ahead and update physical router
-        else if(postData['physical-router']['virtual_router_type'] == 'TOR Agent'){
+        else if(postData['physical-router']['virtual_router_type'] == 'TOR Agent'
+             || postData['physical-router']['virtual_router_type'] == 'TSN'){
             var vrouterPostData = postData['physical-router']['virtual-routers'];
             if(vrouterPostData.length > 0){
                 var reqUrl = null;
