@@ -64,9 +64,13 @@ define([
             var from = getValueByJsonPath(term, "term_match_condition", "")
             formattedTerm += "from ";
             if (from != "") {
+                var community_list = getValueByJsonPath(term, "term_match_condition;community_list", "");
                 var community = getValueByJsonPath(term, "term_match_condition;community", "");
                 if(community != "") {
                     formattedTerm +=  "community " + self.termFormat(community) + " ";
+                }
+                if(community_list != "") {
+                    formattedTerm +=  "community " + self.termFormat(community_list) + " ";
                 }
                 var termPrefix = getValueByJsonPath(term,
                                              "term_match_condition;prefix", []);
@@ -243,6 +247,7 @@ define([
             var returnFromObj = {};
             var prefixArr = [];
             returnFromObj["protocol"] = [];
+            returnFromObj["community_list"] = [];
             for (var i = 0; i < fromObjCount; i++) {
                 var key = fromObj[i].model().attributes["name"](),
                     val = fromObj[i].model().attributes["value"]();
@@ -250,7 +255,11 @@ define([
                 if (val != "") {
                     switch (key) {
                         case "community" : {
-                            returnFromObj[key] = val;
+                            returnFromObj["community_list"].push(val);
+                            break;
+                        }
+                        case "community_list" : {
+                            returnFromObj["community_list"].push(val);
                             break;
                         }
                         case "prefix": {
@@ -341,9 +350,9 @@ define([
                 return [];
             }
             var returnMatchArr = [],
-                val = getValueByJsonPath(matchObj, "community", "");
-            if (val != "") {
-                returnMatchArr.push({name: 'community', value: val});
+            communityList = getValueByJsonPath(matchObj, "community_list", []);
+            for (var i = 0;i < communityList.length; i++) {
+                returnMatchArr.push({name: 'community_list', value: communityList[i]});
             }
             var prefixVal = getValueByJsonPath(matchObj, "prefix", []),
                 prefixLen = prefixVal.length;
