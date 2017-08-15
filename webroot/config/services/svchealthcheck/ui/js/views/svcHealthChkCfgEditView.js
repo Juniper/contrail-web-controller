@@ -99,6 +99,9 @@ define([
                                     getSvcHealthChkCfgViewConfig(true),
                                     "svcHealthChkCfgConfigValidations", null, null,
                                     function () {
+                var monitorType =  getValueByJsonPath(self.model.model(),
+                        'attributes;service_health_check_properties;monitor_type', "PING");
+                self.model.user_created_monitor_type(monitorType);
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
@@ -178,13 +181,13 @@ define([
                 {
                     columns: [
                         {
-                            elementId: 'monitor_type',
+                            elementId: 'user_created_monitor_type',
                             view: "FormDropdownView",
                             viewConfig: {
-                                path : 'service_health_check_properties.monitor_type',
+                                path : 'user_created_monitor_type',
                                 class: 'col-xs-6',
                                 dataBindValue :
-                                    'service_health_check_properties().monitor_type',
+                                    'user_created_monitor_type',
                                 label: 'Protocol',
                                 elementConfig : {
                                     dataTextField : "text",
@@ -193,7 +196,9 @@ define([
                                     data : [{id: 'PING',
                                                 text:'PING'},
                                             {id: 'HTTP',
-                                                text:'HTTP'}]
+                                                text:'HTTP'},
+                                            {id: 'BFD',
+                                                text:'BFD'}]
                                 }
                             }
                         },
@@ -228,7 +233,8 @@ define([
                             elementId: 'delay',
                             view: 'FormInputView',
                             viewConfig: {
-                                label:'Delay (secs)',
+                                templateId: ctwc.CONTROLLER_CONFIG_INPUT_VIEW_TEMPLATE,
+                                label:'delay_label',
                                 path : 'service_health_check_properties.delay',
                                 class: 'col-xs-6',
                                 dataBindValue : 'service_health_check_properties().delay',
@@ -239,7 +245,8 @@ define([
                                 elementId: 'timeout',
                                 view: 'FormInputView',
                                 viewConfig: {
-                                    label:'Timeout (secs)',
+                                    templateId: ctwc.CONTROLLER_CONFIG_INPUT_VIEW_TEMPLATE,
+                                    label:'timeout_label',
                                     path : 'service_health_check_properties.timeout',
                                     class: 'col-xs-6',
                                     dataBindValue : 'service_health_check_properties().timeout',
@@ -251,10 +258,39 @@ define([
                 {
                     columns: [
                         {
+                            elementId: 'delayUsecs',
+                            view: 'FormInputView',
+                            viewConfig: {
+                                visible: 'user_created_monitor_type() === "BFD"',
+                                label: 'Desired Min Tx Interval (micro secs)',
+                                path : 'service_health_check_properties.delayUsecs',
+                                class: 'col-xs-6',
+                                dataBindValue : 'service_health_check_properties().delayUsecs',
+                                placeholder: 'Delay in micro secs'
+                           }
+                        },
+                        {
+                                elementId: 'timeoutUsecs',
+                                view: 'FormInputView',
+                                viewConfig: {
+                                    visible: 'user_created_monitor_type() === "BFD"',
+                                    label: 'Required Min Rx Interval (micro secs)',
+                                    path : 'service_health_check_properties.timeoutUsecs',
+                                    class: 'col-xs-6',
+                                    dataBindValue : 'service_health_check_properties().timeoutUsecs',
+                                    placeholder: 'Timeout in micro secs'
+                               }
+                        }
+                    ]
+                },
+                {
+                    columns: [
+                        {
                             elementId: 'max_retries',
                             view: 'FormInputView',
                             viewConfig: {
-                                label:'Retries',
+                                templateId: ctwc.CONTROLLER_CONFIG_INPUT_VIEW_TEMPLATE,
+                                label:'max_retries_label',
                                 path : 'service_health_check_properties.max_retries',
                                 class: 'col-xs-6',
                                 dataBindValue : 'service_health_check_properties().max_retries',
