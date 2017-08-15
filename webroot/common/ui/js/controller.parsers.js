@@ -591,6 +591,11 @@ define([
                 response['virtual-networks'].length > 0) {
                 var len = response['virtual-networks'].length
                 for (var i = 0; i < len; i++) {
+                    var vnName = getValueByJsonPath(response,
+                            'virtual-networks;' + i + ';virtual-network;name', null, false);
+                    if(_.indexOf(ctwc.NOT_ALLOWED_VN_LIST, vnName) !== -1) {
+                        continue;
+                    }
                     if (isShared && isShared == true) {
                         var vn = response['virtual-networks'][i]['virtual-network']
                         if (!(domain == vn['fq_name'][0] && project == vn['fq_name'][1])) {

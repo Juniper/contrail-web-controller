@@ -769,6 +769,9 @@ define([
                                         }
                                     ];
         this.BGP_AAS_ROUTERS = ["bgpaas-server", "bgpaas-client"];
+        this.DEFAULT_PROJECT = 'default-project';
+        this.NOT_ALLOWED_VN_LIST = ['default-virtual-network', '__link_local__'];
+        this.IP_FABRIC_VN = 'ip-fabric';
 
         this.CONTROLLER_CONFIG_INPUT_VIEW_TEMPLATE =
             'controller-config-input-view-template';

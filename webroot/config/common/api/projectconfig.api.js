@@ -96,9 +96,6 @@ function listAllProjects (request, response, appData)
                                                             "fq_name", null);
             var apiProjName = commonUtils.getValueByJsonPath(apiProjFQN, "1",
                                                              null);
-            if (apiProjName == defaultProject) {
-                continue;
-            }
             var apiProjID = commonUtils.getValueByJsonPath(apiProj[i], "uuid",
                                                            null);
             apiProj[i]["display_name"] = apiProjName;

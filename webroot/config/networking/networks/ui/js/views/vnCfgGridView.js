@@ -74,21 +74,7 @@ define([
                             $('#linkVNDelete').removeClass('disabled-link');
                         }
                     },
-                    actionCell: function(dc) {
-                        var isShared = getValueByJsonPath(dc,
-                                            'is_shared', false);
-                        var domain  = contrail.getCookie(cowc.COOKIE_DOMAIN);
-                        var project = contrail.getCookie(cowc.COOKIE_PROJECT);
-                        var fqName  = getValueByJsonPath(dc, 'fq_name', []);
-
-                        if ((fqName.length == 3 &&
-                            (fqName[1] != project || 
-                             fqName[0] != domain)) && isShared) {
-                            return [];
-                        } else {
-                            return rowActionConfig;
-                        }
-                    },
+                    actionCell: getRowActionConfig,
                     detail: {
                         template: cowu.generateDetailTemplateHTML(
                                        getVNCfgDetailsTemplateConfig(),
@@ -177,6 +163,10 @@ define([
 
 
     function getHeaderActionConfig() {
+        var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+        if(project === ctwc.DEFAULT_PROJECT) {
+            return [];
+        }
         var headerActionConfig = [
             {
                 "type": "link",
@@ -216,29 +206,45 @@ define([
         return headerActionConfig;
     }
 
-    var rowActionConfig = [
-        ctwgc.getEditConfig('Edit', function(rowIndex) {
-            dataView = $('#' + ctwl.CFG_VN_GRID_ID).data("contrailGrid")._dataView;
-            var vnModel = new VNCfgModel(dataView.getItem(rowIndex));
-            vnCfgEditView.model = vnModel;
-            subscribeModelChangeEvents(vnModel);
-            vnCfgEditView.renderEditVNCfg({
-                                  "title": ctwl.EDIT,
-                                  callback: function () {
-                                      dataView.refreshData();
-            }});
-        }),
-        ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-            dataView = $('#' + ctwl.CFG_VN_GRID_ID).data("contrailGrid")._dataView;
-            vnCfgEditView.model = new VNCfgModel();
-            vnCfgEditView.renderMultiDeleteVNCfg({
-                                  "title": ctwl.CFG_VN_TITLE_DELETE,
-                                  checkedRows: [dataView.getItem(rowIndex)],
-                                  callback: function () {
-                                      dataView.refreshData();
-            }});
-        })
-    ];
+    function  getRowActionConfig (dc) {
+        var isShared = getValueByJsonPath(dc,
+                'is_shared', false),
+            domain  = contrail.getCookie(cowc.COOKIE_DOMAIN),
+            project = contrail.getCookie(cowc.COOKIE_PROJECT),
+            fqName  = getValueByJsonPath(dc, 'fq_name', []),
+            vnName, rowActionConfig;
+        if ((fqName.length == 3 && (fqName[1] != project ||
+            fqName[0] != domain)) && isShared) {
+            return [];
+        }
+        vnName = getValueByJsonPath(dc, 'name', '');
+        rowActionConfig = [
+            ctwgc.getEditConfig('Edit', function(rowIndex) {
+                dataView = $('#' + ctwl.CFG_VN_GRID_ID).data("contrailGrid")._dataView;
+                var vnModel = new VNCfgModel(dataView.getItem(rowIndex));
+                vnCfgEditView.model = vnModel;
+                subscribeModelChangeEvents(vnModel);
+                vnCfgEditView.renderEditVNCfg({
+                                      "title": ctwl.EDIT,
+                                      callback: function () {
+                                          dataView.refreshData();
+                }});
+            })
+        ];
+        if(vnName !== ctwc.IP_FABRIC_VN) {
+            rowActionConfig.push(ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+                dataView = $('#' + ctwl.CFG_VN_GRID_ID).data("contrailGrid")._dataView;
+                vnCfgEditView.model = new VNCfgModel();
+                vnCfgEditView.renderMultiDeleteVNCfg({
+                                      "title": ctwl.CFG_VN_TITLE_DELETE,
+                                      checkedRows: [dataView.getItem(rowIndex)],
+                                      callback: function () {
+                                          dataView.refreshData();
+                }});
+            }));
+        }
+        return rowActionConfig;
+    }
 
 
     function getSubnetExpandDetailsTmpl() {

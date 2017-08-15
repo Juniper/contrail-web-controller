@@ -542,13 +542,14 @@ define([
                         url: url
                     },
                     dataParser: function(response) {
+                        var result = [];
                         if(currentCookie === "All Regions"){
                             responseProjects = response.data.projects;
                         }
                         else{
                             responseProjects = response.projects;
                         }
-                        return  $.map(responseProjects, function (n, i) {
+                        _.each(responseProjects, function (n, i) {
                             var projectName = getValueByJsonPath(n,
                                                                  "fq_name;1");
                             var displayName = getValueByJsonPath(n,
@@ -556,6 +557,10 @@ define([
                                                                  projectName);
                             var errorStr = getValueByJsonPath(n, "error_string",
                                                               null);
+                            if(!dropdownOptions.includeDefaultProject &&
+                                projectName === ctwc.DEFAULT_PROJECT) {
+                                return true;
+                            }
                             fqnToDisplayNameMap.project[projectName] =
                                 displayName;
                             var projObj = {
@@ -567,8 +572,9 @@ define([
                             if (null != errorStr) {
                                 projObj.error_string = errorStr;
                             }
-                            return projObj;
+                            result.push(projObj);
                         });
+                        return result;
                     },
                     failureCallback: function(xhr, ContrailListModel) {
                         var dataErrorTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
