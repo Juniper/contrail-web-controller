@@ -26,6 +26,7 @@ define([
                 "port_start": 50000,
                 "port_end": 50512
             },
+            "bgp_always_compare_med": false,
             "user_created_bgpaas_parameters": "50000 - 50512"
         },
         validations: {
@@ -131,6 +132,8 @@ define([
                 bgpHelperEnble.toString();
             modelConfig['ibgp_auto_mesh'] =
                 (($.trim(modelConfig['ibgp_auto_mesh']).length === 0) ? "true" : modelConfig['ibgp_auto_mesh'].toString());
+            modelConfig['bgp_always_compare_med'] =
+                (($.trim(modelConfig['bgp_always_compare_med']).length === 0) ? "false" : modelConfig['bgp_always_compare_med'].toString());
 
             return modelConfig;
         },
@@ -194,6 +197,8 @@ define([
                 }
                 globalSysConfigData['global-system-config']['ibgp_auto_mesh'] =
                     newBGPOptionsConfig['ibgp_auto_mesh'];
+                globalSysConfigData['global-system-config']['bgp_always_compare_med'] =
+                    newBGPOptionsConfig['bgp_always_compare_med'];
                 globalSysConfigData['global-system-config']['autonomous_system'] =
                     Number(newBGPOptionsConfig['autonomous_system']);
 
@@ -266,7 +271,8 @@ define([
 
                 globalSysConfigData['global-system-config']['ibgp_auto_mesh'] =
                     $.parseJSON(newBGPOptionsConfig['ibgp_auto_mesh']);
-
+                globalSysConfigData['global-system-config']['bgp_always_compare_med'] =
+                    $.parseJSON(newBGPOptionsConfig['bgp_always_compare_med']);
                 ajaxConfig.type = "POST";
                 ajaxConfig.data = JSON.stringify(putData);
                 ajaxConfig.url = '/api/tenants/config/update-config-object';
