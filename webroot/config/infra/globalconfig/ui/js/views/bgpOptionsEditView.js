@@ -101,6 +101,24 @@ define([
                                     label: 'BGP as a Service Port Range (Start Port - End Port)',
                                     placeholder: 'Start Port - End Port'
                                 }
+                            },
+                            {
+                                elementId: 'bgp_always_compare_med',
+                                view: 'FormRadioButtonView',
+                                viewConfig: {
+                                    label: 'Always Compare MED',
+                                    path: 'bgp_always_compare_med',
+                                    dataBindValue: 'bgp_always_compare_med',
+                                    class: 'col-xs-6',
+                                    elementConfig: {
+                                        dataObj: [
+                                            {'label': 'Enable',
+                                             'value': 'true'},
+                                            {'label': 'Disable',
+                                             'value': 'false'}
+                                        ]
+                                    }
+                                }
                             }
                         ]
                     },

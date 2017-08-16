@@ -115,6 +115,12 @@
                     }
                     return dispStr;
                 }
+                if ('bgp_always_compare_med' == rowData['key']) {
+                    if (!val) {
+                        return 'Disabled';
+                    }
+                    return 'Enabled';
+                }
 
                 if("graceful_restart_parameters" == rowData["key"]) {
                     var grTime = getValueByJsonPath(val,
