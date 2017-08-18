@@ -677,6 +677,15 @@ define([
         };
 
         /*
+         * @ipFabricForwardingFormatter
+         */
+        this.ipFabricForwardingFormatter = function(d, c, v, cd, dc) {
+            var ipFabricVn = getValueByJsonPath(dc,
+                    'virtual_network_refs;0;to;2', null);
+            return ipFabricVn === ctwc.IP_FABRIC_VN ? 'Enabled' : 'Disabled';
+        };
+
+        /*
          * @sriovFormatter
          */
         this.sriovFormatter = function(d, c, v, cd, dc) {
