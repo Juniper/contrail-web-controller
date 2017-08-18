@@ -360,6 +360,7 @@ define([
         this.TITLE_GRAPH_ELEMENT_SERVICE_INSTANCE = 'service instance';
         this.TITLE_GRAPH_ELEMENT_VIRTUAL_NETWORK = 'virtual network';
         this.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE = 'virtual machine';
+        this.TITLE_GRAPH_ELEMENT_BMS = 'bare metal server';
         this.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK = 'link';
 
         this.TITLE_GRAPH_ELEMENT_INTERFACE = 'interface';
@@ -1326,7 +1327,7 @@ define([
         this.RT_TABLE_DETAILS = 'Route Table Details';
         this.RT_GRID_TITLE = 'Network Route Tables';
         this.INF_RT_GRID_TITLE = 'Interface Route Tables';
- 
+
         /* BGP as a Service */
         this.TITLE_BGP_AS_A_SERVICE = 'BGP as a Service';
         this.TITLE_EDIT_BGP_AS_A_SERVICE = 'Edit BGP as a Service';

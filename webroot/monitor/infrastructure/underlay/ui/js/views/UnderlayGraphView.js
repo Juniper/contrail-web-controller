@@ -2320,6 +2320,55 @@ define([
                         return actions;
                     }
                 },
+                "bare-metal-server": {
+                    data: function(node) {
+                        return node;
+                    },
+                    title: function(node) {
+                        var bmsName = node.attributes.name();
+                        return tooltipTitleTmpl({
+                            name: bmsName,
+                            type: ctwl.TITLE_GRAPH_ELEMENT_BMS
+                        });
+                    },
+                    content: function(node) {
+                        var actions = [],
+                            tooltipContent, tooltipLblValues = [];
+                        var graphModel =
+                            $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
+                        var vmIp = "",
+                            vn = "",
+                            label, instanceName = "";
+                        var instanceUUID = node.attributes.name();
+                        var instances = graphModel.getBareMetalServer();
+                        var fip_addr = "";
+                        var fip_addr_arr = [];
+
+                        if ("" == instanceName)
+                            instanceName = node.attributes.name();
+                       tooltipContent = {
+                            iconClass:
+                                'icon-contrail-virtual-machine font-size-30',
+                            actions: actions
+                        };
+                        tooltipLblValues = [{
+                            label: "Name",
+                            value: instanceName
+                        }];
+                        tooltipContent['info'] = tooltipLblValues;
+                        return tooltipContentTmpl(tooltipContent);
+                    },
+
+                    actionsCallback: function(node) {
+                        var actions = [];
+                        actions.push({
+                            callback: function(underlayGraphView) {
+
+                            }
+                        });
+                        return actions;
+                    }
+                },
                 edge: {
                     title: function(edge) {
                         var graphModel =
@@ -2422,6 +2471,9 @@ define([
                 case "virtual-machine":
                     chassis_type = 'virtual-machine';
                     break;
+                case "bare-metal-server":
+                    chassis_type = 'virtual-machine';
+                    break;
                 default:
                     chassis_type = 'router';
                     break;
@@ -2459,8 +2511,14 @@ define([
                 var clickedElement =
                     _network.canvas.body.nodes[params.nodes[0]];
                 var node = self.model.getNodeByElementId(params.nodes[0]);
-                if(null == node || clickedElement == undefined)
-                    return;
+                if(null == node || typeof clickedElement == undefined ||
+                       typeof clickedElement.options == undefined){
+                  contrailVisView.resetTopology({
+                      resetBelowTabs: true
+                  });
+                  return;
+                }
+
                 var chassis_type = clickedElement.options.chassis_type;
                 node.attributes.image(
                     self.getImage(chassis_type, self.HIGHLIGHT));
@@ -2499,6 +2557,14 @@ define([
                         self.model.getNodeByElementId(params.nodes[0]);
                     if(null == node)
                         return;
+                    if( typeof clickedElement == "undefined" ||
+                              typeof clickedElement.options == "undefined"){
+                      self.resetTopology({
+                          resetBelowTabs: true
+                      });
+                      return
+                    }
+
                     var elementType = clickedElement.options.node_type;
                     switch (elementType) {
                         case ctwc.PROUTER:
@@ -2525,6 +2591,15 @@ define([
                             var nodeDetails = clickedElement.options;
                             graphModel.selectedElement().model().set({
                                 'nodeType': ctwc.VIRTUALMACHINE,
+                                'nodeDetail': nodeDetails});
+                            graphModel.selectedElement().model().set({
+                                'nodeType': '',
+                                'nodeDetail': {}},{silent:true});
+                            break;
+                        case ctwc.BARE_METAL_SERVER:
+                            var nodeDetails = clickedElement.options;
+                            graphModel.selectedElement().model().set({
+                                'nodeType': ctwc.BARE_METAL_SERVER,
                                 'nodeDetail': nodeDetails});
                             graphModel.selectedElement().model().set({
                                 'nodeType': '',
@@ -2906,6 +2981,7 @@ define([
         },
         refreshHandler: function(e, underlayGraphView) {
             var self = underlayGraphView;
+
             self.removeUnderlayPathIds();
             self.removeUnderlayEffects();
             self.toBeDupedElements = {
