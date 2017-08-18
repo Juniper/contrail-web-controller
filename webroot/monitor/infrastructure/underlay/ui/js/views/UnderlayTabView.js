@@ -28,7 +28,8 @@ define([
             var _this = this;
             graphModel = viewConfig.model;
             if(graphModel != null) {
-                underlayTabView.listenTo(viewConfig.model.selectedElement().model(),
+                viewConfig.model.selectedElement().model().off('change:nodeType');
+                viewConfig.model.selectedElement().model().on(
                     'change:nodeType', function (selectedElement) {
                    var nodeType = selectedElement['attributes']['nodeType'];
                    var nodeDetails = selectedElement['attributes']['nodeDetail'];
