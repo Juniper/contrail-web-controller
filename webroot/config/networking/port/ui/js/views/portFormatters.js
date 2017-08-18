@@ -25,14 +25,22 @@ define([
         }
         self.uuidWithName = function(d, c, v, cd, dc) {
             var uuidName = "-";
-            var uuid = getValueByJsonPath(dc, "uuid", "")
-            var name = getValueByJsonPath(dc, "fq_name;2", "")
+            var uuid = getValueByJsonPath(dc, "uuid", "");
+            var name = getValueByJsonPath(dc, "fq_name;2", "");
             if(uuid != name){
                 uuidName = name + " (" + uuid+ ")";
             } else {
                 uuidName = uuid;
             }
             return uuidName;
+        };
+
+        self.vRouterFormatter =  function(d, c, v, cd, dc) {
+            var fqName = getValueByJsonPath(dc, "fq_name", []);
+            if(fqName.length === 3) {
+                return fqName[1];
+            }
+            return '-';
         };
 
         //Start of grid data formating//

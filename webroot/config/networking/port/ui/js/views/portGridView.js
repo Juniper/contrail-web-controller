@@ -175,7 +175,7 @@ define([
                 }
             },
             columnHeader: {
-                columns: PortColumns
+                columns: getPortColumns()
             },
             footer: {
                 pager: contrail.handleIfNull
@@ -194,95 +194,109 @@ define([
         return gridElementConfig;
     };
 
-    this.PortColumns = [
-        {
-            id:"uuid",
-            field:"uuid",
-            name:"UUID",
-            minWidth : 230,
-            sortable: {
-               sortBy: 'formattedValue'
+    function getPortColumns () {
+        var portColumns = [{
+                id:"uuid",
+                field:"uuid",
+                name:"UUID",
+                minWidth : 230,
+                sortable: {
+                   sortBy: 'formattedValue'
+                },
+                formatter: portFormatters.uuidWithName
             },
-            formatter: portFormatters.uuidWithName
-        },
-        {
-            field:"tag_refs",
-            name:"Tags",
-            sortable: {
-               sortBy: 'formattedValue'
-            },
-            minWidth : 180,
-            formatter: portFormatters.portTagFormatter/*,
-            cssClass :'cell-hyperlink-blue',
-            events : {
-                onClick : function(e, dc) {
-                	var target = e.target.innerHTML, hashP;
-                	if(target.search('more') == -1){
-                		var gb = target.split(':');
-                		if(gb[0] === 'global'){
-                			hashP = 'config_tags_globaltags';
-                		}else{
-                			hashP = 'config_tags_projectscopedtags';
-                		}
-                		var hashParams = null,
-                            hashObj = {
-                                focusedElement: {}
-                            };
-                        if (contrail.checkIfKeyExistInObject(true,
-                                hashParams,
-                                'clickedElement')) {
-                            hashObj.clickedElement =
-                                hashParams.clickedElement;
-                        }
+            {
+                field:"tag_refs",
+                name:"Tags",
+                sortable: {
+                   sortBy: 'formattedValue'
+                },
+                minWidth : 180,
+                formatter: portFormatters.portTagFormatter/*,
+                cssClass :'cell-hyperlink-blue',
+                events : {
+                    onClick : function(e, dc) {
+                        var target = e.target.innerHTML, hashP;
+                        if(target.search('more') == -1){
+                            var gb = target.split(':');
+                            if(gb[0] === 'global'){
+                                hashP = 'config_tags_globaltags';
+                            }else{
+                                hashP = 'config_tags_projectscopedtags';
+                            }
+                            var hashParams = null,
+                                hashObj = {
+                                    focusedElement: {}
+                                };
+                            if (contrail.checkIfKeyExistInObject(true,
+                                    hashParams,
+                                    'clickedElement')) {
+                                hashObj.clickedElement =
+                                    hashParams.clickedElement;
+                            }
 
-                        layoutHandler.setURLHashParams(hashObj, {
-                            p: hashP,
-                            merge: false,
-                            triggerHashChange: true
-                        });
-                	}
-                }
-            }*/
-        },
-        {
-            id:"network",
-            field:"network",
-            name:"Network",
-            minWidth : 180,
-            sortable: {
-               sortBy: 'formattedValue'
+                            layoutHandler.setURLHashParams(hashObj, {
+                                p: hashP,
+                                merge: false,
+                                triggerHashChange: true
+                            });
+                        }
+                    }
+                }*/
             },
-            formatter: portFormatters.networkFormater
-        },
-        {
-            id:"fixed_ip",
-            field:"fixed_ip",
-            name:"Fixed IPs",
-            sortable: {
-               sortBy: 'formattedValue'
+            {
+                id:"network",
+                field:"network",
+                name:"Network",
+                minWidth : 180,
+                sortable: {
+                   sortBy: 'formattedValue'
+                },
+                formatter: portFormatters.networkFormater
             },
-            minWidth : 100,
-            formatter: portFormatters.fixedIPFormater
-        },
-        {
-            field:"floating_ip",
-            name:"Floating IPs",
-            sortable: {
-               sortBy: 'formattedValue'
+            {
+                id:"fixed_ip",
+                field:"fixed_ip",
+                name:"Fixed IPs",
+                sortable: {
+                   sortBy: 'formattedValue'
+                },
+                minWidth : 100,
+                formatter: portFormatters.fixedIPFormater
             },
-            minWidth : 100,
-            formatter: portFormatters.floatingIPFormatter
-        },
-        {
-            field:"virtual_machine_interface_device_owner",
-            name:"Device",
-            sortable: {
-               sortBy: 'formattedValue'
-            },
-            minWidth : 100,
-            formatter: portFormatters.deviceOwnerFormatter
+            {
+                field:"floating_ip",
+                name:"Floating IPs",
+                sortable: {
+                   sortBy: 'formattedValue'
+                },
+                minWidth : 100,
+                formatter: portFormatters.floatingIPFormatter
+            }];
+        if(contrail.getCookie(cowc.COOKIE_PROJECT) === ctwc.DEFAULT_PROJECT) {
+            portColumns.splice(1, 0, {
+                field:"uuid",
+                name:"vRouter",
+                sortable: {
+                   sortBy: 'formattedValue'
+                },
+                minWidth : 100,
+                formatter: portFormatters.vRouterFormatter
+            });
+        } else {
+            portColumns.push({
+                field:"virtual_machine_interface_device_owner",
+                name:"Device",
+                sortable: {
+                   sortBy: 'formattedValue'
+                },
+                minWidth : 100,
+                formatter: portFormatters.deviceOwnerFormatter
+            });
         }
-    ];
+        return portColumns;
+    }
+
     
     function getHashUuid(){
         var url = decodeURIComponent(location.hash).split('&'), uuid;

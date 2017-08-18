@@ -94,7 +94,8 @@ define([
             'user_created_vxlan_mode': false,
             'disable': false,
             'address_allocation_mode': 'user-defined-subnet-only',
-            'user_created_flat_subnet_ipam': []
+            'user_created_flat_subnet_ipam': [],
+            'user_created_ip_fabric_forwarding': false
         },
 
         formatModelConfig: function (modelConfig) {
@@ -124,7 +125,17 @@ define([
             //populate user_created_forwarding_mode
             modelConfig['user_created_forwarding_mode'] =
                 getValueByJsonPath(modelConfig,
-                'virtual_network_properties;forwarding_mode', 'default', false)
+                'virtual_network_properties;forwarding_mode', 'default', false);
+
+            //ip fabric forwarding
+            var ipFabricVn = getValueByJsonPath(modelConfig,
+                    'virtual_network_refs;0;to;2', null);
+
+            if(ipFabricVn === ctwc.IP_FABRIC_VN) {
+                modelConfig['user_created_ip_fabric_forwarding'] = true;
+            } else {
+                modelConfig['user_created_ip_fabric_forwarding'] = false;
+            }
 
             this.readSubnetHostRoutes(modelConfig);
             this.readRouteTargetList(modelConfig, 'user_created_route_targets');
@@ -1154,6 +1165,14 @@ define([
                 this.getQoS(newVNCfgData);
                 this.getBridgeDomains(newVNCfgData);
 
+                //ip fabric forwarding
+                if(newVNCfgData.user_created_ip_fabric_forwarding === true) {
+                    newVNCfgData['virtual_network_refs'] =
+                        [{'to': ['default-domain', 'default-project', ctwc.IP_FABRIC_VN]}];
+                } else {
+                    newVNCfgData['virtual_network_refs'] = [];
+                }
+
                 //permissions
                 this.updateRBACPermsAttrs(newVNCfgData);
 
@@ -1183,6 +1202,7 @@ define([
                 delete newVNCfgData.sVlanId;
                 delete newVNCfgData.disable;
                 delete newVNCfgData.user_created_vxlan_mode;
+                delete newVNCfgData.user_created_ip_fabric_forwarding;
 
                 postData['virtual-network'] = newVNCfgData;
 

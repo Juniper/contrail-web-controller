@@ -76,6 +76,7 @@ define([
                     },
                     actionCell: getRowActionConfig,
                     detail: {
+                        noCache: true,
                         template: cowu.generateDetailTemplateHTML(
                                        getVNCfgDetailsTemplateConfig(),
                                        cowc.APP_CONTRAIL_CONTROLLER)
@@ -328,7 +329,7 @@ define([
                                                         formatter: 'sharedFormatter'
                                                     }
                                                 },
-                                                
+
                                                 {
                                                     label: 'External',
                                                     key: 'uuid',
@@ -587,6 +588,7 @@ define([
                                                     }
                                                 }
                                             ].concat(ctwu.getTagsExpandDetails())
+                                            .concat(ipFabricForwardingExpSection())
                                         },
                                         //permissions
                                         ctwu.getRBACPermissionExpandDetails()
@@ -599,6 +601,21 @@ define([
             }
         };
     };
+
+    function ipFabricForwardingExpSection() {
+        if(contrail.getCookie(cowc.COOKIE_PROJECT) === 'default-project') {
+            return [];
+        }
+        return [{
+                   label: 'IP Fabric Forwarding',
+                   key: 'uuid',
+                   templateGenerator: 'TextGenerator',
+                   templateGeneratorConfig: {
+                       formatter: 'ipFabricForwardingFormatter',
+                   }
+        }];
+
+    }
 
     this.showName = function (r, c, v, cd, dc) {
         return ctwu.getDisplayNameOrName(dc);
@@ -683,6 +700,10 @@ define([
     }
     this.multiSvcChainFormatter = function (v, dc) {
         return formatVNCfg.multiSvcChainFormatter(null,
+                                        null, null, null, dc);
+    }
+    this.ipFabricForwardingFormatter = function (v, dc) {
+        return formatVNCfg.ipFabricForwardingFormatter(null,
                                         null, null, null, dc);
     }
     this.sriovFormatter = function (v, dc) {
