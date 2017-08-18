@@ -159,9 +159,9 @@ define([
                         var interfaceMap = ctwp.instanceInterfaceDataParser(response),
                             interfaceDetailsList = _.values(interfaceMap);
 
-                        contrailViewModel.attributes['value']['UveVirtualMachineAgent']['interface_details'] = interfaceDetailsList;
                         if (interfaceDetailsList.length > 0) {
-                            contrailViewModel.attributes.vm_name = interfaceDetailsList[0]['vm_name'];
+                          contrailViewModel.attributes['value']['UveVirtualMachineAgent']['interface_details'] = interfaceDetailsList;  
+                          contrailViewModel.attributes.vm_name = interfaceDetailsList[0]['vm_name'];
                         }
                     }
                 }

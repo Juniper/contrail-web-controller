@@ -55,6 +55,7 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
             var tors = self.getToRs();
             var vRouters = self.getVirtualRouters();
             var vms = self.getVirtualMachines();
+            var bms = self.getBareMetalServer();
 
             var vRouterMap = {};
             $.each(vRouters, function(idx, obj){
@@ -62,6 +63,13 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
                 obj.attributes.model().attributes;
             });
             modelConfig.vRouterMap = vRouterMap;
+
+            var bmsMap = {};
+            $.each(bms, function(idx, obj){
+                bmsMap[obj.attributes.name()] =
+                obj.attributes.model().attributes;
+            });
+            modelConfig.bmsMap = bmsMap;
 
             var vmMap = {};
             $.each(vms, function(idx, obj){
@@ -112,6 +120,11 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
         getVirtualMachines: function () {
             return _.filter(this.nodesCollection.models, function(node) {
                 return (node.attributes.chassis_type() == "virtual-machine");
+                });
+        },
+        getBareMetalServer: function () {
+            return _.filter(this.nodesCollection.models, function(node) {
+                return (node.attributes.chassis_type() == "bare-metal-server");
                 });
         },
 
@@ -212,6 +225,7 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
                 "spine"             : "coreswitch",
                 "tor"               : "spine",
                 "virtual-router"    : "tor",
+                "bare-metal-server" : "tor",
                 "virtual-machine"   : "virtual-router",
                 "unknown"           : ""
             }[child_chassis_type];
@@ -280,6 +294,7 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
                 nodeId = nodeModel.attributes.element_id(),
                 childNodeModels = [],
                 childEdgeModels = [];
+
             _.each(this.edgesCollection.models, function(edge) {
                 var fromNodeModel =
                     self.getNodeByElementId(edge.attributes.from()),
@@ -295,6 +310,16 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
                         childNodeModels.push(toNodeModel);
                         childEdgeModels.push(edge);
                     }
+
+                    if(nodeChassisType == "tor"){
+                      if(fromNodeModel.attributes.chassis_type() ==
+                          nodeChassisType &&
+                          toNodeModel.attributes.chassis_type() ==
+                          "bare-metal-server") {
+                          childNodeModels.push(toNodeModel);
+                          childEdgeModels.push(edge);
+                      }
+                    }
                 } else if(edge.attributes.to() == nodeId) {
                     if(toNodeModel.attributes.chassis_type() ==
                         nodeChassisType &&
@@ -302,6 +327,16 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
                         childChassisType) {
                         childNodeModels.push(fromNodeModel);
                         childEdgeModels.push(edge);
+                    }
+
+                    if(nodeChassisType == "tor"){
+                      if(toNodeModel.attributes.chassis_type() ==
+                          nodeChassisType &&
+                          fromNodeModel.attributes.chassis_type() ==
+                            "bare-metal-server") {
+                          childNodeModels.push(fromNodeModel);
+                          childEdgeModels.push(edge);
+                      }
                     }
                 }
             });
