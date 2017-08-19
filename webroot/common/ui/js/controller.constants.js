@@ -798,7 +798,8 @@ define([
         this.VIRTUAL_ROUTER_TYPE = [
             {'value' : 'none', "text" : 'None'},
             {'value' : 'embedded', "text" : 'Embedded'},
-            {'value' : 'torAgent', "text" : 'TOR Agent'}
+            {'value' : 'torAgent', "text" : 'TOR Agent'},
+            {'value' : 'tsn', "text" : 'TSN'}
         ];
         this.PHYSICAL_ROUTER_ROLE_DATA = [
             {'value' : 'none', "text" : 'None'},
