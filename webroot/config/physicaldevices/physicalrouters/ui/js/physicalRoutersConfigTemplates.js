@@ -655,6 +655,20 @@ define([
                                      }
                                  }
                             ]
+                        },
+                        {
+                            columns : [
+                                 {
+                                     elementId: 'vrouter_tsn_section',
+                                     view: "SectionView",
+                                     viewConfig: {
+                                        visible: "virtualRouterType() === 'TSN'",
+                                        rows: [
+                                            self.tsnSection(tsnVrouterDS)
+                                        ]
+                                     }
+                                 }
+                            ]
                         }
                     ]
                 }
