@@ -1197,6 +1197,7 @@ define([
         this.SERVER_LOCATION_GRID_HEADER = ['Location ID', 'Status', 'Name', 'Description','Instance ID','Console','Task Status'];
         this.LOCATION_GRID_HEADER = ['Location ID', 'Status', 'Name', 'Description', 'Task Status'];
         this.MULTISELECT_VALUE_SEPARATOR = ";;";
+        this.ROW_SCHEMA_TITLE = 'Edit By Schema (Advanced Users)';
     };
 
     //str will be [0-9]+(m|h|s|d)

@@ -257,7 +257,350 @@ define([
                 regionList = _.without(regionList, cowc.GLOBAL_CONTROLLER_ALL_REGIONS);
             return regionList;
         }
+        self.getHashParams = function(){
+            var hash = decodeURIComponent(location.hash).split('&');
+            var selectedHash = hash[0].substring(3);
+            return selectedHash;
+        };
+        self.setOfSchema = {
+                'config_networking_networks' : 'virtual-network',
+                'config_net_ports' : 'virtual-machine-interface',
+                'config_net_policies' : 'network-policy',
+                'config_net_sg' : 'security-group',
+                'config_net_routers' : 'logical-router',
+                'config_networking_ipam' : 'network-ipam',
+                'config_net_routing' : 'route-table'
+        }
+        self.schemaAjaxUrl = function(){
+            var hash = this.getHashParams(),
+            url = this.setOfSchema[hash];
+            return {
+                     url: '/api/tenants/config/get-json-schema/'+ url,
+                     type:'GET'
+                   };
+        };
+        self.parseJsonKeyLowerToUpper = function(key){
+            var splitedKey = key.split('_'); var strStack = [];
+            for(var i = 0; i < splitedKey.length; i++){
+                var captilizeStr = splitedKey[i].charAt(0).toUpperCase() + splitedKey[i].slice(1);
+                strStack.push(captilizeStr);
+            }
+            return strStack.join(' ');
+        };
+        self.getNewObjectKey = function(schema, template, key){
+            var self = this;
+            for(var i in schema){
+                var keyPath;
+                if(schema[i].type === 'string' || schema[i].type === 'number' || schema[i].type === 'boolean'){
+                    if(key != undefined){
+                        keyPath = key +'.'+ i;
+                    }else{
+                        keyPath = i;
+                    }
+                    var parseKey = self.parseJsonKeyLowerToUpper(i);
+                    var obj = { label: parseKey, key: keyPath, templateGenerator: 'TextGenerator', keyClass:'col-xs-3',
+                                    templateGeneratorConfig: {
+                                       formatter: 'ctwu.objectKeyFormatter'
+                                    }
+                              };
+                    template.push(obj);
+                }else if(schema[i].type === 'array'){
+                    if(key != undefined){
+                        keyPath = key +'.'+ i;
+                    }else{
+                        keyPath = i;
+                    }
+                    if(schema[i].items != undefined && i.substring(i.length-5,i.length) !== '_refs'){
+                         if(schema[i].items.type === 'object'){
+                              var prop = schema[i].items.properties;
+                              self.getNewObjectKey(prop, template, keyPath);
+                         }else{
+                             var parseKey = self.parseJsonKeyLowerToUpper(i);
+                             var obj = { label: parseKey, key: keyPath, templateGenerator: 'TextGenerator', keyClass:'col-xs-3',
+                                         templateGeneratorConfig: {
+                                               formatter: 'ctwu.objectKeyFormatter'
+                                         }
+                                    };
+                              template.push(obj);
+                         }
+                      }else{
+                          var parseKey = self.parseJsonKeyLowerToUpper(i);
+                          var obj = { label: parseKey, key: keyPath, templateGenerator: 'TextGenerator', keyClass:'col-xs-3',
+                                      templateGeneratorConfig: {
+                                           formatter: 'ctwu.objectKeyFormatter'
+                                      }
+                               };
+                          template.push(obj);
+                      }
+                }else if (schema[i].type === 'object') {
+                    var parentKey, prop = schema[i].properties;
+                    if(key != undefined){
+                        parentKey = key + '.' + i;
+                    }else{
+                        parentKey = i;
+                    }
+                    if(Object.keys(prop).length == 1 && prop[Object.keys(prop)[0]].type == 'array'){
+                        var newKey = i + '.' + Object.keys(prop)[0];
+                        var parseKey = self.parseJsonKeyLowerToUpper(i);
+                        var obj = { label: parseKey, key: newKey, templateGenerator: 'TextGenerator', keyClass:'col-xs-3',
+                                    templateGeneratorConfig: {
+                                         formatter: 'ctwu.objectKeyFormatter'
+                                    }
+                             };
+                        template.push(obj);
+                    }else{
+                        self.getNewObjectKey(prop, template, parentKey);
+                    }
+                 }
+            }
+            return template;
+        };
+        this.getSchemaGeneratedTemplate = function(schema, mapKey){
+            var existingTempMap = mapKey;
+            delete schema.perms2;
+            delete schema.display_name;
+            var template = [{
+                label: 'Name',
+                keyClass: 'col-xs-3',
+                key: 'name',
+                templateGenerator: 'TextGenerator',
+                templateGeneratorConfig: {
+                    formatter: 'ctwu.objectKeyFormatter'
+                }
+            },
+            {
+                label: 'Display Name',
+                keyClass: 'col-xs-3',
+                key: 'display_name',
+                templateGenerator: 'TextGenerator',
+                templateGeneratorConfig: {
+                    formatter: 'ctwu.objectKeyFormatter'
+                }
+            },
+            {
+                label: 'UUID',
+                keyClass: 'col-xs-3',
+                key: 'uuid',
+                templateGenerator: 'TextGenerator',
+                templateGeneratorConfig: {
+                    formatter: 'ctwu.objectKeyFormatter'
+                }
+            }];
+            if(existingTempMap != undefined){
+                for(var i = 0; i < existingTempMap.length; i++){
+                    var obj = { label: existingTempMap[i].label, keyClass:'col-xs-3', key: existingTempMap[i].key, templateGenerator: 'TextGenerator',
+                            templateGeneratorConfig: {
+                               formatter: existingTempMap[i].formatter
+                            }
+                    };
+                    template.push(obj);
 
+                    var schemaKey = existingTempMap[i].schemaKey.split('.');
+                    if(schemaKey.length > 1){
+                        if(schemaKey.length == 2){
+                            delete schema[schemaKey[0]].properties[schemaKey[1]]
+                        }else if(schemaKey.length == 3){
+                            delete schema[schemaKey[0]].properties[schemaKey[1]].properties[schemaKey[2]];
+                        }
+                    }else{
+                        delete schema[existingTempMap[i].schemaKey];
+                    }
+                }
+            }
+            var updatedTemp = this.getNewObjectKey(schema, template);
+            return updatedTemp;
+        };
+        this.getTemplateConfig = function(viewConfig, tempMappingKey) {
+            var schema = getValueByJsonPath(viewConfig.schema,'properties;'+ Object.keys(viewConfig.schema.properties)[0] +';properties');
+            var template = this.getSchemaGeneratedTemplate(schema, tempMappingKey);
+            return {
+                templateGenerator: 'RowSectionTemplateGenerator',
+                templateGeneratorConfig: {
+                    rows: [
+                        {
+                            templateGenerator: 'ColumnSectionTemplateGenerator',
+                            templateGeneratorConfig: {
+                                columns: [
+                                    {
+                                        class: 'col-xs-12',
+                                        rows: [{
+                                                title: 'Details',
+                                                templateGenerator: 'BlockListTemplateGenerator',
+                                                templateGeneratorConfig : template
+                                               },
+                                               //permissions
+                                               this.getRBACPermissionExpandDetails()
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            };
+        };
+        /*
+         * @objectKeyFormatter
+         */
+        this.objectKeyFormatter = function(v, dc, keyClass, key){
+            var self = this;
+            var key = key.split('.').join(';'), refStack = [], returnString = '';
+            var  val = getValueByJsonPath(dc, key);
+            if(val != undefined){
+                if(val.constructor === Array){
+                    if(val.length > 0){
+                        if(key.substring(key.length-5,key.length) === '_refs'){
+                            for(var i = 0; i< val.length; i++){
+                                var to = val[i].to;
+                                returnString += '<span>'+ to[to.length - 1] +'</span><br>';
+                            }
+                            return returnString;
+                        }else if(typeof val[0] === 'string'){
+                            return val.join(',');
+                        }else{
+                            if(ctwu.checkObjectContains(val)){
+                                return  ctwu.getObjInHTML(val, 0, undefined);
+                            }else{
+                                for(var j = 0; j < val.length; j++){
+                                    var obj = Object.keys(val[j]);
+                                    if(obj.indexOf('key') != -1 || obj.indexOf('value') != -1){
+                                        var key = val[j]['key'];
+                                        var value = val[j]['value'];
+                                        delete val[j]['key'];
+                                        delete val[j]['value'];
+                                        val[j]['key'] = key;
+                                        val[j]['value'] = value;
+                                    }
+                                }
+                                return ctwu.getFormatedArray(val);
+                            }
+                        }
+                   }else{
+                        return '-';
+                    }
+                }else{
+                    return val;
+                }
+            }else{
+                return val;
+            }
+        };
+        this.checkObjectContains = function(array){
+            var obj = false;
+            for(var i = 0; i < array.length; i++){
+                for(var j in array[i]){
+                    if(typeof array[i][j] == 'object'){
+                        obj = true;
+                    }
+                }
+            }
+           return obj;
+        };
+        this.getFormatedArray = function(val){
+            var header = Object.keys(val[0]), list = '';
+            if(header.length < 6){
+                for(var i = 0; i < header.length; i++){
+                    list += '<span class="rule-format col-xs-3" style="display:inline-block;padding:0px !important;">'+ this.parseJsonKeyLowerToUpper(header[i]) +'</span>';
+                 }
+                list += '<br>';
+                for(var j = 0; j < val.length; j++){
+                    var child = Object.keys(val[j]);
+                    for(var k = 0; k < child.length; k++){
+                        list += '<span class="col-xs-3" style="display:inline-block;padding:0px !important;">'+ val[j][child[k]] +'</span>';
+                    }
+                    list += '<br>';
+                }
+              return list;
+            }else{
+              return  this.getObjInHTML(val, 0, undefined);
+            }
+        };
+        this.getHeaderActionSchemaObj = function(self, viewConfig){
+            return {
+                "type": "link",
+                "title": viewConfig.title,
+                "iconClass": "fa fa-wpforms",
+                "onClick": function () {
+                    self.renderView4Config(null, null,{
+                        elementId: viewConfig.addElementId,
+                        view: "ConfigEditorModalView",
+                        viewPathPrefix: ctwc.CONFIG_EDITOR_PATH,
+                        viewConfig: {
+                            schema: viewConfig.schema,
+                            onSaveCB : function(){
+                                 $('#' + viewConfig.gridId).data("contrailGrid")._dataView.refreshData();
+                            }
+                        }
+                    });
+                }
+            };
+        };
+        this.getRowActionSchemaObj = function(self, viewConfig){
+            var schemaObj = ctwgc.getEditConfig(ctwc.ROW_SCHEMA_TITLE, function(rowIndex) {
+                dataView = $('#' + viewConfig.gridId).data("contrailGrid")._dataView;
+                var vnModel = dataView.getItem(rowIndex);
+                delete vnModel.cgrid;
+                var schema = viewConfig.schema;
+                var model = {};
+                model[Object.keys(schema.properties)[0]] = vnModel;
+                self.renderView4Config(null, null,{
+                    elementId: viewConfig.editElementId,
+                    view: "ConfigEditorModalView",
+                    viewPathPrefix: ctwc.CONFIG_EDITOR_PATH,
+                    viewConfig: {
+                        schema: viewConfig.schema,
+                        json: model,
+                        onSaveCB : function(){
+                            dataView.refreshData();
+                        }
+                    }
+                });
+            });
+            return schemaObj;
+        };
+        this.getObjInHTML = function (json, formatDepth, ignoreKeys) {
+            if (typeof json == 'string') {
+                json = JSON.parse(json);
+            }
+
+            return '<pre class="pre-format-JSON2HTML detail-temp-JSON2HTML">' + this.formatObjectDeatils(json, formatDepth, 0, ignoreKeys) + '</pre>';
+        };
+        this.formatObjectDeatils = function (jsonObj, formatDepth, currentDepth, ignoreKeys) {
+            var output = '', self = this,
+                objType = {type: 'object', startTag: '{', endTag: '}'};
+
+            if (jsonObj instanceof Array) {
+                objType = {type: 'array', startTag: '[', endTag: ']'};
+            }
+
+            if (formatDepth == 0) {
+                output += '<i class="node-' + currentDepth + ' fa fa-plus expander"></i> ' + objType.startTag + '<ul data-depth="' + currentDepth + '" class="node-' + currentDepth + ' node hidden raw">' +
+                    JSON.stringify(jsonObj) + '</ul><span class="node-' + currentDepth + ' collapsed expander"> ... </span>' + objType.endTag;
+            }
+            else {
+                output += '<i class="node-' + currentDepth + ' fa fa-minus collapser"></i> ' + objType.startTag + '<ul data-depth="' + currentDepth + '" class="node-' + currentDepth + ' node">';
+                $.each(jsonObj, function (key, val) {
+                    if (!contrail.checkIfExist(ignoreKeys) || (contrail.checkIfExist(ignoreKeys) && ignoreKeys.indexOf(key) === -1)) {
+                        if (objType['type'] == 'object') {
+                            output += '<li class="key-value"><span class="key">' + key + '</span>: ';
+                        }
+                        else {
+                            output += '<li class="key-value">';
+                        }
+
+                        if (val != null && typeof val == 'object') {
+                            output += '<span class="value">' + self.formatObjectDeatils(val, formatDepth - 1, currentDepth + 1, ignoreKeys) + '</span>';
+                        }
+                        else {
+                            output += '<span class="value ' + typeof val + '">' + val + '</span>';
+                        }
+                        output += '</li>';
+                    }
+                });
+                output += '</ul><span class="node-' + currentDepth + ' collapsed hidden expander"> ... </span>' + objType.endTag;
+            }
+            return output;
+        };
         this.getLocationGrid = function(e, obj, objProp, id){
             var rowCount = $('#'+id).data("contrailGrid").selectedRow, reqUrl, headerContent,
             thClass = 'col-xs-2 region-th-border', tdClass = 'col-xs-2 region-td-border';
