@@ -203,6 +203,29 @@ define([
                                                         label : "IP Address",
                                                         class: "col-xs-6"
                                                     }
+                                                }, {
+                                                    elementId: "service_health_check_refs",
+                                                    view: "FormDropdownView",
+                                                    viewConfig: {
+                                                        label: "BFD Service Health Check",
+                                                        dataBindValue: "service_health_check_refs",
+                                                        path: "service_health_check_refs",
+                                                        class: "col-xs-6",
+                                                        elementConfig: {
+                                                            allowClear: true,
+                                                            placeholder: 'Select Service Health Check',
+                                                            dropdownAutoWidth : false,
+                                                            dataTextField: "text",
+                                                            dataValueField: "id",
+                                                            dataSource : {
+                                                                type: 'remote',
+                                                                requestType: 'POST',
+                                                                postData: JSON.stringify({data: [{type: "service-health-checks"}]}),
+                                                                url: ctwc.URL_GET_CONFIG_DETAILS,
+                                                                parse: bgpAsAServiceFomatter.parseServiceHealthCheckData
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             ]},{
                                             columns: [
