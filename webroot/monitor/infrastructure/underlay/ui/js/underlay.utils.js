@@ -277,13 +277,17 @@ define(['underscore'], function (_) {
                         getValueByJsonPath(lclData,'summary;name','-'),
                     lclInfName =
                         getValueByJsonPath(lclData,'summary;if_name','-'),
+                    lclInfIndex =
+                            getValueByJsonPath(lclData,'summary;if_index','-'),
                     rmtNodeName =
                         getValueByJsonPath(rmtData,'summary;name','-'),
                     rmtIntfName =
                         getValueByJsonPath(rmtData,'summary;if_name','-');
+                    rmtIntfIndex =
+                        getValueByJsonPath(rmtData,'summary;if_index','-');
 
-                chartTitle = contrail.format('Traffic Statistics of link {0} ({1}) -- {2} ({3})',
-                                lclNodeName,lclInfName,rmtNodeName,rmtIntfName);
+                chartTitle = contrail.format('Traffic Statistics of link {0}: {1} ({2}) -- {3}: {4} ({5})',
+                                lclNodeName,lclInfName,lclInfIndex,rmtNodeName,rmtIntfName,rmtIntfIndex);
                 var inPacketsLocal = {
                     key: contrail.format('{0} ({1})',lclNodeName,lclInfName),
                         values:[]
