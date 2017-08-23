@@ -14,7 +14,7 @@ define(['lodash'], function(_){
             });
             vmiIdList = _.uniq(vmiIdList);
             if(vmiIdList.length === 0) {
-                return;
+                return dataItems;
             }
             ajaxConfig.type = 'POST';
             ajaxConfig.url = ctwc.URL_GET_PORT;
@@ -39,12 +39,12 @@ define(['lodash'], function(_){
                     tagDetails.virtual_machine_interface_back_refs =
                         tagVmiListMap[tagDetails.uuid];
                 });
-                listModel.addData(dataItems);
-                return;
+                listModel.setData(dataItems);
 
             },  function (error) {
-                return;
+                listModel.setData(dataItems);
             });
+            return [];
         };
     };
     return new tagUtils();
