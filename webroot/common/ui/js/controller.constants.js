@@ -305,6 +305,7 @@ define([
         this.PROUTER = 'physical-router';
         this.VROUTER = 'virtual-router';
         this.VIRTUALMACHINE = 'virtual-machine';
+        this.BARE_METAL_SERVER='bare-metal-server';
         this.UNDERLAY_LINK = 'link';
         this.TRACEFLOW_MAXATTEMPTS = 3;
         this.TRACEFLOW_INTERVAL = 5;
@@ -1105,7 +1106,7 @@ define([
                                'image','config/gohanUi/image/ui/js/views/gcImageView.js',
                                'location','config/gohanUi/location/ui/js/views/gcLocationView.js'];
         this.BREADCRUMB_EXCEPTION_LIST = ['location','idPool','association'];
- 
+
         this.GOHAN_URL = './gohan_contrail/v1.0/';
         this.GOHAN_TENANT_URL = './gohan_contrail/v1.0/tenant/';
         this.GOHAN_PROJECT_URL = '/api/tenants/config/projects';

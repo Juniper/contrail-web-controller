@@ -332,9 +332,10 @@ function getNodeChassisType (nodeName, nodeType, prouterLinkData)
     var data = commonUtils.cloneObj(prouterLinkData);
     var prouterData = data['value'];
     var prouterCnt = prouterData.length;
-    if (ctrlGlobal.NODE_TYPE_VROUTER == nodeType) {
+    if (ctrlGlobal.NODE_TYPE_VROUTER == nodeType || ctrlGlobal.NODE_TYPE_BMS == nodeType) {
         return ctrlGlobal.NODE_CHASSIS_TYPE_NONE;
     }
+
     for (var i = 0; i < prouterCnt; i++) {
         if (nodeName == prouterData[i]['name']) {
             break;
@@ -356,7 +357,7 @@ function getNodeChassisType (nodeName, nodeType, prouterLinkData)
     }
     for (var i = 0; i < linksCnt; i++) {
         /* First check any one of the link is vRouter or not */
-        if (ctrlGlobal.NODE_TYPE_VROUTER == getpRouterLinkType(links[i]['type'])) {
+        if (ctrlGlobal.NODE_TYPE_VROUTER == getpRouterLinkType(links[i]['type']) || ctrlGlobal.NODE_TYPE_BMS == getpRouterLinkType(links[i]['type'])) {
             return ctrlGlobal.NODE_CHASSIS_TYPE_TOR;
         }
     }
@@ -460,11 +461,13 @@ function buildNodeChassisType (nodes, prouterLinkData)
 
 function getpRouterLinkType (linkType)
 {
-    if (2 == linkType) {
+    if (0 == linkType) {
         return ctrlGlobal.NODE_TYPE_VROUTER;
     } else if (1 == linkType) {
         return ctrlGlobal.NODE_TYPE_PROUTER;
-    } else {
+    } else if (2 == linkType) {
+        return ctrlGlobal.NODE_TYPE_BMS;
+    }else {
         return ctrlGlobal.NODE_TYPE_NONE;
     }
 }

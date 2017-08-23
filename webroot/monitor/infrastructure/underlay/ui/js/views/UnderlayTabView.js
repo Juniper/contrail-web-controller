@@ -45,7 +45,9 @@ define([
                      $("input[name='traceflow_radiobtn_name'][value='instance']").trigger('click');
                      $("#instance_dropdown_name_dropdown").val(nodeDetails.name).trigger('change');
                        showVMTabs(nodeDetails, underlayTabView);
-                   } else if (nodeType == ctwc.UNDERLAY_LINK) {
+                   } else if (nodeType == ctwc.BARE_METAL_SERVER) {
+                       showBMSTabs(nodeDetails, underlayTabView);
+                   }else if (nodeType == ctwc.UNDERLAY_LINK) {
                        showLinkTrafficStatistics(nodeDetails, underlayTabView);
                    }
                 });
@@ -122,6 +124,7 @@ define([
     }
 
     function showPRouterTabs (nodeDetails, underlayTabView) {
+      $("#"+ctwc.UNDERLAY_TAB_ID).tabs().show();
         var interfaceDetails = [];
         var deferredObj = $.Deferred();
         underlayUtils.removeUnderlayTabs(underlayTabView, deferredObj);
@@ -174,6 +177,7 @@ define([
     }
 
     function showVRouterTabs (nodeDetails, underlayTabView) {
+        $("#"+ctwc.UNDERLAY_TAB_ID).tabs().show();
         var deferredObj = $.Deferred();
         underlayUtils.removeUnderlayTabs(underlayTabView, deferredObj);
         deferredObj.always(function(resetLoading){
@@ -192,6 +196,7 @@ define([
     }
 
     function showVMTabs (nodeDetails, underlayTabView) {
+        $("#"+ctwc.UNDERLAY_TAB_ID).tabs().show();
         var deferredObj = $.Deferred();
         underlayUtils.removeUnderlayTabs(underlayTabView, deferredObj);
         deferredObj.always(function(resetLoading){
@@ -242,8 +247,11 @@ define([
         );
         });
     }
-
+    function showBMSTabs(linkDetails, underlayTabView) {
+          $("#"+ctwc.UNDERLAY_TAB_ID).tabs().hide();
+    }
     function showLinkTrafficStatistics (linkDetails, underlayTabView) {
+      $("#"+ctwc.UNDERLAY_TAB_ID).tabs().show();
         var deferredObj = $.Deferred();
         underlayUtils.removeUnderlayTabs(underlayTabView, deferredObj);
         deferredObj.always(function(resetLoading){
