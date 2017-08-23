@@ -164,7 +164,7 @@ var configJsonModifyObj = {
     },
     'global-system-config': {
         'isConfig': true,
-        'optFields': ['autonomous_system', 'ibgp_auto_mesh', 'ip_fabric_subnets'],
+        'optFields': ['autonomous_system', 'ibgp_auto_mesh', 'ip_fabric_subnets', 'bgp_always_compare_med'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'global-vrouter-config': {
