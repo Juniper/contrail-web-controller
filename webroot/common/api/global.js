@@ -4,7 +4,7 @@
 
 var global = {};
 
-global.STR_GET_CONTROL_NODE_CPU_FLOW_SERIES = 'getControlNodeCPULoadFlowSeries'; 
+global.STR_GET_CONTROL_NODE_CPU_FLOW_SERIES = 'getControlNodeCPULoadFlowSeries';
 global.STR_GET_VROUTER_NODE_CPU_FLOW_SERIES = 'getvRouterCPULoadFlowSeries';
 global.STR_GET_SVC_MON_CPU_FLOW_SERIES = 'getSvcMonCPULoadFlowSeries';
 global.STR_GET_API_SERVER_CPU_FLOW_SERIES = 'getAPIServerCPULoadFlowSeries';
@@ -37,6 +37,7 @@ global.QUERY_JSON = {
 
 global.NODE_TYPE_PROUTER = 'physical-router';
 global.NODE_TYPE_VROUTER = 'virtual-router';
+global.NODE_TYPE_BMS = 'bare-metal-server';
 global.NODE_TYPE_VIRTUAL_MACHINE = 'virtual-machine';
 global.NODE_TYPE_NONE = '-';
 
@@ -52,4 +53,3 @@ global.INSTANCE_SPAWNING_TIMEOUT = 5 * 60 * 1000;
 global.PROJECT_NOT_FOUND_IN_KEYSTONE = '(Error: project not exists in keystone)';
 
 module.exports = global;
-
