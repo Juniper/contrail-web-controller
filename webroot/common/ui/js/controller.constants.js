@@ -609,7 +609,8 @@ define([
             {"key": "ibgp_auto_mesh", "name": "iBGP Auto Mesh"},
             {"key": "ip_fabric_subnets", "name": "IP Fabric Subnets"},
             {"key": "graceful_restart_parameters", "name": "Graceful Restart"},
-            {"key": "bgpaas_parameters", "name": "BGP as a Service Port Range (Start Port - End Port)"}
+            {"key": "bgpaas_parameters", "name": "BGP as a Service Port Range (Start Port - End Port)"},
+            {"key": "bgp_always_compare_med", "name": "Always Compare MED"},
         ];
         this.GLOBAL_BGP_OPTIONS_SECTION_ID = "global-bgp-options-section";
         this.GLOBAL_BGP_OPTIONS_ID = "global-bgp-options";
