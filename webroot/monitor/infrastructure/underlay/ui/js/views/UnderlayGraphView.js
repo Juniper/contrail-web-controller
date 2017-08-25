@@ -2513,9 +2513,12 @@ define([
                 var clickedElement =
                     _network.canvas.body.nodes[params.nodes[0]];
                 var node = self.model.getNodeByElementId(params.nodes[0]);
-                if(null == node || typeof clickedElement == undefined ||
-                       typeof clickedElement.options == undefined){
-                  contrailVisView.resetTopology({
+
+                if(null == node)
+                    return;
+                if( typeof clickedElement == "undefined" ||
+                          typeof clickedElement.options == "undefined"){
+                  self.resetTopology({
                       resetBelowTabs: true
                   });
                   return;
