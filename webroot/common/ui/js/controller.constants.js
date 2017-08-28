@@ -216,7 +216,7 @@ define([
         };
 
         this.UMID_INSTANCE_UVE = "uve:{0}";
-        this.SERVICE_VN_EXCLUDE_LIST = ['svc-vn-left','svc-vn-right','svc-vn-mgmt'];
+        this.SERVICE_VN_EXCLUDE_LIST = ['svc-vn-left','svc-vn-right','svc-vn-mgmt', 'default-virtual-network', '__link_local__'];
         this.PROTOCOL_MAP = [{'id': 6, 'text': 'TCP'}, {'id': 17, 'text': 'UDP'}, {'id': 1, 'text': 'ICMP'}];
 
         this.GRAPH_ELEMENT_PROJECT = 'project';

@@ -12,14 +12,14 @@ define([
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig,
-                pagerOptions = viewConfig['pagerOptions'];
+                pagerOptions = viewConfig['pagerOptions'],
+                selectedDomain = viewConfig['selectedDomain'];
 
             var projectsRemoteConfig = {
-                url: ctwc.getProjectsURL({name:
-                                         contrail.getCookie(cowc.COOKIE_DOMAIN)}, {getProjectsFromIdentity: true}),
+                url: ctwc.URL_ALL_PROJECTS +
+                "?domainId=" + selectedDomain.value,
                 type: 'GET'
             };
-
             this.renderView4Config(self.$el, this.model, getProjectListViewConfig(projectsRemoteConfig, pagerOptions));
         }
     });
