@@ -42,7 +42,7 @@ define([
                                if (dc['isClient']) {
                                     return 'True';
                                } else {
-                                    return 'Flase';
+                                    return 'False';
                                }
                             }
                         },
@@ -109,12 +109,18 @@ define([
                             name: 'Sessions Initiated',
                             hide: true,
                             maxWidth: 130,
+                            formatter:function(r,c,v,cd,dc) {
+                               return sessionsInFormatter(v, dc);
+                            }
                         },
                         {
                             field: 'SUM(eps.traffic.responder_session_count)',
                             name: 'Sessions Responded',
                             hide: true,
                             maxWidth: 130,
+                            formatter:function(r,c,v,cd,dc) {
+                               return sessionsOutFormatter(v, dc);
+                            }
                         }
                     ],
                 gridElementConfig = {
@@ -371,10 +377,12 @@ define([
        return formatBytes(dc['SUM(eps.traffic.out_bytes)']);
     }
     this.sessionsInFormatter = function(v, dc) {
-       return dc['SUM(eps.traffic.initiator_session_count)'];
+       return this.epsDefaultValueFormatter(
+            dc['SUM(eps.traffic.initiator_session_count)']);
     }
     this.sessionsOutFormatter = function(v, dc) {
-       return dc['SUM(eps.traffic.responder_session_count)'];
+       return this.epsDefaultValueFormatter(
+            dc['SUM(eps.traffic.responder_session_count)']);
     }
     this.getPolicyInfo = function(dc) {
         var policyInfo = {};

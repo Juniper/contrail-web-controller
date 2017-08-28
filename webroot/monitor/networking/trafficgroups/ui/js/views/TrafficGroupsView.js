@@ -20,12 +20,13 @@ define(
                 },
                 showOtherProjectTraffic: false,
                 combineEmptyTags: false,
-                applyColorByCategory: false,
+                matchArcsColorByCategory: false,
+                // Provide colours list for top level arcs
+                topLevelArcColors: cowc['TRAFFIC_GROUP_COLOR_LEVEL1'].slice(0,1),
                 filterdData: null,
                 resetTrafficStats: function(e) {
                     e.preventDefault();
                     tgView.renderTrafficChart();
-                    $(tgView.el).find('svg g').empty();
                 },
                 showSessionsInfo: function() {
                     require(['monitor/networking/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
@@ -46,7 +47,7 @@ define(
                         epsTabsView.render(linkData);
                     });
                 },
-                showLinkInfo(d,el,e,chartScope) {
+                showLinkInfo(d,el,e) {
                     var self = this,
                         ruleUUIDs = [], ruleKeys = [], level = 1;
                     if (_.result(d, 'innerPoints.length') == 4)
@@ -119,13 +120,13 @@ define(
                         });
                     });
                     ruleUUIDs = _.uniq(ruleUUIDs);
-                    _.each(chartScope.ribbons, function (ribbon) {
+                    _.each(self.chartInfo.component.ribbons, function (ribbon) {
                        ribbon.selected = false;
                        ribbon.active = false;
                     });
                     d.selected = true;
                     d.active = true;
-                    chartScope._render();
+                    self.chartInfo.component._render();
                     if (ruleUUIDs.length > 0) {
                         var listModelConfig = {
                             remote: {
@@ -270,11 +271,10 @@ define(
                                         }
                                         $('.allSessionInfo').on('click', self.showSessionsInfo);
                                         $('#traffic-groups-radial-chart')
-                                         .on('click','',{ thisChart:chartScope,thisRibbon:d },
-                                          function(ev){
-                                            if(ev.data.thisChart && $(ev.target)
-                                              .parents('#'+ev.data.thisChart.id).length == 0){
-                                                _.each(ev.data.thisChart.ribbons,
+                                         .on('click', function(ev) {
+                                            if($(ev.target)
+                                                .parents('#'+self.chartInfo.component.id).length == 0) {
+                                                _.each(self.chartInfo.component.ribbons,
                                                  function (ribbon) {
                                                    ribbon.selected = false;
                                                    ribbon.active = false;
@@ -282,7 +282,7 @@ define(
                                                 $('#traffic-groups-radial-chart')
                                                 .removeClass('showLinkInfo');
                                                 $('#traffic-groups-link-info').html('');
-                                                ev.data.thisChart._render();
+                                                self.chartInfo.component._render();
                                             }
                                         });
                                     }
@@ -312,26 +312,34 @@ define(
                 getTagHierarchy: function(d) {
                     var srcHierarchy = [],
                         dstHierarchy = [],
+                        srcLabels = [],
+                        dstLabels = [],
                         selectedTagTypes = this.getCategorizationObj(),
                         level = selectedTagTypes.length,
                         self = this;
                     _.each(selectedTagTypes, function(tags, idx) {
                         if(idx < level) {
                             var tagTypes = tags.split('-');
-                            srcHierarchy.push(_.compact(_.map(tagTypes, function(tag) {
+                            var srcNames = _.compact(_.map(tagTypes, function(tag) {
                                 var tagVal = d[tag.trim()];
                                 return tagVal ? tagVal : self.getTagLabel(tag, d);
-                            })).join('-'));
-                            dstHierarchy.push(_.compact(_.map(tagTypes, function(tag) {
+                            }));
+                            srcLabels.push(srcNames);
+                            srcHierarchy.push(srcNames.join('-'));
+                            var dstNames = _.compact(_.map(tagTypes, function(tag) {
                                 var tagVal = d['eps.traffic.remote_' + tag.trim() + '_id'];
                                 return tagVal ? tagVal : self.getTagLabel(tag,
                                                 d, d['eps.traffic.remote_vn']);
-                            })).join('-'));
+                            }));
+                            dstLabels.push(dstNames);
+                            dstHierarchy.push(dstNames.join('-'));
                         }
                     });
                     return {
                         srcHierarchy: srcHierarchy,
-                        dstHierarchy: dstHierarchy
+                        dstHierarchy: dstHierarchy,
+                        srcLabels: srcLabels,
+                        dstLabels: dstLabels
                     };
                 },
                 getTagLabel: function(tagType, d, vn) {
@@ -351,8 +359,13 @@ define(
                     }
                     return label;
                 },
+                isImplictRule: function(d, key) {
+                    return (typeof d['eps.__key'] == 'string' &&
+                           d['eps.__key'].indexOf(key) > -1) &&
+                           (d['SUM(eps.traffic.in_bytes)'] ||
+                           d['SUM(eps.traffic.out_bytes)']);
+                },
                 updateChart: function(cfg) {
-                    $('#traffic-groups-legend-info').addClass('hidden');
                     var self = this,
                         extendConfig = {}
                     if(_.isEmpty(cfg)) {
@@ -363,6 +376,7 @@ define(
                     } else if(cfg) {
                         extendConfig = cfg;
                     }
+                    TrafficGroupsView.colorMap = {};
                     var config = {
                         id: 'chartBox',
                         //levels : levels,
@@ -379,12 +393,17 @@ define(
                                 linkCssClasses: ['implicitDeny', 'implicitAllow'],
                                 arcLabelXOffset: 0,
                                 arcLabelYOffset: [-12,-6],
-                                showLinkDirection: false,
+                                showLinkDirection: true,
+                                isEndpointMatched: self.isRecordMatched,
                                 colorScale: function (item) {
                                     var colorList = cowc['TRAFFIC_GROUP_COLOR_LEVEL'+item.level];
-                                    if(self.applyColorByCategory) {
+                                    if(self.matchArcsColorByCategory) {
                                         colorList = cowc['TRAFFIC_GROUP_COLOR_LEVEL1']
                                             .concat(cowc['TRAFFIC_GROUP_COLOR_LEVEL2']);
+                                    }
+                                    if(item.level == 1 && self.topLevelArcColors
+                                        && self.getCategorizationObj().length > 1) {
+                                        colorList = self.topLevelArcColors;
                                     }
                                     var unassignedColors = _.difference(colorList, _.values(TrafficGroupsView.colorMap[item.level])),
                                         itemName = item.displayLabels[item.level-1],
@@ -395,7 +414,7 @@ define(
                                         }
                                         unassignedColors = extraColors[item.level];
                                     }
-                                    if(self.applyColorByCategory && item.level == 2) {
+                                    if(self.matchArcsColorByCategory && item.level > 1) {
                                         var upperLevelColors = TrafficGroupsView.colorMap[item.level-1];
                                         return upperLevelColors[item.displayLabels[0]];
                                     }
@@ -409,7 +428,7 @@ define(
                                 },
                                 showLinkInfo: self.showLinkInfo,
                                 drillDownLevel: self.getCategorizationObj().length,
-                                expandLevels: 'disable',
+                                expandLevels: 'enable',
                                 hierarchyConfig: {
                                     parse: function (d) {
                                         var hierarchyObj = self.getTagHierarchy(d),
@@ -426,16 +445,14 @@ define(
                                             implicitAllowKey = ifNull(_.find(cowc.DEFAULT_FIREWALL_RULES, function(rule) {
                                                 return rule.name == 'Implicit Allow';
                                             }), '').uuid;
-                                        if(typeof d['eps.__key'] == 'string' &&
-                                            d['eps.__key'].indexOf(implicitDenyKey) > -1) {
+                                        if(self.isImplictRule(d, implicitDenyKey)) {
                                             d.linkCssClass = 'implicitDeny';
                                         }
-                                        if(typeof d['eps.__key'] == 'string' &&
-                                            d['eps.__key'].indexOf(implicitAllowKey) > -1) {
+                                        if(self.isImplictRule(d, implicitAllowKey)) {
                                             d.linkCssClass = 'implicitAllow';
                                         }
                                         $.each(srcHierarchy, function(idx) {
-                                            srcDisplayLabel.push(self.formatLabel(srcHierarchy, idx));
+                                            srcDisplayLabel.push(self.formatLabel(hierarchyObj.srcLabels, idx));
                                         });
 
                                         if(remoteVN && remoteVN.indexOf(':') > 0) {
@@ -449,11 +466,12 @@ define(
                                         }
 
                                         $.each(dstHierarchy, function(idx) {
-                                            dstDisplayLabel.push(self.formatLabel(dstHierarchy, idx));
+                                            dstDisplayLabel.push(self.formatLabel(hierarchyObj.dstLabels, idx));
                                             if(externalType) {
                                                 if(externalType == 'external') {
                                                     dstHierarchy[idx] = 'External_external';
-                                                    dstDisplayLabel[idx] = 'External';
+                                                    dstDisplayLabel[idx].fill('');
+                                                    dstDisplayLabel[idx][dstDisplayLabel[idx].length-1] = 'External';
                                                 } else {
                                                     dstHierarchy[idx] += '_' + externalType;
                                                 }
@@ -461,7 +479,6 @@ define(
                                         });
                                         var src = {
                                             names: srcHierarchy,
-                                            labelAppend: '',
                                             displayLabels: srcDisplayLabel,
                                             id: _.compact(srcHierarchy).join('-'),
                                             value: d['SUM(eps.traffic.in_bytes)'] + d['SUM(eps.traffic.out_bytes)'],
@@ -473,7 +490,6 @@ define(
                                         //append '_external' to names [only for 1st-level app field]
                                         var dst = {
                                             names: dstHierarchy,
-                                            labelAppend: '',
                                             displayLabels: dstDisplayLabel,
                                             id: _.compact(dstHierarchy).join('-'),
                                             type: externalType,
@@ -595,17 +611,25 @@ define(
                     self.updateTGFilterSec();
                 },
                 chartRender: function() {
-                    var self = this;
-                    var data = self.filterdData ? JSON.parse(JSON.stringify(self.filterdData))
-                             : self.viewInst.model.getItems();
-                    if(data && data.length == 0) {
-                        $('#traffic-groups-radial-chart').empty();
-                        var noData = "<h4 class='noStatsMsg'>"
-                            + ctwl.TRAFFIC_GROUPS_NO_DATA + "</h4>"
-                        $('#traffic-groups-radial-chart').html(noData);
+                    if($('.viewchange .chart-stats').hasClass('active-color')) {
+                        var self = this;
+                        var data = self.filterdData ? JSON.parse(JSON.stringify(self.filterdData))
+                                 : self.viewInst.model.getItems();
+                        if(data && data.length == 0) {
+                            $('#traffic-groups-radial-chart').empty();
+                            var noData = "<h4 class='noStatsMsg'>"
+                                + ctwl.TRAFFIC_GROUPS_NO_DATA + "</h4>"
+                            $('#traffic-groups-radial-chart').html(noData);
+                        } else {
+                            self.viewInst.render(data, self.chartInfo.chartView);
+                        }
                     } else {
-                        self.viewInst.render(data, self.chartInfo.chartView);
+                        this.showEndPointStatsInGrid();
+                    }
+                    if(this.filterdData.length) {
                         $('#traffic-groups-legend-info').removeClass('hidden');
+                    } else {
+                        $('#traffic-groups-legend-info').addClass('hidden');
                     }
                 },
                 addtionalEvents: function() {
@@ -691,18 +715,24 @@ define(
                     }
                     return {links, srcTags, dstTags};
                 },
-                formatLabel: function(label, idx) {
-                    var displayLabel = '';
-                    if(label) {
-                        displayLabel = label[idx].replace('application', cowc.APPLICATION_ICON)
-                             .replace('tier', cowc.TIER_ICON)
-                             .replace('site', cowc.SITE_ICON)
-                             .replace('deployment', cowc.DEPLOYMENT_ICON);
+                formatLabel: function(labels, idx) {
+                    var displayLabels = [];
+                    if(labels && labels.length > 0) {
+                        _.each(labels[idx], function(label) {
+                            displayLabels.push(label
+                                 .replace('application', cowc.APPLICATION_ICON)
+                                 .replace('tier', cowc.TIER_ICON)
+                                 .replace('site', cowc.SITE_ICON)
+                                 .replace('deployment', cowc.DEPLOYMENT_ICON));
+                        });
                     }
-                    return displayLabel;
+                    return displayLabels;
                 },
                 removeEmptyTags: function(names) {
                     var displayNames = names.slice(0);
+                    displayNames = _.map(displayNames, function(name) {
+                        return name.join('-')
+                    });
                     displayNames = _.remove(displayNames, function(name, idx) {
                         return !(name == 'External' && idx > 0);
                     });
@@ -711,13 +741,12 @@ define(
                 isRecordMatched: function(names, record, data) {
                     var arcType = data.arcType ? '_' + data.arcType : '',
                         isMatched = true,
-                        self = this,
-                        selectedTagTypes = this.getCategorizationObj();
+                        selectedTagTypes = tgView.getCategorizationObj();
                     for(var i = 0; i < names.length; i++) {
                         var tagTypes = selectedTagTypes[i].split('-'),
                             tagName =  _.compact(_.map(tagTypes, function(tag) {
                                             return record[tag] ? record[tag]
-                                            : self.getTagLabel(tag, record)
+                                            : tgView.getTagLabel(tag, record)
                                     })).join('-');
                        tagName += arcType;
                        isMatched = isMatched && (tagName == names[i]);
@@ -836,6 +865,14 @@ define(
                         .html(filterViewTmpl({
                             endpoints : filterByTags
                     }));
+                    var filterIconEle =  $('#filterByTagNameSec a');
+                    if(filterByTags.length) {
+                        filterIconEle.removeClass('noFiltersApplied')
+                        filterIconEle.attr('data-action', 'clear');
+                    } else {
+                        filterIconEle.addClass('noFiltersApplied');
+                        filterIconEle.removeAttr('data-action');
+                    }
                     $('.tgRemoveFilter').on('click', this.removeFilter);
                     $('#filterByTagNameSec .dropdown-menu')
                         .on('click', function(e) {
@@ -949,7 +986,13 @@ define(
                     });
                     return data;
                 },
-                renderTrafficChart: function() {
+                resetChartView: function() {
+                   $('#traffic-groups-legend-info').addClass('hidden');
+                   $(this.el).find('svg g').empty();
+                   $('#traffic-groups-grid-view').empty();
+                },
+                renderTrafficChart: function(option) {
+                    this.resetChartView();
                     var self = this,
                         fromTime = this.getTGSettings().time_range,
                         toTime = 0;
@@ -1088,27 +1131,29 @@ define(
                             el: self.$el.find('#traffic-groups-radial-chart'),
                             model: new ContrailListModel(listModelConfig)
                         });
-                        $('.viewchange .chart-stats').addClass('active-color');
+                        if(option == 'onload') {
+                            $('.viewchange .chart-stats').addClass('active-color');
+                            $('.viewchange .grid-stats').on('click', function () {
+                                if ($('.viewchange .grid-stats').hasClass('active-color')) {
+                                    return;
+                                }
+                                $('#traffic-groups-radial-chart').hide();
+                                $('#traffic-groups-grid-view').show();
+                                $('.viewchange .chart-stats, .viewchange .grid-stats').toggleClass('active-color');
+                                self.showEndPointStatsInGrid();
+                            });
+                            $('.viewchange .chart-stats').on('click', function () {
+                                if ($('.viewchange .chart-stats').hasClass('active-color')) {
+                                    return;
+                                }
+                                $('#traffic-groups-radial-chart').show();
+                                $('#traffic-groups-grid-view').hide();
+                                $('.viewchange .chart-stats, .viewchange .grid-stats').toggleClass('active-color');
+                                self.updateChart();
+                            });
+                        }
                         self.updateChart({
                             'freshData': true
-                        });
-                        $('.viewchange .grid-stats').on('click', function () {
-                            if ($('.viewchange .grid-stats').hasClass('active-color')) {
-                                return;
-                            }
-                            $('#traffic-groups-radial-chart').hide();
-                            $('#traffic-groups-grid-view').show();
-                            $('.viewchange .chart-stats, .viewchange .grid-stats').toggleClass('active-color');
-                            self.showEndPointStatsInGrid();
-                        });
-                        $('.viewchange .chart-stats').on('click', function () {
-                            if ($('.viewchange .chart-stats').hasClass('active-color')) {
-                                return;
-                            }
-                            $('#traffic-groups-radial-chart').show();
-                            $('#traffic-groups-grid-view').hide();
-                            $('.viewchange .chart-stats, .viewchange .grid-stats').toggleClass('active-color');
-                            self.updateChart();
                         });
                     });
                 },
@@ -1134,7 +1179,7 @@ define(
                         this.showOtherProjectTraffic = true;
                         this.combineEmptyTags = true;
                     }
-                    this.renderTrafficChart();
+                    this.renderTrafficChart('onload');
                 }
             });
             return TrafficGroupsView;
