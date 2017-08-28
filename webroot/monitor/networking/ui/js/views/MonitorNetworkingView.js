@@ -50,6 +50,7 @@ define([
         var hashParams = viewConfig.hashParams,
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
+                includeDefaultProject: true,
                 changeCB: getProjectChangeCB(hashParams),
                 childView: {
                     init: getProjectViewConfig()
@@ -68,7 +69,9 @@ define([
         var hashParams = viewConfig.hashParams,
             customDomainDropdownOptions = {
                 childView: {
-                    init: getProjectListViewConfig(viewConfig)
+                    init: function (selectedDomain) {
+                        return getProjectListViewConfig(viewConfig, selectedDomain);
+                    }
                 }
             };
 
@@ -86,6 +89,7 @@ define([
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
                 changeCB: getProjectChangeCB(hashParams),
+                includeDefaultProject: true,
                 childView: {
                     init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
                     change: getProjectViewConfig()
@@ -105,6 +109,7 @@ define([
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
                 defaultValueIndex: 1,
+                includeDefaultProject: true,
                 childView: {
                     init: getNetworkListViewConfig(viewConfig)
                 }/*,
@@ -140,6 +145,7 @@ define([
             },
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
+                includeDefaultProject: true,
                 changeCB: getProjectChangeCB(hashParams),
                 childView: {
                     init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
@@ -166,6 +172,7 @@ define([
             },
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
+                includeDefaultProject: true,
                 defaultValueIndex: 1,
                 childView: {
                     init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
@@ -192,6 +199,7 @@ define([
             },
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
+                includeDefaultProject: true,
                 defaultValueIndex: 1,
                 childView: {
                     init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
@@ -263,13 +271,13 @@ define([
         }
     };
 
-    function getProjectListViewConfig(viewConfig) {
+    function getProjectListViewConfig(viewConfig, selectedDomain) {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_LIST_PAGE_ID]),
             view: "ProjectListView",
             viewPathPrefix: "monitor/networking/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
-            viewConfig: viewConfig
+            viewConfig: $.extend(viewConfig, {selectedDomain: selectedDomain})
         }
     };
 
