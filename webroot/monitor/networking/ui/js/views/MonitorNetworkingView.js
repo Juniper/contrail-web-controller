@@ -50,6 +50,7 @@ define([
         var hashParams = viewConfig.hashParams,
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
+                includeDefaultProject: true,
                 changeCB: getProjectChangeCB(hashParams),
                 childView: {
                     init: getProjectViewConfig()
@@ -86,6 +87,7 @@ define([
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
                 changeCB: getProjectChangeCB(hashParams),
+                includeDefaultProject: true,
                 childView: {
                     init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
                     change: getProjectViewConfig()
@@ -105,6 +107,7 @@ define([
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
                 defaultValueIndex: 1,
+                includeDefaultProject: true,
                 childView: {
                     init: getNetworkListViewConfig(viewConfig)
                 }/*,
@@ -140,6 +143,7 @@ define([
             },
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
+                includeDefaultProject: true,
                 changeCB: getProjectChangeCB(hashParams),
                 childView: {
                     init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
@@ -166,6 +170,7 @@ define([
             },
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
+                includeDefaultProject: true,
                 defaultValueIndex: 1,
                 childView: {
                     init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
@@ -192,6 +197,7 @@ define([
             },
             customProjectDropdownOptions = {
                 getProjectsFromIdentity: true,
+                includeDefaultProject: true,
                 defaultValueIndex: 1,
                 childView: {
                     init: ctwvc.getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),

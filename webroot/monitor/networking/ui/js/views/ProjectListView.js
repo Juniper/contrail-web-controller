@@ -24,7 +24,7 @@ define([
             remote: {
                 ajaxConfig: {
                         url: ctwc.getProjectsURL({name:
-                                                 contrail.getCookie(cowc.COOKIE_DOMAIN)}, {getProjectsFromIdentity: true}),
+                                                 contrail.getCookie(cowc.COOKIE_DOMAIN)}, {getProjectsFromIdentity: false}),
                         type: 'GET'
                 },
                 dataParser: nmwp.projectDataParser,
