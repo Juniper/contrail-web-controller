@@ -421,11 +421,12 @@ function buildNodeChassisType (nodes, prouterLinkData)
                                            null);
         prObjs[prName] = linkTable;
     }
-    var nodeTypeObjs = {};
+
     for (var i = 0; i < nodeCnt; i++) {
-        nodeTypeObjs[nodes[i]['name']] = nodes[i]['chassis_type'];
-    }
-    for (var i = 0; i < nodeCnt; i++) {
+        var nodeTypeObjs = {};
+        for (var k = 0; k < nodeCnt; k++) {
+            nodeTypeObjs[nodes[k]['name']] = nodes[k]['chassis_type'];
+        }
         if (ctrlGlobal.NODE_CHASSIS_TYPE_NOT_RESOLVED !=
             nodes[i]['chassis_type']) {
             continue;
@@ -444,8 +445,14 @@ function buildNodeChassisType (nodes, prouterLinkData)
                 break;
             }
             if (nodeTypeObjs[remSysName] ==
-                ctrlGlobal.NODE_CHASSIS_TYPE_TOR) {
+                ctrlGlobal.NODE_CHASSIS_TYPE_TOR){
                 nodes[i]['chassis_type'] = ctrlGlobal.NODE_CHASSIS_TYPE_SPINE;
+                break;
+            }
+            if (nodeTypeObjs[remSysName] ==
+                    ctrlGlobal.NODE_CHASSIS_TYPE_CORE) {
+                nodes[i]['chassis_type'] = ctrlGlobal.NODE_CHASSIS_TYPE_OTHER_SWITCH;
+                break;
             }
         }
     }
