@@ -155,6 +155,7 @@ var configJsonModifyObj = {
                       'bgpaas_ip_address',
                       'virtual_machine_interface_refs',
                       'bgpaas_ipv4_mapped_ipv6_nexthop',
+                      'service_health_check_refs',
                       'bgpaas_suppress_route_advertisement',
                       'perms2','tag_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']

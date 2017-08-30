@@ -300,6 +300,15 @@ define([
                                 },{
                                     keyClass:'col-xs-3',
                                     valueClass:'col-xs-9',
+                                    key: "service_health_check_refs",
+                                    templateGenerator: "TextGenerator",
+                                    label: "BFD Service Health Check",
+                                    templateGeneratorConfig: {
+                                        formatter: "serviceHealthCheckFormatter"
+                                    }
+                                },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: "bgpaas_session_attributes.route_origin_override",
                                     templateGenerator: "TextGenerator",
                                     label: "Route Origin Override",
@@ -412,6 +421,9 @@ define([
     };
     this.VMIFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.vmiFormatter("", "", v, "", dc);
+    };
+    this.serviceHealthCheckFormatter = function(v, dc) {
+        return bgpAsAServiceFormatter.serviceHealthCheckFormatter("", "", v, "", dc);
     };
     this.AdminStateFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.adminStateFormatter("", "", v, "", dc);

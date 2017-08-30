@@ -263,6 +263,48 @@
                }
                return formattedFamilyAttr;
           };
+
+          this.parseServiceHealthCheckData = function(response) {
+              var bfdServiceHealthCheck = [],
+                  serviceHCs = getValueByJsonPath(response,
+                          '0;service-health-checks', []),
+                  bfdSHC;
+              _.each(serviceHCs, function(serviceHC) {
+                  bfdSHC = getValueByJsonPath(serviceHC,
+                          'service-health-check;service_health_check_properties;monitor_type', "", false);
+                  if(ctwc.BFD === bfdSHC) {
+                      var healthCheckFQName = getValueByJsonPath(serviceHC, 'service-health-check;fq_name', []);
+                      if(healthCheckFQName.length > 0) {
+                          healthCheckVal = healthCheckFQName.join(":");
+                          var text = ctwu.formatCurrentFQName(healthCheckFQName,
+                                  ctwu.getCurrentDomainProject());
+                          bfdServiceHealthCheck.push({id: healthCheckVal, text: text});
+                      }
+                  }
+              });
+              return bfdServiceHealthCheck;
+          };
+
+          //Grid column expand label: Service Health Check//
+          this.serviceHealthCheckFormatter = function(d, c, v, cd, dc) {
+              var serviceHealthCheck = "";
+              var serviceHealthCheckValues = getValueByJsonPath(dc,
+                                     "service_health_check_refs",
+                                     []);
+              if(serviceHealthCheckValues.length > 0) {
+                  var serviceHealthChecklength = serviceHealthCheckValues.length;
+                  for(var i = 0; i < serviceHealthChecklength;i++) {
+                      var serviceHealthCheckTo =
+                          getValueByJsonPath(serviceHealthCheckValues[i], "to", []);
+                      temp = ctwu.formatCurrentFQName(serviceHealthCheckTo,
+                              ctwu.getCurrentDomainProject());
+                      serviceHealthCheck += temp;
+                  }
+              } else {
+                  serviceHealthCheck = "-";
+              }
+              return serviceHealthCheck;
+          };
      };
      return bgpAsASSvcFormatter
  });

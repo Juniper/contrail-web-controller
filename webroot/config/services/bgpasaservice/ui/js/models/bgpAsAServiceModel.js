@@ -29,6 +29,7 @@ define([
                 }/*,
                 "family_attributes": []*/
             },
+            "service_health_check_refs": [],
             "virtual_machine_interface_refs": [],
             "user_created_virtual_machine_interface": null,
             /*"user_created_auth_key_type": "none",
@@ -100,6 +101,14 @@ define([
                 });
                 modelConfig["user_created_virtual_machine_interface"] =
                     editVMIRefs;
+            }
+            //service health check refs
+            var shcRefsTo = getValueByJsonPath(modelConfig,
+                    "service_health_check_refs;0;to", []);
+            if(shcRefsTo) {
+                modelConfig["service_health_check_refs"] = shcRefsTo.join(":");
+            } else {
+                modelConfig["service_health_check_refs"] = "";
             }
             /*modelConfig["familyAttrs"] = new Backbone.Collection(familyAttrArray);*/
 
@@ -244,6 +253,15 @@ define([
                 //virtual_machine_interface refs
                  newBGPAsAServiceData["virtual_machine_interface_refs"] =
                      self.prepareVMIRefs(attr);
+
+                 //service health check refs
+                 var shcRefs = getValueByJsonPath(newBGPAsAServiceData,
+                         "service_health_check_refs", null);
+                 if(shcRefs) {
+                     newBGPAsAServiceData["service_health_check_refs"] = [{ 'to': shcRefs.split(":") }]
+                 } else {
+                     newBGPAsAServiceData["service_health_check_refs"] = [];
+                 }
 
                 //permissions
                 this.updateRBACPermsAttrs(newBGPAsAServiceData);
