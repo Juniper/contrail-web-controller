@@ -54,7 +54,8 @@ var configJsonModifyObj = {
             'qos_config_refs',
             'perms2', 'pbb_evpn_enable', 'pbb_etree_enable',
             'layer2_control_word', 'mac_learning_enabled',
-            'mac_limit_control', 'mac_move_control', 'mac_aging_time',"tag_refs"],
+            'mac_limit_control', 'mac_move_control', 'mac_aging_time',
+            'tag_refs', 'virtual_network_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name'],
         'subType': {
             'project': {

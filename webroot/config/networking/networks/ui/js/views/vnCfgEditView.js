@@ -736,6 +736,21 @@ define([
                                                     isChecked:false
                                                 }
                                             }
+                                        },
+                                        {
+                                            elementId: 'user_created_ip_fabric_forwarding',
+                                            view: "FormCheckboxView",
+                                            viewConfig : {
+                                                visible: 'contrail.getCookie(cowc.COOKIE_PROJECT) !== ctwc.DEFAULT_PROJECT',
+                                                path : 'user_created_ip_fabric_forwarding',
+                                                class : "col-xs-3",
+                                                label:'IP Fabric Forwarding',
+                                                templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                dataBindValue : 'user_created_ip_fabric_forwarding',
+                                                elementConfig : {
+                                                    isChecked:false
+                                                }
+                                            }
                                         }
                                         ]
                                     },

@@ -24,12 +24,12 @@ define([
             if(contrail.getCookie(cowc.COOKIE_PROJECT) === ctwc.DEFAULT_PROJECT) {
                 self.getVhostPortIds(function(error, vhostPortIds) {
                     if(error || !vhostPortIds.length) {
-                        cowu.createModal({"modalId": "vhostError_conf", "className": "modal-280",
-                            "title": "Information",
-                            "btnName": "OK",
-                            "body": error ? error.responseText : "No vhost ports found",
-                            "onSave": function(){$("#vhostError_conf").modal("hide")}
-                        });
+                        self.contrailListModel = new ContrailListModel({data:[]});
+                        self.contrailListModel.error = true;
+                        self.contrailListModel.errorList.push({responseText:
+                            (error ? error.responseText : "No vhost0 ports found")});
+                        self.renderView4Config(self.$el, self.contrailListModel,
+                                getportListViewConfig(viewConfig));
                         return;
                     }
                     listModelConfig = {
@@ -67,8 +67,7 @@ define([
         parseVhostPortsData: function(result) {
             var vHostPorts = [],
                 formatted_data = portFormatters.formatVMIGridData(
-                        getValueByJsonPath(result, '0;virtual-machine-interfaces', [])),
-                resultLen = result.length;
+                        getValueByJsonPath(result, '0;virtual-machine-interfaces', []));
             return formatted_data;
         },
 
