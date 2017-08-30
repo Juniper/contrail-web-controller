@@ -20,7 +20,8 @@ define([
                 config: true,
                 childView: {
                     init: getVNCfgViewConfig(viewConfig)
-                }
+                },
+                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION
             },
             customDomainDropdownOptions = {
                 childView: {

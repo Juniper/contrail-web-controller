@@ -17,7 +17,7 @@ define([
                 modalLayout = modalTemplate({prefixId: prefixId, modalId: modalId}),
                 modalConfig = {
                    'modalId': modalId,
-                   'className': 'modal-840',
+                   'className': 'modal-980',
                    'body': modalLayout,
                    'title': ctwl.TITLE_TRAFFIC_GROUPS_ENDPOINT_STATS,
                    'onCancel': function() {
@@ -42,17 +42,19 @@ define([
             var tabConfig = [],
                 sessionData = this.sessionData
             _.each(sessionData.endpointStats, function(endpoint, idx) {
-                var targetIdx = (sessionData.endpointStats.length - 1 == idx) ?
-                                0 : (idx + 1);
+                var targetIdx = (idx == 0) ? 1 : 0;
+                var names = [sessionData.endpointNames[idx], sessionData.endpointNames[targetIdx]];
                 tabConfig.push({
                     elementId: "Endpoint_" + idx + "_Stats",
-                    title: sessionData.endpointNames[idx],
+                    title: 'Endpoint' + (idx + 1),
                     view: "TrafficGroupsEPSGridView",
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
                     viewPathPrefix: "monitor/networking/trafficgroups/ui/js/views/",
                     viewConfig: {
                         data: endpoint,
                         tabid: "Endpoint_" + idx + "_Stats",
-                        names: [sessionData.endpointNames[idx], sessionData.endpointNames[targetIdx]]
+                        names: names,
+                        title: names.join(' ' + cowc.ARROW_RIGHT_ICON + ' ')
                     },
                     tabConfig: {
                        activate: function(event, ui) {

@@ -7,14 +7,15 @@ define([
     'contrail-view',
     'contrail-list-model',
 ], function (_, ContrailView, ContrailListModel) {
-    var TrafficGroupsSessionsView = ContrailView.extend({
+    var TrafficGroupsGridView = ContrailView.extend({
         el: $(contentContainer),
-        render: function (sessionData) {
+        render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig,
+                elementId = viewConfig.tabid != null ? viewConfig.tabid : viewConfig.elementId,
                 contrailListModel = new ContrailListModel({data : viewConfig.data}),
-                tabTitle = viewConfig.names.join(' ' + cowc.ARROW_RIGHT_ICON + ' ');
-           self.renderView4Config($("#"+viewConfig.tabid), contrailListModel, self.getSessionsGridViewConfig(tabTitle));
+                title = viewConfig['title'];
+           self.renderView4Config($("#"+elementId), contrailListModel, self.getSessionsGridViewConfig(title));
         },
         getSessionsGridViewConfig: function (title) {
             return {
@@ -29,56 +30,34 @@ define([
             var sessionColumns = [
                         {
                             field: 'app',
-                            name: 'Application',
-                            hide: true
-                        },
-                        {
-                            field: 'deployment',
-                            name: 'Deployment',
-                            hide: true,
+                            name: 'Policy',
                             formatter:function(r,c,v,cd,dc) {
-                               return epsDefaultValueFormatter(v);
+                               return policyFormatter(v, dc);
                             }
                         },
                         {
-                            field: 'tier',
-                            name: 'Tier',
-                            formatter:function(r,c,v,cd,dc) {
-                               return epsDefaultValueFormatter(v);
+                            field: 'isClient',
+                            name: 'Client Session',
+                            formatter: function(r,c,v,cd,dc) {
+                               if (dc['isClient']) {
+                                    return 'True';
+                               } else {
+                                    return 'Flase';
+                               }
                             }
                         },
                         {
-                            field: 'site',
-                            name: 'Site',
+                            field: 'app',
+                            name: 'Source Tags',
                             formatter:function(r,c,v,cd,dc) {
-                               return epsDefaultValueFormatter(v);
+                               return sourceTagsFormatter(v, dc);
                             }
                         },
                         {
-                            field: 'eps.traffic.remote_app_id',
-                            name: 'Remote Application',
-                            hide: true
-                        },
-                        {
-                            field: 'eps.traffic.remote_deployment_id',
-                            name: 'Remote Deployment',
-                            hide: true,
+                            field: 'app',
+                            name: 'Remote Tags',
                             formatter:function(r,c,v,cd,dc) {
-                               return epsDefaultValueFormatter(v);
-                            }
-                        },
-                        {
-                            field: 'eps.traffic.remote_tier_id',
-                            name: 'Remote Tier',
-                            formatter:function(r,c,v,cd,dc) {
-                               return epsDefaultValueFormatter(v);
-                            }
-                        },
-                        {
-                            field: 'eps.traffic.remote_site_id',
-                            name: 'Remote Site',
-                            formatter:function(r,c,v,cd,dc) {
-                               return epsDefaultValueFormatter(v);
+                               return remoteTagsFormatter(v, dc);
                             }
                         },
                         {
@@ -86,7 +65,7 @@ define([
                             name: 'VN',
                             hide: true,
                             formatter:function(r,c,v,cd,dc) {
-                               return epsDefaultValueFormatter(v);
+                               return vnFormatter(v, dc);
                             }
                         },
                         {
@@ -94,12 +73,13 @@ define([
                             name: 'Remote VN',
                             hide: true,
                             formatter:function(r,c,v,cd,dc) {
-                               return epsDefaultValueFormatter(v);
+                               return epsDefaultValueFormatter(v, dc);
                             }
                         },
                         {
                             field: 'SUM(eps.traffic.in_bytes)',
                             name: 'In Bytes',
+                            maxWidth: 75,
                             formatter:function(r,c,v,cd,dc) {
                                return formatBytes(v);
                             }
@@ -107,17 +87,34 @@ define([
                         {
                             field: 'SUM(eps.traffic.out_bytes)',
                             name: 'Out Bytes',
+                            maxWidth: 75,
                             formatter:function(r,c,v,cd,dc) {
                                return formatBytes(v);
                             }
                         },
                         {
+                            field: 'SUM(eps.server.hits)',
+                            name: 'Hits',
+                            hide: true,
+                            formatter: function (r,c,v,cd,dc) {
+                                if (dc['SUM(eps.traffic.hits)'] == null || dc['SUM(eps.traffic.hits)'] == '') {
+                                    return '-'
+                                } else {
+                                    return dc['SUM(eps.traffic.hits)'];
+                                }
+                            }
+                        },
+                        {
                             field: 'SUM(eps.traffic.initiator_session_count)',
-                            name: 'Sessions Initiated'
+                            name: 'Sessions Initiated',
+                            hide: true,
+                            maxWidth: 130,
                         },
                         {
                             field: 'SUM(eps.traffic.responder_session_count)',
-                            name: 'Sessions Responded'
+                            name: 'Sessions Responded',
+                            hide: true,
+                            maxWidth: 130,
                         }
                     ],
                 gridElementConfig = {
@@ -129,7 +126,8 @@ define([
                             collapseable: false,
                             exportable: true,
                             searchable: true,
-                            columnPickable:true
+                            columnPickable:true,
+                            refreshable: false
                         }
                     },
                     columnHeader: {
@@ -183,15 +181,34 @@ define([
                                                 templateGeneratorConfig: [
                                                     {
                                                         key: 'app',
+                                                        label: 'Policy',
+                                                        templateGenerator: 'TextGenerator',
+                                                        templateGeneratorConfig: {
+                                                            formatter: 'policyFormatter'
+                                                        }
+                                                    },
+                                                    {
+                                                        key: 'app',
+                                                        label: 'Rule',
+                                                        templateGenerator: 'TextGenerator',
+                                                        templateGeneratorConfig: {
+                                                            formatter: 'ruleFormatter'
+                                                        }
+                                                    },
+                                                    {
+                                                        key: 'app',
                                                         label: 'Application',
-                                                        templateGenerator: 'TextGenerator'
+                                                        templateGenerator: 'TextGenerator',
+                                                        templateGeneratorConfig: {
+                                                            formatter: 'appFormatter'
+                                                        }
                                                     },
                                                     {
                                                         key: 'deployment',
                                                         label: 'Deployment',
                                                         templateGenerator: 'TextGenerator',
                                                         templateGeneratorConfig: {
-                                                            formatter: 'epsDefaultValueFormatter'
+                                                            formatter: 'deplFormatter'
                                                         }
                                                     },
                                                     {
@@ -199,7 +216,7 @@ define([
                                                         label: 'Tier',
                                                         templateGenerator: 'TextGenerator',
                                                         templateGeneratorConfig: {
-                                                            formatter: 'epsDefaultValueFormatter'
+                                                            formatter: 'tierFormatter'
                                                         }
                                                     },
                                                     {
@@ -305,11 +322,32 @@ define([
     this.epsDefaultValueFormatter = function(v) {
         return (v || v === 0) ? v : '-';
     }
+    this.policyFormatter = function(v, dc) {
+        return this.epsDefaultValueFormatter(this.getPolicyInfo(dc).name);
+    }
+    this.ruleFormatter = function(v, dc) {
+        return this.epsDefaultValueFormatter(this.getPolicyInfo(dc).uuid);
+    }
+    this.sourceTagsFormatter = function(v, dc) {
+       return this.epsDefaultValueFormatter(this.getEndpointTags(dc));
+    }
+    this.remoteTagsFormatter = function(v, dc) {
+       return this.epsDefaultValueFormatter(this.getEndpointTags(dc, 'remote'));
+    }
+    this.appFormatter = function(v, dc) {
+       return this.epsDefaultValueFormatter(dc['app']);
+    }
     this.remoteAppFormatter = function(v, dc) {
-       return dc['eps.traffic.remote_app_id'];
+       return this.epsDefaultValueFormatter(dc['eps.traffic.remote_app_id']);
+    }
+    this.deplFormatter = function(v, dc) {
+       return this.epsDefaultValueFormatter(dc['deployment']);
     }
     this.remoteDeplFormatter = function(v, dc) {
        return this.epsDefaultValueFormatter(dc['eps.traffic.remote_deployment_id']);
+    }
+    this.tierFormatter = function(v, dc) {
+       return this.epsDefaultValueFormatter(dc['tier']);
     }
     this.remoteTierFormatter = function(v, dc) {
        return this.epsDefaultValueFormatter(dc['eps.traffic.remote_tier_id']);
@@ -319,6 +357,9 @@ define([
     }
     this.remoteSiteFormatter = function(v, dc) {
        return this.epsDefaultValueFormatter(dc['eps.traffic.remote_site_id']);
+    }
+    this.vnFormatter = function(v, dc) {
+       return this.epsDefaultValueFormatter(dc['vn']);
     }
     this.remoteVNFormatter = function(v, dc) {
        return this.epsDefaultValueFormatter(dc['eps.traffic.remote_vn']);
@@ -335,5 +376,40 @@ define([
     this.sessionsOutFormatter = function(v, dc) {
        return dc['SUM(eps.traffic.responder_session_count)'];
     }
-    return TrafficGroupsSessionsView;
+    this.getPolicyInfo = function(dc) {
+        var policyInfo = {};
+        if(dc['eps.__key']) {
+            if(dc['eps.__key'].indexOf(':') > 0) {
+                var policy = dc['eps.__key'].split(':');
+                policyInfo = {
+                    'name': policy[policy.length-2],
+                    'uuid': policy[policy.length-1]
+                }
+            } else {
+                var policy = _.find(cowc.DEFAULT_FIREWALL_RULES,
+                    function(rule) {
+                        return rule.uuid == dc['eps.__key'];
+                });
+                if(policy) {
+                    policyInfo = {
+                        'name': policy.name,
+                        'uuid': dc['eps.__key']
+                    }
+                }
+            }
+        }
+        return policyInfo;
+    }
+    this.getEndpointTags = function(dc, endpoint) {
+         var tags = '';
+        _.each(cowc.TRAFFIC_GROUP_TAG_TYPES, function(tag) {
+            var tagVal = (endpoint == 'remote') ?
+                dc['eps.traffic.remote_' + tag.value + '_id'] : dc[tag.value];
+            if(tagVal) {
+                tags += (tags ? '<br/>' : '') + tagVal;
+            }
+        });
+        return tags;
+    }
+    return TrafficGroupsGridView;
 });
