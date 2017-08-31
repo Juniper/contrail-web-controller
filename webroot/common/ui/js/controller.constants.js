@@ -778,6 +778,7 @@ define([
         this.CONTROLLER_CONFIG_INPUT_VIEW_TEMPLATE =
             'controller-config-input-view-template';
         this.BFD = 'BFD';
+        this.SEGMENT = 'segment';
 
         //Physical Routers constants
         this.URL_PHYSICAL_ROUTERS_DETAILS_IN_CHUNKS =

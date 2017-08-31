@@ -31,7 +31,8 @@ define([
             delay_label: 'Delay (secs)',
             timeout_label: 'Timeout (secs)',
             max_retries_label: 'Retries',
-            user_created_monitor_type: 'PING'
+            user_created_monitor_type: 'PING',
+            user_created_health_check_type: "link-local"
         },
 
         formatModelConfig: function(modelConfig) {
@@ -46,9 +47,13 @@ define([
                     required: true,
                     msg: 'Enter Name'
                 },
-                'service_health_check_properties.url_path': {
-                    required: true,
-                    msg: 'local-ip | hostname + :port | ip-address'
+                'service_health_check_properties.url_path': function (value, attr, finalObj) {
+                   var segementObj = getValueByJsonPath(finalObj, "user_created_health_check_type", []);
+                   var service_health_check_url_path =
+                      getValueByJsonPath(finalObj, "service_health_check_properties;url_path", []);
+                    if(segementObj != "segment" && service_health_check_url_path.length === 0){
+                        return "Should have valid Url Path";
+                    }
                 },
                 'service_health_check_properties.delay': {
                     required: false,
@@ -101,7 +106,7 @@ define([
 
                 var delay, timeout, max_retries,
                     monitorType = newsvcHealthChkCfgData["user_created_monitor_type"];
-
+                var userCreatedHealthCheckType = newsvcHealthChkCfgData['user_created_health_check_type'];
                 delay = getValueByJsonPath(newsvcHealthChkCfgData,
                                 'service_health_check_properties;delay', '').toString();
                 timeout = getValueByJsonPath(newsvcHealthChkCfgData,
@@ -132,7 +137,10 @@ define([
                     delete newsvcHealthChkCfgData.service_health_check_properties.timeoutUsecs;
                 }
                 newsvcHealthChkCfgData['service_health_check_properties']['monitor_type'] = monitorType;
-
+                newsvcHealthChkCfgData['service_health_check_properties']['health_check_type'] = userCreatedHealthCheckType;
+                if(newsvcHealthChkCfgData['service_health_check_properties']['health_check_type'] === ctwc.SEGMENT){
+                    newsvcHealthChkCfgData['service_health_check_properties']['url_path'] = null;
+                }
                 //permissions
                 this.updateRBACPermsAttrs(newsvcHealthChkCfgData);
 
@@ -143,12 +151,10 @@ define([
                 delete newsvcHealthChkCfgData.parent_href;
                 delete newsvcHealthChkCfgData.parent_uuid;
                 delete newsvcHealthChkCfgData.user_created_monitor_type;
+                delete newsvcHealthChkCfgData.user_created_health_check_type;
                 delete newsvcHealthChkCfgData.delay_label;
                 delete newsvcHealthChkCfgData.timeout_label;
                 delete newsvcHealthChkCfgData.max_retries_label;
-
- 
-
                 var ajaxType     = contrail.checkIfExist(ajaxMethod) ?
                                                         ajaxMethod : "POST";
 
