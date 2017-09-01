@@ -283,11 +283,31 @@ define([
             viewConfig: {
                 rows: [
                     {
+                        columns:[{
+                            elementId: 'fixed_ip_aap',
+                            view: "FormRadioButtonView",
+                            viewConfig: {
+                                label: '',
+                                path: 'fixed_ip_aap',
+                                class: 'col-xs-12',
+                                active:true,
+                                dataBindValue: 'fixed_ip_aap',
+                                templateId: cowc.TMPL_FOUR_OPTNS_RADIO_BUTTON_VIEW,
+                                elementConfig: {
+                                    dataObj: [{
+                                        value: 'fixed-ip', label:'Native'},
+                                        {value: 'aap', label:'AAP'}]
+                                }
+                            }
+                        }]
+                    },
+                    {
                         columns: [{
                                 elementId: 'is_specific_ip',
                                 view: 'FormCheckboxView',
                                 name: 'is_specific_ip',
                                 viewConfig: {
+                                    visible: 'fixed_ip_aap() !== "aap"',
                                     label: 'Map Specific Fixed IP',
                                     templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                     path: 'is_specific_ip',
@@ -299,9 +319,52 @@ define([
                     }, {
                         columns: [
                             {
-                                elementId: 'virtual_machine_interface_refs',
+                                elementId: 'user_created_virtual_machine_interface_refs',
                                 view: "FormDropdownView",
                                 viewConfig: {
+                                    visible: 'fixed_ip_aap() !== "aap" && is_specific_ip() == true',
+                                    label: 'Port',
+                                    path : 'user_created_virtual_machine_interface_refs',
+                                    class: 'col-xs-12',
+                                    dataBindValue : 'user_created_virtual_machine_interface_refs',
+                                    elementConfig : {
+                                        placeholder: 'Select Port to Associate',
+                                        dataTextField : "text",
+                                        dataValueField : "value",
+                                        dataSource : {
+                                            type: 'remote',
+                                            url: '/api/tenants/config/get-virtual-machine-details?proj_fqn=' +
+                                                contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
+                                                contrail.getCookie(cowc.COOKIE_PROJECT),
+                                            parse: formatFipCfg.fipPortDropDownFormatter
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [{
+                            elementId: "user_input_name",
+                            view: "FormInputView",
+                            viewConfig: {
+                                disabled: false,
+                                visible: 'fixed_ip_aap() == "aap"',
+                                path: "floating_ip_fixed_ip_address",
+                                dataBindValue: "floating_ip_fixed_ip_address",
+                                label: "Virtual IP",
+                                class: "col-xs-6"
+                            }
+                        }
+                        ],
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'virtual_machine_interface_refs',
+                                view: "FormMultiselectView",
+                                viewConfig: {
+                                    visible: 'fixed_ip_aap() == "aap" || is_specific_ip() == false',
                                     label: 'Port',
                                     path : 'virtual_machine_interface_refs',
                                     class: 'col-xs-12',
@@ -309,12 +372,9 @@ define([
                                     elementConfig : {
                                         placeholder: 'Select Port to Associate',
                                         dataTextField : "text",
-                                        dataValueField : "id",
+                                        dataValueField : "value",
                                         dataSource : {
                                             type: 'remote',
-                                            //Fix, find a way to get project id
-                                            //here. Right now we can only get
-                                            //name.
                                             url: '/api/tenants/config/get-virtual-machine-details?proj_fqn=' +
                                                 contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
                                                 contrail.getCookie(cowc.COOKIE_PROJECT),
