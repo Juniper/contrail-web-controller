@@ -64,6 +64,51 @@ define([
             return fixedIP;
         };
 
+        this.fixedIPGridFormatter = function(d, c, v, cd, dc, isGridExp) {
+            var portRef = getValueByJsonPath(dc, 'virtual_machine_interface_refs', []),
+            fixedIP = [], portId = [], portLen = portRef.length;
+            var  fixedIPorts = [];
+            for (var i = 0; i < portLen; i++) {
+                var fixedIPList = getValueByJsonPath(portRef[i],
+                    'instance_ip_back_refs', []);
+
+                var fixedIPLen = fixedIPList.length;
+                var fq_name = getValueByJsonPath(portRef[i], 'to', []);
+
+                if (fq_name.length == 3) {
+                    portId.push(fq_name[2]);
+            }
+            for (var j = 0; j < fixedIPLen; j++) {
+                var ip = getValueByJsonPath(fixedIPList[j], 'fixedip;ip', '');
+
+                fixedIP.push(ip);
+                if (j < Math.abs(fixedIPLen - 1)) {
+                    fixedIP.push(',');
+                }
+            }
+        }
+        if (portLen) {
+           if(isGridExp === true){
+               for(var k = 0; k < portLen; k++) {
+                   fixedIPorts.push(fixedIP[k] + ' (' + portId[k] + ')');
+                 }
+           }
+           else{
+               for(var k = 0; k < portLen; k++) {
+                   fixedIPorts.push(fixedIP[k] + ' (' + portId[k] + ')'+'<br />');
+                 }
+                 if(portLen < 2){
+                     fixedIPorts = fixedIPorts;
+                 }
+                 else if(portLen > 2){
+                     fixedIPorts = fixedIPorts[0] + fixedIPorts[1] +"View more ("+ (portLen-2)+")";
+                 }
+           }
+           return fixedIPorts;
+        } else {
+            return '-';
+        }
+      };
         /*
          * @fipPoolFormatter
          */
@@ -128,7 +173,7 @@ define([
                     'virtual-machine-interface;uuid', '');
                 $.each(ips, function(j, ip) {
                     actId = fqName + cowc.DROPDOWN_VALUE_SEPARATOR + ip;
-                    fipPortList.push({id: actId,
+                    fipPortList.push({value: actId,
                         text: ip + ' (' + uuid + ')'});
                 });
             });

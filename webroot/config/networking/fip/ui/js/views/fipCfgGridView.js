@@ -97,7 +97,7 @@ define([
                      {
                          field:  'virtual_machine_interface_refs',
                          name:   'Mapped Fixed IP Address',
-                         formatter: formatFipCfg.fixedIPFormatter,
+                         formatter: formatFipCfg.fixedIPGridFormatter,
                          sortable: {
                              sortBy: 'formattedValue'
                          }
@@ -199,6 +199,11 @@ define([
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    label: 'Specific Fixed IP / Virtual IP',
+                                                    key: 'floating_ip_fixed_ip_address',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator'
                                                 },
@@ -207,7 +212,7 @@ define([
                                                     key: 'virtual_machine_interface_refs',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
-                                                        formatter: 'fixedIPFormatter'
+                                                        formatter: 'fixedIPFormatterExp'
                                                     }
                                                 },
                                                 {
@@ -237,9 +242,9 @@ define([
                                                     null, null, dc);
     }
 
-    this.fixedIPFormatter = function (v, dc) {
-        return formatFipCfg.fixedIPFormatter(null, null,
-                                                  null, null, dc);
+    this.fixedIPFormatterExp = function (v, dc) {
+        return formatFipCfg.fixedIPGridFormatter(null, null,
+                                                  null, null,dc,true);
     }
 
     return fipCfgGridView;

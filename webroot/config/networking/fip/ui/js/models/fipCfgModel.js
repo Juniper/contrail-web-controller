@@ -18,37 +18,52 @@ define([
             'floating_ip_address': null,
             'project_refs': null, //[]
             'virtual_machine_interface_refs': null, //[]
+            'user_created_virtual_machine_interface_refs': null, //[]
             'user_created_alloc_type': 'dynamic', //dynamic/specific
             'user_created_alloc_count': 1,
             'user_created_floating_ip_pool': null,
             'is_specific_ip': true, //flag to map selected fixed ip to fip
-            'floating_ip_fixed_ip_address': null
+            'floating_ip_fixed_ip_address': null,
+            'fixed_ip_aap': 'fixed-ip'
         },
 
         formatModelConfig: function (modelConfig) {
             var vmiRef = getValueByJsonPath(modelConfig,
-                      'virtual_machine_interface_refs;0', null),
+                      'virtual_machine_interface_refs', null),
                 floatingIPFixedIP = getValueByJsonPath(modelConfig,
                     'floating_ip_fixed_ip_address', null),
                 fixedIP;
+            var vmiArray = [];
+            var fixedIPList = [];
+            var containsFixedIp;
 
             if (vmiRef) {
-                var fqName = getValueByJsonPath(vmiRef,'to', []);
-                if(floatingIPFixedIP) {
+               for(var i= 0; i<vmiRef.length; i++){
+                    fixedIPList.push(getValueByJsonPath(vmiRef[i],
+                            "instance_ip_back_refs;0;fixedip;ip", ""));
+                }
+                containsFixedIp = _.contains(fixedIPList, floatingIPFixedIP);
+                if(floatingIPFixedIP === null && containsFixedIp == false) {
+                    modelConfig["is_specific_ip"] = false;
+                    modelConfig['fixed_ip_aap'] = "fixed-ip";
+                }
+                else if(floatingIPFixedIP && containsFixedIp == true) {
                     modelConfig["is_specific_ip"] = true;
-                    fixedIP = floatingIPFixedIP;
+                    modelConfig['fixed_ip_aap'] = "fixed-ip";
+                    modelConfig['floating_ip_fixed_ip_address'] = '';
                 } else {
                     modelConfig["is_specific_ip"] = false;
-                    fixedIP = getValueByJsonPath(vmiRef,
-                        "instance_ip_back_refs;0;fixedip;ip", "");
+                    modelConfig['fixed_ip_aap'] = "aap";
                 }
-                fqName = fqName.join(":");
-                fqName = fqName + cowc.DROPDOWN_VALUE_SEPARATOR + fixedIP;
-                modelConfig['virtual_machine_interface_refs'] = fqName;
+                _.each(vmiRef, function(refs){
+                     var fqNameItem = getValueByJsonPath(refs,'to', []);
+                     vmiArray.push(fqNameItem.join(":") + cowc.DROPDOWN_VALUE_SEPARATOR + getValueByJsonPath(refs, 'instance_ip_back_refs;0;fixedip;ip', ''));
+                });
+                modelConfig['virtual_machine_interface_refs'] = vmiArray;
+                modelConfig['user_created_virtual_machine_interface_refs'] = vmiArray[0];
             } else {
                 modelConfig['virtual_machine_interface_refs'] = null;
             }
-            //permissions
             this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
         },
@@ -110,6 +125,7 @@ define([
                 delete newFipCfgData['uuid'];
                 delete newFipCfgData['user_created_alloc_type'];
                 delete newFipCfgData['user_created_floating_ip_pool'];
+                delete newFipCfgData['user_created_virtual_machine_interface_refs'];
                 delete newFipCfgData['virtual_machine_interface_refs'];
                 delete newFipCfgData["is_specific_ip"];
                 delete newFipCfgData["floating_ip_fixed_ip_address"];
@@ -123,7 +139,6 @@ define([
                 } else {
                     newFipCfgData['user_created_alloc_count'] = 1;
                 }
-
                 postData['floating-ip'] = newFipCfgData;
 
                 ajaxConfig.type  = 'POST';
@@ -185,30 +200,38 @@ define([
         associateFipCfg: function (callbackObj, ajaxMethod) {
             var ajaxConfig = {}, returnFlag = false;
             var postData = {'floating-ip':{}};
-
+            var fqnameList;
+            var fqName;
             var self = this;
             if (self.model().isValid(true, "fipPortCfgConfigValidations")) {
 
                 var newFipCfgData = $.extend(true, {}, self.model().attributes);
-
                 if (newFipCfgData['virtual_machine_interface_refs'] == null ||
                     newFipCfgData['virtual_machine_interface_refs'] == '' ||
                     newFipCfgData['virtual_machine_interface_refs'] == '-') {
-
                     newFipCfgData['virtual_machine_interface_refs'] = [];
                 } else {
-                    var fqName = newFipCfgData['virtual_machine_interface_refs'];
-                    fqName = fqName.split(cowc.DROPDOWN_VALUE_SEPARATOR);
-                    if(fqName.length === 2) {
-                        newFipCfgData['virtual_machine_interface_refs'] = [];
-                        newFipCfgData['virtual_machine_interface_refs'][0] =
-                                                {to: fqName[0].split(":")};
-                        if(newFipCfgData["is_specific_ip"]) {
-                            newFipCfgData['floating_ip_fixed_ip_address'] =
-                                fqName[1];
-                        } else {
-                            newFipCfgData['floating_ip_fixed_ip_address'] =
-                                null;
+                    if(newFipCfgData["is_specific_ip"]){
+                        fqnameList = newFipCfgData['user_created_virtual_machine_interface_refs'].split(",");
+                    }
+                    else{
+                        fqnameList = newFipCfgData['virtual_machine_interface_refs'].split(",");
+                    }
+                    newFipCfgData['virtual_machine_interface_refs'] = [];
+                    for(i=0; i<fqnameList.length; i++){
+                        fqName = fqnameList[i].split(cowc.DROPDOWN_VALUE_SEPARATOR);
+                        if(fqName.length === 2) {
+                            newFipCfgData['virtual_machine_interface_refs'].push({to: fqName[0].split(":")});
+                            if(newFipCfgData["is_specific_ip"] && newFipCfgData["fixed_ip_aap"] != "aap") {
+                                newFipCfgData['floating_ip_fixed_ip_address'] =
+                                    fqName[1];
+                             }
+                            else if(newFipCfgData["fixed_ip_aap"] === "aap") {
+                                newFipCfgData['floating_ip_fixed_ip_address'] = newFipCfgData['floating_ip_fixed_ip_address'];
+                            }
+                            else{
+                                newFipCfgData['floating_ip_fixed_ip_address'] = null;
+                            }
                         }
                     }
                 }
