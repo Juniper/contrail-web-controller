@@ -312,26 +312,34 @@ define(
                 getTagHierarchy: function(d) {
                     var srcHierarchy = [],
                         dstHierarchy = [],
+                        srcLabels = [],
+                        dstLabels = [],
                         selectedTagTypes = this.getCategorizationObj(),
                         level = selectedTagTypes.length,
                         self = this;
                     _.each(selectedTagTypes, function(tags, idx) {
                         if(idx < level) {
                             var tagTypes = tags.split('-');
-                            srcHierarchy.push(_.compact(_.map(tagTypes, function(tag) {
+                            var srcNames = _.compact(_.map(tagTypes, function(tag) {
                                 var tagVal = d[tag.trim()];
                                 return tagVal ? tagVal : self.getTagLabel(tag, d);
-                            })).join('-'));
-                            dstHierarchy.push(_.compact(_.map(tagTypes, function(tag) {
+                            }));
+                            srcLabels.push(srcNames);
+                            srcHierarchy.push(srcNames.join('-'));
+                            var dstNames = _.compact(_.map(tagTypes, function(tag) {
                                 var tagVal = d['eps.traffic.remote_' + tag.trim() + '_id'];
                                 return tagVal ? tagVal : self.getTagLabel(tag,
                                                 d, d['eps.traffic.remote_vn']);
-                            })).join('-'));
+                            }));
+                            dstLabels.push(dstNames);
+                            dstHierarchy.push(dstNames.join('-'));
                         }
                     });
                     return {
                         srcHierarchy: srcHierarchy,
-                        dstHierarchy: dstHierarchy
+                        dstHierarchy: dstHierarchy,
+                        srcLabels: srcLabels,
+                        dstLabels: dstLabels
                     };
                 },
                 getTagLabel: function(tagType, d, vn) {
@@ -435,7 +443,7 @@ define(
                                             d.linkCssClass = 'implicitAllow';
                                         }
                                         $.each(srcHierarchy, function(idx) {
-                                            srcDisplayLabel.push(self.formatLabel(srcHierarchy, idx));
+                                            srcDisplayLabel.push(self.formatLabel(hierarchyObj.srcLabels, idx));
                                         });
 
                                         if(remoteVN && remoteVN.indexOf(':') > 0) {
@@ -449,11 +457,12 @@ define(
                                         }
 
                                         $.each(dstHierarchy, function(idx) {
-                                            dstDisplayLabel.push(self.formatLabel(dstHierarchy, idx));
+                                            dstDisplayLabel.push(self.formatLabel(hierarchyObj.dstLabels, idx));
                                             if(externalType) {
                                                 if(externalType == 'external') {
                                                     dstHierarchy[idx] = 'External_external';
-                                                    dstDisplayLabel[idx] = 'External';
+                                                    dstDisplayLabel[idx].fill('');
+                                                    dstDisplayLabel[idx][dstDisplayLabel[idx].length-1] = 'External';
                                                 } else {
                                                     dstHierarchy[idx] += '_' + externalType;
                                                 }
@@ -461,7 +470,6 @@ define(
                                         });
                                         var src = {
                                             names: srcHierarchy,
-                                            labelAppend: '',
                                             displayLabels: srcDisplayLabel,
                                             id: _.compact(srcHierarchy).join('-'),
                                             value: d['SUM(eps.traffic.in_bytes)'] + d['SUM(eps.traffic.out_bytes)'],
@@ -473,7 +481,6 @@ define(
                                         //append '_external' to names [only for 1st-level app field]
                                         var dst = {
                                             names: dstHierarchy,
-                                            labelAppend: '',
                                             displayLabels: dstDisplayLabel,
                                             id: _.compact(dstHierarchy).join('-'),
                                             type: externalType,
@@ -691,18 +698,24 @@ define(
                     }
                     return {links, srcTags, dstTags};
                 },
-                formatLabel: function(label, idx) {
-                    var displayLabel = '';
-                    if(label) {
-                        displayLabel = label[idx].replace('application', cowc.APPLICATION_ICON)
-                             .replace('tier', cowc.TIER_ICON)
-                             .replace('site', cowc.SITE_ICON)
-                             .replace('deployment', cowc.DEPLOYMENT_ICON);
+                formatLabel: function(labels, idx) {
+                    var displayLabels = [];
+                    if(labels && labels.length > 0) {
+                        _.each(labels[idx], function(label) {
+                            displayLabels.push(label
+                                 .replace('application', cowc.APPLICATION_ICON)
+                                 .replace('tier', cowc.TIER_ICON)
+                                 .replace('site', cowc.SITE_ICON)
+                                 .replace('deployment', cowc.DEPLOYMENT_ICON));
+                        });
                     }
-                    return displayLabel;
+                    return displayLabels;
                 },
                 removeEmptyTags: function(names) {
                     var displayNames = names.slice(0);
+                    displayNames = _.map(displayNames, function(name) {
+                        return name.join('-')
+                    });
                     displayNames = _.remove(displayNames, function(name, idx) {
                         return !(name == 'External' && idx > 0);
                     });
