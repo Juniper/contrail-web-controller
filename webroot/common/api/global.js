@@ -41,6 +41,7 @@ global.NODE_TYPE_BMS = 'bare-metal-server';
 global.NODE_TYPE_VIRTUAL_MACHINE = 'virtual-machine';
 global.NODE_TYPE_NONE = '-';
 
+global.NODE_CHASSIS_TYPE_OTHER_SWITCH = 'otherswitch';
 global.NODE_CHASSIS_TYPE_TOR = 'tor';
 global.NODE_CHASSIS_TYPE_SPINE = 'spine';
 global.NODE_CHASSIS_TYPE_CORE = 'coreswitch';

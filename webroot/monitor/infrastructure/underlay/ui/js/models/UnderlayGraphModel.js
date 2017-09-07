@@ -50,6 +50,7 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
             bbCollectionEdges = new Backbone.Collection(edgeModels);
             self.edgesCollection = bbCollectionEdges;
             modelConfig.edgesCollection = bbCollectionEdges;
+            var levelup = self.getOtherSwitch();
             var cores = self.getCores();
             var spines = self.getSpines();
             var tors = self.getToRs();
@@ -95,6 +96,11 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
         getPhysicalRouters: function() {
             return _.filter(this.nodesCollection.models, function(node) {
                 return (node.attributes.node_type() == "physical-router");
+                });
+        },
+        getOtherSwitch: function () {
+            return _.filter(this.nodesCollection.models, function(node) {
+                return (node.attributes.chassis_type() == "otherswitch");
                 });
         },
         getCores: function () {
@@ -191,9 +197,9 @@ define(['underscore', 'backbone', 'contrail-model', 'vis-node-model',
             }
         },
         getUnderlayNodes: function() {
-            return this.getCores().concat(
+            return this.getOtherSwitch().concat(this.getCores().concat(
                         this.getSpines().concat(
-                            this.getToRs())).concat(
+                            this.getToRs()))).concat(
                                 this.getErrorNodes());
         },
         getUnderlayEdges: function() {
