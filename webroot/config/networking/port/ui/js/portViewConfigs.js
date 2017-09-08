@@ -475,7 +475,34 @@
                                          }
                                      }}
                                  }]
-                             } , {
+                             },
+                             {
+                                 columns: [
+                                     {
+                                         elementId: 'security_logging_object_refs',
+                                         view: 'FormMultiselectView',
+                                         viewConfig: {
+                                             label: 'Security Logging Object(s)',
+                                             path: 'security_logging_object_refs',
+                                             class: 'col-xs-6',
+                                             dataBindValue: 'security_logging_object_refs',
+                                             elementConfig: {
+                                                 placeholder: 'Select Security Logging Object(s)',
+                                                 dataTextField: "text",
+                                                 dataValueField: "id",
+                                                 separator: cowc.DROPDOWN_VALUE_SEPARATOR,
+                                                 dataSource : {
+                                                     type: "remote",
+                                                     requestType: 'post',
+                                                     url: ctwc.URL_GET_CONFIG_DETAILS,
+                                                     postData: JSON.stringify({data: [{type: "security-logging-objects"}]}),
+                                                     parse: ctwu.securityLoggingObjectFormatter
+                                                 }
+                                              }
+                                         }
+                                    }]
+                             },
+                             {
                                  columns: [{
                                  elementId: 'portBindingCollection',
                                  view: 'FormEditableGridView',

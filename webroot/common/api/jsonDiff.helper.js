@@ -54,7 +54,7 @@ var configJsonModifyObj = {
             'qos_config_refs',
             'perms2', 'pbb_evpn_enable', 'pbb_etree_enable',
             'layer2_control_word', 'mac_learning_enabled',
-            'mac_limit_control', 'mac_move_control', 'mac_aging_time',
+            'mac_limit_control', 'mac_move_control', 'mac_aging_time','security_logging_object_refs',
             'tag_refs', 'virtual_network_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name'],
         'subType': {
@@ -85,7 +85,7 @@ var configJsonModifyObj = {
             'virtual_machine_interface_properties',
             'virtual_machine_interface_mac_addresses', 'security_group_refs',
             'virtual_network_refs', 'virtual_machine_interface_device_owner',
-            'virtual_machine_interface_disable_policy',
+            'virtual_machine_interface_disable_policy','security_logging_object_refs',
             'qos_config_refs',
             'annotations',
             'port_security_enabled',
