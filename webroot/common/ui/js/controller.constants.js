@@ -60,7 +60,8 @@ define([
         this.URL_GET_PROJECT_QUOTA_USED = '/api/tenants/config/project-quotas-info?id={0}';
         this.URL_GET_GLOBAL_VROUTER_CONFIG = '/api/tenants/config/global-vrouter-config';
         this.URL_GET_GLOBAL_ASN = '/api/tenants/admin/config/global-asn';
-        this.URL_GET_SECURITY_GROUP_DETAILS = '/api/tenants/config/securitygroup-details?projUUID={0}'
+        this.URL_GET_SECURITY_GROUP_DETAILS = '/api/tenants/config/securitygroup-details?projUUID={0}';
+        this.URL_GET_SECURITY_GROUP = '/api/tenants/config/securitygroup-details';
         this.URL_GET_SEC_GRP_LIST = '/api/tenants/config/securitygroup';
         this.URL_GET_LIST_SERVICE_INSTS_CONFIG = '/api/tenants/config/list-service-instances/{0}';
         this.URL_GET_SERVICE_INSTS_STATUS = '/api/tenants/config/service-instances-status/{0}';
@@ -123,6 +124,7 @@ define([
 
         this.URL_POLICIES_VIEW_PATH_PREFIX = 'config/networking/policy/ui/js/views/';
         this.URL_POLICIES_IN_CHUNKS = '/api/admin/config/get-data?type=network-policy&count={0}&fqnUUID={1}';
+        this.URL_NETWORK_POLICIES = '/api/admin/config/get-data?type=network-policy';
 
         this.URL_ROUTING_POLICY_PATH_PREFIX = 'config/networking/routingpolicy/ui/js/views/';
         this.URL_ROUTING_POLICY_IN_CHUNKS = '/api/tenants/config/routingpolicy/{0}';
@@ -661,6 +663,14 @@ define([
         this.GLOBAL_MAC_LEARNING_PREFIX_ID = "global_mac_learning";
         this.GLOBAL_MAC_LEARNING_LIST_VIEW_ID = "global-mac-learning-list-view";
 
+        //SLO
+        this.SLO_GRID_ID = "slo-grid";
+        this.CONFIG_SLO_SECTION_ID = "config-slo-section";
+        this.CONFIG_SLO_ID = "config-slo";
+        this.CONFIG_SLO_VIEW_ID = "config-slot-view";
+        this.SLO_PREFIX_ID = "security_logging_object";
+        this.CONFIG_SLO_LIST_VIEW_ID = "config-slo-list-view";
+
         //Project settings
         this.CONFIG_PROJECT_SETTINGS_PAGE_ID = "config-project-settings-page-id";
         this.CONFIG_PROJECT_SETTINGS_TAB_ID = "config-project-settings-tab-id";
@@ -871,6 +881,8 @@ define([
         this.ANALYZER_INSTANCE = "analyzer_instance";
         this.NIC_ASSISTED = "nic_assisted";
         this.ANALYZER_IP = "analyzer_ip";
+        this.POLICY_RULE = 'network_policy_entries;policy_rule';
+        this.SERVICE_GRP_RULE = 'security_group_entries;policy_rule';
 
         /* BGP as a Service */
         this.CONFIG_BGP_AS_A_SERVICE_LIST_ID = "config-bgp-as-a-service-list";

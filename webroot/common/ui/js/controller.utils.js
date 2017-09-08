@@ -256,8 +256,64 @@ define([
             var regionList = getValueByJsonPath(globalObj, "webServerInfo;regionList", []);
                 regionList = _.without(regionList, cowc.GLOBAL_CONTROLLER_ALL_REGIONS);
             return regionList;
-        }
-
+        };
+        this.securityLoggingObjectFormatter = function(response, mode) {
+            var sloList, sloDataSrc = [], returnString = '', fqList = [];
+            if(mode != undefined){
+                sloList = getValueByJsonPath(response, 'security_logging_object_refs', []);
+                if(mode === 'edit'){
+                    if(sloList.length > 0){
+                        for(var i = 0; i < sloList.length; i++){
+                            var to = sloList[i].to;
+                            sloDataSrc.push(to.join(':'));
+                        }
+                        return sloDataSrc;
+                    }else{
+                       return sloList;
+                    }
+                }else{
+                    if(sloList.length > 0){
+                        for(var j = 0; j < sloList.length; j++){
+                           var to = sloList[j].to;
+                           var name = to[to.length - 1];
+                           fqList.push(name);
+                        }
+                        for(var k = 0; k < fqList.length; k++){
+                            returnString += fqList[k] + "<br>";
+                        }
+                        return returnString;
+                    }else{
+                        return '-';
+                    }
+                }
+            }else{
+                sloList = getValueByJsonPath(response,
+                        '0;security-logging-objects', [], false);
+                _.each(sloList, function(sloConfig) {
+                    if("security-logging-object" in sloConfig) {
+                        var sloObj = sloConfig["security-logging-object"];
+                        var fqName = sloObj.fq_name;
+                        sloDataSrc.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                    }
+                });
+                return sloDataSrc;
+            }
+        };
+        this.setSloToModel = function(attr) {
+            var refObj = attr.security_logging_object_refs,
+                sloList = [];
+            if(refObj !== ''){
+                var sloObj = refObj.split(';');
+                for(var i = 0; i < sloObj.length; i++){
+                    var obj = {};
+                    obj.to = sloObj[i].split(':');
+                    sloList.push(obj);
+                }
+                return sloList;
+            }else{
+                return [];
+            }
+        };
         this.getLocationGrid = function(e, obj, objProp, id){
             var rowCount = $('#'+id).data("contrailGrid").selectedRow, reqUrl, headerContent,
             thClass = 'col-xs-2 region-th-border', tdClass = 'col-xs-2 region-td-border';

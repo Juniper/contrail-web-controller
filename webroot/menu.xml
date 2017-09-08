@@ -1237,6 +1237,23 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>QoS</searchStrings>
                         </item>
+                        <item>
+                            <label>Security Logging Object</label>
+                            <hash>config_net_slo</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/slo/ui</rootDir>
+                                    <js>slo.main.js</js>
+                                    <class>configSloPageLoader</class>
+                                    <function>renderSlo</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Security Logging Object</searchStrings>
+                        </item>
                     </items>
                 </item>
                <!-- <item>
