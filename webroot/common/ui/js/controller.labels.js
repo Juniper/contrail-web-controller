@@ -1400,6 +1400,11 @@ define([
             "Delete Forwarding Classes";
         this.TITLE_EDIT_FORWARDING_CLASS = 'Edit Forwarding Class';
 
+        //SLO
+        this.TITLE_SLO = 'Security Logging Object';
+        this.TITLE_SLO_MULTI_DELETE = "Delete SLO";
+        this.TITLE_CREATE_SLO = 'Create Security Logging Object';
+        this.TITLE_DELETE_SLO = 'Delete Security Logging Object';
         // Health Check Config labels
         this.CFG_SVC_HEALTH_CHK_PAGE_ID = 'config-svc-health-chk-page';
         this.CFG_SVC_HEALTH_CHK_LIST_ID = 'config-svc-health-chk-list';
