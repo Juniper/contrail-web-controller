@@ -555,6 +555,15 @@ define([
         }, {
             keyClass:'col-xs-3',
             valueClass:'col-xs-9',
+            label: 'Associated Security Logging Object',
+            key: 'security_logging_object_refs',
+            templateGenerator: 'TextGenerator',
+            templateGeneratorConfig: {
+                formatter: 'SloFormatter'
+            }
+        },{
+            keyClass:'col-xs-3',
+            valueClass:'col-xs-9',
             key: 'virtual_machine_interface_fat_flow_protocols',
             name:"virtual_machine_interface_fat_flow_protocols",
             label:"FatFlow",
@@ -767,6 +776,9 @@ define([
     this.BridgeDomainFormatter = function (v, dc) {
         return portFormatters.bridgeDomainExpFormatter(null,
                                         null, null, null, dc);
+    };
+    this.SloFormatter = function (v, dc) {
+        return ctwu.securityLoggingObjectFormatter(dc, 'details');
     };
     return portGridView;
 });

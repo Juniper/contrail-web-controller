@@ -154,7 +154,8 @@ define([
                    },
                    renderOnActivate: true
                }
-           }, {
+           },
+           {
                elementId: 'mac_learning_tab',
                title: 'MAC Learning',
                view: "macLearningListView",
@@ -163,6 +164,22 @@ define([
                tabConfig: {
                    activate: function(event, ui) {
                        var gridId = $('#' + ctwc.MAC_LEARNING_GRID_ID);
+                       if (gridId.data('contrailGrid')) {
+                           gridId.data('contrailGrid').refreshView();
+                       }
+                   },
+                   renderOnActivate: true
+               }
+           },
+           {
+               elementId: 'slo_tab',
+               title: 'Security Logging Object',
+               view: "sloGlobalListView",
+               viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
+               viewConfig: viewConfig,
+               tabConfig: {
+                   activate: function(event, ui) {
+                       var gridId = $('#' + ctwc.SLO_GRID_ID);
                        if (gridId.data('contrailGrid')) {
                            gridId.data('contrailGrid').refreshView();
                        }
