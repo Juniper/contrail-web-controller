@@ -1075,35 +1075,37 @@ define([
             var chassis_type = node.attributes.chassis_type();
             var labelNodeName = contrail.truncateText(nodeName, 20);
             var tooltipConfig = this.getUnderlayTooltipConfig()[node_type];
-            var title = tooltipConfig.title(node);
-            var content = tooltipConfig.content(node);
-            var tooltipTmpl =
-                contrail.getTemplate4Id(cowc.TMPL_UNDERLAY_ELEMENT_TOOLTIP)
-            var tooltip = tooltipTmpl({
-                title: title,
-                content: content
-            });
-            var dummydiv = $( '<div id=' + node.attributes.element_id() +
-                ' style="display:block;visibility:hidden"/>');
-            $('body').append(dummydiv)
-            dummydiv.append($(_.unescape(tooltip)));
-            node.attributes.tooltip(tooltip);
-            node.attributes.tooltipConfig({
-                title           : title,
-                content         : content,
-                data            : node,
-                actionsCallback : tooltipConfig.actionsCallback,
-                dimension: {
-                    width: $(dummydiv).find('.popover').width(),
-                    height: $(dummydiv).find('.popover').height(),
-                }
-            });
+            if (tooltipConfig != null) {
+                var title = tooltipConfig.title(node);
+                var content = tooltipConfig.content(node);
+                var tooltipTmpl =
+                    contrail.getTemplate4Id(cowc.TMPL_UNDERLAY_ELEMENT_TOOLTIP)
+                var tooltip = tooltipTmpl({
+                    title: title,
+                    content: content
+                });
+                var dummydiv = $( '<div id=' + node.attributes.element_id() +
+                    ' style="display:block;visibility:hidden"/>');
+                $('body').append(dummydiv)
+                dummydiv.append($(_.unescape(tooltip)));
+                node.attributes.tooltip(tooltip);
+                node.attributes.tooltipConfig({
+                    title           : title,
+                    content         : content,
+                    data            : node,
+                    actionsCallback : tooltipConfig.actionsCallback,
+                    dimension: {
+                        width: $(dummydiv).find('.popover').width(),
+                        height: $(dummydiv).find('.popover').height(),
+                    }
+                });
 
-            $(dummydiv).empty();
-            $(dummydiv).remove();
-            dummydiv = $();
-            delete dummydiv;
-            return node;
+                $(dummydiv).empty();
+                $(dummydiv).remove();
+                dummydiv = $();
+                delete dummydiv;
+            }
+                return node;
         },
         removeElementsFromNetwork: function(nodeModels, edgeModels) {
             var self = this,
