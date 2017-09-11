@@ -33,7 +33,7 @@ define([
             body: JSON.stringify(TestMockdata.domainsMockData)
         }));
         responses.push(cotr.createFakeServerResponse( {
-            url: cttu.getRegExForUrl(ctwc.URL_PROJECTS),
+            url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS),
             body: JSON.stringify(TestMockdata.projectMockData)
         }));
 

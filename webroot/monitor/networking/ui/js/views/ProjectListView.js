@@ -13,19 +13,20 @@ define([
 
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig,
-                contrailListModel = new ContrailListModel(getProjectListModelConfig());
+                contrailListModel = new ContrailListModel(getProjectListModelConfig(viewConfig));
 
-            self.renderView4Config(self.$el, contrailListModel, getProjectListViewConfig());
+            self.renderView4Config(self.$el, contrailListModel, getProjectListViewConfig(viewConfig));
         }
     });
 
-    function getProjectListModelConfig() {
+    function getProjectListModelConfig(viewConfig) {
+        var selectedDomain = cowu.getValueByJsonPath(viewConfig, 'selectedDomain');
         return {
             remote: {
                 ajaxConfig: {
-                        url: ctwc.getProjectsURL({name:
-                                                 contrail.getCookie(cowc.COOKIE_DOMAIN)}, {getProjectsFromIdentity: true}),
-                        type: 'GET'
+                    url: ctwc.URL_ALL_PROJECTS +
+                    "?domainId=" + selectedDomain.value,
+                    type: 'GET'
                 },
                 dataParser: nmwp.projectDataParser,
                 hlRemoteConfig: nmwgc.getProjectDetailsHLazyRemoteConfig()
@@ -36,7 +37,7 @@ define([
         };
     };
 
-    function getProjectListViewConfig() {
+    function getProjectListViewConfig(viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_LIST_ID]),
             view: "SectionView",
@@ -76,7 +77,7 @@ define([
                                 view: "ProjectGridView",
                                 viewPathPrefix: "monitor/networking/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {pagerOptions: { options: { pageSize: 10, pageSizeSelect: [10, 50, 100] } }}
+                                viewConfig: $.extend(viewConfig, {pagerOptions: { options: { pageSize: 10, pageSizeSelect: [10, 50, 100] } }})
                             }
                         ]
                     }

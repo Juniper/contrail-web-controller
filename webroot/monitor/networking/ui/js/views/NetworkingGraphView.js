@@ -1251,6 +1251,13 @@ define([
     function createNodeElements(nodes, elements, elementMap, config) {
         var newElement, nodeName;
         for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            if (node != null && node['name'] != null) {
+                var nodeName = node['name'];
+                if (typeof nodeName == 'string' && ctwc.SERVICE_VN_EXCLUDE_LIST.indexOf(nodeName.split(':')[2]) >= 0) {
+                   continue;
+                }
+            }
             newElement = createNodeElement(nodes[i], config);
             nodeName = nodes[i]['name'];
             elements.push(newElement);

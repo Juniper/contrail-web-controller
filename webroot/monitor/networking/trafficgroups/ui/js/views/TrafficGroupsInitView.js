@@ -18,6 +18,7 @@ define([
         var hashParams = viewConfig.hashParams,
             customProjectDropdownOptions = {
                 config: true,
+                includeDefaultProject: true,
                 childView: {
                     init: getVNCfgViewConfig(viewConfig)
                 },
