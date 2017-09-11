@@ -5,12 +5,14 @@ define([
     'underscore',
     'contrail-view',
     'knockback',
-    'config/physicaldevices/interfaces/ui/js/interfacesConfigTemplates'
-], function (_, ContrailView, Knockback, InterfacesConfigTemplates) {
+    'config/physicaldevices/interfaces/ui/js/interfacesConfigTemplates',
+    'config/physicaldevices/interfaces/ui/js/interfacesFormatters'
+], function (_, ContrailView, Knockback, InterfacesConfigTemplates, InterfacesFormatters) {
     var infConfigTemplates =  new InterfacesConfigTemplates();
     var self;
     var prefixId = ctwl.INTERFACE_PREFIX_ID;
     var modalId = 'configure-' + prefixId;
+    var infFormatters = new InterfacesFormatters();
     var InterfacesEditView = ContrailView.extend({
         renderAddEditInterface: function (options) {
             var editTemplate =
@@ -173,16 +175,12 @@ define([
                            if(self.checkedRow.parent_type === ctwl.PARENT_TYPE_PROUTER) {
                                parentName = self.checkedRow.fq_name[1];
                            } else {
-                               var actName;
-                               if(name.indexOf('__') != -1){
-                                   actName =
-                                       self.checkedRow.fq_name[2].replace('__',':');
-                               } else {
-                                   actName = self.checkedRow.fq_name[2]
-                               }
-                               parentName = actName;
+                               parentName = infFormatters.getActInterfaceName(
+                                       getValueByJsonPath(self, "checkedRow;fq_name;2", ""));
                            }
                         }
+                        self.model.name(infFormatters.getActInterfaceName(
+                                getValueByJsonPath(self, "checkedRow;name", "")));
                         self.model.parent(parentName);
                         self.model.setServerDataSource();
                     }

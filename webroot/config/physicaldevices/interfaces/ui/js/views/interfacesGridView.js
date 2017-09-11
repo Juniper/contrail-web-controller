@@ -322,8 +322,10 @@ define([
                                             templateGeneratorConfig : [
                                                 {
                                                    key : 'name',
-                                                   templateGenerator:ctwl.INF_TG
-
+                                                   templateGenerator:ctwl.INF_TG,
+                                                   templateGeneratorConfig : {
+                                                       formatter : "InterfaceNameFormatter"
+                                                   }
                                                 },
                                                 {
                                                    key : 'uuid',
@@ -427,6 +429,10 @@ define([
 
     this.SubnetFormatter =  function(v, dc) {
         return infFormatters.subnetFormatter("", "", v, "", dc);
+    };
+
+    this.InterfaceNameFormatter =  function(v, dc) {
+        return infFormatters.interfaceNameFormatter("", "", v, "", dc);
     };
 
     this.ParentFormatter =  function(v, dc) {
