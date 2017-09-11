@@ -19,7 +19,8 @@ define([
             'network_policy_entries':{'policy_rule':[]},
             'templateGeneratorData': 'rawData',
             'PolicyUUID':'',
-            'policyName':''
+            'policyName':'',
+            'siModeList': []
         },
         formatModelConfig: function (config) {
             self = this;
@@ -70,6 +71,11 @@ define([
                     SIArr = this.getApplyService(SIArr, self.SIDataSource);
                     policeyRule[i].service_instance(SIArr);
                 }
+                var siMode = policeyRule[i].siModeList();
+                if(siMode != null){
+                    var si_mode = allData.serviceInstMode;
+                    policeyRule[i].siModeList(si_mode);
+                }
             }
         },
         getApplyService: function(applyService, SIDataSource) {
@@ -83,7 +89,8 @@ define([
             var rulesList = this.model().attributes['PolicyRules'],
                 newRuleModel = new RuleModel();
             this.showHideServiceInstance(newRuleModel);
-
+            var modeList = this.model().attributes.siModeList;
+            newRuleModel.siModeList(modeList);
             rulesList.add([newRuleModel]);
         },
         addRuleByIndex: function(data,rules) {

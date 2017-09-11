@@ -55,6 +55,7 @@ define([
 
            this.fetchAllData(this ,
                 function(allData) {
+                   self.model.siModeList(allData.serviceInstMode);
                    self.model.setModelDataSources(allData);
                    var disableElement = false
                    if(options['mode'] == "edit") {
@@ -304,7 +305,8 @@ define([
                     returnArr["service_instances_ref"] = [];
                     var analyzerInsts = [];
                     var serviceInsts = [];
-                    var serviceInstsRef = [];
+                    var serviceInstsRef = [], serviceInstMode = [];
+
                     if (null !== sts && sts.length > 0) {
                         for (var i = 0; i < sts.length; i++) {
                             var serviceTemplateMode = getValueByJsonPath(sts[i],
@@ -332,18 +334,24 @@ define([
                                                          "text":text,
                                                          "value":si_backRef_join
                                                      };
+                                    var si_mode = {
+                                            "mode": serviceTemplateMode,
+                                            "to":si_backRef_join
+                                        };
                                     if(serviceTemplateType == "analyzer") {
                                         analyzerInsts.push(si_val_obj);
                                     }
                                     var si_val_objClon =
                                             $.extend(true,{},si_val_obj);
                                     serviceInsts.push(si_val_objClon);
+                                    serviceInstMode.push(si_mode);
                                     serviceInstsRef[si_val_obj.value] =
                                             si_val_objClon.value;
                                 }
                             }
                         }
                     }
+                    returnArr["serviceInstMode"] = serviceInstMode;
                     returnArr["service_instances"] = serviceInsts;
                     returnArr["service_instances_ref"] = serviceInstsRef;
                     returnArr["analyzerInsts"] = analyzerInsts;
@@ -659,7 +667,7 @@ define([
                             },{
                             columns: [
                                 {
-                                     elementId: 'service_instances',
+                                     elementId: 'service_instance',
                                      name: 'Services',
                                      view: "FormMultiselectView",
                                      width: 100,

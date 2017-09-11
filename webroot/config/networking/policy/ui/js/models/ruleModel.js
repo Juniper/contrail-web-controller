@@ -73,7 +73,8 @@ define([
                 "virtual_network": "any",
                 "network_policy": null,
                 "subnet": null
-            }
+            },
+            'siModeList': []
         },
         formatModelConfig: function (modelConfig) {
             self = this;
@@ -210,23 +211,28 @@ define([
                     if (val == "" || val == null) {
                         return "Select atleast one service to apply.";
                     }
-                    var valArr = val.split(",");
+                    var valArr = val.split(";");
                     var valArrLen = valArr.length;
                     var inNetworkTypeCount = 0;
                     for (var i = 0; i < valArrLen; i++) {
-                        var SIValue = valArr[i].split(" ");
-                        if (SIValue.length >= 2 && SIValue[1] == "in-network-nat") {
-                            inNetworkTypeCount++;
-                            if (inNetworkTypeCount >= 2) {
-                                return "Cannot have more than one 'in-network-nat'\
-                                        services."
+                        for(var j = 0; j < data.siModeList.length; j++){
+                            if(data.siModeList[j].to === valArr[i] && data.siModeList[j].mode === 'in-network-nat'){
+                                inNetworkTypeCount++;
+                                if (inNetworkTypeCount >= 2) {
+                                    return "Cannot have more than one 'in-network-nat'\
+                                            services."
+                                }
                             }
                         }
                     }
-                    var SIValue = valArr[valArrLen-1].split(" ");
-                    if (inNetworkTypeCount >= 1 && SIValue[1] != "in-network-nat") {
-                        return "Last instance should be of 'in-network-nat'\
+                    if(inNetworkTypeCount >= 1){
+                        var SIValue = valArr[valArrLen-1];
+                        for(var k = 0; k < data.siModeList.length; k++){
+                            if(data.siModeList[k].to === SIValue && data.siModeList[k].mode !== 'in-network-nat'){
+                                return "Last instance should be of 'in-network-nat'\
                                 service mode while applying services."
+                            }
+                        }
                     }
                     var error = self.isBothSrcDscCIDR(data);
                     if (error != "") {
