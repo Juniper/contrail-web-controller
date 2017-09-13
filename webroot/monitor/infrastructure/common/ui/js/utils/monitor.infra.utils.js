@@ -443,6 +443,40 @@ define([
              }
         };
 
+        self.getContainerSettingsConfig = function(options) {
+            return {
+                elementId: "containerSettingsSection",
+                view: "SectionView",
+                viewConfig: {
+                    rows: [{
+                        columns: [{
+                            elementId: "toolbar_section",
+                            view: "SectionView",
+                            viewConfig: {
+                                rows: [{
+                                    columns: [{
+                                        elementId: "toolbar",
+                                        title: '',
+                                        view: "ToolbarView",
+                                        viewConfig: {
+                                            settings_type: 'container',
+                                            settings: [ {
+                                                id: cowc.CONTAINER_SETTINGS,
+                                                title: "Settings",
+                                                view: "js/views/ContainerSettingsView",
+                                                model: "js/models/ContainerSettingsModel",
+                                                options: options
+                                            }]
+                                        }
+                                    }]
+                                }]
+                            }
+                        }]
+                    }]
+                }
+             }
+        };
+
         self.getConfigNodeColor = function (d,obj) {
             obj= ifNull(obj,{});
             var nodeColor = coreAlarmUtils.getNodeColor(obj);

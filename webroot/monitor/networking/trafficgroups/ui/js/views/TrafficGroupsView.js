@@ -7,9 +7,10 @@ define(
          'contrail-charts-view', 'contrail-list-model',
          'monitor/networking/trafficgroups/ui/js/views/TrafficGroupsSettingsView',
          'monitor/networking/trafficgroups/ui/js/models/TrafficGroupsSettingsModel',
-         'monitor/networking/trafficgroups/ui/js/models/TrafficGroupsFilterModel'],
+         'monitor/networking/trafficgroups/ui/js/models/TrafficGroupsFilterModel',
+         "core-basedir/js/views/ContainerSettingsView"],
         function(_, ContrailView, ContrailChartsView,
-                ContrailListModel, settingsView, settingsModel, filterModel) {
+                ContrailListModel, settingsView, settingsModel, filterModel, ContainerSettings) {
             var tgView,
                 TrafficGroupsView = ContrailView.extend({
                 tagTypeList: {
@@ -47,6 +48,36 @@ define(
                         epsTabsView.render(linkData);
                     });
                 },
+                getSessionData: function(childData, endpointData, d) {
+                    var sessionData = _.chain(childData)
+                    .filter(function (val, idx) {
+                        var namePath = _.result(endpointData, '0.data.currentNode.names');
+                        return tgView.isRecordMatched(namePath, val, d.link[0].data);
+                    })
+                    .groupBy("eps.__key")
+                    .map(function (objs, key) {
+                        var uuid;
+                        if (key != null) {
+                            try {
+                                uuid = key.split(':').slice(-1)[0];
+                            } catch(e) {
+                                uuid = '-'
+                            }
+                        }
+                        var clientObjs = _.filter(objs, function(obj) {
+                            return obj.isClient; }),
+                            serverObjs = _.filter(objs, function(obj) {
+                            return obj.isServer; });
+                        return {
+                            'eps.__key': uuid,
+                            'session_responded_active': _.sumBy(serverObjs, 'SUM(eps.server.active)'),
+                            'session_initiated_active': _.sumBy(clientObjs, 'SUM(eps.client.active)'),
+                            'session_responded': _.sumBy(serverObjs, 'SUM(eps.server.added)'),
+                            'session_initiated': _.sumBy(clientObjs, 'SUM(eps.client.added)')
+                        }
+                    }).value();
+                    return sessionData;
+                },
                 showLinkInfo(d,el,e) {
                     var self = this,
                         ruleUUIDs = [], ruleKeys = [], level = 1;
@@ -62,51 +93,11 @@ define(
                         dstId = self.removeEmptyTags(_.result(dstNodeData, '0.data.currentNode.displayLabels'));
                     self.selectedLinkData = d.link;
                     var childData = _.result(d, 'link.0.data.dataChildren', []);
-                    var srcSessionObjArr = _.chain(childData)
-                            .filter(function (val, idx) {
-                                var namePath = _.result(srcNodeData, '0.data.currentNode.names');
-                                return self.isRecordMatched(namePath, val, d.link[0].data);
-                            })
-                            .groupBy("eps.__key")
-                            .map(function (objs, key) {
-                                var uuid;
-                                if (key != null) {
-                                    try {
-                                        uuid = key.split(':').slice(-1)[0];
-                                    } catch(e) {
-                                        uuid = '-'
-                                    }
-                                }
-                                return {
-                                    'eps.__key': uuid,
-                                    'session_responded': _.sumBy(objs, 'SUM(eps.traffic.responder_session_count)'),
-                                    'session_initiated': _.sumBy(objs, 'SUM(eps.traffic.initiator_session_count)')
-                                }
-                            }).value();
+                    var srcSessionObjArr = self.getSessionData(childData, srcNodeData, d);
                     var dstSessionObjArr, dstSessionObj;
                     //If it is intralink no need to calculate endpoint2 sessions
                     if (srcId != dstId) {
-                        dstSessionObjArr = _.chain(childData)
-                            .filter(function (val, idx) {
-                                var namePath = _.result(dstNodeData, '0.data.currentNode.names');
-                                return self.isRecordMatched(namePath, val, d.link[0].data);
-                            })
-                            .groupBy("eps.__key")
-                            .map(function (objs, key) {
-                                var uuid;
-                                if (key != null) {
-                                    try {
-                                        uuid = key.split(':').slice(-1)[0];
-                                    } catch(e) {
-                                        uuid = '-'
-                                    }
-                                }
-                                return {
-                                    'eps.__key': uuid,
-                                    'session_responded': _.sumBy(objs, 'SUM(eps.traffic.responder_session_count)'),
-                                    'session_initiated': _.sumBy(objs, 'SUM(eps.traffic.initiator_session_count)')
-                                }
-                            }).value();
+                        dstSessionObjArr = self.getSessionData(childData, dstNodeData, d);
                         dstSessionObj = _.groupBy(dstSessionObjArr, 'eps.__key');
                     }
                     var srcSessionObj = _.groupBy(srcSessionObjArr, 'eps.__key');
@@ -221,9 +212,13 @@ define(
                                                 srcId: srcId,
                                                 src_session_initiated: _.result(srcSessionObj, ruleUUID+'.0.session_initiated', 0),
                                                 src_session_responded: _.result(srcSessionObj, ruleUUID+'.0.session_responded', 0),
+                                                src_session_initiated_active: _.result(srcSessionObj, ruleUUID+'.0.session_initiated_active', 0),
+                                                src_session_responded_active: _.result(srcSessionObj, ruleUUID+'.0.session_responded_active', 0),
                                                 dstId: dstId,
                                                 dst_session_initiated: _.result(dstSessionObj, ruleUUID+'.0.session_initiated', 0),
                                                 dst_session_responded: _.result(dstSessionObj, ruleUUID+'.0.session_responded', 0),
+                                                dst_session_initiated_active: _.result(dstSessionObj, ruleUUID+'.0.session_initiated_active', 0),
+                                                dst_session_responded_active: _.result(dstSessionObj, ruleUUID+'.0.session_responded_active', 0),
                                                 rule_name: rule_name,
                                                 implicitRule: '',
                                                 simple_action: simple_action,
@@ -248,8 +243,12 @@ define(
                                                 implicitRule: 'implicitRuleStyle',
                                                 src_session_initiated: _.result(srcSessionObj, uuid+'.0.session_initiated', 0),
                                                 src_session_responded: _.result(srcSessionObj, uuid+'.0.session_responded', 0),
+                                                src_session_initiated_active: _.result(srcSessionObj, uuid+'.0.session_initiated_active', 0),
+                                                src_session_responded_active: _.result(srcSessionObj, uuid+'.0.session_responded_active', 0),
                                                 dst_session_initiated: _.result(dstSessionObj, uuid+'.0.session_initiated', 0),
                                                 dst_session_responded: _.result(dstSessionObj, uuid+'.0.session_responded', 0),
+                                                dst_session_initiated_active: _.result(dstSessionObj, uuid+'.0.session_initiated_active', 0),
+                                                dst_session_responded_active: _.result(dstSessionObj, uuid+'.0.session_responded_active', 0)
                                             });
                                         }
                                     });
@@ -428,7 +427,7 @@ define(
                                 },
                                 showLinkInfo: self.showLinkInfo,
                                 drillDownLevel: self.getCategorizationObj().length,
-                                expandLevels: 'enable',
+                                expandLevels: 'disable',
                                 hierarchyConfig: {
                                     parse: function (d) {
                                         var hierarchyObj = self.getTagHierarchy(d),
@@ -611,7 +610,7 @@ define(
                     self.updateTGFilterSec();
                 },
                 chartRender: function() {
-                    if($('.viewchange .chart-stats').hasClass('active-color')) {
+                    if($('#traffic-groups-radial-chart:visible').length) {
                         var self = this;
                         var data = self.filterdData ? JSON.parse(JSON.stringify(self.filterdData))
                                  : self.viewInst.model.getItems();
@@ -631,6 +630,7 @@ define(
                     } else {
                         $('#traffic-groups-legend-info').addClass('hidden');
                     }
+                    $('#traffic-groups-options').removeClass('hidden');
                 },
                 addtionalEvents: function() {
                     return [{
@@ -662,7 +662,7 @@ define(
                 _onClickNode: function(d, el ,e) {
                     var chartScope = tgView.chartInfo.component;
                     if(chartScope.config.attributes.
-                        expandLevels == 'disable') {
+                        expandLevels == 'disable' && el && d) {
                       return;
                     }
                     if(chartScope.clearArcTootltip) {
@@ -670,10 +670,9 @@ define(
                     }
                     var levels = 2;
                     //If clicked on 2nd level arc,collapse to 1st level
-                    if(d.depth == 2 || d.height == 2)
+                    if(!d || d.depth == 2 || d.height == 2)
                         levels = 1;
-                        tgView.updateChart({levels: levels});
-                    el.classList.remove(chartScope.selectorClass('active'));
+                    tgView.updateChart({levels: levels});
                 },
                 _onClickLink: function(d, el ,e) {
                     var chartScope = tgView.chartInfo.component;
@@ -720,10 +719,10 @@ define(
                     if(labels && labels.length > 0) {
                         _.each(labels[idx], function(label) {
                             displayLabels.push(label
-                                 .replace('application', cowc.APPLICATION_ICON)
-                                 .replace('tier', cowc.TIER_ICON)
-                                 .replace('site', cowc.SITE_ICON)
-                                 .replace('deployment', cowc.DEPLOYMENT_ICON));
+                                 .replace('application=', cowc.APPLICATION_ICON)
+                                 .replace('tier=', cowc.TIER_ICON)
+                                 .replace('site=', cowc.SITE_ICON)
+                                 .replace('deployment=', cowc.DEPLOYMENT_ICON));
                         });
                     }
                     return displayLabels;
@@ -731,7 +730,7 @@ define(
                 removeEmptyTags: function(names) {
                     var displayNames = names.slice(0);
                     displayNames = _.map(displayNames, function(name) {
-                        return name.join('-')
+                        return _.compact(name).join('-')
                     });
                     displayNames = _.remove(displayNames, function(name, idx) {
                         return !(name == 'External' && idx > 0);
@@ -808,7 +807,7 @@ define(
                               oldToTime != newToTime))) {
                         tgView.renderTrafficChart();
                     } else {
-                        tgView.updateChart();
+                        tgView.updateContainerSettings('', false);
                     }
                 },
                 removeFilter: function(e) {
@@ -991,6 +990,100 @@ define(
                    $(this.el).find('svg g').empty();
                    $('#traffic-groups-grid-view').empty();
                 },
+                updateContainerSettings: function(newObj, isFreshData) {
+                    var curSettings = localStorage
+                        .getItem('container_' + layoutHandler.getURLHashObj().p
+                                   + '_settings');
+                    if(curSettings) {
+                        curSettings = JSON.parse(curSettings);
+                        if(typeof newObj.showLegend != 'undefined' || !newObj) {
+                            curSettings.showLegend ?
+                                $('#traffic-groups-legend-info').show()
+                                : $('#traffic-groups-legend-info').hide();
+                        }
+                        if(typeof newObj.view_type != 'undefined' || !newObj) {
+                            if(curSettings.view_type == 'grid-stats') {
+                                $('#traffic-groups-radial-chart').hide();
+                                $('#traffic-groups-grid-view').show();
+                                if(isFreshData) {
+                                    this.updateChart({
+                                        'freshData': isFreshData,
+                                        'levels': curSettings.showInnerCircle ? 2 : 1
+                                    });
+                                } else {
+                                    this.showEndPointStatsInGrid();
+                                }
+                            } else {
+                                $('#traffic-groups-radial-chart').show();
+                                $('#traffic-groups-grid-view').hide();
+                                this.updateChart({
+                                    'freshData': isFreshData,
+                                    'levels': curSettings.showInnerCircle ? 2 : 1
+                                });
+                            }
+                        }
+                        if(typeof newObj.showInnerCircle != 'undefined'
+                            && curSettings.view_type == 'chart-stats') {
+                            this._onClickNode(curSettings.showInnerCircle);
+                        }
+                    } else {
+                        this.updateChart({
+                            'freshData': isFreshData
+                        });
+                    }
+                },
+                getContainerViewConfig : function() {
+                    return {
+                        rows: [
+                            {
+                                columns:[{
+                                    elementId: 'view_type',
+                                    view: "FormRadioButtonView",
+                                    default: 'chart-stats',
+                                    viewConfig: {
+                                        label: 'View',
+                                        path: 'view_type',
+                                        class: 'col-xs-12',
+                                        default: 'chart-stats',
+                                        dataBindValue: 'view_type',
+                                        templateId: cowc.TMPL_OPTNS_WITH_ICONS_RADIO_BUTTON_VIEW,
+                                        elementConfig: {
+                                            dataObj: [
+                                                {value: 'grid-stats', icon: 'fa-table'},
+                                                {value: 'chart-stats', icon: 'fa-bar-chart-o'}
+                                            ]
+                                        }
+                                    }
+                                }],
+                            },
+                            {
+                                columns: [{
+                                    elementId: 'showInnerCircle',
+                                    view: 'FormCheckboxView',
+                                    viewConfig: {
+                                        label: 'Inner Circle',
+                                        path: 'showInnerCircle',
+                                        dataBindValue: 'showInnerCircle',
+                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                        class: 'showicon col-xs-6'
+                                    }
+                                }]
+                            }, {
+                                columns: [{
+                                    elementId: 'showLegend',
+                                    view: 'FormCheckboxView',
+                                    viewConfig: {
+                                        label: 'Legends',
+                                        path: 'showLegend',
+                                        dataBindValue: 'showLegend',
+                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                        class: 'showicon col-xs-6'
+                                    }
+                                }]
+                            }
+                        ]
+                    }
+                },
                 renderTrafficChart: function(option) {
                     this.resetChartView();
                     var self = this,
@@ -1026,9 +1119,8 @@ define(
                             "to_time_utc": "now-" + (toTime + 'm'),
                             "select": "eps.client.remote_app_id, eps.client.remote_tier_id, eps.client.remote_site_id,"+
                                  "eps.client.remote_deployment_id, eps.client.remote_prefix, eps.client.remote_vn, eps.__key,"+
-                                 " app, tier, site, deployment, vn, name, SUM(eps.client.in_bytes),"+
-                                 " SUM(eps.client.out_bytes), SUM(eps.client.in_pkts), SUM(eps.client.hits)," +
-                                 " SUM(eps.client.out_pkts)",
+                                 " eps.client.app, eps.client.tier, eps.client.site, eps.client.deployment, eps.client.local_vn, name, SUM(eps.client.in_bytes),"+
+                                 " SUM(eps.client.out_bytes), SUM(eps.client.in_pkts), SUM(eps.client.out_pkts), SUM(eps.client.added), SUM(eps.client.active)",
                             "table_type": "STAT",
                             "table_name": "StatTable.EndpointSecurityStats.eps.client",
                             "where": "(name Starts with " + contrail.getCookie(cowc.COOKIE_DOMAIN) + (currentProject ? ':' : '') + currentProject + ")",
@@ -1043,9 +1135,8 @@ define(
                             "to_time_utc": "now-" + (toTime + 'm'),
                             "select": "eps.server.remote_app_id, eps.server.remote_tier_id, eps.server.remote_site_id,"+
                                  "eps.server.remote_deployment_id, eps.server.remote_prefix, eps.server.remote_vn, eps.__key,"+
-                                 " app, tier, site, deployment, vn, name, SUM(eps.server.in_bytes),"+
-                                 " SUM(eps.server.out_bytes), SUM(eps.server.in_pkts), SUM(eps.server.hits)," +
-                                 " SUM(eps.server.out_pkts)",
+                                 " eps.server.app, eps.server.tier, eps.server.site, eps.server.deployment, eps.server.local_vn, name, SUM(eps.server.in_bytes),"+
+                                 " SUM(eps.server.out_bytes), SUM(eps.server.in_pkts), SUM(eps.server.out_pkts), SUM(eps.server.added), SUM(eps.server.active)",
                             "table_type": "STAT",
                             "table_name": "StatTable.EndpointSecurityStats.eps.server",
                             "where": "(name Starts with " + contrail.getCookie(cowc.COOKIE_DOMAIN) + (currentProject ? ':' : '') + currentProject + ")",
@@ -1076,9 +1167,15 @@ define(
                                         val['SUM(eps.traffic.in_pkts)'] = val['SUM(eps.client.in_pkts)'];
                                         val['SUM(eps.traffic.out_pkts)'] = val['SUM(eps.client.out_pkts)'];
                                         val['eps.traffic.remote_prefix'] = val['eps.client.remote_prefix'];
+                                        val['app'] = val['eps.client.app'];
+                                        val['tier'] = val['eps.client.tier'];
+                                        val['site'] = val['eps.client.site'];
+                                        val['deployment'] = val['eps.client.deployment'];
+                                        val['vn'] = val['eps.client.local_vn'];
                                         var updateVal = _.omit(val, ['eps.client.remote_app_id', 'eps.client.remote_deployment_id',
                                          'eps.client.remote_site_id', 'eps.client.remote_tier_id', 'eps.client.remote_deployment_id',
-                                         'eps.client.remote_vn', 'SUM(eps.client.in_bytes)', 'SUM(eps.client.out_bytes)',
+                                         'eps.client.remote_vn', 'eps.client.app', 'eps.client.tier', 'eps.client.site', 'eps.client.deployment',
+                                         'eps.client.local_vn', 'SUM(eps.client.in_bytes)', 'SUM(eps.client.out_bytes)',
                                          'SUM(eps.client.in_pkts)', 'SUM(eps.client.out_pkts)']);
                                         modifiedClientData.push(updateVal);
                                     });
@@ -1111,9 +1208,15 @@ define(
                                         val['SUM(eps.traffic.in_pkts)'] = val['SUM(eps.server.in_pkts)'];
                                         val['SUM(eps.traffic.out_pkts)'] = val['SUM(eps.server.out_pkts)'];
                                         val['eps.traffic.remote_prefix'] = val['eps.server.remote_prefix'];
+                                        val['app'] = val['eps.server.app'];
+                                        val['tier'] = val['eps.server.tier'];
+                                        val['site'] = val['eps.server.site'];
+                                        val['deployment'] = val['eps.server.deployment'];
+                                        val['vn'] = val['eps.server.local_vn'];
                                         var updateVal = _.omit(val, ['eps.server.remote_app_id', 'eps.server.remote_deployment_id',
                                          'eps.server.remote_site_id', 'eps.server.remote_tier_id', 'eps.server.remote_deployment_id',
-                                         'eps.server.remote_vn', 'SUM(eps.server.in_bytes)', 'SUM(eps.server.out_bytes)',
+                                         'eps.server.remote_vn', 'eps.server.app', 'eps.server.tier', 'eps.server.site', 'eps.server.deployment',
+                                        'eps.server.local_vn', 'SUM(eps.server.in_bytes)', 'SUM(eps.server.out_bytes)',
                                          'SUM(eps.server.in_pkts)', 'SUM(eps.server.out_pkts)']);
                                         modifiedServerData.push(updateVal);
                                     });
@@ -1131,36 +1234,13 @@ define(
                             el: self.$el.find('#traffic-groups-radial-chart'),
                             model: new ContrailListModel(listModelConfig)
                         });
-                        if(option == 'onload') {
-                            $('.viewchange .chart-stats').addClass('active-color');
-                            $('.viewchange .grid-stats').on('click', function () {
-                                if ($('.viewchange .grid-stats').hasClass('active-color')) {
-                                    return;
-                                }
-                                $('#traffic-groups-radial-chart').hide();
-                                $('#traffic-groups-grid-view').show();
-                                $('.viewchange .chart-stats, .viewchange .grid-stats').toggleClass('active-color');
-                                self.showEndPointStatsInGrid();
-                            });
-                            $('.viewchange .chart-stats').on('click', function () {
-                                if ($('.viewchange .chart-stats').hasClass('active-color')) {
-                                    return;
-                                }
-                                $('#traffic-groups-radial-chart').show();
-                                $('#traffic-groups-grid-view').hide();
-                                $('.viewchange .chart-stats, .viewchange .grid-stats').toggleClass('active-color');
-                                self.updateChart();
-                            });
-                        }
-                        self.updateChart({
-                            'freshData': true
-                        });
+                        self.updateContainerSettings('', true);
                     });
                 },
                 render: function() {
-                    if(!($('#breadcrumb li:last a').text() == ctwc.TRAFFIC_GROUPS_ALL_APPS)){
+                    /*if(!($('#breadcrumb li:last a').text() == ctwc.TRAFFIC_GROUPS_ALL_APPS)){
                         pushBreadcrumb([ctwc.TRAFFIC_GROUPS_ALL_APPS]);
-                    }
+                    }*/
                     var trafficGroupsTmpl = contrail.getTemplate4Id('traffic-groups-template');
                     this.$el.html(trafficGroupsTmpl({widgetTitle:'Traffic Groups'}));
                     this.$el.addClass('traffic-groups-view');
@@ -1180,6 +1260,9 @@ define(
                         this.combineEmptyTags = true;
                     }
                     this.renderTrafficChart('onload');
+                    //Render container settings
+                    this.renderView4Config($('#traffic-groups-options'), '',
+                        monitorInfraUtils.getContainerSettingsConfig(this.getContainerViewConfig));
                 }
             });
             return TrafficGroupsView;
