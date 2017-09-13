@@ -142,15 +142,16 @@ define([
         },
 
         renderDisAssociateFipCfg: function(options) {
-            var delTemplate =
+            var confirmTemplate =
                 //Fix the template to be common delete template
-                contrail.getTemplate4Id('core-generic-delete-form-template');
+                contrail.getTemplate4Id('core-generic-confirmation-template');
             var self = this;
 
-            var delLayout = delTemplate({prefixId: prefixId});
+            var confirmLayout = confirmTemplate({prefixId: prefixId,
+                message: "Are you sure you want to disassociate the port?"});
             cowu.createModal({'modalId': modalId, 'className': 'modal-480',
                              'title': options['title'], 'btnName': 'Confirm',
-                             'body': delLayout,
+                             'body': confirmLayout,
                'onSave': function () {
                 self.model.disAssociateFipCfg({
                     init: function () {
