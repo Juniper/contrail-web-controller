@@ -27,7 +27,7 @@ define([
             };
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                 contrailListModel, getAddressGroupGridViewConfig());
+                 contrailListModel, getAddressGroupGridViewConfig(viewConfig));
         },
         parseAddressData : function(response){
             var dataItems = [],
@@ -39,7 +39,7 @@ define([
         }
     });
 
-    var getAddressGroupGridViewConfig = function () {
+    var getAddressGroupGridViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwc.SECURITY_POLICY_ADDRESS_GRP_SECTION_ID]),
             view: "SectionView",
@@ -59,7 +59,8 @@ define([
                                             pageSizeSelect: [10, 50, 100]
                                         }
                                     },
-                                    isGlobal: true
+                                    isGlobal: true,
+                                    isWizard: viewConfig.isWizard
                                 }
                             }
                         ]

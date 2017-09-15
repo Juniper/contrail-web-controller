@@ -914,6 +914,22 @@ define([
         this.DNS_RECORDS_PREFIX_ID = 'dns_record';
 
         /* Firewall constants */
+        this.FW_POLICY_WIZARD = 'fw_policy_wizard';
+        this.FW_WZ_SECURITY_POLICY_AS_GLOBAL_LIST_VIEW_ID = 'fw_security_policy_as_global_list_view';
+        this.FW_WZ_SECURITY_POLICY_SG_GLOBAL_LIST_VIEW_ID = 'fw_security_policy_sg_global_list_view';
+        this.FW_WZ_SECURITY_POLICY_AS_PROJECT_LIST_VIEW_ID = 'fw_security_policy_as_project_list_view';
+        this.FW_WZ_SECURITY_POLICY_SG_PROJECT_LIST_VIEW_ID = 'fw_security_policy_sg_project_list_view';
+        this.FW_WZ_SECURITY_POLICY_GLOBAL_ADDRESS_GRP_SECTION_ID = 'fw_security_policy_global_adressgroup_section_view';
+        this.FW_WZ_SECURITY_POLICY_PROJECT_ADDRESS_GRP_SECTION_ID = 'fw_security_policy_project_adressgroup_section_view';
+        this.FW_WZ_SECURITY_POLICY_GLOBAL_SERVICE_GRP_SECTION_ID = 'fw_security_policy_global_servicegroup_section_view';
+        this.FW_WZ_SECURITY_POLICY_PROJECT_SERVICE_GRP_SECTION_ID = 'fw_security_policy_project_servicegroup_section_view';
+        this.FW_WZ_SECURITY_POLICY_GLOBAL_ADDRESS_GRP = 'fw_security_policy_global_adressgroup';
+        this.FW_WZ_SECURITY_POLICY_GLOBAL_SERVICE_GRP = 'fw_security_policy_global_servicegroup';
+        this.FW_WZ_SECURITY_POLICY_PROJECT_SERVICE_GRP = 'fw_security_policy_project_servicegroup';
+        this.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_LIST_VIEW_ID = 'fw_security_policy_as_list_view';
+        this.FW_WZ_SECURITY_POLICY_SERVICE_GRP_LIST_VIEW_ID = 'fw_security_policy_service_gp_list_view';
+        this.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID = 'fw_security_policy_as_grid_view';
+        this.FW_WZ_SECURITY_POLICY_SERVICE_GRP_GRID_ID = 'fw_security_policy_service_gp_grid_view';
         this.FW_POLICY_GLOBAL_PAGE_ID = "config-fw-policy-global-list";
         this.CONFIG_FW_POLICY_GLOBAL_SECTION_ID = "config-fw-policy-global-section";
         this.CONFIG_FW_RULE_SECTION_ID = "config-fw-rule-section";
@@ -922,6 +938,8 @@ define([
         this.FW_POLICY_GLOBAL_TAB_ID = "config-fw-policy-tab";
         this.CONFIG_SECURITY_POLICY_PAGE_ID = 'config-security-policy-page';
         this.TITLE_SEC_GRP_TAG = "Tags";
+        this.STANDALONE_FIREWALL_POLICIES = "Stand Alone Firewall Policies";
+        this.ALL_FIREWALL_POLICIES = "All Firewall Policies";
         this.TITLE_SEC_GRP_SERVICE_GROUP = "Service Groups";
         this.TITLE_SEC_GRP_ADDRESS_GROUP = "Address Groups";
         this.GLOBAL_SECURITY_POLICY_TAB_ID = 'security-policy-tab';
@@ -949,6 +967,8 @@ define([
         this.FW_RULE_GRID_ID = "fw-rule-grid";
         this.FW_RULE_PREFIX_ID = 'firewallRule',
         this.CONFIG_FW_POLICY_LIST_VIEW_ID = "config-fw-policy-list-view";
+        this.CONFIG_FW_WZ_POLICY_LIST_VIEW_ID = "config-fw-wz-policy-list-view";
+        this.FW_WZ_POLICY_GRID_ID = "fw-wz-policy-grid";
         this.APPLICATION_POLICY_LIST_VIEW_ID = "application-policy-list-view";
         this.FIREWALL_APPLICATION_POLICY_SECTION_ID = 'firewall-application-policy-section';
         this.FIREWALL_APP_POLICY_ID = 'firewall-application-policy';
@@ -971,6 +991,31 @@ define([
                                 {text:'Deployment', value: 'deployment'},
                                 {text: 'Site', value: 'site'},
                                 {text: 'Label', value: 'label'}];
+        ///Application Policy Set
+        this.APPLICATION_POLICY_SET_LIST_VIEW_ID = "application-policy-set-list-view";
+        this.APPLICATION_POLICY_SET_SECTION_ID = 'application-policy-set-section';
+        this.APPLICATION_POLICY_SET = 'application-policy-set';
+        this.APPLICATION_POLICY_SET_GRID_ID = "application-policy-set-grid";
+        this.APPLICATION_POLICY_SET_PREFIX_ID = "applicationpolicyset";
+        this.APS_ADDRESS_GRP_LIST_VIEW_ID = "aps-address-group-list-view";
+        this.APS_ADDRESS_GRP_SECTION_ID = 'aps-address-group-section';
+        this.APS_ADDRESS_GRP_ID = 'aps-address-group';
+        this.APS_ADDRESS_GRP_GRID_ID = "aps-address-group-grid";
+        this.APS_ADDRESS_GRP_LIST_VIEW_ID = "aps-address-group-list-view";
+        this.APS_SERVICE_GRP_LIST_VIEW_ID = "aps-service-group-list-view";
+        this.APS_SERVICE_GRP_SECTION_ID = 'aps-service-group-section';
+        this.APS_SERVICE_GRP_ID = 'aps-service-group';
+        this.APS_SERVICE_GRP_GRID_ID = "aps-service-group-grid";
+        this.APS_SERVICE_GRP_LIST_VIEW_ID = "aps-service-group-list-view";
+        this.APS_TAG_SECTION_ID = 'aps-tag-section';
+        this.APS_TAG_ID = 'aps-tag';
+        this.APS_TAG_GRID_ID = "aps-tag-grid";
+        this.APS_TAG_LIST_VIEW_ID = "aps-tag-list-view";
+        this.NEW_APPLICATION_POLICY_SET_LIST_VIEW_ID = "new-application-policy-set-list-view";
+        this.NEW_APPLICATION_POLICY_SET_SECTION_ID = 'new-application-policy-set-section';
+        this.NEW_APPLICATION_POLICY_SET = 'new-application-policy-set';
+        this.NEW_APPLICATION_POLICY_SET_GRID_ID = "new-application-policy-set-grid";
+        
         
         this.RULE_DATA_TAGS = 'rule-data-tags';
         this.RULE_DATA_ADDRESS_GROUPS = 'rule-data-address-groups';
