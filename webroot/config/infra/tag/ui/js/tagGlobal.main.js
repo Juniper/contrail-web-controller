@@ -23,7 +23,7 @@ function TagGlobalPageLoader ()
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");
         switch (renderFn) {
-            case 'renderTagView':
+            case 'render':
                 this.tagGlobalView[renderFn]({hashParams: hashParams});
                 break;
         }

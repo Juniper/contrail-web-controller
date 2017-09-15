@@ -807,7 +807,7 @@ define([
 
         this.TMPL_CORE_GENERIC_EDIT = 'core-generic-edit-form-template';
         this.TMPL_CORE_GENERIC_DEL = 'core-generic-delete-form-template';
-
+        this.TMPL_APPLICATION_POLICY_SET = 'application-policy-set-edit-form-template';
         this.CONFIG_LINK_LOCAL_SERVICES_PAGE_ID = 'config-link-local-services-page';
         this.CONFIG_LINK_LOCAL_SERVICES_LIST_VIEW_ID = 'config-link-local-services-list';
         this.CONFIG_LINK_LOCAL_SERVICES_SECTION_ID = 'lls';
@@ -824,6 +824,7 @@ define([
         this.CREATE = "Create";
 
         /* Firewall labels */
+        this.FW_POLICY_WIZARD = "Firewall Policy Wizard";
         this.TITLE_POLICY_INFO = "Policy Info";
         this.TITLE_EDIT_FW_POLICY = "Edit Firewall Policy";
         this.TITLE_FW_POLICY = 'Firewall Policies';

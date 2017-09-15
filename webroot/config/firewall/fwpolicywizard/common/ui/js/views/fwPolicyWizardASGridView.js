@@ -11,7 +11,7 @@ define([
 ], function (_, ContrailView, AddressGroupModel, AddressGroupEditView, OverlayAddressGroupEditView) {
     var addressGroupEditView = new AddressGroupEditView(),
         overlayAddressGroupEditView = new OverlayAddressGroupEditView(),
-        gridElId = "#" + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID;
+        gridElId = "#" + ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID;
 
     var addressGroupGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -26,14 +26,14 @@ define([
 
     var getAddressGroupGridViewConfig = function (viewConfig) {
         return {
-            elementId: cowu.formatElementId([ctwc.SECURITY_POLICY_ADDRESS_GRP_LIST_VIEW_ID]),
+            elementId: cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_LIST_VIEW_ID]),
             view: "SectionView",
             viewConfig: {
                 rows: [
                     {
                         columns: [
                             {
-                                elementId: ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID,
+                                elementId: ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID,
                                 title: ctwl.TITLE_SEC_GRP_ADDRESS_GROUP,
                                 view: "GridView",
                                 viewConfig: {
@@ -105,7 +105,7 @@ define([
     function getRowActionConfig(viewConfig) {
         var rowActionConfig = [
             ctwgc.getEditConfig('Edit', function(rowIndex) {
-                dataView = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView;
+                dataView = $('#' + ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView;
                 if(viewConfig.isWizard){
                     overlayAddressGroupEditView.model = new AddressGroupModel(dataView.getItem(rowIndex));
                     overlayAddressGroupEditView.renderAddressGroup({
@@ -125,7 +125,7 @@ define([
                 }
             }),
             ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-               var dataItem = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
+               var dataItem = $('#' + ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
                if(viewConfig.isWizard){
                    overlayAddressGroupEditView.model = new AddressGroupModel(dataItem);
                    overlayAddressGroupEditView.renderAddressGroup({
@@ -148,15 +148,15 @@ define([
         return rowActionConfig;
     }
     function getHeaderActionConfig(viewConfig) {
-    	var headerActionConfig = [
-    		{
+        var headerActionConfig = [
+            {
                 "type" : "link",
                 "title" : ctwl.TITLE_ADDRESS_GROUP_MULTI_DELETE,
                 "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnDeleteAddressGrp',
                 "onClick" : function() {
                     var addressGroupModel = new AddressGroupModel();
-                    var checkedRows = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid").getCheckedRows();
+                    var checkedRows = $('#' + ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid").getCheckedRows();
                     if(checkedRows && checkedRows.length > 0) {
                         if(viewConfig.isWizard){
                             overlayAddressGroupEditView.model = addressGroupModel;
@@ -202,7 +202,7 @@ define([
                                                   'mode': 'add',
                                                   'isGlobal': viewConfig.isGlobal,
                                                   callback: function () {
-                           $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView.refreshData();
+                           $('#' + ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView.refreshData();
                         }});
                     }
                 }
@@ -279,16 +279,16 @@ define([
             prefixlList.push(prefixText);
         }
         if ((null != showAll) && (true == showAll)) {
-        	if(prefixlList.length > 0){
-        		for (var k = 0; k < prefixlList.length; k++) {
+            if(prefixlList.length > 0){
+                for (var k = 0; k < prefixlList.length; k++) {
                     if (typeof prefixlList[k] !== "undefined") {
                         returnString += prefixlList[k] + "<br>";
                     }
                 }
                 return returnString;
-        	}else{
-        		return '-';
-        	}
+            }else{
+                return '-';
+            }
         }
         if(prefixlList.length > 0){
             for(var j = 0; j< prefixlList.length,j < 2; j++){
@@ -302,7 +302,7 @@ define([
                     <span class="moredata" style="display:none;" ></span>';
             }
         }else{
-        	returnString = '-';
+            returnString = '-';
         }
         return  returnString;
     }

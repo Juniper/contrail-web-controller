@@ -49,6 +49,7 @@ function FWGlobalPageLoader ()
         ctwu.destroyDOMResources(ctwc.FIREWALL_APPLICATION_POLICY_PREFIX_ID);
         ctwu.destroyDOMResources(ctwc.FW_POLICY_PREFIX_ID);
         ctwu.destroyDOMResources(ctwc.FW_RULE_PREFIX_ID);
+        ctwu.destroyDOMResources(ctwc.FW_POLICY_WIZARD);
     };
 }
 

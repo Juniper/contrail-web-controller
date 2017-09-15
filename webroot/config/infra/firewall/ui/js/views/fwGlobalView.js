@@ -10,13 +10,31 @@ define([
         el: $(contentContainer),
         renderFirewall: function (viewConfig) {
             var self = this;
-            self.renderView4Config(self.$el, null, getSecurityPolicy(viewConfig));
+            self.renderView4Config(self.$el, null, getSecurityPolicy(viewConfig),
+                    null, null, null, function() {
+                $('#' + ctwc.FW_POLICY_WIZARD).on('click', function() {self.openFWPolicyWizard();});
+            });
         },
         renderInfraPolicyDetails: function(viewConfig) {
             var self = this,
             currentHashParams = layoutHandler.getURLHashParams(),
             policyName = currentHashParams.focusedElement.policy;
             self.renderView4Config(self.$el, null, getInfraPolicyDetails(viewConfig,policyName));            
+        },
+        openFWPolicyWizard: function () {
+            require(['config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel',
+            'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizardEditView'],
+            function (FWPolicyWizardModel, FWPolicyWizardEditView) {
+                var fwPolicyWizardModel =  new FWPolicyWizardModel(),
+                    fwPolicyWizardEditView = new FWPolicyWizardEditView();
+                fwPolicyWizardEditView.model = fwPolicyWizardModel;
+                fwPolicyWizardEditView.renderFwWizard({
+                                "title": 'Add new firewall policy',
+                                'viewConfig': { isGlobal: true , isWizard: true },
+                                 callback: function () {
+                                 }
+                });
+            });
         }
     });
     
@@ -48,6 +66,15 @@ define([
                         elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
                         view: 'TabsView',
                         viewConfig: getSecurityPolicyTabs(viewConfig)
+                    }, {
+                        elementId: ctwc.FW_POLICY_WIZARD,
+                        view: 'FormButtonView',
+                        viewConfig: {
+                            label: ctwl.FW_POLICY_WIZARD,
+                            elementConfig:{
+                                btnClass:'btn-primary'
+                            }
+                        }
                     }]
                 }]
             }
@@ -112,22 +139,7 @@ define([
         return {
             theme: 'default',
             active: 0,
-            tabs: [{
-                elementId: 'fw_policy_tab',
-                title: 'Firewall Policies',
-                view: "fwPolicyGlobalListView",
-                viewPathPrefix: "config/infra/firewall/ui/js/views/",
-                viewConfig: viewConfig,
-                tabConfig: {
-                    activate: function(event, ui) {
-                        var gridId = $('#' + ctwc.FW_POLICY_GRID_ID);
-                        if (gridId.data('contrailGrid')) {
-                            gridId.data('contrailGrid').refreshView();
-                        }
-                    },
-                    renderOnActivate: true
-                }
-            },
+            tabs: [
             {
                 elementId: 'application_policy_tab',
                 title: 'Application Policy Sets',
@@ -137,6 +149,21 @@ define([
                 tabConfig: {
                     activate: function(event, ui) {
                         var gridId = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID);
+                        if (gridId.data('contrailGrid')) {
+                            gridId.data('contrailGrid').refreshView();
+                        }
+                    },
+                    renderOnActivate: true
+                }
+            }, {
+                elementId: 'fw_policy_tab',
+                title: 'Firewall Policies',
+                view: "fwPolicyGlobalListView",
+                viewPathPrefix: "config/infra/firewall/ui/js/views/",
+                viewConfig: viewConfig,
+                tabConfig: {
+                    activate: function(event, ui) {
+                        var gridId = $('#' + ctwc.FW_POLICY_GRID_ID);
                         if (gridId.data('contrailGrid')) {
                             gridId.data('contrailGrid').refreshView();
                         }
