@@ -36,8 +36,12 @@ define([
             var dstMax = getValueByJsonPath(modelConfig,"dst_end_port");
             var dstMin = getValueByJsonPath(modelConfig,"dst_start_port");
             if(dstMax !== '' && dstMin !== ''){
-            	if(dstMin === dstMax){
-            	  dstRange = dstMin;
+                if(dstMin === dstMax){
+                    if(dstMin === -1){
+                       dstRange = 'any';
+                    }else{
+                      dstRange = dstMin;
+                    }
             	}else{
             		dstRange = dstMin +'-'+ dstMax;
             	}
