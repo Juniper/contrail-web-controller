@@ -47,7 +47,7 @@ define([
             }
             var protocol = serviceArry[0],
                 port = serviceArry[1];
-            if($.inArray(protocol.toLowerCase(), ['tcp', 'udp', 'icmp']) === -1 &&
+            if($.inArray(protocol.toLowerCase(), ['tcp', 'udp', 'icmp','any']) === -1 &&
                     isNaN(protocol) || Number(protocol) < 0 || Number(protocol) > 255) {
                     return "Select a protocol or enter a code between 0 - 255";
             }

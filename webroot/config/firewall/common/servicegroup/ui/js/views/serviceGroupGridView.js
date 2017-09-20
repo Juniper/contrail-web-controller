@@ -288,7 +288,11 @@ define([
         var  firewalService = getValueByJsonPath(dc, 'service_group_firewall_service_list;firewall_service',[]);
         for(var i = 0; i < firewalService.length; i++){
             if(firewalService[i].dst_ports.start_port === firewalService[i].dst_ports.end_port){
-                port = firewalService[i].dst_ports.start_port;
+                if(firewalService[i].dst_ports.start_port === -1){
+                    port = 'any';
+                }else{
+                    port = firewalService[i].dst_ports.start_port;
+                }
             }else{
                 port = firewalService[i].dst_ports.start_port + '-' + firewalService[i].dst_ports.end_port;
             }
@@ -317,7 +321,11 @@ define([
         serviceList.push('<span class="rule-format" style="width: 180px !important;display:inline-block;">Protocol</span><span class="rule-format">Port</span>');
         for(var i = 0; i < firewalService.length; i++){
             if(firewalService[i].dst_ports.start_port === firewalService[i].dst_ports.end_port){
-            	dstPort = firewalService[i].dst_ports.start_port;
+              if(firewalService[i].dst_ports.start_port === -1){
+                dstPort = 'any';
+              }else{
+                dstPort = firewalService[i].dst_ports.start_port;
+              }
             }else{
             	dstPort = firewalService[i].dst_ports.start_port + '-' + firewalService[i].dst_ports.end_port;
             }

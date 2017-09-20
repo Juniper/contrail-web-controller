@@ -168,7 +168,7 @@ define([
                                            class: "col-xs-6",
                                            viewConfig: {
                                               templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                              placeholder: '0 - 65535',
+                                              placeholder: 'Start - End Port or Any',
                                               path: 'dst_port',
                                               dataBindValue: 'dst_port()'
                                            }
