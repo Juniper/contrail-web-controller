@@ -771,8 +771,8 @@ define([
                     if(finalObj.is_mirror == true && finalObj.user_created_nic_assisted === false &&
                             finalObj.mirrorToNHMode === ctwc.MIRROR_STATIC) {
                         var vlanVal = Number(String(value).trim());
-                        if (isNaN(vlanVal) || vlanVal < 1 || vlanVal > 65535) {
-                            return "Enter VxLAN ID between 1 - 65535";
+                        if (isNaN(vlanVal) || vlanVal < 1 || vlanVal > 16777215) {
+                            return "Enter VxLAN ID between 1 - 16777215";
                         }
                     }
                 },
