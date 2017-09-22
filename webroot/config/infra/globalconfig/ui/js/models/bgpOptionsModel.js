@@ -19,7 +19,8 @@ define([
                 "restart_time": 60,
                 "long_lived_restart_time": 300,
                 "end_of_rib_timeout": 30,
-                "bgp_helper_enable": false
+                "bgp_helper_enable": false,
+                "xmpp_helper_enable": false
             },
             "graceful_restart_enable": false,
             "bgpaas_parameters": {
@@ -125,11 +126,6 @@ define([
             modelConfig["graceful_restart_enable"] =
                 getValueByJsonPath(modelConfig,
                         "graceful_restart_parameters;enable", false);
-            var bgpHelperEnble = getValueByJsonPath(modelConfig,
-                    "graceful_restart_parameters;bgp_helper_enable",
-                    false, false);
-            modelConfig["graceful_restart_parameters"]["bgp_helper_enable"] =
-                bgpHelperEnble.toString();
             modelConfig['ibgp_auto_mesh'] =
                 (($.trim(modelConfig['ibgp_auto_mesh']).length === 0) ? "true" : modelConfig['ibgp_auto_mesh'].toString());
             modelConfig['bgp_always_compare_med'] =
@@ -202,10 +198,6 @@ define([
                 globalSysConfigData['global-system-config']['autonomous_system'] =
                     Number(newBGPOptionsConfig['autonomous_system']);
 
-                //prepare graceful restart params post object
-                globalSysConfigData['global-system-config']
-                    ["graceful_restart_parameters"] = {};
-
                 //bgp as a service parameters
                 var bgpaasPorts = getValueByJsonPath(newBGPOptionsConfig,
                         'user_created_bgpaas_parameters', '');
@@ -221,6 +213,10 @@ define([
                     globalSysConfigData['global-system-config']
                     ['bgpaas_parameters'] = null;
                 }
+
+                //prepare graceful restart params post object
+                globalSysConfigData['global-system-config']
+                    ["graceful_restart_parameters"] = {};
 
                 //gr
                 grTime = getValueByJsonPath(newBGPOptionsConfig,
@@ -259,7 +255,14 @@ define([
                 globalSysConfigData['global-system-config']
                 ["graceful_restart_parameters"]["bgp_helper_enable"] =
                     newBGPOptionsConfig["graceful_restart_parameters"]
-                        ["bgp_helper_enable"].toString() == "true" ? true : false;
+                        ["bgp_helper_enable"];
+
+                //xmpp helper enable
+                globalSysConfigData['global-system-config']
+                ["graceful_restart_parameters"]["xmpp_helper_enable"] =
+                    newBGPOptionsConfig["graceful_restart_parameters"]
+                        ["xmpp_helper_enable"];
+
 
                 if (null != newBGPOptionsConfig['uuid']) {
                     globalSysConfigData['global-system-config']['uuid'] =
