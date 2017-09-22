@@ -409,7 +409,9 @@ tr.collapsibleChildContainer{
     z-index: 30000;
 }
 
-#configure-network input.ace-input[type=checkbox] + .ace-lbl::before, #configure-network input.ace-input[type=radio] + .ace-lbl::before{
+#configure-network input.ace-input[type=checkbox] + .ace-lbl::before,
+#configure-network input.ace-input[type=radio] + .ace-lbl::before,
+#configure-global_bgp_options input.ace-input[type=checkbox] + .ace-lbl::before {
     margin-right:10px;}
 #configure-Ports-form .contrail-editable-grid-table{
     margin-top:5px;
