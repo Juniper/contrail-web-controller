@@ -106,6 +106,7 @@ define([
 
                 FLOWSERIES_CPU              : '/api/tenant/networking/flow-series/cpu?moduleId={0}&minsSince={1}&sampleCnt={2}&source={3}&endTime={4}',
                 QUERY                       : '/api/qe/query',
+                ANALYTICS_QUERY             : '/api/analytics/query',
                 MSGTABLE_CATEGORY           : '/api/qe/table/values/MessageTable/Category',
                 MSGTABLE_LEVEL              : '/api/qe/table/values/MessageTable/Level'
         }
