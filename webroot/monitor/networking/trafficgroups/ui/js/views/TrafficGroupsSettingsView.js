@@ -111,7 +111,7 @@ define([
                                                                             templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                                                             class:'col-xs-12',
                                                                             path: 'endpoint',
-                                                                            width: 600,
+                                                                            width: 550,
                                                                             dataBindValue: 'endpoint()',
                                                                             elementConfig: {
                                                                                 placeholder: 'Select Endpoint',
@@ -119,7 +119,7 @@ define([
                                                                                 dataTextField: "text",
                                                                                 dataValueField: "value",
                                                                                 data: tagValues,
-                                                                                width: 600,
+                                                                                width: 550,
                                                                                 queryMap: [
                                                                                     { name : 'Application',  value : 'app', iconClass:'fa fa-list-alt' },
                                                                                     { name : 'Deployment',  value : 'deployment', iconClass:'fa fa-database' },
