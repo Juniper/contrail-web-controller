@@ -203,7 +203,53 @@ define([
                                                         label : "IP Address",
                                                         class: "col-xs-6"
                                                     }
-                                                }, {
+                                                },{
+                                                    elementId: "bgpaas_shared",
+                                                    view: "FormCheckboxView",
+                                                    class:"text-center",
+                                                    viewConfig: {
+                                                        label: "Shared",
+                                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                        dataBindValue: "bgpaas_shared",
+                                                        path: "bgpaas_shared",
+                                                        class: "col-xs-6",
+                                                    }
+                                               }
+                                            ]},{
+                                                columns: [{
+                                                    elementId: "origin",
+                                                    view: "FormDropdownView",
+                                                    viewConfig: {
+                                                        label: "Route Origin",
+                                                        dataBindValue: "bgpaas_session_attributes().route_origin_override.origin",
+                                                        path: "bgpaas_session_attributes.route_origin_override.origin",
+                                                        class: "col-xs-6",
+                                                        elementConfig: {
+                                                        dataTextField: "text",
+                                                        dataValueField: "id",
+                                                        placeholder: "Select Route Origin",
+                                                        data: [ { id: 'IGP', text: 'IGP' },
+                                                                { id: 'EGP', text: 'EGP' },
+                                                                { id: 'INCOMPLETE', text: 'INCOMPLETE' }
+                                                         ]
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                        elementId: "origin_override",
+                                                        view: "FormCheckboxView",
+                                                        class:"text-center",
+                                                        viewConfig: {
+                                                            label: "Route Origin Override",
+                                                            templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                            dataBindValue: "bgpaas_session_attributes().route_origin_override.origin_override",
+                                                            path: "bgpaas_session_attributes.route_origin_override.origin_override",
+                                                            class: "col-xs-6",
+                                                        }
+                                                    }
+                                                ]},{
+                                            columns: [
+                                                {
                                                     elementId: "service_health_check_refs",
                                                     view: "FormDropdownView",
                                                     viewConfig: {
@@ -225,37 +271,6 @@ define([
                                                                 parse: bgpAsAServiceFomatter.parseServiceHealthCheckData
                                                             }
                                                         }
-                                                    }
-                                                }
-                                            ]},{
-                                            columns: [
-                                                {
-                                                    elementId: "origin_override",
-                                                    view: "FormCheckboxView",
-                                                    viewConfig: {
-                                                        label: "Route Origin Override",
-                                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
-                                                        dataBindValue: "bgpaas_session_attributes().route_origin_override.origin_override",
-                                                        path: "bgpaas_session_attributes.route_origin_override.origin_override",
-                                                        class: "col-xs-6",
-                                                    }
-                                                }, {
-                                                    elementId: "origin",
-                                                    view: "FormDropdownView",
-                                                    viewConfig: {
-                                                        label: "Route Origin",
-                                                        dataBindValue: "bgpaas_session_attributes().route_origin_override.origin",
-                                                        path: "bgpaas_session_attributes.route_origin_override.origin",
-                                                        class: "col-xs-6",
-                                                        elementConfig: {
-                                                        dataTextField: "text",
-                                                        dataValueField: "id",
-                                                        placeholder: "Select Route Origin",
-                                                        data: [ { id: 'IGP', text: 'IGP' },
-                                                                { id: 'EGP', text: 'EGP' },
-                                                                { id: 'INCOMPLETE', text: 'INCOMPLETE' } 
-                                                    ]
-                                                    }
                                                     }
                                                 }
                                             ]},{
@@ -359,7 +374,7 @@ define([
                                        }
                                  }]
                             }]
-                        }/*,
+                        },
                         {
                             columns: [{
                                 elementId: "bgpasas_session_attr_accordian",
@@ -397,7 +412,7 @@ define([
                                                                     data : ctwc.BGP_AS_A_SERVICE_ADDRESS_FAMILIES
                                                                 }
                                                             }
-                                                        },{
+                                                        }/*,{
                                                             elementId: "bgpaas_loop_count",
                                                             name: "Loop Count",
                                                             view: "FormInputView",
@@ -409,7 +424,7 @@ define([
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                                 dataBindValue: "bgpaas_loop_count()",
                                                             }
-                                                        },{
+                                                        }*/,{
                                                             elementId: "bgpaas_prefix_limit",
                                                             name: "Prefix Limit",
                                                             view: "FormInputView",
@@ -421,18 +436,30 @@ define([
                                                                 dataBindValue: "bgpaas_prefix_limit()",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW
                                                             }
+                                                        },{
+                                                            elementId: "bgpaas_idle_timeout",
+                                                            name: "Idle Timeout (secs)",
+                                                            view: "FormInputView",
+                                                            width: 200,
+                                                            viewConfig: {
+                                                                placeholder: "0-86400",
+                                                                width: 200,
+                                                                path: "bgpaas_idle_timeout",
+                                                                templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                                dataBindValue: "bgpaas_idle_timeout()",
+                                                            }
                                                         }],
                                                         rowActions: [
                                                             {
                                                                 onClick: "function() {\
                                                                 $root.addFamilyAttr(); }",
-                                                                iconClass: 'icon-plus'
+                                                                iconClass: 'fa fa-pluss'
                                                             },
                                                             {
                                                                 onClick: "function() {\
                                                                 $root.deleteFamilyAttr($data, this)\
                                                                 ;}",
-                                                                iconClass: 'icon-minus'
+                                                                iconClass: 'fa fa-minus'
                                                             }
                                                         ],
                                                         gridActions: [
@@ -447,7 +474,7 @@ define([
                                         }
                                     }]
                                }]
-                        }*/
+                        }
                     ]
                 }
             };
