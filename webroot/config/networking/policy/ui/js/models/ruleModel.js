@@ -360,6 +360,14 @@ define([
                         }
                     }
                 },
+                'user_created_juniper_header': function(value, attr, finalObj) {
+                    if(finalObj.mirror_to_check == true &&
+                        finalObj.user_created_mirroring_optns === ctwc.ANALYZER_IP &&
+                        finalObj.mirrorToNHMode === ctwc.MIRROR_STATIC &&
+                        value !== 'disabled') {
+                        return "Static Nexthop cannot be used with Juniper Header Enabled";
+                    }
+                },
                 'mirrorToRoutingInstance': function(value, attr, finalObj) {
                     if(finalObj.mirror_to_check == true &&
                         (finalObj.user_created_juniper_header === 'disabled') &&
