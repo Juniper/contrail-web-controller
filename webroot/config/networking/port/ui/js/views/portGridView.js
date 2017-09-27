@@ -623,6 +623,13 @@ define([
                 portModel.onVNSelectionChanged(portFormatters, newValue, mode);
             }
         );
+        portModel.__kb.view_model.model().on('change:mirrorToNHMode',
+                function(model, newValue){
+                    if(newValue === ctwc.MIRROR_STATIC) {
+                        portModel.user_created_juniper_header('disabled');
+                    }
+                }
+        );
     };
     this.networkFormater = function (v, dc) {
         return portFormatters.networkFormater("", "", v, "", dc);
