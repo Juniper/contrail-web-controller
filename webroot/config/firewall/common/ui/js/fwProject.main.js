@@ -50,6 +50,7 @@ function FWProjectPageLoader ()
         ctwu.destroyDOMResources(ctwc.FW_POLICY_PREFIX_ID);
         ctwu.destroyDOMResources(ctwc.FW_RULE_PREFIX_ID);
         ctwu.destroyDOMResources(ctwc.FW_POLICY_WIZARD);
+        $("#aps-landing-container").remove();
     };
 }
 

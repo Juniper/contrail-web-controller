@@ -7,12 +7,14 @@ define([
     'contrail-view',
     'config/firewall/common/tag/ui/js/models/tagModel',
     'config/firewall/common/tag/ui/js/views/tagEditView',
-    'config/firewall/fwpolicywizard/common/ui/js/views/overlayTagEditView'
-], function (_, ContrailView, TagModel, TagEditView, OverlayTagEditView) {
+    'config/firewall/fwpolicywizard/common/ui/js/views/overlayTagEditView',
+    'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizard.utils'
+], function (_, ContrailView, TagModel, TagEditView, OverlayTagEditView,FWZUtils) {
     var tagEditView = new TagEditView(),
         overlayTagEditView = new OverlayTagEditView(),
         gridElId = "#" + ctwc.SECURITY_POLICY_TAG_GRID_ID;
     var isGlobal = true;
+    var fwzUtils = new FWZUtils();
     var tagGridView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
@@ -163,6 +165,14 @@ define([
                         }
                 ]
             },
+            footer: {
+                pager: {
+                    options: {
+                        pageSize: 10,
+                        pageSizeSelect: [10, 50, 100]
+                    }
+                }
+            }
         };
         return gridElementConfig;
     };
@@ -171,13 +181,41 @@ define([
             ctwgc.getDeleteConfig('Delete', function(rowIndex) {
                var dataItem = $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
                if(viewConfig.isWizard){
-                   overlayTagEditView.model = new TagModel(dataItem);
-                   overlayTagEditView.renderTag({
-                               selectedGridData: [dataItem],
-                               'viewConfig': viewConfig,
-                               'mode':'delete'
+                   fwzUtils.appendDeleteContainer($(arguments[1].context).parent()[0], 'security-policy-tag');
+                   $(".cancelWizardDeletePopup").off('click').on('click', function(){
+                       if($('.confirmation-popover').length != 0){
+                           $('.confirmation-popover').remove();
+                           $('#overlay-background-id').removeClass('overlay-background');
+                       }
                    });
-               } else{
+                   $(".saveWizardRecords").off('click').on('click', function(){
+                       var dataItem = $('#security-policy-tag-grid').data('contrailGrid')._dataView.getItem(rowIndex);
+                       var model = new TagModel();
+                       model.deleteTag([dataItem],{
+                           success: function () {
+                               if($('#security-policy-tag-grid').data("contrailGrid") !== undefined){
+                                   $('#security-policy-tag-grid').data('contrailGrid')._dataView.refreshData();
+                              }
+                               if($("#fw-wizard-details-error-container")){
+                                   $("#fw-wizard-details-error-container").remove();
+                               }
+                               if($('.confirmation-popover').length != 0){
+                                   $('.confirmation-popover').remove();
+                                   $('#overlay-background-id').removeClass('overlay-background');
+                               }
+                           },
+                           error: function (error) {
+                               $("#security-policy-tag-grid .grid-header").append("<div id='fw-wizard-details-error-container'></div>");
+                               $("#fw-wizard-details-error-container").text('');
+                               $("#fw-wizard-details-error-container").text(error.responseText);
+                               $("#fw-wizard-details-error-container").addClass('alert-error');
+                               if($('.confirmation-popover').length != 0){
+                                   $('.confirmation-popover').remove();
+                                   $('#overlay-background-id').removeClass('overlay-background');
+                               }
+                           }
+                       });
+                   });} else{
                    tagEditView.model = new TagModel(dataItem);
                    tagEditView.renderDeleteTag({
                                           "title": 'Delete Tag',
@@ -203,13 +241,42 @@ define([
                     var checkedRows = $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).data("contrailGrid").getCheckedRows();
                     if(checkedRows && checkedRows.length > 0) {
                         if(viewConfig.isWizard){
-                            overlayTagEditView.model = tagModel;
-                            overlayTagEditView.renderTag({
-                                    selectedGridData: checkedRows,
-                                    'viewConfig': viewConfig,
-                                    'mode':'delete'
+                            fwzUtils.appendDeleteContainer($('#btnDeleteTAG')[0], 'security-policy-tag');
+                            $(".cancelWizardDeletePopup").off('click').on('click', function(){
+                                if($('.confirmation-popover').length != 0){
+                                    $('.confirmation-popover').remove();
+                                    $('#overlay-background-id').removeClass('overlay-background');
+                                }
                             });
-                        }else{
+                            $(".saveWizardRecords").off('click').on('click', function(){
+                                if(checkedRows && checkedRows.length > 0) {
+                                    var model = new TagModel();
+                                    model.deleteTag(checkedRows, {
+                                        success: function () {
+                                            if($('#security-policy-tag-grid').data("contrailGrid") !== undefined){
+                                                $('#security-policy-tag-grid').data('contrailGrid')._dataView.refreshData();
+                                           }
+                                            if($("#fw-wizard-details-error-container")){
+                                                $("#fw-wizard-details-error-container").remove();
+                                            }
+                                            if($('.confirmation-popover').length != 0){
+                                                $('.confirmation-popover').remove();
+                                                $('#overlay-background-id').removeClass('overlay-background');
+                                            }
+                                        },
+                                        error: function (error) {
+                                            $("#security-policy-tag-grid .grid-header").append("<div id='fw-wizard-details-error-container'></div>");
+                                            $("#fw-wizard-details-error-container").text('');
+                                            $("#fw-wizard-details-error-container").text(error.responseText);
+                                            $("#fw-wizard-details-error-container").addClass('alert-error');
+                                            if($('.confirmation-popover').length != 0){
+                                                $('.confirmation-popover').remove();
+                                                $('#overlay-background-id').removeClass('overlay-background');
+                                            }
+                                        }
+                                    });
+                                }
+                            });}else{
                             tagEditView.model = tagModel;
                             tagEditView.renderDeleteTag(
                                 {"title": ctwc.TITLE_TAG_MULTI_DELETE,
@@ -232,6 +299,10 @@ define([
                 "iconClass": "fa fa-plus",
                 "onClick": function () {
                     if(viewConfig.isWizard){
+                        $("#overlay-background-id").addClass("overlay-background");
+                        if($("#fw-wizard-details-error-container")){
+                            $("#fw-wizard-details-error-container").remove();
+                        }
                         overlayTagEditView.model = new TagModel();
                         overlayTagEditView.renderTag({
                                 'mode': 'add',

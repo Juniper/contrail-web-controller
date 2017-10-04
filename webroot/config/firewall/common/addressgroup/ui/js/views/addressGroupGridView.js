@@ -103,113 +103,123 @@ define([
         return gridElementConfig;
     };
     function getRowActionConfig(viewConfig) {
-        var rowActionConfig = [
-            ctwgc.getEditConfig('Edit', function(rowIndex) {
-                dataView = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView;
-                if(viewConfig.isWizard){
-                    overlayAddressGroupEditView.model = new AddressGroupModel(dataView.getItem(rowIndex));
-                    overlayAddressGroupEditView.renderAddressGroup({
-                                            'mode':'edit',
-                                            'viewConfig': viewConfig,
-                                            'isGlobal': viewConfig.isGlobal
-                    });
-                }else{
-                    addressGroupEditView.model = new AddressGroupModel(dataView.getItem(rowIndex));
-                    addressGroupEditView.renderAddEditAddressGroup({
-                                          "title": 'Edit Address Group',
-                                          'mode':'edit',
-                                          'isGlobal': viewConfig.isGlobal,
-                                           callback: function () {
-                                              dataView.refreshData();
-                    }});
-                }
-            }),
-            ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-               var dataItem = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
-               if(viewConfig.isWizard){
-                   overlayAddressGroupEditView.model = new AddressGroupModel(dataItem);
-                   overlayAddressGroupEditView.renderAddressGroup({
-                                           selectedGridData: [dataItem],
-                                           'viewConfig': viewConfig,
-                                           'mode':'delete'
-                   });
-               }else{
-                   addressGroupEditView.model = new AddressGroupModel(dataItem);
-                   addressGroupEditView.renderDeleteAddressGrp({
-                                          "title": ctwl.TITLE_ADDRESS_GROUP_DELETE,
-                                          selectedGridData: [dataItem],
-                                          callback: function () {
-                                              var dataView = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView;
-                                              dataView.refreshData();
-                   }});
-               }
-            })
-        ];
-        return rowActionConfig;
+        if(cowu.isAdmin() === false && viewConfig['is_global'] === true){
+            return false;
+        }
+        else{
+            var rowActionConfig = [
+                ctwgc.getEditConfig('Edit', function(rowIndex) {
+                    dataView = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView;
+                    if(viewConfig.isWizard){
+                        overlayAddressGroupEditView.model = new AddressGroupModel(dataView.getItem(rowIndex));
+                        overlayAddressGroupEditView.renderAddressGroup({
+                                                'mode':'edit',
+                                                'viewConfig': viewConfig,
+                                                'isGlobal': viewConfig.isGlobal
+                        });
+                    }else{
+                        addressGroupEditView.model = new AddressGroupModel(dataView.getItem(rowIndex));
+                        addressGroupEditView.renderAddEditAddressGroup({
+                                              "title": 'Edit Address Group',
+                                              'mode':'edit',
+                                              'isGlobal': viewConfig.isGlobal,
+                                               callback: function () {
+                                                  dataView.refreshData();
+                        }});
+                    }
+                }),
+                ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+                   var dataItem = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
+                   if(viewConfig.isWizard){
+                       overlayAddressGroupEditView.model = new AddressGroupModel(dataItem);
+                       overlayAddressGroupEditView.renderAddressGroup({
+                                               selectedGridData: [dataItem],
+                                               'viewConfig': viewConfig,
+                                               'mode':'delete'
+                       });
+                   }else{
+                       addressGroupEditView.model = new AddressGroupModel(dataItem);
+                       addressGroupEditView.renderDeleteAddressGrp({
+                                              "title": ctwl.TITLE_ADDRESS_GROUP_DELETE,
+                                              selectedGridData: [dataItem],
+                                              callback: function () {
+                                                  var dataView = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView;
+                                                  dataView.refreshData();
+                       }});
+                   }
+                })
+            ];
+            return rowActionConfig;
+        }
     }
     function getHeaderActionConfig(viewConfig) {
-    	var headerActionConfig = [
-    		{
-                "type" : "link",
-                "title" : ctwl.TITLE_ADDRESS_GROUP_MULTI_DELETE,
-                "iconClass": 'fa fa-trash',
-                "linkElementId": 'btnDeleteAddressGrp',
-                "onClick" : function() {
-                    var addressGroupModel = new AddressGroupModel();
-                    var checkedRows = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid").getCheckedRows();
-                    if(checkedRows && checkedRows.length > 0) {
+        if(cowu.isAdmin() === false && viewConfig.isGlobal === true){
+            return false;
+        }
+        else{
+            var headerActionConfig = [
+                {
+                    "type" : "link",
+                    "title" : ctwl.TITLE_ADDRESS_GROUP_MULTI_DELETE,
+                    "iconClass": 'fa fa-trash',
+                    "linkElementId": 'btnDeleteAddressGrp',
+                    "onClick" : function() {
+                        var addressGroupModel = new AddressGroupModel();
+                        var checkedRows = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid").getCheckedRows();
+                        if(checkedRows && checkedRows.length > 0) {
+                            if(viewConfig.isWizard){
+                                overlayAddressGroupEditView.model = addressGroupModel;
+                                overlayAddressGroupEditView.renderAddressGroup({
+                                    selectedGridData: checkedRows,
+                                    'viewConfig': viewConfig,
+                                    'mode':'delete'
+                                });
+                            }else{
+                                addressGroupEditView.model = addressGroupModel;
+                                addressGroupEditView.renderDeleteAddressGrp(
+                                    {"title": ctwl.TITLE_ADDRESS_GROUP_MULTI_DELETE,
+                                        selectedGridData: checkedRows,
+                                        callback: function () {
+                                            var dataView =
+                                                $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).
+                                                data("contrailGrid")._dataView;
+                                            dataView.refreshData();
+                                        }
+                                    }
+                                );
+                            }
+                        }
+                    }
+
+                },
+                {
+                    "type": "link",
+                    "title": ctwl.TITLE_CREATE_ADDRESS_GROUP,
+                    "iconClass": "fa fa-plus",
+                    "onClick": function () {
                         if(viewConfig.isWizard){
-                            overlayAddressGroupEditView.model = addressGroupModel;
+                            overlayAddressGroupEditView.model = new AddressGroupModel();
                             overlayAddressGroupEditView.renderAddressGroup({
-                                selectedGridData: checkedRows,
+                                'mode': 'add',
                                 'viewConfig': viewConfig,
-                                'mode':'delete'
+                                'isGlobal': viewConfig.isGlobal
                             });
                         }else{
-                            addressGroupEditView.model = addressGroupModel;
-                            addressGroupEditView.renderDeleteAddressGrp(
-                                {"title": ctwl.TITLE_ADDRESS_GROUP_MULTI_DELETE,
-                                    selectedGridData: checkedRows,
-                                    callback: function () {
-                                        var dataView =
-                                            $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).
-                                            data("contrailGrid")._dataView;
-                                        dataView.refreshData();
-                                    }
-                                }
-                            );
+                            addressGroupEditView.model = new AddressGroupModel();
+                            addressGroupEditView.renderAddEditAddressGroup({
+                                                      "title": 'Create',
+                                                      'mode': 'add',
+                                                      'isGlobal': viewConfig.isGlobal,
+                                                      callback: function () {
+                               $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView.refreshData();
+                            }});
                         }
                     }
                 }
 
-            },
-            {
-                "type": "link",
-                "title": ctwl.TITLE_CREATE_ADDRESS_GROUP,
-                "iconClass": "fa fa-plus",
-                "onClick": function () {
-                    if(viewConfig.isWizard){
-                        overlayAddressGroupEditView.model = new AddressGroupModel();
-                        overlayAddressGroupEditView.renderAddressGroup({
-                            'mode': 'add',
-                            'viewConfig': viewConfig,
-                            'isGlobal': viewConfig.isGlobal
-                        });
-                    }else{
-                        addressGroupEditView.model = new AddressGroupModel();
-                        addressGroupEditView.renderAddEditAddressGroup({
-                                                  "title": 'Create',
-                                                  'mode': 'add',
-                                                  'isGlobal': viewConfig.isGlobal,
-                                                  callback: function () {
-                           $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView.refreshData();
-                        }});
-                    }
-                }
-            }
-
-        ];
-        return headerActionConfig;
+            ];
+            return headerActionConfig;
+        }
     }
 
     function getAddressGrpDetailsTemplateConfig() {
