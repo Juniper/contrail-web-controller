@@ -879,57 +879,6 @@ and need to add the iconClass tag wherever we need to show some icons
                     </items>
                 </item>
                 <item>
-                    <label>Tags</label>
-                    <hash>config_tags</hash>
-                    <access>
-                        <roles>
-                            <role>cloudAdmin</role>
-                            <role>member</role>
-                        </roles>
-                        <orchModels>
-                            <model>openstack</model>
-                        </orchModels>
-                        <accessFn>hideInGlobalController</accessFn>
-                    </access>
-                    <iconClass>menu-icon fa fa-tags</iconClass>
-                    <items>
-                        <item>
-                            <label>Global Tags</label>
-                            <hash>config_tags_globaltags</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/common/ui</rootDir>
-                                    <js>controller.app.js</js>
-                                </resource>
-                                <resource>
-                                    <rootDir>/config/infra/tag/ui</rootDir>
-                                    <js>tagGlobal.main.js</js>
-                                    <class>tagGlobalPageLoader</class>
-                                    <function>render</function>
-                                </resource>
-                            </resources>
-                            <searchStrings>Configure Tags, Global Tags</searchStrings>
-                        </item>
-                        <item>
-                            <label>Project Scoped Tags</label>
-                            <hash>config_tags_projectscopedtags</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/common/ui</rootDir>
-                                    <js>controller.app.js</js>
-                                </resource>
-                                <resource>
-                                    <rootDir>/config/firewall/project/tag/ui</rootDir>
-                                    <js>tagProject.main.js</js>
-                                    <class>tagProjectPageLoader</class>
-                                    <function>renderProjectTag</function>
-                                </resource>
-                            </resources>
-                            <searchStrings>Configure Tags, Project Scoped Tags</searchStrings>
-                        </item>
-                    </items>
-                </item>
-                  <item>
                     <label>Security</label>
                     <hash>config_security</hash>
                     <access>
@@ -995,6 +944,57 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Configure Security, Project Scoped Policies</searchStrings>
                         </item>-->
+                    </items>
+                </item>
+                <item>
+                    <label>Tags</label>
+                    <hash>config_tags</hash>
+                    <access>
+                        <roles>
+                            <role>cloudAdmin</role>
+                            <role>member</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                        </orchModels>
+                        <accessFn>hideInGlobalController</accessFn>
+                    </access>
+                    <iconClass>menu-icon fa fa-tags</iconClass>
+                    <items>
+                        <item>
+                            <label>Global Tags</label>
+                            <hash>config_tags_globaltags</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/infra/tag/ui</rootDir>
+                                    <js>tagGlobal.main.js</js>
+                                    <class>tagGlobalPageLoader</class>
+                                    <function>render</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Tags, Global Tags</searchStrings>
+                        </item>
+                        <item>
+                            <label>Project Scoped Tags</label>
+                            <hash>config_tags_projectscopedtags</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/firewall/project/tag/ui</rootDir>
+                                    <js>tagProject.main.js</js>
+                                    <class>tagProjectPageLoader</class>
+                                    <function>renderProjectTag</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Tags, Project Scoped Tags</searchStrings>
+                        </item>
                     </items>
                 </item>
                 <item>

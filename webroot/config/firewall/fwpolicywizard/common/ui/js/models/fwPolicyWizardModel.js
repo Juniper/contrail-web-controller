@@ -32,7 +32,7 @@ define([
         formatModelConfig: function(modelConfig) {
             self = this;
             var shareModel, shareModelCol = [], share, fwRuleModel, fwRuleModelCol = [];
-            modelConfig["firewall_rules"] = new Backbone.Collection(fwRuleModelCol);
+            modelConfig["firewall_rules"] = new Backbone.Collection(fwRuleModelCol); 
             var tagRef = getValueByJsonPath(modelConfig, 'tag_refs', []), tagList = [],
             description = getValueByJsonPath(modelConfig, 'id_perms;description', '');
             if((modelConfig["perms2"]["owner_access"] != "") || (modelConfig["perms2"]["global_access"] != "")) {
@@ -72,14 +72,14 @@ define([
         },
         addRule: function() {
             var rulesList = this.model().attributes['firewall_rules'],
-                newRuleModel = new RuleModel();
+                newRuleModel = new RuleModel({disabled: false});
             this.showHideServiceInstance(newRuleModel);
             rulesList.add([newRuleModel]);
         },
         addRuleByIndex: function(data,rules) {
             var selectedRuleIndex = data.model().collection.indexOf(rules.model());
             var rulesList = this.model().attributes['firewall_rules'],
-                newRuleModel = new RuleModel();
+                newRuleModel = new RuleModel({disabled: false});
             this.showHideServiceInstance(newRuleModel);
 
             rulesList.add([newRuleModel],{at: selectedRuleIndex+1});
@@ -197,7 +197,7 @@ define([
             }
             return returnval;
         },
-        addEditApplicationSet: function (callbackObj, options, firstStep, serviceGroupList) {
+        addEditApplicationSet: function (callbackObj, options, firstStep, serviceGroupList, policyEditSet) {
             var ajaxConfig = {}, returnFlag = true,updatedVal = {}, postFWRuleData = {};
             var postFWPolicyData = {}, newFWPolicyData, attr;
             var updatedModel = {},policyList = [];
@@ -279,122 +279,238 @@ define([
                 }
             }else{
                var fwRules = this.model().attributes.firewall_rules ?
-                        this.model().attributes.firewall_rules.toJSON(): [],
-                postFWRules = [];
-                if(fwRules.length > 0){
-                    _.each(fwRules, function(rule) {
-                        var attr = $.extend(true, {}, rule.model().attributes),
-                            newFWRuleData = {};
-                        attr.name = UUIDjs.create().hex;
-                        if(options.viewConfig.isGlobal) {
-                            newFWRuleData["fq_name"] =
-                                [
-                                  "default-policy-management",
-                                  attr.name
-                                ];
-                            newFWRuleData['parent_type'] = "policy-management";
-                        } else {
-                            newFWRuleData["fq_name"] =
-                                [
-                                  contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME),
-                                  contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME),
-                                  attr.name
-                                ];
-                            newFWRuleData['parent_type'] = "project";
+                        this.model().attributes.firewall_rules.toJSON(): [];
+                    if(Object.keys(policyEditSet).length > 0){
+                        if(policyEditSet.mode == 'edit'){
+                            policyEditSet.description = this.model().attributes.policy_description;
+                            self.createAndUpdateRules(fwRules, options, serviceGroupList, policyEditSet, callbackObj);
+                        }else if(policyEditSet.mode == 'add'){
+                            postFWRuleData['firewall-rules'] = self.ruleFormation(fwRules, options, serviceGroupList, false);
+                            attr = this.model().attributes;
+                            self.addPolicy(attr, postFWRuleData, callbackObj, options);
                         }
-                        newFWRuleData['name'] = attr.name;
-                        newFWRuleData['uuid'] = attr.name;
-                        newFWRuleData['endpoint_1'] = self.populateEndpointData(attr['endpoint_1']);
-                        newFWRuleData['endpoint_2'] = self.populateEndpointData(attr['endpoint_2']);
-                        if(attr['user_created_service'] !== ''){
-                            var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
-                            if(getSelectedService.isServiceGroup){
-                                newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
-                            }else{
-                                if(getSelectedService['service'] !== undefined){
-                                    newFWRuleData['service'] = getSelectedService['service'];
-                                }
-                            }
+                    }else{
+                        postFWRuleData['firewall-rules'] = self.ruleFormation(fwRules, options, serviceGroupList, false);
+                        attr = this.model().attributes;
+                        self.addPolicy(attr, postFWRuleData, callbackObj, options); 
+                    }   
+            }
+        },
+        createAndUpdateRules: function(fwRules, options, serviceGroupList, policyObj, callbackObj){
+            var existingRules = [], newRules = [], sequnceList = [];
+            _.each(fwRules, function(rule) {
+                var ruleModel = $.extend(true, {}, rule.model().attributes);
+                if(ruleModel.uuid != undefined){
+                    var obj = {};
+                    obj.to = ruleModel.fq_name;
+                    obj.uuid = ruleModel.uuid;
+                    obj.attr = {};
+                    var firewallBackRef = getValueByJsonPath(ruleModel, "firewall_policy_back_refs",[]);
+                    _.each(firewallBackRef, function(ref) {
+                        if(ref.uuid === policyObj.uuid){
+                            obj.attr.sequence = ref.attr.sequence.toString();
+                            sequnceList.push(Number(ref.attr.sequence));
                         }
-                        newFWRuleData['action_list'] = {};
-                        newFWRuleData['action_list']['simple_action'] = attr['simple_action'];
-                        newFWRuleData['direction'] = attr['direction'];
-                        newFWRuleData['match_tags'] = {};
-                        newFWRuleData['id_perms'] = {};
-                        newFWRuleData['id_perms']["enable"] = attr["status"];
-                        newFWRuleData['match_tags']['tag_list'] =
-                            attr.match_tags ? attr.match_tags.split(',') : [];
-                        postFWRules.push({'firewall-rule': $.extend(true, {}, newFWRuleData)});
                     });
-
-                    postFWRuleData['firewall-rules'] = postFWRules;
-                    
-                    attr = this.model().attributes;
-                    newFWPolicyData = $.extend(true, {}, attr);
-
+                    existingRules.push(obj);
+                }else{
+                    newRules.push(ruleModel);
+                }
+            });
+            if(newRules.length > 0){
+                var formatedNewRule = self.ruleFormation(newRules, options, serviceGroupList, true);
+                self.policyEditNewRuleCreation(formatedNewRule, existingRules, options, callbackObj, sequnceList, policyObj); 
+            }else{
+                self.updatePolicy(policyObj, options, callbackObj, existingRules);
+            }
+        },
+        policyEditNewRuleCreation: function(formatedNewRule, existingRules, options, callbackObj, sequnceList, policyObj){
+            var newRuleList = [], ajaxConfig = {};
+            for(var i = 0; i < formatedNewRule.length; i++){
+                var obj = {"data":{"firewall-rule": formatedNewRule[i]},
+                        "reqUrl": "/firewall-rules"};
+                newRuleList.push(obj);
+            }
+            var postData = {"data":newRuleList };
+            ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
+            ajaxConfig.type  = 'POST';
+            ajaxConfig.data  = JSON.stringify(postData);
+            contrail.ajaxHandler(ajaxConfig, function () {
+                if (contrail.checkIfFunction(callbackObj.init)) {
+                    callbackObj.init();
+                }
+            }, function (response) {
+                var seqList = sequnceList.sort();
+                var lastSeq = seqList[seqList.length - 1];
+                for(var j = 0; j < response.length; j++){
+                    var obj = {};
+                    obj.to = response[j]['firewall-rule'].fq_name;
+                    obj.uuid = response[j]['firewall-rule'].uuid;
+                    obj.attr = {};
+                    lastSeq++;
+                    obj.attr.sequence = lastSeq.toString();
+                    existingRules.push(obj);
+                }
+                self.updatePolicy(policyObj, options, callbackObj, existingRules);
+            }, function (error) {
+                if (contrail.checkIfFunction(callbackObj.error)) {
+                    callbackObj.error(error);
+                }
+                returnFlag = false;
+            });
+        },
+        updatePolicy: function(policyObj, options, callbackObj, existingRules){
+            var policeyModel = policyObj.model, postFWPolicyData = {},
+            ajaxConfig = {};
+            policeyModel.id_perms.description = policyObj.description;
+            policeyModel['firewall_rule_refs'] = existingRules;
+            delete policeyModel.href;
+            delete policeyModel.parent_type;
+            delete policeyModel.parent_uuid;
+            delete policeyModel.perms2;
+            delete policeyModel.cgrid;
+            postFWPolicyData['firewall-policy'] = policeyModel;
+            postFWPolicyData = {"data":[{"data": postFWPolicyData,
+                        "reqUrl": ctwc.URL_UPDATE_FW_POLICY +
+                        policeyModel['uuid']}]};
+            ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
+            ajaxConfig.async = false;
+            ajaxConfig.type  = "POST";
+            ajaxConfig.data  = JSON.stringify(postFWPolicyData);
+            contrail.ajaxHandler(ajaxConfig, function () {
+                if (contrail.checkIfFunction(callbackObj.init)) {
+                    callbackObj.init();
+                }
+            }, function (response) {
+                /*self.fwPolicyId = getValueByJsonPath(response,
+                        '0;firewall-policy;uuid', '');*/
+                if (contrail.checkIfFunction(callbackObj.success)) {
+                    callbackObj.success();
+                }
+                returnFlag = true;
+            }, function (error) {
+                if (contrail.checkIfFunction(callbackObj.error)) {
+                    callbackObj.error(error);
+                }
+                returnFlag = false;
+            });
+        },
+        ruleFormation: function(fwRules, options, serviceGroupList, newRule){
+            var postFWRules = [], attr;
+            _.each(fwRules, function(rule) {
+                    if(newRule){
+                      attr = rule;
+                    }else{
+                      attr = $.extend(true, {}, rule.model().attributes);  
+                    }
+                    var newFWRuleData = {};
+                    attr.name = UUIDjs.create().hex;
                     if(options.viewConfig.isGlobal) {
-                        newFWPolicyData["fq_name"] =
+                        newFWRuleData["fq_name"] =
                             [
                               "default-policy-management",
-                               newFWPolicyData["policy_name"]
+                              attr.name
                             ];
-                        newFWPolicyData['parent_type'] = "policy-management";
+                        newFWRuleData['parent_type'] = "policy-management";
                     } else {
-                        newFWPolicyData["fq_name"] =
+                        newFWRuleData["fq_name"] =
                             [
                               contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME),
                               contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME),
-                              newFWPolicyData["policy_name"]
+                              attr.name
                             ];
-                        newFWPolicyData['parent_type'] = "project";
+                        newFWRuleData['parent_type'] = "project";
                     }
-                    this.updateRBACPermsAttrs(newFWPolicyData);
-
-                    ctwu.deleteCGridData(newFWPolicyData);
-                    var obj = {};
-                    obj.description = newFWPolicyData.policy_description;
-                    newFWPolicyData['id_perms'] = obj;
-                    newFWPolicyData['firewall_rules'] = [];
-                    newFWPolicyData['name'] =  newFWPolicyData["policy_name"];
-                    newFWPolicyData["display_name"] = newFWPolicyData["policy_name"];
-                    delete newFWPolicyData.policy_description;
-                    delete newFWPolicyData.policy_name;
-                    delete newFWPolicyData.description;
-                    delete newFWPolicyData.onNext;
-                    postFWPolicyData['firewall-policy'] = newFWPolicyData;
-
-                    postFWPolicyData = {"data":[{"data": postFWPolicyData,
-                                    "reqUrl": ctwc.URL_CREATE_FW_POLICY}]};
-                        ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
-                    
-                    ajaxConfig.async = false;
-                    ajaxConfig.type  = "POST";
-                    ajaxConfig.data  = JSON.stringify(postFWPolicyData);
-                    
-                    contrail.ajaxHandler(ajaxConfig, function () {
-                        if (contrail.checkIfFunction(callbackObj.init)) {
-                            callbackObj.init();
+                    newFWRuleData['name'] = attr.name;
+                    newFWRuleData['uuid'] = attr.name;
+                    newFWRuleData['endpoint_1'] = self.populateEndpointData(attr['endpoint_1']);
+                    newFWRuleData['endpoint_2'] = self.populateEndpointData(attr['endpoint_2']);
+                    if(attr['user_created_service'] !== ''){
+                        var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
+                        if(getSelectedService.isServiceGroup){
+                            newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
+                        }else{
+                            if(getSelectedService['service'] !== undefined){
+                                newFWRuleData['service'] = getSelectedService['service'];
+                            }
                         }
-                    }, function (response) {
-                        var fwPolicyId = getValueByJsonPath(response,
-                                '0;firewall-policy;uuid', '');
-                        self.addPolicyRules(fwPolicyId, postFWRuleData, callbackObj, options);
-                        
-                        
-                    }, function (error) {
-                        if (contrail.checkIfFunction(callbackObj.error)) {
-                            callbackObj.error(error);
-                        }
-                        returnFlag = false;
-                    });
-                }else{
-                    if (contrail.checkIfFunction(callbackObj.error)) {
-                        var error = {};
-                        error.responseText = 'Please create the Rule.'
-                        callbackObj.error(error);
                     }
-                }
+                    newFWRuleData['action_list'] = {};
+                    newFWRuleData['action_list']['simple_action'] = attr['simple_action'];
+                    newFWRuleData['direction'] = attr['direction'];
+                    newFWRuleData['match_tags'] = {};
+                    newFWRuleData['id_perms'] = {};
+                    newFWRuleData['id_perms']["enable"] = attr["status"];
+                    newFWRuleData['match_tags']['tag_list'] =
+                        attr.match_tags ? attr.match_tags.split(',') : [];
+                    if(newRule){
+                        delete newFWRuleData.uuid;
+                        postFWRules.push(newFWRuleData);
+                    }else{
+                        postFWRules.push({'firewall-rule': $.extend(true, {}, newFWRuleData)}); 
+                    }   
+                });
+            return postFWRules;
+        },
+        addPolicy: function(attr, postFWRuleData, callbackObj, options){
+            var newFWPolicyData = {}, postFWPolicyData = {}, ajaxConfig = {};
+            newFWPolicyData = $.extend(true, {}, attr);
+
+            if(options.viewConfig.isGlobal) {
+                newFWPolicyData["fq_name"] =
+                    [
+                      "default-policy-management",
+                       newFWPolicyData["policy_name"]
+                    ];
+                newFWPolicyData['parent_type'] = "policy-management";
+            } else {
+                newFWPolicyData["fq_name"] =
+                    [
+                      contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME),
+                      contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME),
+                      newFWPolicyData["policy_name"]
+                    ];
+                newFWPolicyData['parent_type'] = "project";
             }
+            this.updateRBACPermsAttrs(newFWPolicyData);
+
+            ctwu.deleteCGridData(newFWPolicyData);
+            var obj = {};
+            obj.description = newFWPolicyData.policy_description;
+            newFWPolicyData['id_perms'] = obj;
+            newFWPolicyData['firewall_rules'] = [];
+            newFWPolicyData['name'] =  newFWPolicyData["policy_name"];
+            newFWPolicyData["display_name"] = newFWPolicyData["policy_name"];
+            delete newFWPolicyData.policy_description;
+            delete newFWPolicyData.policy_name;
+            delete newFWPolicyData.description;
+            delete newFWPolicyData.onNext;
+            postFWPolicyData['firewall-policy'] = newFWPolicyData;
+
+            postFWPolicyData = {"data":[{"data": postFWPolicyData,
+                            "reqUrl": ctwc.URL_CREATE_FW_POLICY}]};
+                ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
+            
+            ajaxConfig.async = false;
+            ajaxConfig.type  = "POST";
+            ajaxConfig.data  = JSON.stringify(postFWPolicyData);
+            
+            contrail.ajaxHandler(ajaxConfig, function () {
+                if (contrail.checkIfFunction(callbackObj.init)) {
+                    callbackObj.init();
+                }
+            }, function (response) {
+                var fwPolicyId = getValueByJsonPath(response,
+                        '0;firewall-policy;uuid', '');
+                self.addPolicyRules(fwPolicyId, postFWRuleData, callbackObj, options);
+                
+                
+            }, function (error) {
+                if (contrail.checkIfFunction(callbackObj.error)) {
+                    callbackObj.error(error);
+                }
+                returnFlag = false;
+            });
         },
         addPolicyRules: function (fwPolicyId, postFWRuleData, callbackObj, options){
             var ajaxConfig = {};
@@ -410,7 +526,11 @@ define([
                 }
             }, function (response) {
                 if(Object.keys(newApplicationSet).length > 0){
-                    self.callPolicyList(response, self, callbackObj, options);  
+                    if(response == null){
+                        self.callPolicyList(fwPolicyId, self, callbackObj, options);
+                    }else{
+                        self.callPolicyList(response[0].uuid, self, callbackObj, options); 
+                    }
                 }else{
                     if (contrail.checkIfFunction(callbackObj.success)) {
                         callbackObj.success();
@@ -423,7 +543,7 @@ define([
                 returnFlag = false;
             })
         },
-        callPolicyList : function(model, self, callbackObj, options){
+        callPolicyList : function(policyUUID, self, callbackObj, options){
             var getAjaxs = [];
             getAjaxs[0] = $.ajax({
                 url:"/api/tenants/config/get-config-details",
@@ -442,7 +562,7 @@ define([
                 }
                 _.each(fwPolicyData, function(val){
                         if('firewall-policy' in val){
-                            if(val['firewall-policy'].uuid === model[0].uuid){
+                            if(val['firewall-policy'].uuid === policyUUID){
                                 var obj = {};
                                 var to = val['firewall-policy'].fq_name;
                                 obj.to = to;
@@ -469,6 +589,33 @@ define([
                     self.addApplicationPolicySet(policyList, callbackObj, options);
                 }
             })
+        },
+        deleteApplicationPolicy: function (checkedRows, callbackObj) {
+            var ajaxConfig = {};
+            var uuidList = [];
+
+            $.each(checkedRows, function (checkedRowsKey, checkedRowsValue) {
+                uuidList.push(checkedRowsValue.uuid);
+            });
+
+            ajaxConfig.type = "POST";
+            ajaxConfig.data = JSON.stringify([{'type': 'application-policy-set',
+                                              'deleteIDs': uuidList}]);
+
+            ajaxConfig.url = '/api/tenants/config/delete';
+            contrail.ajaxHandler(ajaxConfig, function () {
+                if (contrail.checkIfFunction(callbackObj.init)) {
+                    callbackObj.init();
+                }
+            }, function (response) {
+                if (contrail.checkIfFunction(callbackObj.success)) {
+                    callbackObj.success();
+                }
+            }, function (error) {
+                if (contrail.checkIfFunction(callbackObj.error)) {
+                    callbackObj.error(error);
+                }
+            });
         },
         addApplicationPolicySet : function(policyList, callbackObj, options){
             var updatedModel = {}, ajaxConfig = {};

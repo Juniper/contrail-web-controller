@@ -44,7 +44,7 @@ define([
                 }
             },
             {
-                elementId: "security_permissions",
+                elementId: "fw_security_permissions",
                 view: 'SectionView',
                 title:"Permissions",
                 viewConfig: {
@@ -52,7 +52,7 @@ define([
                         {
                             columns: [
                                 {
-                                    elementId: 'owner_access_security',
+                                    elementId: 'fw_owner_access_security',
                                     view: 'FormMultiselectView',
                                     viewConfig: {
                                         label: "Owner Permissions",
@@ -73,7 +73,7 @@ define([
                         {
                             columns: [
                                 {
-                                    elementId: 'global_access_secuirty',
+                                    elementId: 'fw_global_access_secuirty',
                                     view: 'FormMultiselectView',
                                     viewConfig: {
                                         label: "Global Share Permissions",
@@ -93,7 +93,7 @@ define([
                         },
                         {
                             columns:[{
-                                elementId: "security_share_accordion_create",
+                                elementId: "fw_security_share_accordion_create",
                                 view: "AccordianView",
                                 viewConfig:[{
                                    elementId: "security_share_accordion_create",
@@ -147,7 +147,7 @@ define([
                                      viewConfig: {
                                          templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                          path: "simple_action",
-                                         disabled: "showService()",
+                                         disabled: "disabled()",
                                          dataBindValue: "simple_action()",
                                          elementConfig:{
                                              data:['pass','deny']
@@ -162,19 +162,17 @@ define([
                                             templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
                                             width: 210,
                                             path: 'user_created_service',
+                                            disabled: "disabled()",
                                             dataBindValue: 'user_created_service()',
-                                            elementConfig: {
-                                                dataTextField: "text",
-                                                dataValueField: "value",
+                                            elementConfig:{
+                                                dataTextField: 'text',
+                                                dataValueField: 'value',
                                                 placeholder: "Select or Enter Protocol:Port",
                                                 dataSource: {
-                                                    type: "remote",
-                                                    requestType: "POST",
-                                                    url: "/api/tenants/config/get-config-details",
-                                                    postData: JSON.stringify(serviceGrp),
-                                                    parse : serviceGroupDataFormatter
-                                                }
-                                            }
+                                                    type: 'local',
+                                                    data: allData.serviceGrpList
+                                                   }
+                                               }
                                         }
                                     },
                                     {
@@ -189,6 +187,7 @@ define([
                                             width: 220,
                                             path: 'endpoint_1',
                                             dataBindValue: 'endpoint_1()',
+                                            disabled: "disabled()",
                                             elementConfig: {
                                                 placeholder: 'Select Endpoint',
                                                 minimumResultsForSearch : 1,
@@ -257,7 +256,7 @@ define([
                                          templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                          path: "direction",
                                          dataBindValue: "direction()",
-                                         disabled: "showService()",
+                                         disabled: "disabled()",
                                          elementConfig:{
                                              data:['<>', '>', '<']
                                          }}
@@ -274,6 +273,7 @@ define([
                                             width: 220,
                                             path: 'endpoint_2',
                                             dataBindValue: 'endpoint_2()',
+                                            disabled: "disabled()",
                                             elementConfig: {
                                                 placeholder: 'Select Endpoint',
                                                 minimumResultsForSearch : 1,
@@ -340,6 +340,7 @@ define([
                                            class: "",
                                            width: 170,
                                            path: "match_tags",
+                                           disabled: "disabled()",
                                            templateId:
                                                cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                            dataBindValue:
@@ -396,18 +397,81 @@ define([
             };
             return retStr;
         }
+        self.createApplicationPolicySet = function(){
+            $("#overlay-background-id").addClass("overlay-background");
+            $('#view-address-group').show();
+            $('#view-service-group').show();
+            $('#view-visble-tags').show();
+        }
+        self.viewAdressGroup = function(){
+            $("#overlay-background-id").removeClass("overlay-background");
+            $('#create-firewall-policy').show();
+            $('#view-address-group').hide();
+            $('#view-service-group').show();
+            $('#view-visble-tags').show();
+        }
+        self.viewServiceGroup = function(){
+            $("#overlay-background-id").removeClass("overlay-background");
+            $('#create-firewall-policy').show();
+            $('#view-address-group').show();
+            $('#view-service-group').hide();
+            $('#view-visble-tags').show();
+        }
+        self.viewTags = function(){
+            $("#overlay-background-id").removeClass("overlay-background");
+            $('#create-firewall-policy').show();
+            $('#view-address-group').show();
+            $('#view-service-group').show();
+            $('#view-visble-tags').hide();
+        }
+        self.viewApplicationPolicySet = function(){
+            $('#aps-overlay-container .dropdown').show();
+            $('#create-firewall-policy').hide();
+            $("#overlay-background-id").removeClass("overlay-background");
+        }
+        self.backButtonClick = function(){
+            $('#modal-landing-container').show();
+            $("#aps-gird-container").empty();
+            $('#aps-landing-container').hide();
+        }
+        self.appendDeleteContainer = function(postionDiv, appendDiv, overlay){
+            var deleteContainer = $('<div class="confirmation-popover"></div>');
+            var msg = $('<span class="confirm-message">Are you sure you want to Delete?</span>');
+            deleteContainer.append(msg);
+            var confirmDiv = $('<div class="confirm-actions"></div>');
+            var cancel = $('<a class="margin-right-10 cancelWizardDeletePopup"></a>');
+            var cancelI = $('<i class="fa fa-close"></i>');
+            cancel.append(cancelI);
+            confirmDiv.append(cancel);
+            var save = $('<a class="margin-right-10 saveWizardRecords"></a>');
+            var saveI = $('<i class="fa fa-check"></i>');
+            save.append(saveI);
+            confirmDiv.append(save);
+            deleteContainer.append(confirmDiv);
+            if($(postionDiv).parents().eq(2).hasClass("grid-header")){
+                $(postionDiv).parent().parent().append(deleteContainer);
+            }
+            else{
+                 $(postionDiv).parent().append(deleteContainer);
+            }
+            if(overlay){
+                var deleteOverlay = $('<div id="delete-popup-background" class="overlay-background"></div>');
+                if($('#delete-popup-background').length == 0){
+                    $('#aps-overlay-container').append(deleteOverlay);
+                }else{
+                    $('#delete-popup-background').addClass('overlay-background');
+                }
+            }else{
+                var deleteOverlay = $('<div id="overlay-background-id" class="overlay-background"></div>');
+                if($('#overlay-background-id').length == 0){
+                    $('#applicationpolicyset_policy_wizard').append(deleteOverlay);
+                }else{
+                    $('#overlay-background-id').addClass('overlay-background');
+                }
+            }
+        }
     };
-    this.serviceGroupDataFormatter = function(response){
-        var serviceGrpList = [];
-        //self.serviceGroupList =[];
-        var secGrpList = getValueByJsonPath(response, "0;service-groups", []);
-        $.each(secGrpList, function (i, obj) {
-            var obj = obj['service-group'];
-            serviceGrpList.push({value: obj.uuid, text: obj.name});
-            //serviceGroupList.push({fq_name : obj.fq_name, text: obj.name});
-         });
-        return serviceGrpList;
-    };
+
     this.shareViewConfig = function() {
         return  [{
             elementId: 'share_list',

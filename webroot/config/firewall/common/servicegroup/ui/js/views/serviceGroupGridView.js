@@ -121,113 +121,123 @@ define([
         return gridElementConfig;
     };
     function getRowActionConfig (viewConfig) {
-        var rowActionConfig = [
-            ctwgc.getEditConfig('Edit', function(rowIndex) {
-                dataView = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView;
-                if(viewConfig.isWizard){
-                    overlayServiceGroupEditView.model = new ServiceGroupModel(dataView.getItem(rowIndex));
-                    overlayServiceGroupEditView.renderServiceGroup({
-                                            'mode':'edit',
-                                            'viewConfig': viewConfig,
-                                            'isGlobal': viewConfig.isGlobal
-                    });
-                } else{
-                    serviceGroupEditView.model = new ServiceGroupModel(dataView.getItem(rowIndex));
-                    serviceGroupEditView.renderAddEditServiceGroup({
-                        "title": 'Edit Service Group',
-                        'mode':'edit',
-                        'isGlobal': viewConfig.isGlobal,
-                         callback: function () {
-                            dataView.refreshData();
-                    }});
-                }
-            }),
-            ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-               var dataItem = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
-               if(viewConfig.isWizard){
-                   overlayServiceGroupEditView.model = new ServiceGroupModel(dataItem);
-                   overlayServiceGroupEditView.renderServiceGroup({
-                                           selectedGridData: [dataItem],
-                                           'viewConfig': viewConfig,
-                                           'mode':'delete'
-                   });
-               } else{
-                   serviceGroupEditView.model = new ServiceGroupModel(dataItem);
-                   serviceGroupEditView.renderDeleteServiceGrp({
-                                          "title": ctwl.TITLE_SERVICE_GROUP_DELETE,
-                                          selectedGridData: [dataItem],
-                                          callback: function () {
-                                              var dataView = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView;
-                                              dataView.refreshData();
-                    }});
-               } 
-            })
-        ];
-        return rowActionConfig;
-    }
-    function getHeaderActionConfig(viewConfig) {
-    	var headerActionConfig = [
-    		{
-                "type" : "link",
-                "title" : ctwl.TITLE_SERVICE_GROUP_MULTI_DELETE,
-                "iconClass": 'fa fa-trash',
-                "linkElementId": 'btnDeleteServiceGrp',
-                "onClick" : function() {
-                    var serviceGroupModel = new ServiceGroupModel();
-                    var checkedRows = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid").getCheckedRows();
-                    if(checkedRows && checkedRows.length > 0) {
-                        if(viewConfig.isWizard){
-                            overlayServiceGroupEditView.model = serviceGroupModel;
-                            overlayServiceGroupEditView.renderServiceGroup({
-                                        selectedGridData: checkedRows,
-                                        'viewConfig': viewConfig,
-                                        'mode':'delete'
-                            });
-                        } else{
-                            serviceGroupEditView.model = serviceGroupModel;
-                            serviceGroupEditView.renderDeleteServiceGrp(
-                                {"title": ctwl.TITLE_SERVICE_GROUP_MULTI_DELETE,
-                                    selectedGridData: checkedRows,
-                                    callback: function () {
-                                        var dataView =
-                                            $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).
-                                            data("contrailGrid")._dataView;
-                                        dataView.refreshData();
-                                    }
-                                }
-                            );
-                        }
-                    }
-                }
-
-            },
-            {
-                "type": "link",
-                "title": ctwl.TITLE_CREATE_SERVICE_GROUP,
-                "iconClass": "fa fa-plus",
-                "onClick": function () {
+        if(cowu.isAdmin() === false && viewConfig['is_global'] === true){
+            return false;
+        }
+        else{
+            var rowActionConfig = [
+                ctwgc.getEditConfig('Edit', function(rowIndex) {
+                    dataView = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView;
                     if(viewConfig.isWizard){
-                        overlayServiceGroupEditView.model = new ServiceGroupModel();
+                        overlayServiceGroupEditView.model = new ServiceGroupModel(dataView.getItem(rowIndex));
                         overlayServiceGroupEditView.renderServiceGroup({
-                                                'mode': 'add',
+                                                'mode':'edit',
                                                 'viewConfig': viewConfig,
                                                 'isGlobal': viewConfig.isGlobal
                         });
                     } else{
-                        serviceGroupEditView.model = new ServiceGroupModel();
+                        serviceGroupEditView.model = new ServiceGroupModel(dataView.getItem(rowIndex));
                         serviceGroupEditView.renderAddEditServiceGroup({
-                                                  "title": 'Create',
-                                                  'mode': 'add',
-                                                  'isGlobal': viewConfig.isGlobal,
-                                                  callback: function () {
-                           $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView.refreshData();
+                            "title": 'Edit Service Group',
+                            'mode':'edit',
+                            'isGlobal': viewConfig.isGlobal,
+                             callback: function () {
+                                dataView.refreshData();
                         }});
                     }
-                }
-            }
+                }),
+                ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+                   var dataItem = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
+                   if(viewConfig.isWizard){
+                       overlayServiceGroupEditView.model = new ServiceGroupModel(dataItem);
+                       overlayServiceGroupEditView.renderServiceGroup({
+                                               selectedGridData: [dataItem],
+                                               'viewConfig': viewConfig,
+                                               'mode':'delete'
+                       });
+                   } else{
+                       serviceGroupEditView.model = new ServiceGroupModel(dataItem);
+                       serviceGroupEditView.renderDeleteServiceGrp({
+                                              "title": ctwl.TITLE_SERVICE_GROUP_DELETE,
+                                              selectedGridData: [dataItem],
+                                              callback: function () {
+                                                  var dataView = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView;
+                                                  dataView.refreshData();
+                        }});
+                   }
+                })
+            ];
+            return rowActionConfig;
+        }
+    }
+    function getHeaderActionConfig(viewConfig) {
+        if(cowu.isAdmin() === false && viewConfig.isGlobal === true){
+            return false;
+        }
+        else{
+            var headerActionConfig = [
+                {
+                    "type" : "link",
+                    "title" : ctwl.TITLE_SERVICE_GROUP_MULTI_DELETE,
+                    "iconClass": 'fa fa-trash',
+                    "linkElementId": 'btnDeleteServiceGrp',
+                    "onClick" : function() {
+                        var serviceGroupModel = new ServiceGroupModel();
+                        var checkedRows = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid").getCheckedRows();
+                        if(checkedRows && checkedRows.length > 0) {
+                            if(viewConfig.isWizard){
+                                overlayServiceGroupEditView.model = serviceGroupModel;
+                                overlayServiceGroupEditView.renderServiceGroup({
+                                            selectedGridData: checkedRows,
+                                            'viewConfig': viewConfig,
+                                            'mode':'delete'
+                                });
+                            } else{
+                                serviceGroupEditView.model = serviceGroupModel;
+                                serviceGroupEditView.renderDeleteServiceGrp(
+                                    {"title": ctwl.TITLE_SERVICE_GROUP_MULTI_DELETE,
+                                        selectedGridData: checkedRows,
+                                        callback: function () {
+                                            var dataView =
+                                                $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).
+                                                data("contrailGrid")._dataView;
+                                            dataView.refreshData();
+                                        }
+                                    }
+                                );
+                            }
+                        }
+                    }
 
-        ];
-        return headerActionConfig;
+                },
+                {
+                    "type": "link",
+                    "title": ctwl.TITLE_CREATE_SERVICE_GROUP,
+                    "iconClass": "fa fa-plus",
+                    "onClick": function () {
+                        if(viewConfig.isWizard){
+                            overlayServiceGroupEditView.model = new ServiceGroupModel();
+                            overlayServiceGroupEditView.renderServiceGroup({
+                                                    'mode': 'add',
+                                                    'viewConfig': viewConfig,
+                                                    'isGlobal': viewConfig.isGlobal
+                            });
+                        } else{
+                            serviceGroupEditView.model = new ServiceGroupModel();
+                            serviceGroupEditView.renderAddEditServiceGroup({
+                                                      "title": 'Create',
+                                                      'mode': 'add',
+                                                      'isGlobal': viewConfig.isGlobal,
+                                                      callback: function () {
+                               $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView.refreshData();
+                            }});
+                        }
+                    }
+                }
+
+            ];
+            return headerActionConfig;
+        }
     }
     function getSecGrpDetailsTemplateConfig() {
         return {

@@ -20,74 +20,49 @@ define([
                 headerText = 'Delete Address Group';
             }
            var viewConfig = options.viewConfig;
-            $("#aps-gird-container").empty();
-	        $('#aps-save-button').show();
+           $('#aps-overlay-container').show();
+           $("#aps-gird-container").empty();
+           $('#aps-save-button').show();
 	        self.setErrorContainer(headerText);
-	        if(mode === 'delete'){
-	            $('#aps-save-button').text('Confirm');
-	            var deleteContainer = $('<div style="padding-top:30px;"></div>');
-	            var deletText = $('<span style="padding-left:300px;">Are you sure you want to delete ?</span>');
-	            deleteContainer.append(deletText);
-	            $('#gird-details-container').append(deleteContainer);
-	            //back method
-	            $("#aps-back-button").off('click').on('click', function(){
-	                $('#aps-save-button').hide();
-                    Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                    $("#aps-gird-container").empty();
-                    self.renderView4Config($("#aps-gird-container"), null, getAddressGroup(viewConfig));
-                    $('#aps-save-button').text('Save');
-                });
-	            
-	            // save method
-	            $("#aps-save-button").off('click').on('click', function(){
-                    self.model.deleteAddressGroup(options['selectedGridData'],{
-                        success: function () {
-                            $('#aps-save-button').text('Save');
-                            $('#aps-save-button').hide();
-                            Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                            $("#aps-gird-container").empty();
-                            self.renderView4Config($("#aps-gird-container"), null, getAddressGroup(viewConfig));
-                        },
-                        error: function (error) {
-                            $("#grid-details-error-container").text('');
-                            $("#grid-details-error-container").text(error.responseText);
-                            $(".aps-details-error-container").show();
-                        }
-                    });
-                });
-	        }else{
-	            self.renderView4Config($('#gird-details-container'),
-                        this.model,
-                        getAddressGroupViewConfig(disable),
-                        "addressGroupValidation",
-                        null, null, function() {
-                             $("#aps-back-button").off('click').on('click', function(){
-                                 $('#aps-save-button').hide();
-                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                                 $("#aps-gird-container").empty();
-                                 self.renderView4Config($("#aps-gird-container"), null, getAddressGroup(viewConfig));
-                             });
-                             $("#aps-save-button").off('click').on('click', function(){
-                                 self.model.addEditAddressGroup({
-                                     success: function () {
-                                         $('#aps-save-button').hide();
-                                         Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                                         $("#aps-gird-container").empty();
-                                         self.renderView4Config($("#aps-gird-container"), null, getAddressGroup(viewConfig));
-                                     },
-                                     error: function (error) {
-                                         $("#grid-details-error-container").text('');
-                                         $("#grid-details-error-container").text(error.responseText);
-                                         $(".aps-details-error-container").show();
+            self.renderView4Config($('#gird-details-container'),
+                    this.model,
+                    getAddressGroupViewConfig(disable),
+                    "addressGroupValidation",
+                    null, null, function() {
+                         $("#aps-back-button").off('click').on('click', function(){
+                             $('#aps-save-button').hide();
+                             $('#aps-overlay-container').hide();
+                             $("#overlay-background-id").removeClass("overlay-background");
+                             Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                             $("#aps-gird-container").empty();
+                         });
+                         $("#aps-save-button").off('click').on('click', function(){
+                             self.model.addEditAddressGroup({
+                                 success: function () {
+                                     $('#aps-save-button').hide();
+                                     $('#aps-overlay-container').hide();
+                                     Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                                     $("#aps-gird-container").empty();
+                                     if($('#security-policy-address-grp-grid').data("contrailGrid") !== undefined){
+                                         $('#security-policy-address-grp-grid').data("contrailGrid")._dataView.refreshData();
                                      }
-                                 }, options);
-                             });
-                             Knockback.applyBindings(self.model,
-                                                     document.getElementById('aps-gird-container'));
-                             kbValidation.bind(self, {collection:
-                                               self.model.model().attributes.subnetCollection});
-                },null,true);
-	        }
+                                     if($('#fw_security_policy_as_grid_view').data("contrailGrid") !== undefined){
+                                         $('#fw_security_policy_as_grid_view').data("contrailGrid")._dataView.refreshData();
+                                     }
+                                     $("#overlay-background-id").removeClass("overlay-background");
+                                 },
+                                 error: function (error) {
+                                     $("#grid-details-error-container").text('');
+                                     $("#grid-details-error-container").text(error.responseText);
+                                     $(".aps-details-error-container").show();
+                                 }
+                             }, options);
+                         });
+                         Knockback.applyBindings(self.model,
+                                                 document.getElementById('aps-gird-container'));
+                         kbValidation.bind(self, {collection:
+                                           self.model.model().attributes.subnetCollection});
+            },null,true);
         },
         setErrorContainer : function(headerText){
             $('#aps-gird-container').append($('<h6></h6>').text(headerText).addClass('aps-details-header'));

@@ -29,7 +29,7 @@ define([
                     fwPolicyWizardEditView = new FWPolicyWizardEditView();
                 fwPolicyWizardEditView.model = fwPolicyWizardModel;
                 fwPolicyWizardEditView.renderFwWizard({
-                                "title": 'Add new firewall policy',
+                                "title": ctwc.APS_MODAL_HEADER,
                                 'viewConfig': { isGlobal: true , isWizard: true },
                                  callback: function () {
                                  }
@@ -54,31 +54,48 @@ define([
                 }]
             }
         };
-    };    
+    };
 
     function getSecurityPolicy(viewConfig){
-        return {
-            elementId: cowu.formatElementId([ctwl.CONFIG_SECURITY_POLICY_PAGE_ID]),
-            view: "SectionView",
-            viewConfig: {
-                rows: [{
-                    columns: [{
-                        elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
-                        view: 'TabsView',
-                        viewConfig: getSecurityPolicyTabs(viewConfig)
-                    }, {
-                        elementId: ctwc.FW_POLICY_WIZARD,
-                        view: 'FormButtonView',
-                        viewConfig: {
-                            label: ctwl.FW_POLICY_WIZARD,
-                            elementConfig:{
-                                btnClass:'btn-primary'
+        if(cowu.isAdmin() === true){
+            return {
+                elementId: cowu.formatElementId([ctwl.CONFIG_SECURITY_POLICY_PAGE_ID]),
+                view: "SectionView",
+                viewConfig: {
+                    rows: [{
+                        columns: [{
+                            elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
+                            view: 'TabsView',
+                            viewConfig: getSecurityPolicyTabs(viewConfig)
+                        }, {
+                            elementId: ctwc.FW_POLICY_WIZARD,
+                            view: 'FormButtonView',
+                            viewConfig: {
+                                label: ctwl.FW_POLICY_WIZARD,
+                                elementConfig:{
+                                    btnClass:'btn-primary'
+                                }
                             }
-                        }
+                        }]
                     }]
-                }]
-            }
-        };
+                }
+            };
+        }
+        else{
+            return {
+                elementId: cowu.formatElementId([ctwl.CONFIG_SECURITY_POLICY_PAGE_ID]),
+                view: "SectionView",
+                viewConfig: {
+                    rows: [{
+                        columns: [{
+                            elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
+                            view: 'TabsView',
+                            viewConfig: getSecurityPolicyTabs(viewConfig)
+                        }]
+                    }]
+                }
+            };
+        }
     };
 
     function getfwRulePolicyTabs(viewConfig){

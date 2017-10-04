@@ -195,6 +195,10 @@ define([
                     tags = result+"   ("+set_tags_length+" more)";
                 }
             }
+           if(dc['name'] === ctwc.GLOBAL_APPLICATION_POLICY_SET
+               && dc['is_global'] === true){
+                    tags = "application=*";
+            }
             return tags ? tags : '-';
         };
         self.getPermissionsValidation = function() {

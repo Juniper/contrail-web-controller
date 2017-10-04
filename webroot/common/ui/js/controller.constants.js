@@ -953,6 +953,7 @@ define([
         this.FW_WZ_SECURITY_POLICY_SERVICE_GRP_LIST_VIEW_ID = 'fw_security_policy_service_gp_list_view';
         this.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID = 'fw_security_policy_as_grid_view';
         this.FW_WZ_SECURITY_POLICY_SERVICE_GRP_GRID_ID = 'fw_security_policy_service_gp_grid_view';
+        this.GLOBAL_APPLICATION_POLICY_SET = 'global-application-policy-set';
         this.FW_POLICY_GLOBAL_PAGE_ID = "config-fw-policy-global-list";
         this.CONFIG_FW_POLICY_GLOBAL_SECTION_ID = "config-fw-policy-global-section";
         this.CONFIG_FW_RULE_SECTION_ID = "config-fw-rule-section";
@@ -1038,7 +1039,11 @@ define([
         this.NEW_APPLICATION_POLICY_SET_SECTION_ID = 'new-application-policy-set-section';
         this.NEW_APPLICATION_POLICY_SET = 'new-application-policy-set';
         this.NEW_APPLICATION_POLICY_SET_GRID_ID = "new-application-policy-set-grid";
-        
+        this.APS_MODAL_HEADER = 'Firewall Policy Wizard';
+        this.FW_STANDALONE_ALL_POLICY_SECTION_ID = 'fw-standalone-all-policy-section';
+        this.FW_STANDALONE_ALL_POLICY_ID = 'fw-standalone-all-policy-id';
+        this.FW_STANDALONE_ALL_POLICY_GRID_ID = 'fw-standalone-all-policy-grid-id';
+        this.FW_STANDALONE_ALL_POLICY_LIST_VIEW_ID = 'fw-standalone-all-policy-list-id';
         
         this.RULE_DATA_TAGS = 'rule-data-tags';
         this.RULE_DATA_ADDRESS_GROUPS = 'rule-data-address-groups';

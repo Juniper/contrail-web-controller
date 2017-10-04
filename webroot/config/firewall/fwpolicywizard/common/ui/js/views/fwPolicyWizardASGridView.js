@@ -7,12 +7,13 @@ define([
     'contrail-view',
     'config/firewall/common/addressgroup/ui/js/models/addressGroupModel',
     'config/firewall/common/addressgroup/ui/js/views/addressGroupEditView',
-    'config/firewall/fwpolicywizard/common/ui/js/views/overlayAddressGroupEditView'
-], function (_, ContrailView, AddressGroupModel, AddressGroupEditView, OverlayAddressGroupEditView) {
+    'config/firewall/fwpolicywizard/common/ui/js/views/overlayAddressGroupEditView',
+    'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizard.utils'
+], function (_, ContrailView, AddressGroupModel, AddressGroupEditView, OverlayAddressGroupEditView, FWZUtils) {
     var addressGroupEditView = new AddressGroupEditView(),
         overlayAddressGroupEditView = new OverlayAddressGroupEditView(),
         gridElId = "#" + ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID;
-
+    var fwzUtils = new FWZUtils();
     var addressGroupGridView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
@@ -99,6 +100,14 @@ define([
                         }
                 ]
             },
+            footer: {
+                pager: {
+                    options: {
+                        pageSize: 10,
+                        pageSizeSelect: [10, 50, 100]
+                    }
+                }
+            }
         };
         return gridElementConfig;
     };
@@ -107,6 +116,9 @@ define([
             ctwgc.getEditConfig('Edit', function(rowIndex) {
                 dataView = $('#' + ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView;
                 if(viewConfig.isWizard){
+                    if($("#fw-wizard-details-error-container")){
+                        $("#fw-wizard-details-error-container").remove();
+                    }
                     overlayAddressGroupEditView.model = new AddressGroupModel(dataView.getItem(rowIndex));
                     overlayAddressGroupEditView.renderAddressGroup({
                                             'mode':'edit',
@@ -125,24 +137,44 @@ define([
                 }
             }),
             ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-               var dataItem = $('#' + ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
-               if(viewConfig.isWizard){
-                   overlayAddressGroupEditView.model = new AddressGroupModel(dataItem);
-                   overlayAddressGroupEditView.renderAddressGroup({
-                                           selectedGridData: [dataItem],
-                                           'viewConfig': viewConfig,
-                                           'mode':'delete'
-                   });
-               }else{
-                   addressGroupEditView.model = new AddressGroupModel(dataItem);
-                   addressGroupEditView.renderDeleteAddressGrp({
-                                          "title": ctwl.TITLE_ADDRESS_GROUP_DELETE,
-                                          selectedGridData: [dataItem],
-                                          callback: function () {
-                                              var dataView = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid")._dataView;
-                                              dataView.refreshData();
-                   }});
-               }
+                fwzUtils.appendDeleteContainer($(arguments[1].context).parent()[0], 'fw_security_policy_global_adressgroup');
+                $(".cancelWizardDeletePopup").off('click').on('click', function(){
+                    if($('.confirmation-popover').length != 0){
+                        $('.confirmation-popover').remove();
+                        $('#overlay-background-id').removeClass('overlay-background');
+                    }
+                });
+                $(".saveWizardRecords").off('click').on('click', function(){
+                    var dataItem = $('#fw_security_policy_as_grid_view').data('contrailGrid')._dataView.getItem(rowIndex);
+                    var model = new AddressGroupModel();
+                    model.deleteAddressGroup([dataItem],{
+                        success: function () {
+                            if($('#fw_security_policy_as_grid_view').data("contrailGrid") !== undefined){
+                                $('#fw_security_policy_as_grid_view').data('contrailGrid')._dataView.refreshData();
+                           }
+                            if($('#security-policy-address-grp-grid').data("contrailGrid") !== undefined){
+                                 $('#security-policy-address-grp-grid').data('contrailGrid')._dataView.refreshData();
+                            }
+                            if($("#fw-wizard-details-error-container")){
+                                $("#fw-wizard-details-error-container").remove();
+                            }
+                            if($('.confirmation-popover').length != 0){
+                                $('.confirmation-popover').remove();
+                                $('#overlay-background-id').removeClass('overlay-background');
+                            }
+                        },
+                        error: function (error) {
+                            $("#fw_security_policy_as_grid_view .grid-header").append("<div id='fw-wizard-details-error-container'></div>");
+                            $("#fw-wizard-details-error-container").text('');
+                            $("#fw-wizard-details-error-container").text(error.responseText);
+                            $("#fw-wizard-details-error-container").addClass('alert-error');
+                            if($('.confirmation-popover').length != 0){
+                                $('.confirmation-popover').remove();
+                                $('#overlay-background-id').removeClass('overlay-background');
+                            }
+                        }
+                    });
+                });
             })
         ];
         return rowActionConfig;
@@ -155,31 +187,46 @@ define([
                 "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnDeleteAddressGrp',
                 "onClick" : function() {
-                    var addressGroupModel = new AddressGroupModel();
-                    var checkedRows = $('#' + ctwc.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID).data("contrailGrid").getCheckedRows();
-                    if(checkedRows && checkedRows.length > 0) {
-                        if(viewConfig.isWizard){
-                            overlayAddressGroupEditView.model = addressGroupModel;
-                            overlayAddressGroupEditView.renderAddressGroup({
-                                selectedGridData: checkedRows,
-                                'viewConfig': viewConfig,
-                                'mode':'delete'
-                            });
-                        }else{
-                            addressGroupEditView.model = addressGroupModel;
-                            addressGroupEditView.renderDeleteAddressGrp(
-                                {"title": ctwl.TITLE_ADDRESS_GROUP_MULTI_DELETE,
-                                    selectedGridData: checkedRows,
-                                    callback: function () {
-                                        var dataView =
-                                            $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID).
-                                            data("contrailGrid")._dataView;
-                                        dataView.refreshData();
+                    fwzUtils.appendDeleteContainer($('#btnDeleteAddressGrp')[0], 'fw_security_policy_global_adressgroup');
+                    $(".cancelWizardDeletePopup").off('click').on('click', function(e){
+                        if($('.confirmation-popover').length != 0){
+                            $('.confirmation-popover').remove();
+                            $('#overlay-background-id').removeClass('overlay-background');
+                        }
+                    });
+                    $(".saveWizardRecords").off('click').on('click', function(){
+                        var checkedRows = $('#fw_security_policy_as_grid_view').data('contrailGrid').getCheckedRows();
+                        if(checkedRows && checkedRows.length > 0) {
+                            var model = new AddressGroupModel();
+                            model.deleteAddressGroup(checkedRows, {
+                                success: function () {
+                                    if($('#security-policy-address-grp-grid').data("contrailGrid") !== undefined){
+                                        $('#security-policy-address-grp-grid').data('contrailGrid')._dataView.refreshData();
+                                   }
+                                    if($('#fw_security_policy_as_grid_view').data("contrailGrid") !== undefined){
+                                        $('#fw_security_policy_as_grid_view').data('contrailGrid')._dataView.refreshData();
+                                   }
+                                    if($("#fw-wizard-details-error-container")){
+                                        $("#fw-wizard-details-error-container").remove();
+                                    }
+                                    if($('.confirmation-popover').length != 0){
+                                        $('.confirmation-popover').remove();
+                                        $('#overlay-background-id').removeClass('overlay-background');
+                                    }
+                                },
+                                error: function (error) {
+                                    $("#fw_security_policy_as_grid_view .grid-header").append("<div id='fw-wizard-details-error-container'></div>");
+                                    $("#fw-wizard-details-error-container").text('');
+                                    $("#fw-wizard-details-error-container").text(error.responseText);
+                                    $("#fw-wizard-details-error-container").addClass('alert-error');
+                                    if($('.confirmation-popover').length != 0){
+                                        $('.confirmation-popover').remove();
+                                        $('#overlay-background-id').removeClass('overlay-background');
                                     }
                                 }
-                            );
+                            });
                         }
-                    }
+                    });
                 }
 
             },
@@ -189,6 +236,10 @@ define([
                 "iconClass": "fa fa-plus",
                 "onClick": function () {
                     if(viewConfig.isWizard){
+                        $("#overlay-background-id").addClass("overlay-background");
+                        if($("#fw-wizard-details-error-container")){
+                            $("#fw-wizard-details-error-container").remove();
+                        }
                         overlayAddressGroupEditView.model = new AddressGroupModel();
                         overlayAddressGroupEditView.renderAddressGroup({
                             'mode': 'add',
@@ -255,7 +306,6 @@ define([
                                                         formatter: 'addressGroupFormatter'
                                                     }
                                                 }
-                                                
                                             ].concat(ctwu.getTagsExpandDetails())
                                         }
                                     ]
