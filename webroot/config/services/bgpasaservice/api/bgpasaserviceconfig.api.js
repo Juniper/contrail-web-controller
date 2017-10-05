@@ -180,7 +180,7 @@ function createBGPAsAService (request, response, appData)
     });
 }
 
-function updateVMIDetails(appData, bgpasaservicePostData, callback)
+function updateVMIDetails(appData, bgpasaservicePostData, callback, bgpaasId)
 {
     var vmiRefs = commonUtils.getValueByJsonPath(bgpasaservicePostData,
         "bgp-as-a-service;virtual_machine_interface_refs", []);
@@ -209,7 +209,7 @@ function updateVMIDetails(appData, bgpasaservicePostData, callback)
                     bgpaasBackRef =
                     commonUtils.getValueByJsonPath(vmiDetails[vmiIndex],
                         "virtual-machine-interface;bgp_as_a_service_back_refs;0", null);
-                    if(bgpaasBackRef) {
+                    if(bgpaasBackRef && bgpaasBackRef.uuid !== bgpaasId) {
                         bgpaasUUIDs.push(bgpaasBackRef.uuid);
                     }
                 }
@@ -308,7 +308,7 @@ function updateBGPAsAService (request, response, appData)
                         return;
                     }
                 );
-            });
+            }, bgpasaserviceId);
         }
     );
 }
