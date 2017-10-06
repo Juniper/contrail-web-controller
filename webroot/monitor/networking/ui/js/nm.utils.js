@@ -68,6 +68,40 @@ define([
                 }
             }
         };
+        /* @getUniqElements
+           @ array1: Array of objects where value of identifer matches with elemets in array1
+           @ array2: Array of UUID list
+           @identifier: key to search in array2
+         */
+        self.getUniqElements = function(array1, array2, identifier) {
+            var tmpObjs = {};
+            var array1Len = array1.length;
+            for (var i = 0; i < array1Len; i++) {
+                var id = array1[i];
+                if (!cowu.isNil(id) && ("object" === typeof id)) {
+                    key = id[identifier];
+                } else {
+                    key = id;
+                }
+                tmpObjs[key] = true;
+            }
+            var uniqList = [];
+            var array2Len = array2.length;
+            for (i = 0; i < array2Len; i++) {
+                id = array2[i];
+                if (!cowu.isNil(id) && ("object" === typeof id)) {
+                    key = id[identifier];
+                } else {
+                    key = id;
+                }
+                if (cowu.isNil(tmpObjs[key])) {
+                    var obj = {};
+                    obj[identifier] = key;
+                    uniqList.push(obj);
+                }
+            }
+            return uniqList;
+        };
     };
 
     function getUUIDByName(fqName) {

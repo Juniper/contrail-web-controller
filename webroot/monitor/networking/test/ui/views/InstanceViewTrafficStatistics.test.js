@@ -48,7 +48,7 @@ define([
         }));
         responses.push(cotr.createFakeServerResponse({
             method: "POST",
-            url: cttu.getRegExForUrl(ctwc.URL_QUERY),
+            url: cttu.getRegExForUrl(cowc.URL_QE_QUERY),
             body: JSON.stringify(TestMockdata.reportsQueryMockData)
         }));
         responses.push(cotr.createFakeServerResponse({

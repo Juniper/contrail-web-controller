@@ -166,12 +166,19 @@ define([
         // input: either array of networks or single network like [default-domain:demo:ipv6test2], default-domain:demo:ipv6test2
         // output:[ipv6test2 (demo)],ipv6test2 (demo).
 
-        self.formatVNName = function (vnName) {
+        self.formatVNName = function (vnName, projectFQN) {
             var formattedValue;
             if (!$.isArray(vnName))
                 vnName = [vnName];
             formattedValue = $.map(vnName, function (value, idx) {
                 var fqNameArr = value.split(':');
+                if (null != projectFQN) {
+                    var projectFQNArr = projectFQN.split(":");
+                    if ((projectFQNArr[0] === fqNameArr[0]) &&
+                        (projectFQNArr[1] === fqNameArr[1])) {
+                        return projectFQNArr[2];
+                    }
+                }
                 if (fqNameArr.length == 3)
                     return fqNameArr[2] + ' (' + fqNameArr[1] + ')';
                 else
@@ -904,6 +911,24 @@ define([
             var attrErrorObj = {};
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] = null;
             errors.set(attrErrorObj);
+        };
+        /**
+         * Generates a UUID.
+         * @returns {string}
+         */
+        this.generateRequestUUID = function() {
+            var s = [], itoh = '0123456789ABCDEF';
+            for (var i = 0; i < 36; i++) {
+                s[i] = Math.floor(Math.random() * 0x10);
+            }
+            s[14] = 4;
+            s[19] = (s[19] & 0x3) | 0x8;
+            for (var i = 0; i < 36; i++) {
+                s[i] = itoh[s[i]];
+            }
+            s[8] = s[13] = s[18] = s[23] = s[s.length] = '-';
+            s[s.length] = (new Date()).getTime();
+            return s.join('');
         };
 
         /**
