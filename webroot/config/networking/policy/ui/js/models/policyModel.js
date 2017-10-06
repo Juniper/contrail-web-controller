@@ -19,7 +19,8 @@ define([
             'network_policy_entries':{'policy_rule':[]},
             'templateGeneratorData': 'rawData',
             'PolicyUUID':'',
-            'policyName':''
+            'policyName':'',
+            'siModeObjMap': ''
         },
         formatModelConfig: function (config) {
             self = this;
@@ -70,6 +71,9 @@ define([
                     SIArr = this.getApplyService(SIArr, self.SIDataSource);
                     policeyRule[i].service_instance(SIArr);
                 }
+                if(policeyRule[i].siModeObjMap() != null){
+                    policeyRule[i].siModeObjMap(allData.serviceInstModeObj);
+                }
             }
         },
         getApplyService: function(applyService, SIDataSource) {
@@ -83,7 +87,7 @@ define([
             var rulesList = this.model().attributes['PolicyRules'],
                 newRuleModel = new RuleModel();
             this.showHideServiceInstance(newRuleModel);
-
+            newRuleModel.siModeObjMap(this.model().attributes.siModeObjMap);
             rulesList.add([newRuleModel]);
         },
         addRuleByIndex: function(data,rules) {
@@ -91,7 +95,7 @@ define([
             var rulesList = this.model().attributes['PolicyRules'],
                 newRuleModel = new RuleModel();
             this.showHideServiceInstance(newRuleModel);
-
+            newRuleModel.siModeObjMap(this.model().attributes.siModeObjMap);
             rulesList.add([newRuleModel],{at: selectedRuleIndex+1});
         },
         deleteRules: function(data, rules) {
@@ -355,6 +359,7 @@ define([
                 delete(newPolicyData.policyName);
                 delete(newPolicyData.templateGeneratorData);
                 delete(newPolicyData.elementConfigMap);
+                delete(newPolicyData.siModeObjMap);
                 if ('cgrid' in newPolicyData)
                     delete(newPolicyData.cgrid);
                 if ('parent_href' in newPolicyData)
