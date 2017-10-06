@@ -35,7 +35,7 @@ define([
             'user_created_router_type' : null,
             'user_created_autonomous_system' : null,
             'user_created_address_family' :
-                'inet-vpn,route-target,inet6-vpn,e-vpn',
+                'inet-vpn,route-target,inet6-vpn,e-vpn,inet',
             'user_created_auth_key_type' : 'none',
             'user_created_auth_key' : null,
             'user_created_physical_router' : 'none',
@@ -97,7 +97,7 @@ define([
             } else{
                 //it is required to send default family list for bgp router type
                 bgpParams['address_families']['family'] =
-                   ['inet-vpn','inet6-vpn','route-target','e-vpn'];
+                   ['inet-vpn','inet6-vpn','route-target','e-vpn','inet'];
             }
 
             //populate user_created_physical_router
