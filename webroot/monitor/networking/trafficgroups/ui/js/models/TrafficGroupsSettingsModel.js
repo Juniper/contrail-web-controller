@@ -14,7 +14,6 @@ define([
             "filter_by_endpoints": {
                 "endpoint" : []
             },
-            "filterByTagName": null,
             "tagTypeList": [],
             "time_range": 3600,
             "from_time": null,
@@ -86,20 +85,23 @@ define([
                     msg: 'Select atleast one tag type'
                 },
                 'from_time': function(value) {
-                    if(this.get('time_range') == -1 && !value) {
+                    if((this.get('time_range') == -1 ||
+                        this.get('time_range') == -2) && !value) {
                         return "Select From Time";
                     } else if(new Date(value) > new Date()) {
                         return "From Time can't be future time";
                     }
                 },
                 'to_time': function(value) {
-                    if(this.get('time_range') == -1 && !value) {
-                        return "Select To Time";
-                    } else if(new Date(value) > new Date()) {
-                        return "To Time can't be future time";
-                    } else if(this.get('from_time') &&
-                        new Date(value) < new Date(this.get('from_time'))) {
-                        return "To Time should be greater than From Time";
+                    if(this.get('time_range') == -1) {
+                        if(!value) {
+                            return "Select To Time";
+                        } else if(new Date(value) > new Date()) {
+                            return "To Time can't be future time";
+                        } else if(this.get('from_time') &&
+                            new Date(value) < new Date(this.get('from_time'))) {
+                            return "To Time should be greater than From Time";
+                        }
                     }
                 }
             }

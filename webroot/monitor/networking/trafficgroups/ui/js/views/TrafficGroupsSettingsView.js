@@ -232,7 +232,7 @@ define([
                                             active: false,
                                             viewConfig: {
                                                 rows: [
-                                                    ctwvc.getTimeRangeConfig("hh:mm A")
+                                                    ctwvc.getTimeRangeConfig("hh:mm A", true)
                                                 ]
                                             }
                                         }
