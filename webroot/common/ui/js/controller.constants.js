@@ -298,6 +298,9 @@ define([
             {'id': 43200, 'text': 'Last 12 Hrs'},
             {'id': -1, 'text': 'Custom'}
         ];
+        this.TIMERANGE_DROPDOWN_ADDITIONAL_VALUES = [
+            {'id': -2, 'text': 'Since'}
+        ];
         this.UNDERLAY_SEARCHFLOW_TAB_ID = 'searchFlow';
         this.UNDERLAY_TRAFFICSTATS_TAB_ID = 'trafficStats';
         this.PROUTER = 'physical-router';

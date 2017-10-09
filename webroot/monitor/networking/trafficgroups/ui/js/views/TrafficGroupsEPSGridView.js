@@ -39,12 +39,12 @@ define([
                         },
                         {
                             field: 'isClient',
-                            name: 'Client Session',
+                            name: 'Session Type',
                             formatter: function(r,c,v,cd,dc) {
                                if (dc['isClient']) {
-                                    return 'True';
+                                    return 'Client';
                                } else {
-                                    return 'False';
+                                    return 'Server';
                                }
                             }
                         },
@@ -75,7 +75,7 @@ define([
                             name: 'Remote VN',
                             hide: true,
                             formatter:function(r,c,v,cd,dc) {
-                               return epsDefaultValueFormatter(v, dc);
+                               return remoteVNFormatter(v, dc);
                             }
                         },
                         {
@@ -240,7 +240,7 @@ define([
                                                         label: 'VN',
                                                         templateGenerator: 'TextGenerator',
                                                         templateGeneratorConfig: {
-                                                            formatter: 'epsDefaultValueFormatter'
+                                                            formatter: 'vnFormatter'
                                                         }
                                                     },
                                                     {
@@ -426,7 +426,7 @@ define([
                     field: 'remote_vn',
                     name: 'Remote VN',
                     formatter: function(r,c,v,cd,dc) {
-                        return remoteVNFormatter(v, dc);
+                        return remoteVNSSFormatter(v, dc);
                     }
                 }, {
                     field: 'client_port',
@@ -557,7 +557,7 @@ define([
                     label: 'Remote VN',
                     templateGenerator: 'TextGenerator',
                     templateGeneratorConfig: {
-                        formatter: 'remoteVNFormatter'
+                        formatter: 'remoteVNSSFormatter'
                     }
                 }, {
                     key: 'client_port',
@@ -654,12 +654,6 @@ define([
     this.remoteSiteFormatter = function(v, dc) {
        return this.epsDefaultValueFormatter(dc['eps.traffic.remote_site_id']);
     }
-    this.vnFormatter = function(v, dc) {
-       return this.epsDefaultValueFormatter(dc['vn']);
-    }
-    this.remoteVNFormatter = function(v, dc) {
-       return this.epsDefaultValueFormatter(dc['eps.traffic.remote_vn']);
-    }
     this.bytesInFormatter = function(v, dc) {
        return formatBytes(dc['SUM(eps.traffic.in_bytes)']);
     }
@@ -676,6 +670,9 @@ define([
        return formatVN(dc['vn']);
     }
     this.remoteVNFormatter = function(v, dc) {
+       return formatVN(dc['eps.traffic.remote_vn']);
+    }
+    this.remoteVNSSFormatter = function(v, dc) {
        return formatVN(dc['remote_vn']);
     }
     this.protocolPortFormatter = function(v, dc) {
@@ -717,8 +714,8 @@ define([
         return policyInfo;
     }
     this.formatVN = function(vnName) {
-        return vnName ? vnName
-                .replace(/([^:]*):([^:]*):([^:]*)/,'$3 ($2)') : '';
+        return (vnName && vnName != cowc.UNKNOWN_VALUE) ? vnName
+                .replace(/([^:]*):([^:]*):([^:]*)/,'$3 ($2)') : '-';
     }
     this.getEndpointTags = function(dc, endpoint) {
          var tags = '';
