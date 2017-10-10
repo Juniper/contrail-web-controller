@@ -714,6 +714,10 @@ define([
                                            {
                                                 text : 'e-vpn',
                                                 value : 'e-vpn'
+                                           },
+                                           {
+                                               text : 'inet',
+                                               value : 'inet'
                                            }
                                        ];
         this.CN_ADDRESS_FAMILY_DATA = [
@@ -736,6 +740,10 @@ define([
                                           {
                                                text : 'erm-vpn',
                                                value : 'erm-vpn',
+                                          },
+                                          {
+                                              text : 'inet',
+                                              value : 'inet'
                                           }
                                       ];
         this.FAMILY_ATTR_ADDRESS_FAMILY_DATA = [
