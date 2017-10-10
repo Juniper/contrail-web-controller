@@ -22,6 +22,7 @@ define(
                 showOtherProjectTraffic: false,
                 combineEmptyTags: false,
                 matchArcsColorByCategory: false,
+                enableSessionDrilldown: false,
                 // Provide colours list for top level arcs
                 topLevelArcColors: cowc['TRAFFIC_GROUP_COLOR_LEVEL1'].slice(0,1),
                 filterdData: null,
@@ -46,6 +47,40 @@ define(
                             linkData.endpointStats.push(epsData);
                         });
                         epsTabsView.render(linkData);
+                    });
+                },
+                showLinkSessions: function() {
+                    require(['monitor/networking/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
+                        var linkInfo = tgView.getLinkInfo(tgView.selectedLinkData),
+                            endpoint1Data = [], endpoint2Data = [],
+                            curSession = linkInfo.links[0].data.dataChildren[0];
+                        _.each(tgView.getCategorizationObj(), function(tags) {
+                            _.each(tags.split('-'), function(tag) {
+                                tag = tag.trim();
+                                endpoint1Data.push({
+                                    'name' : (tag == 'app' ? 'application' : tag),
+                                    'value' : curSession[tag].split('=')[1]
+                                });
+                                endpoint2Data.push({
+                                    'name' : (tag == 'app' ? 'application' : tag),
+                                    'value' : curSession['eps.traffic.remote_' + tag + '_id'].split('=')[1]
+                                });
+                            });
+                        });
+                        var linkData = {
+                                endpointNames: [linkInfo.srcTags, linkInfo.dstTags],
+                                endpointStats: [],
+                                tags: [endpoint1Data, endpoint2Data],
+                                breadcrumb: [['All'], [linkInfo.srcTags,linkInfo.dstTags]],
+                                where: [[], []],
+                                selectedEndpoint: 'endpoint1',
+                                sessionType: 'client',
+                                level : 1
+                            },
+                            epsTabsView = new EPSTabsView();
+                            epsTabsView.parentView = tgView;
+                            epsTabsView.sessionData = linkData;
+                        epsTabsView.sessionDrilldown(linkData);
                     });
                 },
                 getSessionData: function(childData, endpointData, d) {
@@ -196,6 +231,7 @@ define(
                                                 } else {
                                                     service_dst_port = contrail.format('{0}-{1}', service_dst_port_obj['start_port'], service_dst_port_obj['end_port']);
                                                 }
+                                                service_dst_port == '-1' ? 'any' : service_dst_port;
                                                 serviceStr = contrail.format('{0}: {1}', service_protocol, service_dst_port);
                                             }
                                             if (service_group_refs != null) {
@@ -206,8 +242,6 @@ define(
                                                 simple_action = 'permit';
                                             }
                                             formattedRuleDetails.push({
-                                                //policy_name: _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to.3', '-') +':'+
-                                                  //          _.result(ruleDetailsObj, 'display_name'),
                                                 policy_name: policy_name,
                                                 srcId: srcId,
                                                 src_session_initiated: _.result(srcSessionObj, ruleUUID+'.0.session_initiated', 0),
@@ -226,8 +260,8 @@ define(
                                                 direction: direction == '>' ? 'uni': 'bi',
                                                 srcType: srcType,
                                                 dstType: dstType,
-                                                src: src,
-                                                dst: dst
+                                                src: src == '-' ? 'any' : src,
+                                                dst: dst == '-' ? 'any' : dst
                                             });
                                         }
                                     });
@@ -256,11 +290,14 @@ define(
                                     data.srcId = srcId;
                                     data.dstId = dstId;
                                     data.policyRules = formattedRuleDetails;
-                                    if (formattedRuleDetails.length) {
-                                        var ruleDetailsTemplate = contrail.getTemplate4Id('traffic-rule-template');
-                                        $('#traffic-groups-link-info').html(ruleDetailsTemplate(data));
+                                    if(!formattedRuleDetails.length) {
+                                        data.rules = ruleUUIDs;
+                                    }
+                                    var ruleDetailsTemplate = contrail.getTemplate4Id('traffic-rule-template');
+                                    $('#traffic-groups-link-info').html(ruleDetailsTemplate(data));
+                                    if(!self.enableSessionDrilldown) {
                                         if($('#traffic-groups-radial-chart').hasClass('showLinkInfo')) {
-                                            $('.trafficGroups_sidePanel').
+                                           $('.trafficGroups_sidePanel').
                                                 removeClass('animateLinkInfo');
                                         } else {
                                             $('.trafficGroups_sidePanel').
@@ -268,23 +305,25 @@ define(
                                             $('#traffic-groups-radial-chart')
                                             .addClass('showLinkInfo');
                                         }
-                                        $('.allSessionInfo').on('click', self.showSessionsInfo);
-                                        $('#traffic-groups-radial-chart')
-                                         .on('click', function(ev) {
-                                            if($(ev.target)
-                                                .parents('#'+self.chartInfo.component.id).length == 0) {
-                                                _.each(self.chartInfo.component.ribbons,
-                                                 function (ribbon) {
-                                                   ribbon.selected = false;
-                                                   ribbon.active = false;
-                                                });
+                                    }
+                                    $('.allSessionInfo').on('click', self.showSessionsInfo);
+                                    $('#traffic-groups-radial-chart')
+                                     .on('click', function(ev) {
+                                        if($(ev.target)
+                                            .parents('#'+self.chartInfo.component.id).length == 0) {
+                                            _.each(self.chartInfo.component.ribbons,
+                                             function (ribbon) {
+                                               ribbon.selected = false;
+                                               ribbon.active = false;
+                                            });
+                                            if(!self.enableSessionDrilldown) {
                                                 $('#traffic-groups-radial-chart')
-                                                .removeClass('showLinkInfo');
+                                                        .removeClass('showLinkInfo');
                                                 $('#traffic-groups-link-info').html('');
                                                 self.chartInfo.component._render();
                                             }
-                                        });
-                                    }
+                                        }
+                                    });
                                     return ruleDetails;
                                 }
                             }
@@ -293,8 +332,10 @@ define(
                     }
                 },
                 showEndPointStatsInGrid: function () {
-                    var self = this;
+                    var self = this,
+                        data = self.handleUntaggedEndpoints(self.filterdData);
                     $('#traffic-groups-link-info').html('');
+                    $('.tgChartLegend, .tgCirclesLegend').hide();
                     self.renderView4Config($('#traffic-groups-grid-view'), null, {
                         elementId: 'traffic-groups-grid-view',
                         view: "TrafficGroupsEPSGridView",
@@ -302,8 +343,8 @@ define(
                         "monitor/networking/trafficgroups/ui/js/views/",
                         app: cowc.APP_CONTRAIL_CONTROLLER,
                         viewConfig: {
-                            data: self.filterdData,
-                            title: 'End Point Statistics',
+                            data: data,
+                            title: 'Endpoint Statistics',
                             elementId: 'traffic-groups-grid-view'
                         }
                     })
@@ -356,7 +397,7 @@ define(
                                 this.formatVN(vn ? vn : d['vn']);
                         }
                     }
-                    return label;
+                    return label ? label : ' ';
                 },
                 isImplictRule: function(d, key) {
                     return (typeof d['eps.__key'] == 'string' &&
@@ -613,7 +654,8 @@ define(
                     if($('#traffic-groups-radial-chart:visible').length) {
                         var self = this;
                         var data = self.filterdData ? JSON.parse(JSON.stringify(self.filterdData))
-                                 : self.viewInst.model.getItems();
+                                 : self.viewInst.model.getItems(),
+                            data = self.handleUntaggedEndpoints(data);
                         if(data && data.length == 0) {
                             $('#traffic-groups-radial-chart').empty();
                             var noData = "<h4 class='noStatsMsg'>"
@@ -622,15 +664,45 @@ define(
                         } else {
                             self.viewInst.render(data, self.chartInfo.chartView);
                         }
+                        $('.tgChartLegend, .tgCirclesLegend').show();
                     } else {
                         this.showEndPointStatsInGrid();
                     }
+                    this.updateCircleLegends();
                     if(this.filterdData.length) {
                         $('#traffic-groups-legend-info').removeClass('hidden');
                     } else {
                         $('#traffic-groups-legend-info').addClass('hidden');
                     }
                     $('#traffic-groups-options').removeClass('hidden');
+                },
+                handleUntaggedEndpoints: function (data) {
+                    var curSettings = localStorage
+                        .getItem('container_' + layoutHandler.getURLHashObj().p
+                                   + '_settings'),
+                        showUntagged = true,
+                        tgData = data ? data.slice(0) : data;
+                    if(curSettings) {
+                        curSettings = JSON.parse(curSettings);
+                        showUntagged = curSettings.untaggedEndpoints;
+                    }
+                    if(!showUntagged && tgData) {
+                        tgData = _.filter(tgData, function(session) {
+                            var remoteVN = session['eps.traffic.remote_vn'];
+                            var srcTags = false,
+                                dstTags = false;
+                            _.each(cowc.TRAFFIC_GROUP_TAG_TYPES, function(tag) {
+                                if(session[tag.value]) {
+                                    srcTags = true;
+                                }
+                                if(session['eps.traffic.remote_' + tag.value + '_id']) {
+                                    dstTags = true;
+                                }
+                            });
+                            return srcTags && (dstTags || !remoteVN);
+                        });
+                    }
+                    return tgData;
                 },
                 addtionalEvents: function() {
                     return [{
@@ -678,6 +750,11 @@ define(
                     var chartScope = tgView.chartInfo.component;
                     if(chartScope.config.attributes.showLinkInfo) {
                         tgView.showLinkInfo(d, el, e, chartScope);
+                        if(tgView.enableSessionDrilldown) {
+                            $('#traffic-groups-radial-chart')
+                                .addClass('showLinkInfo');
+                            tgView.showLinkSessions();
+                        }
                     }
                 },
                 _onMousemoveLink: function(d, el ,e) {
@@ -719,10 +796,11 @@ define(
                     if(labels && labels.length > 0) {
                         _.each(labels[idx], function(label) {
                             displayLabels.push(label
-                                 .replace('application=', cowc.APPLICATION_ICON)
-                                 .replace('tier=', cowc.TIER_ICON)
-                                 .replace('site=', cowc.SITE_ICON)
-                                 .replace('deployment=', cowc.DEPLOYMENT_ICON));
+                                 .replace('application', cowc.APPLICATION_ICON)
+                                 .replace('tier', cowc.TIER_ICON)
+                                 .replace('site', cowc.SITE_ICON)
+                                 .replace('deployment', cowc.DEPLOYMENT_ICON)
+                                 .replace('=', ' '));
                         });
                     }
                     return displayLabels;
@@ -799,6 +877,7 @@ define(
                                                     .get('subGroupByTagType');
 
                     tgView.filterDataByEndpoints();
+                    tgView.updateCircleLegends();
                     var newTimeRange = tgView.getTGSettings().time_range,
                         newFromTime = tgView.getTGSettings().from_time,
                         newToTime = tgView.getTGSettings().to_time;
@@ -809,6 +888,32 @@ define(
                     } else {
                         tgView.updateContainerSettings('', false);
                     }
+                },
+                updateCircleLegends: function() {
+                    var trafficChartLegendTmpl =
+                        contrail.getTemplate4Id('traffic-chart-legend-template'),
+                        outerLegends = [],
+                        innerLegends = [];
+                    _.map(this.getCategorizationObj()[0].split('-'), function(tag) {
+                        outerLegends.push(_.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
+                            function(obj) {
+                            return obj.value == tag
+                        }).text);
+                    });
+                    if(this.getCategorizationObj()[1]) {
+                        _.map(this.getCategorizationObj()[1].split('-'), function(tag) {
+                            innerLegends.push(_.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
+                                function(obj) {
+                                return obj.value == tag
+                            }).text);
+                        });
+                    }
+                    $('#traffic-groups-legend-info .tgCirclesLegend').html(
+                        trafficChartLegendTmpl({
+                            outerTags: outerLegends,
+                            innerTags: innerLegends.length ? innerLegends : ['-']
+                        })
+                    );
                 },
                 removeFilter: function(e) {
                     var curElem = $(e.currentTarget).parent('li').find('div'),
@@ -868,9 +973,13 @@ define(
                     if(filterByTags.length) {
                         filterIconEle.removeClass('noFiltersApplied')
                         filterIconEle.attr('data-action', 'clear');
+                        filterIconEle.find('.filterCount').removeClass('hidden')
+                                        .html(filterByTags.length);
                     } else {
                         filterIconEle.addClass('noFiltersApplied');
                         filterIconEle.removeAttr('data-action');
+                        filterIconEle.find('.filterCount').addClass('hidden')
+                                        .html('');
                     }
                     $('.tgRemoveFilter').on('click', this.removeFilter);
                     $('#filterByTagNameSec .dropdown-menu')
@@ -928,9 +1037,17 @@ define(
                     };
                 },
                 getCategorizationObj: function() {
-                    var categorization = [this.getTGSettings().groupByTagType
-                                            .join('-')];
-                    if(this.getTGSettings().subGroupByTagType) {
+                    var curSettings = localStorage
+                        .getItem('container_' + layoutHandler.getURLHashObj().p
+                                   + '_settings'),
+                        categorization = [this.getTGSettings().groupByTagType
+                                            .join('-')],
+                        showInnerCircle = true;
+                    if(curSettings) {
+                        curSettings = JSON.parse(curSettings);
+                        showInnerCircle = curSettings.showInnerCircle;
+                    }
+                    if(this.getTGSettings().subGroupByTagType && showInnerCircle) {
                         categorization.push(this.getTGSettings()
                                         .subGroupByTagType.join('-'));
                     }
@@ -1001,7 +1118,9 @@ define(
                                 $('#traffic-groups-legend-info').show()
                                 : $('#traffic-groups-legend-info').hide();
                         }
-                        if(typeof newObj.view_type != 'undefined' || !newObj) {
+                        if(typeof newObj.view_type != 'undefined' ||
+                         typeof newObj.untaggedEndpoints != 'undefined'
+                         || typeof newObj.showInnerCircle != 'undefined' || !newObj) {
                             if(curSettings.view_type == 'grid-stats') {
                                 $('#traffic-groups-radial-chart').hide();
                                 $('#traffic-groups-grid-view').show();
@@ -1021,10 +1140,6 @@ define(
                                     'levels': curSettings.showInnerCircle ? 2 : 1
                                 });
                             }
-                        }
-                        if(typeof newObj.showInnerCircle != 'undefined'
-                            && curSettings.view_type == 'chart-stats') {
-                            this._onClickNode(curSettings.showInnerCircle);
                         }
                     } else {
                         this.updateChart({
@@ -1080,25 +1195,44 @@ define(
                                         class: 'showicon col-xs-6'
                                     }
                                 }]
+                            }, {
+                                columns: [{
+                                    elementId: 'untaggedEndpoints',
+                                    view: 'FormCheckboxView',
+                                    viewConfig: {
+                                        label: 'Untagged Endpoints',
+                                        path: 'untaggedEndpoints',
+                                        dataBindValue: 'untaggedEndpoints',
+                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                        class: 'showicon col-xs-12'
+                                    }
+                                }]
                             }
                         ]
+                    }
+                },
+                getSelectedTime: function() {
+                    var fromTime = this.getTGSettings().time_range,
+                        toTime = 0;
+                    if(fromTime == -1) {
+                        fromTime = (new Date().getTime() - new Date(
+                                this.getTGSettings().from_time).getTime()),
+                        toTime = (new Date().getTime() - new Date(
+                                this.getTGSettings().to_time).getTime());
+                        fromTime = Math.round(fromTime / (1000 * 60));
+                        toTime = Math.round(toTime / (1000 * 60));
+                    } else {
+                        fromTime /= 60;
+                    }
+                    return {
+                        fromTime : fromTime,
+                        toTime : toTime
                     }
                 },
                 renderTrafficChart: function(option) {
                     this.resetChartView();
                     var self = this,
-                        fromTime = this.getTGSettings().time_range,
-                        toTime = 0;
-                        if(fromTime == -1) {
-                            fromTime = (new Date().getTime() - new Date(
-                                    this.getTGSettings().from_time).getTime()),
-                            toTime = (new Date().getTime() - new Date(
-                                    this.getTGSettings().to_time).getTime());
-                            fromTime = Math.round(fromTime / (1000 * 60));
-                            toTime = Math.round(toTime / (1000 * 60));
-                        } else {
-                            fromTime /= 60;
-                        }
+                        selctedTime = self.getSelectedTime();
                     self.updateStatsTimeSec();
                     var configTagDefObj = $.ajax({
                         url: 'api/tenants/config/get-config-details',
@@ -1115,8 +1249,8 @@ define(
                     var clientPostData = {
                         "async": false,
                         "formModelAttrs": {
-                            "from_time_utc": "now-" + (fromTime + 'm'),
-                            "to_time_utc": "now-" + (toTime + 'm'),
+                            "from_time_utc": "now-" + (selctedTime.fromTime+ 'm'),
+                            "to_time_utc": "now-" + (selctedTime.toTime + 'm'),
                             "select": "eps.client.remote_app_id, eps.client.remote_tier_id, eps.client.remote_site_id,"+
                                  "eps.client.remote_deployment_id, eps.client.remote_prefix, eps.client.remote_vn, eps.__key,"+
                                  " eps.client.app, eps.client.tier, eps.client.site, eps.client.deployment, eps.client.local_vn, name, SUM(eps.client.in_bytes),"+
@@ -1131,8 +1265,8 @@ define(
                     var serverPostData = {
                         "async": false,
                         "formModelAttrs": {
-                            "from_time_utc": "now-" + (fromTime + 'm'),
-                            "to_time_utc": "now-" + (toTime + 'm'),
+                            "from_time_utc": "now-" + (selctedTime.fromTime + 'm'),
+                            "to_time_utc": "now-" + (selctedTime.toTime + 'm'),
                             "select": "eps.server.remote_app_id, eps.server.remote_tier_id, eps.server.remote_site_id,"+
                                  "eps.server.remote_deployment_id, eps.server.remote_prefix, eps.server.remote_vn, eps.__key,"+
                                  " eps.server.app, eps.server.tier, eps.server.site, eps.server.deployment, eps.server.local_vn, name, SUM(eps.server.in_bytes),"+
@@ -1155,29 +1289,31 @@ define(
                                 var clientData = cowu.getValueByJsonPath(response, 'data', []);
                                 var modifiedClientData = [];
                                     _.each(clientData, function (val, idx) {
-                                        val['isClient'] = true;
-                                        val['eps.traffic.remote_app_id'] = val['eps.client.remote_app_id'];
-                                        val['eps.traffic.remote_deployment_id'] = val['eps.client.remote_deployment_id'];
-                                        val['eps.traffic.remote_site_id'] = val['eps.client.remote_site_id'];
-                                        val['eps.traffic.remote_tier_id'] = val['eps.client.remote_tier_id'];
-                                        val['eps.traffic.remote_deployment_id'] = val['eps.client.remote_deployment_id'];
-                                        val['eps.traffic.remote_vn'] = val['eps.client.remote_vn'];
-                                        val['SUM(eps.traffic.in_bytes)'] = val['SUM(eps.client.in_bytes)'];
-                                        val['SUM(eps.traffic.out_bytes)'] = val['SUM(eps.client.out_bytes)'];
-                                        val['SUM(eps.traffic.in_pkts)'] = val['SUM(eps.client.in_pkts)'];
-                                        val['SUM(eps.traffic.out_pkts)'] = val['SUM(eps.client.out_pkts)'];
-                                        val['eps.traffic.remote_prefix'] = val['eps.client.remote_prefix'];
-                                        val['app'] = val['eps.client.app'];
-                                        val['tier'] = val['eps.client.tier'];
-                                        val['site'] = val['eps.client.site'];
-                                        val['deployment'] = val['eps.client.deployment'];
-                                        val['vn'] = val['eps.client.local_vn'];
-                                        var updateVal = _.omit(val, ['eps.client.remote_app_id', 'eps.client.remote_deployment_id',
-                                         'eps.client.remote_site_id', 'eps.client.remote_tier_id', 'eps.client.remote_deployment_id',
-                                         'eps.client.remote_vn', 'eps.client.app', 'eps.client.tier', 'eps.client.site', 'eps.client.deployment',
-                                         'eps.client.local_vn', 'SUM(eps.client.in_bytes)', 'SUM(eps.client.out_bytes)',
-                                         'SUM(eps.client.in_pkts)', 'SUM(eps.client.out_pkts)']);
-                                        modifiedClientData.push(updateVal);
+                                        if(val['SUM(eps.client.in_bytes)'] || val['SUM(eps.client.out_bytes)']) {
+                                            val['isClient'] = true;
+                                            val['eps.traffic.remote_app_id'] = val['eps.client.remote_app_id'];
+                                            val['eps.traffic.remote_deployment_id'] = val['eps.client.remote_deployment_id'];
+                                            val['eps.traffic.remote_site_id'] = val['eps.client.remote_site_id'];
+                                            val['eps.traffic.remote_tier_id'] = val['eps.client.remote_tier_id'];
+                                            val['eps.traffic.remote_deployment_id'] = val['eps.client.remote_deployment_id'];
+                                            val['eps.traffic.remote_vn'] = val['eps.client.remote_vn'];
+                                            val['SUM(eps.traffic.in_bytes)'] = val['SUM(eps.client.in_bytes)'];
+                                            val['SUM(eps.traffic.out_bytes)'] = val['SUM(eps.client.out_bytes)'];
+                                            val['SUM(eps.traffic.in_pkts)'] = val['SUM(eps.client.in_pkts)'];
+                                            val['SUM(eps.traffic.out_pkts)'] = val['SUM(eps.client.out_pkts)'];
+                                            val['eps.traffic.remote_prefix'] = val['eps.client.remote_prefix'];
+                                            val['app'] = val['eps.client.app'];
+                                            val['tier'] = val['eps.client.tier'];
+                                            val['site'] = val['eps.client.site'];
+                                            val['deployment'] = val['eps.client.deployment'];
+                                            val['vn'] = val['eps.client.local_vn'];
+                                            var updateVal = _.omit(val, ['eps.client.remote_app_id', 'eps.client.remote_deployment_id',
+                                             'eps.client.remote_site_id', 'eps.client.remote_tier_id', 'eps.client.remote_deployment_id',
+                                             'eps.client.remote_vn', 'eps.client.app', 'eps.client.tier', 'eps.client.site', 'eps.client.deployment',
+                                             'eps.client.local_vn', 'SUM(eps.client.in_bytes)', 'SUM(eps.client.out_bytes)',
+                                             'SUM(eps.client.in_pkts)', 'SUM(eps.client.out_pkts)']);
+                                            modifiedClientData.push(updateVal);
+                                        }
                                     });
                                 self.clientData = modifiedClientData;
                                 return modifiedClientData;
@@ -1196,29 +1332,31 @@ define(
                                     var serverData = cowu.getValueByJsonPath(response, 'data', []);
                                     var modifiedServerData = [];
                                     _.each(serverData, function (val, idx) {
-                                        val['isServer'] = true;
-                                        val['eps.traffic.remote_app_id'] = val['eps.server.remote_app_id'];
-                                        val['eps.traffic.remote_deployment_id'] = val['eps.server.remote_deployment_id'];
-                                        val['eps.traffic.remote_site_id'] = val['eps.server.remote_site_id'];
-                                        val['eps.traffic.remote_tier_id'] = val['eps.server.remote_tier_id'];
-                                        val['eps.traffic.remote_deployment_id'] = val['eps.server.remote_deployment_id'];
-                                        val['eps.traffic.remote_vn'] = val['eps.server.remote_vn'];
-                                        val['SUM(eps.traffic.in_bytes)'] = val['SUM(eps.server.in_bytes)'];
-                                        val['SUM(eps.traffic.out_bytes)'] = val['SUM(eps.server.out_bytes)'];
-                                        val['SUM(eps.traffic.in_pkts)'] = val['SUM(eps.server.in_pkts)'];
-                                        val['SUM(eps.traffic.out_pkts)'] = val['SUM(eps.server.out_pkts)'];
-                                        val['eps.traffic.remote_prefix'] = val['eps.server.remote_prefix'];
-                                        val['app'] = val['eps.server.app'];
-                                        val['tier'] = val['eps.server.tier'];
-                                        val['site'] = val['eps.server.site'];
-                                        val['deployment'] = val['eps.server.deployment'];
-                                        val['vn'] = val['eps.server.local_vn'];
-                                        var updateVal = _.omit(val, ['eps.server.remote_app_id', 'eps.server.remote_deployment_id',
-                                         'eps.server.remote_site_id', 'eps.server.remote_tier_id', 'eps.server.remote_deployment_id',
-                                         'eps.server.remote_vn', 'eps.server.app', 'eps.server.tier', 'eps.server.site', 'eps.server.deployment',
-                                        'eps.server.local_vn', 'SUM(eps.server.in_bytes)', 'SUM(eps.server.out_bytes)',
-                                         'SUM(eps.server.in_pkts)', 'SUM(eps.server.out_pkts)']);
-                                        modifiedServerData.push(updateVal);
+                                        if(val['SUM(eps.server.in_bytes)'] || val['SUM(eps.server.out_bytes)']) {
+                                            val['isServer'] = true;
+                                            val['eps.traffic.remote_app_id'] = val['eps.server.remote_app_id'];
+                                            val['eps.traffic.remote_deployment_id'] = val['eps.server.remote_deployment_id'];
+                                            val['eps.traffic.remote_site_id'] = val['eps.server.remote_site_id'];
+                                            val['eps.traffic.remote_tier_id'] = val['eps.server.remote_tier_id'];
+                                            val['eps.traffic.remote_deployment_id'] = val['eps.server.remote_deployment_id'];
+                                            val['eps.traffic.remote_vn'] = val['eps.server.remote_vn'];
+                                            val['SUM(eps.traffic.in_bytes)'] = val['SUM(eps.server.in_bytes)'];
+                                            val['SUM(eps.traffic.out_bytes)'] = val['SUM(eps.server.out_bytes)'];
+                                            val['SUM(eps.traffic.in_pkts)'] = val['SUM(eps.server.in_pkts)'];
+                                            val['SUM(eps.traffic.out_pkts)'] = val['SUM(eps.server.out_pkts)'];
+                                            val['eps.traffic.remote_prefix'] = val['eps.server.remote_prefix'];
+                                            val['app'] = val['eps.server.app'];
+                                            val['tier'] = val['eps.server.tier'];
+                                            val['site'] = val['eps.server.site'];
+                                            val['deployment'] = val['eps.server.deployment'];
+                                            val['vn'] = val['eps.server.local_vn'];
+                                            var updateVal = _.omit(val, ['eps.server.remote_app_id', 'eps.server.remote_deployment_id',
+                                             'eps.server.remote_site_id', 'eps.server.remote_tier_id', 'eps.server.remote_deployment_id',
+                                             'eps.server.remote_vn', 'eps.server.app', 'eps.server.tier', 'eps.server.site', 'eps.server.deployment',
+                                            'eps.server.local_vn', 'SUM(eps.server.in_bytes)', 'SUM(eps.server.out_bytes)',
+                                             'SUM(eps.server.in_pkts)', 'SUM(eps.server.out_pkts)']);
+                                            modifiedServerData.push(updateVal);
+                                        }
                                     });
                                     self.serverData = modifiedServerData;
                                 }
@@ -1229,7 +1367,6 @@ define(
                         }
                     };
                     configTagDefObj.done(function () {
-                        //var self = this;
                         self.viewInst = new ContrailChartsView({
                             el: self.$el.find('#traffic-groups-radial-chart'),
                             model: new ContrailListModel(listModelConfig)
@@ -1238,12 +1375,8 @@ define(
                     });
                 },
                 render: function() {
-                    /*if(!($('#breadcrumb li:last a').text() == ctwc.TRAFFIC_GROUPS_ALL_APPS)){
-                        pushBreadcrumb([ctwc.TRAFFIC_GROUPS_ALL_APPS]);
-                    }*/
                     var trafficGroupsTmpl = contrail.getTemplate4Id('traffic-groups-template');
                     this.$el.html(trafficGroupsTmpl({widgetTitle:'Traffic Groups'}));
-                    this.$el.addClass('traffic-groups-view');
                     $('.refresh-traffic-stats').on('click', this.resetTrafficStats);
                     $('.settings-traffic-stats').on('click', this.showFilterOptions);
                     TrafficGroupsView.colorMap = {};
