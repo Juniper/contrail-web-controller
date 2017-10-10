@@ -135,7 +135,81 @@
               		var projectAddressGrp = filteredProjectAddressGrp.concat(filtedGlobalAddressGrp);
               		return projectAddressGrp;
               	}
-             }
+             };
+             
+             this.parseTags = function(tags) {
+                 var tagGroupData = {},
+                     applicationMap = { Application: [{ text: "Select Application",
+                         value: "dummy" +
+                         cowc.DROPDOWN_VALUE_SEPARATOR +
+                         "Application",
+                      disabled: true}]}, siteMap = {Site: [{ text: "Select Site",
+                          value: "dummy" +
+                          cowc.DROPDOWN_VALUE_SEPARATOR +
+                          "Site",
+                       disabled: true}]},
+                     deploymentMap = {Deployment: [{ text: "Select Deployment",
+                         value: "dummy" +
+                         cowc.DROPDOWN_VALUE_SEPARATOR +
+                         "Deployment",
+                      disabled: true}]}, tierMap = {Tier:[{ text: "Select Tier",
+                          value: "dummy" +
+                          cowc.DROPDOWN_VALUE_SEPARATOR +
+                          "Tier",
+                       disabled: true}]}, labelMap = {Label:[{ text: "Select Labels",
+                           value: "dummy" +
+                           cowc.DROPDOWN_VALUE_SEPARATOR +
+                           "label",
+                        disabled: true}]};
+                  _.each(tags, function(tagData){
+                      if('tag' in tagData) {
+                          var data = tagData['tag'];
+                          var val = data.fq_name.length === 1 ?
+                                  'global:' + data.name : data.name;
+                          var txt = data.fq_name.length === 1 ?
+                                  'global:' + data.tag_value : data.tag_value;
+                          if(data.tag_type === ctwc.APPLICATION_TAG_TYPE) {
+                              applicationMap['Application'].push({
+                                  text: txt,
+                                  value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Application",
+                                  id: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Application",
+                                  parent: 'Application'});
+                          } else if(data.tag_type === ctwc.TIER_TAG_TYPE) {
+                              tierMap['Tier'].push({
+                                  text: txt,
+                                  value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Tier",
+                                  id: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Tier",
+                                  parent: 'Tier'});
+
+                          } else if(data.tag_type === ctwc.DEPLOYMENT_TAG_TYPE) {
+                              deploymentMap['Deployment'].push({
+                                  text: txt,
+                                  value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Deployment",
+                                  id: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Deployment",
+                                  parent: 'Deployment'});
+
+                          } else if(data.tag_type === ctwc.SITE_TAG_TYPE) {
+                              siteMap['Site'].push({
+                                  text: txt,
+                                  value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Site",
+                                  id: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Site",
+                                  parent: 'Site'});
+                          } else if(data.tag_type === ctwc.LABEL_TAG_TYPE) {
+                              labelMap['Label'].push({
+                                  text: txt,
+                                  value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
+                                  id: val + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
+                                  parent: 'label'});
+                          }
+                      }
+                  });
+                  tagGroupData.applicationMap = applicationMap;
+                  tagGroupData.siteMap = siteMap;
+                  tagGroupData.deploymentMap = deploymentMap;
+                  tagGroupData.tierMap = tierMap;
+                  tagGroupData.labelMap = labelMap;
+                  return tagGroupData;
+             };
              
              
      };

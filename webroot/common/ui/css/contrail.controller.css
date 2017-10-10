@@ -639,3 +639,149 @@ form h5.margin-0-0-10~.section-content {
 #origin_override {
 	margin-top: 17px;
 }
+#review_address_groups div button,  #review_service_groups div button, #review_visible_tag_for_project div button{
+	width:275px;
+	background: white;
+    color: #599ac9 !important;
+    border: 1.4px solid #599ac9;
+    text-shadow: none;
+}
+#review_address_groups div button,  #review_service_groups div button{
+	margin-bottom: 7px;
+}
+#review_address_groups div button:focus,  #review_service_groups div button:focus, #review_visible_tag_for_project div button:focus{
+	outline:none;
+}
+#modal-landing-container{
+	height: 100%;
+	background: #f7fdff; /* For browsers that do not support gradients */
+    background: -webkit-linear-gradient(#f7fdff, white); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(#f7fdff, white); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(#f7fdff, white); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(#f7fdff, white); /* Standard syntax (must be last) */
+    margin-bottom:30px;
+}
+#configure-applicationpolicyset  .modal-body {
+	max-height: 100% !important;
+	padding:0px;
+}
+.aps-icon-container {
+	height: 110px;
+    width: 105px;
+    background: #599ac9;
+    border-radius: 10px;
+    margin-left: 490px;
+}
+.aps-text-container{
+	padding-top: 20px;
+    padding-left: 270px;
+}
+#aps-button-container{
+	margin-left: 406px;
+    margin-top: 115px;
+}
+#aps-main-container{
+	background: #f7fdff; /* For browsers that do not support gradients */
+    background: -webkit-linear-gradient(#f7fdff, white); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(#f7fdff, white); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(#f7fdff, white); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(#f7fdff, white); /* Standard syntax (must be last) */
+}
+#aps-main-back-button{
+    margin-right:15px;
+    margin-top:15px;
+}
+#aps-landing-container{
+    background:linear-gradient(#f7fdff,#fff);
+    display:none;
+    height:500px;
+    position: relative;
+}
+#aps-overlay-container{
+    border-left: 1px solid #e5e5e5;
+    position: absolute;
+    width: 70%;
+    z-index: 5;
+    right: 0;
+    top: 0;
+    background:#fff;
+    -webkit-box-shadow: -4px 5px 5px -4px rgba(0,0,0,0.25);-moz-box-shadow: -4px 5px 5px -4px rgba(0,0,0,0.25);
+    box-shadow: -4px 5px 5px -4px rgba(0,0,0,0.25);
+}
+#aps-gird-container{
+	height: 460px;
+    overflow-y: auto;
+    padding: 0px 6px 0px 6px;
+}
+#aps-overlay-container .ellipsis > li > a{
+    font-size: 12px;
+    color:#3182BD;
+ }
+#aps-overlay-container .ellipsis > li > a:hover, #aps-overlay-container .ellipsis > li > a:visited{
+    color:#ffffff;
+}
+#aps-overlay-container .ellipsis{
+  padding:5px;
+  box-shadow: none;
+  border:#D8E2E5 solid 2px;
+  left:-150px!important;
+  top:30px!important;
+}
+#aps-overlay-container .dropdown-toggle{
+    margin-top:12px;
+    margin-right:15px;
+    font-size:16px;
+    color: #3182bd;
+}
+#aps-footer-container{
+	height: 35px;
+	border-top: 1px solid #e5e5e5;
+}
+#aps-save-button {
+	margin: 8px 8px 0px 0px;
+    line-height: 14px !important;
+    padding: 0px 10px 0px 10px;
+}
+#aps-back-button{
+	width:70px;
+	margin:8px 0px 0px 8px;
+	line-height: 14px !important;
+}
+.dropdown-menu{
+	z-index: 1500;
+}
+.aps-details-header{
+	font-size: 15px;
+    color: #393939;
+    font-weight: normal;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin: 5px 0px 0px 2px;
+}
+#gird-details-container{
+	padding-top: 10px;
+}
+.aps-details-error-container{
+	min-height: 46px;
+    height: auto;
+    width: 99%;
+    margin: 8px 4px 0px 4px;
+    display:none;
+    padding: 14px 0px 0px 10px;
+}
+.error-font-weight {
+    font-weight: bold;
+}
+#applicationpolicyset_policy_wizard .actions{
+    display:none;
+}
+#fw_policy_wizard{
+position:absolute;
+top:4px;
+right:12px;}
+#gird-details-container .contrail-tab-link-list{
+	width: 100%;
+    margin-left: 0px;
+}
+#aps-landing-container .wizard > .content > .body ul{
+    list-style:none !important;
+}

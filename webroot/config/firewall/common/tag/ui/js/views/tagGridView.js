@@ -6,9 +6,11 @@ define([
     'underscore',
     'contrail-view',
     'config/firewall/common/tag/ui/js/models/tagModel',
-    'config/firewall/common/tag/ui/js/views/tagEditView'
-], function (_, ContrailView, TagModel, TagEditView) {
+    'config/firewall/common/tag/ui/js/views/tagEditView',
+    'config/firewall/fwpolicywizard/common/ui/js/views/overlayTagEditView'
+], function (_, ContrailView, TagModel, TagEditView, OverlayTagEditView) {
     var tagEditView = new TagEditView(),
+        overlayTagEditView = new OverlayTagEditView(),
         gridElId = "#" + ctwc.SECURITY_POLICY_TAG_GRID_ID;
     var isGlobal = true;
     var tagGridView = ContrailView.extend({
@@ -63,7 +65,7 @@ define([
                             $('#btnDeleteTAG').removeClass('disabled-link');
                         }
                     },
-                    actionCell: rowActionConfig,
+                    actionCell: getRowActionConfig(viewConfig),
                     detail: {
                         template: cowu.generateDetailTemplateHTML(
                                        getTagDetailsTemplateConfig(),
@@ -152,9 +154,9 @@ define([
                         {
                             id: "ref_obj",
                             field: "ref_obj",
-                            name: "Associated Objects",
+                            name: "Associated Projects",
                             width: 180,
-                            formatter: othersFormatter,
+                            formatter: associatedProjectFormatter,
                             sortable: {
                                 sortBy: 'formattedValue'
                             }
@@ -164,20 +166,32 @@ define([
         };
         return gridElementConfig;
     };
-    var rowActionConfig = [
-        ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-           var dataItem = $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
-           tagEditView.model = new TagModel(dataItem);
-           tagEditView.renderDeleteTag({
-                                  "title": 'Delete Tag',
-                                  selectedGridData: [dataItem],
-                                  callback: function () {
-                                      var dataView = $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).data("contrailGrid")._dataView;
-                                      dataView.refreshData();
-            }});
-        })
-    ];
-    function getHeaderActionConfig(viewConfig) {
+    function getRowActionConfig (viewConfig) {
+        var rowActionConfig = [
+            ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+               var dataItem = $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
+               if(viewConfig.isWizard){
+                   overlayTagEditView.model = new TagModel(dataItem);
+                   overlayTagEditView.renderTag({
+                               selectedGridData: [dataItem],
+                               'viewConfig': viewConfig,
+                               'mode':'delete'
+                   });
+               } else{
+                   tagEditView.model = new TagModel(dataItem);
+                   tagEditView.renderDeleteTag({
+                                          "title": 'Delete Tag',
+                                          selectedGridData: [dataItem],
+                                          callback: function () {
+                                              var dataView = $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).data("contrailGrid")._dataView;
+                                              dataView.refreshData();
+                    }});
+               }
+            })
+        ];
+        return rowActionConfig;
+   }
+   function getHeaderActionConfig(viewConfig) {
         var headerActionConfig = [
             {
                 "type" : "link",
@@ -188,35 +202,52 @@ define([
                     var tagModel = new TagModel();
                     var checkedRows = $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).data("contrailGrid").getCheckedRows();
                     if(checkedRows && checkedRows.length > 0) {
-                        tagEditView.model = tagModel;
-                        tagEditView.renderDeleteTag(
-                            {"title": ctwc.TITLE_TAG_MULTI_DELETE,
-                                selectedGridData: checkedRows,
-                                callback: function () {
-                                    var dataView =
-                                        $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).
-                                        data("contrailGrid")._dataView;
-                                    dataView.refreshData();
+                        if(viewConfig.isWizard){
+                            overlayTagEditView.model = tagModel;
+                            overlayTagEditView.renderTag({
+                                    selectedGridData: checkedRows,
+                                    'viewConfig': viewConfig,
+                                    'mode':'delete'
+                            });
+                        }else{
+                            tagEditView.model = tagModel;
+                            tagEditView.renderDeleteTag(
+                                {"title": ctwc.TITLE_TAG_MULTI_DELETE,
+                                    selectedGridData: checkedRows,
+                                    callback: function () {
+                                        var dataView =
+                                            $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).
+                                            data("contrailGrid")._dataView;
+                                        dataView.refreshData();
+                                    }
                                 }
-                            }
-                        );
+                            );
+                        }
                     }
                 }
-
             },
             {
                 "type": "link",
                 "title": ctwc.SEC_POL_TAG_TITLE_CREATE,
                 "iconClass": "fa fa-plus",
                 "onClick": function () {
-                    tagEditView.model = new TagModel();
-                    tagEditView.renderAddEditTag({
-                                              "title": 'Create Tag',
-                                              'mode': 'add',
-                                              'isGlobal': viewConfig.isGlobal,
-                                              callback: function () {
-                       $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).data("contrailGrid")._dataView.refreshData();
-                    }});
+                    if(viewConfig.isWizard){
+                        overlayTagEditView.model = new TagModel();
+                        overlayTagEditView.renderTag({
+                                'mode': 'add',
+                                'viewConfig': viewConfig,
+                                'isGlobal': viewConfig.isGlobal
+                        });
+                    }else{
+                        tagEditView.model = new TagModel();
+                        tagEditView.renderAddEditTag({
+                                                  "title": 'Create Tag',
+                                                  'mode': 'add',
+                                                  'isGlobal': viewConfig.isGlobal,
+                                                  callback: function () {
+                           $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).data("contrailGrid")._dataView.refreshData();
+                        }});
+                    }
                 }
             }
 
@@ -298,6 +329,14 @@ define([
                                                 },{
                                                     key: 'tag_id',
                                                     templateGenerator: 'TextGenerator',
+                                                    label: 'Associated Projects',
+                                                    keyClass:'col-xs-4',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'detailsAssociatedProjectFormatter'
+                                                    }
+                                                },{
+                                                    key: 'tag_id',
+                                                    templateGenerator: 'TextGenerator',
                                                     label: 'Associated Objects',
                                                     keyClass:'col-xs-4',
                                                     templateGeneratorConfig: {
@@ -328,7 +367,10 @@ define([
     };
     this.detailsOthersFormatter = function(value, dc) {
         return othersFormatter(null, null, null, value, dc, true);
-    }
+    };
+    this.detailsAssociatedProjectFormatter = function(value, dc) {
+        return associatedProjectFormatter(null, null, null, value, dc, true);
+    };
     function virtualNetworkFormatter(r, c, v, cd, dc, showAll){
     	var returnString = '',refList = [];
     	var vn = getValueByJsonPath(dc, 'virtual_network_back_refs', []);
@@ -461,6 +503,40 @@ define([
             }
         }else{
         	returnString = '-';
+        }
+        return  returnString;
+    };
+    function associatedProjectFormatter(r, c, v, cd, dc, showAll){
+        var returnString = '',projectList = [];
+        var projectRef = getValueByJsonPath(dc, 'project_back_refs', []);
+        for(var j = 0; j < projectRef.length; j++){
+            var to = projectRef[j].to;
+            var name = to[to.length-1];
+            var projectText = '<span>'+ name +'</span>';
+            projectList.push(projectText);
+        }
+
+        if(projectList.length > 0){
+            if ((null != showAll) && (true == showAll)) {
+                for (var q = 0; q < projectList.length; q++) {
+                    if (typeof projectList[q] !== "undefined") {
+                        returnString += projectList[q] + "<br>";
+                    }
+                }
+                return returnString;
+            }
+            for(var l = 0; l< projectList.length,l < 2; l++){
+                if(projectList[l]) {
+                    returnString += projectList[l] + "<br>";
+                }
+            }
+            if (projectList.length > 2) {
+                returnString += '<span class="moredataText">(' +
+                    (projectList.length-2) + ' more)</span> \
+                    <span class="moredata" style="display:none;" ></span>';
+            }
+        }else{
+            returnString = '-';
         }
         return  returnString;
     };

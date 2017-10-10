@@ -24,7 +24,7 @@ define([
                                 parent_id: currentProject.value,
                                 fields: ['application_policy_set_back_refs','virtual_DNS_back_refs','service_instance_back_refs',
                                     'logical_router_back_refs','virtual_machine_interface_back_refs','virtual_network_back_refs',
-                                    'network_policy_back_refs','route_table_back_refs',
+                                    'network_policy_back_refs','route_table_back_refs','project_back_refs',
                                     'bgp_as_a_service_back_refs','security_group_back_refs','bgp_router_back_refs','service_template_back_refs']}]})
                     },
                     dataParser: self.parseTagData.bind(this)
@@ -32,7 +32,12 @@ define([
             };
             self.contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                    self.contrailListModel, getTagGridViewConfig());
+                    self.contrailListModel, getTagGridViewConfig(viewConfig));
+            $("#aps-back-button").off('click').on('click', function(){
+                $('#modal-landing-container').show();
+                $("#aps-gird-container").empty();
+                $('#aps-landing-container').hide();
+            });
         },
         parseTagData : function(response){
             var dataItems = [],
@@ -49,7 +54,7 @@ define([
         return (a.name > b.name)? 1: -1;
     }
 
-    var getTagGridViewConfig = function () {
+    var getTagGridViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwc.SECURITY_POLICY_TAG_SECTION_ID]),
             view: "SectionView",
@@ -69,7 +74,10 @@ define([
                                             pageSizeSelect: [10, 50, 100]
                                         }
                                     },
-                                    isGlobal: false
+                                    isGlobal: false,
+                                    projectSelectedValueData: viewConfig.projectSelectedValueData,
+                                    hashParams:viewConfig.hashParams,
+                                    isWizard: viewConfig ? viewConfig.isWizard : false
                                 }
                             }
                         ]

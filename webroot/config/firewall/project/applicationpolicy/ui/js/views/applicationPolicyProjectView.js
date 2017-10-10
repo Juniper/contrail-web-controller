@@ -8,9 +8,8 @@ define([
 ], function (_, ContrailView) {
     var applicationPolicyView = ContrailView.extend({
         el: $(contentContainer),
-        renderApplicationPolicy: function () {
-            var self = this,
-                viewConfig = self.attributes.viewConfig;
+        renderApplicationPolicy: function (viewConfig) {
+            var self = this;
             self.renderView4Config(self.$el, null,
                                    getApplicationPolicyConfig(viewConfig));
         }

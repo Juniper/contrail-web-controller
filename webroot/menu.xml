@@ -736,7 +736,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 <rootDir>/config/infra/tag/ui</rootDir>
                                 <js>tagGlobal.main.js</js>
                                 <class>tagGlobalPageLoader</class>
-                                <function>renderTagView</function>
+                                <function>render</function>
                             </resource>
                         </resources>
                         <searchStrings>Configure Tags</searchStrings>
@@ -905,7 +905,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <rootDir>/config/infra/tag/ui</rootDir>
                                     <js>tagGlobal.main.js</js>
                                     <class>tagGlobalPageLoader</class>
-                                    <function>renderTagView</function>
+                                    <function>render</function>
                                 </resource>
                             </resources>
                             <searchStrings>Configure Tags, Global Tags</searchStrings>
@@ -929,7 +929,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
-                <item>
+                  <item>
                     <label>Security</label>
                     <hash>config_security</hash>
                     <access>
@@ -944,7 +944,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     </access>
                     <iconClass>menu-icon icon-contrail-network-policy</iconClass>
                     <items>
-                        <item>
+                         <item>
                             <label>Global Policies</label>
                             <hash>config_security_globalpolicies</hash>
                             <resources>
@@ -978,6 +978,23 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Configure Security, Project Scoped Policies</searchStrings>
                         </item>
+                        <!--<item>
+                            <label>Project Scoped Policies</label>
+                            <hash>config_security_projectscopedpolicies</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/firewall/project/applicationpolicy/ui</rootDir>
+                                    <js>applicationPolicyProject.main.js</js>
+                                    <class>applicationPolicyProjectPageLoader</class>
+                                    <function>renderApplicationPolicy</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Security, Project Scoped Policies</searchStrings>
+                        </item>-->
                     </items>
                 </item>
                 <item>

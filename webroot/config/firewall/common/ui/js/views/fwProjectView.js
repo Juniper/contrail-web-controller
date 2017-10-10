@@ -10,7 +10,11 @@ define([
         el: $(contentContainer),
         renderFirewall: function (viewConfig) {
             var self = this;
-            self.renderView4Config(self.$el, null, getDomainProjectDetails(viewConfig));
+            self.newViewConfig = {viewConfig: {}};
+            self.renderView4Config(self.$el, null, self.getDomainProjectDetails(viewConfig),
+                    null, null, null, function(){
+                $('#' + ctwc.FW_POLICY_WIZARD).on('click', function() {self.openFWPolicyWizard();});
+            });
         },
         renderProjectPolicyDetails: function(viewConfig) {
             var self = this,
@@ -24,9 +28,84 @@ define([
             else{
                 policyNameFormat = policyName;
             }
-            console.log(currentHashParams.focusedElement.isGlobal);
             self.renderView4Config(self.$el, null,
                     getProjectPolicyDetails(viewConfig,policyNameFormat));
+        },
+        openFWPolicyWizard: function () {
+            var self = this;
+            require(['config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel',
+            'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizardEditView'],
+            function (FWPolicyWizardModel, FWPolicyWizardEditView) {
+                var fwPolicyWizardModel =  new FWPolicyWizardModel(),
+                    fwPolicyWizardEditView = new FWPolicyWizardEditView();
+                fwPolicyWizardEditView.model = fwPolicyWizardModel;
+                fwPolicyWizardEditView.renderFwWizard({
+                                "title": 'Add new firewall policy',
+                                'viewConfig': $.extend(self.newViewConfig.viewConfig, { isGlobal: false , isWizard: true }),
+                                 callback: function () {
+                                 }
+                });
+            });
+        },
+        getDomainProjectDetails: function(viewConfig) {
+            var hashParams = viewConfig.hashParams,
+                self = this,
+                customProjectDropdownOptions = {
+                    config: true,
+                    childView: {
+                        init: self.getSecurityTabsConfig(viewConfig),
+                    }
+                },
+                customDomainDropdownOptions = {
+                    childView: {
+                        init: ctwvc.getProjectBreadcrumbDropdownViewConfig(hashParams,
+                                                                     customProjectDropdownOptions)
+                    }
+                };
+            return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams,
+                                                     customDomainDropdownOptions);
+        },
+        getSecurityTabsConfig: function(viewConfig) {
+            var self = this;
+            return function (projectSelectedValueData) {
+                selectedDomainProjectData = projectSelectedValueData;
+                var domain = {
+                        'name':projectSelectedValueData.parentSelectedValueData.name,
+                        'uuid':projectSelectedValueData.parentSelectedValueData.value,
+                    }
+                    var project = {
+                        'name':projectSelectedValueData.name,
+                        'uuid':projectSelectedValueData.value,
+                    }
+                    ctwu.setGlobalVariable("domain", domain);
+                    ctwu.setGlobalVariable("project", project);
+                var newViewConfig =
+                    $.extend(true, {}, viewConfig,
+                             {projectSelectedValueData: projectSelectedValueData});
+                self.newViewConfig.viewConfig = newViewConfig;
+                return {
+                    elementId: 'fw_project_tab_section_view',
+                    view: "SectionView",
+                    viewConfig: {
+                        rows: [{
+                            columns: [{
+                                elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
+                                view: 'TabsView',
+                                viewConfig: getSecurityPolicyTabs(newViewConfig)
+                            }, {
+                                elementId: ctwc.FW_POLICY_WIZARD,
+                                view: 'FormButtonView',
+                                viewConfig: {
+                                    label: ctwl.FW_POLICY_WIZARD,
+                                    elementConfig:{
+                                        btnClass:'btn-primary'
+                                    }
+                                }
+                            }]
+                        }]
+                    }
+                };
+            };
         }
     });
 
@@ -46,56 +125,6 @@ define([
             };
         return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams,
                                                      customDomainDropdownOptions)
-    };
-
-    function getSecurityTabsConfig(viewConfig) {
-        return function (projectSelectedValueData) {
-            selectedDomainProjectData = projectSelectedValueData;
-            var domain = {
-                    'name':projectSelectedValueData.parentSelectedValueData.name,
-                    'uuid':projectSelectedValueData.parentSelectedValueData.value,
-                }
-                var project = {
-                    'name':projectSelectedValueData.name,
-                    'uuid':projectSelectedValueData.value,
-                }
-                ctwu.setGlobalVariable("domain", domain);
-                ctwu.setGlobalVariable("project", project);
-            var newViewConfig =
-                $.extend(true, {}, viewConfig,
-                         {projectSelectedValueData: projectSelectedValueData});
-            return {
-                elementId: 'fw_project_tab_section_view',
-                view: "SectionView",
-                viewConfig: {
-                    rows: [{
-                        columns: [{
-                            elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
-                            view: 'TabsView',
-                            viewConfig: getSecurityPolicyTabs(newViewConfig)
-                        }]
-                    }]
-                }
-            };
-        }
-    };
-
-    function getProjectPolicyDetails(viewConfig,policyNameFormat){
-        return {
-            elementId: "fwrule-project-policy-page-id",
-            view: "SectionView",
-            viewConfig: {
-                title: ctwc.FIREWALL_POLICY_HEADING + " : " + policyNameFormat,
-                elementId: "fwrule-project-policy-page-tabs",
-                rows: [{
-                    columns: [{
-                        elementId: "fwrule-project-policy-tab-id",
-                        view: 'TabsView',
-                        viewConfig: getfwRulePolicyTabs(viewConfig)
-                    }]
-                }]
-            }
-        };
     };
 
     function getfwRulePolicyTabs(viewConfig){
@@ -157,22 +186,6 @@ define([
             theme: 'default',
             active: 0,
             tabs: [{
-                elementId: 'fw_policy_tab',
-                title: 'Firewall Policies',
-                view: "fwPolicyProjectListView",
-                viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
-                viewConfig: viewConfig,
-                tabConfig: {
-                    activate: function(event, ui) {
-                        var gridId = $('#' + ctwc.FW_POLICY_GRID_ID);
-                        if (gridId.data('contrailGrid')) {
-                            gridId.data('contrailGrid').refreshView();
-                        }
-                    },
-                    renderOnActivate: true
-                }
-            },
-            {
                 elementId: 'application_policy_tab',
                 title: 'Application Policy Sets',
                 view: "applicationPolicyProjectListView",
@@ -181,6 +194,21 @@ define([
                 tabConfig: {
                     activate: function(event, ui) {
                         var gridId = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID);
+                        if (gridId.data('contrailGrid')) {
+                            gridId.data('contrailGrid').refreshView();
+                        }
+                    },
+                    renderOnActivate: true
+                }
+            },{
+                elementId: 'fw_policy_tab',
+                title: 'Firewall Policies',
+                view: "fwPolicyProjectListView",
+                viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
+                viewConfig: viewConfig,
+                tabConfig: {
+                    activate: function(event, ui) {
+                        var gridId = $('#' + ctwc.FW_POLICY_GRID_ID);
                         if (gridId.data('contrailGrid')) {
                             gridId.data('contrailGrid').refreshView();
                         }

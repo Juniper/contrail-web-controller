@@ -7,12 +7,12 @@ define([
     'contrail-view',
     'contrail-list-model'
 ], function (_, ContrailView, ContrailListModel) {
-    var addressGroupProjectListView = ContrailView.extend({
+    var fwPolicyWizardASProjectListView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig,
-                currentProject = viewConfig["projectSelectedValueData"];;
+                currentProject = viewConfig["projectSelectedValueData"];
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
@@ -56,8 +56,8 @@ define([
                         columns: [
                             {
                                 elementId: ctwc.SECURITY_POLICY_TAG_ID,
-                                view: "addressGroupGridView",
-                                viewPathPrefix: "config/firewall/common/addressgroup/ui/js/views/",
+                                view: "fwPolicyWizardASGridView",
+                                viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
                                     pagerOptions: {
@@ -79,6 +79,6 @@ define([
         }
     };
 
-    return addressGroupProjectListView;
+    return fwPolicyWizardASProjectListView;
 });
 

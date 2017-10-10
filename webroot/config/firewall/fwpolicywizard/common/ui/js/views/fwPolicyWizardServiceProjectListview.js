@@ -7,7 +7,7 @@ define([
     'contrail-view',
     'contrail-list-model'
 ], function (_, ContrailView, ContrailListModel) {
-    var addressGroupProjectListView = ContrailView.extend({
+    var fwPolicyWizardServiceProjectListview = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
             var self = this,
@@ -19,45 +19,45 @@ define([
                         url: "/api/tenants/config/get-config-details",
                         type: "POST",
                         data: JSON.stringify(
-                            {data: [{type: 'address-groups',
+                            {data: [{type: 'service-groups',
                                 parent_id: currentProject.value}]})
                     },
-                    dataParser: self.parseAddressGroupsData,
+                    dataParser: self.parseServiceGroupsData,
                 }
             };
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                    contrailListModel, getAddressGroupGridViewConfig(viewConfig));
+                    contrailListModel, getServiceGroupGridViewConfig(viewConfig));
             $("#aps-back-button").off('click').on('click', function(){
                 $('#modal-landing-container').show();
                 $("#aps-gird-container").empty();
                 $('#aps-landing-container').hide();
             });
         },
-        parseAddressGroupsData : function(response){
+        parseServiceGroupsData : function(response){
             var dataItems = [],
-                tagData = getValueByJsonPath(response, "0;address-groups", []);
+                tagData = getValueByJsonPath(response, "0;service-groups", []);
                 _.each(tagData, function(val){
-                        if("address-group" in val) {
-                            dataItems.push(val["address-group"]);
+                        if("service-group" in val) {
+                            dataItems.push(val["service-group"]);
                         }
                 }); 
             return dataItems;
         }
     });
 
-    var getAddressGroupGridViewConfig = function (viewConfig) {
+    var getServiceGroupGridViewConfig = function (viewConfig) {
         return {
-            elementId: cowu.formatElementId([ctwc.SECURITY_POLICY_TAG_SECTION_ID]),
+            elementId: cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_PROJECT_SERVICE_GRP_SECTION_ID]),
             view: "SectionView",
             viewConfig: {
                 rows: [
                     {
                         columns: [
                             {
-                                elementId: ctwc.SECURITY_POLICY_TAG_ID,
-                                view: "addressGroupGridView",
-                                viewPathPrefix: "config/firewall/common/addressgroup/ui/js/views/",
+                                elementId: ctwc.FW_WZ_SECURITY_POLICY_PROJECT_SERVICE_GRP,
+                                view: "fwPolicyWizardServiceGridView",
+                                viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
                                     pagerOptions: {
@@ -79,6 +79,6 @@ define([
         }
     };
 
-    return addressGroupProjectListView;
+    return fwPolicyWizardServiceProjectListview;
 });
 

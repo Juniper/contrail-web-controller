@@ -26,14 +26,14 @@ define([
 
     var getServiceGroupGridViewConfig = function (viewConfig) {
         return {
-            elementId: cowu.formatElementId([ctwc.SECURITY_POLICY_SERVICE_GRP_LIST_VIEW_ID]),
+            elementId: cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_SERVICE_GRP_LIST_VIEW_ID]),
             view: "SectionView",
             viewConfig: {
                 rows: [
                     {
                         columns: [
                             {
-                                elementId: ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID,
+                                elementId: ctwc.FW_WZ_SECURITY_POLICY_SERVICE_GRP_GRID_ID,
                                 title: ctwl.TITLE_SEC_GRP_SERVICE_GROUP,
                                 view: "GridView",
                                 viewConfig: {
@@ -123,7 +123,7 @@ define([
     function getRowActionConfig (viewConfig) {
         var rowActionConfig = [
             ctwgc.getEditConfig('Edit', function(rowIndex) {
-                dataView = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView;
+                dataView = $('#' + ctwc.FW_WZ_SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView;
                 if(viewConfig.isWizard){
                     overlayServiceGroupEditView.model = new ServiceGroupModel(dataView.getItem(rowIndex));
                     overlayServiceGroupEditView.renderServiceGroup({
@@ -143,7 +143,7 @@ define([
                 }
             }),
             ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-               var dataItem = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
+               var dataItem = $('#' + ctwc.FW_WZ_SECURITY_POLICY_SERVICE_GRP_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
                if(viewConfig.isWizard){
                    overlayServiceGroupEditView.model = new ServiceGroupModel(dataItem);
                    overlayServiceGroupEditView.renderServiceGroup({
@@ -157,7 +157,7 @@ define([
                                           "title": ctwl.TITLE_SERVICE_GROUP_DELETE,
                                           selectedGridData: [dataItem],
                                           callback: function () {
-                                              var dataView = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView;
+                                              var dataView = $('#' + ctwc.FW_WZ_SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView;
                                               dataView.refreshData();
                     }});
                } 
@@ -166,15 +166,15 @@ define([
         return rowActionConfig;
     }
     function getHeaderActionConfig(viewConfig) {
-    	var headerActionConfig = [
-    		{
+        var headerActionConfig = [
+            {
                 "type" : "link",
                 "title" : ctwl.TITLE_SERVICE_GROUP_MULTI_DELETE,
                 "iconClass": 'fa fa-trash',
                 "linkElementId": 'btnDeleteServiceGrp',
                 "onClick" : function() {
                     var serviceGroupModel = new ServiceGroupModel();
-                    var checkedRows = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid").getCheckedRows();
+                    var checkedRows = $('#' + ctwc.FW_WZ_SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid").getCheckedRows();
                     if(checkedRows && checkedRows.length > 0) {
                         if(viewConfig.isWizard){
                             overlayServiceGroupEditView.model = serviceGroupModel;
@@ -220,7 +220,7 @@ define([
                                                   'mode': 'add',
                                                   'isGlobal': viewConfig.isGlobal,
                                                   callback: function () {
-                           $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView.refreshData();
+                           $('#' + ctwc.FW_WZ_SECURITY_POLICY_SERVICE_GRP_GRID_ID).data("contrailGrid")._dataView.refreshData();
                         }});
                     }
                 }
@@ -317,7 +317,7 @@ define([
                     <span class="moredata" style="display:none;" ></span>';
             }
         }else{
-        	returnString = '-';
+            returnString = '-';
         }
         return  returnString;
     }
@@ -326,11 +326,7 @@ define([
         var  firewalService = getValueByJsonPath(dc, 'service_group_firewall_service_list;firewall_service',[]);
         for(var i = 0; i < firewalService.length; i++){
             if(firewalService[i].dst_ports.start_port === firewalService[i].dst_ports.end_port){
-                if(firewalService[i].dst_ports.start_port === -1){
-                    port = 'any';
-                }else{
-                    port = firewalService[i].dst_ports.start_port;
-                }
+                port = firewalService[i].dst_ports.start_port;
             }else{
                 port = firewalService[i].dst_ports.start_port + '-' + firewalService[i].dst_ports.end_port;
             }
@@ -349,7 +345,7 @@ define([
                     <span class="moredata" style="display:none;" ></span>';
             }
         }else{
-        	returnString = '-';
+            returnString = '-';
         }
         return  returnString;
     }
@@ -359,13 +355,9 @@ define([
         serviceList.push('<span class="rule-format" style="width: 180px !important;display:inline-block;">Protocol</span><span class="rule-format">Port</span>');
         for(var i = 0; i < firewalService.length; i++){
             if(firewalService[i].dst_ports.start_port === firewalService[i].dst_ports.end_port){
-              if(firewalService[i].dst_ports.start_port === -1){
-                dstPort = 'any';
-              }else{
                 dstPort = firewalService[i].dst_ports.start_port;
-              }
             }else{
-            	dstPort = firewalService[i].dst_ports.start_port + '-' + firewalService[i].dst_ports.end_port;
+                dstPort = firewalService[i].dst_ports.start_port + '-' + firewalService[i].dst_ports.end_port;
             }
             var portText = '<span style="width: 180px !important;display:inline-block;">'+ firewalService[i].protocol.toUpperCase() +'</span><span>'+ dstPort +'</span>';
             serviceList.push(portText);
@@ -375,8 +367,8 @@ define([
                 returnString += serviceList[j] + "<br>";
             }
         }else{
-        	serviceList.push('<span style="width: 180px !important;display:inline-block;">-</span><span>-</span>');
-        	for(var k = 0; k< serviceList.length; k++){
+            serviceList.push('<span style="width: 180px !important;display:inline-block;">-</span><span>-</span>');
+            for(var k = 0; k< serviceList.length; k++){
                 returnString += serviceList[k] + "<br>";
             }
         }
