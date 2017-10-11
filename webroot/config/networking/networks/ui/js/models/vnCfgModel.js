@@ -53,6 +53,7 @@ define([
             'network_ipam_refs': [], // subnet collection
             'floating_ip_pools': [], // collection with projects
             'physical_router_back_refs': [],
+            'security_logging_object_refs': [],
             'provider_properties': {
                 'segmentation_id': null,
                 'physical_network': null
@@ -121,7 +122,7 @@ define([
             }
 
             modelConfig['display_name'] = ctwu.getDisplayNameOrName(modelConfig);
-
+            modelConfig['security_logging_object_refs'] = ctwu.securityLoggingObjectFormatter(modelConfig, 'edit');
             //populate user_created_forwarding_mode
             modelConfig['user_created_forwarding_mode'] =
                 getValueByJsonPath(modelConfig,
@@ -1151,7 +1152,7 @@ define([
                     newVNCfgData['fq_name'][1] = project;
                     newVNCfgData['fq_name'][2] = newVNCfgData['name'];
                 }
-
+                newVNCfgData['security_logging_object_refs'] = ctwu.setSloToModel(newVNCfgData);
                 this.getFipPools(newVNCfgData);
                 this.getAdminState(newVNCfgData);
                 this.getPhysicalRouters(newVNCfgData);

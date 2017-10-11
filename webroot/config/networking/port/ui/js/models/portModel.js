@@ -42,6 +42,7 @@ define([
             'logical_router_back_refs':[],
             'logicalRouterValue':'',
             'virtual_machine_refs':[],
+            'security_logging_object_refs':[],
             'virtualMachineValue':'',
             'service_health_check_refs':'',
             'virtual_machine_interface_mac_addresses':
@@ -562,7 +563,7 @@ define([
                 modelConfig['isParent'] = true;
             }
             modelConfig['deviceOwnerValue'] = deviceOwnerValue;
-
+            modelConfig['security_logging_object_refs'] = ctwu.securityLoggingObjectFormatter(modelConfig, 'edit');
             //permissions
             this.formatRBACPermsModelConfig(modelConfig);
 
@@ -1017,7 +1018,6 @@ define([
                 return false
             }), portBindingModel);
         },
-
         getNonDefaultECMPHashingFields: function() {
             return { 'source_ip': false, 'destination_ip': false,
                 'ip_protocol': false, 'source_port': false,
@@ -1547,7 +1547,7 @@ define([
                 if(temp_val !=  ""){
                     delete(newPortData.routing_instance_refs);
                 }
-
+                newPortData['security_logging_object_refs'] = ctwu.setSloToModel(newPortData);
                 //permissions
                 this.updateRBACPermsAttrs(newPortData);
 

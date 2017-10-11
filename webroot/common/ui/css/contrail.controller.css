@@ -785,3 +785,12 @@ right:12px;}
 #aps-landing-container .wizard > .content > .body ul{
     list-style:none !important;
 }
+#sloRuleDetails table thead {
+	background: #fafafa;
+}
+#sloRuleDetails table{
+	margin-top: 3px;
+}
+#security_logging_object_refs .select2-search-field input {
+    width: 100% !important;
+}

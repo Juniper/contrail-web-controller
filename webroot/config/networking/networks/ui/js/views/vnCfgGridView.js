@@ -494,6 +494,16 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    label: 'Associated Security Logging Object',
+                                                    key: 'security_logging_object_refs',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'SloFormatter'
+                                                    }
+                                                },
+                                                {
                                                     label: 'PBB Encapsulation',
                                                     key: 'pbb_evpn_enable',
                                                     templateGenerator:
@@ -731,6 +741,9 @@ define([
     this.QoSFormatter = function (v, dc) {
         return formatVNCfg.qosExpansionFormatter(null,
                                         null, null, null, dc);
+    };
+    this.SloFormatter = function (v, dc) {
+        return ctwu.securityLoggingObjectFormatter(dc, 'details');
     };
     this.PBBEvpnFormatter = function (v, dc) {
         return formatVNCfg.pbbEvpnFormatter(null,
