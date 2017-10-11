@@ -5,9 +5,9 @@
 define(
         [ 'lodashv4', 'contrail-view',
          'contrail-charts-view', 'contrail-list-model',
-         'monitor/networking/trafficgroups/ui/js/views/TrafficGroupsSettingsView',
-         'monitor/networking/trafficgroups/ui/js/models/TrafficGroupsSettingsModel',
-         'monitor/networking/trafficgroups/ui/js/models/TrafficGroupsFilterModel',
+         'monitor/security/trafficgroups/ui/js/views/TrafficGroupsSettingsView',
+         'monitor/security/trafficgroups/ui/js/models/TrafficGroupsSettingsModel',
+         'monitor/security/trafficgroups/ui/js/models/TrafficGroupsFilterModel',
          "core-basedir/js/views/ContainerSettingsView"],
         function(_, ContrailView, ContrailChartsView,
                 ContrailListModel, settingsView, settingsModel, filterModel, ContainerSettings) {
@@ -22,7 +22,7 @@ define(
                 showOtherProjectTraffic: false,
                 combineEmptyTags: false,
                 matchArcsColorByCategory: false,
-                enableSessionDrilldown: false,
+                enableSessionDrilldown: true,
                 sliceByProjectOnly: true,
                 // Provide colours list for top level arcs
                 topLevelArcColors: cowc['TRAFFIC_GROUP_COLOR_LEVEL1'].slice(0,1),
@@ -32,7 +32,7 @@ define(
                     tgView.renderTrafficChart();
                 },
                 showSessionsInfo: function() {
-                    require(['monitor/networking/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
+                    require(['monitor/security/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
                         var linkInfo = tgView.getLinkInfo(tgView.selectedLinkData),
                             linkData = {
                                 endpointNames: [linkInfo.srcTags, linkInfo.dstTags],
@@ -51,32 +51,56 @@ define(
                     });
                 },
                 showLinkSessions: function() {
-                    require(['monitor/networking/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
-                        var linkInfo = tgView.getLinkInfo(tgView.selectedLinkData),
-                            endpoint1Data = [], endpoint2Data = [],
-                            curSession = linkInfo.links[0].data.dataChildren[0];
+                    require(['monitor/security/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
+                        var srcNodeData = _.filter(tgView.selectedLinkData, function (val, idx){
+                            return _.result(val, 'data.type') == 'src';
+                            }),
+                            dstNodeData = _.filter(tgView.selectedLinkData, function (val, idx){
+                                return _.result(val, 'data.type') == 'dst';
+                            }),
+                            linkData = _.result(srcNodeData, '0.data', ''),
+                            srcId = self.removeEmptyTags(_.result(srcNodeData, '0.data.currentNode.displayLabels')),
+                            dstId = self.removeEmptyTags(_.result(dstNodeData, '0.data.currentNode.displayLabels'));
+                            curSession = _.find(linkData.dataChildren, function(session) {
+                            return tgView.isRecordMatched(
+                                _.result(linkData, 'currentNode.names'), session, linkData);
+                            }),
+                            remoteVN = curSession['eps.traffic.remote_vn'],
+                            endpoint1Data = [], endpoint2Data = [];
                         _.each(tgView.getCategorizationObj(), function(tags) {
                             _.each(tags.split('-'), function(tag) {
                                 tag = tag.trim();
                                 endpoint1Data.push({
                                     'name' : (tag == 'app' ? 'application' : tag),
-                                    'value' : curSession[tag].split('=')[1]
+                                    'value' : curSession[tag + '_fqn']
                                 });
-                                endpoint2Data.push({
-                                    'name' : (tag == 'app' ? 'application' : tag),
-                                    'value' : curSession['eps.traffic.remote_' + tag + '_id'].split('=')[1]
-                                });
+                                if(remoteVN && remoteVN.indexOf(':') > 0) {
+                                    endpoint2Data.push({
+                                        'name' : (tag == 'app' ? 'application' : tag),
+                                        'value' : curSession['eps.traffic.remote_' + tag + '_id_fqn']
+                                    });
+                                }
                             });
                         });
+                        var sliceByProject = tgView.getSettingValue('sliceByProject', false);
+                        if(sliceByProject && !this.sliceByProjectOnly) {
+                            remoteVN = remoteVN;
+                        } else if(remoteVN && remoteVN.indexOf(':') > 0) {
+                                remoteVN = remoteVN.split(':');
+                                remoteVN.pop();
+                                remoteVN.push('*');
+                                remoteVN = remoteVN.join(':');
+                        }
                         var linkData = {
-                                endpointNames: [linkInfo.srcTags, linkInfo.dstTags],
+                                endpointNames: [srcId, dstId],
                                 endpointStats: [],
                                 tags: [endpoint1Data, endpoint2Data],
-                                breadcrumb: [['All'], [linkInfo.srcTags,linkInfo.dstTags]],
+                                breadcrumb: [['All'], [srcId, dstId]],
                                 where: [[], []],
                                 selectedEndpoint: 'endpoint1',
                                 sessionType: 'client',
-                                level : 1
+                                level : 1,
+                                remoteVN : remoteVN
                             },
                             epsTabsView = new EPSTabsView();
                             epsTabsView.parentView = tgView;
@@ -106,15 +130,15 @@ define(
                             return obj.isServer; });
                         return {
                             'eps.__key': uuid,
-                            'session_responded_active': _.sumBy(serverObjs, 'SUM(eps.server.active)'),
-                            'session_initiated_active': _.sumBy(clientObjs, 'SUM(eps.client.active)'),
+                            'session_responded_active': _.sumBy(serverObjs, 'MAX(eps.server.active)'),
+                            'session_initiated_active': _.sumBy(clientObjs, 'MAX(eps.client.active)'),
                             'session_responded': _.sumBy(serverObjs, 'SUM(eps.server.added)'),
                             'session_initiated': _.sumBy(clientObjs, 'SUM(eps.client.added)')
                         }
                     }).value();
                     return sessionData;
                 },
-                showLinkInfo(d,el,e) {
+                showLinkInfo(d,el,e,option) {
                     var self = this,
                         ruleUUIDs = [], ruleKeys = [], level = 1;
                     if (_.result(d, 'innerPoints.length') == 4)
@@ -147,13 +171,6 @@ define(
                         });
                     });
                     ruleUUIDs = _.uniq(ruleUUIDs);
-                    _.each(self.chartInfo.component.ribbons, function (ribbon) {
-                       ribbon.selected = false;
-                       ribbon.active = false;
-                    });
-                    d.selected = true;
-                    d.active = true;
-                    self.chartInfo.component._render();
                     if (ruleUUIDs.length > 0) {
                         var listModelConfig = {
                             remote: {
@@ -290,47 +307,71 @@ define(
                                     TrafficGroupsView.ruleMap = ruleMap;
                                     data.srcId = srcId;
                                     data.dstId = dstId;
+                                    data.option = 'linkInfo';
                                     data.policyRules = formattedRuleDetails;
                                     if(!formattedRuleDetails.length) {
                                         data.rules = ruleUUIDs;
                                     }
-                                    var ruleDetailsTemplate = contrail.getTemplate4Id('traffic-rule-template');
-                                    $('#traffic-groups-link-info').html(ruleDetailsTemplate(data));
-                                    if(!self.enableSessionDrilldown) {
-                                        if($('#traffic-groups-radial-chart').hasClass('showLinkInfo')) {
-                                           $('.trafficGroups_sidePanel').
-                                                removeClass('animateLinkInfo');
-                                        } else {
-                                            $('.trafficGroups_sidePanel').
-                                                addClass('animateLinkInfo');
-                                            $('#traffic-groups-radial-chart')
-                                            .addClass('showLinkInfo');
-                                        }
-                                    }
+                                    self.showTGSidePanel(data, d, option);
                                     $('.allSessionInfo').on('click', self.showSessionsInfo);
-                                    $('#traffic-groups-radial-chart')
-                                     .on('click', function(ev) {
-                                        if($(ev.target)
-                                            .parents('#'+self.chartInfo.component.id).length == 0) {
-                                            _.each(self.chartInfo.component.ribbons,
-                                             function (ribbon) {
-                                               ribbon.selected = false;
-                                               ribbon.active = false;
-                                            });
-                                            if(!self.enableSessionDrilldown) {
-                                                $('#traffic-groups-radial-chart')
-                                                        .removeClass('showLinkInfo');
-                                                $('#traffic-groups-link-info').html('');
-                                                self.chartInfo.component._render();
-                                            }
-                                        }
-                                    });
                                     return ruleDetails;
                                 }
                             }
                         }
                         var ruleDetailsModel = new ContrailListModel(listModelConfig);
                     }
+                },
+                showTGSidePanel: function(data, d, option) {
+                    var self = this,
+                        ruleDetailsTemplate = contrail.getTemplate4Id('traffic-rule-template');
+                    _.each(self.chartInfo.component.ribbons, function (ribbon) {
+                       ribbon.selected = false;
+                       ribbon.active = false;
+                    });
+                    _.each(self.chartInfo.component.arcs, function (arc) {
+                       arc.selected = false;
+                       arc.active = false;
+                    });
+                    d.selected = true;
+                    d.active = true;
+                    self.chartInfo.component._render();
+                    $('#traffic-groups-link-info').html(ruleDetailsTemplate(data));
+                    if(option != 'drill-down') {
+                        $('#traffic-groups-radial-chart').addClass('addAnimation');
+                        if($('#traffic-groups-radial-chart').hasClass('showTgSidePanel')) {
+                           $('.trafficGroups_sidePanel').
+                                removeClass('animateLinkInfo');
+                        } else {
+                            $('.trafficGroups_sidePanel').
+                                addClass('animateLinkInfo');
+                            $('#traffic-groups-radial-chart')
+                            .addClass('showTgSidePanel');
+                        }
+                    } else {
+                        $('#traffic-groups-radial-chart').removeClass('addAnimation');
+                    }
+                    $('#traffic-groups-radial-chart')
+                                  .off('click.showSidePanelEvent');
+                    $('#traffic-groups-radial-chart')
+                     .on('click.showSidePanelEvent', function(ev) {
+                        if($('#'+self.chartInfo.component.id).length &&  $(ev.target)
+                            .parents('#'+self.chartInfo.component.id).length == 0) {
+                            _.each(self.chartInfo.component.ribbons, function (ribbon) {
+                               ribbon.selected = false;
+                               ribbon.active = false;
+                            });
+                            _.each(self.chartInfo.component.arcs, function (arc) {
+                               arc.selected = false;
+                               arc.active = false;
+                            });
+                            if(option != 'drill-down') {
+                                $('#traffic-groups-radial-chart')
+                                        .removeClass('showTgSidePanel');
+                                $('#traffic-groups-link-info').html('');
+                                self.chartInfo.component._render();
+                            }
+                        }
+                    });
                 },
                 showEndPointStatsInGrid: function () {
                     var self = this,
@@ -342,7 +383,7 @@ define(
                         elementId: 'traffic-groups-grid-view',
                         view: "TrafficGroupsEPSGridView",
                         viewPathPrefix:
-                        "monitor/networking/trafficgroups/ui/js/views/",
+                        "monitor/security/trafficgroups/ui/js/views/",
                         app: cowc.APP_CONTRAIL_CONTROLLER,
                         viewConfig: {
                             data: data,
@@ -560,32 +601,12 @@ define(
                             config: {
                                 formatter: function formatter(data) {
                                     if(data.level) {
-                                        var arcTitle = data.displayLabels.slice(0);
-                                        var content = { title: self.removeEmptyTags(arcTitle), items: [] };
+                                        var arcData = self.getArcData(data),
+                                            content = { title: arcData.title, items: [] };
                                         content.title += '<hr/>'
-
-                                        var childrenArr = data['children'];
-                                        //data is nested on hovering 1st-level arc while showing 2-level arcs
-                                        //For intra-app traffic, there will be 2 children with same linkId
-                                        //Remove 2nd-level duplicate intra links
-                                        if(childrenArr[0].children != null) {
-                                            childrenArr = jsonPath(data,'$.children[*].children[*]');
-                                            childrenArr = _.flatten(childrenArr);
-                                        }
-                                        if(childrenArr[0].linkId != null) {
-                                            childrenArr = _.uniqWith(childrenArr,function(a,b) {
-                                                return a.linkId == b.linkId;
-                                            });
-                                        }
-
-                                        var dataChildren = jsonPath(childrenArr,'$.[*].dataChildren');
-                                        if(dataChildren == false)
-                                            dataChildren = jsonPath(data,'$.children[*].children[*].dataChildren');
-                                        dataChildren = _.flatten(dataChildren);
-
                                         content.items.push({
                                             label: 'Traffic In',
-                                            value:  formatBytes(_.sumBy(dataChildren,function(currSession) {
+                                            value:  formatBytes(_.sumBy(arcData.dataChildren,function(currSession) {
                                                 if(self.isRecordMatched(data.namePath, currSession, data))
                                                     return _.result(currSession,'SUM(eps.traffic.in_bytes)',0);
                                                  else
@@ -593,7 +614,7 @@ define(
                                             }))
                                         }, {
                                             label: 'Traffic Out',
-                                            value: formatBytes(_.sumBy(dataChildren,function(currSession) {
+                                            value: formatBytes(_.sumBy(arcData.dataChildren,function(currSession) {
                                                 if(self.isRecordMatched(data.namePath, currSession, data))
                                                     return _.result(currSession,'SUM(eps.traffic.out_bytes)',0);
                                                  else
@@ -644,7 +665,7 @@ define(
                         }]
                     }
                     $('#traffic-groups-radial-chart')
-                    .removeClass('showLinkInfo');
+                    .removeClass('showTgSidePanel');
                     $('#traffic-groups-link-info').html('');
                     self.chartInfo = self.viewInst.getChartViewInfo(config,
                                 "dendrogram-chart-id", self.addtionalEvents());
@@ -684,6 +705,31 @@ define(
                     this.showHideLegendInfo(data);
                     $('#traffic-groups-options').removeClass('hidden');
                 },
+                getArcData: function(data) {
+                    var arcTitle = data.displayLabels.slice(0),
+                        arcTitle = this.removeEmptyTags(arcTitle),
+                        childrenArr = data['children'];
+                    //data is nested on hovering 1st-level arc while showing 2-level arcs
+                    //For intra-app traffic, there will be 2 children with same linkId
+                    //Remove 2nd-level duplicate intra links
+                    if(childrenArr[0].children != null) {
+                        childrenArr = jsonPath(data,'$.children[*].children[*]');
+                        childrenArr = _.flatten(childrenArr);
+                    }
+                    if(childrenArr[0].linkId != null) {
+                        childrenArr = _.uniqWith(childrenArr,function(a,b) {
+                            return a.linkId == b.linkId;
+                        });
+                    }
+                    var dataChildren = jsonPath(childrenArr,'$.[*].dataChildren');
+                    if(dataChildren == false)
+                        dataChildren = jsonPath(data,'$.children[*].children[*].dataChildren');
+                    dataChildren = _.flatten(dataChildren);
+                    return {
+                        dataChildren : dataChildren,
+                        title : arcTitle
+                    };
+                },
                 showHideLegendInfo: function(data) {
                     if(data && data.length) {
                         $('#traffic-groups-legend-info').removeClass('hidden');
@@ -707,7 +753,8 @@ define(
                                     dstTags = true;
                                 }
                             });
-                            return srcTags && (dstTags || !remoteVN);
+                            return srcTags && (dstTags || !remoteVN
+                                    || remoteVN == cowc.UNKNOWN_VALUE);
                         });
                     }
                     return tgData;
@@ -718,6 +765,17 @@ define(
                             selector: 'node',
                             handler: this._onClickNode,
                             handlerName: '_onClickNode'
+                        },
+                        {
+                            event: 'dblclick',
+                            selector: 'link',
+                            handler: this._onDoubleClickLink,
+                            handlerName: '_onDoubleClickLink'
+                        },
+                        {
+                            event: 'dbclick',
+                            selector: 'link',
+                            handler: this._onDoubleClickLink
                         },
                         {
                             event: 'click',
@@ -736,34 +794,75 @@ define(
                             selector: 'link',
                             handler: this._onMouseoutLink,
                             handlerName: '_onMouseoutLink'
+                        },
+                        {
+                            event: 'mousemove',
+                            selector: 'node',
+                            handler: this._onMousemove
+                        },
+                        {
+                            event: 'mouseout',
+                            selector: 'node',
+                            handler: this._onMouseout
                         }
                     ];
                 },
                 _onClickNode: function(d, el ,e) {
-                    var chartScope = tgView.chartInfo.component;
-                    if(chartScope.config.attributes.
-                        expandLevels == 'disable' && el && d) {
-                      return;
-                    }
+                    /*var chartScope = tgView.chartInfo.component;
                     if(chartScope.clearArcTootltip) {
                       clearTimeout(chartScope.clearArcTootltip);
                     }
-                    var levels = 2;
-                    //If clicked on 2nd level arc,collapse to 1st level
-                    if(!d || d.depth == 2 || d.height == 2)
-                        levels = 1;
-                    tgView.updateChart({levels: levels});
+                    var arcData = self.getArcData(d.data),
+                        data = {
+                            vmiInfo : [],
+                            title : arcData.title
+                        },
+                        childData = _.filter(arcData.dataChildren, function(children) {
+                            return self.isRecordMatched(d.data.namePath, children, d.data);
+                        });
+                    childData = _.groupBy(childData, 'name');
+                    _.each(childData, function(child, key) {
+                        var inBytes = formatBytes(_.sumBy(child,
+                        function(bytes) {
+                            return _.result(bytes,'SUM(eps.traffic.in_bytes)',0);
+
+                        })),
+                        outBytes = formatBytes(_.sumBy(child,
+                        function(bytes) {
+                            return _.result(bytes,'SUM(eps.traffic.in_bytes)',0);
+
+                        }));
+                        data.vmiInfo.push({
+                            name: key,
+                            inBytes: inBytes,
+                            outBytes: outBytes
+                        });
+                    });
+                    self.showTGSidePanel(data, d);*/
+                },
+                _onDoubleClickLink: function(d, el ,e) {
+                    e.preventDefault();
+                    tgView.linkClicks = 2 ;
                 },
                 _onClickLink: function(d, el ,e) {
-                    var chartScope = tgView.chartInfo.component;
-                    if(chartScope.config.attributes.showLinkInfo) {
-                        tgView.showLinkInfo(d, el, e, chartScope);
-                        if(tgView.enableSessionDrilldown) {
-                            $('#traffic-groups-radial-chart')
-                                .addClass('showLinkInfo');
-                            tgView.showLinkSessions();
-                        }
-                    }
+                    setTimeout(function() {
+                        if(tgView.linkClicks) {
+                            tgView.linkClicks--;
+                            if(tgView.linkClicks == 1) {
+                                $('#traffic-groups-radial-chart').removeClass('addAnimation');
+                                var chartScope = tgView.chartInfo.component;
+                                if(chartScope.config.attributes.showLinkInfo) {
+                                    tgView.showLinkInfo(d, el, e, 'drill-down');
+                                    if(tgView.enableSessionDrilldown) {
+                                        $('#traffic-groups-radial-chart')
+                                            .addClass('showTgSidePanel');
+                                        tgView.showLinkSessions();
+                                    }
+                                }
+                            }
+                        } else
+                            tgView.showLinkInfo(d, el, e);
+                    }, 300);
                 },
                 _onMousemoveLink: function(d, el ,e) {
                     var chartScope = tgView.chartInfo.component,
@@ -788,6 +887,21 @@ define(
                       clearTimeout(chartScope.clearLinkTooltip);
                     }
                     chartScope.actionman.fire('HideComponent', 'tooltip-id');
+                },
+                _onMousemove: function(d, el ,e) {
+                    var chartScope = tgView.chartInfo.component;
+                    _.each(chartScope.arcs, function(arc) {
+                        arc.active = Boolean(arc.data.namePath && arc.data.namePath.join('-') == e.target.id)
+                                        || arc.selected;
+                    });
+                    chartScope._render();
+                },
+                _onMouseout: function(d, el ,e) {
+                    var chartScope = tgView.chartInfo.component;
+                  _.each(chartScope.arcs, function(arc) {
+                        arc.active = arc.selected;
+                  });
+                  chartScope._render();
                 },
                 getLinkInfo: function(links) {
                     var srcTags = this.removeEmptyTags(_.result(links, '0.data.currentNode.displayLabels')),
@@ -814,14 +928,24 @@ define(
                     return displayLabels;
                 },
                 removeEmptyTags: function(names) {
-                    var displayNames = names.slice(0);
+                    var displayNames = names.slice(0),
+                        projectName = '',
+                        topLevelNames = displayNames[0].slice(0);
+                    if(topLevelNames.length >
+                            this.getCategorizationObj()[0].split('-').length
+                       && topLevelNames[topLevelNames.length-1] != 'External') {
+                        projectName = topLevelNames.pop();
+                        displayNames[0] = topLevelNames;
+
+                    }
                     displayNames = _.map(displayNames, function(name) {
-                        return _.compact(name).join('-')
+                        return _.compact(name).join('-');
                     });
                     displayNames = _.remove(displayNames, function(name, idx) {
                         return !(name == 'External' && idx > 0);
                     });
-                    return _.compact(displayNames).join('-');
+                    return _.compact(displayNames).join('-')
+                        + (projectName ? ' (' + projectName + ')' : '') ;
                 },
                 isRecordMatched: function(names, record, data) {
                     var arcType = data.arcType ? '_' + data.arcType : '',
@@ -891,12 +1015,13 @@ define(
 
                     tgView.filterDataByEndpoints();
                     tgView.updateCircleLegends();
-                    var newTimeRange = tgView.getTGSettings().time_range,
-                        newFromTime = tgView.getTGSettings().from_time,
-                        newToTime = tgView.getTGSettings().to_time;
-                    if(oldTimeRange != newTimeRange || ((oldTimeRange == -1  ||
-                        oldTimeRange == -2) && (oldFromTime != newFromTime ||
-                        oldToTime != newToTime))) {
+                    sessionStorage.TG_TIME_RANGE = tgView.getTGSettings().time_range,
+                    sessionStorage.TG_FROM_TIME = tgView.getTGSettings().from_time,
+                    sessionStorage.TG_TO_TIME = tgView.getTGSettings().to_time;
+                    if(oldTimeRange != sessionStorage.TG_TIME_RANGE ||
+                        ((oldTimeRange == -1  || oldTimeRange == -2) &&
+                        (oldFromTime != sessionStorage.TG_FROM_TIME ||
+                        oldToTime != sessionStorage.TG_TO_TIME))) {
                         tgView.renderTrafficChart();
                     } else {
                         tgView.updateContainerSettings('', false);
@@ -1045,6 +1170,11 @@ define(
                                 groupByTagType = ['app','deployment'];
                                 subGroupByTagType = ['tier'];
                             }
+                            if(sessionStorage.TG_TIME_RANGE) {
+                                time_range = sessionStorage.TG_TIME_RANGE;
+                                from_time = sessionStorage.TG_FROM_TIME;
+                                to_time = sessionStorage.TG_TO_TIME;
+                            }
                         }
                     return {
                         groupByTagType: groupByTagType,
@@ -1103,20 +1233,28 @@ define(
                     var tagRecords = _.result(tagsResponse,'0.tags',[]);
                     tagRecords.forEach(function(val,idx) {
                         var currTag = val['tag'];
-                        tagMap[currTag.tag_id] = currTag.name;
+                        tagMap[currTag.tag_id] = {
+                            name :currTag.name,
+                            fqn : currTag.fq_name ? currTag.fq_name.join(':') : ''
+                        }
                     });
                     $.each(data, function (idx, value) {
                         $.each(['eps.traffic.remote_app_id', 'eps.traffic.remote_deployment_id',
                             'eps.traffic.remote_prefix', 'eps.traffic.remote_site_id',
                             'eps.traffic.remote_tier_id'], function (idx, val) {
-                                if(value[val] == '0')
-                                    value[val] = '';
-                                if(!_.isEmpty(tagMap[parseInt(value[val])])) {
-                                    value[val] = tagMap[parseInt(value[val])];
+                                var remoteFQN = '',
+                                    currentTagMap = tagMap[value[val]];
+                                if(!_.isEmpty(currentTagMap) && !_.isEmpty(currentTagMap.name)) {
+                                    value[val] = currentTagMap.name;
+                                    remoteFQN = currentTagMap.fqn;
+                                } else {
+                                   value[val] = '';
                                 }
+                                value[val + '_fqn'] = remoteFQN;
                         });
                         //Strip-off the domain and project form FQN
-                        $.each(['app','site','tier','deployment'],function(idx,tagName) {
+                        $.each(['app','site','tier','deployment', 'name'],function(idx,tagName) {
+                            value[tagName + '_fqn'] = value[tagName];
                             if(typeof(value[tagName]) == 'string' && value[tagName].split(':').length == 3)
                                 value[tagName] = value[tagName].split(':').pop();
                         });
@@ -1303,7 +1441,7 @@ define(
                             "select": "eps.client.remote_app_id, eps.client.remote_tier_id, eps.client.remote_site_id,"+
                                  "eps.client.remote_deployment_id, eps.client.remote_prefix, eps.client.remote_vn, eps.__key,"+
                                  " eps.client.app, eps.client.tier, eps.client.site, eps.client.deployment, eps.client.local_vn, name, SUM(eps.client.in_bytes),"+
-                                 " SUM(eps.client.out_bytes), SUM(eps.client.in_pkts), SUM(eps.client.out_pkts), SUM(eps.client.added), SUM(eps.client.active)",
+                                 " SUM(eps.client.out_bytes), SUM(eps.client.in_pkts), SUM(eps.client.out_pkts), SUM(eps.client.added), MAX(eps.client.active)",
                             "table_type": "STAT",
                             "table_name": "StatTable.EndpointSecurityStats.eps.client",
                             "where": "(name Starts with " + contrail.getCookie(cowc.COOKIE_DOMAIN) + (currentProject ? ':' : '') + currentProject + ")",
@@ -1319,7 +1457,7 @@ define(
                             "select": "eps.server.remote_app_id, eps.server.remote_tier_id, eps.server.remote_site_id,"+
                                  "eps.server.remote_deployment_id, eps.server.remote_prefix, eps.server.remote_vn, eps.__key,"+
                                  " eps.server.app, eps.server.tier, eps.server.site, eps.server.deployment, eps.server.local_vn, name, SUM(eps.server.in_bytes),"+
-                                 " SUM(eps.server.out_bytes), SUM(eps.server.in_pkts), SUM(eps.server.out_pkts), SUM(eps.server.added), SUM(eps.server.active)",
+                                 " SUM(eps.server.out_bytes), SUM(eps.server.in_pkts), SUM(eps.server.out_pkts), SUM(eps.server.added), MAX(eps.server.active)",
                             "table_type": "STAT",
                             "table_name": "StatTable.EndpointSecurityStats.eps.server",
                             "where": "(name Starts with " + contrail.getCookie(cowc.COOKIE_DOMAIN) + (currentProject ? ':' : '') + currentProject + ")",

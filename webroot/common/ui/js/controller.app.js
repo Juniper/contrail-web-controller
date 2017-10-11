@@ -101,7 +101,9 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'analyticsnode-viewconfig': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/analyticsnode.viewconfig',
             'controlnode-viewconfig': ctWebDir + '/monitor/infrastructure/controlnode/ui/js/controlnode.viewconfig',
             'databasenode-viewconfig': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/databasenode.viewconfig',
-            'vrouter-viewconfig': ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.viewconfig'
+            'vrouter-viewconfig': ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.viewconfig',
+            'security-dashboard-viewconfig': ctWebDir + '/monitor/security/dashboard/ui/js/securitydashboard.viewconfig',
+            'security-dashboard': ctWebDir + '/monitor/security/dashboard/ui/js/views/SecurityDashboardView'
         }
     } else if(env == "prod") {
         return {
@@ -126,7 +128,9 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'databasenode-viewconfig': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/databasenode.viewconfig',
             'vrouter-viewconfig': ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.viewconfig',
             'monitor-infra-viewconfig': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.viewconfig',
-            'global-controller-viewconfig': ctWebDir + '/monitor/infrastructure/globalcontroller/ui/js/globalController.viewconfig'
+            'global-controller-viewconfig': ctWebDir + '/monitor/infrastructure/globalcontroller/ui/js/globalController.viewconfig',
+            'security-dashboard-viewconfig': ctWebDir + '/monitor/security/dashboard/ui/js/securitydashboard.viewconfig',
+            'security-dashboard': ctWebDir + '/monitor/security/dashboard/ui/js/views/SecurityDashboardView'
         }
     }
 };

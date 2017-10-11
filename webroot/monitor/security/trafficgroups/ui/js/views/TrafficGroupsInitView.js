@@ -40,7 +40,7 @@ define([
                 elementId: cowu.formatElementId([ctwl.NETWORK_TRAFFIC_VIEW_ID]),
                 view: "TrafficGroupsView",
                 viewPathPrefix:
-                    "monitor/networking/trafficgroups/ui/js/views/",
+                    "monitor/security/trafficgroups/ui/js/views/",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewConfig: $.extend(true, {},
                      viewConfig, {projectSelectedValueData: projectSelectedValueData})

@@ -5,7 +5,7 @@
 define([
     'underscore',
     'contrail-model',
-    'monitor/networking/trafficgroups/ui/js/models/TrafficGroupsFilterModel'
+    'monitor/security/trafficgroups/ui/js/models/TrafficGroupsFilterModel'
 ], function (_, ContrailModel, filterModel) {
     var TrafficGroupsSettingsModel = ContrailModel.extend({
         defaultConfig: {
