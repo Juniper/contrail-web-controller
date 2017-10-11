@@ -42,7 +42,7 @@ define([
                     function() {
                         self.renderBreadcrumb();
                         if(sessionData.level == 1) {
-                            $('#Session_Endpoint').show();
+                            $('#Session_Endpoint, #group_by_columns').show();
                             sessionData.sessionType = $('#Client_Sessions-tab-link')
                                 .parent().hasClass('ui-tabs-active')
                                                        ? 'client' : 'server';
@@ -51,11 +51,11 @@ define([
                                 Knockback.applyBindings(self.model,
                                     document.getElementById('Session_Endpoint'));
                                 Knockback.applyBindings(self.model,
-                                    document.getElementById('TG_Sessions_View'));
+                                    document.getElementById('group_by_columns'));
                                 kbValidation.bind(self);
                             }
                         } else {
-                            $('#Session_Endpoint').hide();
+                            $('#Session_Endpoint, #group_by_columns').hide();
                         }
                     });
             } else {
@@ -198,7 +198,7 @@ define([
                                 }
                             }
                         }],
-                    }, /*{
+                    }, {
                         columns: [{
                             elementId: 'group_by_columns',
                             view: 'FormDropdownView',
@@ -220,7 +220,7 @@ define([
                                 }
                             }
                         }]
-                    }, */{
+                    }, {
                         columns: [{
                             elementId: 'TG_Sessions_View',
                             view: "SectionView",
@@ -291,28 +291,34 @@ define([
                 breadcrumbId : 'TGsessionsBreadcrumb'
             }));
             $('#TGsessionsBreadcrumb li:last').addClass('active');
-            $('#TGsessionsBreadcrumb li').on('click', function(e) {
+            $('#TGsessionsBreadcrumb li a').on('click', function(e) {
                 e.preventDefault();
                 var curIndex = $(e.target).parents('li').index();
-                if(curIndex == 0) {
+                if(self.sessionData.level != curIndex) {
+                    if(curIndex == 0) {
                     self.parentView.render();
-                } else {
-                    self.sessionData.breadcrumb = self.sessionData.breadcrumb.slice(0, curIndex+1);
-                    self.sessionData.where = self.sessionData.where.slice(0, curIndex+1);
-                    self.sessionData.level = curIndex;
-                    self.sessionDrilldown(self.sessionData, $('#traffic-groups-radial-chart'));
+                    } else {
+                        self.sessionData.breadcrumb = self.sessionData.breadcrumb.slice(0, curIndex+1);
+                        self.sessionData.where = self.sessionData.where.slice(0, curIndex+1);
+                        self.sessionData.level = curIndex;
+                        self.sessionDrilldown(self.sessionData, $('#traffic-groups-radial-chart'));
+                    }
                 }
             });
         },
         sessionDrilldown: function(sessionData) {
+            var parentEle = $('#TG_Sessions_View').length ?
+                $('#TG_Sessions_View') : $('#traffic-groups-radial-chart');
+                parentEle.html('<h4 class="noStatsMsg">Loading...</h4>');
+            $('#traffic-groups-legend-info').addClass('hidden');
             $('.tgChartLegend, .tgCirclesLegend').hide();
             var sessionData = this.sessionData,
                 self = this,
-                selectFields = ["SUM(forward_sampled_bytes)", "SUM(reverse_sampled_bytes)"];
+                selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)', 'remote_prefix'];
                 if(sessionData.level == 1) {
                     if(self.model && self.model.model()
                             .attributes['group_by_columns'] == 'policy') {
-                        selectFields.push("policy", "rule");
+                        selectFields.push("security_policy_rule");
                     } else {
                         selectFields.push("protocol", "server_port");
                     }
@@ -321,7 +327,8 @@ define([
                     selectFields.push("local_ip", "vn");
                 }
                 if(sessionData.level == 3) {
-                    selectFields.push("remote_ip", "vn", 'remote_vn', 'client_port', 'forward_action', 'reverse_action');
+                    selectFields.push('remote_ip', 'vn', 'remote_vn', 'client_port','forward_action',
+                        'reverse_action', 'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)');
                 }
             var whereClause = [],
                 whereTags = sessionData.tags.slice(0);
@@ -338,8 +345,10 @@ define([
                     "suffix": null, "value2": null, "name": "remote_" + tag.name, "value": tag.value, "op": 1
                 });
             });
-
             var addWhere = [];
+            /*var addWhere = [{
+                "suffix": null, "value2": null, "name": "remote_vn", "value": sessionData.remoteVN, "op": 7
+            }];*/
             _.each(sessionData.where, function(values) {
                 _.each(values, function(value) {
                     addWhere.push(value);
@@ -429,6 +438,7 @@ define([
                     sessionData.endpointStats = [self.clientData, self.serverData];
                 }
                 self.render(sessionData, $('#traffic-groups-radial-chart'));
+                $('#traffic-groups-legend-info').removeClass('hidden');
             }
         }
     });
