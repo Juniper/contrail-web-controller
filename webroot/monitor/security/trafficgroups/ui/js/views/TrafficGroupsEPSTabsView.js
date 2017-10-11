@@ -314,21 +314,26 @@ define([
             $('.tgChartLegend, .tgCirclesLegend').hide();
             var sessionData = this.sessionData,
                 self = this,
-                selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)', 'remote_prefix'];
-                if(sessionData.level == 1) {
-                    if(self.model && self.model.model()
-                            .attributes['group_by_columns'] == 'policy') {
-                        selectFields.push("security_policy_rule");
-                    } else {
+                groupByOption = sessionData.groupBy == 'policy' ?
+                                'policy' : 'protocol',
+                level = sessionData.level,
+                selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)',
+                                'remote_prefix', 'forward_action'];
+                if(level == 1 || (level == 2 && groupByOption == 'policy')) {
+                    if(groupByOption != 'policy' || level == 2) {
                         selectFields.push("protocol", "server_port");
+                    } else {
+                        selectFields.push("security_policy_rule");
                     }
                 }
-                if(sessionData.level == 2) {
+                if(groupByOption == 'policy')
+                    level--;
+                if(level == 2) {
                     selectFields.push("local_ip", "vn");
                 }
-                if(sessionData.level == 3) {
-                    selectFields.push('remote_ip', 'vn', 'remote_vn', 'client_port','forward_action',
-                        'reverse_action', 'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)');
+                if(level == 3) {
+                    selectFields.push('remote_ip', 'remote_vn', 'client_port',
+                        'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)');
                 }
             var whereClause = [],
                 whereTags = sessionData.tags.slice(0);
@@ -359,91 +364,24 @@ define([
                 });
             });
             whereClause = whereClause.concat(addWhere);
-            var selectedTime = self.parentView.getSelectedTime();
-
-            var clientPostData = {
-                "session_type": "client",
-                "start_time": "now-" + (selectedTime.fromTime + 'm'),
-                "end_time": "now-" + (selectedTime.toTime + 'h'),
-                "select_fields": selectFields,
-                "table": "SessionSeriesTable",
-                "where": [whereClause]
+            var reqObj = {
+                selectFields : selectFields,
+                whereClause : whereClause,
+                level : sessionData.level,
+                type: sessionData.sessionType,
+                callback : self.callRender,
+                view : self
             };
-
-            var serverPostData = {
-                "session_type": "server",
-                "start_time": "now-" + (selectedTime.fromTime + 'm'),
-                "end_time": "now-" + (selectedTime.toTime + 'm'),
-                "select_fields": selectFields,
-                "table": "SessionSeriesTable",
-                "where": [whereClause]
-            };
-
-            var clientModelConfig = {
-                remote : {
-                    ajaxConfig : {
-                        url:monitorInfraConstants.monitorInfraUrls['ANALYTICS_QUERY'],
-                        type:'POST',
-                        data:JSON.stringify(clientPostData)
-                    },
-                    dataParser : function (response) {
-                        self.clientData = cowu.getValueByJsonPath(response, 'value', []);
-                        self.curSessionData = self.clientData;
-                        return self.clientData;
-                    }
-                }
-            };
-
-            var serverModelConfig = {
-                remote : {
-                    ajaxConfig : {
-                        url:monitorInfraConstants.monitorInfraUrls['ANALYTICS_QUERY'],
-                        type:'POST',
-                        data:JSON.stringify(serverPostData)
-                    },
-                    dataParser : function (response) {
-                        self.serverData = cowu.getValueByJsonPath(response, 'value', []);
-                        self.curSessionData = self.serverData;
-                        return self.serverData;
-                    }
-                }
-            };
-
-            if(sessionData.level == 1) {
-                var clientModel = new ContrailListModel(clientModelConfig),
-                    serverModel = new ContrailListModel(serverModelConfig),
-                    reqCount = 0;
-                clientModel.onAllRequestsComplete.subscribe(function() {
-                   reqCount++;
-                   bothRequestDone(reqCount);
-                });
-                serverModel.onAllRequestsComplete.subscribe(function() {
-                    reqCount++;
-                    bothRequestDone(reqCount);
-                });
-            } else if(sessionData.sessionType == 'client') {
-                var clientModel = new ContrailListModel(clientModelConfig);
-                clientModel.onAllRequestsComplete.subscribe(function() {
-                   callRender();
-                });
-            } else {
-                var serverModel = new ContrailListModel(serverModelConfig);
-                serverModel.onAllRequestsComplete.subscribe(function() {
-                   callRender();
-                });
+            self.parentView.querySessionSeries(reqObj);
+        },
+        callRender: function(resObj) {
+            if(resObj.level == 1) {
+                resObj.view.sessionData.endpointStats =
+                        [resObj.clientData, resObj.serverData];
             }
-            function bothRequestDone(reqCount) {
-                if(reqCount == 2) {
-                    callRender();
-                }
-            }
-            function callRender() {
-                if(sessionData.level == 1) {
-                    sessionData.endpointStats = [self.clientData, self.serverData];
-                }
-                self.render(sessionData, $('#traffic-groups-radial-chart'));
-                $('#traffic-groups-legend-info').removeClass('hidden');
-            }
+            resObj.view.curSessionData = resObj.curSessionData;
+            resObj.view.render(resObj.view.sessionData, $('#traffic-groups-radial-chart'));
+            $('#traffic-groups-legend-info').removeClass('hidden');
         }
     });
     return TrafficGroupsSessionsView;
