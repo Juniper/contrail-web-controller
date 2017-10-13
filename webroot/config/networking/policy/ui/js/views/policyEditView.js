@@ -55,6 +55,7 @@ define([
 
            this.fetchAllData(this ,
                 function(allData) {
+                   self.model.siModeObjMap(allData.serviceInstModeObj);
                    self.model.setModelDataSources(allData);
                    var disableElement = false
                    if(options['mode'] == "edit") {
@@ -304,7 +305,8 @@ define([
                     returnArr["service_instances_ref"] = [];
                     var analyzerInsts = [];
                     var serviceInsts = [];
-                    var serviceInstsRef = [];
+                    var serviceInstsRef = [], serviceInstModeObj = {};
+
                     if (null !== sts && sts.length > 0) {
                         for (var i = 0; i < sts.length; i++) {
                             var serviceTemplateMode = getValueByJsonPath(sts[i],
@@ -332,6 +334,7 @@ define([
                                                          "text":text,
                                                          "value":si_backRef_join
                                                      };
+                                    serviceInstModeObj[si_backRef_join] = serviceTemplateMode;
                                     if(serviceTemplateType == "analyzer") {
                                         analyzerInsts.push(si_val_obj);
                                     }
@@ -344,6 +347,7 @@ define([
                             }
                         }
                     }
+                    returnArr["serviceInstModeObj"] = serviceInstModeObj;
                     returnArr["service_instances"] = serviceInsts;
                     returnArr["service_instances_ref"] = serviceInstsRef;
                     returnArr["analyzerInsts"] = analyzerInsts;
@@ -659,7 +663,7 @@ define([
                             },{
                             columns: [
                                 {
-                                     elementId: 'service_instances',
+                                     elementId: 'service_instance',
                                      name: 'Services',
                                      view: "FormMultiselectView",
                                      width: 100,
