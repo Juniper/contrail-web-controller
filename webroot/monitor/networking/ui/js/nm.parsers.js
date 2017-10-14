@@ -40,7 +40,8 @@ define([
                         currObject['type'] = 'network';
                         currObject['name'] = currObject['name'];
                         currObject['uuid'] = currObject['uuid'];
-                        currObject['project'] = currObject['name'].split(':').slice(0, 2).join(':');
+                        if (currObject['name'] && typeof currObject['name'] === 'string')
+                            currObject['project'] = currObject['name'].split(':').slice(0, 2).join(':');
 
                         return currObject;
                     }
