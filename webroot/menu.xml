@@ -240,7 +240,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <accessFn>hideInGlobalController</accessFn>
                     </access>
                     <items>
-                        <!--<item>
+                        <item optional="true">
                             <label>Dashboard</label>
                             <hash>mon_security_dashboard</hash>
                             <resources>
@@ -255,7 +255,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Security Dashboard</searchStrings>
-                        </item>-->
+                        </item>
                         <item>
                             <hash>mon_security_trafficgroups</hash>
                             <label>Traffic Groups</label>
