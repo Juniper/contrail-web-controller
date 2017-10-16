@@ -5,9 +5,9 @@
 define(
         [ 'lodashv4', 'contrail-view',
          'contrail-charts-view', 'contrail-list-model',
-         'monitor/networking/trafficgroups/ui/js/views/TrafficGroupsSettingsView',
-         'monitor/networking/trafficgroups/ui/js/models/TrafficGroupsSettingsModel',
-         'monitor/networking/trafficgroups/ui/js/models/TrafficGroupsFilterModel',
+         'monitor/security/trafficgroups/ui/js/views/TrafficGroupsSettingsView',
+         'monitor/security/trafficgroups/ui/js/models/TrafficGroupsSettingsModel',
+         'monitor/security/trafficgroups/ui/js/models/TrafficGroupsFilterModel',
          "core-basedir/js/views/ContainerSettingsView"],
         function(_, ContrailView, ContrailChartsView,
                 ContrailListModel, settingsView, settingsModel, filterModel, ContainerSettings) {
@@ -32,7 +32,7 @@ define(
                     tgView.renderTrafficChart();
                 },
                 showSessionsInfo: function() {
-                    require(['monitor/networking/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
+                    require(['monitor/security/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
                         var linkInfo = tgView.getLinkInfo(tgView.selectedLinkData),
                             linkData = {
                                 endpointNames: [linkInfo.srcTags, linkInfo.dstTags],
@@ -51,7 +51,7 @@ define(
                     });
                 },
                 showLinkSessions: function() {
-                    require(['monitor/networking/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
+                    require(['monitor/security/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
                         var linkInfo = tgView.getLinkInfo(tgView.selectedLinkData),
                             endpoint1Data = [], endpoint2Data = [],
                             curSession = linkInfo.links[0].data.dataChildren[0];
@@ -342,7 +342,7 @@ define(
                         elementId: 'traffic-groups-grid-view',
                         view: "TrafficGroupsEPSGridView",
                         viewPathPrefix:
-                        "monitor/networking/trafficgroups/ui/js/views/",
+                        "monitor/security/trafficgroups/ui/js/views/",
                         app: cowc.APP_CONTRAIL_CONTROLLER,
                         viewConfig: {
                             data: data,

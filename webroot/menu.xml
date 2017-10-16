@@ -225,6 +225,53 @@ and need to add the iconClass tag wherever we need to show some icons
                     </items>
                 </item>
                 <item>
+                    <name>Security</name>
+                    <label>Security</label>
+                    <iconClass>menu-icon icon-contrail-network-policy</iconClass>
+                    <access>
+                        <orchModels>
+                            <model>openstack</model>
+                            <model>cloudstack</model>
+                        </orchModels>
+                        <roles>
+                            <role>cloudAdmin</role>
+                            <role>member</role>
+                        </roles>
+                        <accessFn>hideInGlobalController</accessFn>
+                    </access>
+                    <items>
+                        <!--<item>
+                            <label>Dashboard</label>
+                            <hash>mon_security_dashboard</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
+                                    <rootDir>/monitor/security/dashboard/ui</rootDir>
+                                    <js>securitydashboard.main.js</js>
+                                    <class>securityDashboardLoader</class>
+                                    <function>render</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Security Dashboard</searchStrings>
+                        </item>-->
+                        <item>
+                            <hash>mon_security_trafficgroups</hash>
+                            <label>Traffic Groups</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/security/trafficgroups/ui</rootDir>
+                                    <js>trafficgroups.main.js</js>
+                                    <class>trafficGroupsLoader</class>
+                                    <renderFn>renderTrafficGroups</renderFn>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Traffic Groups</searchStrings>
+                        </item>
+                     </items>
+                </item>
+                <item>
                     <label>Networking</label>
                     <iconClass>menu-icon fa fa-sitemap</iconClass>
                     <access>
@@ -361,7 +408,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             </queryParams>
                             <searchStrings>Monitor interfaces</searchStrings>
                         </item>
-                        <item>
+                        <!--<item>
                             <hash>mon_networking_trafficgroups</hash>
                             <label>Traffic Groups</label>
                             <resources>
@@ -373,7 +420,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Monitor Traffic Groups</searchStrings>
-                        </item>
+                        </item> -->
                         <!--<item>
                             <hash>mon_networking_trafficgroups</hash>
                             <label>Traffic Groups</label>

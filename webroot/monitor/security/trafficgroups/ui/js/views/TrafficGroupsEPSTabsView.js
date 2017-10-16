@@ -112,7 +112,7 @@ define([
                     title: 'Endpoint' + (idx + 1),
                     view: "TrafficGroupsEPSGridView",
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewPathPrefix: "monitor/networking/trafficgroups/ui/js/views/",
+                    viewPathPrefix: "monitor/security/trafficgroups/ui/js/views/",
                     viewConfig: {
                         data: endpoint,
                         tabid: "Endpoint_" + idx + "_Stats",
@@ -157,7 +157,7 @@ define([
                     title: title + ' Sessions',
                     view: "TrafficGroupsEPSGridView",
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewPathPrefix: "monitor/networking/trafficgroups/ui/js/views/",
+                    viewPathPrefix: "monitor/security/trafficgroups/ui/js/views/",
                     viewConfig: {
                         data: endpoint,
                         tabid: title + "_Sessions",
@@ -260,7 +260,7 @@ define([
                             elementId: type + "_Sessions",
                             view: "TrafficGroupsEPSGridView",
                             app: cowc.APP_CONTRAIL_CONTROLLER,
-                            viewPathPrefix: "monitor/networking/trafficgroups/ui/js/views/",
+                            viewPathPrefix: "monitor/security/trafficgroups/ui/js/views/",
                             viewConfig: {
                                 data: this.curSessionData,
                                 tabid: type + "_Sessions",
