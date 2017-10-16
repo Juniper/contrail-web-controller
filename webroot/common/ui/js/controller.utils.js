@@ -1201,7 +1201,7 @@ define([
         this.getCurrentDomainProject = function() {
             var domainName = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
-            return domainName + ":" + projectName;
+            return projectName != 'undefined' ? domainName + ":"+ projectName : domainName + ":";
         };
     };
 
