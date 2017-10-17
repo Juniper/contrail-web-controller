@@ -308,12 +308,12 @@ define([
                                             elementId: 'network_policy_refs',
                                             view: 'FormMultiselectView',
                                             viewConfig: {
-                                                label: 'Network Policy (s)',
+                                                label: 'Network Policy(s)',
                                                 path: 'network_policy_refs',
                                                 class: 'col-xs-6',
                                                 dataBindValue: 'network_policy_refs',
                                                 elementConfig: {
-                                                    placeholder: 'Select Network Policy (s)',
+                                                    placeholder: 'Select Network Policy(s)',
                                                     dataTextField: "text",
                                                     dataValueField: "id",
                                                     change : onNetworkPolicyChanged,
@@ -330,12 +330,12 @@ define([
                                            elementId: 'security_group_refs',
                                            view: 'FormMultiselectView',
                                            viewConfig: {
-                                               label: 'Security Group (s)',
+                                               label: 'Security Group(s)',
                                                path: 'security_group_refs',
                                                class: 'col-xs-6',
                                                dataBindValue: 'security_group_refs',
                                                elementConfig: {
-                                                   placeholder: 'Select Security Group (s)',
+                                                   placeholder: 'Select Security Group(s)',
                                                    dataTextField: "text",
                                                    dataValueField: "id",
                                                    change : onSecurityGroupChanged,

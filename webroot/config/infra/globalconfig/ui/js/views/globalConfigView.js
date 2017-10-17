@@ -173,7 +173,7 @@ define([
            },
            {
                elementId: 'slo_tab',
-               title: 'Security Logging Object',
+               title: 'SLO',
                view: "sloGlobalListView",
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
