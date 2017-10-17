@@ -420,6 +420,15 @@ define([
                                         formatter: "policySetFormatter"
                                     }
                                 },{
+                                    label: 'Associated Security Logging Object',
+                                    key: 'security_logging_object_refs',
+                                    templateGenerator:
+                                        'TextGenerator',
+                                    templateGeneratorConfig: {
+                                        formatter:
+                                            'SloFormatter'
+                                    }
+                                },{
                                     keyClass:'col-xs-3',
                                     valueClass:'col-xs-9',
                                     key: "uuid",
@@ -462,6 +471,10 @@ define([
 
     this.lastUpdateExpFormatter = function(v, dc) {
         return fwPolicyFormatter.lastUpdateExpFormatter("", "", v, "", dc);
+    };
+
+    this.SloFormatter = function (v, dc) {
+        return ctwu.securityLoggingObjectFormatter(dc, 'details');
     };
 
     return fwPolicyGridView;
