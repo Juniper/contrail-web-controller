@@ -78,7 +78,7 @@
                   var policyRule = getValueByJsonPath(objVal, 'network_policy_entries;policy_rule', []);
                   if(policyRule.length > 0){
                       var fqName = objVal.fq_name.join(':');
-                      var text = objVal.fq_name[objVal.fq_name.length - 1];
+                      var text = objVal.fq_name[objVal.fq_name.length - 1] + ' (' + objVal.fq_name[objVal.fq_name.length - 2] + ')';
                       polList.push({id: fqName, text: text, value: objVal.uuid});
                   }
               });
@@ -95,7 +95,7 @@
                   var secGrpRule = getValueByJsonPath(objVal, 'security_group_entries;policy_rule', []);
                   if(secGrpRule.length > 0){
                       var fqName = objVal.fq_name.join(':');
-                      var text = objVal.fq_name[objVal.fq_name.length - 1];
+                      var text = objVal.fq_name[objVal.fq_name.length - 1] + ' (' + objVal.fq_name[objVal.fq_name.length - 2] + ')';
                       secGrpList.push({id: fqName, text: text, value: objVal.uuid}); 
                   }
               });

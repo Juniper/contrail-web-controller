@@ -87,7 +87,9 @@ define([
             'user_created_service': '',
             'match_tags': [],
             'sequence': null,
-            'simple_action': 'pass'
+            'simple_action': 'pass',
+            'slo_check' : false,
+            'security_logging_object_refs':''
         },
         formatModelConfig: function (modelConfig) {
             self = this;
@@ -135,6 +137,16 @@ define([
                 modelConfig['endpoint_2'] = '';
             }else{
                 modelConfig['endpoint_2'] = self.getEndpointVal(endpoint2, modelConfig);
+            }
+            var sloRef = getValueByJsonPath(modelConfig,
+                    "security_logging_object_refs", []);
+            if (sloRef.length > 0) {
+                modelConfig["security_logging_object"] =
+                    sloRef.join(cowc.DROPDOWN_VALUE_SEPARATOR);
+                modelConfig["slo_check"] = true;
+            } else {
+                modelConfig["security_logging_object"] = null;
+                modelConfig["slo_check"] = false;
             }
             return modelConfig;
         },

@@ -17,6 +17,11 @@ define([
                 currentHashParams = layoutHandler.getURLHashParams(),
                 policyName = currentHashParams.focusedElement.policy,
                 policyId = currentHashParams.focusedElement.uuid;
+                if(currentHashParams.focusedElement.isGlobal === 'true'){
+                    viewConfig.isGlobal = true;
+                }else{
+                    viewConfig.isGlobal = false;
+                }
             pushBreadcrumb([policyName]);
             var listModelConfig = {
                 remote: {
@@ -36,7 +41,7 @@ define([
             };
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                    contrailListModel, getfwRuleGridViewConfig());
+                    contrailListModel, getfwRuleGridViewConfig(viewConfig));
         },
 
         getDataLazyRemoteConfig : function () {
@@ -98,7 +103,7 @@ define([
         return ruleIds;
     }
 
-    var getfwRuleGridViewConfig = function () {
+    var getfwRuleGridViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwc.CONFIG_FW_RULE_SECTION_ID]),
             view: "SectionView",
@@ -118,7 +123,7 @@ define([
                                             pageSizeSelect: [10, 50, 100]
                                         }
                                     },
-                                    isGlobal: false
+                                    isGlobal: viewConfig.isGlobal
                                 }
                             }
                         ]
