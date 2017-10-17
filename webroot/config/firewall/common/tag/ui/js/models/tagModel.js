@@ -14,14 +14,14 @@ define([
             "parent_type": "",
             "tag_id": 0,
             "tag_value": "",
-            "tag_type": ""
+            "tag_type_name": ""
         },
         formatModelConfig: function(modelConfig) {
             return modelConfig;
         },
         validations: {
         	tagValidation: {
-                'tag_type' : function(value, attr, finalObj) {
+                'tag_type_name' : function(value, attr, finalObj) {
                     if(value === null || value.trim() === '') {
                         return "Enter a Tag Type";
                     }
@@ -79,7 +79,7 @@ define([
 	                delete(newTagData.tag_id);
 	                delete(newTagData.name);
 	                newTagData.fq_name = [];
-	            	var name = newTagData.tag_type + '-'+ newTagData.tag_value;
+	                var name = newTagData.tag_type_name + '-'+ newTagData.tag_value;
 	            	
 	            	if(options.isGlobal) {
 	            	    newTagData.fq_name.push(name);
@@ -100,7 +100,7 @@ define([
 	                    delete(newTagData.href);
 	                    delete(newTagData.id_perms);
 	                    delete(newTagData.perms2);
-	                    delete(newTagData.tag_type);
+	                    delete(newTagData.tag_type_name);
 	                    updatedVal.tag_value = newTagData.tag_value;
 	                    updatedVal.fq_name = newTagData.fq_name;
 	                	var postData = {"data":[{"data":{"tag": updatedVal},

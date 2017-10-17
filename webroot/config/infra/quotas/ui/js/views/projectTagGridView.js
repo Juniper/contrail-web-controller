@@ -135,7 +135,7 @@ define([
                                     ":" + tagsDetails[j].tag.fq_name[1] +
                                     ":" + tagsDetails[j].tag.fq_name[2];
                                 }
-                                if(tagsDetails[j].tag.tag_type === "application") {
+                                if(tagsDetails[j].tag.tag_type_name === "application") {
                                     data = {
                                             "text": (tagsDetails[j]['tag'].fq_name.length == 1)?
                                                     "global:" + tagsDetails[j].tag.name :
@@ -144,28 +144,28 @@ define([
                                    };
                                     applicationArray.push(data);
                                 }
-                                else if(tagsDetails[j].tag.tag_type === "tier") {
+                                else if(tagsDetails[j].tag.tag_type_name === "tier") {
                                     data = {
                                             "text":tagsDetails[j].tag.tag_value,
                                             "value":actValue
                                        };
                                     tierArray.push(data);
                                 }
-                                else if(tagsDetails[j].tag.tag_type === "site") {
+                                else if(tagsDetails[j].tag.tag_type_name === "site") {
                                     data = {
                                             "text":tagsDetails[j].tag.tag_value,
                                             "value":actValue
                                        };
                                     siteArray.push(data);
                                 }
-                                else if(tagsDetails[j].tag.tag_type === "deployment") {
+                                else if(tagsDetails[j].tag.tag_type_name === "deployment") {
                                     data = {
                                             "text":tagsDetails[j].tag.tag_value,
                                             "value":actValue
                                        };
                                     deploymentArray.push(data);
                                 }
-                                else if(tagsDetails[j].tag.tag_type === "label") {
+                                else if(tagsDetails[j].tag.tag_type_name === "label") {
                                     data = {
                                             "text":tagsDetails[j].tag.tag_value,
                                             "value":actValue
