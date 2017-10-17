@@ -200,7 +200,7 @@ define([
                                                                                  tagsDetails[j].tag.name,
                                                                      "value":actValue
                                                                 };
-                                                            if (tagsDetails[j].tag.tag_type === 'application') {
+                                                            if (tagsDetails[j].tag.tag_type_name === 'application') {
                                                                  tagsArray.push(data);
                                                              }
                                                          }

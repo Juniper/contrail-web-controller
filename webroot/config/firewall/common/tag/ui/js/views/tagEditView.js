@@ -103,13 +103,13 @@ define([
                     {
                         columns: [
                             {
-                                elementId: 'tag_type',
+                                elementId: 'tag_type_name',
                                 view: "FormDropdownView",
                                 viewConfig: {
-                                    path:'tag_type',
+                                    path:'tag_type_name',
                                     class: 'col-xs-6',
                                     label: 'Type',
-                                    dataBindValue: 'tag_type',
+                                    dataBindValue: 'tag_type_name',
                                     elementConfig : {
                                         dataTextField: 'text',
                                         placeholder: 'Select Tag Type',
