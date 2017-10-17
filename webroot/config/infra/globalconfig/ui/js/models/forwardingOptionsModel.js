@@ -25,7 +25,8 @@ define([
                 'source_port': true,
                 'destination_port': true
             },
-            "flow_export_rate": null
+            "flow_export_rate": null,
+            "enable_security_logging": true
         },
 
         validations: {
@@ -209,6 +210,8 @@ define([
                 }
                 fwdOptionsData['global-vrouter-config']['forwarding_mode'] =
                     newFwdOptionsConfig['forwarding_mode'];
+                fwdOptionsData['global-vrouter-config']['enable_security_logging'] =
+                    newFwdOptionsConfig['enable_security_logging'];
                 fwdOptionsData['global-vrouter-config']
                        ['vxlan_network_identifier_mode'] =
                     newFwdOptionsConfig['vxlan_network_identifier_mode'];

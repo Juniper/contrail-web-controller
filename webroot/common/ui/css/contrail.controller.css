@@ -411,7 +411,8 @@ tr.collapsibleChildContainer{
 
 #configure-network input.ace-input[type=checkbox] + .ace-lbl::before,
 #configure-network input.ace-input[type=radio] + .ace-lbl::before,
-#configure-global_bgp_options input.ace-input[type=checkbox] + .ace-lbl::before {
+#configure-global_bgp_options input.ace-input[type=checkbox] + .ace-lbl::before,
+#configure-global_forwarding_options  input.ace-input[type=checkbox] + .ace-lbl::before{
     margin-right:10px;}
 #configure-Ports-form .contrail-editable-grid-table{
     margin-top:5px;
@@ -941,3 +942,24 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
 }
 #aps-overlay-container .slick-viewport .grid-canvas{
     width:100%!important;}
+#firewall_rules li.select2-search-field>input.select2-input {
+    width: 100%!important;
+}
+.wizard > .content > .body .form-label label {
+    display: block;
+    padding: 0px;
+}
+#firewall_rules td.data-cell.data-cell-security_logging_object_refs .form-label {
+    padding: 5px;
+}
+#firewall_rules td.data-cell.data-cell-security_logging_object_refs .form-label label {
+    text-align:right !important;
+    padding-right:5px;
+}
+#firewall_rules td.data-cell.data-cell-security_logging_object_refs .form-element {
+    padding: 0px;
+    text-align:left;
+}
+#firewall_rules td.data-cell.data-cell-security_logging_object_refs .form-element .select2-container {
+    width: calc(100% - 84px);
+}
