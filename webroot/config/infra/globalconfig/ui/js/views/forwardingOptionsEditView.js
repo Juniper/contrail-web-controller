@@ -124,6 +124,24 @@ define([
                     {
                         columns: [
                             {
+                                elementId: 'enable_security_logging',
+                                view: "FormCheckboxView",
+                                viewConfig : {
+                                    path : 'enable_security_logging',
+                                    class : "col-xs-6",
+                                    label:'Security Logging',
+                                    templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                    dataBindValue : 'enable_security_logging',
+                                    elementConfig : {
+                                        isChecked:false
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
                                 elementId: 'encapPriorityOrders',
                                 view: 'FormEditableGridView',
                                 viewConfig: {

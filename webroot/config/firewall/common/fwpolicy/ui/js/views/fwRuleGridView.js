@@ -439,6 +439,16 @@ define([
                                     templateGeneratorConfig: {
                                         formatter: "matchFormatter"
                                     }
+                                },
+                                {
+                                    label: 'Associated Security Logging Objects',
+                                    key: 'security_logging_object_refs',
+                                    templateGenerator:
+                                        'TextGenerator',
+                                    templateGeneratorConfig: {
+                                        formatter:
+                                            'SloFormatter'
+                                    }
                                 }/*,{
                                     key: "action_list.apply_service",
                                     templateGenerator: "TextGenerator",
@@ -489,6 +499,10 @@ define([
 
     this.simpleActionFormatter = function(v, dc) {
         return fwRuleFormatter.simpleActionFormatter("", "", v, "", dc);
+    };
+
+    this.SloFormatter = function (v, dc) {
+        return ctwu.securityLoggingObjectFormatter(dc, 'details');
     };
 
     return fwRuleGridView;

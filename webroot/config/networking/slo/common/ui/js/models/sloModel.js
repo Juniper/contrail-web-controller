@@ -26,14 +26,10 @@ define([
                     }
                 },
                 'security_logging_object_rate': function(value, attr, finalObj){
-                    if(value === null || value === "") {
-                        return "Please enter the Rate.";
-                    }else{
-                        var sloRate = Number(value);
+                       var sloRate = Number(value);
                         if (isNaN(sloRate)) {
                             return "Rate should be a number.";
                         }
-                    }
                 }
             }
         },
@@ -221,6 +217,9 @@ define([
                 //permissions
                 self.updateRBACPermsAttrs(newSloObj);
                 ctwu.deleteCGridData(newSloObj);
+                if(newSloObj.security_logging_object_rate === ''){
+                    newSloObj.security_logging_object_rate = '100';
+                }
                 if(sloRules.length > 0){
                     var policyRuleList = {}, secGrpRuleList = {};
                     for(var i = 0; i < sloRules.length; i++){
