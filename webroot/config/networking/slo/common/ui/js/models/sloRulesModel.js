@@ -49,6 +49,9 @@ define([
                             }
                         }
                     }
+                    if(value === ''){
+                        return "Please select the UUID.";
+                    }
                  }
              }
         }

@@ -95,14 +95,16 @@ define([
               kbValidation.unbind(self);
               $("#" + modalId).modal('hide');
             }});
-            self.renderView4Config($("#" + modalId).find(formId),
-                    self.model,
-                    getPolicyDescriptionEditViewConfig(options),
-                    null, null, null, function() {
-                self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
-                Knockback.applyBindings(self.model,
-                         document.getElementById(modalId));
-                kbValidation.bind(self);
+            self.fetchSloList(self, options, function(allData){
+                self.renderView4Config($("#" + modalId).find(formId),
+                        self.model,
+                        getPolicyDescriptionEditViewConfig(options, allData),
+                        null, null, null, function() {
+                    self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
+                    Knockback.applyBindings(self.model,
+                             document.getElementById(modalId));
+                    kbValidation.bind(self);
+                });
             });
         },
         renderDeleteFWPolicies: function(options) {
@@ -140,7 +142,35 @@ define([
             Knockback.applyBindings(self.model, document.getElementById(modalId));
             kbValidation.bind(self);
         },
+        fetchSloList : function(self, options, callback) {
+            var getAjaxs = [];
+            //get SLO
+            getAjaxs[0] = $.ajax({
+              url: ctwc.URL_GET_CONFIG_DETAILS,
+              type:"POST",
+              dataType: "json",
+              contentType: "application/json; charset=utf-8",
+              data: JSON.stringify({data: [{type: "security-logging-objects"}]})
+            });
 
+            $.when.apply($, getAjaxs).then(
+                function () {
+                    var returnArr = []
+                    var results = arguments;
+                    var sloObj = fwPolicyFormatter.filterSloByProjects(getValueByJsonPath(results, '0;0;security-logging-objects', [], false), options.isGlobal);
+                    var sloList = [];
+                    _.each(sloObj, function(obj) {
+                        if("security-logging-object" in obj) {
+                            var slo = obj["security-logging-object"];
+                            var fqName = slo.fq_name;
+                            sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                        }
+                    });
+                    returnArr["sloList"] = sloList;
+                    callback(returnArr);
+                }
+            )
+        },
         fetchAllData : function(self, options, callback) {
             var getAjaxs = [];
             var selectedDomain = contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME);
@@ -167,6 +197,15 @@ define([
                 contentType: "application/json; charset=utf-8",
                 data: JSON.stringify(
                         {data: [{type: 'address-groups'}]})
+            });
+
+          //get SLO
+            getAjaxs[3] = $.ajax({
+              url: ctwc.URL_GET_CONFIG_DETAILS,
+              type:"POST",
+              dataType: "json",
+              contentType: "application/json; charset=utf-8",
+              data: JSON.stringify({data: [{type: "security-logging-objects"}]})
             });
 
             $.when.apply($, getAjaxs).then(
@@ -298,6 +337,16 @@ define([
                         parent : "any_workload" });
                     addrFields.push({text : 'Any Workload', value : 'any_workload', children : anyList});
                     returnArr["addrFields"] = addrFields;
+                    var sloObj = fwPolicyFormatter.filterSloByProjects(getValueByJsonPath(results, '3;0;0;security-logging-objects', [], false), options.isGlobal);
+                    var sloList = [];
+                    _.each(sloObj, function(obj) {
+                        if("security-logging-object" in obj) {
+                            var slo = obj["security-logging-object"];
+                            var fqName = slo.fq_name;
+                            sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                        }
+                    });
+                    returnArr["sloList"] = sloList;
                     callback(returnArr);
                 }
             )
@@ -305,7 +354,7 @@ define([
 
     });
 
-    function getPolicyDescriptionEditViewConfig(options){
+    function getPolicyDescriptionEditViewConfig(options, allData){
         var policyViewConfig = {
                 elementId: cowu.formatElementId([prefixId, "description"]),
                 title: "Edit Policy",
@@ -341,7 +390,28 @@ define([
                                     }
                                 }
                             ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'security_logging_object_refs',
+                                    view: 'FormMultiselectView',
+                                    viewConfig: {
+                                        label: 'Security Logging Object(s)',
+                                        path: 'security_logging_object_refs',
+                                        class: 'col-xs-12',
+                                        dataBindValue: 'security_logging_object_refs',
+                                        elementConfig: {
+                                            placeholder: 'Select Security Logging Object(s)',
+                                            dataTextField: "text",
+                                            dataValueField: "id",
+                                            separator: cowc.DROPDOWN_VALUE_SEPARATOR,
+                                            data : allData.sloList
+                                         }
+                                    }
+                               }]
                         }
+
                     ]
                 }
         }
@@ -430,223 +500,246 @@ define([
         }
         return returnText;
     };
-    var createPolicyViewConfig = [{
-        elementId: cowu.formatElementId([prefixId, ctwl.TITLE_DETAILS]),
-        title: ctwl.TITLE_POLICY_INFO,
-        view: "SectionView",
-        viewConfig: {
-            rows: [
-                {
-                    columns: [
-                        {
-                            elementId: "name",
-                            view: "FormInputView",
-                            viewConfig: {
-                                path: "name",
-                                dataBindValue: "name",
-                                class: "col-xs-6"
+    function createPolicyViewConfig(allData){
+        var policyViewConfig = [{
+            elementId: cowu.formatElementId([prefixId, ctwl.TITLE_DETAILS]),
+            title: ctwl.TITLE_POLICY_INFO,
+            view: "SectionView",
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: "name",
+                                view: "FormInputView",
+                                viewConfig: {
+                                    path: "name",
+                                    dataBindValue: "name",
+                                    class: "col-xs-6"
+                                }
                             }
-                        }
-                    ]
-                }, {
-                    columns: [
-                              {
-                                  elementId: "description",
-                                  view: "FormInputView",
-                                  viewConfig: {
-                                      path: "id_perms.description",
-                                      dataBindValue: "id_perms().description",
-                                      class: "col-xs-12"
+                        ]
+                    }, {
+                        columns: [
+                                  {
+                                      elementId: "description",
+                                      view: "FormInputView",
+                                      viewConfig: {
+                                          path: "id_perms.description",
+                                          dataBindValue: "id_perms().description",
+                                          class: "col-xs-12"
+                                      }
                                   }
-                              }
-                          ]
-                  }
-            ]
-        }
-    },
-    /*{
-        elementId: "tags_id",
-        view: 'SectionView',
-        title: "Tags",
-        viewConfig: {
-            rows: [
-                {
-                    columns: [
-                        {
-                            elementId: 'Application',
-                            view: 'FormDropdownView',
-                            viewConfig: {
-                                label: "Application",
-                                path: 'Application',
-                                dataBindValue: 'Application',
-                                class: 'col-xs-6',
-                                elementConfig: {
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    placeholder:
-                                        "Select Application Tag",
-                                        dataSource : getDataSourceForDropdown('application')
+                              ]
+                      },
+                      {
+                          columns: [
+                              {
+                                  elementId: 'security_logging_object_refs',
+                                  view: 'FormMultiselectView',
+                                  viewConfig: {
+                                      label: 'Security Logging Object(s)',
+                                      path: 'security_logging_object_refs',
+                                      class: 'col-xs-12',
+                                      dataBindValue: 'security_logging_object_refs',
+                                      elementConfig: {
+                                          placeholder: 'Select Security Logging Object(s)',
+                                          dataTextField: "text",
+                                          dataValueField: "id",
+                                          separator: cowc.DROPDOWN_VALUE_SEPARATOR,
+                                          data : allData.sloList
+                                       }
+                                  }
+                             }]
+                      }
+                ]
+            }
+        },
+        /*{
+            elementId: "tags_id",
+            view: 'SectionView',
+            title: "Tags",
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: 'Application',
+                                view: 'FormDropdownView',
+                                viewConfig: {
+                                    label: "Application",
+                                    path: 'Application',
+                                    dataBindValue: 'Application',
+                                    class: 'col-xs-6',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        placeholder:
+                                            "Select Application Tag",
+                                            dataSource : getDataSourceForDropdown('application')
+                                    }
                                 }
                             }
-                        }
-                    ]
-                },
-                {
-                    columns: [
-                        {
-                            elementId: 'Deployment',
-                            view: 'FormDropdownView',
-                            viewConfig: {
-                                label: "Deployment",
-                                path: 'Deployment',
-                                dataBindValue: 'Deployment',
-                                class: 'col-xs-6',
-                                elementConfig: {
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    placeholder:
-                                        "Select Deployment Tag",
-                                        dataSource : getDataSourceForDropdown('deployment')
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'Deployment',
+                                view: 'FormDropdownView',
+                                viewConfig: {
+                                    label: "Deployment",
+                                    path: 'Deployment',
+                                    dataBindValue: 'Deployment',
+                                    class: 'col-xs-6',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        placeholder:
+                                            "Select Deployment Tag",
+                                            dataSource : getDataSourceForDropdown('deployment')
+                                    }
                                 }
                             }
-                        }
-                    ]
-                },
-                {
-                    columns: [
-                        {
-                            elementId: 'Site',
-                            view: 'FormDropdownView',
-                            viewConfig: {
-                                label: "Site",
-                                path: 'Site',
-                                dataBindValue: 'Site',
-                                class: 'col-xs-6',
-                                elementConfig: {
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    placeholder:
-                                        "Select Site Tag",
-                                        dataSource : getDataSourceForDropdown('site')
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'Site',
+                                view: 'FormDropdownView',
+                                viewConfig: {
+                                    label: "Site",
+                                    path: 'Site',
+                                    dataBindValue: 'Site',
+                                    class: 'col-xs-6',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        placeholder:
+                                            "Select Site Tag",
+                                            dataSource : getDataSourceForDropdown('site')
+                                    }
                                 }
                             }
-                        }
-                    ]
-                },
-                {
-                    columns: [
-                        {
-                            elementId: 'Tier',
-                            view: 'FormDropdownView',
-                            viewConfig: {
-                                label: "Tier",
-                                path: 'Tier',
-                                dataBindValue: 'Tier',
-                                class: 'col-xs-6',
-                                elementConfig: {
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    placeholder:
-                                        "Select Tier Tag",
-                                        dataSource : getDataSourceForDropdown('tier')
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'Tier',
+                                view: 'FormDropdownView',
+                                viewConfig: {
+                                    label: "Tier",
+                                    path: 'Tier',
+                                    dataBindValue: 'Tier',
+                                    class: 'col-xs-6',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        placeholder:
+                                            "Select Tier Tag",
+                                            dataSource : getDataSourceForDropdown('tier')
+                                    }
                                 }
                             }
-                        }
-                    ]
-                },
-                {
-                    columns: [
-                        {
-                            elementId: 'Labels',
-                            view: 'FormMultiselectView',
-                            viewConfig: {
-                                label: "Labels",
-                                path: 'Labels',
-                                dataBindValue: 'Labels',
-                                class: 'col-xs-6',
-                                elementConfig: {
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    placeholder:
-                                        "Select Labels",
-                                        dataSource : getDataSourceForDropdown('label')
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'Labels',
+                                view: 'FormMultiselectView',
+                                viewConfig: {
+                                    label: "Labels",
+                                    path: 'Labels',
+                                    dataBindValue: 'Labels',
+                                    class: 'col-xs-6',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        placeholder:
+                                            "Select Labels",
+                                            dataSource : getDataSourceForDropdown('label')
+                                    }
                                 }
                             }
-                        }
-                    ]
-                }
-            ]
-        }
-    },*/
-    {
-        elementId: "security_permissions",
-        view: 'SectionView',
-        title:"Permissions",
-        viewConfig: {
-            rows: [
-                {
-                    columns: [
-                        {
-                            elementId: 'owner_access_security',
-                            view: 'FormMultiselectView',
-                            viewConfig: {
-                                label: "Owner Permissions",
-                                path: 'perms2.owner_access',
-                                dataBindValue: 'perms2().owner_access',
-                                class: 'col-xs-6',
-                                elementConfig: {
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    placeholder:
-                                        "Select Permissions",
-                                    data: cowc.RBAC_ACCESS_TYPE_LIST
+                        ]
+                    }
+                ]
+            }
+        },*/
+        {
+            elementId: "security_permissions",
+            view: 'SectionView',
+            title:"Permissions",
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: 'owner_access_security',
+                                view: 'FormMultiselectView',
+                                viewConfig: {
+                                    label: "Owner Permissions",
+                                    path: 'perms2.owner_access',
+                                    dataBindValue: 'perms2().owner_access',
+                                    class: 'col-xs-6',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        placeholder:
+                                            "Select Permissions",
+                                        data: cowc.RBAC_ACCESS_TYPE_LIST
+                                    }
                                 }
                             }
-                        }
-                    ]
-                },
-                {
-                    columns: [
-                        {
-                            elementId: 'global_access_secuirty',
-                            view: 'FormMultiselectView',
-                            viewConfig: {
-                                label: "Global Share Permissions",
-                                path: 'perms2.global_access',
-                                dataBindValue: 'perms2().global_access',
-                                class: 'col-xs-6',
-                                elementConfig: {
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    placeholder:
-                                        "Select Permissions",
-                                    data: cowc.RBAC_ACCESS_TYPE_LIST
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'global_access_secuirty',
+                                view: 'FormMultiselectView',
+                                viewConfig: {
+                                    label: "Global Share Permissions",
+                                    path: 'perms2.global_access',
+                                    dataBindValue: 'perms2().global_access',
+                                    class: 'col-xs-6',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        placeholder:
+                                            "Select Permissions",
+                                        data: cowc.RBAC_ACCESS_TYPE_LIST
+                                    }
                                 }
                             }
-                        }
-                    ]
-                },
-                {
-                    columns:[{
-                        elementId: "security_share_accordion_create",
-                        view: "AccordianView",
-                        viewConfig:[{
-                           elementId: "security_share_accordion_create",
-                           view:  "SectionView",
-                           title: "Share List",
-                           viewConfig:{
-                               rows: [{
-                                   columns:
-                                      shareViewConfig()
-                                }]
-                            }
+                        ]
+                    },
+                    {
+                        columns:[{
+                            elementId: "security_share_accordion_create",
+                            view: "AccordianView",
+                            viewConfig:[{
+                               elementId: "security_share_accordion_create",
+                               view:  "SectionView",
+                               title: "Share List",
+                               viewConfig:{
+                                   rows: [{
+                                       columns:
+                                          shareViewConfig()
+                                    }]
+                                }
+                            }]
                         }]
-                    }]
-                 }
+                     }
 
-            ]
-        }
-    }];
+                ]
+            }
+        }];
+       return policyViewConfig;
+    }
 
    function shareViewConfig() {
         return  [{
@@ -874,9 +967,10 @@ define([
                                  name: 'Action',
                                  view: "FormDropdownView",
                                  class: "",
-                                 width: 60,
+                                    width: 62,
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                    // width: 60,
                                      path: "simple_action",
                                      disabled: "showService()",
                                      dataBindValue: "simple_action()",
@@ -888,10 +982,10 @@ define([
                                     elementId: 'user_created_service',
                                     name: 'Services',
                                     view: "FormComboboxView",
-                                    width: 210,
+                                    width: 208,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
-                                        width: 210,
+                                   //     width: 69,
                                         path: 'user_created_service',
                                         dataBindValue: 'user_created_service()',
                                         elementConfig: {
@@ -914,10 +1008,10 @@ define([
                                         "FormHierarchicalDropdownView",
                                     name: 'End Point 1',
                                     class: "",
-                                    width: 220,
+                                    width: 174,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
-                                        width: 220,
+                                    //    width: 150,
                                         path: 'endpoint_1',
                                         dataBindValue: 'endpoint_1()',
                                         elementConfig: {
@@ -983,9 +1077,10 @@ define([
                                  name: 'Dir',
                                  view: "FormDropdownView",
                                  class: "",
-                                 width: 60,
+                                 width: 46,
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                               //      width: 65,
                                      path: "direction",
                                      dataBindValue: "direction()",
                                      disabled: "showService()",
@@ -998,11 +1093,11 @@ define([
                                     view:
                                         "FormHierarchicalDropdownView",
                                     name: 'End Point 2',
-                                    class: "col-xs-2",
-                                    width: 220,
+                                    class: "",
+                                    width: 174,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
-                                        width: 220,
+                                   //     width: 150,
                                         path: 'endpoint_2',
                                         dataBindValue: 'endpoint_2()',
                                         elementConfig: {
@@ -1065,11 +1160,11 @@ define([
                                     elementId: 'match_tags',
                                     name: 'Match Tags',
                                     view: "FormMultiselectView",
-                                    width: 130,
+                                    width: 141,
                                     viewConfig:
                                       {
                                        class: "",
-                                       width: 130,
+                                       //width: 130,
                                        path: "match_tags",
                                        templateId:
                                            cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
@@ -1085,6 +1180,19 @@ define([
                                                   {text: 'Site', value: 'site'}]
                                        }
                                       }
+                                },
+                                {
+                                    elementId: 'slo_check',
+                                    name: 'SLO',
+                                    view: "FormCheckboxView",
+                                    class: "text-center",
+                                    width: 62,
+                                    viewConfig: {
+                                       templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
+                                   //    width: 60,
+                                       path: 'slo_check',
+                                       dataBindValue: 'slo_check()'
+                                       }
                                 }/*,
                                 {
                                  elementId: 'log_checked',
@@ -1135,7 +1243,34 @@ define([
                                         dataBindValue: 'qos_action_check()'
                                        }
                                 }*/]
-                            }/*,{
+                            },
+                            {
+                                columns: [
+                                    {
+                                         elementId: 'security_logging_object_refs',
+                                         name: 'Security Logging Object(s)',
+                                         view: "FormMultiselectView",
+                                         width: 180,
+                                         viewConfig: {
+                                             colSpan: "12",
+                                             width: 180,
+                                             class: "col-xs-12",
+                                             label: 'SLO',
+                                             placeholder:"Select Security Logging Object(s)",
+                                             visible: "slo_check()",
+                                             templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_LEFT_LABEL_VIEW,
+                                             path: "security_logging_object_refs",
+                                             dataBindValue: "security_logging_object_refs()",
+                                             elementConfig:{
+                                                 dataTextField: "text",
+                                                 dataValueField: "id",
+                                                 separator: cowc.DROPDOWN_VALUE_SEPARATOR,
+                                                 data: allData.sloList
+                                             }
+                                         }
+                                    }
+                                  ]
+                                 }/*,{
                             columns: [
                                 {
                                      elementId: 'service_instances',
@@ -1515,7 +1650,7 @@ define([
         createStepViewConfig = {
             elementId: cowu.formatElementId([prefixId, 'policy_step']),
             view: "AccordianView",
-            viewConfig: createPolicyViewConfig,
+            viewConfig: createPolicyViewConfig(allData),
             title: ctwl.TITLE_CREATE_FW_POLICY,
             stepType: "step",
             onInitRender: true,

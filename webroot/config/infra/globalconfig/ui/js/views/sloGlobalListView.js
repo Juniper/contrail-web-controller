@@ -22,7 +22,7 @@ define([
                         url: ctwc.URL_GET_CONFIG_DETAILS,
                         type: "POST",
                         data: JSON.stringify({data: [{type: "security-logging-objects",
-                            parent_type: "global-vrouter-config",
+                            parent_type: "global-vrouter-config", fields: ['firewall_policy_back_refs', 'firewall_rule_back_refs'],
                             parent_fq_name_str:
                                 "default-global-system-config:" +
                                 "default-global-vrouter-config"}]})

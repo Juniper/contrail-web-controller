@@ -23,9 +23,10 @@ define([
                         url: ctwc.URL_GET_CONFIG_DETAILS,
                         type: "POST",
                         data: JSON.stringify({data: [{type: "security-logging-objects",
-                                parent_id: currentProject.value}]})
+                                parent_id: currentProject.value,
+                                fields: ['firewall_policy_back_refs', 'firewall_rule_back_refs']}]})
                     },
-                    dataParser: self.parseSloProjectData,
+                    dataParser: self.parseSloProjectData
                 }
             };
             contrailListModel = new ContrailListModel(listModelConfig);
