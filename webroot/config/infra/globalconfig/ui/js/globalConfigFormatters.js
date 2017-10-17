@@ -26,6 +26,13 @@
                         return 'L2 and L3';
                     }
                 }
+                if('enable_security_logging' === rowData['key']) {
+                    if ((undefined === val) || (null === val) || ('' === val) || (false === val)) {
+                        return 'Disable';
+                    } else if(val){
+                        return 'Enable';
+                    }
+                }
                 if('bgpaas_parameters' === rowData['key']) {
                     if ((undefined === val) || (null === val) || ({} === val)) {
                         return '-';

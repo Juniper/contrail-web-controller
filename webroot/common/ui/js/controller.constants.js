@@ -629,7 +629,8 @@ define([
              'name': 'Encapsulation Priority Order',},
             {'key': 'ecmp_hashing_include_fields',
                 'name': 'ECMP Hashing Fields'},
-            {'key': 'flow_export_rate', 'name': 'Flow Export Rate'}
+            {'key': 'flow_export_rate', 'name': 'Session Export Rate/secs'},
+            {'key': 'enable_security_logging', 'name': 'Security Logging'}
         ];
         this.GLOBAL_FORWARDING_OPTIONS_SECTION_ID = "global-forwarding-options-section";
         this.GLOBAL_FORWARDING_OPTIONS_ID = "global-forwarding-options";

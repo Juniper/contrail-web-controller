@@ -13,10 +13,15 @@
               if(refs.length > 0){
                   for(var k = 0; k < refs.length; k++){
                       var rule = getValueByJsonPath(refs[k], 'attr;rule',[]);
+                      var to = refs[k].to;
+                      var objName = to[to.length - 1];
+                      _.each(rule, function(obj) {
+                          obj.objName = objName;
+                      });
                       sloRules = sloRules.concat(rule);
                   }
                   for(var i = 0; i < sloRules.length; i++){
-                      var newObj = sloRules[i].rule_uuid + ' : ' + sloRules[i].rate;
+                      var newObj = sloRules[i].rule_uuid + ' ('+ sloRules[i].objName + ') : ' + sloRules[i].rate;
                       var sloRule = '<span>'+ newObj +'</span>';
                       sloRuleList.push(sloRule);
                   }
@@ -43,14 +48,20 @@
               var policyRefs = getValueByJsonPath(dc, 'network_policy_refs',[]);
               var secGrpRefs = getValueByJsonPath(dc, 'security_group_refs',[]);
               var refs = policyRefs.concat(secGrpRefs);
-              sloRuleList.push('<span class="rule-format" style="width: 300px !important;display:inline-block;">UUID</span><span class="rule-format">Rate</span>');
+              sloRuleList.push('<span class="rule-format" style="width: 400px !important;display:inline-block;">UUID</span><span class="rule-format">Rate</span>');
               if(refs.length > 0){
                   for(var k = 0; k < refs.length; k++){
                       var rule = getValueByJsonPath(refs[k], 'attr;rule',[]);
+                      var to = refs[k].to;
+                      var objName = to[to.length - 1];
+                      _.each(rule, function(obj) {
+                          obj.objName = objName;
+                      });
                       sloRules = sloRules.concat(rule);
                   }
                   for(var i = 0; i < sloRules.length; i++){
-                      var sloRule = '<span style="width: 300px !important;display:inline-block;">'+ sloRules[i].rule_uuid +'</span><span>'+ sloRules[i].rate +'</span>';
+                      var ruleUUID = sloRules[i].rule_uuid + ' (' + sloRules[i].objName + ')';
+                      var sloRule = '<span style="width: 400px !important;display:inline-block;">'+ ruleUUID +'</span><span>'+ sloRules[i].rate +'</span>';
                       sloRuleList.push(sloRule);
                   }
               }
@@ -60,7 +71,7 @@
                       returnString += sloRuleList[j] + "<br>";
                   }
               }else{
-                  sloRuleList.push('<span style="width: 300px !important;display:inline-block;">-</span><span>-</span>');
+                  sloRuleList.push('<span style="width: 400px !important;display:inline-block;">-</span><span>-</span>');
                   for(var k = 0; k< sloRuleList.length; k++){
                       returnString += sloRuleList[k] + "<br>";
                   }
@@ -78,7 +89,7 @@
                   var policyRule = getValueByJsonPath(objVal, 'network_policy_entries;policy_rule', []);
                   if(policyRule.length > 0){
                       var fqName = objVal.fq_name.join(':');
-                      var text = objVal.fq_name[objVal.fq_name.length - 1];
+                      var text = objVal.fq_name[objVal.fq_name.length - 1] + ' (' + objVal.fq_name[objVal.fq_name.length - 2] + ')';
                       polList.push({id: fqName, text: text, value: objVal.uuid});
                   }
               });
@@ -95,7 +106,7 @@
                   var secGrpRule = getValueByJsonPath(objVal, 'security_group_entries;policy_rule', []);
                   if(secGrpRule.length > 0){
                       var fqName = objVal.fq_name.join(':');
-                      var text = objVal.fq_name[objVal.fq_name.length - 1];
+                      var text = objVal.fq_name[objVal.fq_name.length - 1] + ' (' + objVal.fq_name[objVal.fq_name.length - 2] + ')';
                       secGrpList.push({id: fqName, text: text, value: objVal.uuid}); 
                   }
               });

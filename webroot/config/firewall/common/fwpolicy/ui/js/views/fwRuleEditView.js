@@ -49,7 +49,7 @@ define([
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
-            this.fetchAllData(this ,
+            this.fetchAllData(this, options, 
                     function(allData) {
                        self.renderView4Config($("#" + modalId).find(formId),
                                 self.model,
@@ -102,7 +102,7 @@ define([
                 document.getElementById(modalId));
             kbValidation.bind(self);
         },
-        fetchAllData : function(self, callback) {
+        fetchAllData : function(self, options, callback) {
             var getAjaxs = [];
             var tagParam = {data: [{type: 'tags'}]};
             var addressGrpParam = {data: [{type: 'address-groups'}]};
@@ -119,6 +119,14 @@ define([
             getAjaxs[2] = $.ajax({
                 url:"/api/tenants/config/virtual-networks",
                 type:"GET"
+            });
+            //get SLO
+            getAjaxs[3] = $.ajax({
+              url: ctwc.URL_GET_CONFIG_DETAILS,
+              type:"POST",
+              dataType: "json",
+              contentType: "application/json; charset=utf-8",
+              data: JSON.stringify({data: [{type: "security-logging-objects"}]})
             });
             $.when.apply($, getAjaxs).then(
                 function () {
@@ -255,6 +263,16 @@ define([
                         parent : "any_workload" });
                     addrFields.push({text : 'Any Workload', value : 'any_workload', children : anyList});
                     returnArr["addrFields"] = addrFields;
+                    var sloObj = fwPolicyFormatter.filterSloByProjects(getValueByJsonPath(results, '3;0;0;security-logging-objects', [], false), options.isGlobal);
+                    var sloList = [];
+                    _.each(sloObj, function(obj) {
+                        if("security-logging-object" in obj) {
+                            var slo = obj["security-logging-object"];
+                            var fqName = slo.fq_name;
+                            sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                        }
+                    });
+                    returnArr["sloList"] = sloList;
                     callback(returnArr);
                 }
             )
@@ -433,7 +451,27 @@ define([
                                  }
                             }
                        }]
-                     }
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'security_logging_object_refs',
+                                view: 'FormMultiselectView',
+                                viewConfig: {
+                                    label: 'Security Logging Object(s)',
+                                    path: 'security_logging_object_refs',
+                                    class: 'col-xs-12',
+                                    dataBindValue: 'security_logging_object_refs',
+                                    elementConfig: {
+                                        placeholder: 'Select Security Logging Object(s)',
+                                        dataTextField: "text",
+                                        dataValueField: "id",
+                                        separator: cowc.DROPDOWN_VALUE_SEPARATOR,
+                                        data : allData.sloList
+                                     }
+                                }
+                           }]
+                    }
                 ]
             }
         }

@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-view',
     'knockback',
-    'config/networking/slo/common/ui/js/sloFormatters'
-], function (_, ContrailView, Knockback, SloFormatters) {
+    'config/networking/slo/common/ui/js/sloFormatters',
+    'config/networking/slo/common/ui/js/models/sloRulesModel'
+], function (_, ContrailView, Knockback, SloFormatters, SloRulesModel) {
     var prefixId = ctwc.SLO_PREFIX_ID;
     var modalId = 'configure-' + prefixId,
     sloFormatters = new SloFormatters();
@@ -71,6 +72,10 @@ define([
                    kbValidation.bind(self,{collection: self.model.model().attributes.sloRuleDetails});
                    //permissions
                    ctwu.bindPermissionsValidation(self);
+                   var secLoggingInfo = $('<i class="fa fa-info-circle" aria-hidden="true" title="Every nth session records will be logged."></i>');
+                   var ruleInfo = $('<i class="fa fa-info-circle" aria-hidden="true" title="Every nth session records will be logged."></i>');
+                   $('#security_logging_object_rate label').append(secLoggingInfo);
+                   $('#sloRuleDetails  table thead tr th:nth-child(2)').append(ruleInfo);
                 }, null, true
             );
         },
@@ -157,6 +162,45 @@ define([
         return hierarchicalList;
     }
 
+    function retainingPreviousRecords(updatedList, mode, deleteUUID){
+        var sloRules = $.extend(true,{}, self.model.model().attributes.rules_entries.rules).toJSON();
+        var existingRuleList = [];
+        _.each(sloRules, function(obj) {
+            var newObj = {};
+            newObj.rule_uuid = obj.rule_uuid();
+            newObj.rate = obj.rate();
+            if(mode === 'network'){
+                obj.dataSource()[0].children = updatedList;
+            }else{
+                obj.dataSource()[1].children = updatedList;
+            }
+            newObj.dataSource = obj.dataSource();
+            if(deleteUUID.length > 0){
+                var ruleUuid = newObj.rule_uuid.split(';');
+                if(deleteUUID.indexOf(ruleUuid[0]) === -1){
+                    existingRuleList.push(newObj);
+                }
+            }else{
+                existingRuleList.push(newObj);
+            }
+        });
+        if(existingRuleList.length > 0){
+            var ruleModelColl = [];
+            _.each(existingRuleList, function(obj) {
+               var newRuleModel = new SloRulesModel(obj);
+               ruleModelColl.push(newRuleModel);
+            });
+            var coll = new Backbone.Collection(ruleModelColl);
+            self.model.sloRuleDetails([]);
+            self.model.sloRuleDetails(coll);
+            self.model.rules_entries().rules = coll;
+        }else{
+            var emptyColl = new Backbone.Collection([]);
+            self.model.sloRuleDetails(emptyColl);
+            self.model.rules_entries().rules = emptyColl;
+        }
+    }
+
     function onNetworkPolicyChanged(e){
         var policyRule = [];
         if(e.added !== undefined){
@@ -171,7 +215,7 @@ define([
                 });
                 var updatedList = self.sloRuleList[0].children.concat(policyRule);
                 self.sloRuleList[0].children = updatedList;
-                self.model.model().attributes.sloRuleDetails.reset();
+                retainingPreviousRecords(updatedList, 'network', []);
             }else if(e.added.length > 0){
                 var existingList = [];
                 _.each(e.added, function(obj) {
@@ -197,8 +241,9 @@ define([
                         ruleList = getValueByJsonPath(policy, ctwc.POLICY_RULE, []);
                     }
                 });
-                var updatedList = self.sloRuleList[0].children;
+                var updatedList = self.sloRuleList[0].children, deleteUUID = [];
                 _.each(ruleList, function(rule) {
+                    deleteUUID.push(rule.rule_uuid);
                     _.each(updatedList, function(list, k) {
                         if(list !== undefined){
                             var ruleUuid = list.id.split(';')[0];
@@ -208,8 +253,9 @@ define([
                         }
                     });
                 });
+                console.log(deleteUUID);
                 self.sloRuleList[0].children = updatedList;
-                self.model.model().attributes.sloRuleDetails.reset();
+                retainingPreviousRecords(updatedList, 'network', deleteUUID);
             }
         }
     };
@@ -228,7 +274,7 @@ define([
                 });
                 var updatedList = self.sloRuleList[1].children.concat(secGrpRule);
                 self.sloRuleList[1].children = updatedList;
-                self.model.model().attributes.sloRuleDetails.reset();
+                retainingPreviousRecords(updatedList, 'sgp', []);
             }else if(e.added.length > 0){
                 var existingList = [];
                 _.each(e.added, function(obj) {
@@ -254,8 +300,9 @@ define([
                         ruleList = getValueByJsonPath(secGrp, ctwc.SERVICE_GRP_RULE, []);
                     }
                 });
-                var updatedList = self.sloRuleList[1].children;
+                var updatedList = self.sloRuleList[1].children, deleteUUID = [];
                 _.each(ruleList, function(rule) {
+                    deleteUUID.push(rule.rule_uuid);
                     _.each(updatedList, function(list, k) {
                         if(list !== undefined){
                             var ruleUuid = list.id.split(';')[0];
@@ -266,7 +313,7 @@ define([
                     });
                 });
                 self.sloRuleList[1].children = updatedList;
-                self.model.model().attributes.sloRuleDetails.reset();
+                retainingPreviousRecords(updatedList, 'sgp', deleteUUID);
             }
         }
     };
@@ -308,12 +355,12 @@ define([
                                             elementId: 'network_policy_refs',
                                             view: 'FormMultiselectView',
                                             viewConfig: {
-                                                label: 'Network Policy (s)',
+                                                label: 'Network Policy(s)',
                                                 path: 'network_policy_refs',
                                                 class: 'col-xs-6',
                                                 dataBindValue: 'network_policy_refs',
                                                 elementConfig: {
-                                                    placeholder: 'Select Network Policy (s)',
+                                                    placeholder: 'Select Network Policy(s)',
                                                     dataTextField: "text",
                                                     dataValueField: "id",
                                                     change : onNetworkPolicyChanged,
@@ -330,12 +377,12 @@ define([
                                            elementId: 'security_group_refs',
                                            view: 'FormMultiselectView',
                                            viewConfig: {
-                                               label: 'Security Group (s)',
+                                               label: 'Security Group(s)',
                                                path: 'security_group_refs',
                                                class: 'col-xs-6',
                                                dataBindValue: 'security_group_refs',
                                                elementConfig: {
-                                                   placeholder: 'Select Security Group (s)',
+                                                   placeholder: 'Select Security Group(s)',
                                                    dataTextField: "text",
                                                    dataValueField: "id",
                                                    change : onSecurityGroupChanged,
