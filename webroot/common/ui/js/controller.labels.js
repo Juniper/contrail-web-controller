@@ -857,6 +857,7 @@ define([
         this.TITLE_SERVICE_GROUP_MULTI_DELETE = 'Delete Service Group (s)';
         this.TITLE_SERVICE_GROUP_DELETE = 'Delete Service Group';
         this.FIREWALL_POLICY_ANY = 'any';
+        this.TITLE_ASSOCIATED_POLICY = 'Associated Firewall Policies';
 
         /* RBAC labels */
         this.TITLE_RBAC = 'API Access';

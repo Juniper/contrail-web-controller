@@ -298,36 +298,42 @@ define([
                               field: 'action_list.simple_action',
                               width: 70,
                               name: 'Action',
+                              sortable: false,
                               formatter: fwRuleFormatter.actionFormatter
                            }, {
                                id: 'service',
                                field: 'service',
                                width: 140,
                                name: 'Services',
+                               sortable: false,
                                formatter: fwRuleFormatter.serviceFormatter
                            }, {
                                id: 'endpoint_1',
                                field: 'endpoint_1',
                                width: 240,
                                name: 'End Point 1',
+                               sortable: false,
                                formatter: fwRuleFormatter.endPoint1Formatter
                            }, {
                                id: 'direction',
                                field: 'direction',
                                width: 60,
                                name: 'Dir',
+                               sortable: false,
                                formatter: fwRuleFormatter.dirFormatter
                            }, {
                                id: 'endpoint_2',
                                field: 'endpoint_2',
                                width: 240,
                                name: 'End Point 2',
+                               sortable: false,
                                formatter: fwRuleFormatter.endPoint2Formatter
                            }, {
                                id: 'match_tags',
                                field: 'match_tags',
                                width: 100,
                                name: 'Match Tags',
+                               sortable: false,
                                formatter: fwRuleFormatter.matchFormatter
                            }/*, {
                                id: 'action_list.apply_service',

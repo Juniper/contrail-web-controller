@@ -688,8 +688,7 @@ form h5.margin-0-0-10~.section-content {
     background: linear-gradient(#f7fdff, white); /* Standard syntax (must be last) */
 }
 #aps-main-back-button{
-    margin-right:15px;
-    margin-top:15px;
+    margin: 15px 15px 0 15px;
 }
 #aps-landing-container{
     background:linear-gradient(#f7fdff,#fff);
@@ -697,16 +696,24 @@ form h5.margin-0-0-10~.section-content {
     height:500px;
     position: relative;
 }
+.overlay-background{
+    position:absolute;
+    background:#e8e8e8;
+    opacity:0.2;
+    height:100%;
+    width:100%;
+    top:0;
+    z-index:12;
+    cursor:auto;
+}
 #aps-overlay-container{
     border-left: 1px solid #e5e5e5;
     position: absolute;
     width: 70%;
-    z-index: 5;
+    z-index: 16;
     right: 0;
     top: 0;
     background:#fff;
-    -webkit-box-shadow: -4px 5px 5px -4px rgba(0,0,0,0.25);-moz-box-shadow: -4px 5px 5px -4px rgba(0,0,0,0.25);
-    box-shadow: -4px 5px 5px -4px rgba(0,0,0,0.25);
 }
 #aps-gird-container{
 	height: 460px;
@@ -715,10 +722,10 @@ form h5.margin-0-0-10~.section-content {
 }
 #aps-overlay-container .ellipsis > li > a{
     font-size: 12px;
-    color:#3182BD;
+    color:#3182BD !important;
  }
-#aps-overlay-container .ellipsis > li > a:hover, #aps-overlay-container .ellipsis > li > a:visited{
-    color:#ffffff;
+#aps-overlay-container .ellipsis > li > a:hover{
+    color:#fff !important;
 }
 #aps-overlay-container .ellipsis{
   padding:5px;
@@ -726,6 +733,21 @@ form h5.margin-0-0-10~.section-content {
   border:#D8E2E5 solid 2px;
   left:-150px!important;
   top:30px!important;
+}
+#aps-overlay-container .dropdown{
+    position:absolute;
+    right:30px;
+    z-index:10;
+}
+#aps-overlay-container .close-btn-container{
+    position:absolute;
+    right:0px;
+    z-index:10;
+}
+div#aps-landing-container:not[style='display: block;'] #fw_security_policy_as_grid_view-header div.widget-toolbar:nth-child(2),
+div#aps-landing-container:not[style='display: block;'] #fw_security_policy_service_gp_grid_view-header div.widget-toolbar:nth-child(2),
+div#aps-landing-container:not[style='display: block;'] #security-policy-tag-grid-header div.widget-toolbar:nth-child(2){
+    margin-right: 60px;
 }
 #aps-overlay-container .dropdown-toggle{
     margin-top:12px;
@@ -756,6 +778,7 @@ form h5.margin-0-0-10~.section-content {
     font-weight: normal;
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     margin: 5px 0px 0px 2px;
+    padding:5px;
 }
 #gird-details-container{
 	padding-top: 10px;
@@ -785,3 +808,136 @@ right:12px;}
 #aps-landing-container .wizard > .content > .body ul{
     list-style:none !important;
 }
+#sloRuleDetails table thead {
+	background: #fafafa;
+}
+#sloRuleDetails table{
+	margin-top: 3px;
+}
+#security_logging_object_refs .select2-search-field input {
+    width: 100% !important;
+}
+#fw-wz-policy-grid #btnAddPolicy{
+    margin-top:0px !important;
+}
+.create-policyset-btn{
+    border:1px solid blue;
+    width:100px;
+    color:#fff;
+    background-color:blue;
+}
+#new-application-policy-set-grid-header [id^=btnAddPolicy]{
+    padding:0px 8px;
+}
+#new-application-policy-set-grid-header [id^=btnAddPolicy] span{
+    font-size:12px;
+    padding-left:5px;
+}
+#new-application-policy-set-grid-header .widget-toolbar:nth-child(n+4):before{
+    border: none!important;
+}
+#new-application-policy-set-grid-header .widget-toolbar:nth-child(n+5){
+    padding-right:0px;
+    padding-left:5px;
+}
+#new-application-policy-set-grid-header [id^=btnAddPolicy].btn:focus{
+  border-color:#2e73a0;
+}
+#new-application-policy-set-grid-header a[id^=btnAddPolicy],
+#new-application-policy-set-grid-header a[id^=btnAddPolicy]:hover {
+    background-color: #599AC9;
+    border-color: #599AC9;
+    color:#fff;
+}
+#new-application-policy-set-grid-header .widget-toolbar:nth-child(n+5){
+    line-height:32px;
+}
+#new-application-policy-set-grid-header .widget-toolbar:nth-child(n+5) a{
+      line-height:20px;
+}
+#fw_security_policy_global_adressgroup,
+#fw_security_policy_service_gp_grid_view,
+#security-policy-tag, #fw-policy-grid-id{
+    padding:0px 10px;
+}
+div#aps-landing-container[style='display: block;'] #fw_security_policy_global_adressgroup,
+div#aps-landing-container[style='display: block;'] #fw_security_policy_service_gp_grid_view,
+div#aps-landing-container[style='display: block;'] #security-policy-tag, #fw-policy-grid-id{
+    padding:0px 15px;
+}
+div#aps-landing-container[style='display: block;'], div#aps-landing-container[style='display: block;'] #aps-main-container{
+    background:#ffffff;
+}
+#aps-main-container .wizard > .steps ul li.completed .number:before{
+    content:none !important;
+}
+.addNewFirewall_policy_count{
+    float:right;
+    margin-right:10px;
+}
+#fw_security_policy_as_grid_view .grid-body .grid-canvas, #security-policy-tag .grid-body .grid-canvas, #fw_security_policy_service_gp_grid_view .grid-body .grid-canvas {
+    max-height: 330px;
+    overflow-y: auto!important;
+}
+#new-application-policy-set-grid .grid-body .grid-canvas{
+    max-height:256px;
+    overflow-y:auto!important;
+    } 
+#configure-applicationpolicyset{
+    overflow-y: hidden !important;
+}
+#security-policy-tag-grid .slick-viewport, #fw_security_policy_as_grid_view .slick-viewport,
+#fw_security_policy_service_gp_grid_view .slick-viewport{
+    overflow-x: hidden !important;
+}
+#applicationpolicyset_policy_wizard.wizard > .steps ul {
+    width: 32%;
+    margin-left: -10px;
+    padding: 10px;
+}
+#new-application-policy-set-grid .slick-viewport{
+    overflow-x : hidden !important;
+}
+.alert.alert-info.grid-info.grid-check-all-info {
+    display: none;
+}
+.confirmation-popover {
+    position: absolute;
+    z-index: 13;
+    right: 30px;
+    background: white;
+    padding: 5px;
+    border: #D8E2E5 solid 2px;
+}
+.confirmation-popover a{
+    color: #3794c7;
+}
+.confirm-message{
+    font-size: 13px;
+    font-weight: 600;
+    color: #3794c7;
+    padding: 5px;
+    margin-right: 10px;
+}
+.confirm-actions{
+    float:right;
+}
+.confirm-actions a {
+    padding: 4px;
+    margin: 0px !important;
+}
+.confirm-actions a.cancelWizardDeletePopup{
+    color:#CECECE
+}
+.grid-header .confirmation-popover {
+    right: 135px;
+}
+#configure-applicationpolicyset .contrail-editable-grid-table tr td .custom-combobox.input-append {
+    margin-bottom: -3px;
+}
+#aps-overlay-container #fw-wz-policy-grid .grid-body .grid-canvas {
+    overflow: auto!important;
+    max-height: 306px;
+}
+#aps-overlay-container .slick-viewport .grid-canvas{
+    width:100%!important;}

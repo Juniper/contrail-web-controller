@@ -68,8 +68,7 @@ define([
                                     },
                                     isGlobal: false,
                                     projectSelectedValueData: viewConfig.projectSelectedValueData,
-                                    hashParams:viewConfig.hashParams,
-                                    isWizard: true
+                                    hashParams:viewConfig.hashParams
                                 }
                             }
                         ]

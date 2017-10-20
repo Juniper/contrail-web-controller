@@ -136,7 +136,33 @@
               		return projectAddressGrp;
               	}
              };
-             
+
+             this.filterServiceGroupByProjects = function(serviceGroup, global){
+                 var filtedGlobalServiceGrp = [], filteredProjectServiceGrp = [], isGlobal;
+                 if(global !== undefined){
+                    isGlobal = global;
+                 }else{
+                    isGlobal = checkIsGlobal();
+                 }
+                 var projectName = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
+                 for(var i = 0; i < serviceGroup.length; i++){
+                    var fq_name =  serviceGroup[i]['service-group']['fq_name'];
+                    if(fq_name[0] === 'default-policy-management'){
+                        filtedGlobalServiceGrp.push(serviceGroup[i]);
+                    }else if(fq_name.length > 1){
+                        if(fq_name.indexOf(projectName) === 1){
+                            filteredProjectServiceGrp.push(serviceGroup[i]);
+                        }
+                    }
+                }
+                if(isGlobal){
+                    return filtedGlobalServiceGrp;
+                }else{
+                    var projectServiceGrp = filteredProjectServiceGrp.concat(filtedGlobalServiceGrp);
+                    return projectServiceGrp;
+                }
+             };
+
              this.parseTags = function(tags) {
                  var tagGroupData = {},
                      applicationMap = { Application: [{ text: "Select Application",

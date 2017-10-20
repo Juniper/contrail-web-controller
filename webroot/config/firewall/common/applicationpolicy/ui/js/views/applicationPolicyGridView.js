@@ -147,42 +147,51 @@ define([
         return gridElementConfig;
     };
     function getRowActionConfig(dc) {
-        var viewConfig = this,
-            appPolicySetName = getValueByJsonPath(dc, 'name', '', false),
-            rowActionConfig = [
-            ctwgc.getEditConfig('Edit', function(rowIndex) {
-                dataView = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView;
-                applicationPolicyEditView.model = new ApplicationPolicyModel(dataView.getItem(rowIndex));
-                applicationPolicyEditView.renderAddEditApplicationPolicy({
-                                      "title": 'Edit Application Policy Set',
-                                      'mode':'edit',
-                                      'isGlobal': viewConfig.isGlobal,
-                                       callback: function () {
-                                          dataView.refreshData();
-                }});
-            })];
-        if(appPolicySetName !== ctwc.GLOBAL_APPLICATION_POLICY_SET) {
-            var deleteActionConfig = ctwgc.getDeleteConfig('Delete',
-                function(rowIndex) {
-                    var dataItem =
-                        $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).
-                            data('contrailGrid')._dataView.getItem(rowIndex);
-                    applicationPolicyEditView.model = new ApplicationPolicyModel(dataItem);
-                    applicationPolicyEditView.renderDeleteApplicationPolicy ({
-                         "title": ctwl.TITLE_APP_POLICY_SET_DELETE,
-                         selectedGridData: [dataItem],
-                         callback: function () {
-                             var dataView =
-                                 $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).
-                                       data("contrailGrid")._dataView;
-                             dataView.refreshData();
-                 }});
-             })
-            rowActionConfig.push(deleteActionConfig);
+        if(cowu.isAdmin() === false && dc['is_global'] === true){
+            return false;
         }
-        return rowActionConfig;
+        else{
+            var viewConfig = this,
+                appPolicySetName = getValueByJsonPath(dc, 'name', '', false),
+                rowActionConfig = [
+                ctwgc.getEditConfig('Edit', function(rowIndex) {
+                    dataView = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView;
+                    applicationPolicyEditView.model = new ApplicationPolicyModel(dataView.getItem(rowIndex));
+                    applicationPolicyEditView.renderAddEditApplicationPolicy({
+                                          "title": 'Edit Application Policy Set',
+                                          'mode':'edit',
+                                          'isGlobal': viewConfig.isGlobal,
+                                           callback: function () {
+                                              dataView.refreshData();
+                    }});
+                })];
+            if(appPolicySetName !== ctwc.GLOBAL_APPLICATION_POLICY_SET) {
+                var deleteActionConfig = ctwgc.getDeleteConfig('Delete',
+                    function(rowIndex) {
+                        var dataItem =
+                            $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).
+                                data('contrailGrid')._dataView.getItem(rowIndex);
+                        applicationPolicyEditView.model = new ApplicationPolicyModel(dataItem);
+                        applicationPolicyEditView.renderDeleteApplicationPolicy ({
+                             "title": ctwl.TITLE_APP_POLICY_SET_DELETE,
+                             selectedGridData: [dataItem],
+                             callback: function () {
+                                 var dataView =
+                                     $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).
+                                           data("contrailGrid")._dataView;
+                                 dataView.refreshData();
+                     }});
+                 })
+                rowActionConfig.push(deleteActionConfig);
+            }
+            return rowActionConfig;
+        }
     }
     function getHeaderActionConfig(viewConfig) {
+        if(cowu.isAdmin() === false && viewConfig.isGlobal === true){
+            return false;
+        }
+        else{
     	var headerActionConfig = [
     		{
                 "type" : "link",
@@ -224,6 +233,7 @@ define([
                 }
             }
         ];
+    }
         return headerActionConfig;
     }
     function getApplicationPolicyDetailsTemplateConfig() {

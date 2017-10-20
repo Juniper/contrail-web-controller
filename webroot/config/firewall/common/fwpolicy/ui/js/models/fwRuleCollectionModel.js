@@ -54,10 +54,8 @@ define([
             'mirror':'',
             'mirrorToRoutingInstance': "",
             'mirrorToNHMode': "dynamic",
-            'user_created_analyzer_name': null,
             'user_created_juniper_header': "enabled",
             'user_created_mirroring_optns': "analyzer_instance",
-            'qos':null,
             'rule_uuid':'',
             'analyzer_name':'',
             'rule_sequence':{
@@ -98,113 +96,46 @@ define([
                 simpleAction = getValueByJsonPath(modelConfig,
                                "action_list;simple_action", "");
             if (simpleAction != "") {
-                simpleAction = simpleAction.toUpperCase();
-                modelConfig["action_list"]["simple_action"] = simpleAction;
                 modelConfig["simple_action"] = simpleAction
             }
-            var protocol = getValueByJsonPath(modelConfig, "protocol", "");
-            if (protocol != "") {
-                modelConfig["protocol"] = (protocol).toUpperCase();
-            }
-            var applyService = getValueByJsonPath(modelConfig,
-                           "action_list;apply_service", []);
-            if (applyService.length > 0) {
-                modelConfig["service_instance"] =
-                    applyService.join(cowc.DROPDOWN_VALUE_SEPARATOR);
-                modelConfig["apply_service_check"] = true;
-            } else {
-                modelConfig["service_instance"] = null;
-                modelConfig["apply_service_check"] = false;
-            }
-            var log = getValueByJsonPath(modelConfig, "action_list;log", "");
-            if (log != "") {
-                modelConfig["log_checked"] = log;
-            }
-
-            //mirroring
-            var mirrorAnalyzerName = getValueByJsonPath(modelConfig,
-                          "action_list;mirror_to;analyzer_name", "", false);
-            if(mirrorAnalyzerName) {
-                var analyzerIP = getValueByJsonPath(modelConfig,
-                        "action_list;mirror_to;analyzer_ip_address", "", false),
-                    vtepIP = getValueByJsonPath(modelConfig,
-                        "action_list;mirror_to;static_nh_header;vtep_dst_ip_address", "", false),
-                    nicAssistedMirroring = getValueByJsonPath(modelConfig,
-                        "action_list;mirror_to;nic_assisted_mirroring",
-                        false, false), routingInst, nhMode, jnprHeader,
-                    analyzerName = getValueByJsonPath(modelConfig,
-                            "action_list;mirror_to;analyzer_name", null, false);
-                modelConfig['mirror_to_check'] = true;
-                if(nicAssistedMirroring === true) {
-                    modelConfig["user_created_mirroring_optns"] = ctwc.NIC_ASSISTED;
-                    modelConfig["user_created_analyzer_name"] = analyzerName;
-                } else if(analyzerIP === "" && vtepIP === "") {
-                    modelConfig["user_created_mirroring_optns"] = ctwc.ANALYZER_INSTANCE;
-                } else {
-                    modelConfig["user_created_mirroring_optns"] = ctwc.ANALYZER_IP;
-                    modelConfig["user_created_analyzer_name"] = analyzerName;
-                    routingInst =  getValueByJsonPath(modelConfig,
-                            "action_list;mirror_to;routing_instance", "", false),
-                    nhMode = getValueByJsonPath(modelConfig,
-                            "action_list;mirror_to;nh_mode", ctwc.MIRROR_DYNAMIC, false),
-                    jnprHeader = getValueByJsonPath(modelConfig,
-                                "action_list;mirror_to;juniper_header", true, false);
-                    modelConfig["user_created_juniper_header"] =
-                            jnprHeader === true ? "enabled" : "disabled";
-                    if (routingInst != "") {
-                        modelConfig['mirrorToRoutingInstance'] = routingInst;
-                    } else {
-                        modelConfig['mirrorToRoutingInstance'] = null;
+            var direction = getValueByJsonPath(modelConfig, "direction", "");
+            if(direction != ''){
+                var directionList = direction.split(';');
+                if(directionList.length == 3){
+                    modelConfig["direction"] = '<>';
+                }else if(directionList.length == 2){
+                    if(directionList[0] == '&lt'){
+                        modelConfig["direction"] = '<';
+                    }else if(directionList[0] == '&gt'){
+                        modelConfig["direction"] = '>';
                     }
-                    modelConfig["mirrorToNHMode"] = nhMode;
                 }
-            } else {
-                modelConfig['mirror_to_check'] = false;
             }
-
-            //qos
-            var qos = getValueByJsonPath(modelConfig,
-                    "action_list;qos_action", "");
-            if(qos) {
-                modelConfig["qos"] = qos;
-                modelConfig["qos_action_check"] = true;
-            } else {
-                modelConfig["qos"] = "";
-                modelConfig["qos_action_check"] = false;
+            var tags = getValueByJsonPath(modelConfig, "match_tags;tag_list", []);
+            if(tags.length > 0){
+                modelConfig['match_tags'] = tags;
+            }else{
+                modelConfig['match_tags'] = [] ;
             }
-
-            if (modelConfig["src_addresses"][0] != null) {
-                modelConfig["src_addresses_arr"] =
-                           modelConfig["src_addresses"][0];
-            } else {
-                modelConfig["src_addresses"][0] =
-                           modelConfig["src_addresses_arr"];
+            var serviceGrpRef = getValueByJsonPath(modelConfig,"service_group_refs",[]);
+            if(serviceGrpRef.length > 0){
+                var to = serviceGrpRef[0].to;
+                modelConfig["user_created_service"] = to[to.length - 1];
+            }else{
+                modelConfig["user_created_service"] = '';
             }
-            var srcAddress = getValueByJsonPath(modelConfig, "src_addresses;0","");
-            if (srcAddress != "") {
-                var addressObj = self.getAddress(srcAddress, domain, project);
-                modelConfig["src_address"] =  addressObj.addres;
-                modelConfig["src_addresses"] = addressObj.address;
+            var endpoint1 = getValueByJsonPath(modelConfig, "endpoint_1");
+            if(endpoint1 === ''){
+                modelConfig['endpoint_1'] = '';
+            }else{
+                modelConfig['endpoint_1'] = self.getEndpointVal(endpoint1, modelConfig);
             }
-
-            if (modelConfig["dst_addresses"][0] != null) {
-                modelConfig["dst_addresses_arr"] = modelConfig["dst_addresses"][0];
-            } else {
-                modelConfig["dst_addresses"][0] = modelConfig["dst_addresses_arr"];
+            var endpoint2 = getValueByJsonPath(modelConfig, "endpoint_2");
+            if(endpoint2 === ''){
+                modelConfig['endpoint_2'] = '';
+            }else{
+                modelConfig['endpoint_2'] = self.getEndpointVal(endpoint2, modelConfig);
             }
-            var dstAddress = getValueByJsonPath(modelConfig, "dst_addresses;0","");
-            if (dstAddress != "") {
-                var addressObj = self.getAddress(dstAddress, domain, project);
-                modelConfig["dst_address"] =  addressObj.addres;
-                modelConfig["dst_addresses"] = addressObj.address;
-            }
-
-            var src_ports_text = "";
-            src_ports_text = this.formatPortAddress(modelConfig["src_ports"]);
-            modelConfig["src_ports_text"] = src_ports_text;
-            var dst_ports_text = "";
-            dst_ports_text = this.formatPortAddress(modelConfig["dst_ports"]);
-            modelConfig["dst_ports_text"] = dst_ports_text;
             return modelConfig;
         },
         validateAttr: function (attributePath, validation, data) {
@@ -216,6 +147,35 @@ define([
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] =
                                 (isValid == true) ? false : isValid;
             errors.set(attrErrorObj);
+        },
+        getEndpointVal : function(endpoint, modelConfig){
+            var endpointArr = [];
+
+            if(endpoint.tags && endpoint.tags.length > 0){
+                _.each(endpoint.tags, function(tag){
+                    var grpName = tag ? tag.split(ctwc.TAG_SEPARATOR)[0]: '';
+                    grpName = grpName.indexOf('global:') != -1 ? grpName.split(':')[1] : grpName;
+                    var val = tag + cowc.DROPDOWN_VALUE_SEPARATOR + cowl.getFirstCharUpperCase(grpName);
+                    endpointArr.push(val);
+                });
+            } else if(endpoint.virtual_network) {
+                var vn = endpoint.virtual_network +
+                     cowc.DROPDOWN_VALUE_SEPARATOR + 'virtual_network';
+                endpointArr.push(vn);
+            } else if(endpoint.address_group) {
+                var addressGrp = endpoint.address_group +
+                cowc.DROPDOWN_VALUE_SEPARATOR + 'address_group';
+                endpointArr.push(addressGrp);
+            }else if(endpoint.any){
+                var any = 'any'+
+                cowc.DROPDOWN_VALUE_SEPARATOR + 'any_workload';
+                endpointArr.push(any);
+            }
+            if(endpointArr.length > 0){
+                return endpointArr.join(',');
+            }else{
+                return '';
+            }
         },
         validations: {
             ruleValidation: {

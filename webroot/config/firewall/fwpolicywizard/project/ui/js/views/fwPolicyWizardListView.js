@@ -14,16 +14,6 @@ define([
                 viewConfig = this.attributes.viewConfig, listModelConfig,
                 currentProject = viewConfig["projectSelectedValueData"];
             if(!viewConfig.isGlobal) {
-                var ajaxConfig = {};
-                ajaxConfig.type = "POST";
-                ajaxConfig.url = "/api/tenants/config/get-config-details"
-                ajaxConfig.data  = JSON.stringify(
-                        {data: [{type: 'firewall-policys',
-                            fields: ['application_policy_set_back_refs'],
-                            parent_id: currentProject.value}]});
-                contrail.ajaxHandler(ajaxConfig, function () {
-                }, function (response) {
-                    self.fwProjectPolicyArray = response;
                     listModelConfig = {
                             remote: {
                                 ajaxConfig: {
@@ -34,26 +24,14 @@ define([
                                             parent_id: currentProject.value}]})
                                 },
                                 dataParser: function(response){
-                                    return self.parseApplicationPolicyData(response,self.fwProjectPolicyArray);
+                                    return self.parseApplicationPolicyData(response);
                                 }
                             }
                         };
                     contrailListModel = new ContrailListModel(listModelConfig);
                     self.renderView4Config(self.$el,
                            contrailListModel, getAppPolicyGridViewConfig(viewConfig));
-                },
-                function (error) {
-                   console.log(error);
-               });
             } else {
-                var ajaxConfig = {};
-                ajaxConfig.type = "POST";
-                ajaxConfig.url = "/api/tenants/config/get-config-details"
-                ajaxConfig.data  = JSON.stringify(
-                        {data: [{type: 'firewall-policys', fields: ['application_policy_set_back_refs']}]});
-                contrail.ajaxHandler(ajaxConfig, function () {
-                }, function (response) {
-                    self.fwGlobalPolicyArray = response;
                     listModelConfig = {
                             remote: {
                                 ajaxConfig: {
@@ -65,47 +43,17 @@ define([
                                                 parent_fq_name_str:"default-policy-management"}]})
                                 },
                                 dataParser: function(response){
-                                    return self.parseApplicationPolicyData(response,self.fwGlobalPolicyArray);
+                                    return self.parseApplicationPolicyData(response);
                                 }
                             }
                         };
                     contrailListModel = new ContrailListModel(listModelConfig);
                     self.renderView4Config(self.$el,
                            contrailListModel, getAppPolicyGridViewConfig(viewConfig));
-                },
-                function (error) {
-                   console.log(error);
-               });
             }
         },
-        parseApplicationPolicyData : function(response,data){
+        parseApplicationPolicyData : function(response){
             var dataItems = [];
-            var count = 0;
-            var countNobackRefsArray = [];
-            var firewallPoliciesData =  getValueByJsonPath(data, "0;firewall-policys", []);
-            var fwPolicyArrayLen = firewallPoliciesData.length;
-            if(getValueByJsonPath(data, "0;firewall-policys")){
-                firewallPolicyrefs = getValueByJsonPath(data, "0;firewall-policys", []);
-                _.each(firewallPolicyrefs, function(val){
-                        var appPolicyBackRefsArray = getValueByJsonPath(val, "firewall-policy;application_policy_set_back_refs", []);
-                        if(appPolicyBackRefsArray.length === 0){
-                            countNobackRefsArray.push(count++);
-                        }
-                });
-            }
-            dataItems.push({
-                "name": ctwc.STANDALONE_FIREWALL_POLICIES,
-                "description": "-",
-                "lastupdated":"-",
-                "firewall_policy_refs": countNobackRefsArray
-             });
-            dataItems.push({
-                "name": ctwc.ALL_FIREWALL_POLICIES,
-                "description": "-",
-                "lastupdated":"-",
-                "firewall_policy_refs": firewallPoliciesData
-            });
-
             if(getValueByJsonPath(response, "0;application-policy-sets")){
                 appPolicyData = getValueByJsonPath(response, "0;application-policy-sets", []);
                 _.each(appPolicyData, function(val){
@@ -146,6 +94,5 @@ define([
             }
         }
     };
-
     return fwPolicyWizardListView;
 });
