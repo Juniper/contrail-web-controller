@@ -23,6 +23,7 @@ define(
                 combineEmptyTags: false,
                 matchArcsColorByCategory: false,
                 enableSessionDrilldown: false,
+                sliceByProjectOnly: true,
                 // Provide colours list for top level arcs
                 topLevelArcColors: cowc['TRAFFIC_GROUP_COLOR_LEVEL1'].slice(0,1),
                 filterdData: null,
@@ -336,6 +337,7 @@ define(
                         data = self.handleUntaggedEndpoints(self.filterdData);
                     $('#traffic-groups-link-info').html('');
                     $('.tgChartLegend, .tgCirclesLegend').hide();
+                    self.showHideLegendInfo(data);
                     self.renderView4Config($('#traffic-groups-grid-view'), null, {
                         elementId: 'traffic-groups-grid-view',
                         view: "TrafficGroupsEPSGridView",
@@ -356,6 +358,8 @@ define(
                         dstLabels = [],
                         selectedTagTypes = this.getCategorizationObj(),
                         level = selectedTagTypes.length,
+                        sliceByProject =
+                            this.getSettingValue('sliceByProject', false);
                         self = this;
                     _.each(selectedTagTypes, function(tags, idx) {
                         if(idx < level) {
@@ -375,6 +379,15 @@ define(
                             dstHierarchy.push(dstNames.join('-'));
                         }
                     });
+                    if(sliceByProject) {
+                        var vn = d['vn'] ? self.formatVN(d['vn'], self.sliceByProjectOnly) : ' ',
+                            remoteVN = d['eps.traffic.remote_vn'] ?
+                                self.formatVN(d['eps.traffic.remote_vn'], self.sliceByProjectOnly) : ' '
+                        srcHierarchy[0] += vn;
+                        dstHierarchy[0] += remoteVN;
+                        srcLabels[0].push(vn);
+                        dstLabels[0].push(remoteVN);
+                    }
                     return {
                         srcHierarchy: srcHierarchy,
                         dstHierarchy: dstHierarchy,
@@ -651,41 +664,36 @@ define(
                     self.updateTGFilterSec();
                 },
                 chartRender: function() {
+                    var data = this.filterdData ? JSON.parse(JSON.stringify(this.filterdData))
+                             : this.viewInst.model.getItems(),
+                        data = this.handleUntaggedEndpoints(data);
                     if($('#traffic-groups-radial-chart:visible').length) {
-                        var self = this;
-                        var data = self.filterdData ? JSON.parse(JSON.stringify(self.filterdData))
-                                 : self.viewInst.model.getItems(),
-                            data = self.handleUntaggedEndpoints(data);
                         if(data && data.length == 0) {
                             $('#traffic-groups-radial-chart').empty();
                             var noData = "<h4 class='noStatsMsg'>"
                                 + ctwl.TRAFFIC_GROUPS_NO_DATA + "</h4>"
                             $('#traffic-groups-radial-chart').html(noData);
                         } else {
-                            self.viewInst.render(data, self.chartInfo.chartView);
+                            this.viewInst.render(data, this.chartInfo.chartView);
                         }
                         $('.tgChartLegend, .tgCirclesLegend').show();
                     } else {
                         this.showEndPointStatsInGrid();
                     }
                     this.updateCircleLegends();
-                    if(this.filterdData.length) {
+                    this.showHideLegendInfo(data);
+                    $('#traffic-groups-options').removeClass('hidden');
+                },
+                showHideLegendInfo: function(data) {
+                    if(data && data.length) {
                         $('#traffic-groups-legend-info').removeClass('hidden');
                     } else {
                         $('#traffic-groups-legend-info').addClass('hidden');
                     }
-                    $('#traffic-groups-options').removeClass('hidden');
                 },
                 handleUntaggedEndpoints: function (data) {
-                    var curSettings = localStorage
-                        .getItem('container_' + layoutHandler.getURLHashObj().p
-                                   + '_settings'),
-                        showUntagged = true,
+                    var showUntagged = this.getSettingValue('untaggedEndpoints', false),
                         tgData = data ? data.slice(0) : data;
-                    if(curSettings) {
-                        curSettings = JSON.parse(curSettings);
-                        showUntagged = curSettings.untaggedEndpoints;
-                    }
                     if(!showUntagged && tgData) {
                         tgData = _.filter(tgData, function(session) {
                             var remoteVN = session['eps.traffic.remote_vn'];
@@ -818,13 +826,18 @@ define(
                 isRecordMatched: function(names, record, data) {
                     var arcType = data.arcType ? '_' + data.arcType : '',
                         isMatched = true,
-                        selectedTagTypes = tgView.getCategorizationObj();
+                        selectedTagTypes = tgView.getCategorizationObj(),
+                        sliceByProject =
+                            tgView.getSettingValue('sliceByProject', false);
                     for(var i = 0; i < names.length; i++) {
                         var tagTypes = selectedTagTypes[i].split('-'),
                             tagName =  _.compact(_.map(tagTypes, function(tag) {
                                             return record[tag] ? record[tag]
                                             : tgView.getTagLabel(tag, record)
                                     })).join('-');
+                       if(i == 0 && sliceByProject) {
+                        tagName += tgView.formatVN(record['vn'], tgView.sliceByProjectOnly);
+                       }
                        tagName += arcType;
                        isMatched = isMatched && (tagName == names[i]);
                     }
@@ -881,9 +894,9 @@ define(
                     var newTimeRange = tgView.getTGSettings().time_range,
                         newFromTime = tgView.getTGSettings().from_time,
                         newToTime = tgView.getTGSettings().to_time;
-                    if(oldTimeRange != newTimeRange || (oldTimeRange == -1 && (
-                              oldFromTime != newFromTime ||
-                              oldToTime != newToTime))) {
+                    if(oldTimeRange != newTimeRange || ((oldTimeRange == -1  ||
+                        oldTimeRange == -2) && (oldFromTime != newFromTime ||
+                        oldToTime != newToTime))) {
                         tgView.renderTrafficChart();
                     } else {
                         tgView.updateContainerSettings('', false);
@@ -893,13 +906,19 @@ define(
                     var trafficChartLegendTmpl =
                         contrail.getTemplate4Id('traffic-chart-legend-template'),
                         outerLegends = [],
-                        innerLegends = [];
+                        innerLegends = [],
+                        sliceByProject =
+                            this.getSettingValue('sliceByProject', false);
                     _.map(this.getCategorizationObj()[0].split('-'), function(tag) {
                         outerLegends.push(_.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
                             function(obj) {
                             return obj.value == tag
                         }).text);
                     });
+                    if(sliceByProject) {
+                        outerLegends.push(this.sliceByProjectOnly ? 'Project'
+                                            : 'VN (Project)');
+                    }
                     if(this.getCategorizationObj()[1]) {
                         _.map(this.getCategorizationObj()[1].split('-'), function(tag) {
                             innerLegends.push(_.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
@@ -1037,16 +1056,9 @@ define(
                     };
                 },
                 getCategorizationObj: function() {
-                    var curSettings = localStorage
-                        .getItem('container_' + layoutHandler.getURLHashObj().p
-                                   + '_settings'),
-                        categorization = [this.getTGSettings().groupByTagType
+                    var categorization = [this.getTGSettings().groupByTagType
                                             .join('-')],
-                        showInnerCircle = true;
-                    if(curSettings) {
-                        curSettings = JSON.parse(curSettings);
-                        showInnerCircle = curSettings.showInnerCircle;
-                    }
+                        showInnerCircle = this.getSettingValue('showInnerCircle', true);
                     if(this.getTGSettings().subGroupByTagType && showInnerCircle) {
                         categorization.push(this.getTGSettings()
                                         .subGroupByTagType.join('-'));
@@ -1055,9 +1067,10 @@ define(
                 },
                 updateStatsTimeSec: function() {
                     var fromTime = this.getTGSettings().time_range;
-                    if(fromTime == -1) {
+                    if(fromTime == -1 || fromTime == -2) {
+                        var toTime = (fromTime == -1) ?
+                            this.getTGSettings().to_time : 'now';
                         fromTime = this.getTGSettings().from_time;
-                        var toTime = this.getTGSettings().to_time
                         $(this.el).find('#statsFromOnly').addClass('hidden');
                         $(this.el).find('#statsFromTo').removeClass('hidden')
                         $(this.el).find('#statsFromTo .statsFromTime').text(fromTime);
@@ -1072,9 +1085,17 @@ define(
                         $(this.el).find('#statsFromTo').addClass('hidden');
                     }
                 },
-                formatVN: function(vnName) {
-                    return vnName ? vnName
-                            .replace(/([^:]*):([^:]*):([^:]*)/,'$3 ($2)') : '';
+                formatVN: function(value, sliceProjectOnly) {
+                    var vnName = '';
+                    if(value && value != cowc.UNKNOWN_VALUE) {
+                        if(sliceProjectOnly) {
+                            vnName = value.split(':')[1];
+                        } else {
+                            vnName = value
+                                .replace(/([^:]*):([^:]*):([^:]*)/,'$3 ($2)');
+                        }
+                    }
+                    return vnName;
                 },
                 updateRemoteIds: function (data) {
                     data = cowu.ifNull(data, []);
@@ -1107,6 +1128,17 @@ define(
                    $(this.el).find('svg g').empty();
                    $('#traffic-groups-grid-view').empty();
                 },
+                getSettingValue: function(option, defaultValue) {
+                    var curSettings = localStorage
+                        .getItem('container_' + layoutHandler.getURLHashObj().p
+                                   + '_settings'),
+                        selectedValue = defaultValue;
+                    if(curSettings) {
+                        curSettings = JSON.parse(curSettings);
+                        selectedValue = curSettings[option];
+                    }
+                    return selectedValue;
+                },
                 updateContainerSettings: function(newObj, isFreshData) {
                     var curSettings = localStorage
                         .getItem('container_' + layoutHandler.getURLHashObj().p
@@ -1120,7 +1152,8 @@ define(
                         }
                         if(typeof newObj.view_type != 'undefined' ||
                          typeof newObj.untaggedEndpoints != 'undefined'
-                         || typeof newObj.showInnerCircle != 'undefined' || !newObj) {
+                         || typeof newObj.showInnerCircle != 'undefined'
+                         || typeof newObj.sliceByProject != 'undefined' || !newObj) {
                             if(curSettings.view_type == 'grid-stats') {
                                 $('#traffic-groups-radial-chart').hide();
                                 $('#traffic-groups-grid-view').show();
@@ -1199,10 +1232,24 @@ define(
                                 columns: [{
                                     elementId: 'untaggedEndpoints',
                                     view: 'FormCheckboxView',
+                                    default: false,
                                     viewConfig: {
                                         label: 'Untagged Endpoints',
                                         path: 'untaggedEndpoints',
                                         dataBindValue: 'untaggedEndpoints',
+                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                        class: 'showicon col-xs-12'
+                                    }
+                                }]
+                            }, {
+                                columns: [{
+                                    elementId: 'sliceByProject',
+                                    view: 'FormCheckboxView',
+                                    default: false,
+                                    viewConfig: {
+                                        label: 'Slice By Project',
+                                        path: 'sliceByProject',
+                                        dataBindValue: 'sliceByProject',
                                         templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                         class: 'showicon col-xs-12'
                                     }
@@ -1214,13 +1261,15 @@ define(
                 getSelectedTime: function() {
                     var fromTime = this.getTGSettings().time_range,
                         toTime = 0;
-                    if(fromTime == -1) {
+                    if(fromTime == -1 || fromTime == -2) {
+                        if(fromTime == -1) {
+                            toTime = (new Date().getTime() - new Date(
+                                    this.getTGSettings().to_time).getTime());
+                            toTime = Math.round(toTime / (1000 * 60));
+                        }
                         fromTime = (new Date().getTime() - new Date(
-                                this.getTGSettings().from_time).getTime()),
-                        toTime = (new Date().getTime() - new Date(
-                                this.getTGSettings().to_time).getTime());
+                                this.getTGSettings().from_time).getTime());
                         fromTime = Math.round(fromTime / (1000 * 60));
-                        toTime = Math.round(toTime / (1000 * 60));
                     } else {
                         fromTime /= 60;
                     }
