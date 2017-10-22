@@ -194,33 +194,33 @@
                                   'global:' + data.name : data.name;
                           var txt = data.fq_name.length === 1 ?
                                   'global:' + data.tag_value : data.tag_value;
-                          if(data.tag_type === ctwc.APPLICATION_TAG_TYPE) {
+                          if(data.tag_type_name === ctwc.APPLICATION_TAG_TYPE) {
                               applicationMap['Application'].push({
                                   text: txt,
                                   value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Application",
                                   id: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Application",
                                   parent: 'Application'});
-                          } else if(data.tag_type === ctwc.TIER_TAG_TYPE) {
+                          } else if(data.tag_type_name === ctwc.TIER_TAG_TYPE) {
                               tierMap['Tier'].push({
                                   text: txt,
                                   value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Tier",
                                   id: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Tier",
                                   parent: 'Tier'});
 
-                          } else if(data.tag_type === ctwc.DEPLOYMENT_TAG_TYPE) {
+                          } else if(data.tag_type_name === ctwc.DEPLOYMENT_TAG_TYPE) {
                               deploymentMap['Deployment'].push({
                                   text: txt,
                                   value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Deployment",
                                   id: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Deployment",
                                   parent: 'Deployment'});
 
-                          } else if(data.tag_type === ctwc.SITE_TAG_TYPE) {
+                          } else if(data.tag_type_name === ctwc.SITE_TAG_TYPE) {
                               siteMap['Site'].push({
                                   text: txt,
                                   value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Site",
                                   id: val + cowc.DROPDOWN_VALUE_SEPARATOR + "Site",
                                   parent: 'Site'});
-                          } else if(data.tag_type === ctwc.LABEL_TAG_TYPE) {
+                          } else if(data.tag_type_name === ctwc.LABEL_TAG_TYPE) {
                               labelMap['Label'].push({
                                   text: txt,
                                   value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
