@@ -312,12 +312,11 @@ define([
                                      label: 'Services',
                                      class:'col-xs-6',
                                      path: 'user_created_service',
-                                     placeholder: "Enter Protocol:Port or Select",
                                      dataBindValue: 'user_created_service',
                                      elementConfig: {
                                          dataTextField: "text",
                                          dataValueField: "value",
-                                         placeholder: "Select or Enter Protocol:Port",
+                                         placeholder: "Protocol:Port",
                                          dataSource: {
                                              type: "remote",
                                              requestType: "POST",
