@@ -1,5 +1,5 @@
 define([
-    'underscore',
+    'lodash',
     'handlebars',
     'contrail-list-model',
     'core-alarm-utils',
@@ -2402,7 +2402,7 @@ define([
                         info: tooltipContents.slice(1)
                     },title : {
                         name: tooltipContents[0]['value'],
-                        type: "Messages / Bytes sent per min"
+                        type: _.result(cfg, 'subtitle', "Messages / Bytes sent per min")
                     }
                 }
             }
