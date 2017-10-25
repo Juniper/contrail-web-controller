@@ -1,12 +1,14 @@
 /*
- * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2017 Juniper Networks, Inc. All rights reserved.
  */
 
 define([
     'underscore',
     'contrail-view',
-    'knockback'
-], function (_, ContrailView, Knockback) {
+    'knockback',
+    'config/infra/vrouters/ui/js/views/vRouterCfgFormatters'
+], function (_, ContrailView, Knockback,VRouterCfgFormatters) {
+    var formatVRouterCfg = new VRouterCfgFormatters();
     var gridElId = '#' + ctwl.CFG_VROUTER_GRID_ID;
     var prefixId = ctwl.CFG_VROUTER_PREFIX_ID;
     var modalId = 'configure-' + prefixId;
@@ -147,7 +149,10 @@ define([
     });
 
     function getvRouterCfgViewConfig (disableOnEdit) {
-        var prefixId = ctwl.CFG_VROUTER_PREFIX_ID;
+        var prefixId = ctwl.CFG_VROUTER_PREFIX_ID,
+        ipamPostData = {};
+        ipamPostData.data = [];
+        ipamPostData.data[0] = {'type':'network-ipams', 'fields':''};
         var vRouterCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
                                ctwl.CFG_VROUTER_TITLE_CREATE]),
@@ -197,6 +202,104 @@ define([
                                     dataBindValue: 'virtual_router_ip_address'
                                 }
                             }
+                        ]
+                    },
+                    {
+                        columns: [
+                        {
+                             elementId: 'virtual_router_network_ipam_refs',
+                             view: "FormEditableGridView",
+                             viewConfig: {
+                                 path : 'network_ipam_refs',
+                                 class: 'col-xs-12',
+                                 validation:
+                                'subnetModelConfigValidations',
+                                 collection:
+                                     'network_ipam_refs',
+                                     templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                                 gridActions:[
+                                     {onClick: "function() {\
+                                         if (!isVCenter())\
+                                             addSubnet();\
+                                         }",
+                                      buttonTitle: ""}
+                                 ],
+                                 rowActions: [
+                                     {onClick: "function() {\
+                                         if (!isVCenter())\
+                                             $root.addSubnetByIndex($data, this);\
+                                         }",
+                                      iconClass: 'fa fa-plus'},
+                                     {onClick: "function() {\
+                                         if (!isVCenter())\
+                                         $root.deleteSubnet($data, this);\
+                                        }",
+                                      iconClass: 'fa fa-minus'}
+                                 ],
+                                 columns: [
+                                    {
+                                        elementId: 'vr_user_created_ipam_fqn',
+                                        view: "FormDropdownView",
+                                        name: 'IPAM',
+                                        width:160,
+                                        viewConfig: {
+                                            templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                            path : 'user_created_ipam_fqn',
+                                            class: "", width: 200,
+                                            disabled: 'disable()',
+                                            dataBindValue : 'user_created_ipam_fqn()',
+                                            elementConfig : {
+                                                placeholder: 'Select IPAM',
+                                                dataTextField : "text",
+                                                dataValueField : "id",
+                                                defaultValueId : 0,
+                                                dataSource : {
+                                                    type: "remote",
+                                                    requestType: 'post',
+                                                    url:'/api/tenants/config/get-config-details',
+                                                    postData: JSON.stringify(ipamPostData),
+                                                    parse: formatVRouterCfg.ipamSubnetDropDownFormatter
+                                                }
+                                            }
+                                        }
+                                    },
+                                     {
+                                      elementId: 'vr_user_created_cidr',
+                                      name:
+                                        'CIDR',
+                                      width:160,
+                                      view: "FormInputView",
+                                      viewConfig:
+                                        {
+                                        class: "", width: 160,
+                                        disabled: 'disable()',
+                                        placeholder: 'xxx.xxx.xxx.xxx/xx',
+                                        path: "vr_user_created_cidr",
+                                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                        dataBindValue:
+                                             'vr_user_created_cidr()',
+                                        }
+                                     },
+                                     {
+                                      elementId: 'allocation_pools',
+                                      name:
+                                        'Allocation Pools',
+                                      width:200,
+                                      view: "FormInputView",
+                                      viewConfig:
+                                        {
+                                         width:200,
+                                         disabled: 'alloc_pool_flag()',
+                                         placeHolder: 'start-end <enter>...',
+                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                         path: "allocation_pools",
+                                         dataBindValue:
+                                             'allocation_pools()',
+                                        }
+                                     }
+                                 ],
+                             }
+                         }
                         ]
                     }
                 ]
