@@ -14,7 +14,7 @@ var configJsonModifyObj = {
     "virtual-router": {
         "isConfig": true,
         "optFields": ["virtual_router_ip_address",
-                      "virtual_router_type", "perms2","tag_refs"],
+                      "virtual_router_type", "perms2","tag_refs", "network_ipam_refs"],
         "mandateFields":["fq_name", "uuid", "display_name"]
     },
     "physical-router": {

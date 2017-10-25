@@ -175,7 +175,22 @@ define([
         })
     ];
 
-
+    function getSubnetExpandDetailsTmpl() {
+        return {
+            title: "Subnets",
+            templateGenerator: 'BlockListTemplateGenerator',
+            templateGeneratorConfig: [
+                {
+                    label: 'Subnet(s)',
+                    key: 'uuid',
+                    templateGenerator: 'TextGenerator',
+                    templateGeneratorConfig: {
+                        formatter: 'subnetTmplFormatter'
+                    }
+                }
+            ]
+        }
+    };
 
     function getvRouterCfgDetailsTemplateConfig() {
         return {
@@ -189,6 +204,7 @@ define([
                                 {
                                     class: 'col-xs-6',
                                     rows: [
+                                        getSubnetExpandDetailsTmpl(),
                                         {
                                             title: ctwl.CFG_VROUTER_TITLE_DETAILS,
                                             templateGenerator: 'BlockListTemplateGenerator',
@@ -237,6 +253,10 @@ define([
     this.pRouterFormatter = function (v, dc) {
         return formatvRouterCfg.pRouterFormatter(null, null,
                                                         null, null, dc);
+    }
+    this.subnetTmplFormatter = function (v, dc) {
+        return formatvRouterCfg.subnetTmplFormatter(null,
+                                        null, null, null, dc);
     }
 
     return vRouterCfgGridView;
