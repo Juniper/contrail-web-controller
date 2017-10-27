@@ -67,6 +67,14 @@ define([
                              success: function () {
                                  $('#' + ctwc.FW_STANDALONE_ALL_POLICY_GRID_ID).
                                  data('contrailGrid')._dataView.refreshData();
+                                 if(dataItem.application_policy_set_back_refs){
+                                     $("#firewall_policies_all").text($("#firewall_policies_all").text()-1);
+                                     $("#stand_alone_policies").text($("#stand_alone_policies").text());
+                                 }
+                                 else{
+                                     $("#firewall_policies_all").text($("#firewall_policies_all").text()-1);
+                                     $("#stand_alone_policies").text($("#stand_alone_policies").text()-1);
+                                 }
                                  if($('.confirmation-popover').length != 0){
                                      $('.confirmation-popover').remove(); 
                                      $('#delete-popup-background').removeClass('overlay-background');
@@ -168,6 +176,16 @@ define([
                                     success: function () {
                                         $('#' + ctwc.FW_STANDALONE_ALL_POLICY_GRID_ID).
                                         data('contrailGrid')._dataView.refreshData();
+                                        for(var i=0; i<checkedRows.length; i++){
+                                            if(checkedRows[i].application_policy_set_back_refs){
+                                                $("#firewall_policies_all").text($("#firewall_policies_all").text()-1);
+                                                $("#stand_alone_policies").text($("#stand_alone_policies").text());
+                                            }
+                                            else{
+                                                $("#firewall_policies_all").text($("#firewall_policies_all").text()-1);
+                                                $("#stand_alone_policies").text($("#stand_alone_policies").text()-1);
+                                            }
+                                        }
                                         if($('.confirmation-popover').length != 0){
                                             $('.confirmation-popover').remove();
                                             $('#delete-popup-background').removeClass('overlay-background');
