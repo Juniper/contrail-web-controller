@@ -875,7 +875,9 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
     float:right;
     margin-right:10px;
 }
-#fw_security_policy_as_grid_view .grid-body .grid-canvas, #security-policy-tag .grid-body .grid-canvas, #fw_security_policy_service_gp_grid_view .grid-body .grid-canvas {
+#fw_security_policy_as_grid_view .grid-body .grid-canvas,
+#aps-sub-container #security-policy-tag .grid-body .grid-canvas,
+#fw_security_policy_service_gp_grid_view .grid-body .grid-canvas {
     max-height: 330px;
     overflow-y: auto!important;
 }
