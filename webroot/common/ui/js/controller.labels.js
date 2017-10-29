@@ -1429,6 +1429,8 @@ define([
         this.ERROR_LABEL_PACKET_CAPTURE = 'Analyzer';
         this.CONFIG_SEC_GRP_PAGE_ID = 'config-sec-grp-page';
 
+        this.VMI_LABEL = 'Workloads';
+
         /*Traffic Groups Labels */
         this.TRAFFIC_GROUPS_ENDPOINT_STATS = 'traffic-groups-endpoint-statistics';
         this.TITLE_TRAFFIC_GROUPS_ENDPOINT_STATS = 'Endpoint Statistics';
