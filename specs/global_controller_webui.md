@@ -6,7 +6,7 @@ Global Controller UI
 With Contrail Global Controller, UI needs to show monitoring state for multiple
 regions and sync state of objects created at global level.
 
-#2. Problem statement
+#2. Problem statementwdw
 
 Current Contrail WebUI displays monitoring per Contrail cluster.
 With Global Controller deployment, we need an ability to show status of all
