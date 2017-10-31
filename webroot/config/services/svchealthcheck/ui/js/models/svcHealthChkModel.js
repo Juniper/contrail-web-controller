@@ -55,20 +55,58 @@ define([
                         return "Should have valid Url Path";
                     }
                 },
-                'service_health_check_properties.delay': {
-                    required: false,
-                    min: 1,
-                    max: 65535
+                'service_health_check_properties.delay': function (value, attr, finalObj){
+                    var delay = Number(finalObj.service_health_check_properties.delay);
+                    if(finalObj.user_created_monitor_type === 'BFD'){
+                        var delayUsecs = Number(finalObj.service_health_check_properties.delayUsecs);
+                        if((delay + delayUsecs) < 0){
+                            return 'Service health check properties. delay must be greater than or equal to 0';
+                        }
+                    }else if(delay < 1){
+                        return 'Service health check properties. delay must be greater than or equal to 1';
+                    }
+                    if(delay > 65535){
+                        return 'Service health check properties. delay must be less than or equal to 65535'; 
+                    }
                 },
                 'service_health_check_properties.max_retries': {
                     required: false,
                     min: 1,
                     max: 65535
                 },
-                'service_health_check_properties.timeout': {
-                    required: false,
-                    min: 1,
-                    max: 65535
+                'service_health_check_properties.timeout': function (value, attr, finalObj){
+                    var timeout = Number(finalObj.service_health_check_properties.timeout);
+                    if(finalObj.user_created_monitor_type === 'BFD'){
+                        var timeoutUsecs = Number(finalObj.service_health_check_properties.timeoutUsecs);
+                        if((timeout + timeoutUsecs) < 0){
+                            return 'Service health check properties. timeout must be greater than or equal to 0';
+                        }
+                    }else if(timeout < 1){
+                        return 'Service health check properties. timeout must be greater than or equal to 1';
+                    }
+                    if(timeout > 65535){
+                        return 'Service health check properties. timeout must be less than or equal to 65535'; 
+                    }
+                },
+                'service_health_check_properties.delayUsecs': function (value, attr, finalObj){
+                    if(finalObj.user_created_monitor_type === 'BFD'){
+                        var delay = Number(finalObj.service_health_check_properties.delay);
+                        var usecs = Number(finalObj.service_health_check_properties.delayUsecs);
+                        var delayUsecs = delay + usecs;
+                        if(delayUsecs < 0){
+                            return "Desired Min Tx Interval (secs + micro secs) should be greator than zero.";
+                        }
+                    }
+                },
+                'service_health_check_properties.timeoutUsecs': function (value, attr, finalObj){
+                    if(finalObj.user_created_monitor_type === 'BFD'){
+                        var timeout = Number(finalObj.service_health_check_properties.timeout);
+                        var usecs = Number(finalObj.service_health_check_properties.timeoutUsecs);
+                        var timeoutUsecs = timeout + usecs;
+                        if(timeoutUsecs < 0){
+                            return "Required Min Rx Interval (secs + micro secs) should be greator than zero.";
+                        }
+                    }
                 }
             }
         },
