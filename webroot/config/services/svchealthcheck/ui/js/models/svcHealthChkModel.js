@@ -57,7 +57,7 @@ define([
                 },
                 'service_health_check_properties.delay': {
                     required: false,
-                    min: 1,
+                    min: 0,
                     max: 65535
                 },
                 'service_health_check_properties.max_retries': {
@@ -67,8 +67,26 @@ define([
                 },
                 'service_health_check_properties.timeout': {
                     required: false,
-                    min: 1,
+                    min: 0,
                     max: 65535
+                },
+                'service_health_check_properties.delayUsecs': function (value, attr, finalObj){
+                    console.log('sd');
+                    var delay = Number(finalObj.service_health_check_properties.delay);
+                    var usecs = Number(finalObj.service_health_check_properties.delayUsecs);
+                    var delayUsecs = delay + usecs;
+                    if(delayUsecs <= 0){
+                        return "Desired Min Tx Interval (secs + micro secs) should be greator than zero.";
+                    }
+                },
+                'service_health_check_properties.timeoutUsecs': function (value, attr, finalObj){
+                    console.log('sd');
+                    var timeout = Number(finalObj.service_health_check_properties.timeout);
+                    var usecs = Number(finalObj.service_health_check_properties.timeoutUsecs);
+                    var timeoutUsecs = timeout + usecs;
+                    if(timeoutUsecs <= 0){
+                        return "Required Min Rx Interval (secs + micro secs) should be greator than zero.";
+                    }
                 }
             }
         },
