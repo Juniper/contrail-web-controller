@@ -1903,6 +1903,40 @@ and need to add the iconClass tag wherever we need to show some icons
                     </items>
                 </item>
                 <item>
+                    <label>Sessions</label>
+                    <iconClass>menu-icon fa fa-exchange</iconClass>
+                    <init>/reports/qe/ui/js/controller.qe.init.js</init>
+                    <items>
+                        <item>
+                            <hash>query_session_series</hash>
+                            <label>Session Series</label>
+                            <loader>
+                                <class>controllerQEPageLoader</class>
+                                <function>renderSessionSeries</function>
+                            </loader>
+                            <searchStrings>Query Session Series</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_session_record</hash>
+                            <label>Session Record</label>
+                            <loader>
+                                <class>controllerQEPageLoader</class>
+                                <function>renderSessionRecord</function>
+                            </loader>
+                            <searchStrings>Query Session Record</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_session_queue</hash>
+                            <label>Query Queue</label>
+                            <loader>
+                                <class>controllerQEPageLoader</class>
+                                <function>renderSessionQueue</function>
+                            </loader>
+                            <searchStrings>Session Query Queue</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
                     <label>Logs</label>
                     <iconClass>menu-icon icon-contrail-system-logs</iconClass>
                     <init>/reports/qe/ui/js/controller.qe.init.js</init>
