@@ -18,7 +18,19 @@ define([
 
         renderFlowQueue: function(viewConfig) {
             this.renderView4Config(this.$el, null, getQueueViewConfig(viewConfig, cowc.QE_FLOW_QUERY_QUEUE));
-        }
+        },
+
+        renderSessionSeries: function(viewConfig) {
+            this.renderView4Config(this.$el, null, getSessionSeriesViewConfig(viewConfig));
+        },
+
+        renderSessionRecord: function(viewConfig) {
+            this.renderView4Config(this.$el, null, getSessionRecordViewConfig(viewConfig));
+        },
+
+        renderSessionQueue: function(viewConfig) {
+            this.renderView4Config(this.$el, null, getQueueViewConfig(viewConfig, cowc.QE_SESSION_QUERY_QUEUE));
+        },
     });
 
     function getFlowSeriesViewConfig() {
@@ -102,6 +114,76 @@ define([
                         viewPathPrefix: "reports/qe/ui/js/views/",
                         viewConfig: {
                             queueType: queueType
+                        }
+                    }]
+                }]
+            }
+        };
+    }
+
+    function getSessionSeriesViewConfig() {
+        return {
+            view: "SectionView",
+            viewConfig: {
+                rows: [{
+                    columns: [{
+                        elementId: cowl.QE_SESSION_SERIES_ID,
+                        view: "SessionSeriesFormView",
+                        viewPathPrefix: "reports/qe/ui/js/views/",
+                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                        viewConfig: {
+                            widgetConfig: {
+                                elementId: cowl.QE_SESSION_SERIES_ID + "-widget",
+                                view: "WidgetView",
+                                viewConfig: {
+                                    header: {
+                                        title: cowl.TITLE_QUERY,
+                                        iconClass: "fa fa-search"
+                                    },
+                                    controls: {
+                                        top: {
+                                            default: {
+                                                collapseable: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }]
+            }
+        };
+    }
+
+    function getSessionRecordViewConfig() {
+        return {
+            view: "SectionView",
+            viewConfig: {
+                rows: [{
+                    columns: [{
+                        elementId: cowl.QE_SESSION_RECORD_ID,
+                        view: "SessionRecordFormView",
+                        viewPathPrefix: "reports/qe/ui/js/views/",
+                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                        viewConfig: {
+                            widgetConfig: {
+                                elementId: cowl.QE_SESSION_RECORD_ID + "-widget",
+                                view: "WidgetView",
+                                viewConfig: {
+                                    header: {
+                                        title: cowl.TITLE_QUERY,
+                                        iconClass: "fa fa-search"
+                                    },
+                                    controls: {
+                                        top: {
+                                            default: {
+                                                collapseable: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }]
                 }]
