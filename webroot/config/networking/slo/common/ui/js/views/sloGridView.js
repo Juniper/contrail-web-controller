@@ -290,7 +290,25 @@ define([
                                     templateGeneratorConfig: {
                                         formatter: "FormatSloRules"
                                     }
-                                },]
+                                },{
+                                    key: "uuid",
+                                    templateGenerator: "TextGenerator",
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
+                                    label: "Associated Firewall Policies",
+                                    templateGeneratorConfig: {
+                                        formatter: "FormatFirewallPolicy"
+                                    }
+                                },{
+                                    key: "uuid",
+                                    templateGenerator: "TextGenerator",
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
+                                    label: "Associated Firewall Rules",
+                                    templateGeneratorConfig: {
+                                        formatter: "FormatFirewallRule"
+                                    }
+                                }]
                             },
                             //permissions
                             ctwu.getRBACPermissionExpandDetails('col-xs-3')]
@@ -303,6 +321,14 @@ define([
 
     this.FormatSloRules = function(v, dc) {
         return sloFormatters.formatSloRuleDetails("", "", v, "", dc);
+    };
+
+    this.FormatFirewallPolicy = function(v, dc){
+        return sloFormatters.FormatFirewallPolicy("", "", v, "", dc);
+    };
+
+    this.FormatFirewallRule = function(v, dc){
+        return sloFormatters.FormatFirewallRule("", "", v, "", dc);
     };
 
     return sloGridView;

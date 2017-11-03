@@ -1403,7 +1403,7 @@ define([
 
         //SLO
         this.TITLE_SLO = 'Security Logging Object';
-        this.TITLE_SLO_MULTI_DELETE = "Delete SLO";
+        this.TITLE_SLO_MULTI_DELETE = "Delete Security Logging Objects";
         this.TITLE_CREATE_SLO = 'Create Security Logging Object';
         this.TITLE_DELETE_SLO = 'Delete Security Logging Object';
         // Health Check Config labels

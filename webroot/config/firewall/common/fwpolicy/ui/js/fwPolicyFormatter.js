@@ -163,6 +163,32 @@
                 }
              };
 
+             this.filterSloByProjects = function(slo, global){
+                 var filteredGlobalSlo = [], filteredProjectSlo = [], isGlobal;
+                 if(global !== undefined){
+                    isGlobal = global;
+                 }else{
+                    isGlobal = checkIsGlobal();
+                 }
+                 var projectName = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
+                 for(var i = 0; i < slo.length; i++){
+                    var fq_name =  slo[i]['security-logging-object']['fq_name'];
+                    if(fq_name[0] === 'default-global-system-config'){
+                        filteredGlobalSlo.push(slo[i]);
+                    }else if(fq_name.length > 1){
+                        if(fq_name.indexOf(projectName) === 1){
+                            filteredProjectSlo.push(slo[i]);
+                        }
+                    }
+                }
+                if(isGlobal){
+                    return filteredGlobalSlo;
+                }else{
+                    var projectSlo = filteredProjectSlo.concat(filteredGlobalSlo);
+                    return projectSlo;
+                }
+             };
+
              this.parseTags = function(tags) {
                  var tagGroupData = {},
                      applicationMap = { Application: [{ text: "Select Application",

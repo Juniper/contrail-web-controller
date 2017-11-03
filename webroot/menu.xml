@@ -1302,7 +1302,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>QoS</searchStrings>
                         </item>
                         <item>
-                            <label>Security Logging Object</label>
+                            <label>SLO</label>
                             <hash>config_net_slo</hash>
                             <resources>
                                 <resource>
