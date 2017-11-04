@@ -3,7 +3,7 @@
  */
 
 define([
-    'lodash',
+    'lodashv4',
     'knockback',
     'contrail-view',
     'contrail-list-model',
@@ -315,11 +315,11 @@ define([
             $('.tgChartLegend, .tgCirclesLegend').hide();
             var sessionData = this.sessionData,
                 self = this,
+                filterApplied = self.isFilterApplied(sessionData),
                 groupByOption = sessionData.groupBy == 'policy' ?
                                 'policy' : 'protocol',
                 level = sessionData.level,
-                selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)',
-                                'remote_prefix', 'forward_action'];
+                selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)'];
                 if(level == 1 || (level == 2 && groupByOption == 'policy')) {
                     if(groupByOption != 'policy' || level == 2) {
                         selectFields.push("protocol", "server_port");
@@ -336,7 +336,10 @@ define([
                     selectFields.push('remote_ip', 'remote_vn', 'client_port',
                         'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)');
                 }
-            var whereClause = [],
+            if(filterApplied)
+                selectFields.push('remote_vn');
+
+            var whereClause = [], filter = [],
                 whereTags = sessionData.tags.slice(0);
             if(sessionData.selectedEndpoint == 'endpoint2') {
                 whereTags = whereTags.reverse();
@@ -357,6 +360,16 @@ define([
                     });
                  }
             });
+           if(filterApplied) {
+               _.each(sessionData.filter, function(tag) {
+                    if (tag.value) {
+                        filter.push({
+                            "suffix": null, "value2": null, "name": "remote_" + tag.name,
+                            "value": tag.value, "op": tag.operator ? tag.operator : 1
+                        });
+                     }
+                });
+            }
             var addWhere = [];
             _.each(sessionData.where, function(values) {
                 _.each(values, function(value) {
@@ -367,6 +380,7 @@ define([
             var reqObj = {
                 selectFields : selectFields,
                 whereClause : whereClause,
+                filter: filter,
                 level : sessionData.level,
                 type: sessionData.sessionType,
                 callback : self.callRender,
@@ -374,13 +388,47 @@ define([
             };
             self.parentView.querySessionSeries(reqObj);
         },
+        isFilterApplied: function(data) {
+            var level = (data.groupBy == 'policy') ? data.level-1 : data.level;
+            if(data.external == 'externalProject' && !data.sliceByProject
+                && level !=3) {
+                return true;
+            } else return false;
+        },
+        grouByColumns: function(columns, data) {
+            data = _.groupBy(data, function(d) {
+                var groupBy = [];
+                _.each(columns, function(key) {
+                    groupBy.push(d[key]);
+                });
+                return groupBy.join('-');
+            });
+            data = _.map(data, function(objs, keys) {
+                objs[0]['SUM(forward_logged_bytes)'] = _.sumBy(objs, 'SUM(forward_logged_bytes)');
+                objs[0]['SUM(reverse_logged_bytes)'] = _.sumBy(objs, 'SUM(reverse_logged_bytes)');
+                return objs[0];
+            });
+            return data;
+        },
         callRender: function(resObj) {
+            var view = resObj.view;
+            if(view.isFilterApplied(view.sessionData)) {
+                var columns = _.without(resObj.selectFields,
+                    'remote_vn',"SUM(forward_logged_bytes)", "SUM(reverse_logged_bytes)")
+                if(resObj.level == 1) {
+                    resObj.clientData = view.grouByColumns(columns, resObj.clientData);
+                    resObj.serverData = view.grouByColumns(columns, resObj.serverData);
+                } else {
+                    resObj.curSessionData =
+                        resObj.view.grouByColumns(columns, resObj.curSessionData);
+                }
+            }
             if(resObj.level == 1) {
-                resObj.view.sessionData.endpointStats =
+                view.sessionData.endpointStats =
                         [resObj.clientData, resObj.serverData];
             }
-            resObj.view.curSessionData = resObj.curSessionData;
-            resObj.view.render(resObj.view.sessionData, $('#traffic-groups-radial-chart'));
+            view.curSessionData = resObj.curSessionData;
+            view.render(resObj.view.sessionData, $('#traffic-groups-radial-chart'));
             $('#traffic-groups-legend-info').removeClass('hidden');
         }
     });
