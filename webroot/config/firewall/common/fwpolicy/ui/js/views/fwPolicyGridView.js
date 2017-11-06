@@ -76,38 +76,6 @@ define([
                         );
                 }));
             rowActionConfig.push(ctwgc.getDeleteAction(function (rowIndex) {
-                     if(viewConfig.isWizard){
-                         fwzUtils.appendDeleteContainer($(arguments[1].context).parent()[0], 'fw-policy-wizard-global-grid-id', true);
-                         $(".cancelWizardDeletePopup").off('click').on('click', function(){
-                             if($('.confirmation-popover').length != 0){
-                                 $('.confirmation-popover').remove();
-                                 $('#delete-popup-background').removeClass('overlay-background');
-                             }
-                         });
-                         $(".saveWizardRecords").off('click').on('click', function(){
-                             var dataItem = $('#' + ctwc.FW_POLICY_GRID_ID).data('contrailGrid')._dataView.getItem(rowIndex);
-                             var model = new FWPolicyModel();
-                             model.deleteFWPolicies([dataItem], {
-                                 success: function () {
-                                     $('#' + ctwc.FW_POLICY_GRID_ID).
-                                     data('contrailGrid')._dataView.refreshData();
-                                     if($('.confirmation-popover').length != 0){
-                                         $('.confirmation-popover').remove();
-                                         $('#delete-popup-background').removeClass('overlay-background');
-                                     }
-                                 },
-                                 error: function (error) {
-                                     $("#grid-details-error-container").text('');
-                                     $("#grid-details-error-container").text(error.responseText);
-                                     $(".aps-details-error-container").show();
-                                     if($('.confirmation-popover').length != 0){
-                                         $('.confirmation-popover').remove();
-                                         $('#delete-popup-background').removeClass('overlay-background');
-                                     }
-                                 }
-                             });
-                         });
-                     }else{
                          var dataItem = $(gridElId).data("contrailGrid").
                          _dataView.getItem(rowIndex),
                          fwPolicyModel = new FWPolicyModel(dataItem),
@@ -123,7 +91,6 @@ define([
                              }
                          }
                      );
-                   }
                 }));
             if(viewConfig.isWizard){
                var options = [];
@@ -239,66 +206,7 @@ define([
                         }
                     }
                 ];
-                if(viewConfig.isWizard == true){
-                    var headerActionConfig = [
-                        {
-                            "type" : "link",
-                            "title" : ctwl.TITLE_FW_POLICY_MULTI_DELETE,
-                            "iconClass": 'fa fa-trash',
-                            "linkElementId": 'btnDeleteFWPolicy',
-                            "onClick" : function() {
-                                fwzUtils.appendDeleteContainer($('#btnDeleteFWPolicy')[0], 'fw-policy-wizard-global-grid-id', true);
-                                $(".cancelWizardDeletePopup").off('click').on('click', function(){
-                                    if($('.confirmation-popover').length != 0){
-                                        $('.confirmation-popover').remove();
-                                        $('#delete-popup-background').removeClass('overlay-background');
-                                    }
-                                });
-                                $(".saveWizardRecords").off('click').on('click', function(){
-                                    var checkedRows = $('#' + ctwc.FW_POLICY_GRID_ID).data('contrailGrid').getCheckedRows();
-                                    if(checkedRows && checkedRows.length > 0) {
-                                        var model = new FWPolicyModel();
-                                        model.deleteFWPolicies(checkedRows, {
-                                            success: function () {
-                                                $('#' + ctwc.FW_POLICY_GRID_ID).
-                                                data('contrailGrid')._dataView.refreshData();
-                                                if($('.confirmation-popover').length != 0){
-                                                    $('.confirmation-popover').remove();
-                                                    $('#delete-popup-background').removeClass('overlay-background');
-                                                }
-                                            },
-                                            error: function (error) {
-                                                $("#grid-details-error-container").text('');
-                                                $("#grid-details-error-container").text(error.responseText);
-                                                $(".aps-details-error-container").show();
-                                                if($('.confirmation-popover').length != 0){
-                                                    $('.confirmation-popover').remove();
-                                                    $('#delete-popup-background').removeClass('overlay-background');
-                                                }
-                                            }
-                                       });
-                                    }
-                                });
-                            }
-                        },
-                        {
-                            "type" : "link",
-                            "title" : ctwl.TITLE_CREATE_FW_POLICY,
-                            "iconClass" : "fa fa-plus",
-                            "onClick" : function() {
-                                newApplicationSet = {};
-                                $("#aps-overlay-container").hide();
-                                $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
-                                $('#aps-main-back-button').hide();
-                                $('#applicationpolicyset_policy_wizard a.btn-primary').trigger("click");
-                            }
-                        }
-                    ];
                     return headerActionConfig;
-                }
-                else{
-                    return headerActionConfig;
-                }
             }
     };
 
