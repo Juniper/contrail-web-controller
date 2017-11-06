@@ -1170,7 +1170,7 @@ define([
                 if(newVNCfgData.user_created_ip_fabric_forwarding === true) {
                     newVNCfgData['virtual_network_refs'] =
                         [{'to': ['default-domain', 'default-project', ctwc.IP_FABRIC_VN]}];
-                } else {
+                } else if(newVNCfgData['name'] !== ctwc.IP_FABRIC_VN) {
                     newVNCfgData['virtual_network_refs'] = [];
                 }
 
