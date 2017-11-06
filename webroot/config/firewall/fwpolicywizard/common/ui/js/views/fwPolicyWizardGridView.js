@@ -179,6 +179,8 @@ define([
                         success: function () {
                             $('#' + ctwc.NEW_APPLICATION_POLICY_SET_GRID_ID).
                             data('contrailGrid')._dataView.refreshData();
+                            $('#' + ctwc.NEW_APPLICATION_POLICY_SET_GRID_ID).data("contrailGrid").resetAllCheckedRows();
+                            $('#overlay-background-id').removeClass('overlay-background');
                             if($('.confirmation-popover').length != 0){
                                 $('.confirmation-popover').remove(); 
                                 $('#overlay-background-id').removeClass('overlay-background');
@@ -225,6 +227,8 @@ define([
                                 success: function () {
                                     $('#' + ctwc.NEW_APPLICATION_POLICY_SET_GRID_ID).
                                     data('contrailGrid')._dataView.refreshData();
+                                    $('#' + ctwc.NEW_APPLICATION_POLICY_SET_GRID_ID).data("contrailGrid").resetAllCheckedRows();
+                                    $('#overlay-background-id').removeClass('overlay-background');
                                     if($('.confirmation-popover').length != 0){
                                         $('.confirmation-popover').remove(); 
                                         $('#overlay-background-id').removeClass('overlay-background');
