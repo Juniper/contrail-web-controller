@@ -57,7 +57,17 @@ define([
             if(getValueByJsonPath(response, "0;application-policy-sets")){
                 appPolicyData = getValueByJsonPath(response, "0;application-policy-sets", []);
                 _.each(appPolicyData, function(val){
-                    if("application-policy-set" in val) {
+                    if("application-policy-set" in val &&
+                            val['application-policy-set'].name == "global-application-policy-set") {
+                        dataItems.push(val['application-policy-set']);
+                    }
+                });
+            }
+            if(getValueByJsonPath(response, "0;application-policy-sets")){
+                appPolicyData = getValueByJsonPath(response, "0;application-policy-sets", []);
+                _.each(appPolicyData, function(val){
+                    if("application-policy-set" in val &&
+                            val['application-policy-set'].name != "global-application-policy-set") {
                         dataItems.push(val['application-policy-set']);
                     }
                 });
