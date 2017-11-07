@@ -18,17 +18,17 @@ define([
                 if(!self.model) {
                     self.model = new (ContrailModel.extend({
                         defaultConfig: {
-                            'group_by_columns' : null,
+                            //'group_by_columns' : null,
                             'Session_Endpoint' : 'endpoint1'
                         },
                         onEndpointChanged: function(newVal) {
                             sessionData.selectedEndpoint = newVal;
-                            self.sessionDrilldown(sessionData);
+                            self.sessionDrilldown();
                             self.renderBreadcrumb();
                         },
                         onGroupByChanged: function(newVal) {
                             sessionData.groupBy = newVal;
-                            self.sessionDrilldown(sessionData);
+                            self.sessionDrilldown();
                             self.renderBreadcrumb();
                         }
                     }))();
@@ -41,7 +41,7 @@ define([
                     this.getSessionsTabViewConfig(sessionData.endpointNames, sessionData.external), null, null, null,
                     function() {
                         self.renderBreadcrumb();
-                        if(sessionData.level == 1) {
+                        if(sessionData.level == 1 || (sessionData.level == 2 && sessionData.groupBy == 'policy')) {
                             $('#Session_Endpoint, #group_by_columns').show();
                             sessionData.sessionType = $('#Client_Sessions-tab-link')
                                 .parent().hasClass('ui-tabs-active')
@@ -50,13 +50,19 @@ define([
                                 self.subscribeModelChangeEvents(self.model, ctwl.EDIT_ACTION);
                                 Knockback.applyBindings(self.model,
                                     document.getElementById('Session_Endpoint'));
-                                Knockback.applyBindings(self.model,
-                                    document.getElementById('group_by_columns'));
+                                //Knockback.applyBindings(self.model,
+                                  //  document.getElementById('group_by_columns'));
                                 kbValidation.bind(self);
                             }
                         } else {
                             $('#Session_Endpoint, #group_by_columns').hide();
                         }
+                        $('.policyRules .policyName')
+                                      .off('click.policyDrilldown');
+                        $('.policyRules .policyName').on('click.policyDrilldown', function(e) {
+                            e.preventDefault();
+                            self.onPolicyClick(e);
+                        });
                     });
             } else {
                 var self = this,
@@ -199,7 +205,7 @@ define([
                                 }
                             }
                         }],
-                    }, {
+                    }, /*{
                         columns: [{
                             elementId: 'group_by_columns',
                             view: 'FormDropdownView',
@@ -221,7 +227,7 @@ define([
                                 }
                             }
                         }]
-                    }, {
+                    },*/ {
                         columns: [{
                             elementId: 'TG_Sessions_View',
                             view: "SectionView",
@@ -241,7 +247,7 @@ define([
                             }
                         }]
                     });
-                }  else if(this.sessionData.level == 1) {
+                }  else if(this.sessionData.type == 'both') {
                     configRows.push({
                         columns: [{
                             elementId: ctwl.TRAFFIC_GROUPS_SESSION_STATS + '-tabs',
@@ -299,15 +305,34 @@ define([
                     if(curIndex == 0) {
                     self.parentView.render();
                     } else {
-                        self.sessionData.breadcrumb = self.sessionData.breadcrumb.slice(0, curIndex+1);
-                        self.sessionData.where = self.sessionData.where.slice(0, curIndex+1);
-                        self.sessionData.level = curIndex;
-                        self.sessionDrilldown(self.sessionData, $('#traffic-groups-radial-chart'));
+                        self.updateSessionData(curIndex);
+                        self.sessionDrilldown();
                     }
                 }
             });
         },
-        sessionDrilldown: function(sessionData) {
+        updateSessionData: function(level) {
+            this.sessionData.breadcrumb = this.sessionData.breadcrumb.slice(0, level+1);
+            this.sessionData.where = this.sessionData.where.slice(0, level+1);
+            this.sessionData.level = level;
+        },
+        onPolicyClick: function(e) {
+            var ele = $(e.currentTarget),
+                policyObj = {
+                    fqn: ele.attr('data-policyFQN'),
+                    name: ele.find('.ruleName').text(),
+                    uuid: ele.attr('data-ruleId')
+                };
+            this.sessionData.where[2] = [{
+                "suffix": null, "value2": null, "name": "security_policy_rule", "value": policyObj.fqn, "op": 1
+            }
+            ];
+            this.sessionData.groupBy = 'policy';
+            this.sessionData.breadcrumb[2] = ['Policy: ' + policyObj.name, 'Rule: ' + policyObj.uuid];
+            this.updateSessionData(2);
+            this.sessionDrilldown();
+        },
+        sessionDrilldown: function() {
             var parentEle = $('#TG_Sessions_View').length ?
                 $('#TG_Sessions_View') : $('#traffic-groups-radial-chart');
                 parentEle.html('<h4 class="noStatsMsg">Loading...</h4>');
@@ -316,18 +341,22 @@ define([
             var sessionData = this.sessionData,
                 self = this,
                 filterApplied = self.isFilterApplied(sessionData),
-                groupByOption = sessionData.groupBy == 'policy' ?
-                                'policy' : 'protocol',
                 level = sessionData.level,
                 selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)'];
-                if(level == 1 || (level == 2 && groupByOption == 'policy')) {
-                    if(groupByOption != 'policy' || level == 2) {
-                        selectFields.push("protocol", "server_port");
-                    } else {
+                if(level == 1)
+                    sessionData.groupBy = 'protocol';
+            var groupBy = sessionData.groupBy;
+                if(level == 1 || (level == 2 && groupBy == 'policy')) {
+                    //if(groupByOption != 'policy' || level == 2) {
+                        sessionData.type = 'both';
+                        selectFields.push("protocol", "server_port", "forward_action");
+                    /*} else {
                         selectFields.push("security_policy_rule");
-                    }
+                    }*/
+                } else {
+                    sessionData.type = '';
                 }
-                if(groupByOption == 'policy')
+                if(groupBy == 'policy')
                     level--;
                 if(level == 2) {
                     selectFields.push("local_ip", "vn");
@@ -345,7 +374,9 @@ define([
                 whereTags = whereTags.reverse();
             }
             _.each(whereTags[0], function(tag) {
-                if (tag.value && (tag.name != 'vn' || level < 3)) {
+                if (!tag.value)
+                    tag.value =  cowc.UNKNOWN_VALUE;
+                if (tag.name != 'vn' || level < 3) {
                     whereClause.push({
                         "suffix": null, "value2": null, "name": tag.name,
                         "value": tag.value, "op": tag.operator ? tag.operator : 1
@@ -353,23 +384,21 @@ define([
                 }
             });
            _.each(whereTags[1], function(tag) {
-                if (tag.value) {
-                    whereClause.push({
-                        "suffix": null, "value2": null, "name": "remote_" + tag.name,
-                        "value": tag.value, "op": tag.operator ? tag.operator : 1
-                    });
-                 }
-            });
-           if(filterApplied) {
-               _.each(sessionData.filter, function(tag) {
-                    if (tag.value) {
-                        filter.push({
-                            "suffix": null, "value2": null, "name": "remote_" + tag.name,
-                            "value": tag.value, "op": tag.operator ? tag.operator : 1
-                        });
-                     }
+                if (!tag.value)
+                    tag.value =  cowc.UNKNOWN_VALUE;
+                whereClause.push({
+                    "suffix": null, "value2": null, "name": "remote_" + tag.name,
+                    "value": tag.value, "op": tag.operator ? tag.operator : 1
                 });
-            }
+            });
+           _.each(sessionData.filter, function(tag) {
+                if (!tag.value)
+                    tag.value =  cowc.UNKNOWN_VALUE;
+                filter.push({
+                    "suffix": null, "value2": null, "name": "remote_" + tag.name,
+                    "value": tag.value, "op": tag.operator ? tag.operator : 1
+                });
+            });
             var addWhere = [];
             _.each(sessionData.where, function(values) {
                 _.each(values, function(value) {
@@ -381,8 +410,9 @@ define([
                 selectFields : selectFields,
                 whereClause : whereClause,
                 filter: filter,
+                type: sessionData.type,
                 level : sessionData.level,
-                type: sessionData.sessionType,
+                sessionType: sessionData.sessionType,
                 callback : self.callRender,
                 view : self
             };
@@ -415,7 +445,7 @@ define([
             if(view.isFilterApplied(view.sessionData)) {
                 var columns = _.without(resObj.selectFields,
                     'remote_vn',"SUM(forward_logged_bytes)", "SUM(reverse_logged_bytes)")
-                if(resObj.level == 1) {
+                if(resObj.type == 'both') {
                     resObj.clientData = view.grouByColumns(columns, resObj.clientData);
                     resObj.serverData = view.grouByColumns(columns, resObj.serverData);
                 } else {
@@ -423,7 +453,7 @@ define([
                         resObj.view.grouByColumns(columns, resObj.curSessionData);
                 }
             }
-            if(resObj.level == 1) {
+            if(view.sessionData.type == 'both') {
                 view.sessionData.endpointStats =
                         [resObj.clientData, resObj.serverData];
             }
