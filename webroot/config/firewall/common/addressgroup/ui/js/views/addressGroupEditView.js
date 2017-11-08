@@ -58,7 +58,7 @@ define([
                                         document.getElementById(modalId));
                 kbValidation.bind(self, {collection:
                                   self.model.model().attributes.subnetCollection});
-            },null,true);
+            },null,true,false);
         },
         renderDeleteAddressGrp: function(options) {
             var delTemplate =

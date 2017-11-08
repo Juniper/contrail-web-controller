@@ -62,7 +62,7 @@ define([
                                                  document.getElementById('aps-gird-container'));
                          kbValidation.bind(self, {collection:
                                            self.model.model().attributes.serviceTypeCollection});
-            },null,true);
+            },null,true,false);
         },
         setErrorContainer : function(headerText){
             $('#aps-gird-container').append($('<h6></h6>').text(headerText).addClass('aps-details-header'));

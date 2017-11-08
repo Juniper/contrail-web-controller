@@ -62,7 +62,7 @@ define([
                                                  document.getElementById('aps-gird-container'));
                          kbValidation.bind(self, {collection:
                                            self.model.model().attributes.subnetCollection});
-            },null,true);
+            },null,true,false);
         },
         setErrorContainer : function(headerText){
             $('#aps-gird-container').append($('<h6></h6>').text(headerText).addClass('aps-details-header'));
@@ -75,28 +75,6 @@ define([
             $('#aps-gird-container').append($('<div id = "gird-details-container"></div>'));
         }
     });
-    function getAddressGroup(viewConfig){
-        if(viewConfig.isGlobal) {
-            return {
-                elementId:
-                    cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_AS_GLOBAL_LIST_VIEW_ID]),
-                view: "fwPolicyWizardASGlobalListView",
-                app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
-                viewConfig: $.extend(true, {}, viewConfig)
-            };
-        } else {
-            return {
-                elementId:
-                    cowu.formatElementId([ctwc.SECURITY_POLICY_TAG_LIST_VIEW_ID]),
-                    view: "fwPolicyWizardASProjectListView",
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
-                viewConfig: $.extend(true, {}, viewConfig,
-                                     {projectSelectedValueData: viewConfig.projectSelectedValueData})
-            }
-        }
-    };
     var getAddressGroupViewConfig = function (isDisable) {
         return {
             elementId: ctwc.APS_ADDRESS_GRP_ID,
