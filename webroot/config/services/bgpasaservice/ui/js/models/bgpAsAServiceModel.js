@@ -124,16 +124,21 @@ define([
         addFamilyAttr: function() {
             var familyAttrs = this.model().attributes["familyAttrs"],
                 familyAttrsArry = familyAttrs.toJSON();
+            var selectedAddrFamilies = cowu.getValueByJsonPath(this.model(),
+                    "attributes;bgpaas_session_attributes;address_families;family", "").split(",");
             var addressFamily = "";
             var inetFamily = "inet";
-            if(familyAttrsArry.length === 0) {
-                addressFamily = inetFamily;
-            } else if(familyAttrsArry.length === 1) {
+            var familyAttrsArryLength = familyAttrsArry.length;
+            var selectedAddrFamiliesLength = selectedAddrFamilies.length;
+            if (familyAttrsArryLength == selectedAddrFamilies.length ||
+                    selectedAddrFamilies[0] == "") {
+                return
+            } else if (familyAttrsArryLength == 0 && selectedAddrFamiliesLength > 0) {
+                addressFamily = selectedAddrFamilies[0];
+            } else if (familyAttrsArryLength < selectedAddrFamiliesLength) {
                 addressFamily =
                     familyAttrsArry[0].bgpaas_address_family() === inetFamily ?
-                    "inet6" : inetFamily;
-            } else if(familyAttrsArry.length === 2) {
-                return;
+                        "inet6" : inetFamily;
             }
             var newFamilyAttr = new BGPAsAServiceFamilyAttrModel({bgpaas_address_family: addressFamily,
                 /*bgpaas_loop_count: 0*/bgpaas_idle_timeout:'', bgpaas_prefix_limit: 0});
@@ -387,6 +392,21 @@ define([
                 "bgpaas_session_attributes.address_families.family" : function(value, attr, finalObj) {
                     if(!value) {
                         return "At least one Address Family is required";
+                    }
+                    var addFamilyAttrs = finalObj['familyAttrs'].models;
+                    var familyAttrs = $.map (addFamilyAttrs, function(d,i){
+                        var attrs = d.attributes;
+                        return attrs.bgpaas_address_family();
+                    });
+                    var addFamilies = value.split(',');
+                    var isError = false;
+                    $.each(familyAttrs, function(i,d){
+                        if (!_.contains(addFamilies,d)) {
+                            isError = true;
+                        }
+                    });
+                    if (isError) {
+                        return "Please add Address Family Attributes corresponding to the Address Families selected";
                     }
                 }
             }
