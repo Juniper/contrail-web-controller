@@ -70,12 +70,23 @@ define(
                                 'value' : vn,
                                 'operator' : operator
                             }],
-                            endpoint2Data = [{
+                            endpoint2Data = [],
+                            filter = [],
+                            categoryObj = tgView.getCategorizationObj();
+                        if(external == 'externalProject' && !sliceByProject) {
+                            remoteVN = '^(?!' + vn + ').*';
+                            filter.push({
+                                'name' : 'vn',
+                                'value' : remoteVN,
+                                'operator' : 8
+                            });
+                        } else {
+                            endpoint2Data.push({
                                 'name' : 'vn',
                                 'value' : remoteVN,
                                 'operator' : operator
-                            }],
-                            categoryObj = tgView.getCategorizationObj();
+                            });
+                        }
                         if(level == 1) {
                             categoryObj = [categoryObj[0]];
                         }
@@ -92,7 +103,8 @@ define(
                                 });
                             });
                         });
-                        return {endpoint1Data, endpoint2Data, external};
+                        return {endpoint1Data, endpoint2Data, external, filter, sliceByProject};
+
                     } else return '';
                 },
                 sliceVNName: function(vn) {
@@ -126,6 +138,8 @@ define(
                                 tags: [tagData.endpoint1Data, tagData.endpoint2Data],
                                 breadcrumb: [['All'], [srcId, dstId]],
                                 where: [[], []],
+                                filter: tagData.filter,
+                                sliceByProject: tagData.sliceByProject,
                                 selectedEndpoint: 'endpoint1',
                                 sessionType: 'client',
                                 level : 1,
@@ -850,7 +864,8 @@ define(
                             "end_time": "now-" + (selectedTime.toTime + 'h'),
                             "select_fields": reqObj.selectFields,
                             "table": "SessionSeriesTable",
-                            "where": [reqObj.whereClause]
+                            "where": [reqObj.whereClause],
+                            'filter': reqObj.filter ? [reqObj.filter] : []
                         },
                         serverPostData = {
                             "session_type": "server",
@@ -858,7 +873,8 @@ define(
                             "end_time": "now-" + (selectedTime.toTime + 'm'),
                             "select_fields": reqObj.selectFields,
                             "table": "SessionSeriesTable",
-                            "where": [reqObj.whereClause]
+                            "where": [reqObj.whereClause],
+                            'filter': reqObj.filter ? [reqObj.filter] : []
                         },
                         clientModelConfig = {
                             remote : {
