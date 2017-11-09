@@ -38,6 +38,7 @@ define([
                elementId: 'forwarding_options_tab',
                title: 'Forwarding Options',
                view: "forwardingOptionsListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -52,6 +53,7 @@ define([
                elementId: 'bgp_options_tab',
                title: 'BGP Options',
                view: "bgpOptionsListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -67,6 +69,7 @@ define([
                elementId: 'flow_aging_tab',
                title: 'Flow Aging',
                view: "flowAgingListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -82,6 +85,7 @@ define([
                elementId: 'fc_global_tab',
                title: 'Forwarding Classes',
                view: "forwardingClassListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -97,6 +101,7 @@ define([
                elementId: 'qos_global_tab',
                title: 'QoS',
                view: "qosGlobalListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -112,6 +117,7 @@ define([
                elementId: 'qos_control_traffic_global_tab',
                title: 'Control Traffic',
                view: "qosControlTrafficListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -127,6 +133,7 @@ define([
                elementId: 'alarm_rule_global_tab',
                title: 'Alarm Rules',
                view: "ConfigAlarmGlobalListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -143,6 +150,7 @@ define([
                elementId: 'user_defined_counter_tab',
                title: 'Log Statistic',
                view: "userDefinedCountersListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -159,6 +167,7 @@ define([
                elementId: 'mac_learning_tab',
                title: 'MAC Learning',
                view: "macLearningListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -175,6 +184,7 @@ define([
                elementId: 'slo_tab',
                title: 'SLO',
                view: "sloGlobalListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {

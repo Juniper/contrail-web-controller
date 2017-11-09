@@ -10,8 +10,10 @@ function RtTablePageLoader ()
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathRtTableView = rootDir + '/js/views/RtTableView.js',
-            renderFn = paramObject['function'];
+            pathRtTableView = ctBaseDir +
+            '/config/networking/routetable/ui/js/views/RtTableView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
         $(contentContainer).empty();
 
@@ -19,6 +21,9 @@ function RtTablePageLoader ()
             requirejs([pathRtTableView], function (RtTableView) {
                 self.rtTableView = new RtTableView();
                 self.renderView(renderFn, hashParams);
+                if(contrail.checkIfExist(loadingStartedDefObj)) {
+                    loadingStartedDefObj.resolve();
+                }
             }, function (err) {
                 console.info("RtTable Page Load error:" + err);
             });

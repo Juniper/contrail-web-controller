@@ -10,15 +10,11 @@ function ConfigRouteAggregatePageLoader() {
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][0]['rootDir'],
             pathMNView = ctBaseDir + '/config/networking/routeaggregate/ui/js/views/routeAggregateView.js',
-            renderFn = paramObject['function'],
-            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
+            renderFn = paramObject['function'];
 
         require([pathMNView], function (RouteAggregateView) {
             self.routeAggregateView = new RouteAggregateView();
             self.renderView(renderFn, hashParams);
-            if(contrail.checkIfExist(loadingStartedDefObj)) {
-                loadingStartedDefObj.resolve();
-            }
         });
     };
 

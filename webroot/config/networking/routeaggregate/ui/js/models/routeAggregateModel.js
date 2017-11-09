@@ -41,7 +41,7 @@ define([
           var routes = this.model().attributes["routes"];
           routes.add([new RouteAggregateRoutesModel()]);
         },
-        addRouteByIndex(data, kbInterface){
+        addRouteByIndex: function(data, kbInterface){
           var selectedRuleIndex = data.model().collection.indexOf(kbInterface.model());
           var routes = this.model().attributes["routes"];
           routes.add([new RouteAggregateRoutesModel()],{at: selectedRuleIndex+1});

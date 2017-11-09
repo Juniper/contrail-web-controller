@@ -54,6 +54,7 @@ define([
                elementId: 'network_route_table',
                title: 'Network Route Tables',
                view: "RtTableListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/networking/routetable/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -68,6 +69,7 @@ define([
                elementId: 'interface_route_table',
                title: 'Interface Route Tables',
                view: "RtTableInterfaceListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/networking/routetable/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -83,6 +85,7 @@ define([
                 elementId: 'routing_policy_tab',
                 title: 'Routing Policies',
                 view: "routingPolicyListView",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix: "config/networking/routingpolicy/ui/js/views/",
                 viewConfig: viewConfig,
                 tabConfig: {
@@ -98,6 +101,7 @@ define([
                  elementId: 'route_aggregates_tab',
                  title: 'Route Aggregates',
                  view: "routeAggregateListView",
+                 app: cowc.APP_CONTRAIL_CONTROLLER,
                  viewPathPrefix: "config/networking/routeaggregate/ui/js/views/",
                  viewConfig: viewConfig,
                  tabConfig: {
