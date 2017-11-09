@@ -979,3 +979,9 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
 }
 body #firewall_policy_rules #firewall_rules th.text-center{
     text-align:center;}
+#user_created_ipam_subnets table{
+    width:100%;
+}
+#user_created_ipam_subnets table td.action-cell{
+    text-align:left !important;
+}
