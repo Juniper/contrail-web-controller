@@ -32,6 +32,18 @@ define([
                 case "renderFlowQueue":
                     this.controllerQEView.renderFlowQueue({ hashParams: hashParams });
                     break;
+
+                case "renderSessionSeries":
+                    this.controllerQEView.renderSessionSeries({ hashParams: hashParams });
+                    break;
+
+                case "renderSessionRecord":
+                    this.controllerQEView.renderSessionRecord({ hashParams: hashParams });
+                    break;
+
+                case "renderSessionQueue":
+                    this.controllerQEView.renderSessionQueue({ hashParams: hashParams });
+                    break;
             }
         };
 
