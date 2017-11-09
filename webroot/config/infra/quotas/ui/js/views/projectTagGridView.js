@@ -90,6 +90,22 @@ define([
         };
         return gridElementConfig;
     };
+    this.filterTagsByProjects = function(tags){
+        var filtedGlobalTags = [], filteredProjectTags = [];
+        var projectName = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
+        for(var i = 0; i < tags.length; i++){
+            var fq_name =  tags[i]['tag']['fq_name'];
+            if(fq_name.length === 1){
+                filtedGlobalTags.push(tags[i]);
+            }else if(fq_name.length > 1){
+                if(fq_name.indexOf(projectName) === 1){
+                    filteredProjectTags.push(tags[i]);
+                }
+            }
+        }
+        var projectTags = filteredProjectTags.concat(filtedGlobalTags);
+        return projectTags;
+     };
     function getHeaderActionConfig(selectedProject,model) {
         var data;
         var results = [];
@@ -124,7 +140,7 @@ define([
                         tierArray.push({text:"None",value:"-"});
                         siteArray.push({text:"None",value:"-"});
                         for(var i=0; i<response.length; i++){
-                            tagsDetails = response[i].tags;
+                            tagsDetails = this.filterTagsByProjects(response[i].tags);
                             for(var j= 0; j<tagsDetails.length; j++){
                                 if(tagsDetails[j].tag.fq_name &&
                                         tagsDetails[j].tag.fq_name.length === 1) {

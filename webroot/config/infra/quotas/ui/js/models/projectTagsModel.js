@@ -12,7 +12,15 @@ define([
             'Tier': '',
             'Site': '',
             'Deployment': '',
-            'Lables': ''
+            'Labels': ''
+        },
+        formatModelConfig: function (modelConfig) {
+            modelConfig["Application"] = modelConfig["Application"].replace(/,/g, ":");
+            modelConfig["Site"] = modelConfig["Site"].replace(/,/g, ":");
+            modelConfig["Deployment"] = modelConfig["Deployment"].replace(/,/g, ":");
+            modelConfig["Tier"] = modelConfig["Tier"].replace(/,/g, ":");
+            modelConfig["Labels"] = modelConfig["Labels"];
+            return modelConfig;
         },
         configureProjectTags: function (projUUID, callbackObj) {
             var ajaxConfig = {}, returnFlag = false, updatedVal = {};
