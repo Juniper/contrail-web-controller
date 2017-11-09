@@ -241,11 +241,10 @@ define([
                                         elementId: 'vr_user_created_ipam_fqn',
                                         view: "FormDropdownView",
                                         name: 'IPAM',
-                                        width:160,
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                             path : 'user_created_ipam_fqn',
-                                            class: "", width: 200,
+                                            class: "", width: 220,
                                             disabled: 'disable()',
                                             dataBindValue : 'user_created_ipam_fqn()',
                                             elementConfig : {

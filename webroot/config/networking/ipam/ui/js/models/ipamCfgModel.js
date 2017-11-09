@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2017 Juniper Networks, Inc. All rights reserved.
  */
 
 define([
-    'underscore',
+    'lodash',
     'contrail-config-model',
     'config/networking/ipam/ui/js/models/ipamTenantDNSModel',
     'config/networking/ipam/ui/js/views/ipamCfgFormatters',
-    'config/networking/networks/ui/js/models/subnetModel',
+    'config/networking/ipam/ui/js/models/ipamSubnetModel',
     'config/networking/networks/ui/js/models/hostRouteModel',
     'config/networking/networks/ui/js/models/subnetDNSModel',
     'config/networking/networks/ui/js/views/vnCfgFormatters'
@@ -120,13 +120,8 @@ define([
                         cidr = subnetObj.subnet.ip_prefix + '/' +
                         subnetObj.subnet.ip_prefix_len;
                     subnetObj["user_created_cidr"] = cidr;
-                    allocPools = getValueByJsonPath(subnetObj,
-                            "allocation_pools", [], false);
-                    allocPools.every(function(pool) {
-                        allocPoolStr += pool.start + "-" + pool.end + "\n";
-                        return true;
-                    });
-                    subnetObj['allocation_pools'] = allocPoolStr.trim();
+                    subnetObj['allocation_pools'] = getValueByJsonPath(subnetObj,
+                          "allocation_pools", [], false);
                     subnetObj['user_created_enable_gateway'] =
                         getValueByJsonPath(subnetObj, 'default_gateway', "");
                     subnetObj['user_created_enable_gateway'] =
@@ -223,19 +218,12 @@ define([
         },
 
         getAllocPools: function(subnetObj) {
-            var allocPools = [], retAllocPool = [];
-            if ('allocation_pools' in subnetObj &&
-                        subnetObj.allocation_pools.length) {
-                allocPools = subnetObj.allocation_pools.split('\n');
-            }
-            allocPools.every(function(pool) {
-                var poolObj = pool.split('-');
-                if (poolObj.length == 2) {
-                    retAllocPool.push({'start': poolObj[0].trim(),
-                                       'end':  poolObj[1].trim()});
-                }
-                return true;
-            });
+            var allocPools = _.get(subnetObj.allocation_pools, 'models', []), retAllocPool = [];
+             for(var i=0; i<allocPools.length;i++){
+                 retAllocPool.push({'start': subnetObj.allocation_pools.models[i].attributes.start(),
+                     'end':  subnetObj.allocation_pools.models[i].attributes.end(),
+                     'vrouter_specific_pool':subnetObj.allocation_pools.models[i].attributes.vrouter_specific_pool()});
+             }
             return retAllocPool;
         },
 
