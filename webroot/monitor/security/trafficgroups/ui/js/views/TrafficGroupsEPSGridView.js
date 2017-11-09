@@ -331,7 +331,7 @@ define([
                 currentLevel = data.level,
                 sessionColumns = [];
             if(currentLevel == 1 || (currentLevel == 2 && data.groupBy == 'policy')) {
-                if(data.groupBy != 'policy' || currentLevel == 2) {
+                //if(data.groupBy != 'policy' || currentLevel == 2) {
                     sessionColumns.push({
                         field: 'protocol',
                         name: 'Protocol (Server Port)',
@@ -347,17 +347,13 @@ define([
                                     "suffix": null, "value2": null, "name": "protocol", "value": d['protocol'], "op": 1
                                 }, {
                                     "suffix": null, "value2": null, "name": "server_port", "value": d['server_port'], "op": 1
-                                }
-                                /*, {
-                                    "suffix": null, "value2": null, "name": "forward_action", "value": d['forward_action'], "op": 1
-                                }*/
-                                ]);
+                                }]);
                                 data.breadcrumb.push(['Protocol: ' + protocol, 'Port: ' + d['server_port']]);
-                                self.rootView.sessionDrilldown(data);
+                                self.rootView.sessionDrilldown();
                              }
                          }
                     });
-                } else {
+                /*} else {
                     sessionColumns.push({
                         field: 'security_policy_rule',
                         name: 'Policy (Rule)',
@@ -371,23 +367,13 @@ define([
                                 var ruleObj = getPolicyInfo(d['security_policy_rule']);
                                 data.where.push([{
                                     "suffix": null, "value2": null, "name": "security_policy_rule", "value": d['security_policy_rule'], "op": 1
-                                }
-                                /*,
-                                {
-                                    "suffix": null, "value2": null, "name": "forward_action", "value": d['forward_action'], "op": 1
-                                }*/
-                                ]);
+                                }]);
                                 data.breadcrumb.push(['Policy: ' + ruleObj.name, 'Rule: ' + ruleObj.uuid]);
-                                self.rootView.sessionDrilldown(data);
+                                self.rootView.sessionDrilldown();
                              }
                          }
                     });
-                }
-                /*sessionColumns.push({
-                    field: 'forward_action',
-                    name: 'Forward Action',
-                    maxWidth: 150
-                }); */
+                }*/
             }
             if(data.groupBy == 'policy')
                 currentLevel--;
@@ -407,7 +393,7 @@ define([
                                 "suffix": null, "value2": null, "name": 'vn', "value": d['vn'], "op": 1
                             }]);
                             data.breadcrumb.push([name + ': ' + d['local_ip'], 'VN: ' + formatVN(d['vn'])]);
-                            self.rootView.sessionDrilldown(data);
+                            self.rootView.sessionDrilldown();
                          }
                      }
 
@@ -452,6 +438,10 @@ define([
                    return (formatBytes(v) + ' / ' +
                           formatBytes(dc['SUM(reverse_logged_bytes)']));
                 }
+            }, {
+                field: 'forward_action',
+                name: 'Action',
+                maxWidth: 150
             });
             gridElementConfig = {
                 header: {
@@ -504,7 +494,7 @@ define([
             var currentLevel = data.level,
                 templateConfig = [];
             if(currentLevel == 1 || (currentLevel == 2 && data.groupBy == 'policy')) {
-                if(data.groupBy != 'policy' || currentLevel == 2) {
+                //if(data.groupBy != 'policy' || currentLevel == 2) {
                     templateConfig.push({
                         key: 'protocol',
                         label: 'protocol (Server Port)',
@@ -513,7 +503,7 @@ define([
                             formatter: 'protocolPortFormatter'
                         }
                     });
-                } else {
+               /* } else {
                     templateConfig.push({
                         key: 'security_policy_rule',
                         label: 'Policy (Rule)',
@@ -522,7 +512,7 @@ define([
                             formatter: 'policyRuleFormatter'
                         }
                     });
-                }
+                }*/
             }
             if(data.groupBy == 'policy')
                 currentLevel--;
@@ -588,6 +578,10 @@ define([
                 templateGeneratorConfig: {
                     formatter: 'loogedBytesReverseFormatter'
                 }
+            }, {
+                key: 'forward_action',
+                label: 'Action',
+                templateGenerator: 'TextGenerator'
             });
             return {
                 templateGenerator: 'RowSectionTemplateGenerator',
