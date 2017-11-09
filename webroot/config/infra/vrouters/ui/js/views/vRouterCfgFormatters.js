@@ -189,9 +189,12 @@ define([
                         obj.ipam_subnet_method === ctwc.USER_DEFINED_SUBNET) {
                     return true;
                 }
-                for(var j=0;j<obj.ipam_subnets.subnets.length;j++){
-                    ipBlocks += "("+obj.ipam_subnets.subnets[j].subnet.ip_prefix+"/"+
-                    obj.ipam_subnets.subnets[j].subnet.ip_prefix_len+")"
+                var subnets = _.get(obj,'ipam_subnets.subnets',null);
+                if(subnets){
+                    _.each(subnets, function(val) {
+                        ipBlocks += "("+val.subnet.ip_prefix+"/"+
+                        val.subnet.ip_prefix_len+")"
+                     });
                 }
                 if (domain != obj.fq_name[0] ||
                     project != obj.fq_name[1]) {
