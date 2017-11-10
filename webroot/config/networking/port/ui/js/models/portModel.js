@@ -85,6 +85,7 @@ define([
             'is_mirror' : false,
             'mirrorToRoutingInstance': "",
             'mirrorToNHMode': "dynamic",
+            'user_created_juniper_header': 'enabled',
             'fixedIPCollection': [],
             'display_name': '',
             'virtual_machine_interface_refs': [],
@@ -346,8 +347,7 @@ define([
                     modelConfig['mirrorToRoutingInstance'] = null;
                 }
                 modelConfig["mirrorToNHMode"] = nhMode;
-                modelConfig["virtual_machine_interface_properties"]
-                    ["interface_mirror"]["mirror_to"]["juniper_header"] =
+                modelConfig["user_created_juniper_header"] =
                         jnprHeader === true ? "enabled" : "disabled";
                 modelConfig['is_mirror'] = true;
             } else {
@@ -634,7 +634,6 @@ define([
                 },
                 'user_created_juniper_header': function(value, attr, finalObj) {
                     if(finalObj.is_mirror == true &&
-                        finalObj.user_created_nic_assisted === false &&
                         finalObj.mirrorToNHMode === ctwc.MIRROR_STATIC &&
                         value !== 'disabled') {
                         return "Static Nexthop cannot be used with Juniper Header Enabled";
@@ -1251,8 +1250,7 @@ define([
                         routingInstance = getValueByJsonPath(newPortData,
                                     'mirrorToRoutingInstance', ''),
                         jnprHeader = getValueByJsonPath(newPortData,
-                            "virtual_machine_interface_properties;" +
-                            "interface_mirror;mirror_to;juniper_header", "enabled");
+                            "user_created_juniper_header", "enabled");
                     if(udpPort) {
                         newPortData["virtual_machine_interface_properties"]
                             ["interface_mirror"]["mirror_to"]["udp_port"] =

@@ -736,13 +736,13 @@
                                  }]
                              }, {
                                  columns: [{
-                                     elementId: 'juniper_header',
+                                     elementId: 'user_created_juniper_header',
                                      view: "FormDropdownView",
                                      viewConfig: {
                                          visible: "is_mirror",
                                          class: "col-xs-6",
-                                         path: 'virtual_machine_interface_properties.interface_mirror.mirror_to.juniper_header',
-                                         dataBindValue: 'virtual_machine_interface_properties().interface_mirror.mirror_to.juniper_header',
+                                         path: 'user_created_juniper_header',
+                                         dataBindValue: 'user_created_juniper_header',
                                          label: 'Juniper Header',
                                          elementConfig: {
                                              dataTextField: "text",
