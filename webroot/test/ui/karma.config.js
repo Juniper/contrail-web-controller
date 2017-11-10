@@ -21,9 +21,10 @@ module.exports = function (config) {
             'karma-chrome-launcher'
         ],
         browsers: [
-            'PhantomJS',
+            //'PhantomJS',
             //'Firefox',
             //'Chrome'
+            'ChromeHeadless'
         ],
         exclude: [
             '**/node_modules/**/*.test.js',

@@ -57,7 +57,7 @@ define([
         return {
             rootView: mnPageLoader.mnView,
             tests: [
-                {
+                /*{
                     viewId: 'project-network-grid',
                     suites: [
                         {
@@ -65,7 +65,7 @@ define([
                             groups: ['all']
                         }
                     ]
-                }
+                }*/
             ]
         };
     };

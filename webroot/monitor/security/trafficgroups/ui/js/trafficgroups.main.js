@@ -8,7 +8,7 @@ function TrafficGroupsLoader() {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][0]['rootDir'],
-            pathTrafficGroupsInitView = rootDir + '/js/views/TrafficGroupsInitView.js',
+            pathTrafficGroupsInitView = 'controller-basedir/monitor/security/trafficgroups/ui/js/views/TrafficGroupsInitView',
             renderFn = paramObject['renderFn'];
 
             if (self.TrafficGroupsInitView == null) {
@@ -16,7 +16,10 @@ function TrafficGroupsLoader() {
                     self.TrafficGroupsInitView = new TrafficGroupsInitView({
                         el: $(contentContainer)
                     });
+                    loadingStartedDefObj = paramObject['loadingStartedDefObj'];
                     self.TrafficGroupsInitView.renderTrafficView({hashParams: hashParams});
+                    if(loadingStartedDefObj != null)
+                        loadingStartedDefObj.resolve();
                 });
             } /*else {
                 self.renderView(renderFn, hashParams);

@@ -39,7 +39,8 @@ define([
             "/api/tenant/networking/get-instances?count={0}&nextCount={1}&startAt={2}": /\/api\/tenant\/networking\/get-instances\?.*$/,
             "/api/tenant/networking/get-instances-list?startAt={0}": /\/api\/tenant\/networking\/get-instances-list\?.*$/,
             '/api/tenant/networking/get-interfaces-list':  /\/api\/tenant\/networking\/get-interfaces-list\?.*$/,
-            '/api/tenant/networking/get-interfaces?count={0}&nextCount={1}': /\/api\/tenant\/networking\/get-interfaces\?.*$/
+            '/api/tenant/networking/get-interfaces?count={0}&nextCount={1}': /\/api\/tenant\/networking\/get-interfaces\?.*$/,
+            '/api/tenants/config/get-config-details': /\/api\/tenants\/config\/get-config-details.*$/
         };
 
         return regexUrlMap [url];

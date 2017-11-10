@@ -7,10 +7,19 @@ define([
     'knockback',
     'contrail-view',
     'contrail-list-model',
-    'contrail-model'
-], function (_, Knockback, ContrailView, ContrailListModel, ContrailModel) {
+    'contrail-model',
+    'monitor/security/trafficgroups/ui/js/views/TrafficGroupsHelpers'
+], function (_, Knockback, ContrailView, ContrailListModel, ContrailModel, TgHelpersView) {
     var TrafficGroupsSessionsView = ContrailView.extend({
         el: $(contentContainer),
+        tgHelpers: new TgHelpersView(),
+        initialize: function(obj) {
+            if(obj) {
+                this.parentView = obj.parentView;
+                this.sessionData = obj.sessionData;
+                this.el = obj.el
+            }
+        },
         render: function (sessionData, containerEle) {
             var self = this;
             this.sessionData = sessionData;
@@ -447,7 +456,7 @@ define([
                 callback : self.callRender,
                 view : self
             };
-            self.parentView.querySessionSeries(reqObj);
+            self.tgHelpers.querySessionSeries(reqObj, self.parentView.tgSetObj);
         },
         isFilterApplied: function(data) {
             var level = (data.groupBy == 'policy') ? data.level-1 : data.level;
@@ -496,7 +505,7 @@ define([
                 });
             }
             view.curSessionData = resObj.curSessionData;
-            view.render(resObj.view.sessionData, $('#traffic-groups-radial-chart'));
+            view.render(resObj.view.sessionData, view.el);
             $('#traffic-groups-legend-info').removeClass('hidden');
         }
     });

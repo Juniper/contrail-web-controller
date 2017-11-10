@@ -27,7 +27,7 @@ define([
                                 cowu.enableModalLoading(modalId);
                             },
                             success: function (modelObj) {
-                                callback(modelObj);
+                                callback(JSON.parse(JSON.stringify(modelObj.attributes)));
                                 $("#" + modalId).modal('hide');
                             },
                             error: function (error) {
