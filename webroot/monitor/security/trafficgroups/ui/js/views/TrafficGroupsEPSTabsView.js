@@ -11,6 +11,13 @@ define([
 ], function (_, Knockback, ContrailView, ContrailListModel, ContrailModel) {
     var TrafficGroupsSessionsView = ContrailView.extend({
         el: $(contentContainer),
+        initialize: function(obj) {
+            if(obj) {
+                this.parentView = obj.parentView;
+                this.sessionData = obj.sessionData;
+                this.el = obj.el
+            }
+        },
         render: function (sessionData, containerEle) {
             var self = this;
             this.sessionData = sessionData;
@@ -496,7 +503,7 @@ define([
                 });
             }
             view.curSessionData = resObj.curSessionData;
-            view.render(resObj.view.sessionData, $('#traffic-groups-radial-chart'));
+            view.render(resObj.view.sessionData, view.el);
             $('#traffic-groups-legend-info').removeClass('hidden');
         }
     });
