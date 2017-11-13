@@ -141,7 +141,7 @@ define(
                                 filter: tagData.filter,
                                 sliceByProject: tagData.sliceByProject,
                                 selectedEndpoint: 'endpoint1',
-                                sessionType: 'client',
+                                sessionType: 'all',
                                 level : 1,
                                 external : tagData.external
                             },
@@ -226,7 +226,7 @@ define(
                         };
                         return { srcSessionInfo, dstSessionInfo };
                 },
-                showLinkInfo(d,el,e,option) {
+                showLinkInfo: function(d,el,e,option) {
                     var self = this,
                         tooltipTemplate = contrail.getTemplate4Id(cowc.TOOLTIP_CUSTOM_TEMPLATE);
                         ruleUUIDs = [], ruleKeys = [], level = 1;
@@ -1040,7 +1040,7 @@ define(
                             whereTags = tagData.endpoint1Data.slice(0),
                             whereClause = [],
                             selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)',
-                            'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)', 'vn', 'vmi'];
+                            'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)', 'vn', 'vmi', 'vrouter'];
                             _.each(whereTags, function(tag) {
                                 if (!tag.value)
                                     tag.value =  cowc.UNKNOWN_VALUE;
