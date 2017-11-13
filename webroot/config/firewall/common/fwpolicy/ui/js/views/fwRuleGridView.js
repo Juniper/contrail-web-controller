@@ -439,7 +439,7 @@ define([
                                     templateGeneratorConfig: {
                                         formatter: "matchFormatter"
                                     }
-                                },
+                                }/*,
                                 {
                                     label: 'Associated Security Logging Objects',
                                     key: 'security_logging_object_refs',
@@ -449,7 +449,7 @@ define([
                                         formatter:
                                             'SloFormatter'
                                     }
-                                }/*,{
+                                },{
                                     key: "action_list.apply_service",
                                     templateGenerator: "TextGenerator",
                                     label: "Simple Actions",

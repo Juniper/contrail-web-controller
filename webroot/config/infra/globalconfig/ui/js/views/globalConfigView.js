@@ -170,7 +170,7 @@ define([
                    },
                    renderOnActivate: true
                }
-           },
+           }/*,
            {
                elementId: 'slo_tab',
                title: 'SLO',
@@ -186,7 +186,7 @@ define([
                    },
                    renderOnActivate: true
                }
-           }]
+           }*/]
         };
     };
     return globalConfigView;

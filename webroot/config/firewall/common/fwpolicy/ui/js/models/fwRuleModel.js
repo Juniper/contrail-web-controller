@@ -29,8 +29,8 @@ define([
               },
             'match_tags': {
                   'tag_list': []
-             },
-             'security_logging_object_refs': []
+             }//,
+             //'security_logging_object_refs': []
         },
         formatModelConfig: function(modelConfig) {
             var self = this;
@@ -96,7 +96,7 @@ define([
             }
             modelConfig['sequence'] = fwRuleFormatters.sequenceFormatter(null,
                     null, null, null, modelConfig);
-            modelConfig['security_logging_object_refs'] = ctwu.securityLoggingObjectFormatter(modelConfig, 'edit');
+            //modelConfig['security_logging_object_refs'] = ctwu.securityLoggingObjectFormatter(modelConfig, 'edit');
             return modelConfig;
         },
         getEndpointVal : function(endpoint, modelConfig){
@@ -304,7 +304,7 @@ define([
                 }
                 newFWRuleData['action_list'] = {};
                 newFWRuleData['action_list']['simple_action'] = attr['simple_action'];
-                newFWRuleData['security_logging_object_refs'] = ctwu.setSloToModel(attr);
+                //newFWRuleData['security_logging_object_refs'] = ctwu.setSloToModel(attr);
                 newFWRuleData['direction'] = attr['direction'];
                 //newFWRuleData['sequence'] = attr['sequence'];
                 //newFWRuleData['id_perms'] = {};
