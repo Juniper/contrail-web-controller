@@ -297,6 +297,11 @@ define([
                 items : items,
                 breadcrumbId : 'TGsessionsBreadcrumb'
             }));
+            if(self.sessionData.level > 1) {
+                var endpointEle =  $('#TGsessionsBreadcrumb li')[1],
+                    selectedEndpoint = $(endpointEle).find('a div')[0];
+                $(selectedEndpoint).addClass('selected');
+            }
             $('#TGsessionsBreadcrumb li:last').addClass('active');
             $('#TGsessionsBreadcrumb li a').on('click', function(e) {
                 e.preventDefault();
@@ -342,7 +347,8 @@ define([
                 self = this,
                 filterApplied = self.isFilterApplied(sessionData),
                 level = sessionData.level,
-                selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)', 'forward_action'];
+                selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)',
+                                'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)'];
                 if(level == 1)
                     sessionData.groupBy = 'protocol';
             var groupBy = sessionData.groupBy;
@@ -362,8 +368,7 @@ define([
                     selectFields.push("local_ip", "vn");
                 }
                 if(level == 3) {
-                    selectFields.push('remote_ip', 'remote_vn', 'client_port',
-                        'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)');
+                    selectFields.push('remote_ip', 'remote_vn', 'client_port', 'forward_action');
                 }
             if(filterApplied)
                 selectFields.push('remote_vn');
