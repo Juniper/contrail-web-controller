@@ -44,7 +44,8 @@ var configCBDelete =
     'routing-policy': routingPolicyConfig.deleteRoutingPolicyAsync,
     'virtual-network': vnConfig.deleteVirtualNetworkAsync,
     'service-instance': svcInst.deleteServiceInstanceCB,
-    'service-analyzer':svcInst.deleteAnalyzerCB
+    'service-analyzer':svcInst.deleteAnalyzerCB,
+    'service-health-check': svcInst.deleteServiceHealthCheckCB
 }
 
 var getConfigPageRespCB = {
