@@ -141,7 +141,7 @@ define(
                                 filter: tagData.filter,
                                 sliceByProject: tagData.sliceByProject,
                                 selectedEndpoint: 'endpoint1',
-                                sessionType: 'client',
+                                sessionType: 'all',
                                 level : 1,
                                 external : tagData.external
                             },

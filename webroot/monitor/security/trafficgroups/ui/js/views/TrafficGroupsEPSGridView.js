@@ -343,6 +343,7 @@ define([
                             onClick : function(e, d) {
                                 data.level++;
                                 var protocol = cowf.format.protocol(d['protocol']);
+                                data.sessionType = d['session_type'] == 1 ? 'client' : 'server';
                                 data.where.push([{
                                     "suffix": null, "value2": null, "name": "protocol", "value": d['protocol'], "op": 1
                                 }, {
@@ -352,6 +353,13 @@ define([
                                 self.rootView.sessionDrilldown();
                              }
                          }
+                    }, {
+                        field: 'session_type',
+                        name: 'Session Type',
+                        formatter: function(r,c,v,cd,dc) {
+                            return sessionTypeFormatter(v, dc);
+                        },
+                        maxWidth: 150
                     });
                 /*} else {
                     sessionColumns.push({
@@ -378,21 +386,19 @@ define([
             if(data.groupBy == 'policy')
                 currentLevel--;
             if(currentLevel == 2) {
-                var label = (data.sessionType == 'client') ? 'Client IP' : 'Server IP';
                 sessionColumns.push({
                     field: 'local_ip',
-                    name: label,
+                    name: 'Local IP',
                     cssClass: 'cell-hyperlink-blue',
                     events : {
                         onClick : function(e, d) {
                             data.level++;
-                            var name = (data.sessionType == 'client') ? 'Client IP' : 'Server IP';
                             data.where.push([{
                                 "suffix": null, "value2": null, "name": 'local_ip', "value": d['local_ip'], "op": 1
                             }, {
                                 "suffix": null, "value2": null, "name": 'vn', "value": d['vn'], "op": 1
                             }]);
-                            data.breadcrumb.push([name + ': ' + d['local_ip'], 'VN: ' + formatVN(d['vn'])]);
+                            data.breadcrumb.push(['Local IP: ' + d['local_ip'], 'VN: ' + formatVN(d['vn'])]);
                             self.rootView.sessionDrilldown();
                          }
                      }
@@ -406,10 +412,9 @@ define([
                 });
             }
             if(currentLevel == 3) {
-                var label = (data.sessionType == 'server') ? 'Client IP' : 'Server IP';
                 sessionColumns.push({
                     field: 'remote_ip',
-                    name: label,
+                    name: 'Remote IP',
                     maxWidth: 75
                 }, {
                     field: 'remote_vn',
@@ -422,26 +427,22 @@ define([
                     name: 'Client Port',
                     maxWidth: 75
                 }, {
-                    field: 'SUM(forward_sampled_bytes)',
-                    name: 'Sampled Bytes (In/Out)',
-                    formatter:function(r,c,v,cd,dc) {
-                       return (formatBytes(v) + ' / ' +
-                              formatBytes(dc['SUM(reverse_sampled_bytes)']));
-                    }
+                    field: 'forward_action',
+                    name: 'Action',
+                    maxWidth: 150
                 });
             }
 
             sessionColumns.push({
                 field: 'SUM(forward_logged_bytes)',
-                name: 'Logged Bytes (In/Out)',
+                name: 'Bytes (In/Out)',
                 formatter:function(r,c,v,cd,dc) {
-                   return (formatBytes(v) + ' / ' +
-                          formatBytes(dc['SUM(reverse_logged_bytes)']));
+                    var inBytes = typeof dc['SUM(forward_sampled_bytes)'] != 'undefined'
+                        ? dc['SUM(forward_sampled_bytes)'] : dc['SUM(forward_logged_bytes)'],
+                        outBytes = typeof dc['SUM(reverse_sampled_bytes)'] != 'undefined'
+                        ? dc['SUM(reverse_sampled_bytes)'] : dc['SUM(reverse_logged_bytes)'];
+                   return (formatBytes(inBytes) + ' / ' + formatBytes(outBytes));
                 }
-            }, {
-                field: 'forward_action',
-                name: 'Action',
-                maxWidth: 150
             });
             gridElementConfig = {
                 header: {
@@ -502,6 +503,13 @@ define([
                         templateGeneratorConfig: {
                             formatter: 'protocolPortFormatter'
                         }
+                    }, {
+                        key: 'session_type',
+                        label: 'Session Type',
+                        templateGenerator: 'TextGenerator',
+                        templateGeneratorConfig: {
+                            formatter: 'sessionTypeFormatter'
+                        }
                     });
                /* } else {
                     templateConfig.push({
@@ -517,10 +525,9 @@ define([
             if(data.groupBy == 'policy')
                 currentLevel--;
             if(currentLevel == 2) {
-                var label = (data.sessionType == 'client') ? 'Client IP' : 'Server IP';
                 templateConfig.push({
                     key: 'local_ip',
-                    label: label,
+                    label: 'Local IP',
                     templateGenerator: 'TextGenerator'
                 }, {
                     key: 'vn',
@@ -532,10 +539,9 @@ define([
                 });
             }
             if(currentLevel == 3) {
-                var label = (data.sessionType == 'server') ? 'Client IP' : 'Server IP';
                 templateConfig.push({
                     key: 'remote_ip',
-                    label: label,
+                    label: 'Remote IP',
                     templateGenerator: 'TextGenerator'
                 }, {
                     key: 'remote_vn',
@@ -549,39 +555,25 @@ define([
                     label: 'Client Port',
                     templateGenerator: 'TextGenerator'
                 }, {
-                    key: 'SUM(forward_sampled_bytes)',
-                    label: 'Sampled In Bytes',
-                    templateGenerator: 'TextGenerator',
-                    templateGeneratorConfig: {
-                        formatter: 'bytesForwardFormatter'
-                    }
-                }, {
-                    key: 'SUM(reverse_sampled_bytes)',
-                    label: 'Sampled Out Bytes',
-                    templateGenerator: 'TextGenerator',
-                    templateGeneratorConfig: {
-                        formatter: 'bytesReverseFormatter'
-                    }
+                    key: 'forward_action',
+                    label: 'Action',
+                    templateGenerator: 'TextGenerator'
                 });
             }
             templateConfig.push({
+                key: 'SUM(forward_sampled_bytes)',
+                label: 'Sampled Bytes In/Out',
+                templateGenerator: 'TextGenerator',
+                templateGeneratorConfig: {
+                    formatter: 'sampledBytesFormatter'
+                }
+            }, {
                 key: 'SUM(forward_logged_bytes)',
-                label: 'Looged In Bytes',
+                label: 'Looged Bytes In/Out',
                 templateGenerator: 'TextGenerator',
                 templateGeneratorConfig: {
-                    formatter: 'loogedBytesForwardFormatter'
+                    formatter: 'loogedBytesFormatter'
                 }
-            }, {
-                key: 'SUM(reverse_logged_bytes)',
-                label: 'Looged Out Bytes',
-                templateGenerator: 'TextGenerator',
-                templateGeneratorConfig: {
-                    formatter: 'loogedBytesReverseFormatter'
-                }
-            }, {
-                key: 'forward_action',
-                label: 'Action',
-                templateGenerator: 'TextGenerator'
             });
             return {
                 templateGenerator: 'RowSectionTemplateGenerator',
@@ -654,18 +646,17 @@ define([
     this.bytesOutFormatter = function(v, dc) {
        return formatBytes(dc['SUM(eps.traffic.out_bytes)']);
     }
-    this.bytesReverseFormatter = function(v, dc) {
-       return formatBytes(dc['SUM(reverse_sampled_bytes)']);
+    this.sampledBytesFormatter = function(v, dc) {
+       return (formatBytes(dc['SUM(forward_sampled_bytes)']) + ' / ' +
+               formatBytes(dc['SUM(reverse_sampled_bytes)']));
     }
-    this.bytesForwardFormatter = function(v, dc) {
-       return formatBytes(dc['SUM(forward_sampled_bytes)']);
+    this.loogedBytesFormatter = function(v, dc) {
+       return (formatBytes(dc['SUM(forward_logged_bytes)']) + ' / ' +
+               formatBytes(dc['SUM(reverse_logged_bytes)']));
     }
-    this.loogedBytesReverseFormatter = function(v, dc) {
-       return formatBytes(dc['SUM(reverse_logged_bytes)']);
-    }
-    this.loogedBytesForwardFormatter = function(v, dc) {
-       return formatBytes(dc['SUM(forward_logged_bytes)']);
-    }
+    this.sessionTypeFormatter = function(v, dc) {
+        return v == 1 ? 'client' : 'server';
+    },
     this.vnFormatter = function(v, dc) {
        return formatVN(dc['vn']);
     }
