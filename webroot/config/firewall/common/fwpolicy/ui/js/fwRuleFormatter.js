@@ -47,7 +47,7 @@
            */
             this.serviceFormatter = function(r, c, v, cd, dc) {
                 var serviceStr = "";
-                if(dc['service'] !== undefined){
+                if(dc['service'] !== undefined && Object.keys(dc['service']).length > 0){
                     var service = getValueByJsonPath(dc,
                             "service", {}, false);
                         serviceStr += service.protocol ? service.protocol : '';
@@ -58,9 +58,13 @@
                                 serviceStr += ':'  +
                                     (endPort === -1 ? ctwl.FIREWALL_POLICY_ANY : endPort);
                             } else{
-                                serviceStr += ':' + (service && service.dst_ports ?
-                                        startPort + '-' +
-                                        endPort : '-');
+                                if(startPort === 0 && endPort === 65535){
+                                    serviceStr += ':any';
+                                }else{
+                                    serviceStr += ':' + (service && service.dst_ports ?
+                                            startPort + '-' +
+                                            endPort : '-');
+                                }
                             }
                         }
                         return serviceStr ? serviceStr : '-';

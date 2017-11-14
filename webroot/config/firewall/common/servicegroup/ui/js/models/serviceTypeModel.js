@@ -43,7 +43,11 @@ define([
                       dstRange = dstMin;
                     }
             	}else{
-            		dstRange = dstMin +'-'+ dstMax;
+            	    if(dstMin === 0 && dstMax === 65535){
+            	        dstRange = 'any';
+            	    }else{
+            	        dstRange = dstMin +'-'+ dstMax;
+            	    }
             	}
                 modelConfig["dst_port"] = dstRange;
             }else{
