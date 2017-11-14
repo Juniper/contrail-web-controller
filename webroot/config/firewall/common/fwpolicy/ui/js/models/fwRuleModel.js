@@ -43,18 +43,26 @@ define([
             }
             var simpleAction = getValueByJsonPath(modelConfig, "action_list;simple_action", '');
             modelConfig["simple_action"] = simpleAction;
-            if(modelConfig['service'] !== undefined){
+            if(modelConfig['service'] !== undefined && Object.keys(modelConfig['service']).length > 0){
                 var serviceList = [],port;
                 var protocol = getValueByJsonPath(modelConfig, "service;protocol", "");
                 var dstStartPort = getValueByJsonPath(modelConfig, "service;dst_ports;start_port", '');
                 var dstEndtPort = getValueByJsonPath(modelConfig, "service;dst_ports;end_port", '');
-                serviceList.push(protocol);
+                if(protocol !== ''){
+                   serviceList.push(protocol);
+                }
                 if(dstStartPort === dstEndtPort){
                     port = dstStartPort === -1 ? ctwl.FIREWALL_POLICY_ANY : dstStartPort;
                 }else{
-                   port = dstStartPort + '-' + dstEndtPort;
+                   if(dstStartPort === 0 && dstEndtPort === 65535){
+                       port = 'any';
+                   }else{
+                       port = dstStartPort + '-' + dstEndtPort;
+                   }
                 }
-                serviceList.push(port);
+                if(port !== ''){
+                   serviceList.push(port);
+                }
                 modelConfig["user_created_service"] = serviceList.join(':');
             }else if(modelConfig['service_group_refs'] !== undefined){
                 var serviceGrpRef = getValueByJsonPath(modelConfig,"service_group_refs",[]);
@@ -216,18 +224,21 @@ define([
                 var services = selectedData.split(':');
                 if(services.length === 2) {
                     service['service'] = {};
-                    service['service']['protocol'] = services[0];
+                    service['service']['protocol'] = services[0].toLowerCase();
                     service['service']['dst_ports'] =
-                        policyFormatters.formatPort(services[1])[0];
+                        policyFormatters.formatPort(services[1], 'rule')[0];
                     service['service']['src_ports'] =
-                        policyFormatters.formatPort('0-65535')[0];
+                        policyFormatters.formatPort('0-65535', 'rule')[0];
                 } else if(services.length === 1){
                     service['service'] = {};
-                    service['service']['protocol'] = services[0];
+                    if(services[0] === ''){
+                        services[0] = 'any';
+                    }
+                    service['service']['protocol'] = services[0].toLowerCase();
                     service['service']['dst_ports'] =
-                        policyFormatters.formatPort('-1')[0];
+                        policyFormatters.formatPort('0-65535', 'rule')[0];
                     service['service']['src_ports'] =
-                        policyFormatters.formatPort('0-65535')[0];
+                        policyFormatters.formatPort('0-65535', 'rule')[0];
                 }
                 service['isServiceGroup'] = false;
             }
@@ -288,12 +299,11 @@ define([
 
                 newFWRuleData['endpoint_1'] = self.populateEndpointData(attr['endpoint_1']);
                 newFWRuleData['endpoint_2'] = self.populateEndpointData(attr['endpoint_2']);
-                if(attr['user_created_service'] !== ''){
-                    var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
+                var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
                     if(getSelectedService.isServiceGroup){
                         newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
                         if(attr['service'] !== undefined){
-                            newFWRuleData['service'] = null;
+                            newFWRuleData['service'] = {};
                         }
                     }else{
                         if(getSelectedService['service'] !== undefined){
@@ -301,7 +311,6 @@ define([
                             newFWRuleData['service_group_refs'] = [];
                         }
                     }
-                }
                 newFWRuleData['action_list'] = {};
                 newFWRuleData['action_list']['simple_action'] = attr['simple_action'];
                 newFWRuleData['security_logging_object_refs'] = ctwu.setSloToModel(attr);

@@ -127,8 +127,8 @@ define([
 	                		var dstStartPort = 0;
 	                    	var dstEndPort = 0;
 	                    } else if(dstPort[0].toLowerCase() === 'any'){
-	                        var dstStartPort = -1;
-	                        var dstEndPort = -1;
+	                        var dstStartPort = 0;
+	                        var dstEndPort = 65535;
 	                	}else{
 	                		var dstStartPort = parseInt(dstPort[0].trim());
 	                    	var dstEndPort = parseInt(dstPort[dstPort.length-1].trim());
