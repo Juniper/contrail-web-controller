@@ -603,6 +603,7 @@ define(
                                 arcLabelYOffset: [-12,-6],
                                 showLinkDirection: true,
                                 getLinkDirection: self.getLinkDirection,
+                                formatDisplayLabel: self.formatLabel,
                                 colorScale: function (item) {
                                     var colorList = cowc['TRAFFIC_GROUP_COLOR_LEVEL'+item.level];
                                     if(self.matchArcsColorByCategory) {
@@ -667,7 +668,7 @@ define(
                                             d.linkCssClass = 'notEvaluated';
                                         }
                                         $.each(srcHierarchy, function(idx) {
-                                            srcDisplayLabel.push(self.formatLabel(hierarchyObj.srcLabels, idx));
+                                            srcDisplayLabel.push(self.getDisplayLabels(hierarchyObj.srcLabels, idx));
                                         });
 
                                         if(remoteVN && remoteVN.indexOf(':') > 0) {
@@ -681,7 +682,7 @@ define(
                                         }
 
                                         $.each(dstHierarchy, function(idx) {
-                                            dstDisplayLabel.push(self.formatLabel(hierarchyObj.dstLabels, idx));
+                                            dstDisplayLabel.push(self.getDisplayLabels(hierarchyObj.dstLabels, idx));
                                             if(externalType) {
                                                 if(externalType == 'external') {
                                                     dstHierarchy[idx] = 'External_external';
@@ -739,10 +740,7 @@ define(
                                             });
                                         } else {
                                             var matchedChilds = _.filter(arcData.dataChildren,function(currSession) {
-                                                if(self.isRecordMatched(data.namePath, currSession, data))
-                                                    return _.result(currSession,'SUM(eps.traffic.in_bytes)',0);
-                                                 else
-                                                    return 0;
+                                                return self.isRecordMatched(data.namePath, currSession, data);
                                             });
                                             content.items.push({
                                                 label: 'Traffic In',
@@ -1203,19 +1201,33 @@ define(
                     }
                     return {links, srcTags, dstTags};
                 },
-                formatLabel: function(labels, idx) {
+                getDisplayLabels: function(labels, idx) {
                     var displayLabels = [];
                     if(labels && labels.length > 0) {
                         _.each(labels[idx], function(label) {
-                            displayLabels.push(label
-                                 .replace('application', cowc.APPLICATION_ICON)
-                                 .replace('tier', cowc.TIER_ICON)
-                                 .replace('site', cowc.SITE_ICON)
-                                 .replace('deployment', cowc.DEPLOYMENT_ICON)
-                                 .replace('=', ' '));
+                            displayLabels.push(label);
                         });
                     }
                     return displayLabels;
+                },
+                formatLabel: function(label) {
+                    var iconClass = '', icon = '',
+                        disLabel = label;
+                    if(disLabel) {
+                        _.each(cowc.TRAFFIC_GROUP_TAG_TYPES, function(tagObj) {
+                            var tag = tagObj.text.toLowerCase();
+                            if(disLabel.indexOf(tag) > -1) {
+                                iconClass = tag + '-icon';
+                                icon = tagObj.icon;
+                                disLabel = disLabel.replace(tag, '').replace('=', '');
+                            }
+                        });
+                    }
+                    return {
+                        label : disLabel,
+                        iconClass : iconClass,
+                        icon : icon
+                    }
                 },
                 removeEmptyTags: function(names) {
                     var displayNames = names.slice(0),
@@ -1228,8 +1240,15 @@ define(
                         displayNames[0] = topLevelNames;
 
                     }
-                    displayNames = _.map(displayNames, function(name) {
-                        return _.compact(name).join('-');
+                    displayNames = _.map(displayNames, function(labels) {
+                        labels = _.map(labels, function(label) {
+                            var labelObj = tgView.formatLabel(label);
+                                disLabel = '<span class="'+labelObj.iconClass+'">' +
+                                 labelObj.icon + '</span> ' + labelObj.label;
+                                 disLabel = disLabel.replace(/<Untagged>/g, '&lt;untagged>')
+                            return disLabel;
+                        });
+                        return _.compact(labels).join('-');
                     });
                     displayNames = _.remove(displayNames, function(name, idx) {
                         return !(name == 'External' && idx > 0);
