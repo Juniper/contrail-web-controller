@@ -31,7 +31,7 @@ define([
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null;
 
             hashModelData.ip_address = contrail.checkIfExist(hashParams.ip_address) ? hashParams.ip_address : null;
-            hashModelData.port = contrail.checkIfExist(hashParams.port) ? parseInt(hashParams.port) : introspectPort;
+            hashModelData.port = introspectPort;
 
             primaryFormModelData = $.extend(true, {}, {node: introspectNode}, hashModelData);
 
