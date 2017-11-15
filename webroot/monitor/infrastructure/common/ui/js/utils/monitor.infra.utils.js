@@ -1472,7 +1472,8 @@ define([
                 nodeName = nodeList[0];
                 introspectPort = ctwc.INTROSPECT_PORT_NODE_MAP[nodeName];
             }
-            window.open("/#p=setting_introspect_" + nodeName + "&q[node]=" + nodeName + "&q[ip_address]=" + nodeIp + "&q[port]=" + introspectPort, "_blank");
+            window.open("/#p=setting_introspect_" + nodeName + "&q[node]=" +
+                        nodeName + "&q[ip_address]=" + nodeIp, "_blank");
         };
 
         self.onConfigLinkClick = function (nodeIp, introspectPort) {
