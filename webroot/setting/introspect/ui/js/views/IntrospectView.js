@@ -66,21 +66,12 @@ define([
         nodeTypeList = _.sortBy((nodeTypeList), function(nodeType) {
             return nodeType.toLowerCase();
         });
-        var nodeTypeListLen = nodeTypeList.length;
-        var activeTab = 0;
-        for (var i = 0; i < nodeTypeListLen; i++) {
-            if (hashParams.port == nodePortObjs[nodeTypeList[i]]) {
-                activeTab = i;
-                break;
-            }
-        }
 
         return {
             elementId: "introspect-" + introspectNode+ "-tabs",
             view: "TabsView",
             viewConfig: {
                 theme: cowc.TAB_THEME_OVERCAST,
-                active: (activeTab !== -1) ? activeTab : 0,
                 tabs: getFeatureTabsConfig(nodePortObjs, nodeTypeList, introspectNode)
             }
         };
