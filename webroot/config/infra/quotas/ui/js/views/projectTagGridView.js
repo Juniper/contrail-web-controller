@@ -162,28 +162,36 @@ define([
                                 }
                                 else if(tagsDetails[j].tag.tag_type_name === "tier") {
                                     data = {
-                                            "text":tagsDetails[j].tag.tag_value,
+                                           "text": (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                                    "global:" + tagsDetails[j].tag.tag_value :
+                                                     tagsDetails[j].tag.tag_value,
                                             "value":actValue
                                        };
                                     tierArray.push(data);
                                 }
                                 else if(tagsDetails[j].tag.tag_type_name === "site") {
                                     data = {
-                                            "text":tagsDetails[j].tag.tag_value,
+                                            "text": (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                                    "global:" + tagsDetails[j].tag.tag_value :
+                                                     tagsDetails[j].tag.tag_value,
                                             "value":actValue
                                        };
                                     siteArray.push(data);
                                 }
                                 else if(tagsDetails[j].tag.tag_type_name === "deployment") {
                                     data = {
-                                            "text":tagsDetails[j].tag.tag_value,
+                                            "text": (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                                    "global:" + tagsDetails[j].tag.tag_value :
+                                                     tagsDetails[j].tag.tag_value,
                                             "value":actValue
                                        };
                                     deploymentArray.push(data);
                                 }
                                 else if(tagsDetails[j].tag.tag_type_name === "label") {
                                     data = {
-                                            "text":tagsDetails[j].tag.tag_value,
+                                            "text": (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                                    "global:" + tagsDetails[j].tag.tag_value :
+                                                     tagsDetails[j].tag.tag_value,
                                             "value":actValue
                                        };
                                     lablesArray.push(data);
