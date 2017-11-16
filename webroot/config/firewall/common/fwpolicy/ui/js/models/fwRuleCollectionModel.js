@@ -124,7 +124,28 @@ define([
                 var to = serviceGrpRef[0].to;
                 modelConfig["user_created_service"] = to[to.length - 1];
             }else{
-                modelConfig["user_created_service"] = '';
+                if(modelConfig['service'] !== undefined && Object.keys(modelConfig['service']).length > 0){
+                    var serviceList = [],port;
+                    var protocol = getValueByJsonPath(modelConfig, "service;protocol", "");
+                    var dstStartPort = getValueByJsonPath(modelConfig, "service;dst_ports;start_port", '');
+                    var dstEndtPort = getValueByJsonPath(modelConfig, "service;dst_ports;end_port", '');
+                    if(protocol !== ''){
+                       serviceList.push(protocol);
+                    }
+                    if(dstStartPort === dstEndtPort){
+                        port = dstStartPort === -1 ? ctwl.FIREWALL_POLICY_ANY : dstStartPort;
+                    }else{
+                       if(dstStartPort === 0 && dstEndtPort === 65535){
+                           port = 'any';
+                       }else{
+                           port = dstStartPort + '-' + dstEndtPort;
+                       }
+                    }
+                    if(port !== ''){
+                       serviceList.push(port);
+                    }
+                    modelConfig["user_created_service"] = serviceList.join(':');
+                }
             }
             var endpoint1 = getValueByJsonPath(modelConfig, "endpoint_1");
             if(endpoint1 === ''){
