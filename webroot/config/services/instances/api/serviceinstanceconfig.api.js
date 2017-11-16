@@ -2275,6 +2275,60 @@ function deleteAnalyzerCB (deleteObj, callback)
     }
 }
 
+/**
+ * It is used to remove SHC reference from VMI before deleting SHC
+ * @param deleteObj
+ * @param callback
+ */
+function deleteServiceHealthCheckCB (deleteObj, callback)
+{
+    var appData = deleteObj.appData,
+        uuid = deleteObj.uuid,
+        shcURL = '/service-health-check/' + uuid,
+        dataObjArr = [];
+    configApiServer.apiGet(shcURL, appData, function(error, svcData) {
+        if (null != error) {
+            callback(null, {'error': error, 'data': svcData});
+            return;
+        }
+        var vmiBackRefs = commonUtils.getValueByJsonPath(svcData,
+                'service-health-check;virtual_machine_interface_back_refs', []);
+        if(!vmiBackRefs.length) {
+            configApiServer.apiDelete(shcURL, appData,
+                    function(error, data) {
+                        callback(null, {'error': error, 'data': data});
+                        return;
+            });
+            return;
+        }
+        _.each(vmiBackRefs, function(vmi){
+            var reqUrl = '/ref-update';
+            var putData = {
+                    'type': 'virtual-machine-interface',
+                    'uuid': vmi['uuid'],
+                    'ref-type': 'service-health-check',
+                    'ref-fq-name': commonUtils.getValueByJsonPath(svcData,
+                            'service-health-check;fq_name', null),
+                    'operation': 'DELETE'
+                };
+            commonUtils.createReqObj(dataObjArr, reqUrl,
+                                     global.HTTP_REQUEST_POST,
+                                     commonUtils.cloneObj(putData), null,
+                                     null, appData);
+        });
+        async.map(dataObjArr,
+                  commonUtils.getAPIServerResponse(configApiServer.apiPost,
+                                                   false),
+                  function(err, results) {
+                      configApiServer.apiDelete(shcURL, appData,
+                              function(error, data) {
+                                  callback(null, {'error': error, 'data': data});
+                                  return;
+                      });
+        });
+    });
+}
+
 function deleteServiceInstanceCB (deleteObj, callback)
 {
     var appData = deleteObj.appData;
@@ -2907,6 +2961,7 @@ exports.getServiceInstances = getServiceInstances;
 exports.getHostList = getHostList;
 exports.getAvailabilityZone = getAvailabilityZone;
 exports.deleteServiceInstanceCB = deleteServiceInstanceCB;
+exports.deleteServiceHealthCheckCB = deleteServiceHealthCheckCB;
 exports.deleteAnalyzerCB = deleteAnalyzerCB;
 exports.getNovaVMIStatusPaginated = getNovaVMIStatusPaginated;
 

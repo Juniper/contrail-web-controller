@@ -46,6 +46,7 @@ var configCBDelete =
     'routing-policy': routingPolicyConfig.deleteRoutingPolicyAsync,
     'virtual-network': vnConfig.deleteVirtualNetworkAsync,
     'service-instance': svcInst.deleteServiceInstanceCB,
+    'service-health-check': svcInst.deleteServiceHealthCheckCB,
     'service-analyzer':svcInst.deleteAnalyzerCB,
     'firewall-rule': fwPolicy.deleteFirewallRulesAsync,
     'firewall-policy': fwPolicy.deleteFirewallPoliciesAsync
