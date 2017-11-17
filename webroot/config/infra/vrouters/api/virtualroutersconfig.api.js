@@ -28,7 +28,7 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
 var async = require('async');
 var jsonDiff      = require(process.mainModule.exports["corePath"] +
 '/src/serverroot/common/jsondiff');
-
+var _ = require('lodash');
 /**
  * @getVirtualRoutersList
  * public function
@@ -117,14 +117,134 @@ function getVirtualRoutersDetails(error, data, response, appData)
 function createVirtualRouters (request, response, appData)
 {
      var postData     =  request.body;
-     configApiServer.apiPost('/virtual-routers', postData, appData,
-         function(error, data) {
-            if(error) {
-                commonUtils.handleJSONResponse(error, response, null);
-                return;
-            }         
-            getVirtualRouters(request, response, appData);
-         });             
+     updateIPAMs(postData, appData, function(){
+         console.log("I am called");
+         configApiServer.apiPost('/virtual-routers', postData, appData,
+                 function(error, data) {
+                    if(error) {
+                        commonUtils.handleJSONResponse(error, response, null);
+                        return;
+                    }
+                    getVirtualRouters(request, response, appData);
+                 });
+         //return true;
+     });
+}
+function updateIPAMs(postData, appData, callback)
+{
+  var ipamRefs = _.get(postData, 'virtual-router.network_ipam_refs', []);
+  var ipamAllocPoolMap = {}, allocPools = [];
+  var createAlloc = false;
+  if(ipamRefs.length === 0){
+      callback();
+      return;
+  }
+  _.each(ipamRefs, function(ipamRef) {
+      ipamAllocPoolMap[ipamRef.uuid] = [];
+      ipamAllocPoolMap[ipamRef.uuid].push(ipamRef.attr.allocation_pools);
+  });
+  var dataObjArry = [];
+  var count;
+  var flagtoCheckIp;
+  var isAllocPoolCreate=false;
+  var isAllocPoolAdd=false;
+  var isAllocPoolSame=false;
+  _.each(ipamRefs, function (ipamRef){
+      commonUtils.createReqObj(dataObjArry, '/network-ipam/' + ipamRef.uuid,
+              global.HTTP_REQUEST_GET,
+              null, null, null, appData);
+  });
+  if(dataObjArry.length) {
+      async.map(dataObjArry,
+      commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+      function(error, networkIPAMs) {
+          if(error != null || networkIPAMs == null) {
+              callback();
+              return;
+          }
+          _.each(networkIPAMs, function(networkIPAM) {
+              var ipam = _.get(networkIPAM, 'network-ipam', {}),
+                  subnets = _.get(ipam, 'ipam_subnets.subnets', []);
+                    count = 0;
+                    flagtoCheckIp = true;
+                  _.each(subnets, function(subnet) {
+                        count++;
+                        var currIpamAllocPools= ipamAllocPoolMap[ipam.uuid];
+                      _.each(currIpamAllocPools, function(allocPool) {
+                          var subnetPrefix = subnet.subnet.ip_prefix +"/"+ subnet.subnet.ip_prefix_len;
+                          _.each(allocPool, function(allocPoolItems){
+                              var checkAllocStart = commonUtils.isIPBoundToRange(subnetPrefix, allocPoolItems.start);
+                              var checkAllocEnd = commonUtils.isIPBoundToRange(subnetPrefix, allocPoolItems.end);
+                              if(checkAllocStart === true && checkAllocEnd === true){
+                                 if(!subnet.allocation_pools &&
+                                         allocPoolItems.start && allocPoolItems.end){
+                                      var allocation_pools = [];
+                                      allocation_pools.push({
+                                            vrouter_specific_pool: true,
+                                            start:allocPoolItems.start,
+                                            end:allocPoolItems.end
+                                    })
+                                    subnet['allocation_pools'] = allocation_pools;
+                                    isAllocPoolCreate=true;
+                                }
+                                if(subnet.allocation_pools[0].start !== allocPoolItems.start &&
+                                          subnet.allocation_pools[0].end !== allocPoolItems.end){
+                                      subnet.allocation_pools.push({
+                                            vrouter_specific_pool: true,
+                                            start:allocPoolItems.start,
+                                            end:allocPoolItems.end
+                                    })
+                                    isAllocPoolAdd=true;
+                                }
+                                if(subnet.allocation_pools[0].start === allocPoolItems.start &&
+                                        subnet.allocation_pools[0].end === allocPoolItems.end){
+                                    isAllocPoolSame = true;
+                                }
+                            }
+                            else{
+                                flagtoCheckIp = false;
+                            }
+                          })
+                      });
+                  });
+                  //check
+          });
+          //Completed the updation.
+          if(count === 1 && flagtoCheckIp === false){
+              callback();
+          }
+          else if(isAllocPoolCreate==false && isAllocPoolAdd === false && isAllocPoolSame === true){
+              callback();
+          }
+          else{
+            //Send the put request
+              async.map(networkIPAMs, function (itemName,callbackIPams){
+                var ipam = _.get(itemName, 'network-ipam', {});
+                jsonDiff.getJSONDiffByConfigUrl('/network-ipam/' + ipam.uuid, appData, ipam,
+                        function(err, ipamDataDelta){
+                            configApiServer.apiPut('/network-ipam/' + ipam.uuid, ipamDataDelta, appData,
+                                function(error, data) {
+                                   if(error) {
+                                       commonUtils.handleJSONResponse(error, data, null);
+                                       return;
+                                   }
+                                   callbackIPams();
+                                }
+                            );
+                        }
+                    );
+
+              }, function(error, results){
+                  if(error) {
+                      commonUtils.handleJSONResponse(error, null, null);
+                      return;
+                  }
+                  callback();
+              });
+         }
+         //Send the complete stuff here
+      });
+  }
 }
 
 /**
@@ -138,19 +258,19 @@ function updateVirtualRouters (request, response, appData)
      var vRouterID = validateVirtualRouterId(request),
          vrURL = '/virtual-router/' + vRouterID,
          postData     =  request.body;
-     jsonDiff.getJSONDiffByConfigUrl(vrURL, appData, postData,
-         function(err, vrDataDelta){
-             configApiServer.apiPut(vrURL, vrDataDelta, appData,
-                 function(error, data) {
-                    if(error) {
-                        commonUtils.handleJSONResponse(error, response, null);
-                        return;
-                    }
-                    getVirtualRouters(request, response, appData);
+         jsonDiff.getJSONDiffByConfigUrl(vrURL, appData, postData,
+                 function(err, vrDataDelta){
+                     configApiServer.apiPut(vrURL, vrDataDelta, appData,
+                         function(error, data) {
+                            if(error) {
+                                commonUtils.handleJSONResponse(error, response, null);
+                                return;
+                            }
+                            getVirtualRouters(request, response, appData);
+                         }
+                     );
                  }
              );
-         }
-     );
 } 
 
 /**

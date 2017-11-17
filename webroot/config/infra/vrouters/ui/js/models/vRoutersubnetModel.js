@@ -30,21 +30,6 @@ define([
 
         validations: {
             subnetModelConfigValidations: {
-                'vr_user_created_cidr':
-                    function (value, attr, finalObj) {
-                        msg = 'Enter valid IPv4 or IPv6 Subnet/Mask';
-                        err = [];
-                        if(value == null || value == " "){
-                            return false;
-                        }
-                        else if ((value.indexOf('/') == -1) || !isValidIP(value) ||
-                                !value || !value.length) {
-                            err.push(msg);
-                        }
-                        if (err.length) {
-                            return err[0];
-                        }
-                 },
                 'user_created_ipam_fqn' : {
                     required: true,
                     msg: 'Select IPAM',
