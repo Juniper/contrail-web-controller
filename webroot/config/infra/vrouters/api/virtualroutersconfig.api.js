@@ -28,7 +28,7 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
 var async = require('async');
 var jsonDiff      = require(process.mainModule.exports["corePath"] +
 '/src/serverroot/common/jsondiff');
-
+var _ = require('lodash');
 /**
  * @getVirtualRoutersList
  * public function
@@ -117,14 +117,114 @@ function getVirtualRoutersDetails(error, data, response, appData)
 function createVirtualRouters (request, response, appData)
 {
      var postData     =  request.body;
-     configApiServer.apiPost('/virtual-routers', postData, appData,
-         function(error, data) {
-            if(error) {
-                commonUtils.handleJSONResponse(error, response, null);
-                return;
-            }         
-            getVirtualRouters(request, response, appData);
-         });             
+     updateIPAMs(postData, appData, function(){
+         configApiServer.apiPost('/virtual-routers', postData, appData,
+                 function(error, data) {
+                    if(error) {
+                        commonUtils.handleJSONResponse(error, response, null);
+                        return;
+                    }
+                    getVirtualRouters(request, response, appData);
+                 });
+     });
+}
+function updateIPAMs(postData, appData, callback)
+{
+  var ipamRefs = _.get(postData, 'virtual-router.network_ipam_refs', []);
+  var ipamAllocPoolMap = {}, allocPools = [];
+  var createAlloc = false;
+  if(ipamRefs.length === 0){
+      callback();
+      return;
+  }
+  _.each(ipamRefs, function(ipamRef) {
+      ipamAllocPoolMap[ipamRef.uuid] = [];
+      ipamAllocPoolMap[ipamRef.uuid].push(ipamRef.attr.allocation_pools);
+  });
+  var dataObjArry = [];
+  var isAllocPoolExist = false;
+  _.each(ipamRefs, function (ipamRef){
+      commonUtils.createReqObj(dataObjArry, '/network-ipam/' + ipamRef.uuid,
+              global.HTTP_REQUEST_GET,
+              null, null, null, appData);
+  });
+  if(dataObjArry.length) {
+      async.map(dataObjArry,
+      commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+      function(error, networkIPAMs) {
+          if(error != null || networkIPAMs == null) {
+              callback();
+              return;
+          }
+          _.each(networkIPAMs, function(networkIPAM) {
+              var ipam = _.get(networkIPAM, 'network-ipam', {}),
+                  subnets = _.get(ipam, 'ipam_subnets.subnets', []);
+                  _.each(subnets, function(subnet) {
+                        var currIpamAllocPools= ipamAllocPoolMap[ipam.uuid];
+                      _.each(currIpamAllocPools, function(allocPool) {
+                          var subnetPrefix = subnet.subnet.ip_prefix +"/"+ subnet.subnet.ip_prefix_len;
+                          _.each(allocPool, function(allocPoolItems){
+                              var checkAllocStart = commonUtils.isIPBoundToRange(subnetPrefix, allocPoolItems.start);
+                              var checkAllocEnd = commonUtils.isIPBoundToRange(subnetPrefix, allocPoolItems.end);
+                              if(checkAllocStart === true && checkAllocEnd === true){
+                                 if(!subnet.allocation_pools &&
+                                         allocPoolItems.start && allocPoolItems.end){
+                                      var allocation_pools = [];
+                                      allocation_pools.push({
+                                            vrouter_specific_pool: true,
+                                            start:allocPoolItems.start,
+                                            end:allocPoolItems.end
+                                    })
+                                    subnet['allocation_pools'] = allocation_pools;
+                                    createAlloc = true;
+                                }
+                                else if(subnet.allocation_pools[0].start !== allocPoolItems.start &&
+                                          subnet.allocation_pools[0].end !== allocPoolItems.end){
+                                      subnet.allocation_pools.push({
+                                            vrouter_specific_pool: true,
+                                            start:allocPoolItems.start,
+                                            end:allocPoolItems.end
+                                    })
+                                }
+                            }
+                            else{
+                              callback();
+                            }
+                          })
+                          _.each(allocPool, function(allocPoolItems){
+                              if(subnet.allocation_pools[0].start === allocPoolItems.start &&
+                                      subnet.allocation_pools[0].end === allocPoolItems.end &&
+                                      createAlloc === false){
+                               isAllocPoolExist = true;
+                            }
+                            else{
+                                isAllocPoolExist = false;
+                                return false;
+                            }
+                          })
+                          if(isAllocPoolExist){
+                              callback();
+                          }
+                          else{
+                          jsonDiff.getJSONDiffByConfigUrl('/network-ipam/' + ipam.uuid, appData, ipam,
+                                  function(err, ipamDataDelta){
+                                      configApiServer.apiPut('/network-ipam/' + ipam.uuid, ipamDataDelta, appData,
+                                          function(error, data) {
+                                              callback();
+                                             if(error) {
+                                                 commonUtils.handleJSONResponse(error, null, null);
+                                                 return;
+                                             }
+                                          }
+                                      );
+                                  }
+                              );
+                          }
+                      });
+                  });
+          });
+      });
+  }
 }
 
 /**
@@ -138,19 +238,19 @@ function updateVirtualRouters (request, response, appData)
      var vRouterID = validateVirtualRouterId(request),
          vrURL = '/virtual-router/' + vRouterID,
          postData     =  request.body;
-     jsonDiff.getJSONDiffByConfigUrl(vrURL, appData, postData,
-         function(err, vrDataDelta){
-             configApiServer.apiPut(vrURL, vrDataDelta, appData,
-                 function(error, data) {
-                    if(error) {
-                        commonUtils.handleJSONResponse(error, response, null);
-                        return;
-                    }
-                    getVirtualRouters(request, response, appData);
+         jsonDiff.getJSONDiffByConfigUrl(vrURL, appData, postData,
+                 function(err, vrDataDelta){
+                     configApiServer.apiPut(vrURL, vrDataDelta, appData,
+                         function(error, data) {
+                            if(error) {
+                                commonUtils.handleJSONResponse(error, response, null);
+                                return;
+                            }
+                            getVirtualRouters(request, response, appData);
+                         }
+                     );
                  }
              );
-         }
-     );
 } 
 
 /**

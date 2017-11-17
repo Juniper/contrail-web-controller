@@ -992,3 +992,6 @@ body #firewall_policy_rules #firewall_rules th.text-center{
 #user_created_ipam_subnets .collapsibleChildContainer table:first-child{
     margin-left:5px;
 }
+#user_created_ipam_subnets table thead {
+    background: #fafafa;
+}
