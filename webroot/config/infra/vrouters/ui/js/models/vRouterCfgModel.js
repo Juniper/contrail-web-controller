@@ -169,10 +169,13 @@ define([
               }
             }
             for (var ipam in ipamAssocArr) {
-                    subnetArray.push({'to': ipam.split(cowc.DROPDOWN_VALUE_SEPARATOR),
-                                      'attr' :ipamAssocArr[ipam]
-                                      });
-            }
+                var ipamSubtext = ipam.substring(0, ipam.indexOf(':'));
+                var uuid = ipam.split(':').pop();
+                subnetArray.push({'to': ipamSubtext.split(cowc.DROPDOWN_VALUE_SEPARATOR),
+                                  'attr' :ipamAssocArr[ipam],
+                                  'uuid':uuid
+                                  });
+        }
             attr['network_ipam_refs'] = subnetArray;
         },
         validations: {

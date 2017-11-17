@@ -43,7 +43,7 @@ define([
 
             for(var k = 0; k < len; k++) {
                 var ipam = ipamObjs[k];
-                var ipamFQN = ipamObjs[k].to.join(cowc.DROPDOWN_VALUE_SEPARATOR);
+                var ipamFQN = ipamObjs[k].to.join(cowc.DROPDOWN_VALUE_SEPARATOR)+":"+ipamObjs[k].uuid;
                 var field = 'ipam_subnets';
                 var allocPoolStr = '';
                 var subnetArr;
@@ -128,7 +128,7 @@ define([
             }
             for(var k = 0; k < len; k++) {
                 var ipam = ipamObjs[k];
-                var ipamFQN = ipamObjs[k].to.join(cowc.DROPDOWN_VALUE_SEPARATOR);
+                var ipamFQN = ipamObjs[k].to.join(cowc.DROPDOWN_VALUE_SEPARATOR)+":"+ipamObjs[k].uuid;
                 var field = 'ipam_subnets';
                 var allocPoolStr = '';
                 var subnetArr;
@@ -189,9 +189,12 @@ define([
                         obj.ipam_subnet_method === ctwc.USER_DEFINED_SUBNET) {
                     return true;
                 }
-                for(var j=0;j<obj.ipam_subnets.subnets.length;j++){
-                    ipBlocks += "("+obj.ipam_subnets.subnets[j].subnet.ip_prefix+"/"+
-                    obj.ipam_subnets.subnets[j].subnet.ip_prefix_len+")"
+                var subnets = _.get(obj,'ipam_subnets.subnets',null);
+                if(subnets){
+                    _.each(subnets, function(val) {
+                        ipBlocks += "("+val.subnet.ip_prefix+"/"+
+                        val.subnet.ip_prefix_len+")"
+                     });
                 }
                 if (domain != obj.fq_name[0] ||
                     project != obj.fq_name[1]) {
@@ -199,7 +202,7 @@ define([
                                     ':' + obj.fq_name[1] + ')';
                 }
                 ipamList.push({
-                    id: obj.fq_name.join(cowc.DROPDOWN_VALUE_SEPARATOR),
+                    id: obj.fq_name.join(cowc.DROPDOWN_VALUE_SEPARATOR)+":"+obj.uuid,
                     text: flatName+ipBlocks
                 });
             });
