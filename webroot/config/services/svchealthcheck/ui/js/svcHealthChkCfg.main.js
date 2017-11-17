@@ -9,13 +9,17 @@ function svcHealthChkCfgLoader() {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathView = rootDir + '/js/views/svcHealthChkCfgView.js',
-            renderFn = paramObject['function'];
+            pathView = ctBaseDir + '/config/services/svchealthcheck/ui/js/views/svcHealthChkCfgView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
         if (self.svcHealthChkCfgView == null) {
             requirejs([pathView], function (svcHealthChkCfgView) {
                  self.svcHealthChkCfgView = new svcHealthChkCfgView();
                  self.renderView(renderFn, hashParams);
+                 if(contrail.checkIfExist(loadingStartedDefObj)) {
+                     loadingStartedDefObj.resolve();
+                 }
              });
         } else {
             self.renderView(renderFn, hashParams);

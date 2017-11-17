@@ -728,43 +728,351 @@ module.exports = function (grunt) {
                 },
                 feature: 'config'
             }
+        },
+        sloGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloGridView.test.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloGridView.mock.data.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/common/ui/js/**/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/slo/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Slo-grid-view-test-results.xml',
+                    suite: 'sloGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/slo-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/sloGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        gloablSloGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/globalSloGridView.test.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/globalSloGridView.mock.data.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/infra/globalconfig/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Gloabl-slo-grid-view-test-results.xml',
+                    suite: 'gloablSloGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/global-slo-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/gloablSloGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        qosGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/qos/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/qos/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/qos/test/ui/views/qosGridView.test.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/qos/test/ui/views/qosGridView.mock.data.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/qos/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/qos/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Qos-grid-view-test-results.xml',
+                    suite: 'qosGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/qos-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/qosGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        gloablQosGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/qos/test/ui/views/globalQosGridView.test.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/qos/test/ui/views/qosGridView.mock.data.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/qos/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Gloabl-qos-grid-view-test-results.xml',
+                    suite: 'gloablQosGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/global-qos-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/gloablQosGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        svcTempGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/templates/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/templates/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/templates/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/services/templates/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Service-template-grid-view-test-results.xml',
+                    suite: 'svcTempGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/service-template-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/svcTempGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        svcInstanceGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/instances/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/instances/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/instances/test/instanceGridView.mock.data.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/instances/test/instanceGridView.test.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/services/instances/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Service-instances-grid-view-test-results.xml',
+                    suite: 'svcInstanceGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/service-instances-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/svcInstanceGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        svcHealthCheckGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/svchealthcheck/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/svchealthcheck/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/svchealthcheck/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/services/svchealthcheck/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Service-health-check-grid-view-test-results.xml',
+                    suite: 'svcHealthCheckGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/service-health-check-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/svcHealthCheckGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        routeAggregateGridView : {
+             options: {
+                files: [
+                    {
+                       pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/views/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/models/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/test/ui/views/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/routetable/ui/js/*.js',
+                         included : false
+                    },
+                    {
+                         pattern : 'contrail-web-controller/webroot/config/networking/routetable/ui/js/views/*.js',
+                         included : false
+                     },
+                     {
+                         pattern : 'contrail-web-controller/webroot/config/networking/routetable/ui/js/models/*.js',
+                         included : false
+                     }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/routetable/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'route-aggregate-grid-view-test-results.xml',
+                    suite: 'routeAggregateGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/route-aggregate-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/routeAggregateGridView/',
+                   subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
         }
-//        routeAggregateGridView : {
-//            options: {
-//                files: [
-//                    {
-//                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/*.js',
-//                        included : false
-//                    },
-//                    {
-//                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/**/*.js',
-//                        included : false
-//                    },
-//                    {
-//                        pattern : 'contrail-web-controller/webroot/config/networking/routeaggregate/test/ui/views/*.js',
-//                        included : false
-//                    }
-//                ],
-//                preprocessors: {
-//                    'contrail-web-controller/webroot/config/networking/routeaggregate/ui/js/**/*.js': ['coverage']
-//                },
-//                junitReporter: {
-//                    outputDir:__dirname + '/reports/tests/config/views/',
-//                    outputFile: 'route-aggregate-grid-view-test-results.xml',
-//                    suite: 'routeAggregateGridView',
-//                    useBrowserName: false
-//                },
-//                htmlReporter: {
-//                    outputFile:__dirname + '/reports/tests/config/views/route-aggregate-grid-view-test-results.html'
-//                },
-//                coverageReporter: {
-//                    type: 'html',
-//                    dir: __dirname + '/reports/coverage/config/views/routeAggregateGridView/',
-//                    subdir : browserSubdirFn
-//                },
-//                feature: 'config'
-//            }
-//        } 
     };
 
     var allTestFiles = [],
@@ -1015,10 +1323,38 @@ module.exports = function (grunt) {
                 grunt.task.run('karma:portGridView');
                 testDir = 'portGridView'
                 break;
-            /* case 'routeaggregates' :
+            case 'slo' :
+                grunt.task.run('karma:sloGridView');
+                testDir = 'sloGridView'
+                break;
+            case 'qos' :
+                grunt.task.run('karma:qosGridView');
+                testDir = 'qosGridView'
+                break;
+            case 'globalslo' :
+                grunt.task.run('karma:gloablSloGridView');
+                testDir = 'gloablSloGridView'
+                break;
+            case 'globalqos' :
+                grunt.task.run('karma:gloablQosGridView');
+                testDir = 'gloablQosGridView'
+                break;
+            case 'servicetemplate' :
+                grunt.task.run('karma:svcTempGridView');
+                testDir = 'svcTempGridView'
+                break;
+            case 'serviceinstance' :
+                grunt.task.run('karma:svcInstanceGridView');
+                testDir = 'svcInstanceGridView'
+                break;
+            case 'servicehealthcheck' :
+                grunt.task.run('karma:svcHealthCheckGridView');
+                testDir = 'svcHealthCheckGridView'
+                break;
+            case 'routeaggregates' :
                 grunt.task.run('karma:routeAggregateGridView');
                 testDir = 'routeAggregateGridView'
-                break; */
+                break;
             default :
                 grunt.task.run('karma:runAllConfigTests');
                 testDir = 'runAllConfigTests';

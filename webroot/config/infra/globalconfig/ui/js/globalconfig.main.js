@@ -10,8 +10,9 @@ function GlobalConfigPageLoader ()
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathGlobalConfigView = rootDir + '/js/views/globalConfigView.js',
-            renderFn = paramObject['function'];
+            pathGlobalConfigView = ctBaseDir + '/config/infra/globalconfig/ui/js/views/globalConfigView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
 //        $(contentContainer).empty();
 
@@ -19,6 +20,9 @@ function GlobalConfigPageLoader ()
             requirejs([pathGlobalConfigView], function (GlobalConfigView) {
                 self.globalConfigView = new GlobalConfigView();
                 self.renderView(renderFn, hashParams);
+                if(contrail.checkIfExist(loadingStartedDefObj)) {
+                    loadingStartedDefObj.resolve();
+                }
             }, function (err) {
                 console.info("GlobalConfig Page Load error:" + err);
             });

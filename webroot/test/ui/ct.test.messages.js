@@ -41,7 +41,13 @@ define([
         this.BGP_AS_A_SERVICE_GRID_VIEW_COMMON_TEST_MODULE = 'BGP as a Service Grid View - Common Tests';
         this.ROUTE_AGGREGATE_GRID_VIEW_COMMON_TEST_MODULE = 'Route Aggregate Grid View - Common Tests';
         this.PORT_GRID_VIEW_COMMON_TEST_MODULE = 'Port Grid View - Common Tests';
-
+        this.SLO_GRID_VIEW_COMMON_TEST_MODULE = 'SLO Grid View - Common Tests';
+        this.GLOBAL_SLO_GRID_VIEW_COMMON_TEST_MODULE = 'Gloabl SLO Grid View - Common Tests';
+        this.QOS_GRID_VIEW_COMMON_TEST_MODULE = 'QOS Grid View - Common Tests';
+        this.GLOBAL_QOS_GRID_VIEW_COMMON_TEST_MODULE = 'Gloabl QOS Grid View - Common Tests';
+        this.SVC_TEMP_GRID_VIEW_COMMON_TEST_MODULE = 'Service Template Grid View - Common Tests';
+        this.INSTANCE_TEMP_GRID_VIEW_COMMON_TEST_MODULE = 'Instances Grid View - Common Tests';
+        this.SVC_HEALTH_CHECK_GRID_VIEW_COMMON_TEST_MODULE = 'Health Check Grid View - Common Tests';
         this.get = function () {
             var args = arguments;
             return args[0].replace(/\{(\d+)\}/g, function (m, n) {

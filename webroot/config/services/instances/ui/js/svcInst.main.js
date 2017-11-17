@@ -10,13 +10,17 @@ function SvcInstPageLoader ()
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathSvcInstView = rootDir + '/js/views/svcInstView.js',
-            renderFn = paramObject['function'];
+            pathSvcInstView = ctBaseDir + '/config/services/instances/ui/js/views/svcInstView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
         if (self.svcInstView == null) {
             requirejs([pathSvcInstView], function (SvcInstView) {
                 self.svcInstView = new SvcInstView();
                 self.renderView(renderFn, hashParams);
+                if(contrail.checkIfExist(loadingStartedDefObj)) {
+                    loadingStartedDefObj.resolve();
+                }
             }, function (err) {
                 console.info("SvcInst Page Load error:" + err);
             });

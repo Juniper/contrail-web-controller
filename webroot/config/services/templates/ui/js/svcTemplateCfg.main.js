@@ -9,13 +9,17 @@ function svcTemplateCfgLoader() {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathView = rootDir + '/js/views/svcTemplateCfgView.js',
-            renderFn = paramObject['function'];
+            pathView = ctBaseDir + '/config/services/templates/ui/js/views/svcTemplateCfgView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
         if (self.svcTemplateCfgView == null) {
             requirejs([pathView], function (svcTemplateCfgView) {
                  self.svcTemplateCfgView = new svcTemplateCfgView();
                  self.renderView(renderFn, hashParams);
+                 if(contrail.checkIfExist(loadingStartedDefObj)) {
+                     loadingStartedDefObj.resolve();
+                 }
              });
         } else {
             self.renderView(renderFn, hashParams);

@@ -1,17 +1,18 @@
 /*
- * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2017 Juniper Networks, Inc. All rights reserved.
  */
+
 define([
     'co-test-constants',
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
-    'config/networking/routeaggregate/test/ui/views/routeAggregateGridView.mock.data',
+    'config/networking/slo/test/ui/views/sloGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite'
 ], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
-    var moduleId = cttm.ROUTE_AGGREGATE_GRID_VIEW_COMMON_TEST_MODULE;
+    var moduleId = cttm.SLO_GRID_VIEW_COMMON_TEST_MODULE;
 
     var testType = cotc.VIEW_TEST;
 
@@ -19,18 +20,28 @@ define([
 
     var fakeServerResponsesConfig = function() {
         var responses = [];
+
         responses.push(cotr.createFakeServerResponse( {
             url: cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
-            body: JSON.stringify(TestMockdata.routeAggregateDomainsData)
+            body: JSON.stringify(TestMockdata.sloDomainsData)
         }));
         responses.push(cotr.createFakeServerResponse( {
             url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS),
-            body: JSON.stringify(TestMockdata.routeAggregatePojectsData)
+            body: JSON.stringify(TestMockdata.sloPojectsData)
         }));
-        responses.push(cotr.createFakeServerResponse({
+        
+        responses.push(cotr.createFakeServerResponse( {
+            url: /\/api\/admin\/config\/get-data.*$/,
+            body: JSON.stringify(TestMockdata.networkPolicyMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse( {
+            url: /\/api\/tenants\/config\/securitygroup-details.*$/,
+            body: JSON.stringify(TestMockdata.secGrpMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/tenants\/config\/get-config-details.*$/,
-            method: "POST",
-            body: JSON.stringify(TestMockdata.routeAggregateMockData)
+            method : 'POST',
+            body: JSON.stringify(TestMockdata.sloMockData)
         }));
         return responses;
     };
@@ -38,21 +49,16 @@ define([
 
     var pageConfig = cotr.getDefaultPageConfig();
     pageConfig.hashParams = {
-        p: 'config_net_routing',
-        q: {
-            tab: {
-                'rt-table-tab' : 'route_aggregates_tab'
-            }
-        }
+        p: 'config_net_slo'
     };
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 2;
 
     var getTestConfig = function() {
         return {
-            rootView: rtTablePageLoader.rtTableView,
+            rootView: configSloPageLoader.sloView,
             tests: [
                 {
-                    viewId: ctwc.ROUTE_AGGREGATE_GRID_ID,
+                    viewId: ctwc.SLO_GRID_ID,
                     suites: [
                         {
                             class: GridViewTestSuite,
