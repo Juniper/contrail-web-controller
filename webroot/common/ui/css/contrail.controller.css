@@ -1023,6 +1023,9 @@ body #firewall_policy_rules #firewall_rules th.text-center, body #applicationpol
 #user_created_ipam_subnets .collapsibleChildContainer table:first-child{
     margin-left:5px;
 }
+#user_created_ipam_subnets table thead {
+    background: #fafafa;
+}
 #firewall_rules td.data-cell.data-cell-security_logging_object_refs .form-label {
     padding: 5px;
     width: 68px!important;
