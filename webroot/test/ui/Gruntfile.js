@@ -994,14 +994,15 @@ module.exports = function (grunt) {
                 break;
             case 'physicalinterfaces' :
                 grunt.task.run('karma:physicalInterfacesGridView');
+                testDir = 'physicalInterfacesGridView';
                 break;
             case 'bgprouters' :
-                grunt.task.run('karma:physicalRoutersGridView');
-                testDir = 'physicalInterfacesGridView';
+                grunt.task.run('karma:bgpRoutersGridView');
+                testDir = 'bgpRoutersGridView';
                 break;
             case 'dnsservers' :
                 grunt.task.run('karma:dnsServersGridView');
-                testDir = 'bgpRoutersGridView';
+                testDir = 'dnsServersGridView';
                 break;
             case 'dnsrecords' :
                 grunt.task.run('karma:dnsRecordsGridView');
