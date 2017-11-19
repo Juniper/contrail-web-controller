@@ -8,7 +8,6 @@ function ConfigPoliciesLoader() {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
-            rootDir = currMenuObj['resources']['resource'][0]['rootDir'],
             pathPolicyView = ctBaseDir + '/config/networking/policy/ui/js/views/policyView.js',
             renderFn = paramObject['function'];
             loadingStartedDefObj = paramObject['loadingStartedDefObj'];
