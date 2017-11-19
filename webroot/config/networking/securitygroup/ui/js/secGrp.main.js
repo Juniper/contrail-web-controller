@@ -9,22 +9,17 @@ function SecGrpPageLoader ()
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
-            rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathSecGrpView = rootDir + '/js/views/SecGrpView.js',
+            pathSecGrpView = ctBaseDir + '/config/networking/securitygroup/ui/js/views/SecGrpView.js',
             renderFn = paramObject['function'];
-
-        $(contentContainer).empty();
-
-        if (self.secGrpView == null) {
-            requirejs([pathSecGrpView], function (SecGrpView) {
-                self.secGrpView = new SecGrpView();
-                self.renderView(renderFn, hashParams);
-            }, function (err) {
-                console.info("SecGrp Page Load error:" + err);
-            });
-       } else {
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
+            $(contentContainer).empty();
+        require([pathSecGrpView], function (SecGrpView) {
+            self.secGrpView = new SecGrpView();
             self.renderView(renderFn, hashParams);
-        }
+            if(contrail.checkIfExist(loadingStartedDefObj)) {
+                loadingStartedDefObj.resolve();
+            }
+        });
     }
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");

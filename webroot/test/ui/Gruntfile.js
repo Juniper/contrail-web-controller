@@ -1021,6 +1021,114 @@ module.exports = function (grunt) {
                 feature: 'config'
             }
         },
+        vnGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/networks/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/networks/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/networks/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/networks/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Vn-grid-view-test-results.xml',
+                    suite: 'vnGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/vn-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/vnGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+//        policyGridView : {
+//            options: {
+//                files: [
+//                    {
+//                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/*.js',
+//                        included : false
+//                    },
+//                    {
+//                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/**/*.js',
+//                        included : false
+//                    },
+//                    {
+//                        pattern : 'contrail-web-controller/webroot/config/networking/policy/test/ui/views/*.js',
+//                        included : false
+//                    }
+//                ],
+//                preprocessors: {
+//                    'contrail-web-controller/webroot/config/networking/policy/ui/js/**/*.js': []
+//                },
+//                junitReporter: {
+//                    outputDir:__dirname + '/reports/tests/config/views/',
+//                    outputFile: 'policy-grid-view-test-results.xml',
+//                    suite: 'policyGridView',
+//                    useBrowserName: false
+//                },
+//                htmlReporter: {
+//                    outputFile:__dirname + '/reports/tests/config/views/policy-grid-view-test-results.html'
+//                },
+//                coverageReporter: {
+//                    type: 'html',
+//                    dir: __dirname + '/reports/coverage/config/views/policyGridView/',
+//                    subdir : browserSubdirFn
+//                },
+//                feature: 'config'
+//            }
+//        },
+        secGrpGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/securitygroup/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/securitygroup/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/securitygroup/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/securitygroup/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'secgrp-grid-view-test-results.xml',
+                    suite: 'secGrpGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/secgrp-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/secGrpGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
         routeAggregateGridView : {
              options: {
                 files: [
@@ -1164,7 +1272,7 @@ module.exports = function (grunt) {
             files: [],
             preprocessors: {
                 'contrail-web-core/webroot/js/**/*.js': ['coverage'],
-                'contrail-web-controller/webroot/**/ui/js/**/*.js': ['coverage']
+                'contrail-web-controller/webroot/**/ui/js/**/*.js': []
             },
             junitReporter: {
                 outputDir: __dirname + '/reports/tests/',
@@ -1296,6 +1404,18 @@ module.exports = function (grunt) {
     grunt.registerTask('config', 'Config Test Cases', function(target){
         var testDir = 'runAllConfigTests';
         switch(target) {
+            case 'virtualnetworks' :
+                grunt.task.run('karma:vnGridView');
+                testDir = 'vnGridView';
+                break;
+//            case 'policy' :
+//                grunt.task.run('karma:policyGridView');
+//                testDir = 'policyGridView';
+//                break;
+            case 'securitygroup' :
+                grunt.task.run('karma:secGrpGridView');
+                testDir = 'secGrpGridView';
+                break;
             case 'physicalrouters' :
                 grunt.task.run('karma:physicalRoutersGridView');
                 testDir = 'physicalRoutersGridView';
