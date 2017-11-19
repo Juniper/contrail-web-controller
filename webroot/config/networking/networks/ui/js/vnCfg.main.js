@@ -8,18 +8,16 @@ function vnCfgLoader() {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
-            rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathView = rootDir + '/js/views/vnCfgView.js',
+            pathView = ctBaseDir + '/config/networking/networks/ui/js/views/vnCfgView.js',
             renderFn = paramObject['function'];
-
-        if (self.vnCfgView == null) {
-            requirejs([pathView], function (vnCfgView) {
-                 self.vnCfgView = new vnCfgView();
-                 self.renderView(renderFn, hashParams);
-             });
-        } else {
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
+        require([pathView], function (vnCfgView) {
+            self.vnCfgView = new vnCfgView();
             self.renderView(renderFn, hashParams);
-        }
+            if(contrail.checkIfExist(loadingStartedDefObj)) {
+                loadingStartedDefObj.resolve();
+            }
+        });
     }
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");
