@@ -121,13 +121,13 @@ define([
                 type:"GET"
             });
             //get SLO
-            getAjaxs[3] = $.ajax({
+            /*getAjaxs[3] = $.ajax({
               url: ctwc.URL_GET_CONFIG_DETAILS,
               type:"POST",
               dataType: "json",
               contentType: "application/json; charset=utf-8",
               data: JSON.stringify({data: [{type: "security-logging-objects"}]})
-            });
+            });*/
             $.when.apply($, getAjaxs).then(
                 function () {
                     var returnArr = [], results = arguments, applicationChild = [{text:'Select a Application',
@@ -263,7 +263,7 @@ define([
                         parent : "any_workload" });
                     addrFields.push({text : 'Any Workload', value : 'any_workload', children : anyList});
                     returnArr["addrFields"] = addrFields;
-                    var sloObj = fwPolicyFormatter.filterSloByProjects(getValueByJsonPath(results, '3;0;0;security-logging-objects', [], false), options.isGlobal);
+                    /*var sloObj = fwPolicyFormatter.filterSloByProjects(getValueByJsonPath(results, '3;0;0;security-logging-objects', [], false), options.isGlobal);
                     var sloList = [];
                     _.each(sloObj, function(obj) {
                         if("security-logging-object" in obj) {
@@ -272,7 +272,7 @@ define([
                             sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
                         }
                     });
-                    returnArr["sloList"] = sloList;
+                    returnArr["sloList"] = sloList;*/
                     callback(returnArr);
                 }
             )
@@ -451,7 +451,7 @@ define([
                                  }
                             }
                        }]
-                    },
+                    }/*,
                     {
                         columns: [
                             {
@@ -471,7 +471,7 @@ define([
                                      }
                                 }
                            }]
-                    }
+                    }*/
                 ]
             }
         }

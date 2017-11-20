@@ -95,17 +95,17 @@ define([
               kbValidation.unbind(self);
               $("#" + modalId).modal('hide');
             }});
-            self.fetchSloList(self, options, function(allData){
+           // self.fetchSloList(self, options, function(allData){
                 self.renderView4Config($("#" + modalId).find(formId),
                         self.model,
-                        getPolicyDescriptionEditViewConfig(options, allData),
+                        getPolicyDescriptionEditViewConfig(options/*, allData*/),
                         null, null, null, function() {
                     self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                     Knockback.applyBindings(self.model,
                              document.getElementById(modalId));
                     kbValidation.bind(self);
                 });
-            });
+            //});
         },
         renderDeleteFWPolicies: function(options) {
             var delTemplate =
@@ -200,13 +200,13 @@ define([
             });
 
           //get SLO
-            getAjaxs[3] = $.ajax({
+            /*getAjaxs[3] = $.ajax({
               url: ctwc.URL_GET_CONFIG_DETAILS,
               type:"POST",
               dataType: "json",
               contentType: "application/json; charset=utf-8",
               data: JSON.stringify({data: [{type: "security-logging-objects"}]})
-            });
+            });*/
 
             $.when.apply($, getAjaxs).then(
                 function () {
@@ -337,7 +337,7 @@ define([
                         parent : "any_workload" });
                     addrFields.push({text : 'Any Workload', value : 'any_workload', children : anyList});
                     returnArr["addrFields"] = addrFields;
-                    var sloObj = fwPolicyFormatter.filterSloByProjects(getValueByJsonPath(results, '3;0;0;security-logging-objects', [], false), options.isGlobal);
+                    /*var sloObj = fwPolicyFormatter.filterSloByProjects(getValueByJsonPath(results, '3;0;0;security-logging-objects', [], false), options.isGlobal);
                     var sloList = [];
                     _.each(sloObj, function(obj) {
                         if("security-logging-object" in obj) {
@@ -346,7 +346,7 @@ define([
                             sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
                         }
                     });
-                    returnArr["sloList"] = sloList;
+                    returnArr["sloList"] = sloList;*/
                     callback(returnArr);
                 }
             )
@@ -354,7 +354,7 @@ define([
 
     });
 
-    function getPolicyDescriptionEditViewConfig(options, allData){
+    function getPolicyDescriptionEditViewConfig(options/*, allData*/){
         var policyViewConfig = {
                 elementId: cowu.formatElementId([prefixId, "description"]),
                 title: "Edit Policy",
@@ -390,7 +390,7 @@ define([
                                     }
                                 }
                             ]
-                        },
+                        }/*,
                         {
                             columns: [
                                 {
@@ -410,7 +410,7 @@ define([
                                          }
                                     }
                                }]
-                        }
+                        }*/
 
                     ]
                 }
@@ -531,7 +531,7 @@ define([
                                       }
                                   }
                               ]
-                      },
+                      }/*,
                       {
                           columns: [
                               {
@@ -551,7 +551,7 @@ define([
                                        }
                                   }
                              }]
-                      }
+                      }*/
                 ]
             }
         },
@@ -967,10 +967,10 @@ define([
                                  name: 'Action',
                                  view: "FormDropdownView",
                                  class: "",
-                                    width: 62,
+                                   // width: 62,
+                                 width: 61,
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                    // width: 60,
                                      path: "simple_action",
                                      disabled: "showService()",
                                      dataBindValue: "simple_action()",
@@ -982,11 +982,11 @@ define([
                                     elementId: 'user_created_service',
                                     name: 'Services',
                                     view: "FormComboboxView",
-                                    width: 208,
+                                   // width: 208,
+                                    width: 212,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
-                                   //     width: 69,
-                                        path: 'user_created_service',
+                                    path: 'user_created_service',
                                         dataBindValue: 'user_created_service()',
                                         elementConfig: {
                                             dataTextField: "text",
@@ -1008,11 +1008,11 @@ define([
                                         "FormHierarchicalDropdownView",
                                     name: 'End Point 1',
                                     class: "",
-                                    width: 174,
+                                    //width: 174,
+                                    width: 182,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
-                                    //    width: 150,
-                                        path: 'endpoint_1',
+                                    path: 'endpoint_1',
                                         dataBindValue: 'endpoint_1()',
                                         elementConfig: {
                                             placeholder: 'Select Endpoint',
@@ -1077,11 +1077,11 @@ define([
                                  name: 'Dir',
                                  view: "FormDropdownView",
                                  class: "",
-                                 width: 46,
+                                // width: 46,
+                                 width: 47,
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                               //      width: 65,
-                                     path: "direction",
+                                 path: "direction",
                                      dataBindValue: "direction()",
                                      disabled: "showService()",
                                      elementConfig:{
@@ -1094,11 +1094,11 @@ define([
                                         "FormHierarchicalDropdownView",
                                     name: 'End Point 2',
                                     class: "",
-                                    width: 174,
+                                    //width: 174,
+                                    width: 183,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
-                                   //     width: 150,
-                                        path: 'endpoint_2',
+                                    path: 'endpoint_2',
                                         dataBindValue: 'endpoint_2()',
                                         elementConfig: {
                                             placeholder: 'Select Endpoint',
@@ -1160,11 +1160,11 @@ define([
                                     elementId: 'match_tags',
                                     name: 'Match Tags',
                                     view: "FormMultiselectView",
-                                    width: 141,
+                                    //width: 141,
+                                    width: 183,
                                     viewConfig:
                                       {
                                        class: "",
-                                       //width: 130,
                                        path: "match_tags",
                                        templateId:
                                            cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
@@ -1180,7 +1180,7 @@ define([
                                                   {text: 'Site', value: 'site'}]
                                        }
                                       }
-                                },
+                                }/*,
                                 {
                                     elementId: 'slo_check',
                                     name: 'SLO',
@@ -1189,11 +1189,10 @@ define([
                                     width: 62,
                                     viewConfig: {
                                        templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
-                                   //    width: 60,
-                                       path: 'slo_check',
+                                     path: 'slo_check',
                                        dataBindValue: 'slo_check()'
                                        }
-                                }/*,
+                                },
                                 {
                                  elementId: 'log_checked',
                                  name: 'Log',
@@ -1243,7 +1242,7 @@ define([
                                         dataBindValue: 'qos_action_check()'
                                        }
                                 }*/]
-                            },
+                            }/*,
                             {
                                 columns: [
                                     {
@@ -1270,7 +1269,7 @@ define([
                                          }
                                     }
                                   ]
-                                 }/*,{
+                                 },{
                             columns: [
                                 {
                                      elementId: 'service_instances',

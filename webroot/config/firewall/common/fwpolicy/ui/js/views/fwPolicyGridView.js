@@ -328,7 +328,7 @@ define([
                                     templateGeneratorConfig: {
                                         formatter: "policySetFormatter"
                                     }
-                                },{
+                                },/*{
                                     label: 'Associated Security Logging Objects',
                                     key: 'security_logging_object_refs',
                                     templateGenerator:
@@ -337,7 +337,7 @@ define([
                                         formatter:
                                             'SloFormatter'
                                     }
-                                },{
+                                },*/{
                                     keyClass:'col-xs-3',
                                     valueClass:'col-xs-9',
                                     key: "uuid",
