@@ -35,7 +35,7 @@ define([
             'user_created_router_type' : null,
             'user_created_autonomous_system' : null,
             'user_created_address_family' :
-                'inet-vpn,route-target,inet6-vpn,e-vpn,inet',
+                'inet-vpn,route-target,inet6-vpn,e-vpn',
             'user_created_auth_key_type' : 'none',
             'user_created_auth_key' : null,
             'user_created_physical_router' : 'none',
@@ -97,7 +97,7 @@ define([
             } else{
                 //it is required to send default family list for bgp router type
                 bgpParams['address_families']['family'] =
-                   ['inet-vpn','inet6-vpn','route-target','e-vpn','inet'];
+                   ['inet-vpn','inet6-vpn','route-target','e-vpn'];
             }
 
             //populate user_created_physical_router
@@ -583,16 +583,19 @@ define([
                 function(addressFamily) { return addressFamily.value;});
         },
         onRouterTypeSelectionChanged: function(newValue) {
-            var addressFamilies, filterAddressFamilies;
+            var addressFamilies, filterAddressFamilies,filterItemAdressFamilies;
             self.bgp_router_parameters().router_type = newValue;
             self.model().attributes['peers'].reset();
             if(newValue === ctwl.CONTROL_NODE_TYPE) {
                 addressFamilies = ctwc.CN_ADDRESS_FAMILY_DATA;
                 self.user_created_vendor('contrail');
                 self.user_created_physical_router('none');
+                filterItemAdressFamilies = addressFamilies.filter(function( obj ) {
+                    return obj.text !== 'inet';
+                });
                 self.addressFamilyData(addressFamilies);
                 filterAddressFamilies =
-                    self.getAddressFamilyStringArray(addressFamilies);
+                    self.getAddressFamilyStringArray(filterItemAdressFamilies);
                 self.user_created_address_family(filterAddressFamilies.join(","));
                 //set global asn as asn for control node type
                 self.user_created_autonomous_system(self.globalASN)
@@ -601,16 +604,22 @@ define([
                 addressFamilies = ctwc.CN_ADDRESS_FAMILY_DATA;
                 self.user_created_vendor('');
                 self.user_created_physical_router('none');
+                filterItemAdressFamilies = addressFamilies.filter(function( obj ) {
+                    return obj.text !== 'inet';
+                });
                 self.addressFamilyData(addressFamilies);
                 filterAddressFamilies =
-                    self.getAddressFamilyStringArray(addressFamilies);
+                    self.getAddressFamilyStringArray(filterItemAdressFamilies);
                 self.user_created_address_family(filterAddressFamilies.join(","));
             } else if(newValue === ctwl.BGP_ROUTER_TYPE) {
                 addressFamilies = ctwc.BGP_ADDRESS_FAMILY_DATA;
                 self.user_created_vendor('');
+                filterItemAdressFamilies = addressFamilies.filter(function( obj ) {
+                    return obj.text !== 'inet';
+                });
                 self.addressFamilyData(addressFamilies);
                 filterAddressFamilies =
-                    self.getAddressFamilyStringArray(addressFamilies);
+                    self.getAddressFamilyStringArray(filterItemAdressFamilies);
                 self.user_created_address_family(filterAddressFamilies.join(","));
             }
         }
