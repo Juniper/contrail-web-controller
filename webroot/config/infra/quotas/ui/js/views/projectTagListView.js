@@ -58,6 +58,9 @@ define([
             }
             tagValue = tagValue.replace(/,\s*$/, "");
             var tagKey = tagInfo.substring(0,tagInfo.indexOf(ctwc.TAG_SEPARATOR));
+            if(tagData.length === 1){
+                tagValue = 'global:'+ tagValue;
+            }
             tagMap[tagKey] = {value:tagValue,fqName:tagData};
         }
 
