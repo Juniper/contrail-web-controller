@@ -223,7 +223,7 @@ define([
     var getApplicationPolicyViewConfig = function (isDisable, viewConfig, seletedRows, slecectedPolicyList, apsName) {
         var policyParam = {data: [{type: 'firewall-policys'}]};
         var tagsFiiteredArray = [];
-        var tagsArray = [];
+        var tagsArray = [], tagName;
         return {
             elementId: "create_application_policy_prefixid",
             view: 'SectionView',
@@ -289,15 +289,23 @@ define([
                                                                  ":" + tagsDetails[j].tag.fq_name[1] +
                                                                  ":" + tagsDetails[j].tag.fq_name[2];
                                                              }
-                                                             data = {
-                                                                     "text":(tagsDetails[j]['tag'].fq_name.length == 1)?
-                                                                             "global:" + tagsDetails[j].tag.name :
-                                                                                 tagsDetails[j].tag.name,
-                                                                     "value":actValue
-                                                                };
-                                                            if (tagsDetails[j].tag.tag_type_name === 'application') {
-                                                                 tagsArray.push(data);
-                                                             }
+                                                             if(viewConfig.isGlobal){
+                                                                 tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                                                         tagsDetails[j].tag.name : '';
+                                                              }else{
+                                                                  tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                                                          "global:" + tagsDetails[j].tag.name :
+                                                                              tagsDetails[j].tag.name;
+                                                              }
+                                                              if(tagName !== ''){
+                                                                  data = {
+                                                                          "text": tagName,
+                                                                          "value":actValue
+                                                                     };
+                                                                  if (tagsDetails[j].tag.tag_type_name === 'application') {
+                                                                      tagsArray.push(data);
+                                                                  }
+                                                              }
                                                          }
                                                        }
                                                        return tagsArray;
