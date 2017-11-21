@@ -48,6 +48,8 @@ define([
         this.SVC_TEMP_GRID_VIEW_COMMON_TEST_MODULE = 'Service Template Grid View - Common Tests';
         this.INSTANCE_TEMP_GRID_VIEW_COMMON_TEST_MODULE = 'Instances Grid View - Common Tests';
         this.SVC_HEALTH_CHECK_GRID_VIEW_COMMON_TEST_MODULE = 'Health Check Grid View - Common Tests';
+        this.LB_GRID_VIEW_COMMON_TEST_MODULE = 'Load Balancer Grid View - Common Tests';
+
         this.get = function () {
             var args = arguments;
             return args[0].replace(/\{(\d+)\}/g, function (m, n) {
