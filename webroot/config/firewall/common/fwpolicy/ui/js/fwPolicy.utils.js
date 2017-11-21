@@ -42,6 +42,9 @@ define([
                 return;
             }
             var serviceArry = value.split(':');
+            if(serviceArry[0] === 'global'){
+                serviceArry.splice(0,1);
+            }
             if(serviceArry.length !== 2) {
                 return;
             }

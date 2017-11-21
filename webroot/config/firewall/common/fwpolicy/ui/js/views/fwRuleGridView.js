@@ -9,7 +9,7 @@ define([
     'config/firewall/common/fwpolicy/ui/js/views/fwRuleEditView',
     'config/firewall/common/fwpolicy/ui/js/models/fwRuleModel'
 ], function(_, ContrailView, FWRuleFormatter, FWRuleEditView, FWRuleModel) {
-    var self, gridElId = '#' + ctwc.FW_RULE_GRID_ID, gridObj,
+    var self, gridElId = '#' + ctwc.FW_RULE_GRID_ID, gridObj, isGlobal,
       fwRuleFormatter = new FWRuleFormatter();
     var fwRuleEditView = new FWRuleEditView();
     var fwRuleGridView = ContrailView.extend({
@@ -19,6 +19,7 @@ define([
             self = this;
             var viewConfig = self.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+            isGlobal = viewConfig.isGlobal;
             self.renderView4Config(self.$el, self.model,
                 getFWRuleGridViewConfig(viewConfig));
         }
@@ -88,7 +89,7 @@ define([
                     }
                 }
             },
-            columnHeader: { columns: fwRuleColumns}
+            columnHeader: { columns: getfwRuleColumns(viewConfig)}
         };
         return gridElementConfig;
     };
@@ -212,7 +213,9 @@ define([
             },
             ctwgc.getEditConfig('Edit', function(rowIndex) {
                 var dataView = $('#' + ctwc.FW_RULE_GRID_ID).data("contrailGrid")._dataView;
-                fwRuleEditView.model = new FWRuleModel(dataView.getItem(rowIndex));
+                var rowData = dataView.getItem(rowIndex);
+                rowData.isGlobal = viewConfig.isGlobal;
+                fwRuleEditView.model = new FWRuleModel(rowData);
                 fwRuleEditView.renderAddEditFwRule({
                                       "title": 'Edit Firewall Rule',
                                       'mode':'edit',
@@ -281,68 +284,70 @@ define([
         ];
         return headerActionConfig;
     }
-    var fwRuleColumns = [/*{
-                               id: 'sequence',
-                               field: 'sequence',
-                               width: 50,
-                               name: 'Order',
-                               formatter: fwRuleFormatter.sequenceFormatter
-                           }, {
-                               id: 'enabled',
-                               field: 'enabled',
-                               width: 70,
-                               name: 'Status',
-                               formatter: fwRuleFormatter.enabledFormatter
-                           },*/ {
-                              id: 'action_list.simple_action',
-                              field: 'action_list.simple_action',
-                              width: 70,
-                              name: 'Action',
-                              sortable: false,
-                              formatter: fwRuleFormatter.actionFormatter
-                           }, {
-                               id: 'service',
-                               field: 'service',
-                               width: 140,
-                               name: 'Services',
-                               sortable: false,
-                               formatter: fwRuleFormatter.serviceFormatter
-                           }, {
-                               id: 'endpoint_1',
-                               field: 'endpoint_1',
-                               width: 240,
-                               name: 'End Point 1',
-                               sortable: false,
-                               formatter: fwRuleFormatter.endPoint1Formatter
-                           }, {
-                               id: 'direction',
-                               field: 'direction',
-                               width: 60,
-                               name: 'Dir',
-                               sortable: false,
-                               formatter: fwRuleFormatter.dirFormatter
-                           }, {
-                               id: 'endpoint_2',
-                               field: 'endpoint_2',
-                               width: 240,
-                               name: 'End Point 2',
-                               sortable: false,
-                               formatter: fwRuleFormatter.endPoint2Formatter
-                           }, {
-                               id: 'match_tags',
-                               field: 'match_tags',
-                               width: 100,
-                               name: 'Match Tags',
-                               sortable: false,
-                               formatter: fwRuleFormatter.matchFormatter
-                           }/*, {
-                               id: 'action_list.apply_service',
-                               field: 'action_list.apply_service',
-                               width: 90,
-                               name: 'Simple Actions',
-                               formatter: fwRuleFormatter.simpleActionFormatter
-                           }*/];
-
+    function getfwRuleColumns(viewConfig){
+        var fwRuleColumns = [/*{
+            id: 'sequence',
+            field: 'sequence',
+            width: 50,
+            name: 'Order',
+            formatter: fwRuleFormatter.sequenceFormatter
+        }, {
+            id: 'enabled',
+            field: 'enabled',
+            width: 70,
+            name: 'Status',
+            formatter: fwRuleFormatter.enabledFormatter
+        },*/ {
+           id: 'action_list.simple_action',
+           field: 'action_list.simple_action',
+           width: 70,
+           name: 'Action',
+           sortable: false,
+           formatter: fwRuleFormatter.actionFormatter
+        }, {
+            id: 'service',
+            field: 'service',
+            width: 140,
+            name: 'Services',
+            sortable: false,
+            formatter: fwRuleFormatter.serviceFormatter.bind(viewConfig)
+        }, {
+            id: 'endpoint_1',
+            field: 'endpoint_1',
+            width: 240,
+            name: 'End Point 1',
+            sortable: false,
+            formatter: fwRuleFormatter.endPoint1Formatter
+        }, {
+            id: 'direction',
+            field: 'direction',
+            width: 60,
+            name: 'Dir',
+            sortable: false,
+            formatter: fwRuleFormatter.dirFormatter
+        }, {
+            id: 'endpoint_2',
+            field: 'endpoint_2',
+            width: 240,
+            name: 'End Point 2',
+            sortable: false,
+            formatter: fwRuleFormatter.endPoint2Formatter
+        }, {
+            id: 'match_tags',
+            field: 'match_tags',
+            width: 100,
+            name: 'Match Tags',
+            sortable: false,
+            formatter: fwRuleFormatter.matchFormatter
+        }/*, {
+            id: 'action_list.apply_service',
+            field: 'action_list.apply_service',
+            width: 90,
+            name: 'Simple Actions',
+            formatter: fwRuleFormatter.simpleActionFormatter
+        }*/];
+        return fwRuleColumns;
+    }
 
     function getFWRuleExpDetailsTemplateConfig() {
         return {
@@ -478,7 +483,7 @@ define([
     };
 
     this.serviceFormatter = function(v, dc) {
-        return fwRuleFormatter.serviceFormatter("", "", v, "", dc);
+        return fwRuleFormatter.serviceFormatter("", "", v, "", dc, isGlobal);
     };
 
     this.dirFormatter = function(v, dc) {

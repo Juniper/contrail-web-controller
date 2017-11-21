@@ -53,7 +53,7 @@ define([
                     function(allData) {
                        self.renderView4Config($("#" + modalId).find(formId),
                                 self.model,
-                                getFwRuleViewConfig(disable, allData),
+                                getFwRuleViewConfig(disable, allData, options),
                                 "fwRuleValidation",
                                 null, null, function() {
                                  self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
@@ -288,17 +288,30 @@ define([
         return matchList;
     };
     function serviceGroupDataFormatter(response){
-        var serviceGrpList = [];
+        var serviceGrpList = [], isGlobal = this.isGlobal;
         serviceGroupList =[];
         var secGrpList = getValueByJsonPath(response, "0;service-groups", []);
         $.each(secGrpList, function (i, obj) {
             var obj = obj['service-group'];
-            serviceGrpList.push({value: obj.uuid, text: obj.name});
-            serviceGroupList.push({fq_name : obj.fq_name, text: obj.name});
+            if(isGlobal){
+                if(obj.fq_name.length < 3){
+                    serviceGrpList.push({value: obj.uuid, text: obj.name});
+                    serviceGroupList.push({fq_name : obj.fq_name, text: obj.name});
+                }
+            }else{
+                if(obj.fq_name.length < 3){
+                    var text = 'global:' + obj.name;
+                    serviceGrpList.push({value: obj.uuid, text: text});
+                    serviceGroupList.push({fq_name : obj.fq_name, text: text});
+                }else{
+                    serviceGrpList.push({value: obj.uuid, text: obj.name});
+                    serviceGroupList.push({fq_name : obj.fq_name, text: obj.name});
+                }
+            }
          });
         return serviceGrpList;
     };
-    var getFwRuleViewConfig = function (isDisable, allData) {
+    var getFwRuleViewConfig = function (isDisable, allData, options) {
         var tagParam = {data: [{type: 'tags'}]};
         var serviceGrp = {data: [{type: 'service-groups'}]};
         return {
@@ -340,7 +353,7 @@ define([
                                              requestType: "POST",
                                              url: "/api/tenants/config/get-config-details",
                                              postData: JSON.stringify(serviceGrp),
-                                             parse : serviceGroupDataFormatter
+                                             parse : serviceGroupDataFormatter.bind(options)
                                          }
                                      }
                                  }

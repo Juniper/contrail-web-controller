@@ -50,7 +50,7 @@ define([
 
             self.renderView4Config($("#" + modalId).find(formId),
                                    this.model,
-                                   getApplicationPolicyViewConfig(disable),
+                                   getApplicationPolicyViewConfig(disable, options),
                                    "applicationPolicyValidation",
                                    null, null, function() {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
@@ -97,20 +97,36 @@ define([
         }
     });
     function firwallPolicyDropDownFormatter(response){
-        var firewallList = [];
+        var firewallList = [], isGlobal = this.isGlobal;
         var policyList = getValueByJsonPath(response, "0;firewall-policys", []);
         $.each(policyList, function (i, obj) {
-            var fqNameJoin = obj['firewall-policy']['fq_name'].join(':');
-            var fqName = obj['firewall-policy']['fq_name'];
-            fqName = fqName[fqName.length-1];
-            firewallList.push({id: fqNameJoin, text: fqName});
+            if(isGlobal){
+                if(obj['firewall-policy']['fq_name'].length < 3){
+                    var fqNameJoin = obj['firewall-policy']['fq_name'].join(':');
+                    var fqName = obj['firewall-policy']['fq_name'];
+                    fqName = fqName[fqName.length-1];
+                    firewallList.push({id: fqNameJoin, text: fqName});
+                }
+            } else{
+                var fqNameJoin, fqName;
+                if(obj['firewall-policy']['fq_name'].length < 3){
+                    var fqNameJoin = obj['firewall-policy']['fq_name'].join(':');
+                    var fqName = obj['firewall-policy']['fq_name'];
+                    fqName = 'global:' + fqName[fqName.length-1];
+                } else{
+                    var fqNameJoin = obj['firewall-policy']['fq_name'].join(':');
+                    var fqName = obj['firewall-policy']['fq_name'];
+                    fqName = fqName[fqName.length-1];
+                }
+                firewallList.push({id: fqNameJoin, text: fqName});
+            }
          });
         return firewallList;
     };
-    var getApplicationPolicyViewConfig = function (isDisable) {
+    var getApplicationPolicyViewConfig = function (isDisable, options) {
         var policyParam = {data: [{type: 'firewall-policys'}]};
         var tagsFiiteredArray = [];
-        var tagsArray = [];
+        var tagsArray = [], tagName;
         return {
             elementId: ctwc.SEC_POLICY_ADDRESS_GRP_PREFIX_ID,
             view: 'SectionView',
@@ -176,15 +192,23 @@ define([
                                                                  ":" + tagsDetails[j].tag.fq_name[1] +
                                                                  ":" + tagsDetails[j].tag.fq_name[2];
                                                              }
-                                                             data = {
-                                                                     "text":(tagsDetails[j]['tag'].fq_name.length == 1)?
-                                                                             "global:" + tagsDetails[j].tag.name :
-                                                                                 tagsDetails[j].tag.name,
-                                                                     "value":actValue
-                                                                };
-                                                            if (tagsDetails[j].tag.tag_type_name === 'application') {
-                                                                 tagsArray.push(data);
-                                                             }
+                                                             if(options.isGlobal){
+                                                                 tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                                                         tagsDetails[j].tag.name : '';
+                                                              }else{
+                                                                  tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                                                          "global:" + tagsDetails[j].tag.name :
+                                                                              tagsDetails[j].tag.name;
+                                                              }
+                                                              if(tagName !== ''){
+                                                                  data = {
+                                                                          "text": tagName,
+                                                                          "value":actValue
+                                                                     };
+                                                                  if (tagsDetails[j].tag.tag_type_name === 'application') {
+                                                                      tagsArray.push(data);
+                                                                  }
+                                                              }
                                                          }
                                                        }
                                                        return tagsArray;
@@ -215,7 +239,7 @@ define([
                                            requestType: "POST",
                                            url: "/api/tenants/config/get-config-details",
                                            postData: JSON.stringify(policyParam),
-                                           parse : firwallPolicyDropDownFormatter
+                                           parse : firwallPolicyDropDownFormatter.bind(options)
                                        }
                                     }
                                }
