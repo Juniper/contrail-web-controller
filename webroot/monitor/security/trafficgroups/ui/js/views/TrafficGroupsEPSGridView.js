@@ -334,10 +334,10 @@ define([
                 //if(data.groupBy != 'policy' || currentLevel == 2) {
                     sessionColumns.push({
                         field: 'protocol',
-                        name: 'Protocol (Server Port)',
+                        name: 'Session Type - Protocol (Server Port)',
                         cssClass: 'cell-hyperlink-blue',
                         formatter: function(r,c,v,cd,dc) {
-                            return protocolPortFormatter(v, dc);
+                            return sessionTypeProtocolFormatter(v, dc);
                         },
                         events : {
                             onClick : function(e, d) {
@@ -349,17 +349,11 @@ define([
                                 }, {
                                     "suffix": null, "value2": null, "name": "server_port", "value": d['server_port'], "op": 1
                                 }]);
-                                data.breadcrumb.push(['Protocol: ' + protocol, 'Port: ' + d['server_port']]);
+                                data.breadcrumb.push(['Session Type: ' + (data.sessionType == 'client' ? 'Client' : 'Server'),
+                                                      'Protocol: ' + protocol, 'Port: ' + d['server_port']]);
                                 self.rootView.sessionDrilldown();
                              }
                          }
-                    }, {
-                        field: 'session_type',
-                        name: 'Session Type',
-                        formatter: function(r,c,v,cd,dc) {
-                            return sessionTypeFormatter(v, dc);
-                        },
-                        maxWidth: 150
                     });
                 /*} else {
                     sessionColumns.push({
@@ -668,6 +662,11 @@ define([
     }
     this.protocolPortFormatter = function(v, dc) {
        return cowf.format.protocol(dc['protocol']) + " (" + dc['server_port'] + ")";
+    }
+    this.sessionTypeProtocolFormatter = function(v, dc) {
+        var type = dc['session_type'] == 1 ? 'Client' : 'Server';
+       return type + ' - ' +
+            cowf.format.protocol(dc['protocol']) + " (" + dc['server_port'] + ")";
     }
     this.policyRuleFormatter = function(v, dc) {
        var ruleObj = getPolicyInfo(dc['security_policy_rule']);
