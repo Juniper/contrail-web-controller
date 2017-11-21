@@ -904,6 +904,20 @@ module.exports = function (grunt) {
                 coverageReporter: {
                     type: 'html',
                     dir: __dirname + '/reports/coverage/config/views/gloablQosGridView/',
+                    'contrail-web-controller/webroot/config/networking/loadbalancer/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Load-balancer-grid-view-test-results.xml',
+                    suite: 'loadBalancerGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/load-balancer-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/loadBalancerGridView/',
                     subdir : browserSubdirFn
                 },
                 feature: 'config'
@@ -1352,6 +1366,11 @@ module.exports = function (grunt) {
                 testDir = 'svcHealthCheckGridView'
                 break;
             case 'routeaggregates' :
+            case 'loadbalancer' :
+                grunt.task.run('karma:loadBalancerGridView');
+                testDir = 'loadBalancerGridView'
+                break;
+            case 'routeaggregates' :
                 grunt.task.run('karma:routeAggregateGridView');
                 testDir = 'routeAggregateGridView'
                 break;
@@ -1359,6 +1378,7 @@ module.exports = function (grunt) {
                 grunt.task.run('karma:runAllConfigTests');
                 testDir = 'runAllConfigTests';
                 break;
+                
         };
         grunt.log.writeln('Test results: ' + karmaConfig[testDir]['options']['htmlReporter']['outputFile']);
         printCoverageReportLoc(karmaConfig[testDir]['options']['coverageReporter']);
