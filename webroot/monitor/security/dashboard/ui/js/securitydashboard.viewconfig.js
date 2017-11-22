@@ -124,7 +124,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                     itemAttr: {
                         width: 2,
                         height: 1.5,
-                        title: 'Interfaces',
+                        title: 'Workloads',
                         showTitle: true
                     }
                 }
@@ -300,14 +300,14 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                                         mergeAnalyticsSessionDataWithConfigRuleData (response, contrailListModel.getItems());
                                     // Adding the implicit rules as these are not available
                                     // in config server
-                                    _.map(cowc.DEFAULT_FIREWALL_RULES, function (value, key) {
+                                    /*_.map(cowc.DEFAULT_FIREWALL_RULES, function (value, key) {
                                         if (ruleMap[key] != null) {
                                             ruleDataArr.push($.extend(ruleMap[key], {
                                                 implicit: true,
                                                 name: _.result(value, 'name', '-')
                                             }));
                                         }
-                                    });
+                                    });*/
                                     contrailListModel.setData(ruleDataArr);
                                 }
                             }],
@@ -335,9 +335,27 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                                     if (obj['implicit']) {
                                         return _.result(obj, 'name', '-');
                                     }
+                                    var direction = ' --> '
+                                    if (_.result(obj, 'configData.direction') == '<>') {
+                                        direction = ' <--> ';
+                                    }
                                     var endpoint1_tags = _.result(obj, 'configData.endpoint_1.tags', []).join('&');
+                                    var endpoint1_ag = '', endpoint1_any = '';
+                                    if (_.result(obj, 'configData.endpoint_1.address_group') != null) {
+                                        endpoint1_ag = 'addressgroup='+_.result(obj, 'configData.endpoint_1.address_group');
+                                    }
+                                    if (_.result(obj, 'configData.endpoint_1.any') != null) {
+                                        endpoint1_any = 'any='+_.result(obj, 'configData.endpoint_1.any');
+                                    }
                                     var endpoint2_tags = _.result(obj, 'configData.endpoint_2.tags', []).join('&');
-                                    return endpoint1_tags + ' <---> ' + endpoint2_tags;
+                                    var endpoint2_ag = '', endpoint2_any = "";
+                                    if (_.result(obj, 'configData.endpoint_2.address_group') != null) {
+                                        endpoint2_ag = 'addressgroup='+_.result(obj, 'configData.endpoint_2.address_group');
+                                    }
+                                    if (_.result(obj, 'configData.endpoint_2.any') != null) {
+                                        endpoint2_any = 'any='+_.result(obj, 'configData.endpoint_2.any');
+                                    }
+                                    return endpoint1_tags + endpoint1_ag + endpoint1_any + direction + endpoint2_tags + endpoint2_ag + endpoint2_any;
                                 },
                                     axisField: function (obj) {
                                     return (_.result(obj, 'SUM(forward_sampled_bytes)', 0) + _.result(obj, 'SUM(reverse_sampled_bytes)', 0));
