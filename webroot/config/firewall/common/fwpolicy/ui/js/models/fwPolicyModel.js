@@ -268,18 +268,28 @@ define([
                 var ports = selectedData.split(':');
                 if(ports.length === 2) {
                     service['service'] = {};
-                    service['service']['protocol'] = ports[0];
+                    service['service']['protocol'] = ports[0].toLowerCase();
                     service['service']['dst_ports'] =
-                        policyFormatters.formatPort(ports[1])[0];
+                        policyFormatters.formatPort(ports[1], 'rule')[0];
                     service['service']['src_ports'] =
-                        policyFormatters.formatPort('0-65535')[0];
+                        policyFormatters.formatPort('0-65535', 'rule')[0];
                     service['isServiceGroup'] = false;
-                }else{
-                    service['isServiceGroup'] = false;
+                }else if(ports.length === 1){
+                    service['service'] = {};
+                    if(ports[0] === ''){
+                        ports[0] = 'any';
+                    }
+                    service['service']['protocol'] = ports[0].toLowerCase();
+                    service['service']['dst_ports'] =
+                        policyFormatters.formatPort('0-65535', 'rule')[0];
+                    service['service']['src_ports'] =
+                        policyFormatters.formatPort('0-65535', 'rule')[0];
                 }
+                service['isServiceGroup'] = false;
             }
         return service;
         },
+
         configFWPolicy: function (callbackObj, options) {
             var ajaxConfig = {}, returnFlag = false,
                 postFWPolicyData = {},
@@ -422,14 +432,12 @@ define([
                     newFWRuleData['uuid'] = attr.name;
                     newFWRuleData['endpoint_1'] = self.populateEndpointData(attr['endpoint_1']);
                     newFWRuleData['endpoint_2'] = self.populateEndpointData(attr['endpoint_2']);
-                    if(attr['user_created_service'] !== ''){
-                        var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
-                        if(getSelectedService.isServiceGroup){
-                            newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
-                        }else{
-                            if(getSelectedService['service'] !== undefined){
-                                newFWRuleData['service'] = getSelectedService['service'];
-                            }
+                    var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
+                    if(getSelectedService.isServiceGroup){
+                        newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
+                    }else{
+                        if(getSelectedService['service'] !== undefined){
+                            newFWRuleData['service'] = getSelectedService['service'];
                         }
                     }
                     newFWRuleData['action_list'] = {};

@@ -421,7 +421,7 @@ define([
             return returnString;
         };
 
-        this.formatPort = function(port) {
+        this.formatPort = function(port, objType) {
             var result = [];
             if(port == "" || port == "ANY" || port == "any" || port == null
                || port == undefined || port == "-1") {
@@ -445,8 +445,13 @@ define([
             }
             } else {
                 result[0] = {};
-                result[0]["start_port"] = parseInt("-1");
-                result[0]["end_port"] = parseInt("-1");
+                if(objType === 'rule'){
+                    result[0]["start_port"] = parseInt("0");
+                    result[0]["end_port"] = parseInt("65535");
+                }else{
+                    result[0]["start_port"] = parseInt("-1");
+                    result[0]["end_port"] = parseInt("-1");
+                }
             }
             return result;
         };

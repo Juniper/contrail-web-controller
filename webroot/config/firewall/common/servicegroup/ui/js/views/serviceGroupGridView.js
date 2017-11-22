@@ -342,7 +342,11 @@ define([
                     port = firewalService[i].dst_ports.start_port;
                 }
             }else{
-                port = firewalService[i].dst_ports.start_port + '-' + firewalService[i].dst_ports.end_port;
+                if(firewalService[i].dst_ports.start_port === 0 && firewalService[i].dst_ports.end_port === 65535){
+                    port = 'any';
+                }else{
+                    port = firewalService[i].dst_ports.start_port + '-' + firewalService[i].dst_ports.end_port;
+                }
             }
             var portText = '<span>'+ port +'</span>';
             portList.push(portText);
