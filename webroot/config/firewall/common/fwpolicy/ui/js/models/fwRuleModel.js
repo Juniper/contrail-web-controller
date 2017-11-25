@@ -65,10 +65,15 @@ define([
                 }
                 modelConfig["user_created_service"] = serviceList.join(':');
             }else if(modelConfig['service_group_refs'] !== undefined){
-                var serviceGrpRef = getValueByJsonPath(modelConfig,"service_group_refs",[]);
+                var serviceGrpRef = getValueByJsonPath(modelConfig,"service_group_refs",[]), service;
                 if(serviceGrpRef.length > 0){
                     var to = serviceGrpRef[0].to;
-                    modelConfig["user_created_service"] = to[to.length - 1];
+                    if(modelConfig.isGlobal){
+                      service =  to[to.length - 1];
+                    }else{
+                      service = (to.length < 3)? "global:" + to[to.length - 1] : to[to.length - 1];
+                    }
+                    modelConfig["user_created_service"] = service;
                 }else{
                     modelConfig["user_created_service"] = '';
                 }
