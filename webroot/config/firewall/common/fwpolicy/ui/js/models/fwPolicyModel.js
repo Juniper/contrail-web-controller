@@ -25,8 +25,8 @@ define([
                 "share": []
             },
             "tag_refs":[],
-            "id_perms": {"description": null}//,
-            //'security_logging_object_refs': []
+            "id_perms": {"description": null},
+            'security_logging_object_refs': []
         },
 
         formatModelConfig : function(modelData) {
@@ -47,7 +47,7 @@ define([
                 modelData["perms2"]["global_access"] = "";
                 modelData["owner_visible"] = false;
             }
-            //modelData['security_logging_object_refs'] = ctwu.securityLoggingObjectFormatter(modelData, 'edit');
+            modelData['security_logging_object_refs'] = ctwu.securityLoggingObjectFormatter(modelData, 'edit');
             share = getValueByJsonPath(modelData,
                     "perms2;share", []);
             _.each(share, function(s){
@@ -328,7 +328,7 @@ define([
                 ctwu.deleteCGridData(newFWPolicyData);
                 newFWPolicyData.id_perms;
                 newFWPolicyData["display_name"] = newFWPolicyData["name"];
-               // newFWPolicyData['security_logging_object_refs'] = ctwu.setSloToModel(newFWPolicyData);
+                newFWPolicyData['security_logging_object_refs'] = ctwu.setSloToModel(newFWPolicyData);
                 delete newFWPolicyData.Application;
                 delete newFWPolicyData.Deployment;
                 delete newFWPolicyData.Labels;
@@ -443,7 +443,7 @@ define([
                     newFWRuleData['action_list'] = {};
                     newFWRuleData['action_list']['simple_action'] = attr['simple_action'];
                     newFWRuleData['direction'] = attr['direction'];
-                    //newFWRuleData['security_logging_object_refs'] = ctwu.setSloToModel(attr);
+                    newFWRuleData['security_logging_object_refs'] = ctwu.setSloToModel(attr);
                     //newFWRuleData['sequence'] = attr['sequence'];
                     newFWRuleData['match_tags'] = {};
                     newFWRuleData['id_perms'] = {};

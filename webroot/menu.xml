@@ -1301,7 +1301,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>QoS</searchStrings>
                         </item>
-                       <!--  <item>
+                        <item>
                             <label>SLO</label>
                             <hash>config_net_slo</hash>
                             <resources>
@@ -1317,7 +1317,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Security Logging Object</searchStrings>
-                        </item>-->
+                        </item>
                     </items>
                 </item>
                <!-- <item>

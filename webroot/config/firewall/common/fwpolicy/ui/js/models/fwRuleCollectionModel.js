@@ -87,9 +87,9 @@ define([
             'user_created_service': '',
             'match_tags': [],
             'sequence': null,
-            'simple_action': 'pass'//,
-            /*'slo_check' : false,
-            'security_logging_object_refs':''*/
+            'simple_action': 'pass',
+            'slo_check' : false,
+            'security_logging_object_refs':''
         },
         formatModelConfig: function (modelConfig) {
             self = this;
@@ -159,7 +159,7 @@ define([
             }else{
                 modelConfig['endpoint_2'] = self.getEndpointVal(endpoint2, modelConfig);
             }
-            /*var sloRef = getValueByJsonPath(modelConfig,
+            var sloRef = getValueByJsonPath(modelConfig,
                     "security_logging_object_refs", []);
             if (sloRef.length > 0) {
                 modelConfig["security_logging_object"] =
@@ -168,7 +168,7 @@ define([
             } else {
                 modelConfig["security_logging_object"] = null;
                 modelConfig["slo_check"] = false;
-            }*/
+            }
             return modelConfig;
         },
         validateAttr: function (attributePath, validation, data) {
