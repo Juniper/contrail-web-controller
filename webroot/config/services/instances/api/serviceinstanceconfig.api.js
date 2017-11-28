@@ -2591,6 +2591,7 @@ function updateVMStatus(result) {
             result['vmStatus'] = global.STR_VM_STATE_PARTIALLY_ACTIVE;
         }
     } catch (e) {
+        result['vmStatus'] = global.STR_VM_STATE_SPAWNING;
     }
     return result;
 }
