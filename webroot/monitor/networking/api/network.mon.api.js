@@ -2125,7 +2125,7 @@ function getAllConfigVNList (req, appData, callback) {
     var url = "/virtual-networks";
     configApiServer.apiGet(url, appData, function(error, vnData) {
         if ((null != error) || (null == vnData)) {
-            callback(error, []);
+            callback(error, {vnUUIDList: [], vnFqnList: []});
             return;
         }
         var vnData = commonUtils.getValueByJsonPath(vnData, "virtual-networks", []);
