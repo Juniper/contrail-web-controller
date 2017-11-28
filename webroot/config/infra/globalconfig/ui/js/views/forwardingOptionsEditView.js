@@ -90,6 +90,7 @@ define([
                                 view: 'FormInputView',
                                 viewConfig: {
                                     path: 'flow_export_rate',
+                                    label: 'Session Export Rate/secs',
                                     dataBindValue: 'flow_export_rate',
                                     class: 'col-xs-6',
                                     placeholder: 'Flow export rate' +
