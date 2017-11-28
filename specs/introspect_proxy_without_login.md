@@ -53,6 +53,7 @@ config.proxy.allowed_introspect_list_access_by_token
 Default is empty list, user has to explicitly add the introspect names (Snh_XXXX). Ex:
 ```
 config.proxy.allowed_introspect_list_access_by_token = ['Snh_VnListReq', 'Snh_ItfReq']
+```
 
 # 3.1    Alternatives considered
 None
