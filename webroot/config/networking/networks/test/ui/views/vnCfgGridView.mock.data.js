@@ -518,8 +518,8 @@
                  }
                }
        return {
-           vnDomainsData: TestCommonMockdata.vnDomainsData,
-           vnPojectsData: TestCommonMockdata.vnPojectsData,
+           domainData: TestCommonMockdata.domainData,
+           projectData: TestCommonMockdata.projectData,
            virtualNetworksMockData: virtualNetworksMockData,
            floatingIPPools: floatingIPPools,
            globalVrouterConfig: globalVrouterConfig

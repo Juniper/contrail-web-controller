@@ -22,11 +22,11 @@ define([
 
         responses.push(cotr.createFakeServerResponse( {
             url: cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
-            body: JSON.stringify(TestMockdata.vnDomainsData)
+            body: JSON.stringify(TestMockdata.domainData)
         }));
         responses.push(cotr.createFakeServerResponse( {
             url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS),
-            body: JSON.stringify(TestMockdata.vnPojectsData)
+            body: JSON.stringify(TestMockdata.projectData)
         }));
         responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/tenants\/config\/securitygroup.*$/,

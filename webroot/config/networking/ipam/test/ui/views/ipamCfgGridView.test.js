@@ -7,12 +7,13 @@ define([
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
-    'config/networking/policy/test/ui/views/policyGridView.mock.data',
+    'config/networking/ipam/test/ui/views/ipamCfgGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite'
 ], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
-    var moduleId = cttm.POLICY_GRID_VIEW_COMMON_TEST_MODULE;
+    var moduleId = cttm.IPAM_GRID_VIEW_COMMON_TEST_MODULE;
+
     var testType = cotc.VIEW_TEST;
 
     var fakeServerConfig = cotr.getDefaultFakeServerConfig();
@@ -29,8 +30,8 @@ define([
             body: JSON.stringify(TestMockdata.projectData)
         }));
         responses.push(cotr.createFakeServerResponse( {
-            url: /\/api\/admin\/config\/get-data.*$/,
-            body: JSON.stringify(TestMockdata.getData)
+            url: /\/api\/tenants\/config\/ipam-details.*$/,
+            body: JSON.stringify(TestMockdata.ipamsData)
         }));
         return responses;
     };
@@ -38,16 +39,16 @@ define([
 
     var pageConfig = cotr.getDefaultPageConfig();
     pageConfig.hashParams = {
-        p: 'config_net_policies'
+        p: 'config_networking_ipam'
     };
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 2;
 
     var getTestConfig = function() {
         return {
-            rootView: configPoliciesLoader.policyView,
+            rootView: ipamCfgLoader.ipamCfgView,
             tests: [
                 {
-                    viewId: ctwl.POLICIES_GRID_ID,
+                    viewId: ctwl.CFG_IPAM_GRID_ID,
                     suites: [
                         {
                             class: GridViewTestSuite,
@@ -61,6 +62,7 @@ define([
     };
 
     var pageTestConfig = cotr.createPageTestConfig(moduleId, testType, fakeServerConfig, pageConfig, getTestConfig);
+
     cotr.startTestRunner(pageTestConfig);
 
 });

@@ -82,8 +82,8 @@
              "more": false
            };
        return {
-           vnDomainsData: TestCommonMockdata.vnDomainsData,
-           vnPojectsData: TestCommonMockdata.vnPojectsData,
+           domainData: TestCommonMockdata.domainData,
+           projectData: TestCommonMockdata.projectData,
            getData: getData
        };
  });
