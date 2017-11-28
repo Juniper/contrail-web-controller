@@ -32,7 +32,8 @@ define([
             timeout_label: 'Timeout (secs)',
             max_retries_label: 'Retries',
             user_created_monitor_type: 'PING',
-            user_created_health_check_type: "link-local"
+            user_created_health_check_type: "link-local",
+            'monitor_type_list': []
         },
 
         formatModelConfig: function(modelConfig) {
@@ -65,7 +66,7 @@ define([
                     if(finalObj.user_created_monitor_type === 'BFD'){
                         var delayUsecs = Number(finalObj.service_health_check_properties.delayUsecs);
                         if((delay + delayUsecs) <= 0){
-                            return 'Desired Min Tx Interval (secs + micro secs) should be greator than zero.';
+                            return '';
                         }
                     }else if(delay < 1){
                         return 'Service health check properties. delay must be greater than or equal to 1';
@@ -84,7 +85,7 @@ define([
                     if(finalObj.user_created_monitor_type === 'BFD'){
                         var timeoutUsecs = Number(finalObj.service_health_check_properties.timeoutUsecs);
                         if((timeout + timeoutUsecs) <= 0){
-                            return 'Required Min Rx Interval (secs + micro secs) should be greator than zero.';
+                            return '';
                         }
                     }else if(timeout < 1){
                         return 'Service health check properties. timeout must be greater than or equal to 1';
@@ -99,7 +100,7 @@ define([
                         var usecs = Number(finalObj.service_health_check_properties.delayUsecs);
                         var delayUsecs = delay + usecs;
                         if(delayUsecs <= 0){
-                            return "Desired Min Tx Interval (secs + micro secs) should be greator than zero.";
+                            return "Desired Min Tx Interval (secs + micro secs) should be greater than zero.";
                         }
                     }
                 },
@@ -109,7 +110,7 @@ define([
                         var usecs = Number(finalObj.service_health_check_properties.timeoutUsecs);
                         var timeoutUsecs = timeout + usecs;
                         if(timeoutUsecs <= 0){
-                            return "Required Min Rx Interval (secs + micro secs) should be greator than zero.";
+                            return "Required Min Rx Interval (secs + micro secs) should be greater than zero.";
                         }
                     }
                 }

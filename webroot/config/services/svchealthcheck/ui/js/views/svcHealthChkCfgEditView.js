@@ -48,7 +48,7 @@ define([
             self.renderView4Config($("#" +
                                     modalId).find("#" + prefixId + "-form"),
                                     self.model,
-                                    getSvcHealthChkCfgViewConfig(false),
+                                    getSvcHealthChkCfgViewConfig(false, self),
                                     "svcHealthChkCfgConfigValidations", null, null,
                                     function () {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
@@ -96,7 +96,7 @@ define([
             self.renderView4Config($("#" +
                                     modalId).find("#" + prefixId + "-form"),
                                     self.model,
-                                    getSvcHealthChkCfgViewConfig(true),
+                                    getSvcHealthChkCfgViewConfig(true, self),
                                     "svcHealthChkCfgConfigValidations", null, null,
                                     function () {
                 var monitorType =  getValueByJsonPath(self.model.model(),
@@ -156,7 +156,7 @@ define([
         }
     });
 
-    function getSvcHealthChkCfgViewConfig (disableOnEdit) {
+    function getSvcHealthChkCfgViewConfig (disableOnEdit, self) {
         var prefixId = ctwl.CFG_SVC_HEALTH_CHK_PREFIX_ID;
         var svcHealthChkCfgViewConfig = {
             elementId: cowu.formatElementId([prefixId,
@@ -197,6 +197,13 @@ define([
                                     dataTextField : "text",
                                     dataValueField : "id",
                                     placeholder : 'Select Health Check Type',
+                                    change: function(data) {
+                                        if(data.val === 'end-to-end'){
+                                            self.model.monitor_type_list([{id: 'PING', text:'PING'},{id: 'HTTP', text:'HTTP'}]);
+                                        }else{
+                                            self.model.monitor_type_list([{id: 'PING', text:'PING'}, {id: 'HTTP', text:'HTTP'}, {id: 'BFD', text:'BFD'}]);
+                                        }
+                                     },
                                     data : [{id: 'link-local',
                                                 text:'Link-Local'},
                                             {id: 'end-to-end',
@@ -220,17 +227,12 @@ define([
                                 dataBindValue :
                                     'user_created_monitor_type',
                                 label: 'Protocol',
+                                dataBindOptionList : "monitor_type_list",
                                 disabled: 'user_created_health_check_type() == "segment"',
                                 elementConfig : {
                                     dataTextField : "text",
                                     dataValueField : "id",
-                                    placeholder : 'Select Probe Type',
-                                    data : [{id: 'PING',
-                                                text:'PING'},
-                                            {id: 'HTTP',
-                                                text:'HTTP'},
-                                            {id: 'BFD',
-                                                text:'BFD'}]
+                                    placeholder : 'Select Probe Type'
                                 }
                             }
                         },
