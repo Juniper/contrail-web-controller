@@ -292,8 +292,8 @@
                  ]
        }
        return {
-           vnDomainsData: TestCommonMockdata.vnDomainsData,
-           vnPojectsData: TestCommonMockdata.vnPojectsData,
+           domainData: TestCommonMockdata.domainData,
+           projectData: TestCommonMockdata.projectData,
            securityGrpDetails: securityGrpDetails,
            securityGrp: securityGrp
        };

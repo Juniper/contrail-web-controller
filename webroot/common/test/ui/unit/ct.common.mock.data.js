@@ -3,7 +3,7 @@
  */
 
  define(['underscore'], function(_){
-     this.vnDomainsData = {
+     this.domainData = {
          "domains": [
            {
                "fq_name": [
@@ -14,7 +14,7 @@
            }
          ]
      };
-     this.vnPojectsData = {
+     this.projectData = {
              "projects": [
                  {
                      "uuid": "a56e6d1c-cb66-4cd4-8b2e-4d0f2be72382",
@@ -27,7 +27,7 @@
                ]
            };
        return {
-           vnDomainsData: vnDomainsData,
-           vnPojectsData: vnPojectsData
+           domainData: domainData,
+           projectData: projectData
        };
  });

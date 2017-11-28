@@ -1057,42 +1057,94 @@ module.exports = function (grunt) {
                 feature: 'config'
             }
         },
-//        policyGridView : {
-//            options: {
-//                files: [
-//                    {
-//                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/*.js',
-//                        included : false
-//                    },
-//                    {
-//                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/**/*.js',
-//                        included : false
-//                    },
-//                    {
-//                        pattern : 'contrail-web-controller/webroot/config/networking/policy/test/ui/views/*.js',
-//                        included : false
-//                    }
-//                ],
-//                preprocessors: {
-//                    'contrail-web-controller/webroot/config/networking/policy/ui/js/**/*.js': []
-//                },
-//                junitReporter: {
-//                    outputDir:__dirname + '/reports/tests/config/views/',
-//                    outputFile: 'policy-grid-view-test-results.xml',
-//                    suite: 'policyGridView',
-//                    useBrowserName: false
-//                },
-//                htmlReporter: {
-//                    outputFile:__dirname + '/reports/tests/config/views/policy-grid-view-test-results.html'
-//                },
-//                coverageReporter: {
-//                    type: 'html',
-//                    dir: __dirname + '/reports/coverage/config/views/policyGridView/',
-//                    subdir : browserSubdirFn
-//                },
-//                feature: 'config'
-//            }
-//        },
+        ipamCfgGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/ipam/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/ipam/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/ipam/test/ui/views/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/networks/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/networks/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/networks/test/ui/views/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/networks/ui/js/models/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/ipam/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'ipam-grid-view-test-results.xml',
+                    suite: 'ipamCfgGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/ipam-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/ipamCfgGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        policyGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/policy/ui/js/**/*.js': []
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'policy-grid-view-test-results.xml',
+                    suite: 'policyGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/policy-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/policyGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
         secGrpGridView : {
             options: {
                 files: [
@@ -1408,10 +1460,14 @@ module.exports = function (grunt) {
                 grunt.task.run('karma:vnGridView');
                 testDir = 'vnGridView';
                 break;
-//            case 'policy' :
-//                grunt.task.run('karma:policyGridView');
-//                testDir = 'policyGridView';
-//                break;
+            case 'ipams' :
+                grunt.task.run('karma:ipamCfgGridView');
+                testDir = 'ipamCfgGridView';
+                break;
+            case 'policy' :
+                grunt.task.run('karma:policyGridView');
+                testDir = 'policyGridView';
+                break;
             case 'securitygroup' :
                 grunt.task.run('karma:secGrpGridView');
                 testDir = 'secGrpGridView';
