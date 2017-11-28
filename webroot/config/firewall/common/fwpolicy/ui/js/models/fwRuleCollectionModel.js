@@ -122,7 +122,16 @@ define([
             var serviceGrpRef = getValueByJsonPath(modelConfig,"service_group_refs",[]);
             if(serviceGrpRef.length > 0){
                 var to = serviceGrpRef[0].to;
-                modelConfig["user_created_service"] = to[to.length - 1];
+                if(modelConfig.isGlobal){
+                    modelConfig["user_created_service"] = to[to.length - 1];
+                }else{
+                    if(to.length < 3){
+                       var serviceName = 'global:' + to[to.length - 1];
+                       modelConfig["user_created_service"] = serviceName;
+                    } else{
+                       modelConfig["user_created_service"] = to[to.length - 1];
+                    }
+                }
             }else{
                 if(modelConfig['service'] !== undefined && Object.keys(modelConfig['service']).length > 0){
                     var serviceList = [],port;

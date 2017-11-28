@@ -45,8 +45,13 @@
           /*
            * serviceFormatter
            */
-            this.serviceFormatter = function(r, c, v, cd, dc) {
-                var serviceStr = "";
+            this.serviceFormatter = function(r, c, v, cd, dc, global) {
+                var serviceStr = "", isGlobal;
+                if(global === undefined){
+                  isGlobal = this.isGlobal;
+                } else{
+                    isGlobal = global;
+                }
                 if(dc['service'] !== undefined && Object.keys(dc['service']).length > 0){
                     var service = getValueByJsonPath(dc,
                             "service", {}, false);
@@ -74,7 +79,15 @@
                     if(serviceGrpRef.length > 0){
                         for(var i = 0; i < serviceGrpRef.length; i++){
                             var to = serviceGrpRef[i].to;
-                            serviceStr = to[to.length - 1];
+                            if(isGlobal){
+                                serviceStr = to[to.length - 1];
+                            }else{
+                               if(to.length < 3){
+                                 serviceStr = 'global:' + to[to.length - 1];
+                               } else{
+                                 serviceStr = to[to.length - 1];
+                               }
+                            }
                         }
                         return serviceStr;
                     }else{

@@ -343,7 +343,16 @@ define([
                      var serviceGrpList = [];
                      $.each(secGrpList, function (i, obj) {
                          var obj = obj['service-group'];
-                         serviceGrpList.push({value: obj.uuid, fq_name : obj.fq_name, text: obj.name});
+                         if(options.viewConfig.isGlobal){
+                             serviceGrpList.push({value: obj.uuid, fq_name : obj.fq_name, text: obj.name});
+                         }else{
+                             if(obj.fq_name.length < 3){
+                                var name = 'global:' + obj.name;
+                                serviceGrpList.push({value: obj.uuid, fq_name : obj.fq_name, text: name});
+                             }else{
+                                serviceGrpList.push({value: obj.uuid, fq_name : obj.fq_name, text: obj.name});
+                             }
+                         }
                       });
                      returnArr["serviceGrpList"] = serviceGrpList;
                      callback(returnArr);
@@ -672,7 +681,7 @@ define([
                             getPolicyRelatedRules(policyEditSet.model, function(policyRule){
                                 var ruleCollection = [];
                                 for(var i = 0; i < policyRule.length; i++){
-                                    var ruleModel = new RuleModel($.extend({}, policyRule[i], { disabled: true }));
+                                    var ruleModel = new RuleModel($.extend({}, policyRule[i], { disabled: true, isGlobal: options.viewConfig.isGlobal }));
                                     ruleCollection.push(ruleModel);
                                 }
                                 var coll = new Backbone.Collection(ruleCollection);
