@@ -7,6 +7,7 @@
  *     - Handlers for project quotas
  *     - Interfaces with config api server
  */
+var _           = require('lodash');
 var rest        = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/rest.api');
 var async       = require('async');
@@ -323,8 +324,11 @@ function getSecurityGroupRule(projId, usedResCnt, appData, callback)
                 if(resData != null) {
                     var resLength = resData.length;
                     for(var resDataCnt = 0; resDataCnt < resLength; resDataCnt++) {
-                        var sg = resData[resDataCnt]['security-group']['security_group_entries'];
-                        subGrpCnt += sg['policy_rule'] ? sg['policy_rule'].length : 0;
+                        var sgPolRules =
+                            _.result(resData, resDataCnt +
+                                     ".security-group.security_group_entries.policy_rule",
+                                     []);
+                        subGrpCnt += sgPolRules.length;
                     }
                 }
                 usedResCnt['security_group_rule'] = subGrpCnt;
