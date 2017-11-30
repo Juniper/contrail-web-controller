@@ -163,7 +163,16 @@ define([
                         if("security-logging-object" in obj) {
                             var slo = obj["security-logging-object"];
                             var fqName = slo.fq_name;
-                            sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                            if(options.isGlobal){
+                                sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                            }else{
+                                if(fqName[0] === 'default-global-system-config'){
+                                    var name = 'global:' + fqName[fqName.length - 1];
+                                    sloList.push({id: fqName.join(':'), text: name});
+                                }else{
+                                   sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                                }
+                            }
                         }
                     });
                     returnArr["sloList"] = sloList;
@@ -343,7 +352,16 @@ define([
                         if("security-logging-object" in obj) {
                             var slo = obj["security-logging-object"];
                             var fqName = slo.fq_name;
-                            sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                            if(options.isGlobal){
+                                sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                            }else{
+                                if(fqName[0] === 'default-global-system-config'){
+                                    var name = 'global:' + fqName[fqName.length - 1];
+                                    sloList.push({id: fqName.join(':'), text: name});
+                                }else{
+                                   sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                                }
+                            }
                         }
                     });
                     returnArr["sloList"] = sloList;
@@ -353,7 +371,6 @@ define([
         }
 
     });
-
     function getPolicyDescriptionEditViewConfig(options, allData){
         var policyViewConfig = {
                 elementId: cowu.formatElementId([prefixId, "description"]),
