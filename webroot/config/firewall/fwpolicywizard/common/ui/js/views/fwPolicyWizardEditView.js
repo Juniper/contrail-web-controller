@@ -209,13 +209,23 @@ define([
                  data: JSON.stringify(
                          {data: [{type: 'address-groups'}]})
              });
-           //get service groups
+
+             //get service groups
              getAjaxs[4] = $.ajax({
                  url:"/api/tenants/config/get-config-details",
                  type:"POST",
                  dataType: "json",
                  contentType: "application/json; charset=utf-8",
                  data: JSON.stringify(serviceGrp)
+             });
+
+             //get SLO
+             getAjaxs[5] = $.ajax({
+               url: ctwc.URL_GET_CONFIG_DETAILS,
+               type:"POST",
+               dataType: "json",
+               contentType: "application/json; charset=utf-8",
+               data: JSON.stringify({data: [{type: "security-logging-objects"}]})
              });
              $.when.apply($, getAjaxs).then(
                  function () {
@@ -355,6 +365,25 @@ define([
                          }
                       });
                      returnArr["serviceGrpList"] = serviceGrpList;
+                     var sloObj = fwPolicyFormatter.filterSloByProjects(getValueByJsonPath(results, '5;0;0;security-logging-objects', [], false), options.viewConfig.isGlobal);
+                     var sloList = [];
+                     _.each(sloObj, function(obj) {
+                         if("security-logging-object" in obj) {
+                             var slo = obj["security-logging-object"];
+                             var fqName = slo.fq_name;
+                             if(options.viewConfig.isGlobal){
+                                 sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                             }else{
+                                 if(fqName[0] === 'default-global-system-config'){
+                                     var name = 'global:' + fqName[fqName.length - 1];
+                                     sloList.push({id: fqName.join(':'), text: name});
+                                 }else{
+                                    sloList.push({id: fqName.join(':'), text: fqName[fqName.length - 1]});
+                                 }
+                             }
+                         }
+                     });
+                     returnArr["sloList"] = sloList;
                      callback(returnArr);
                  }
              )
@@ -439,7 +468,7 @@ define([
         });
         return ruleIds;
     }
-    function getNewFirewallPolicyViewConfig(model, viewConfig) {
+    function getNewFirewallPolicyViewConfig(model, viewConfig, allData) {
         var gridPrefix = "add-firewall-policy",
             addNewFwPolicyViewConfig = {
             elementId:  cowu.formatElementId([prefixId, "add-new-firewall-policy1"]),
@@ -450,7 +479,7 @@ define([
                         elementId:  cowu.formatElementId([prefixId, "add-new-firewall-policy"]),
                         title: "Name Policy",
                         view: "AccordianView",
-                        viewConfig: fwzUtils.getFirewallPolicyViewConfig(prefixId),
+                        viewConfig: fwzUtils.getFirewallPolicyViewConfig(prefixId, allData),
                         stepType: "step",
                         onInitRender: true,
                         buttons: {
@@ -677,6 +706,14 @@ define([
                         if(policyEditSet.model.id_perms.description != null){
                             params.model.policy_description(policyEditSet.model.id_perms.description);
                         }
+                        var slo = policyEditSet.model.security_logging_object_refs, sloList = [];
+                        if(slo !== undefined && slo.length > 0){
+                            _.each(slo, function(obj) {
+                                sloList.push(obj.to.join(':'));
+                            });
+                            var updatedSloList = sloList.join(';');
+                            params.model.security_logging_object_refs(updatedSloList);
+                        }
                         if(policyEditSet.model.firewall_rule_refs != undefined && policyEditSet.model.firewall_rule_refs.length > 0){
                             getPolicyRelatedRules(policyEditSet.model, function(policyRule){
                                 var ruleCollection = [];
@@ -710,7 +747,7 @@ define([
             }
         };
     steps = steps.concat(createStepViewConfig);
-    addnewFwPolicyStepViewConfig = $.extend(true, {}, getNewFirewallPolicyViewConfig(model, viewConfig).viewConfig).steps;
+    addnewFwPolicyStepViewConfig = $.extend(true, {}, getNewFirewallPolicyViewConfig(model, viewConfig, allData).viewConfig).steps;
     addRulesStepViewConfig = $.extend(true, {}, getAddRulesViewConfig(viewConfig, allData, options, self).viewConfig).steps;
     steps = steps.concat(addnewFwPolicyStepViewConfig);
     steps = steps.concat(addRulesStepViewConfig);

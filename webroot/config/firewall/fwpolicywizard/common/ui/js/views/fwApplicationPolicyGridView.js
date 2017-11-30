@@ -361,8 +361,8 @@ define([
                         columns: [{
                             class: 'col-xs-12',
                             rows: [{
-                                keyClass:'col-xs-3',
-                                valueClass:'col-xs-9',
+                                keyClass:'col-xs-5',
+                                valueClass:'col-xs-7',
                                 title: 'Details',
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [{
@@ -370,20 +370,20 @@ define([
                                     templateGenerator: 'TextGenerator',
                                     label: 'Name'
                                 },{
-                                    keyClass:'col-xs-3',
-                                    valueClass:'col-xs-9',
+                                    keyClass:'col-xs-5',
+                                    valueClass:'col-xs-7',
                                     key: 'display_name',
                                     templateGenerator: 'TextGenerator',
                                     label: 'Display Name'
                                 },{
-                                    keyClass:'col-xs-3',
-                                    valueClass:'col-xs-9',
+                                    keyClass:'col-xs-5',
+                                    valueClass:'col-xs-7',
                                     key: "uuid",
                                     templateGenerator: "TextGenerator",
                                     label: "UUID"
                                 },{
-                                    keyClass:'col-xs-3',
-                                    valueClass:'col-xs-9',
+                                    keyClass:'col-xs-5',
+                                    valueClass:'col-xs-7',
                                     key: "id_perms.description",
                                     templateGenerator: "TextGenerator",
                                     label: "Description",
@@ -391,8 +391,8 @@ define([
                                         formatter: "policyDescriptionFormatter"
                                     }
                                 },{
-                                    keyClass:'col-xs-3',
-                                    valueClass:'col-xs-9',
+                                    keyClass:'col-xs-5',
+                                    valueClass:'col-xs-7',
                                     key: "uuid",
                                     templateGenerator: "TextGenerator",
                                     label: "Member of",
@@ -400,8 +400,8 @@ define([
                                         formatter: "policySetFormatter"
                                     }
                                 },{
-                                    keyClass:'col-xs-3',
-                                    valueClass:'col-xs-9',
+                                    keyClass:'col-xs-5',
+                                    valueClass:'col-xs-7',
                                     key: "uuid",
                                     templateGenerator: "TextGenerator",
                                     label: "Number of Rules",
@@ -409,7 +409,20 @@ define([
                                         formatter: "fwRuleFormatter"
                                     }
                                 },{
+                                    label: 'Associated Security Logging Objects',
+                                    key: 'security_logging_object_refs',
+                                    keyClass:'col-xs-5',
+                                    valueClass:'col-xs-7',
+                                    templateGenerator:
+                                        'TextGenerator',
+                                    templateGeneratorConfig: {
+                                        formatter:
+                                            'SloFormatter'
+                                    }
+                                },{
                                     key: "id_perms.last_modified",
+                                    keyClass:'col-xs-5',
+                                    valueClass:'col-xs-7',
                                     templateGenerator: "TextGenerator",
                                     label: "Last Updated",
                                     templateGeneratorConfig: {
@@ -442,6 +455,10 @@ define([
 
     this.lastUpdateExpFormatter = function(v, dc) {
         return fwPolicyFormatter.lastUpdateExpFormatter("", "", v, "", dc);
+    };
+
+    this.SloFormatter = function (v, dc) {
+        return ctwu.securityLoggingObjectFormatter(dc, 'details');
     };
 
     return fwPolicyGridView;

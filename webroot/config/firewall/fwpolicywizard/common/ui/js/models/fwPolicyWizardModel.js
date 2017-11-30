@@ -19,6 +19,7 @@ define([
             'Application': '',
             'description': '',
             'policy_name': '',
+            'security_logging_object_refs': [],
             'policy_description': '',
             "firewall_rules": [],
             "perms2": {
@@ -293,6 +294,7 @@ define([
                     if(Object.keys(policyEditSet).length > 0){
                         if(policyEditSet.mode == 'edit'){
                             policyEditSet.description = this.model().attributes.policy_description;
+                            policyEditSet.sloRef = ctwu.setSloToModel(this.model().attributes);
                             self.createAndUpdateRules(fwRules, options, serviceGroupList, policyEditSet, callbackObj);
                         }else if(policyEditSet.mode == 'add'){
                             postFWRuleData['firewall-rules'] = self.ruleFormation(fwRules, options, serviceGroupList, false);
@@ -407,6 +409,7 @@ define([
             var policeyModel = policyObj.model, postFWPolicyData = {},
             ajaxConfig = {};
             policeyModel.id_perms.description = policyObj.description;
+            policeyModel.security_logging_object_refs = policyObj.sloRef;
             policeyModel['firewall_rule_refs'] = existingRules;
             delete policeyModel.href;
             delete policeyModel.parent_type;
@@ -447,6 +450,11 @@ define([
                     newFWRuleData.uuid = attr.uuid;
                     newFWRuleData['endpoint_1'] = self.populateEndpointData(attr['endpoint_1']);
                     newFWRuleData['endpoint_2'] = self.populateEndpointData(attr['endpoint_2']);
+                    if(attr.slo_check && attr.security_logging_object_refs !== '' && attr.security_logging_object_refs !== null){
+                       newFWRuleData['security_logging_object_refs'] = ctwu.setSloToModel(attr);
+                    }else{
+                       newFWRuleData['security_logging_object_refs'] = [];
+                    }
                     var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
                     if(getSelectedService.isServiceGroup){
                         newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
@@ -499,6 +507,9 @@ define([
                     newFWRuleData['uuid'] = attr.name;
                     newFWRuleData['endpoint_1'] = self.populateEndpointData(attr['endpoint_1']);
                     newFWRuleData['endpoint_2'] = self.populateEndpointData(attr['endpoint_2']);
+                    if(attr.slo_check && attr.security_logging_object_refs !== null){
+                        newFWRuleData['security_logging_object_refs'] = ctwu.setSloToModel(attr);
+                    }
                     var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
                     if(getSelectedService.isServiceGroup){
                         newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
@@ -551,6 +562,7 @@ define([
             obj.description = newFWPolicyData.policy_description;
             newFWPolicyData['id_perms'] = obj;
             newFWPolicyData['firewall_rules'] = [];
+            newFWPolicyData['security_logging_object_refs'] = ctwu.setSloToModel(newFWPolicyData);
             newFWPolicyData['name'] =  newFWPolicyData["policy_name"];
             newFWPolicyData["display_name"] = newFWPolicyData["policy_name"];
             delete newFWPolicyData.policy_description;

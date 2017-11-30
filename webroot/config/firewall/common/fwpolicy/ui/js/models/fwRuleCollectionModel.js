@@ -171,11 +171,15 @@ define([
             var sloRef = getValueByJsonPath(modelConfig,
                     "security_logging_object_refs", []);
             if (sloRef.length > 0) {
-                modelConfig["security_logging_object"] =
-                    sloRef.join(cowc.DROPDOWN_VALUE_SEPARATOR);
+                var sloList = [];
+                _.each(sloRef, function(obj) {
+                    sloList.push(obj.to.join(':'));
+                });
+                modelConfig["security_logging_object_refs"] =
+                    sloList.join(cowc.DROPDOWN_VALUE_SEPARATOR);
                 modelConfig["slo_check"] = true;
             } else {
-                modelConfig["security_logging_object"] = null;
+                modelConfig["security_logging_object_refs"] = null;
                 modelConfig["slo_check"] = false;
             }
             return modelConfig;

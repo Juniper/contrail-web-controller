@@ -8,7 +8,7 @@ define([
 ], function (_, ContrailListModel) {
     var FWZUtils = function () {
         var self = this;
-        self.getFirewallPolicyViewConfig = function(prefixId){
+        self.getFirewallPolicyViewConfig = function(prefixId, allData){
             var createPolicyViewConfig = [{
                 elementId: cowu.formatElementId([prefixId, ctwl.TITLE_DETAILS]),
                 title: ctwl.TITLE_POLICY_INFO,
@@ -39,6 +39,26 @@ define([
                                           }
                                       }
                                   ]
+                          },
+                          {
+                              columns: [
+                                  {
+                                      elementId: 'security_logging_object_refs',
+                                      view: 'FormMultiselectView',
+                                      viewConfig: {
+                                          label: 'Security Logging Object(s)',
+                                          path: 'security_logging_object_refs',
+                                          class: 'col-xs-12',
+                                          dataBindValue: 'security_logging_object_refs',
+                                          elementConfig: {
+                                              placeholder: 'Select Security Logging Object(s)',
+                                              dataTextField: "text",
+                                              dataValueField: "id",
+                                              separator: cowc.DROPDOWN_VALUE_SEPARATOR,
+                                              data : allData.sloList
+                                           }
+                                      }
+                                 }]
                           }
                     ]
                 }
@@ -143,7 +163,7 @@ define([
                                      name: 'Action',
                                      view: "FormDropdownView",
                                      class: "",
-                                     width: 70,
+                                     width: 62,
                                      viewConfig: {
                                          templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                          path: "simple_action",
@@ -157,10 +177,9 @@ define([
                                         elementId: 'user_created_service',
                                         name: 'Services',
                                         view: "FormComboboxView",
-                                        width: 300,
+                                        width: 240,
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
-                                            width: 210,
                                             path: 'user_created_service',
                                             disabled: "disabled()",
                                             dataBindValue: 'user_created_service()',
@@ -181,10 +200,9 @@ define([
                                             "FormHierarchicalDropdownView",
                                         name: 'End Point 1',
                                         class: "",
-                                        width: 220,
+                                        width: 190,
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
-                                            width: 220,
                                             path: 'endpoint_1',
                                             dataBindValue: 'endpoint_1()',
                                             disabled: "disabled()",
@@ -251,7 +269,7 @@ define([
                                      name: 'Dir',
                                      view: "FormDropdownView",
                                      class: "",
-                                     width: 100,
+                                     width: 56,
                                      viewConfig: {
                                          templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                          path: "direction",
@@ -266,11 +284,10 @@ define([
                                         view:
                                             "FormHierarchicalDropdownView",
                                         name: 'End Point 2',
-                                        class: "col-xs-2",
-                                        width: 220,
+                                        class: "",
+                                        width: 200,
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
-                                            width: 220,
                                             path: 'endpoint_2',
                                             dataBindValue: 'endpoint_2()',
                                             disabled: "disabled()",
@@ -334,11 +351,10 @@ define([
                                         elementId: 'match_tags',
                                         name: 'Match Tags',
                                         view: "FormMultiselectView",
-                                        width: 170,
+                                        width: 141,
                                         viewConfig:
                                           {
                                            class: "",
-                                           width: 170,
                                            path: "match_tags",
                                            disabled: "disabled()",
                                            templateId:
@@ -355,8 +371,47 @@ define([
                                                       {text: 'Site', value: 'site'}]
                                            }
                                           }
+                                    },
+                                    {
+                                        elementId: 'slo_check',
+                                        name: 'SLO',
+                                        view: "FormCheckboxView",
+                                        class: "text-center",
+                                        width: 62,
+                                        viewConfig: {
+                                           templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
+                                           path: 'slo_check',
+                                           dataBindValue: 'slo_check()'
+                                           }
                                     }]
-                                }],
+                                },
+                                {
+                                    columns: [
+                                        {
+                                             elementId: 'security_logging_object_refs',
+                                             name: 'Security Logging Object(s)',
+                                             view: "FormMultiselectView",
+                                             width: 180,
+                                             viewConfig: {
+                                                 colSpan: "12",
+                                                 width: 180,
+                                                 class: "col-xs-12",
+                                                 label: 'SLO',
+                                                 placeholder:"Select Security Logging Object(s)",
+                                                 visible: "slo_check()",
+                                                 templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_LEFT_LABEL_VIEW,
+                                                 path: "security_logging_object_refs",
+                                                 dataBindValue: "security_logging_object_refs()",
+                                                 elementConfig:{
+                                                     dataTextField: "text",
+                                                     dataValueField: "id",
+                                                     separator: cowc.DROPDOWN_VALUE_SEPARATOR,
+                                                     data: allData.sloList
+                                                 }
+                                             }
+                                        }
+                                      ]
+                                     }],
                                 gridActions: [
                                     {onClick: "function() { addRule(); }",
                                      buttonTitle: ""}
