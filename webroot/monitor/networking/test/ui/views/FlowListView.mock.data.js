@@ -13,7 +13,6 @@ define(['underscore'], function (_) {
                 "direction_ing": 1,
                 "dport": 9108,
                 "flow_class_id": 10920745036091185000,
-                "flow_count": 1,
                 "protocol": 6,
                 "sourceip": "10.2.1.3",
                 "sourcevn": "default-domain:admin:frontend",
@@ -27,7 +26,6 @@ define(['underscore'], function (_) {
                 "direction_ing": 1,
                 "dport": 9108,
                 "flow_class_id": 10920745036091185000,
-                "flow_count": 1,
                 "protocol": 6,
                 "sourceip": "10.2.1.3",
                 "sourcevn": "default-domain:admin:frontend",
@@ -41,7 +39,6 @@ define(['underscore'], function (_) {
                 "direction_ing": 1,
                 "dport": 9108,
                 "flow_class_id": 10920745036091185000,
-                "flow_count": 1,
                 "protocol": 6,
                 "sourceip": "10.2.1.3",
                 "sourcevn": "default-domain:admin:frontend",
@@ -55,7 +52,6 @@ define(['underscore'], function (_) {
                 "direction_ing": 1,
                 "dport": 9108,
                 "flow_class_id": 10920745036091185000,
-                "flow_count": 1,
                 "protocol": 6,
                 "sourceip": "10.2.1.3",
                 "sourcevn": "default-domain:admin:frontend",
@@ -69,7 +65,6 @@ define(['underscore'], function (_) {
                 "direction_ing": 1,
                 "dport": 9108,
                 "flow_class_id": 10920745036091185000,
-                "flow_count": 1,
                 "protocol": 6,
                 "sourceip": "10.2.1.3",
                 "sourcevn": "default-domain:admin:frontend",
@@ -93,9 +88,8 @@ define(['underscore'], function (_) {
                 "protocol",
                 "sport",
                 "dport",
-                "sum(bytes)",
-                "sum(packets)",
-                "flow_count"
+                "SUM(bytes)",
+                "SUM(packets)"
             ],
             "where": [
                 [

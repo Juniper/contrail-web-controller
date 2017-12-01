@@ -209,7 +209,7 @@ function getNetworkOutIndex (resultJSON, statEntry, srcSelectArr, destSelectArr)
         for (j = 0; j < selectArrlen; j++) {
             srcKey = srcSelectArr[j];
             destKey = destSelectArr[j];
-            if ((srcKey == 'sum(bytes)') || (srcKey == 'sum(packets)') ||
+            if ((srcKey == 'SUM(bytes)') || (srcKey == 'SUM(packets)') ||
                 (srcKey == 'flow_count')) {
                 continue;
             }
@@ -235,13 +235,13 @@ function fillResultJSONByIndex (resultJSON, index, statEntry, selectArr, isSrc)
         statEntry['sourcevn'] : statEntry['destvn'];
     for (var i = 0; i < selectArrlen; i++) {
         key = selectArr[i];
-        if (key == 'sum(bytes)') {
+        if (key == 'SUM(bytes)') {
             if (isSrc) {
                 resultJSON[index]['inBytes'] = statEntry[key];
             } else {
                 resultJSON[index]['outBytes'] = statEntry[key];
             }
-        } else if (key == 'sum(packets)') {
+        } else if (key == 'SUM(packets)') {
             if (isSrc) {
                 resultJSON[index]['inPkts'] = statEntry[key];
             } else {
@@ -337,11 +337,9 @@ function getTrafficStatsByPort (pubChannel, saveChannelKey, jobData, done)
 {
     var appData = jobData.taskData.appData;
 
-    var srcSelectArr = ['sum(bytes)', 'sum(packets)', 'sport', 'protocol',
-        'flow_count'];
-    var destSelectArr = ['sum(bytes)', 'sum(packets)', 'dport', 'protocol',
-        'flow_count'];
-    var filters = "sort_fields: sum(bytes) & sort: desc";
+    var srcSelectArr = ['SUM(bytes)', 'SUM(packets)', 'sport', 'protocol'];
+    var destSelectArr = ['SUM(bytes)', 'SUM(packets)', 'dport', 'protocol'];
+    var filters = "sort_fields: SUM(bytes) & sort: desc";
 
     var srcQEWhere = getQEWhereStrByProtoVN("sourcevn", appData);
     var destQEWhere = getQEWhereStrByProtoVN("destvn", appData);
