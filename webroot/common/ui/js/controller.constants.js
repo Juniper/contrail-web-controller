@@ -497,7 +497,7 @@ define([
                     }
                 });
 
-                reqParams['select'] = "sourcevn, destvn, sourceip, destip, protocol, sport, dport, sum(bytes), sum(packets),flow_count";
+                reqParams['select'] = "sourcevn, destvn, sourceip, destip, protocol, sport, dport, SUM(bytes), SUM(packets)";
                 reqParams['where'] = whereArr.join(' OR ');
                 delete reqParams['fqName'];
                 delete reqParams['protocol'];

@@ -446,35 +446,26 @@ define([
                 searchable: true
             },
             {
-                field: "sum(bytes)",
+                field: "SUM(bytes)",
                 name: "Sum (Bytes)",
                 minWidth: 80,
                 searchFn: function (d) {
-                    return d["sum(bytes)"];
+                    return d["SUM(bytes)"];
                 },
                 formatter: function (r, c, v, cd, dc) {
-                    return cowu.addUnits2Bytes(dc["sum(bytes)"]);
+                    return cowu.addUnits2Bytes(dc["SUM(bytes)"]);
                 },
                 searchable: true
             },
             {
-                field: "sum(packets)",
+                field: "SUM(packets)",
                 name: "Sum (Packets)",
                 minWidth: 90,
                 searchFn: function (d) {
-                    return d["sum(packets)"];
+                    return d["SUM(packets)"];
                 },
                 formatter: function (r, c, v, cd, dc) {
-                    return cowu.addUnits2Packets(dc['sum(packets)']);
-                },
-                searchable: true
-            },
-            {
-                field: 'flow_count',
-                name: 'Flow Count',
-                minWidth: 90,
-                searchFn: function (d) {
-                    return d['flowcnt'];
+                    return cowu.addUnits2Packets(dc['SUM(packets)']);
                 },
                 searchable: true
             }

@@ -102,7 +102,6 @@ define([
                                         },
                                         tooltipConfigCB: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick),
                                         clickCB: onScatterChartClick,
-                                        sizeFieldName: 'flowCnt',
                                         xLabelFormat: d3.format(','),
                                         yLabelFormat: function(yValue) {
                                             var formattedValue = formatBytes(yValue, false, null, 1);
@@ -159,16 +158,12 @@ define([
         }
 
         portGroup = portDim.group().reduceSum(function (d) {
-            return d["sum(bytes)"]
+            return d["SUM(bytes)"]
         });
         $.each(portGroup.top(Infinity), function (idx, portObj) {
             portDim.filterAll();
             var flowCnt = 0,
                 matchedRecords = portDim.filter(portObj['key']).top(Infinity);
-
-            $.each(matchedRecords, function (idx, currPortObj) {
-                flowCnt += currPortObj['flow_count'];
-            });
 
             portArr.push({
                 port: portObj['key'],
