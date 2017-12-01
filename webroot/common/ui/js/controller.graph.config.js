@@ -97,7 +97,6 @@ define([
                     content: {
                         iconClass: false,
                         info: [
-                            {label: 'Flows', value: data['flowCnt']},
                             {label: 'Bandwidth', value: cowu.addUnits2Bytes(ifNull(data['origY'], data['y']))}
                         ],
                         actions: [

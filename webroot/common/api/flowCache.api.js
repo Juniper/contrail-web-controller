@@ -41,25 +41,25 @@ function fillFlowSeriesData (resultJSON, i, j, inStat, outStat) {
     }
     try {
         resultJSON.outPkts = ((j === -1) ? 0 :
-                                    outStat[j]["sum(packets)"]);
+                                    outStat[j]["SUM(packets)"]);
     } catch(e) {
         resultJSON.outPkts = 0;
     }   
     try {
         resultJSON.outBytes = ((j === -1) ? 0 :
-                                     outStat[j]["sum(bytes)"]);
+                                     outStat[j]["SUM(bytes)"]);
     } catch(e) {
         resultJSON.outBytes = 0;
     }   
     try {
         resultJSON.inPkts = ((i === -1) ? 0 :
-                                inStat[i]["sum(packets)"]);
+                                inStat[i]["SUM(packets)"]);
     } catch(e) {
         resultJSON.inPkts = 0;
     }   
     try {
         resultJSON.inBytes = ((i === -1) ? 0 :
-                                 inStat[i]["sum(bytes)"]);
+                                 inStat[i]["SUM(bytes)"]);
     } catch(e) {
         resultJSON.inBytes = 0;
     }

@@ -156,7 +156,7 @@ define([
             oldWhereClause = queryFormAttributes.where,
             oldWhereArray;
 
-        newQueryFormAttributes.select = "vrouter, sourcevn, sourceip, destvn, destip, protocol, sport, dport, flow_count, bytes, T, packets";
+        newQueryFormAttributes.select = "vrouter, sourcevn, sourceip, destvn, destip, protocol, sport, dport, bytes, T, packets";
         newQueryFormAttributes.direction = (direction === "ingress") ? "1" : "0";
 
         for (var key in selectedFlowRecord) {
