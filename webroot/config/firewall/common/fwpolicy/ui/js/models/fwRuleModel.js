@@ -119,6 +119,8 @@ define([
                 _.each(endpoint.tags, function(tag){
                     var grpName = tag ? tag.split(ctwc.TAG_SEPARATOR)[0]: '';
                     grpName = grpName.indexOf('global:') != -1 ? grpName.split(':')[1] : grpName;
+                    grpName =
+                        $.inArray(grpName.toLowerCase(), ctwc.FW_PREDEFINED_TAGS) != -1 ? grpName : 'udtag';
                     var val = tag + cowc.DROPDOWN_VALUE_SEPARATOR + grpName.toLowerCase();
                     endpointArr.push(val);
                 });
@@ -175,7 +177,7 @@ define([
                     vnSubnetObj, subnet, endpoint;
                 //tags
                 if(srcArr.length == 2 && (srcArr[1] === 'application' ||
-                        srcArr[1] === 'deployment' ||  srcArr[1] === 'site' || srcArr[1] === 'tier' || srcArr[1] === 'label')) {
+                        srcArr[1] === 'deployment' ||  srcArr[1] === 'site' || srcArr[1] === 'tier' || srcArr[1] === 'label' || srcArr[1] === 'udtag')) {
                     endpoint["tags"].push(srcArr[0]);
                 } else if(srcArr.length == 2 && srcArr[1] === 'address_group'){
                     endpoint[srcArr[1]] = srcArr[0];

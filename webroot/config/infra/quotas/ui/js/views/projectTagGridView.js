@@ -135,6 +135,7 @@ define([
                         var siteArray = [];
                         var deploymentArray = [];
                         var lablesArray = [];
+                        var customTagsArray = [];
                         deploymentArray.push({text:"None",value:"-"});
                         applicationArray.push({text:"None",value:"-"});
                         tierArray.push({text:"None",value:"-"});
@@ -195,6 +196,14 @@ define([
                                             "value":actValue
                                        };
                                     lablesArray.push(data);
+                                } else {
+                                    data = {
+                                            "text": (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                                    "global:" + tagsDetails[j].tag.name :
+                                                     tagsDetails[j].tag.name,
+                                            "value":actValue
+                                       };
+                                    customTagsArray.push(data);
                                 }
                             }
                         }
@@ -206,7 +215,15 @@ define([
                         var data = $(gridElId).data().getItems();
                         for(var i=0; i<data.length; i++){
                             var fqName = getValueByJsonPath(data[i],'fqName',[]);
-                            tagsBindItems[data[i]['type']] = (fqName != '-')?fqName.join(","): '-';
+                            if(fqName != '-' && (data[i]['type'] === 'Labels' || data[i]['type'] === 'Custom')) {
+                                var faNameArray = fqName, fqnStrArray = [];
+                                _.each(faNameArray, function(fqn){
+                                    fqnStrArray.push(fqn.join(':'));
+                                });
+                                tagsBindItems[data[i]['type']] = fqnStrArray.join(',');
+                            } else {
+                                tagsBindItems[data[i]['type']] = (fqName != '-')?fqName.join(":"): '-';
+                            }
                         }
                         projectTagModel = new ProjectTagsModel(tagsBindItems);
                         projectTagEditView.model = projectTagModel;
@@ -217,6 +234,7 @@ define([
                                       "tags_option_sitearray":siteArray,
                                       "tags_option_deploymentarray":deploymentArray,
                                       "tags_option_lablesArray": lablesArray,
+                                      "tags_option_customtagsArray": customTagsArray,
                                       "projUUID": selectedProject['value'],
                                       callback: function() {
                             var dataView =
