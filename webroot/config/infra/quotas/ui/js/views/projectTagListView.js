@@ -34,12 +34,14 @@ define([
         {key : "deployment", name :"Deployment"},
         {key : "site", name :"Site"},
         {key : "tier", name : "Tier"},
-        {key : "label", name :"Labels"}
+        {key : "label", name :"Labels"},
+        {key : "Custom", name :"Custom"}
     ];
     var projectTagsDataParser = function (response) {
         var results = [];
         var tagValue = '';
         var tagValueLabel = '';
+        var customTagStr = '';
         var tagRefs = getValueByJsonPath(response, "0;projects;0;project;tag_refs", []);
         var tagMap = {};
         var tagDataLabel = [];
@@ -47,17 +49,23 @@ define([
             var tagRef = tagRefs[i];
             var tagData = getValueByJsonPath(tagRef,"to",[]);
             var tagInfo = tagData[tagData.length -1 ];
+            var tagKey = tagInfo.substring(0,tagInfo.indexOf(ctwc.TAG_SEPARATOR));
             var tagValueTitle = tagInfo.substring(tagInfo.indexOf(ctwc.TAG_SEPARATOR),0);
             if(tagValueTitle === "label"){
                 tagValueLabel += tagInfo.substring(tagInfo.indexOf(ctwc.TAG_SEPARATOR) + 1,tagInfo.length)+", ";
                 tagValue = tagValueLabel;
                 tagDataLabel.push(tagData);
                 tagData = tagDataLabel;
-            }else{
+            }else if ($.inArray(tagValueTitle, ctwc.FW_PREDEFINED_TAGS) !== -1){
                 tagValue = tagInfo.substring(tagInfo.indexOf(ctwc.TAG_SEPARATOR) + 1,tagInfo.length);
+            } else {
+                customTagStr += tagInfo + ", ";//.substring(tagInfo.indexOf(ctwc.TAG_SEPARATOR) + 1,tagInfo.length)+", ";
+                tagValue = customTagStr;
+                tagDataLabel.push(tagData);
+                tagData = tagDataLabel;
+                tagKey = 'Custom';
             }
             tagValue = tagValue.replace(/,\s*$/, "");
-            var tagKey = tagInfo.substring(0,tagInfo.indexOf(ctwc.TAG_SEPARATOR));
             if(tagData.length === 1){
                 tagValue = 'global:'+ tagValue;
             }
@@ -68,9 +76,15 @@ define([
         for (var i = 0; i < projectsTagListCnt; i++) {
             var key = projectsTagsList[i]['key'];
             results[i] = {};
-            results[i]['type'] = projectsTagsList[i]['name'];
-            results[i]['value'] = getValueByJsonPath(tagMap,key + ";value",'-');
-            results[i]['fqName'] = getValueByJsonPath(tagMap,key + ";fqName",'-');
+            if(key === 'Custom') {
+                results[i]['type'] = key;
+                results[i]['value'] = getValueByJsonPath(tagMap,key + ";value",'-');
+                results[i]['fqName'] = getValueByJsonPath(tagMap,key + ";fqName",'-');
+            } else {
+                results[i]['type'] = projectsTagsList[i]['name'];
+                results[i]['value'] = getValueByJsonPath(tagMap,key + ";value",'-');
+                results[i]['fqName'] = getValueByJsonPath(tagMap,key + ";fqName",'-');
+            }
         }
         return results;
     }

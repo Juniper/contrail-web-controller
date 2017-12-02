@@ -61,6 +61,7 @@ define([
         var tags_options_sitearray = options.tags_option_sitearray;
         var tags_options_deploymentarray = options.tags_option_deploymentarray;
         var tags_options_lables = options.tags_option_lablesArray;
+        var tags_option_customtagsArray = options.tags_option_customtagsArray;
         
         var prefixId = "projecttags";
         var projectTagsViewConfig = {
@@ -187,18 +188,23 @@ define([
                                         placeholder: 'Select Labels',
                                         dataTextField : "text",
                                         dataValueField : "value",
-//                                        dataSource: {
-//                                            type: 'local',
-//                                            data : [{
-//                                              "text":"hr",
-//                                              "value":"hr"
-//                                          }]
-//                                        }
-//                                        data:[{
-//                                            'text':"Site",
-//                                            'value':"1"
-//                                        }]
                                         data:tags_options_lables
+                                    }
+                                }
+                            },
+                            {
+                                elementId: 'Custom',
+                                view: "FormMultiselectView",
+                                viewConfig: {
+                                    label: 'Custom',
+                                    path : 'Custom',
+                                    class: 'col-xs-12',
+                                    dataBindValue : 'Custom',
+                                    elementConfig: {
+                                        placeholder: 'Select Custom Tags',
+                                        dataTextField : "text",
+                                        dataValueField : "value",
+                                        data:tags_option_customtagsArray
                                     }
                                 }
                             }

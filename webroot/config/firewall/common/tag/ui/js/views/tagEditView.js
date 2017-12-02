@@ -104,7 +104,7 @@ define([
                         columns: [
                             {
                                 elementId: 'tag_type_name',
-                                view: "FormDropdownView",
+                                view: "FormComboboxView",
                                 viewConfig: {
                                     path:'tag_type_name',
                                     class: 'col-xs-6',

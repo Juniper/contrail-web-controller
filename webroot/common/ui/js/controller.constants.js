@@ -1016,6 +1016,7 @@ define([
                                 {text:'Deployment', value: 'deployment'},
                                 {text: 'Site', value: 'site'},
                                 {text: 'Label', value: 'label'}];
+        this.FW_PREDEFINED_TAGS = ['application', 'site', 'deployment', 'tier', 'label'];
         ///Application Policy Set
         this.APPLICATION_POLICY_SET_LIST_VIEW_ID = "application-policy-set-list-view";
         this.APPLICATION_POLICY_SET_SECTION_ID = 'application-policy-set-section';

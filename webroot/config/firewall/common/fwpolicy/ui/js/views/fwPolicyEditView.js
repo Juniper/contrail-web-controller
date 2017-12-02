@@ -307,6 +307,10 @@ define([
                     addrFields.push({text: 'Label', value: 'label',
                         children: tagGroupData.labelMap['Label']
                     });
+                    //custom tags
+                    addrFields.push({text: 'Custom', value: 'udtag',
+                        children: tagGroupData.customMap['Custom']
+                    });
                     var addressGrpChild = [{text:'Select a Address Group',
                         value:"dummy" + cowc.DROPDOWN_VALUE_SEPARATOR + "address_group",
                         id:"dummy" + cowc.DROPDOWN_VALUE_SEPARATOR + "address_group",
@@ -440,7 +444,10 @@ define([
                   value: "dummy" +
                   cowc.DROPDOWN_VALUE_SEPARATOR +
                   "label",
-               disabled: true}]};
+               disabled: true}]},
+               customMap ={Custom: [{text:'Select Custom tags',
+                   value:"dummy" + cowc.DROPDOWN_VALUE_SEPARATOR + "udtag",
+                   disabled : true }]};
          _.each(tags, function(tagData){
              if('tag' in tagData) {
                  var data = tagData['tag'];
@@ -480,6 +487,14 @@ define([
                          value: val + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
                          id: val + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
                          parent: 'label'});
+                 } else {
+                     txt = data.fq_name.length === 1 ?
+                             'global:' + data['name'] :
+                                 data['name'];
+                     customMap['Custom'].push({text : txt,
+                         value : val + cowc.DROPDOWN_VALUE_SEPARATOR + "udtag",
+                         id : val + cowc.DROPDOWN_VALUE_SEPARATOR + "udtag",
+                         parent : "udtag" });
                  }
              }
          });
@@ -488,6 +503,7 @@ define([
          tagGroupData.deploymentMap = deploymentMap;
          tagGroupData.tierMap = tierMap;
          tagGroupData.labelMap = labelMap;
+         tagGroupData.customMap = customMap;
          return tagGroupData;
     }
     var fqnameDisplayFormat = function(fqname, selectedDomain, selectedProject) {
@@ -1058,6 +1074,11 @@ define([
                                                 'fa fa-clone'
                                             },
                                             {
+                                                name : 'Custom',
+                                                value : 'udtag',
+                                                iconClass:'fa fa-asterisk'
+                                            },
+                                            {
                                                 name : 'Label',
                                                 value : 'label',
                                                 iconClass:
@@ -1136,6 +1157,11 @@ define([
                                                 value : 'Site',
                                                 iconClass:
                                                 'fa fa-life-ring'
+                                            },
+                                            {
+                                                name : 'Custom',
+                                                value : 'udtag',
+                                                iconClass:'fa fa-asterisk'
                                             },
                                             {
                                                 name : 'Label',
