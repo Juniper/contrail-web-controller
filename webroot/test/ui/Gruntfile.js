@@ -1057,6 +1057,82 @@ module.exports = function (grunt) {
                 feature: 'config'
             }
         },
+        fipCfgGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/fip/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/fip/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/fip/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/fip/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'fip-grid-view-test-results.xml',
+                    suite: 'fipCfgGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/fip-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/fipGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        logicalRouterGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/logicalrouter/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/logicalrouter/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/logicalrouter/test/ui/views/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/common/ui/js/**/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/logicalrouter/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'logicalrouter-grid-view-test-results.xml',
+                    suite: 'logicalRouterGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/logicalrouter-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/logicalRouterGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
         ipamCfgGridView : {
             options: {
                 files: [
@@ -1463,6 +1539,14 @@ module.exports = function (grunt) {
             case 'ipams' :
                 grunt.task.run('karma:ipamCfgGridView');
                 testDir = 'ipamCfgGridView';
+                break;
+            case 'fip' :
+                grunt.task.run('karma:fipCfgGridView');
+                testDir = 'fipCfgGridView';
+                break;
+            case 'logicalrouter' :
+                grunt.task.run('karma:logicalRouterGridView');
+                testDir = 'logicalRouterGridView';
                 break;
             case 'policy' :
                 grunt.task.run('karma:policyGridView');

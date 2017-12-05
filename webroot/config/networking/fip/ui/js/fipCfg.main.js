@@ -8,18 +8,16 @@ function fipCfgLoader() {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
-            rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathView = rootDir + '/js/views/fipCfgView.js',
+            pathfipCfgView = ctBaseDir + '/config/networking/fip/ui/js/views/fipCfgView.js',
             renderFn = paramObject['function'];
-
-        if (self.fipCfgView == null) {
-            requirejs([pathView], function (fipCfgView) {
-                 self.fipCfgView = new fipCfgView();
-                 self.renderView(renderFn, hashParams);
-             });
-        } else {
-            self.renderView(renderFn, hashParams);
-        }
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
+            require([pathfipCfgView], function (fipCfgView) {
+                self.fipCfgView = new fipCfgView();
+                self.renderView(renderFn, hashParams);
+                if(contrail.checkIfExist(loadingStartedDefObj)) {
+                    loadingStartedDefObj.resolve();
+                }
+            });
     }
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");
