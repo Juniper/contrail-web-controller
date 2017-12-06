@@ -944,7 +944,14 @@ define([
                 );
             }
         },
-
+        getDecimalVal: function(hex){
+            var num = 0;
+            for(var x=0;x<hex.length;x++) {
+                var hexdigit = parseInt(hex[x],16);
+                num = (num << 4) | hexdigit;
+            }
+            return num;
+        },
         preparePortListForDeviceOwner : function(attr) {
             var deleteVMIList = [],
                 serverTuples = this.getServerList(attr),
@@ -1066,6 +1073,60 @@ define([
                                 return "MAC Addresses are repeated";
                             }
                         }
+                    }
+                },
+                ethernet_segment_identifier : function(value, attr, finalObj){
+                    var isValid = true, zeroCount = 0, fCount = 0, isValidHex = true;
+                    hexValue = ['10','11','12','13','14','15'];
+                    var errorStr = 'Please enter valid ESI string format.';
+                    if(value !== null && value.includes(':')){
+                        var esi = value.split(':');
+                        if(esi.length === 10){
+                            _.each(esi, function(obj) {
+                                if(obj.length === 1 || obj.length > 2){
+                                   isValid = false;
+                                }
+                            });
+                            if(isValid){
+                                _.each(esi, function(obj) {
+                                    var str = obj.split('');
+                                    if(str[0] === '0' && str[1] === '0'){
+                                        zeroCount++;
+                                    }else if(str[0].toLowerCase() === 'f' && str[1].toLowerCase() === 'f'){
+                                        fCount++;
+                                    }
+                                });
+                                if(zeroCount === 10){
+                                   return errorStr;
+                                }else if(fCount === 10){
+                                    return errorStr;
+                                }else{
+                                  var newEsi = esi.join('');
+                                  if(/[^a-zA-Z0-9\-\/]/.test(newEsi)){
+                                     return errorStr;
+                                  }else{
+                                      var alphabetEsi = newEsi.replace(/[0-9]/g, '');
+                                      if(alphabetEsi !== ''){
+                                          var hexList = alphabetEsi.split('');
+                                          _.each(hexList, function(hex) {
+                                              if(hexValue.indexOf(self.getDecimalVal(hex).toString()) === -1){
+                                                  isValidHex = false;
+                                              }
+                                          });
+                                      }
+                                      if(!isValidHex){
+                                         return errorStr;
+                                      }
+                                  }
+                                }
+                            }else{
+                               return errorStr;
+                            }
+                        }else{
+                           return errorStr;
+                        }
+                    }else{
+                       return errorStr;
                     }
                 }
             }
