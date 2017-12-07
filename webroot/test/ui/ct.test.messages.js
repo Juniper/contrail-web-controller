@@ -54,6 +54,7 @@ define([
         this.IPAM_GRID_VIEW_COMMON_TEST_MODULE = 'IPAM Grid View - Common Tests';
         this.FLOATING_IPS_GRID_VIEW_COMMON_TEST_MODULE = 'Floating IPs Grid View - Common Tests';
         this.ROUTERS_GRID_VIEW_COMMON_TEST_MODULE = 'Routers Grid View - Common Tests';
+        this.LB_GRID_VIEW_COMMON_TEST_MODULE = 'Load Balancer Grid View - Common Tests';
         this.get = function () {
             var args = arguments;
             return args[0].replace(/\{(\d+)\}/g, function (m, n) {

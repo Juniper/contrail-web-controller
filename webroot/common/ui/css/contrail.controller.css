@@ -3,6 +3,30 @@
  * All rights reserved.
  */
 
+/* Load Balancer Page*/
+ #configure-Loadbalancer .modal-footer{
+	margin-top: -45px;
+    float: left;
+    padding-left: 7px;
+ }
+ #configure-Loadbalancer .modal-footer .btnSave{
+	display:none;
+ }
+#associated_ip_address .select2-container{
+	padding: 0px !important;
+}
+#associated_ip_address{
+	margin-top: 20px;
+}
+#associated_ip_address .select2-container ul li input{
+	width: 100% !important;
+}
+#virtual_machine_interface_refs .select2-container ul li input{
+	width: 100% !important;
+}
+.pool-health-monitors-details{
+	width: 75% !important;
+}
 /* Service Instances page*/
 .padingTop6{
     padding-top:6px;

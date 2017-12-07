@@ -1109,6 +1109,23 @@ and need to add the iconClass tag wherever we need to show some icons
                     <iconClass>menu-icon fa fa-sitemap</iconClass>
                     <items>
                         <item>
+                          <label>Load Balancing</label>
+                          <hash>config_load_balancer</hash>
+                          <resources>
+                              <resource>
+                                  <rootDir>/common/ui</rootDir>
+                                  <js>controller.app.js</js>
+                              </resource>
+                              <resource>
+                                  <rootDir>/config/networking/loadbalancer/ui</rootDir>
+                                  <js>lbCfg.main.js</js>
+                                  <class>configlBaaSLoader</class>
+                                  <function>renderLoadBalancer</function>
+                              </resource>
+                          </resources>
+                          <searchStrings>Configure Load Balancer, Pool, Pool Member, Health</searchStrings>
+                        </item>
+                        <item>
                             <label>Networks</label>
                             <hash>config_networking_networks</hash>
                             <resources>
