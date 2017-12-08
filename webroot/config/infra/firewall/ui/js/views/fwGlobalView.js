@@ -106,6 +106,7 @@ define([
                elementId: 'global_policy_info_tab',
                title: 'Policy Info',
                view: "fwPolicyInfoView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/firewall/common/fwpolicy/ui/js/views/",
                app: cowc.APP_CONTRAIL_CONTROLLER,
                viewConfig: viewConfig,
@@ -122,6 +123,7 @@ define([
                elementId: 'global_policy_rules',
                title: 'Rules',
                view: "fwRuleProjectListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
                app: cowc.APP_CONTRAIL_CONTROLLER,
                viewConfig: viewConfig,
@@ -138,6 +140,7 @@ define([
                elementId: 'global_permissions',
                title: 'Permissions',
                view: "fwPermissionView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/firewall/common/fwpolicy/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -161,6 +164,7 @@ define([
                 elementId: 'application_policy_tab',
                 title: 'Application Policy Sets',
                 view: "applicationPolicyGlobalListView",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix: "config/infra/firewall/ui/js/views/",
                 viewConfig: viewConfig,
                 tabConfig: {
@@ -176,6 +180,7 @@ define([
                 elementId: 'fw_policy_tab',
                 title: 'Firewall Policies',
                 view: "fwPolicyGlobalListView",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix: "config/infra/firewall/ui/js/views/",
                 viewConfig: viewConfig,
                 tabConfig: {
@@ -192,6 +197,7 @@ define([
                elementId: 'service_group_tab',
                title: 'Service Groups',
                view: "serviceGroupGlobalListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/firewall/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -207,6 +213,7 @@ define([
                elementId: 'address_group_tab',
                title: 'Address Groups',
                view: "addressGroupGlobalListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/firewall/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {

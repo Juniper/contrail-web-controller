@@ -10,14 +10,18 @@ function FWPolicyProjectPageLoader ()
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathSecurityPolicyView = rootDir + '/js/views/fwPolicyProjectView.js',
-            renderFn = paramObject['function'];
+            pathSecurityPolicyView = ctBaseDir + '/config/firewall/project/fwpolicy/ui/js/views/fwPolicyProjectView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
 
         if (self.fwPolicyView == null) {
             requirejs([pathSecurityPolicyView], function (FWPolicyView) {
                 self.fwPolicyView = new FWPolicyView();
                 self.renderView(renderFn, hashParams);
+                if(contrail.checkIfExist(loadingStartedDefObj)) {
+                    loadingStartedDefObj.resolve();
+                }
             }, function (err) {
                 console.info("Firewall Page Load error:" + err);
             });

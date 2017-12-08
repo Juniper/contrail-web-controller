@@ -1202,7 +1202,7 @@ module.exports = function (grunt) {
                     }
                 ],
                 preprocessors: {
-                    'contrail-web-controller/webroot/config/networking/policy/ui/js/**/*.js': []
+                    'contrail-web-controller/webroot/config/networking/policy/ui/js/**/*.js': ['coverage']
                 },
                 junitReporter: {
                     outputDir:__dirname + '/reports/tests/config/views/',
@@ -1305,6 +1305,590 @@ module.exports = function (grunt) {
                     type: 'html',
                     dir: __dirname + '/reports/coverage/config/views/routeAggregateGridView/',
                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        alarmGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/alarm/project/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/alarm/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/alarm/common/ui/templates/**/*.tmpl',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/alarm/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/alarm/project/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Alarm-grid-view-test-results.xml',
+                    suite: 'alarmGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/alarm-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/alarmGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        globalTagGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/tag/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/tag/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/tag/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/tag/ui/js/tagUtils.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/tag/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/infra/tag/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Global-tag-grid-view-test-results.xml',
+                    suite: 'globalTagGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/global-tag-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/globalTagGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        projectTagGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/tag/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/tag/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/tag/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/tag/ui/js/tagUtils.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/tag/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/firewall/project/tag/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Project-tag-grid-view-test-results.xml',
+                    suite: 'projectTagGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/project-tag-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/projectTagGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        projectAddressGrpGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/views/policyFormatters.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/addressgroup/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/addressgroup/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/addressgroup/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/firewall/project/addressgroup/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Project-address-group-policy-grid-view-test-results.xml',
+                    suite: 'projectAddressGrpGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/project-address-group-policy-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/projectAddressGrpGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        projectServiceGrpGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/views/policyFormatters.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/applicationpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/applicationpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/servicegroup/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/fwpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/servicegroup/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/servicegroup/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/firewall/project/servicegroup/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Project-service-group-policy-grid-view-test-results.xml',
+                    suite: 'projectServiceGrpGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/project-service-group-policy-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/projectServiceGrpGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        projectFwPolicyGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/fwpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/applicationpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/applicationpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/views/policyFormatters.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/fwpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/fwpolicy/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/firewall/project/fwpolicy/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Project-policy-grid-view-test-results.xml',
+                    suite: 'projectFwPolicyGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/project-policy-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/projectFwPolicyGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        projectApsGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/ui/js/views/fwProjectView.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/applicationpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/applicationpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/project/applicationpolicy/test/ui/views/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/fwpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/fwpolicy/ui/js/fwPolicy.utils.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/views/policyFormatters.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/firewall/project/applicationpolicy/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Project-aps-grid-view-test-results.xml',
+                    suite: 'projectApsGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/project-aps-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/projectApsGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        globalAddressGrpGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/firewall/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/firewall/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/views/policyFormatters.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/addressgroup/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/addressgroup/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/firewall/common/addressgroup/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Global-address-group-policy-grid-view-test-results.xml',
+                    suite: 'globalAddressGrpGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/global-address-group-policy-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/globalAddressGrpGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        globalServiceGrpGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/firewall/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/firewall/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/views/policyFormatters.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/applicationpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/fwpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/servicegroup/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/servicegroup/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/firewall/common/servicegroup/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Global-service-group-policy-grid-view-test-results.xml',
+                    suite: 'globalServiceGrpGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/global-service-group-policy-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/globalServiceGrpGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        globalFwPolicyGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/firewall/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/firewall/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/fwpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/applicationpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/views/policyFormatters.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/fwpolicy/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/firewall/common/fwpolicy/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Global-policy-grid-view-test-results.xml',
+                    suite: 'globalFwPolicyGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/global-policy-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/globalFwPolicyGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        globalApsGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/firewall/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/firewall/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/applicationpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/applicationpolicy/test/ui/views/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/fwpolicy/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/fwpolicy/ui/js/fwPolicy.utils.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/policy/ui/js/views/policyFormatters.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/firewall/common/applicationpolicy/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Global-aps-grid-view-test-results.xml',
+                    suite: 'globalApsGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/global-aps-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/globalApsGridView/',
+                    subdir : browserSubdirFn
                 },
                 feature: 'config'
             }
@@ -1615,6 +2199,50 @@ module.exports = function (grunt) {
             case 'routeaggregates' :
                 grunt.task.run('karma:routeAggregateGridView');
                 testDir = 'routeAggregateGridView'
+                break;
+            case 'alarm' :
+                grunt.task.run('karma:alarmGridView');
+                testDir = 'alarmGridView'
+                break;
+            case 'globaltag' :
+                grunt.task.run('karma:globalTagGridView');
+                testDir = 'globalTagGridView'
+                break;
+            case 'projecttag' :
+                grunt.task.run('karma:projectTagGridView');
+                testDir = 'projectTagGridView'
+                break;
+            case 'projectaddressgroup' :
+                grunt.task.run('karma:projectAddressGrpGridView');
+                testDir = 'projectAddressGrpGridView'
+                break;
+            case 'projectservicegroup' :
+                grunt.task.run('karma:projectServiceGrpGridView');
+                testDir = 'projectServiceGrpGridView'
+                break;
+            case 'projectfwpolicy' :
+                grunt.task.run('karma:projectFwPolicyGridView');
+                testDir = 'projectFwPolicyGridView'
+                break;
+            case 'projectaps' :
+                grunt.task.run('karma:projectApsGridView');
+                testDir = 'projectApsGridView'
+                break;
+            case 'globaladdressgroup' :
+                grunt.task.run('karma:globalAddressGrpGridView');
+                testDir = 'globalAddressGrpGridView'
+                break;
+            case 'globalservicegroup' :
+                grunt.task.run('karma:globalServiceGrpGridView');
+                testDir = 'globalServiceGrpGridView'
+                break;
+            case 'globalfwpolicy' :
+                grunt.task.run('karma:globalFwPolicyGridView');
+                testDir = 'globalFwPolicyGridView'
+                break;
+            case 'globalaps' :
+                grunt.task.run('karma:globalApsGridView');
+                testDir = 'globalApsGridView'
                 break;
             default :
                 grunt.task.run('karma:runAllConfigTests');
