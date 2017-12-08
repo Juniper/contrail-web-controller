@@ -10,14 +10,18 @@ function TagProjectPageLoader ()
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathSecurityPolicyView = rootDir + '/js/views/tagProjectView.js',
-            renderFn = paramObject['function'];
+            pathProjectTagView = ctBaseDir + '/config/firewall/project/tag/ui/js/views/tagProjectView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
 
-        if (self.securityPolicyView == null) {
-            requirejs([pathSecurityPolicyView], function (SecurityPolicyView) {
-                self.securityPolicyView = new SecurityPolicyView();
+        if (self.projectTagView == null) {
+            requirejs([pathProjectTagView], function (ProjectTagView) {
+                self.projectTagView = new ProjectTagView();
                 self.renderView(renderFn, hashParams);
+                if(contrail.checkIfExist(loadingStartedDefObj)) {
+                    loadingStartedDefObj.resolve();
+                }
             }, function (err) {
                 console.info("Firewall Page Load error:" + err);
             });
@@ -29,7 +33,7 @@ function TagProjectPageLoader ()
         $(contentContainer).html("");
         switch (renderFn) {
             case 'renderProjectTag':
-                this.securityPolicyView[renderFn]({hashParams: hashParams});
+                this.projectTagView[renderFn]({hashParams: hashParams});
                 break;
         }
     };

@@ -167,6 +167,7 @@ define([
                elementId: 'project_policy_rules',
                title: 'Rules',
                view: "fwRuleProjectListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
                app: cowc.APP_CONTRAIL_CONTROLLER,
                viewConfig: viewConfig,
@@ -183,6 +184,7 @@ define([
                elementId: 'project_permissions',
                title: 'Permissions',
                view: "fwPermissionView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/firewall/common/fwpolicy/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -205,6 +207,7 @@ define([
                 elementId: 'application_policy_tab',
                 title: 'Application Policy Sets',
                 view: "applicationPolicyProjectListView",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix: "config/firewall/project/applicationpolicy/ui/js/views/",
                 viewConfig: viewConfig,
                 tabConfig: {
@@ -220,6 +223,7 @@ define([
                 elementId: 'fw_policy_tab',
                 title: 'Firewall Policies',
                 view: "fwPolicyProjectListView",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
                 viewConfig: viewConfig,
                 tabConfig: {
@@ -236,6 +240,7 @@ define([
                elementId: 'service_group_tab',
                title: 'Service Groups',
                view: "serviceGroupProjectListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/firewall/project/servicegroup/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
@@ -251,6 +256,7 @@ define([
                elementId: 'address_group_tab',
                title: 'Address Groups',
                view: "addressGroupProjectListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/firewall/project/addressgroup/ui/js/views/",
                viewConfig: viewConfig,
                tabConfig: {
