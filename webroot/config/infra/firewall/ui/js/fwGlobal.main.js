@@ -10,14 +10,18 @@ function FWGlobalPageLoader ()
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathSecurityPolicyView = rootDir + '/js/views/fwGlobalView.js',
-            renderFn = paramObject['function'];
+            pathSecurityPolicyView = ctBaseDir + '/config/infra/firewall/ui/js/views/fwGlobalView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
 
         if (self.securityPolicyView == null) {
             requirejs([pathSecurityPolicyView], function (SecurityPolicyView) {
                 self.securityPolicyView = new SecurityPolicyView();
                 self.renderView(renderFn, hashParams);
+                if(contrail.checkIfExist(loadingStartedDefObj)) {
+                    loadingStartedDefObj.resolve();
+                }
             }, function (err) {
                 console.info("Security Policy Page Load error:" + err);
             });
