@@ -2140,10 +2140,10 @@ define([
                         postData['select'] = 'Source, name, T=, process_mem_cpu_usage.cpu_share, process_mem_cpu_usage.mem_res';
                         postData['where'] = '(Source = '+ node +' AND process_mem_cpu_usage.__key = contrail-vrouter-agent)';
                     } else if (moduleType == 'vRouterSystemCpu') {
-                        postData['table'] = 'StatTable.NodeStatus.system_cpu_usage';
+                        postData['table_name'] = 'StatTable.NodeStatus.system_cpu_usage';
                         postData['select'] = 'T=, MAX(system_cpu_usage.one_min_avg)';
                     } else if (moduleType == 'vRouterSystemMem') {
-                        postData['table'] = 'StatTable.NodeStatus.system_mem_usage';
+                        postData['table_name'] = 'StatTable.NodeStatus.system_mem_usage';
                         postData['select'] = 'T=, MAX(system_mem_usage.used)';
                     } else if (moduleType == 'vRouterBandwidthIn') {
                         postData['table_name'] = 'StatTable.VrouterStatsAgent.phy_band_in_bps';
