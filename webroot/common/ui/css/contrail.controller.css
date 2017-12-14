@@ -887,8 +887,15 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
     overflow-y:auto!important;
     } 
 #configure-applicationpolicyset{
-    overflow-y: hidden !important;
+    overflow:auto;
 }
+    @media screen and ( max-height: 570px ){
+       #configure-applicationpolicyset{
+       top:0px!important;
+       height:auto!important;}
+       .modal{
+       top:0px!important;}
+    }
 #security-policy-tag-grid .slick-viewport, #fw_security_policy_as_grid_view .slick-viewport,
 #fw_security_policy_service_gp_grid_view .slick-viewport{
     overflow-x: hidden !important;
