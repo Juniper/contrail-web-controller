@@ -33,6 +33,13 @@ define([
 
         }, cotc.SEVERITY_LOW));
 
+        dataParserTestGroup.registerTest(cotr.test("Test valid ESI", function() {
+            //Declare the number of assert statements in current test case
+            expect(1);
+            equal(JSON.stringify(CTParser.isValidEsi(mockData.esiInput)), 'true' , 'Invalid ESI');
+
+        }, cotc.SEVERITY_LOW));
+
         CTParserUnitTestSuite.run(suiteConfig.groups, suiteConfig.severity);
     };
 

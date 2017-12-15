@@ -648,6 +648,19 @@ define([
            return retArr;
         };
 
+        this.isValidEsi = function(esi){
+            var esiRegularExp = /^([0-9a-fA-F][0-9a-fA-F]:){9,9}([0-9a-fA-F][0-9a-fA-F])$/;
+            var isValidEsi = false;
+                if(esiRegularExp.test(esi)){
+                    //check for continuous 0 or F
+                    if((esi.match(/0/g)||[]).length === 20 || (esi.toLowerCase().match(/f/g)||[]).length === 20){
+                        isValidEsi = false;
+                    }else{
+                        isValidEsi = true;
+                    }
+                }
+            return isValidEsi;
+        };
 
     };
 

@@ -339,7 +339,9 @@ define(['underscore'], function (_) {
                 return mockData[obj['fnName']]['output'][obj['type']];
             else
                 return null;
-        }
+        };
+
+        this.esiInput = '00:00:00:00:00:00:00:00:00:AA';
 
     }
     return new CTParserMockData();
