@@ -1438,6 +1438,16 @@ define([
         this.TRAFFIC_GROUPS_SETTINGS = 'Traffic_Groups_Settings';
         this.TITLE_TRAFFIC_GROUPS_SETTINGS = 'Traffic Groups Settings';
         this.TRAFFIC_GROUPS_NO_DATA = 'No Statistics found for the selected duration in this project';
+
+        // Load Balancer Labels
+        this.CFG_LB_PAGE_ID = 'config-lb-page';
+        this.CFG_LB_LIST_ID = 'config-lb-list';
+        this.CFG_LB_TITLE = 'Load Balancers';
+        this.CFG_LB_LIST_VIEW_ID = 'config-lb-list-view';
+        this.CFG_LB_GRID_ID = 'config-lb-grid';
+        this.CFG_LB_TITLE_CREATE = 'Create Loadbalancer';
+        this.CFG_LB_TITLE_DELETE = 'Delete Loadbalancers';
+        this.CFG_LB_PREFIX_ID = 'Loadbalancer';
     };
     return CTLabels;
 });
