@@ -2384,6 +2384,9 @@ module.exports = function (grunt) {
             case 'globalaps' :
                 grunt.task.run('karma:globalApsGridView');
                 testDir = 'globalApsGridView'
+            case 'ctunit' :
+                grunt.task.run('karma:ctUnit');
+                testDir = 'ctUnit'
                 break;
             default :
                 grunt.task.run('karma:runAllConfigTests');
