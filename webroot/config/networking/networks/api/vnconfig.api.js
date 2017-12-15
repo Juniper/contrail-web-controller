@@ -30,7 +30,7 @@ var jsonDiff    = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/jsondiff');
 
 var vCenterAPI  = require('./vnconfig.vcenter.api');
-var  _ = require('underscore');
+var  _ = require('lodash');
                           
 /**
  * Bail out if called directly as "nodejs vnconfig.api.js"
@@ -497,24 +497,28 @@ function getPagedVirtualNetworks (dataObj, callback)
  * 2. Again reads the response of the created network and updates
  *    the route target.
  */
-function createVirtualNetworkCb (error, vnConfig, vnPostData, response, appData) 
+function createVirtualNetworkCb (error, vnConfig, vnPostData, response, appData, callback)
 {
     var bdDataList;
     if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
+        if(callback){
+            callback(error, null);
+        } else {
+            commonUtils.handleJSONResponse(error, response, null);
+        }
         return;
     }
     vnPostData['virtual-network']['uuid'] = vnConfig['virtual-network']['uuid'];
 
-    response.req.body = vnPostData;
+    //response.req.body = vnPostData;
     bdDataList = commonUtils.getValueByJsonPath(vnPostData,
             'virtual-network;bridge_domains', [], false);
     if(bdDataList.length) {
         createBridgeDomains(bdDataList, appData, function(){
-            updateVNFipPoolAdd(response.req, response, appData);
+            updateVNFipPoolAdd(vnPostData, response, appData, callback);
         });
     } else {
-     updateVNFipPoolAdd(response.req, response, appData);
+     updateVNFipPoolAdd(vnPostData, response, appData, callback);
     }
 }
 
@@ -524,7 +528,7 @@ function createVirtualNetworkCb (error, vnConfig, vnPostData, response, appData)
  * 1. Callback for CreateVirtualNetwork
  */
 function updatePhysicalRouters (mode, newPRoutersUUIDS,error,newVnData,
-                                vnConfigData,request,response,appData,callback) 
+                                vnConfigData,request,response,appData, callback)
 {
     //Current physical routers
     var currPRouters = [];
@@ -576,6 +580,10 @@ function updatePhysicalRouters (mode, newPRoutersUUIDS,error,newVnData,
                 commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                 function(error, results) {
                     if (error) {
+                        if(callback) {
+                            callback(err, null);
+                            return;
+                        }
                        commonUtils.handleJSONResponse(error, response, null);
                        return;
                     }
@@ -952,6 +960,71 @@ function updateVNPolicyRefs (vnConfig, response, appData)
     }); 
 }
 
+function updateVirtualNetworkCB (dataObjArray, callback)
+{
+    var vnPutData = _.get(dataObjArray, 'data', {});
+    var vnId = _.get(vnPutData, 'virtual-network.uuid', null);
+
+    var reqUrl = '/virtual-network/' + vnId;
+    var physicalRouters = [];
+    var appData = _.get(dataObjArray, 'appData', null);
+    physicalRouters = vnPutData["virtual-network"]['physical-routers'];
+    delete vnPutData["virtual-network"]['physical-routers'];
+    //vnPutData['virtual-network']['uuid'] = vnId;
+    updateFloatingIpList(vnId, vnPutData, appData, null,
+                         function(err, data) {
+        if (err) {
+            if(callback){
+                callback(err, null);
+                return;
+            }
+            commonUtils.handleJSONResponse(err, response, null);
+            return;
+        }
+        if ('network_policy_refs' in vnPutData['virtual-network']) {
+            vnPutData = setVNPolicySequence(vnPutData);
+        }
+        updateBridgeDomains(vnId, vnPutData, appData, function(bdError, bdData){
+            if (bdError) {
+                if(callback){
+                    callback(bdError, null);
+                    return;
+                }
+                commonUtils.handleJSONResponse(bdError, response, null);
+                return;
+            }
+        jsonDiff.getJSONDiffByConfigUrl(reqUrl, appData, vnPutData,
+                                         function(err, delta) {
+            configApiServer.apiPut(reqUrl, delta, appData,
+                                   function(err, data) {
+                if (err) {
+                    if(callback){
+                        callback(err, null);
+                        return;
+                    }
+                    commonUtils.handleJSONResponse(err, response, null);
+                    return;
+                }
+                //Update the physical router
+                updatePhysicalRouters("edit",physicalRouters,err,data,
+                        vnPutData,null,null,appData,
+                        function(){
+                                readVirtualNetworkAsync({uuid:vnId, appData:appData},
+                                        function(err, data) {
+                                                if(callback){
+                                                    callback(err, data);
+                                                    return;
+                                                }
+                                                commonUtils.handleJSONResponse(err, response, data);
+                                        });
+                        }
+                );
+            });
+        });
+        });
+    });
+}
+
 function updateVirtualNetwork (request, response, appData)
 {
     var vnId;
@@ -1016,7 +1089,7 @@ function updateBridgeDomains(vnId, vnPutData, appData, callback)
                              'virtual-network;bridge_domains', [], false),
                      deleteBDObjList = [], deleteBDURL, createBDDataList = [],
                      editBDDataList = [],
-                     changedBDIds = _.pluck(changedBDList, 'uuid');
+                     changedBDIds = _.map(changedBDList, 'uuid');
                  _.each(changedBDList, function(bdData){
                      if(!bdData.uuid){
                          createBDDataList.push(bdData);
@@ -1025,7 +1098,7 @@ function updateBridgeDomains(vnId, vnPutData, appData, callback)
                      }
                  });
                  _.each(configBDList, function(configbdData){
-                     if(!(_.contains(changedBDIds, configbdData.uuid))) {
+                     if(_.indexOf(changedBDIds, configbdData.uuid) === -1) {
                          deleteBDURL = '/bridge-domain/' + configbdData.uuid;
                          commonUtils.createReqObj(deleteBDObjList, deleteBDURL,
                                  global.HTTP_REQUEST_DEL, null,
@@ -1199,6 +1272,50 @@ function updateRouterExternalFlag(configData, requestData) {
            configData["virtual-network"]["display_name"] = requestData["virtual-network"]["display_name"];
         }
     }
+}
+
+function createVirtualNetworkCB(dataObjArr, callback)
+{
+    var appData = _.get(dataObjArr, 'appData', {});
+    var vnCreateURL    = '/virtual-networks';
+    var vnPostData     = _.get(dataObjArr, 'data', null);
+    var vnSeqPostData  = {};
+    var vnConfigData   = null;
+    var physicalRouters= [];
+    if (typeof(vnPostData) != 'object') {
+        error = new appErrors.RESTServerError('Invalid Post Data');
+        callback(error, null);
+        return;
+    }
+
+    vnConfigData = JSON.parse(JSON.stringify(vnPostData));
+    physicalRouters = vnConfigData["virtual-network"]['physical-routers'];
+    delete vnConfigData["virtual-network"]['physical-routers'];
+
+    if ('route_target_list' in vnPostData['virtual-network'] &&
+       'route_target' in vnPostData['virtual-network']['route_target_list']) {
+        if (!(vnPostData['virtual-network']['route_target_list']
+                      ['route_target'].length)) {
+            delete vnPostData['virtual-network']['route_target_list'];
+        }
+    }
+
+
+    vnSeqPostData = setVNPolicySequence(vnPostData);
+    configApiServer.apiPost(vnCreateURL, vnSeqPostData, appData,
+                         function(error, data) {
+                           if (error || data == null) {
+                               callback(error, null);
+                               return;
+                           }
+                           updatePhysicalRouters("create",physicalRouters,error,data,
+                                   vnConfigData,null,null,appData,function(error,data){
+                                                                   createVirtualNetworkCb(error, data,
+                                                                         vnConfigData, null,
+                                                                         appData, callback);
+                                                               }
+                           );
+    });
 }
 
 /**
@@ -1750,15 +1867,19 @@ function createFipPoolProjectsGet (error, fipPool, fipPostData,
  * 3. Reads back the updated virtual network config and send it
  *    back to the client
  */
-function updateVNFipPoolAdd (request, response, appData)
+function updateVNFipPoolAdd (fipPostData, response, appData, callback)
 {
-    var fipPostData   = request.body;
+    //var fipPostData   = request.body;
     var vnId = fipPostData['virtual-network']['uuid'];
 
     updateVNFipPoolAddCb(fipPostData, appData, function(err, data) {
         readVirtualNetwork(vnId, appData,
                            function(err, data) {
-            commonUtils.handleJSONResponse(err, response, data);
+            if(callback) {
+                callback(err, data);
+            } else {
+                commonUtils.handleJSONResponse(err, response, data);
+            }
         });
     });
 }
@@ -2813,7 +2934,7 @@ function getBridgeDomains (vnList, appData, callback)
         _.each(bdDetails["bridge-domains"], function(bdData){
             actbdData = bdData['bridge-domain'];
             var bdKeys = _.keys(vnBDMap);
-            if(!(_.contains(bdKeys, actbdData.parent_uuid))) {
+            if(_.indexOf(bdKeys, actbdData.parent_uuid) === -1) {
                 vnBDMap[actbdData.parent_uuid] = [];
             }
             vnBDMap[actbdData.parent_uuid].push(actbdData);
@@ -2852,3 +2973,5 @@ exports.getVirtualNetworkCb          = getVirtualNetworkCb;
 exports.getVNListOrDetails           = getVNListOrDetails;
 exports.getAllVirtualNetworks        = getAllVirtualNetworks;
 exports.getVNDetails                 = getVNDetails;
+exports.createVirtualNetworkCB       = createVirtualNetworkCB;
+exports.updateVirtualNetworkCB       = updateVirtualNetworkCB;

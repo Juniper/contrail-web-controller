@@ -1613,11 +1613,20 @@ define([
                 vmiData = {};
                 vmiData["virtual-machine-interface"] = {};
                 vmiData["virtual-machine-interface"] = newPortData;
-
                 ajaxConfig = {};
-                ajaxConfig.type = type;
+                if(mode == ctwl.CREATE_ACTION) {
+                    vmiData = {"data":[{"data":{"virtual-machine-interface": newPortData},
+                                "reqUrl": '/virtual-machine-interfaces', "type": 'virtual-machine-interface'}]};
+                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
+                } else {
+                    vmiData = {"data":[{"data":{"virtual-machine-interface": newPortData},
+                                "reqUrl": '/virtual-machine-interface/' +
+                                newPortData['uuid'], "type": 'virtual-machine-interface'}]};
+                    ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
+                }
+                ajaxConfig.type = 'POST';
                 ajaxConfig.data = JSON.stringify(vmiData);
-                ajaxConfig.url = url;
+                //ajaxConfig.url = url;
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
                         callbackObj.init();
