@@ -339,7 +339,14 @@ define(['underscore'], function (_) {
                 return mockData[obj['fnName']]['output'][obj['type']];
             else
                 return null;
-        }
+        };
+
+        this.esiInput = {
+                    'ALL_00' : '00:00:00:00:00:00:00:00:00:00',
+                    'ALL_FF' : 'FF:FF:FF:FF:FF:FF:FF:FF:FF:FF',
+                    'INVALID_ESI' : '00:00:FF:AA:bb:cc:DD:22:GG:JJ',
+                    'VALID_ESI' : '00:ff:aa:FF:11:BB:33:CC:44:AA'
+                };
 
     }
     return new CTParserMockData();

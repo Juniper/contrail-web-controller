@@ -1656,6 +1656,10 @@ module.exports = function (grunt) {
                 grunt.task.run('karma:loadBalancerGridView');
                 testDir = 'loadBalancerGridView'
                 break;*/
+            case 'ctunit' :
+                grunt.task.run('karma:ctUnit');
+                testDir = 'ctUnit'
+                break;
             default :
                 grunt.task.run('karma:runAllConfigTests');
                 testDir = 'runAllConfigTests';

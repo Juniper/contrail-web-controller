@@ -1067,6 +1067,11 @@ define([
                             }
                         }
                     }
+                },
+                ethernet_segment_identifier : function(value, attr, finalObj){
+                    if(!ctwp.isValidEsi(value)){
+                        return 'Please enter valid ESI string format.';
+                    }
                 }
             }
         }
