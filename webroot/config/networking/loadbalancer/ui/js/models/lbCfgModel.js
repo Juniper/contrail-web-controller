@@ -22,6 +22,7 @@ define([
             'lb_vipsubnetid':'',
             'lb_operating_status':'',
             'lb_admin_state': true,
+            'lb_floating_ip': '',
             'lb_subnet': '',
             'listener_name':'Listener 1',
             'listener_description':'',
@@ -166,6 +167,9 @@ define([
                     loadbalancer.id_perms = {};
                     loadbalancer.id_perms.description = model.description;
                 }
+                /*if(model.lb_floating_ip !== ''){
+                    loadbalancer.loadbalancer_properties['floating_ip'] = model.lb_floating_ip;
+                }*/
                 // VMI Object formation
                 var newVMIObj = {};
                 newVMIObj["parent_type"] = "project";

@@ -2474,7 +2474,7 @@ function updateMemberCB(request, appData, callback){
     memPutURL += memUUID;
     jsonDiff.getConfigDiffAndMakeCall(memPutURL, appData, memPutData,
                                           function(locError, data) {
-        error = appendMessage(locError, error);
+        error = appendMessage(locError, locError);
         callback(error, data);
     });
 }
@@ -2946,8 +2946,12 @@ function createNewVMIObject(request, response, appData, postData, callback){
     		dataObjArr['reqDataArr']={};
     		dataObjArr['reqDataArr'].uuid= vmi['uuid'];
     		dataObjArr['reqDataArr'].appData= appData;
-
-    		callback(null, postData);
+		    var instanceUUID = vmi['instance_ip_back_refs'][0]['uuid'];
+		    readInstanceIPwithUUID(instanceUUID, appData, function(error, instanceData){
+		    var ipAddress = instanceData['instance-ip']['instance_ip_address'];
+		    postData['loadbalancer']['loadbalancer_properties']['vip_address'] = ipAddress;
+		    callback(null, postData);
+		});
     });
 }
 
