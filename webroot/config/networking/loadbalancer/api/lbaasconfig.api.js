@@ -1200,7 +1200,8 @@ function createLoadBalancer(request, response, appData) {
 		async.apply(createNewVMIObject, request, response, appData, postData),
 		async.apply(createLoadBalancerValidate, appData),
 		async.apply(createListenerValidate, appData),
-		async.apply(createPoolMembers, appData)
+		async.apply(createPoolMembers, appData),
+		async.apply(createFloatingIPforLB, appData),
 		],
 		function(error, postData) {
 			if (error) {
@@ -1280,6 +1281,59 @@ function createLoadBalancerValidate (appData, postData, callback){
 			});
     });
 
+}
+
+
+function createFloatingIPforLB (appData, postData, callback){
+	console.log('createFloatingIPforLB');
+	if (!('loadbalancer_floatingip' in postData)) {
+		console.log("no loadbalancer_floatingip object");
+	    callback(null, postData);
+	    return;
+	}
+	if (!('floating-ip' in postData['loadbalancer_floatingip'])) {
+		console.log("no loadbalancer_floatingip - floating-ip object");
+	    callback(null, postData);
+	    return;
+	}
+
+	var fipPostData={};
+	fipPostData['floating-ip'] = postData['loadbalancer_floatingip']['floating-ip'];
+	if ((!('floating-ip' in fipPostData)) ||
+	    (!('fq_name' in fipPostData['floating-ip'])) ||
+	    (!('floating_ip_fixed_ip_address' in fipPostData['floating-ip'])) ) {
+		console.log("in floating-ip object no fq_name or floating_ip_fixed_ip_address properties");
+	    callback(null, postData);
+	    return;
+	}
+	var vmiRefs = postData['loadbalancer']['virtual_machine_interface_refs'][0];
+
+	fipPostData['floating-ip']['virtual_machine_interface_refs'] = [{'to' : vmiRefs['to']}];
+
+	var uVMIRefs= vmiRefs['to'][0]+":"+vmiRefs['to'][1]+":"+vmiRefs['to'][2]+";"
+					+ fipPostData['floating-ip']['floating_ip_fixed_ip_address'];
+
+	fipPostData['floating-ip']['user_created_virtual_machine_interface_refs'] = uVMIRefs;
+	//console.log("&&&&&&&after....fipPostData------"+ JSON.stringify(fipPostData));
+	if ('floating-ip' in fipPostData &&
+		        'virtual_machine_interface_refs' in fipPostData['floating-ip'] &&
+		        fipPostData['floating-ip']['virtual_machine_interface_refs'] &&
+		        fipPostData['floating-ip']
+		                   ['virtual_machine_interface_refs'].length) {
+
+        vmRef = fipPostData['floating-ip']['virtual_machine_interface_refs'][0];
+        if ((!('to' in vmRef)) || (vmRef['to'].length != 3)) {
+            console.log('Add valid Instance \n' +JSON.stringify(vmRef));
+            callback(null, postData);
+            return;
+        }
+    }
+
+	var fipPostURL = '/floating-ip/';
+	fipPostURL += fipPostData['floating-ip']['uuid'];
+    configApiServer.apiPut(fipPostURL, fipPostData, appData, function(error, data) {
+        callback(null, postData);
+        });
 }
 
 function readLBwithUUID(lbId, appData, callback){
@@ -2474,7 +2528,7 @@ function updateMemberCB(request, appData, callback){
     memPutURL += memUUID;
     jsonDiff.getConfigDiffAndMakeCall(memPutURL, appData, memPutData,
                                           function(locError, data) {
-        error = appendMessage(locError, error);
+        error = appendMessage(locError, locError);
         callback(error, data);
     });
 }
@@ -2887,7 +2941,7 @@ function createNewVMIObject(request, response, appData, postData, callback){
         return;
     }
 	var vmiObj= lbPostData['loadbalancer']['virtual_machine_interface_refs'];
-	console.log('createNewVMIObject',vmiObj);
+	//console.log('createNewVMIObject',vmiObj);
 	var vmi={};
 	vmi['virtual-machine-interface'] = lbPostData['loadbalancer']['virtual_machine_interface_refs'];
 	if ((!('virtual_network_refs' in vmi['virtual-machine-interface']))) {
@@ -2946,8 +3000,12 @@ function createNewVMIObject(request, response, appData, postData, callback){
     		dataObjArr['reqDataArr']={};
     		dataObjArr['reqDataArr'].uuid= vmi['uuid'];
     		dataObjArr['reqDataArr'].appData= appData;
-
-    		callback(null, postData);
+		    var instanceUUID = vmi['instance_ip_back_refs'][0]['uuid'];
+		    readInstanceIPwithUUID(instanceUUID, appData, function(error, instanceData){
+		    var ipAddress = instanceData['instance-ip']['instance_ip_address'];
+		    postData['loadbalancer']['loadbalancer_properties']['vip_address'] = ipAddress;
+		    callback(null, postData);
+		});
     });
 }
 

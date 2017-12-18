@@ -4,9 +4,11 @@
 
 define([
     'underscore',
-    'contrail-model'
-], function (_, ContrailModel) {
+    'contrail-model',
+    'config/networking/loadbalancer/ui/js/views/lbCfgFormatters'
+], function (_, ContrailModel, LbCfgFormatters) {
     var self;
+    var lbCfgFormatters = new LbCfgFormatters();
     var poolMemberModel = ContrailModel.extend({
         defaultConfig: {
             'pool_member_ip_address' : '',
@@ -36,7 +38,27 @@ define([
                     if(port < 1 || port > 65535){
                         return "The Port must be a number between 1 and 65535.";
                     }
-                }
+                },
+                'pool_member_ip_address' : function(value, attr, data) {
+                    if(value  !== ""){
+                        if(!lbCfgFormatters.validateIP(value)){
+                            return "The IP address is not valid.";
+                        }
+                        if(data.pool_member_subnet != "") {
+                            var subnet = data.pool_member_subnet.split(';')[1];
+                            if(!isIPBoundToRange(subnet, value)){
+                                var ip = subnet.split('/')[0];
+                                return "Enter a fixed IP within the selected subnet range " + ip;
+                            }
+                            if(isStartAddress(subnet, value) == true ||
+                               isEndAddress(subnet, value) == true) {
+                                return "Fixed IP cannot be same as broadcast/start address";
+                            }
+                        }
+                    }else{
+                        return "Please enter the IP address.";
+                    }
+                 }
              }
         }
     });

@@ -10,7 +10,6 @@ define([
     var poolMemberModel = ContrailModel.extend({
         defaultConfig: {
             "display_name": "",
-            "subnet":"",
             "ip_address":"",
             "description":"",
             "port":"80",
@@ -45,11 +44,6 @@ define([
                     "loadbalancer_member_properties;status_description", '');
             if(description != ''){
                 modelConfig["status_description"] = description;
-            }
-            var subnet = getValueByJsonPath(modelConfig,
-                    "loadbalancer_member_properties;subnet", '');
-            if(subnet != ''){
-                modelConfig["subnet"] = subnet;
             }
             var description = getValueByJsonPath(modelConfig,
                     "id_perms;description", '');
@@ -125,7 +119,8 @@ define([
                             obj.loadbalancer_member_properties['weight'] = Number(poolObj.pool_member_weight());
                         }
                         if(poolObj.pool_member_subnet() !== ''){
-                            obj.loadbalancer_member_properties['vip_subnet_id'] = poolObj.pool_member_subnet();
+                            var subnet = poolObj.pool_member_subnet().split(';')[0];
+                            obj.loadbalancer_member_properties['vip_subnet_id'] = subnet;
                         }
                         poolStack.push(obj);
                     });
