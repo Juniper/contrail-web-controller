@@ -8,10 +8,12 @@ define(
          'monitor/security/trafficgroups/ui/js/views/TrafficGroupsSettingsView',
          'monitor/security/trafficgroups/ui/js/models/TrafficGroupsSettingsModel',
          'monitor/security/trafficgroups/ui/js/models/TrafficGroupsFilterModel',
+         'monitor/security/trafficgroups/ui/js/views/TrafficGroupsHelpers',
          "core-basedir/js/views/ContainerSettingsView"],
         function(_, ContrailView, ContrailChartsView,
-                ContrailListModel, settingsView, settingsModel, filterModel, ContainerSettings) {
+                ContrailListModel, settingsView, settingsModel, filterModel, TgHelpersView, ContainerSettings) {
             var tgView,
+                tgHelpers = new TgHelpersView(),
                 TrafficGroupsView = ContrailView.extend({
                 tagTypeList: {
                     'app': [],
@@ -25,7 +27,6 @@ define(
                 combineEmptyTags: false,
                 matchArcsColorByCategory: false,
                 enableSessionDrilldown: true,
-                sliceByProjectOnly: true,
                 // Provide colours list for top level arcs
                 topLevelArcColors: cowc['TRAFFIC_GROUP_COLOR_LEVEL1'].slice(0,1),
                 filterdData: null,
@@ -35,7 +36,7 @@ define(
                 },
                 showSessionsInfo: function() {
                     require(['monitor/security/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
-                        var linkInfo = tgView.getLinkInfo(tgView.selectedLinkData),
+                        var linkInfo = tgHelpers.getLinkInfo(tgView.selectedLinkData, tgView.tgSetObj),
                             linkData = {
                                 endpointNames: [linkInfo.srcTags, linkInfo.dstTags],
                                 endpointStats: []
@@ -45,75 +46,12 @@ define(
                             var namePath = link.data.currentNode ? link.data.currentNode.names : '',
                                 epsData = _.filter(link.data.dataChildren,
                                     function(session) {
-                                        return tgView.isRecordMatched(namePath, session, link.data);
+                                        return tgHelpers.isRecordMatched(namePath, session, link.data, tgView.tgSetObj);
                                     });
                             linkData.endpointStats.push(epsData);
                         });
                         epsTabsView.render(linkData);
                     });
-                },
-                getTagsFromSession: function(session, level, external) {
-                    if(session) {
-                        var sliceByProject =
-                                tgView.getSettingValue('sliceByProject', false),
-                            operator = 1;
-                        if(sliceByProject && !this.sliceByProjectOnly) {
-                            var vn = session['vn'],
-                                remoteVN = session['eps.traffic.remote_vn'];
-                        } else {
-                            var vn = this.sliceVNName(session['vn']),
-                                remoteVN = this.sliceVNName(session['eps.traffic.remote_vn']);
-                            operator = 7;
-                        }
-                        var endpoint1Data = [{
-                                'name' : 'vn',
-                                'value' : vn,
-                                'operator' : operator
-                            }],
-                            endpoint2Data = [],
-                            filter = [],
-                            categoryObj = tgView.getCategorizationObj();
-                        if(external == 'externalProject' && !sliceByProject) {
-                            remoteVN = '^(?!' + vn + ').*';
-                            filter.push({
-                                'name' : 'vn',
-                                'value' : remoteVN,
-                                'operator' : 8
-                            });
-                        } else {
-                            endpoint2Data.push({
-                                'name' : 'vn',
-                                'value' : remoteVN,
-                                'operator' : operator
-                            });
-                        }
-                        if(level == 1) {
-                            categoryObj = [categoryObj[0]];
-                        }
-                        _.each(categoryObj, function(tags) {
-                            _.each(tags.split('-'), function(tag) {
-                                tag = tag.trim();
-                                endpoint1Data.push({
-                                    'name' : (tag == 'app' ? 'application' : tag),
-                                    'value' : session[tag + '_fqn']
-                                });
-                                endpoint2Data.push({
-                                    'name' : (tag == 'app' ? 'application' : tag),
-                                    'value' : session['eps.traffic.remote_' + tag + '_id_fqn']
-                                });
-                            });
-                        });
-                        return {endpoint1Data, endpoint2Data, external, filter, sliceByProject};
-
-                    } else return '';
-                },
-                sliceVNName: function(vn) {
-                    if(vn && vn.indexOf(':') > 0) {
-                            vn = vn.split(':');
-                            vn.pop();
-                            vn = vn.join(':') + ':';
-                    }
-                    return vn;
                 },
                 showLinkSessions: function(e, option) {
                     require(['monitor/security/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
@@ -125,13 +63,15 @@ define(
                             }),
                             externalProject = dstNodeData[0].data.arcType,
                             linkData = _.result(srcNodeData, '0.data', ''),
-                            srcId = self.removeEmptyTags(_.result(srcNodeData, '0.data.currentNode.displayLabels')),
-                            dstId = self.removeEmptyTags(_.result(dstNodeData, '0.data.currentNode.displayLabels'));
+                            srcId = tgHelpers.getFormatedName(
+                                _.result(srcNodeData, '0.data.currentNode.displayLabels'), tgView.tgSetObj),
+                            dstId = tgHelpers.getFormatedName(
+                                _.result(dstNodeData, '0.data.currentNode.displayLabels'), tgView.tgSetObj),
                             curSession = _.find(linkData.dataChildren, function(session) {
-                            return tgView.isRecordMatched(
-                                _.result(linkData, 'currentNode.names'), session, linkData);
+                            return tgHelpers.isRecordMatched(
+                                _.result(linkData, 'currentNode.names'), session, linkData, tgView.tgSetObj);
                             }),
-                            tagData = tgView.getTagsFromSession(curSession, '', externalProject),
+                            tagData = tgHelpers.getTagsFromSession(curSession, '', externalProject, tgView.tgSetObj),
                             linkData = {
                                 endpointNames: [srcId, dstId],
                                 endpointStats: [],
@@ -145,9 +85,11 @@ define(
                                 level : 1,
                                 external : tagData.external
                             },
-                            epsTabsView = new EPSTabsView();
-                            epsTabsView.parentView = tgView;
-                            epsTabsView.sessionData = linkData;
+                            epsTabsView = new EPSTabsView({
+                                el : $('#traffic-groups-radial-chart'),
+                                parentView : tgView,
+                                sessionData : linkData
+                            });
                         if(option == 'policy') {
                             epsTabsView.onPolicyClick(e);
                         } else {
@@ -159,7 +101,7 @@ define(
                     var sessionData = _.chain(childData)
                     .filter(function (val, idx) {
                         var namePath = _.result(endpointData, '0.data.currentNode.names');
-                        return tgView.isRecordMatched(namePath, val, d.link[0].data);
+                        return tgHelpers.isRecordMatched(namePath, val, d.link[0].data, tgView.tgSetObj);
                     })
                     .groupBy("eps.__key")
                     .map(function (objs, key) {
@@ -238,8 +180,10 @@ define(
                     var dstNodeData = _.filter(d.link, function (val, idx){
                             return _.result(val, 'data.type') == 'dst';
                     });
-                    var srcId = self.removeEmptyTags(_.result(srcNodeData, '0.data.currentNode.displayLabels')),
-                        dstId = self.removeEmptyTags(_.result(dstNodeData, '0.data.currentNode.displayLabels'));
+                    var srcId = tgHelpers.getFormatedName(
+                            _.result(srcNodeData, '0.data.currentNode.displayLabels'), tgView.tgSetObj),
+                        dstId = tgHelpers.getFormatedName(
+                            _.result(dstNodeData, '0.data.currentNode.displayLabels'), tgView.tgSetObj);
                     self.selectedLinkData = d.link;
                     var childData = _.result(d, 'link.0.data.dataChildren', []);
                     var srcSessionObjArr = self.getSessionData(childData, srcNodeData, d);
@@ -487,7 +431,7 @@ define(
                 },
                 showEndPointStatsInGrid: function () {
                     var self = this,
-                        data = self.handleUntaggedEndpoints(self.filterdData);
+                        data = tgHelpers.handleUntaggedEndpoints(self.filterdData);
                     $('#traffic-groups-link-info').addClass('hidden');
                     $('.tgChartLegend, .tgCirclesLegend').hide();
                     self.showHideLegendInfo(data);
@@ -503,75 +447,6 @@ define(
                             elementId: 'traffic-groups-grid-view'
                         }
                     })
-                },
-                getTagHierarchy: function(d) {
-                    var srcHierarchy = [],
-                        dstHierarchy = [],
-                        srcLabels = [],
-                        dstLabels = [],
-                        selectedTagTypes = this.getCategorizationObj(),
-                        level = selectedTagTypes.length,
-                        sliceByProject =
-                            this.getSettingValue('sliceByProject', false);
-                        self = this;
-                    _.each(selectedTagTypes, function(tags, idx) {
-                        if(idx < level) {
-                            var tagTypes = tags.split('-');
-                            var srcNames = _.compact(_.map(tagTypes, function(tag) {
-                                var tagVal = d[tag.trim()];
-                                return tagVal ? tagVal : self.getTagLabel(tag, d);
-                            }));
-                            srcLabels.push(srcNames);
-                            srcHierarchy.push(srcNames.join('-'));
-                            var dstNames = _.compact(_.map(tagTypes, function(tag) {
-                                var tagVal = d['eps.traffic.remote_' + tag.trim() + '_id'];
-                                return tagVal ? tagVal : self.getTagLabel(tag,
-                                                d, d['eps.traffic.remote_vn']);
-                            }));
-                            dstLabels.push(dstNames);
-                            dstHierarchy.push(dstNames.join('-'));
-                        }
-                    });
-                    if(sliceByProject) {
-                        var vn = d['vn'] ? self.formatVN(d['vn'], self.sliceByProjectOnly) : ' ',
-                            remoteVN = d['eps.traffic.remote_vn'] ?
-                                self.formatVN(d['eps.traffic.remote_vn'], self.sliceByProjectOnly) : ' '
-                        srcHierarchy[0] += vn;
-                        dstHierarchy[0] += remoteVN;
-                        srcLabels[0].push(vn);
-                        dstLabels[0].push(remoteVN);
-                    }
-                    return {
-                        srcHierarchy: srcHierarchy,
-                        dstHierarchy: dstHierarchy,
-                        srcLabels: srcLabels,
-                        dstLabels: dstLabels
-                    };
-                },
-                getTagLabel: function(tagType, d, vn) {
-                    var label = '',
-                        tagObj = _.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
-                            function(tag) {
-                                return tag.value == tagType;
-                        });
-                    if(tagObj) {
-                        if(tagObj.showIcononEmpty) {
-                            label += tagObj.text.toLowerCase();
-                        }
-                        if(tagObj.showVNonEmpty && !this.combineEmptyTags) {
-                            label += (label ? ' ' : '') +
-                                this.formatVN(vn ? vn : d['vn']);
-                        }
-                        label += (label ? ' ' : '') +
-                                '<Untagged>';
-                    }
-                    return label ? label : ' ';
-                },
-                isImplictRule: function(d, key) {
-                    return (typeof d['eps.__key'] == 'string' &&
-                           d['eps.__key'].indexOf(key) > -1) &&
-                           (d['SUM(eps.traffic.in_bytes)'] ||
-                           d['SUM(eps.traffic.out_bytes)']);
                 },
                 updateChart: function(cfg) {
                     var self = this,
@@ -603,7 +478,7 @@ define(
                                 arcLabelYOffset: [-12,-6],
                                 showLinkDirection: true,
                                 getLinkDirection: self.getLinkDirection,
-                                formatDisplayLabel: self.formatLabel,
+                                formatDisplayLabel: tgHelpers.formatLabel,
                                 colorScale: function (item) {
                                     var colorList = cowc['TRAFFIC_GROUP_COLOR_LEVEL'+item.level];
                                     if(self.matchArcsColorByCategory) {
@@ -611,7 +486,7 @@ define(
                                             .concat(cowc['TRAFFIC_GROUP_COLOR_LEVEL2']);
                                     }
                                     if(item.level == 1 && self.topLevelArcColors
-                                        && self.getCategorizationObj().length > 1) {
+                                        && tgHelpers.getCategorizationObj(tgView.tgSetObj).length > 1) {
                                         colorList = self.topLevelArcColors;
                                     }
                                     var unassignedColors = _.difference(colorList, _.values(TrafficGroupsView.colorMap[item.level])),
@@ -636,84 +511,12 @@ define(
                                     return TrafficGroupsView.colorMap[item.level][itemName];
                                 },
                                 showLinkInfo: self.showLinkInfo,
-                                drillDownLevel: self.getCategorizationObj().length,
+                                drillDownLevel: tgHelpers.getCategorizationObj(tgView.tgSetObj).length,
                                 expandLevels: 'disable',
                                 hierarchyConfig: {
-                                    parse: function (d) {
-                                        var hierarchyObj = self.getTagHierarchy(d),
-                                            srcHierarchy = hierarchyObj.srcHierarchy
-                                            dstHierarchy = hierarchyObj.dstHierarchy,
-                                            currentProject = contrail.getCookie(cowc.COOKIE_PROJECT),
-                                            externalType = '',
-                                            srcDisplayLabel = [],
-                                            dstDisplayLabel = [],
-                                            remoteVN = d['eps.traffic.remote_vn'],
-                                            implicitDenyKey = ifNull(_.find(cowc.DEFAULT_FIREWALL_RULES, function(rule) {
-                                                return rule.name == 'Implicit Deny';
-                                            }), '').uuid,
-                                            implicitAllowKey = ifNull(_.find(cowc.DEFAULT_FIREWALL_RULES, function(rule) {
-                                                return rule.name == 'Implicit Allow';
-                                            }), '').uuid;
-
-                                            notEvaluatedKey = ifNull(_.find(cowc.DEFAULT_FIREWALL_RULES, function(rule) {
-                                                return rule.name == 'Not Evaluated';
-                                            }), '').uuid;
-                                        if(self.isImplictRule(d, implicitDenyKey)) {
-                                            d.linkCssClass = 'implicitDeny';
-                                        }
-                                        if(self.isImplictRule(d, implicitAllowKey)) {
-                                            d.linkCssClass = 'implicitAllow';
-                                        }
-                                        if(self.isImplictRule(d, notEvaluatedKey)) {
-                                            d.linkCssClass = 'notEvaluated';
-                                        }
-                                        $.each(srcHierarchy, function(idx) {
-                                            srcDisplayLabel.push(self.getDisplayLabels(hierarchyObj.srcLabels, idx));
-                                        });
-
-                                        if(remoteVN && remoteVN.indexOf(':') > 0) {
-                                            var remoteProject = remoteVN.split(':')[1];
-                                            if(!self.showOtherProjectTraffic &&
-                                               currentProject != remoteProject) {
-                                                externalType = 'externalProject';
-                                            }
-                                        } else {
-                                            externalType = 'external';
-                                        }
-
-                                        $.each(dstHierarchy, function(idx) {
-                                            dstDisplayLabel.push(self.getDisplayLabels(hierarchyObj.dstLabels, idx));
-                                            if(externalType) {
-                                                if(externalType == 'external') {
-                                                    dstHierarchy[idx] = 'External_external';
-                                                    dstDisplayLabel[idx].fill('');
-                                                    dstDisplayLabel[idx][dstDisplayLabel[idx].length-1] = 'External';
-                                                } else {
-                                                    dstHierarchy[idx] += '_' + externalType;
-                                                }
-                                            }
-                                        });
-                                        var src = {
-                                            names: srcHierarchy,
-                                            displayLabels: srcDisplayLabel,
-                                            id: _.compact(srcHierarchy).join('-'),
-                                            value: d['SUM(eps.traffic.in_bytes)'] + d['SUM(eps.traffic.out_bytes)'],
-                                            inBytes: d['SUM(eps.traffic.in_bytes)'],
-                                            outBytes: d['SUM(eps.traffic.out_bytes)']
-                                        };
-                                        //If remote_vn project doesn't match with current project
-                                        //set type = external
-                                        //append '_external' to names [only for 1st-level app field]
-                                        var dst = {
-                                            names: dstHierarchy,
-                                            displayLabels: dstDisplayLabel,
-                                            id: _.compact(dstHierarchy).join('-'),
-                                            type: externalType,
-                                            value: d['SUM(eps.traffic.out_bytes)'] + d['SUM(eps.traffic.in_bytes)'],
-                                            inBytes: d['SUM(eps.traffic.in_bytes)'],
-                                            outBytes: d['SUM(eps.traffic.out_bytes)']
-                                        };
-                                        return [src, dst];
+                                    parse: function(d) {
+                                        var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+                                        return tgHelpers.parseHierarchyConfig(d, tgView.tgSetObj, project, self.showOtherProjectTraffic)
                                     }
                                 }
                             },extendConfig)
@@ -723,7 +526,7 @@ define(
                             config: {
                                 formatter: function formatter(data) {
                                     if(data.level) {
-                                        var arcData = self.getArcData(data),
+                                        var arcData = tgHelpers.getArcData(data, tgView.tgSetObj),
                                             content = { title: arcData.title, items: [] };
                                         content.title += '<hr/>';
                                         content.title = content.title.replace(/<Untagged>/g, '&lt;untagged>')
@@ -740,7 +543,7 @@ define(
                                             });
                                         } else {
                                             var matchedChilds = _.filter(arcData.dataChildren,function(currSession) {
-                                                return self.isRecordMatched(data.namePath, currSession, data);
+                                                return tgHelpers.isRecordMatched(data.namePath, currSession, data, tgView.tgSetObj);
                                             });
                                             content.items.push({
                                                 label: 'Traffic In',
@@ -758,7 +561,7 @@ define(
                                             });
                                         }
                                     } else {
-                                        var linkInfo = self.getLinkInfo(data.link),
+                                        var linkInfo = tgHelpers.getLinkInfo(data.link, tgView.tgSetObj),
                                             trafficLinkTooltipTmpl = contrail.getTemplate4Id('traffic-link-tooltip-template'),
                                             links = linkInfo.links,
                                             content = { title : '', items: [] },
@@ -772,7 +575,7 @@ define(
                                                 trafficData = {
                                                 trafficIn: formatBytes(_.sumBy(link.data.dataChildren,
                                                     function(bytes) {
-                                                        if(self.isRecordMatched(namePath, bytes, link.data))
+                                                        if(tgHelpers.isRecordMatched(namePath, bytes, link.data, tgView.tgSetObj))
                                                             return _.result(bytes,'SUM(eps.traffic.in_bytes)',0);
                                                          else
                                                             return 0;
@@ -780,14 +583,15 @@ define(
                                                     })),
                                                 trafficOut: formatBytes(_.sumBy(link.data.dataChildren,
                                                     function(bytes) {
-                                                        if(self.isRecordMatched(namePath, bytes, link.data))
+                                                        if(tgHelpers.isRecordMatched(namePath, bytes, link.data, tgView.tgSetObj))
                                                             return _.result(bytes,'SUM(eps.traffic.out_bytes)',0);
                                                         else
                                                             return 0
                                                     }))
                                             };
                                             linkData.items.push({
-                                                name: self.removeEmptyTags(_.result(link, 'data.currentNode.displayLabels')),
+                                                name: tgHelpers.getFormatedName(
+                                                    _.result(link, 'data.currentNode.displayLabels'),  tgView.tgSetObj),
                                                 trafficIn: trafficData.trafficIn,
                                                 trafficOut: trafficData.trafficOut
                                             });
@@ -811,7 +615,7 @@ define(
                            data = self.updateRemoteIds(data);
                            self.viewInst.model.setData(data);
                            self.trafficData = JSON.parse(JSON.stringify(data));
-                           self.filterDataByEndpoints();
+                           self.filterdData = tgHelpers.filterDataByEndpoints(tgView.trafficData, tgView.tgSetObj);
                            self.prepareTagList();
                            self.chartRender();
                         });
@@ -823,7 +627,7 @@ define(
                 chartRender: function() {
                     var data = this.filterdData ? JSON.parse(JSON.stringify(this.filterdData))
                              : this.viewInst.model.getItems();
-                    data = this.handleUntaggedEndpoints(data);
+                    data = tgHelpers.handleUntaggedEndpoints(data);
                     this.showHideLegendInfo(data);
                     if($('#traffic-groups-legend-info:visible').length) {
                         $('#traffic-groups-radial-chart #chartBox').removeClass('noLegend');
@@ -846,31 +650,6 @@ define(
                     this.updateCircleLegends();
                     $('#traffic-groups-options').removeClass('hidden');
                 },
-                getArcData: function(data) {
-                    var arcTitle = data.displayLabels.slice(0),
-                        arcTitle = this.removeEmptyTags(arcTitle),
-                        childrenArr = data['children'];
-                    //data is nested on hovering 1st-level arc while showing 2-level arcs
-                    //For intra-app traffic, there will be 2 children with same linkId
-                    //Remove 2nd-level duplicate intra links
-                    if(childrenArr[0].children != null) {
-                        childrenArr = jsonPath(data,'$.children[*].children[*]');
-                        childrenArr = _.flatten(childrenArr);
-                    }
-                    if(childrenArr[0].linkId != null) {
-                        childrenArr = _.uniqWith(childrenArr,function(a,b) {
-                            return a.linkId == b.linkId;
-                        });
-                    }
-                    var dataChildren = jsonPath(childrenArr,'$.[*].dataChildren');
-                    if(dataChildren == false)
-                        dataChildren = jsonPath(data,'$.children[*].children[*].dataChildren');
-                    dataChildren = _.flatten(dataChildren);
-                    return {
-                        dataChildren : dataChildren,
-                        title : arcTitle
-                    };
-                },
                 showHideLegendInfo: function(data) {
                     if(data && data.length) {
                         $('#traffic-groups-legend-info').removeClass('hidden');
@@ -878,107 +657,6 @@ define(
                     } else {
                         $('#traffic-groups-legend-info').addClass('hidden');
                     }
-                },
-                querySessionSeries: function(reqObj) {
-                    var self = this,
-                        selectedTime = self.getSelectedTime();
-                        clientPostData = {
-                            "session_type": "client",
-                            "start_time": "now-" + (selectedTime.fromTime + 'm'),
-                            "end_time": "now-" + (selectedTime.toTime + 'm'),
-                            "select_fields": reqObj.selectFields,
-                            "table": "SessionSeriesTable",
-                            "where": [reqObj.whereClause],
-                            'filter': reqObj.filter ? [reqObj.filter] : []
-                        },
-                        serverPostData = {
-                            "session_type": "server",
-                            "start_time": "now-" + (selectedTime.fromTime + 'm'),
-                            "end_time": "now-" + (selectedTime.toTime + 'm'),
-                            "select_fields": reqObj.selectFields,
-                            "table": "SessionSeriesTable",
-                            "where": [reqObj.whereClause],
-                            'filter': reqObj.filter ? [reqObj.filter] : []
-                        },
-                        clientModelConfig = {
-                            remote : {
-                                ajaxConfig : {
-                                    url:monitorInfraConstants.monitorInfraUrls['ANALYTICS_QUERY'],
-                                    type:'POST',
-                                    data:JSON.stringify(clientPostData)
-                                },
-                                dataParser : function (response) {
-                                    reqObj.clientData = cowu.getValueByJsonPath(response, 'value', []);
-                                    reqObj.curSessionData = reqObj.clientData;
-                                    return reqObj.clientData;
-                                }
-                            }
-                        },
-                        serverModelConfig = {
-                            remote : {
-                                ajaxConfig : {
-                                    url:monitorInfraConstants.monitorInfraUrls['ANALYTICS_QUERY'],
-                                    type:'POST',
-                                    data:JSON.stringify(serverPostData)
-                                },
-                                dataParser : function (response) {
-                                    reqObj.serverData = cowu.getValueByJsonPath(response, 'value', []);
-                                    reqObj.curSessionData = reqObj.serverData;
-                                    return reqObj.serverData;
-                                }
-                            }
-                        };
-
-                    if(reqObj.type == 'both') {
-                        var clientModel = new ContrailListModel(clientModelConfig),
-                            serverModel = new ContrailListModel(serverModelConfig),
-                            reqCount = 0;
-                        clientModel.onAllRequestsComplete.subscribe(function() {
-                           reqCount++;
-                           bothRequestDone(reqCount);
-                        });
-                        serverModel.onAllRequestsComplete.subscribe(function() {
-                            reqCount++;
-                            bothRequestDone(reqCount);
-                        });
-                    } else if(reqObj.sessionType == 'client') {
-                        var clientModel = new ContrailListModel(clientModelConfig);
-                        clientModel.onAllRequestsComplete.subscribe(function() {
-                          reqObj.callback(reqObj);
-                        });
-                    } else {
-                        var serverModel = new ContrailListModel(serverModelConfig);
-                        serverModel.onAllRequestsComplete.subscribe(function() {
-                           reqObj.callback(reqObj);
-                        });
-                    }
-                    function bothRequestDone(reqCount) {
-                        if(reqCount == 2) {
-                            reqObj.callback(reqObj);
-                        }
-                    }
-                },
-                handleUntaggedEndpoints: function (data) {
-                    var showUntagged = this.getSettingValue('untaggedEndpoints', false),
-                        tgData = data ? data.slice(0) : data;
-                    if(!showUntagged && tgData) {
-                        tgData = _.filter(tgData, function(session) {
-                            var remoteVN = session['eps.traffic.remote_vn'];
-                            var srcTags = false,
-                                dstTags = false;
-                            _.each(cowc.TRAFFIC_GROUP_TAG_TYPES, function(tag) {
-                                if(session[tag.value]) {
-                                    srcTags = true;
-                                }
-                                if(session['eps.traffic.remote_' + tag.value + '_id']) {
-                                    dstTags = true;
-                                }
-                            });
-                            return srcTags && (dstTags || !remoteVN
-                                    || remoteVN == cowc.UNKNOWN_VALUE);
-                        });
-                    }
-                    return tgData;
                 },
                 addtionalEvents: function() {
                     return [{
@@ -1028,13 +706,13 @@ define(
                     if(chartScope.clearArcTootltip) {
                       clearTimeout(chartScope.clearArcTootltip);
                     }
-                    var arcData = tgView.getArcData(d.data),
+                    var arcData = tgHelpers.getArcData(d.data, tgView.tgSetObj),
                         childData = _.filter(arcData.dataChildren, function(children) {
-                            return tgView.isRecordMatched(d.data.namePath, children, d.data);
+                            return tgHelpers.isRecordMatched(d.data.namePath, children, d.data, tgView.tgSetObj);
                         }),
-                        tagData = tgView.getTagsFromSession(childData[0], d.depth);
+                        tagData = tgHelpers.getTagsFromSession(childData[0], d.depth, '', tgView.tgSetObj);
                     if(tagData) {
-                        var selectedTime = tgView.getSelectedTime(),
+                        var selectedTime = tgHelpers.getSelectedTime(tgView.tgSetObj),
                             whereTags = tagData.endpoint1Data.slice(0),
                             whereClause = [],
                             selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)',
@@ -1046,7 +724,7 @@ define(
                                     "suffix": null, "value2": null, "name": tag.name, "value": tag.value, "op": tag.operator ? tag.operator : 1
                                 });
                             });
-                        var projectPrefix = tgView.getProjectPrefix();
+                        var projectPrefix = tgHelpers.getProjectPrefix();
                         whereClause.push({
                             "suffix": null, "value2": null, "name": 'vmi', "value": projectPrefix, "op": 7
                         });
@@ -1063,10 +741,10 @@ define(
                                 },
                                 d : d
                             };
-                        self.showTGSidePanel(reqObj.vmiDetails, d);
-                        tgView.querySessionSeries(reqObj);
+                        tgView.showTGSidePanel(reqObj.vmiDetails, d);
+                        tgHelpers.querySessionSeries(reqObj, tgView.tgSetObj);
                     } else {
-                        self.noSessionResults(d, arcData.title);
+                        tgView.noSessionResults(d, arcData.title);
                     }
                 },
                 noSessionResults: function(d, title) {
@@ -1084,8 +762,8 @@ define(
                             $.each(['vn','vmi'],function(idx,tagName) {
                                 value[tagName + '_fqn'] = value[tagName];
                                 value[tagName] = tagName == 'vn' ?
-                                        tgView.formatVN(value[tagName]) :
-                                        tgView.getFormattedValue(value[tagName]);
+                                        tgHelpers.formatVN(value[tagName]) :
+                                        tgHelpers.getFormattedValue(value[tagName]);
                             });
                         });
                         data = _.groupBy(data, 'vmi');
@@ -1122,10 +800,10 @@ define(
                                      session[0]['vrouter'] : '-'
                             });
                         });
-                       if(self.selectedLink == resObj.vmiDetails.title)
-                        self.showTGSidePanel(resObj.vmiDetails, resObj.d, '', true);
+                       if(tgView.selectedLink == resObj.vmiDetails.title)
+                        tgView.showTGSidePanel(resObj.vmiDetails, resObj.d, '', true);
                     } else {
-                        self.noSessionResults(resObj.d, resObj.vmiDetails.title);
+                        tgView.noSessionResults(resObj.d, resObj.vmiDetails.title);
                     }
                 },
                 _onDoubleClickLink: function(d, el ,e) {
@@ -1161,7 +839,7 @@ define(
                       }
                       chartScope.clearLinkTooltip = setTimeout(function() {
                         chartScope.actionman.fire('ShowComponent',
-                            'tooltip-id', {left, top}, d);
+                            'tooltip-id', {left,top}, d);
                         if(left > (chartScope._container.offsetWidth / 2)) {
                           $('#tooltip-id').css({'right':0, 'left':'auto'});
                         } else {
@@ -1191,113 +869,8 @@ define(
                   });
                   chartScope._render();
                 },
-                getLinkInfo: function(links) {
-                    var srcTags = this.removeEmptyTags(_.result(links, '0.data.currentNode.displayLabels')),
-                        dstTags = this.removeEmptyTags(_.result(links, '1.data.currentNode.displayLabels')),
-                        dstIndex = _.findIndex(links, function(link) { return link.data.type == 'dst' });
-                    if((srcTags == dstTags) || _.includes(links[dstIndex].data.arcType, 'externalProject')
-                         || _.includes(links[dstIndex].data.arcType, 'external')) {
-                        links = links.slice(0,1);
-                    }
-                    return {links, srcTags, dstTags};
-                },
-                getDisplayLabels: function(labels, idx) {
-                    var displayLabels = [];
-                    if(labels && labels.length > 0) {
-                        _.each(labels[idx], function(label) {
-                            displayLabels.push(label);
-                        });
-                    }
-                    return displayLabels;
-                },
-                formatLabel: function(label) {
-                    var iconClass = '', icon = '',
-                        disLabel = label;
-                    if(disLabel) {
-                        _.each(cowc.TRAFFIC_GROUP_TAG_TYPES, function(tagObj) {
-                            var tag = tagObj.text.toLowerCase();
-                            if(disLabel.indexOf(tag) > -1) {
-                                iconClass = tag + '-icon';
-                                icon = tagObj.icon;
-                                disLabel = disLabel.replace(tag, '').replace('=', '');
-                            }
-                        });
-                    }
-                    return {
-                        label : disLabel,
-                        iconClass : iconClass,
-                        icon : icon
-                    }
-                },
-                removeEmptyTags: function(names) {
-                    var displayNames = names.slice(0),
-                        projectName = '',
-                        topLevelNames = displayNames[0].slice(0);
-                    if(topLevelNames.length >
-                            this.getCategorizationObj()[0].split('-').length
-                       && topLevelNames[topLevelNames.length-1] != 'External') {
-                        projectName = topLevelNames.pop();
-                        displayNames[0] = topLevelNames;
-
-                    }
-                    displayNames = _.map(displayNames, function(labels) {
-                        labels = _.map(labels, function(label) {
-                            var labelObj = tgView.formatLabel(label);
-                                disLabel = '<span class="'+labelObj.iconClass+'">' +
-                                 labelObj.icon + '</span> ' + labelObj.label;
-                                 disLabel = disLabel.replace(/<Untagged>/g, '&lt;untagged>')
-                            return disLabel;
-                        });
-                        return _.compact(labels).join('-');
-                    });
-                    displayNames = _.remove(displayNames, function(name, idx) {
-                        return !(name == 'External' && idx > 0);
-                    });
-                    return _.compact(displayNames).join('-')
-                        + (projectName ? ' (' + projectName + ')' : '') ;
-                },
-                isRecordMatched: function(names, record, data) {
-                    var arcType = data.arcType ? '_' + data.arcType : '',
-                        isMatched = true,
-                        selectedTagTypes = tgView.getCategorizationObj(),
-                        sliceByProject =
-                            tgView.getSettingValue('sliceByProject', false);
-                    for(var i = 0; i < names.length; i++) {
-                        var tagTypes = selectedTagTypes[i].split('-'),
-                            tagName =  _.compact(_.map(tagTypes, function(tag) {
-                                            return record[tag] ? record[tag]
-                                            : tgView.getTagLabel(tag, record)
-                                    })).join('-');
-                       if(i == 0 && sliceByProject) {
-                        tagName += tgView.formatVN(record['vn'], tgView.sliceByProjectOnly);
-                       }
-                       tagName += arcType;
-                       isMatched = isMatched && (tagName == names[i]);
-                    }
-                    return isMatched;
-                },
                 getLinkDirection: function(src, dst) {
-                    var linkChildren = _.filter(src.data.dataChildren, function (child) {
-                            return child.isClient;
-                          }),
-                        currentEnd = _.find(linkChildren, function (child) {
-                            return tgView.isRecordMatched(src.data.currentNode.names, child, src.data);
-                          }),
-                        otherEnd = _.find(linkChildren, function (child) {
-                            return tgView.isRecordMatched(src.data.otherNode.names, child, src.data);
-                          }),
-                        arcType =  dst.data ? dst.data.arcType : '';
-                    if(arcType == 'external' || arcType == 'externalProject') {
-                        linkChildren =  _.filter(src.data.dataChildren, function (child) {
-                            return child.isServer;
-                          });
-                        if(linkChildren.length)
-                            otherEnd = true;
-                    }
-                    var linkDirection = (currentEnd && !otherEnd) ? 'forward' :
-                                   ((!currentEnd && otherEnd) ? 'reverse' :
-                                   ((currentEnd && otherEnd) ? 'bidirectional' : ''));
-                    return linkDirection;
+                    return tgHelpers.getLinkDirection(src, dst, tgView.tgSetObj);
                 },
                 prepareTagList: function() {
                     var self = this;
@@ -1308,48 +881,23 @@ define(
                             })));
                     });
                 },
-                filterDataByEndpoints: function() {
-                    var self = this;
-                    self.filterdData =  _.filter(self.trafficData, function(d) {
-                        var isClientEP = true,
-                            isServerEP = true;
-                        _.each(self.getTGSettings().filterByEndpoints,
-                            function(endPoint) {
-                            if(endPoint) {
-                                isClientEP = isServerEP = true;
-                                _.each(endPoint.split(','), function(tag) {
-                                  var tagObj = tag
-                                        .split(cowc.DROPDOWN_VALUE_SEPARATOR),
-                                      tagType = tagObj[1],
-                                      tagName = tagObj[0];
-                                  isClientEP = isClientEP &&
-                                    (d[tagType] == tagName);
-                                  isServerEP = isServerEP &&
-                                    (d['eps.traffic.remote_' + tagType + '_id']
-                                         == tagName);
-                                });
-                                if(isClientEP || isServerEP) return false;
-                            }
-                        });
-                        return (isClientEP || isServerEP);
-                    });
-                },
                 applySelectedFilter: function(modelObj) {
-                    var oldTimeRange = tgView.getTGSettings().time_range,
-                        oldFromTime = tgView.getTGSettings().from_time,
-                        oldToTime = tgView.getTGSettings().to_time;
-                    tgView.settingsModelObj = modelObj;
+                    var tgSettings = tgHelpers.getTGSettings(tgView.tgSetObj),
+                        oldTimeRange = tgSettings.time_range,
+                        oldFromTime = tgSettings.from_time,
+                        oldToTime = tgSettings.to_time;
+                    tgView.tgSetObj = modelObj;
 
                     //To retain applied categorization, adding to session storage
-                    sessionStorage.TG_CATEGORY = modelObj.get('groupByTagType');
-                    sessionStorage.TG_SUBCATEGORY = modelObj
-                                                    .get('subGroupByTagType');
+                    sessionStorage.TG_CATEGORY = modelObj.groupByTagType;
+                    sessionStorage.TG_SUBCATEGORY = modelObj.subGroupByTagType;
 
-                    tgView.filterDataByEndpoints();
+                    tgView.filterdData = tgHelpers.filterDataByEndpoints(tgView.trafficData, tgView.tgSetObj);
                     tgView.updateCircleLegends();
-                    sessionStorage.TG_TIME_RANGE = tgView.getTGSettings().time_range,
-                    sessionStorage.TG_FROM_TIME = tgView.getTGSettings().from_time,
-                    sessionStorage.TG_TO_TIME = tgView.getTGSettings().to_time;
+                    var newTGSettings = tgHelpers.getTGSettings(tgView.tgSetObj);
+                    sessionStorage.TG_TIME_RANGE = newTGSettings.time_range,
+                    sessionStorage.TG_FROM_TIME = newTGSettings.from_time,
+                    sessionStorage.TG_TO_TIME = newTGSettings.to_time;
                     if(oldTimeRange != sessionStorage.TG_TIME_RANGE ||
                         ((oldTimeRange == -1  || oldTimeRange == -2) &&
                         (oldFromTime != sessionStorage.TG_FROM_TIME ||
@@ -1365,19 +913,19 @@ define(
                         outerLegends = [],
                         innerLegends = [],
                         sliceByProject =
-                            this.getSettingValue('sliceByProject', false);
-                    _.map(this.getCategorizationObj()[0].split('-'), function(tag) {
+                            tgHelpers.getSettingValue('sliceByProject');
+                    _.map(tgHelpers.getCategorizationObj(tgView.tgSetObj)[0].split('-'), function(tag) {
                         outerLegends.push(_.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
                             function(obj) {
                             return obj.value == tag
                         }).text);
                     });
                     if(sliceByProject) {
-                        outerLegends.push(this.sliceByProjectOnly ? 'Project'
+                        outerLegends.push(tgHelpers.sliceByProjectOnly ? 'Project'
                                             : 'VN (Project)');
                     }
-                    if(this.getCategorizationObj()[1]) {
-                        _.map(this.getCategorizationObj()[1].split('-'), function(tag) {
+                    if(tgHelpers.getCategorizationObj(tgView.tgSetObj)[1]) {
+                        _.map(tgHelpers.getCategorizationObj(tgView.tgSetObj)[1].split('-'), function(tag) {
                             innerLegends.push(_.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
                                 function(obj) {
                                 return obj.value == tag
@@ -1396,30 +944,31 @@ define(
                         tag = curElem.attr('data-tag'),
                         val = curElem.html(),
                         index = curElem.attr('data-index');
-                    if(tgView.settingsModelObj) {
-                        var filterObj = tgView.settingsModelObj
-                                            .get('endpoints'),
-                            curFilter = filterObj.models[index];
-                        if(curFilter && curFilter.get('endpoint')) {
-                            curFilter = _.filter(curFilter.get('endpoint')()
+                    if(tgView.tgSetObj) {
+                        var filterObj = tgView.tgSetObj.endpoints,
+                            curFilter = filterObj[index];
+                        if(curFilter && curFilter.endpoint) {
+                            curFilter = _.filter(curFilter.endpoint
                                         .split(','), function(tagName) {
                                         return tagName != (val + ";" + tag);
                                     });
                             curFilter = curFilter.join(',');
                         }
-                        filterObj.remove(filterObj.models[index]);
                         if(curFilter) {
-                            filterObj.add([new filterModel({
+                            filterObj[index] = {
                                 endpoint: curFilter
-                            })],{at: index});
+                            };
+                        } else {
+                            filterObj.splice(index,1);
                         }
-                        tgView.applySelectedFilter(tgView.settingsModelObj);
+                        tgView.applySelectedFilter(tgView.tgSetObj);
                     }
                 },
                 updateTGFilterSec: function() {
-                    var filterByTags = [];
-                    if(this.getTGSettings().filterByEndpoints.length > 0) {
-                        _.each(this.getTGSettings().filterByEndpoints,
+                    var filterByTags = [],
+                        tgSettings = tgHelpers.getTGSettings(tgView.tgSetObj);
+                    if(tgSettings.filterByEndpoints.length > 0) {
+                        _.each(tgSettings.filterByEndpoints,
                             function(endpoint, idx) {
                             if(endpoint) {
                                 var endpointObj = {
@@ -1464,75 +1013,18 @@ define(
                     });
                 },
                 showFilterOptions: function() {
-                    tgView.settingsView.model = new settingsModel(tgView.getTGSettings());
+                    tgView.settingsView.model = new settingsModel(
+                                    tgHelpers.getTGSettings(tgView.tgSetObj));
                     tgView.settingsView.editFilterOptions(tgView.tagTypeList,
                         tgView.applySelectedFilter);
                 },
-                getTGSettings: function() {
-                    var filterByEndpoints = [],
-                        groupByTagType = null,
-                        subGroupByTagType = null,
-                        time_range = 3600,
-                        from_time = null,
-                        to_time = null;
-                        if(tgView.settingsModelObj) {
-                            groupByTagType = tgView.settingsModelObj
-                                              .get('groupByTagType').split(',');
-                            subGroupByTagType = tgView.settingsModelObj
-                                              .get('subGroupByTagType');
-                            subGroupByTagType = subGroupByTagType ?
-                                    subGroupByTagType.split(',') : null;
-                            _.each(
-                                tgView.settingsModelObj.get('endpoints').toJSON(),
-                                function(model) {
-                                   filterByEndpoints.push(model.endpoint());
-                            });
-                            time_range = tgView.settingsModelObj.get('time_range');
-                            from_time = tgView.settingsModelObj.get('from_time');
-                            to_time = tgView.settingsModelObj.get('to_time');
-                        } else {
-                            if(sessionStorage.TG_CATEGORY) {
-                                groupByTagType = sessionStorage
-                                                .TG_CATEGORY.split(',');
-                                if(sessionStorage.TG_SUBCATEGORY) {
-                                    subGroupByTagType = sessionStorage
-                                                .TG_SUBCATEGORY.split(',');
-                                }
-                            } else {
-                                groupByTagType = ['app','deployment'];
-                                subGroupByTagType = ['tier'];
-                            }
-                            if(sessionStorage.TG_TIME_RANGE) {
-                                time_range = sessionStorage.TG_TIME_RANGE;
-                                from_time = sessionStorage.TG_FROM_TIME;
-                                to_time = sessionStorage.TG_TO_TIME;
-                            }
-                        }
-                    return {
-                        groupByTagType: groupByTagType,
-                        subGroupByTagType: subGroupByTagType,
-                        filterByEndpoints: filterByEndpoints,
-                        time_range: time_range,
-                        from_time: from_time,
-                        to_time: to_time
-                    };
-                },
-                getCategorizationObj: function() {
-                    var categorization = [this.getTGSettings().groupByTagType
-                                            .join('-')],
-                        showInnerCircle = this.getSettingValue('showInnerCircle', true);
-                    if(this.getTGSettings().subGroupByTagType && showInnerCircle) {
-                        categorization.push(this.getTGSettings()
-                                        .subGroupByTagType.join('-'));
-                    }
-                    return categorization;
-                },
                 updateStatsTimeSec: function() {
-                    var fromTime = this.getTGSettings().time_range;
+                    var tgSettings = tgHelpers.getTGSettings(tgView.tgSetObj),
+                        fromTime = tgSettings.time_range;
                     if(fromTime == -1 || fromTime == -2) {
                         var toTime = (fromTime == -1) ?
-                            this.getTGSettings().to_time : 'now';
-                        fromTime = this.getTGSettings().from_time;
+                            tgSettings.to_time : 'now';
+                        fromTime = tgSettings.from_time;
                         $(this.el).find('#statsFromOnly').addClass('hidden');
                         $(this.el).find('#statsFromTo').removeClass('hidden')
                         $(this.el).find('#statsFromTo .statsFromTime').text(fromTime);
@@ -1546,18 +1038,6 @@ define(
                             .find('.statsFromTime').text(fromTime.text);
                         $(this.el).find('#statsFromTo').addClass('hidden');
                     }
-                },
-                formatVN: function(value, sliceProjectOnly) {
-                    var vnName = '';
-                    if(value && value != cowc.UNKNOWN_VALUE) {
-                        if(sliceProjectOnly) {
-                            vnName = value.split(':')[1];
-                        } else {
-                            vnName = value
-                                .replace(/([^:]*):([^:]*):([^:]*)/,'$3 ($2)');
-                        }
-                    }
-                    return vnName;
                 },
                 updateRemoteIds: function (data) {
                     data = cowu.ifNull(data, []);
@@ -1588,32 +1068,15 @@ define(
                         //Strip-off the domain and project form FQN
                         $.each(['app','site','tier','deployment', 'name'],function(idx,tagName) {
                             value[tagName + '_fqn'] = value[tagName];
-                            value[tagName] = tgView.getFormattedValue(value[tagName]);
+                            value[tagName] = tgHelpers.getFormattedValue(value[tagName]);
                         });
                     });
                     return data;
-                },
-                getFormattedValue: function(value) {
-                    var value = value;
-                    if(typeof value == 'string' && value.split(':').length == 3)
-                        value =  value.split(':').pop();
-                    return value;
                 },
                 resetChartView: function() {
                    $('#traffic-groups-legend-info').addClass('hidden');
                    $(this.el).find('svg g').empty();
                    $('#traffic-groups-grid-view').empty();
-                },
-                getSettingValue: function(option, defaultValue) {
-                    var curSettings = localStorage
-                        .getItem('container_' + layoutHandler.getURLHashObj().p
-                                   + '_settings'),
-                        selectedValue = defaultValue;
-                    if(curSettings) {
-                        curSettings = JSON.parse(curSettings);
-                        selectedValue = curSettings[option];
-                    }
-                    return selectedValue;
                 },
                 updateContainerSettings: function(newObj, isFreshData) {
                     var curSettings = localStorage
@@ -1622,7 +1085,7 @@ define(
                     if(curSettings) {
                         curSettings = JSON.parse(curSettings);
                         var level = (curSettings.showInnerCircle &&
-                            this.getCategorizationObj().length == 2) ? 2 : 1;
+                            tgHelpers.getCategorizationObj(tgView.tgSetObj).length == 2) ? 2 : 1;
                         curSettings.showLegend ?
                                 $('#traffic-groups-legend-info').show()
                                 : $('#traffic-groups-legend-info').hide();
@@ -1663,126 +1126,20 @@ define(
                         });
                     }
                 },
-                getContainerViewConfig : function() {
-                    return {
-                        rows: [
-                            {
-                                columns:[{
-                                    elementId: 'view_type',
-                                    view: "FormRadioButtonView",
-                                    default: 'chart-stats',
-                                    viewConfig: {
-                                        label: 'View',
-                                        path: 'view_type',
-                                        class: 'col-xs-12',
-                                        default: 'chart-stats',
-                                        dataBindValue: 'view_type',
-                                        templateId: cowc.TMPL_OPTNS_WITH_ICONS_RADIO_BUTTON_VIEW,
-                                        elementConfig: {
-                                            dataObj: [
-                                                {value: 'grid-stats', icon: 'fa-table'},
-                                                {value: 'chart-stats', icon: 'fa-bar-chart-o'}
-                                            ]
-                                        }
-                                    }
-                                }],
-                            },
-                            {
-                                columns: [{
-                                    elementId: 'showInnerCircle',
-                                    view: 'FormCheckboxView',
-                                    viewConfig: {
-                                        label: 'Inner Circle',
-                                        path: 'showInnerCircle',
-                                        dataBindValue: 'showInnerCircle',
-                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
-                                        class: 'showicon col-xs-6'
-                                    }
-                                }]
-                            }, {
-                                columns: [{
-                                    elementId: 'showLegend',
-                                    view: 'FormCheckboxView',
-                                    viewConfig: {
-                                        label: 'Legends',
-                                        path: 'showLegend',
-                                        dataBindValue: 'showLegend',
-                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
-                                        class: 'showicon col-xs-6'
-                                    }
-                                }]
-                            }, {
-                                columns: [{
-                                    elementId: 'untaggedEndpoints',
-                                    view: 'FormCheckboxView',
-                                    default: false,
-                                    viewConfig: {
-                                        label: 'Untagged Endpoints',
-                                        path: 'untaggedEndpoints',
-                                        dataBindValue: 'untaggedEndpoints',
-                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
-                                        class: 'showicon col-xs-12'
-                                    }
-                                }]
-                            }, {
-                                columns: [{
-                                    elementId: 'sliceByProject',
-                                    view: 'FormCheckboxView',
-                                    default: false,
-                                    viewConfig: {
-                                        label: 'Project Name',
-                                        path: 'sliceByProject',
-                                        dataBindValue: 'sliceByProject',
-                                        templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
-                                        class: 'showicon col-xs-12'
-                                    }
-                                }]
-                            }
-                        ]
-                    }
-                },
-                getSelectedTime: function() {
-                    var fromTime = this.getTGSettings().time_range,
-                        toTime = 0;
-                    if(fromTime == -1 || fromTime == -2) {
-                        if(fromTime == -1) {
-                            toTime = (new Date().getTime() - new Date(
-                                    this.getTGSettings().to_time).getTime());
-                            toTime = Math.round(toTime / (1000 * 60));
-                        }
-                        fromTime = (new Date().getTime() - new Date(
-                                this.getTGSettings().from_time).getTime());
-                        fromTime = Math.round(fromTime / (1000 * 60));
-                    } else {
-                        fromTime /= 60;
-                    }
-                    return {
-                        fromTime : fromTime,
-                        toTime : toTime
-                    }
-                },
-                getProjectPrefix: function() {
-                    var currentProject = '';
-                    if(contrail.getCookie(cowc.COOKIE_PROJECT) != 'undefined') {
-                        currentProject =
-                                contrail.getCookie(cowc.COOKIE_PROJECT) + ':';
-                    }
-                    return contrail.getCookie(cowc.COOKIE_DOMAIN) + ':'+ currentProject;
-                },
                 renderTrafficChart: function(option) {
                     this.resetChartView();
                     var self = this,
-                        selctedTime = self.getSelectedTime();
+                        selctedTime = tgHelpers.getSelectedTime(tgView.tgSetObj);
                     self.updateStatsTimeSec();
                     var configTagDefObj = $.ajax({
-                        url: 'api/tenants/config/get-config-details',
+                        url: ctwc.URL_GET_CONFIG_DETAILS,
                         type: 'POST',
                         data: {data:[{type: 'tags'}]}
                     }).done(function(response) {
                         TrafficGroupsView.tagsResponse = response;
                         TrafficGroupsView.tagMap = _.groupBy(_.map(_.result(response, '0.tags', []), 'tag'), 'tag_id');
                     });
-                    var projectPrefix = self.getProjectPrefix(),
+                    var projectPrefix = tgHelpers.getProjectPrefix(),
                         clientPostData = {
                         "async": false,
                         "formModelAttrs": {
@@ -1934,7 +1291,7 @@ define(
                     this.renderTrafficChart('onload');
                     //Render container settings
                     this.renderView4Config($('#traffic-groups-options'), '',
-                        monitorInfraUtils.getContainerSettingsConfig(this.getContainerViewConfig));
+                        monitorInfraUtils.getContainerSettingsConfig(tgHelpers.getContainerViewConfig));
                 }
             });
             return TrafficGroupsView;

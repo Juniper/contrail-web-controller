@@ -76,6 +76,46 @@ module.exports = function (grunt) {
         options: {
             configFile: 'karma.config.js'
         },
+        TrafficGroupsView: {
+            options: {
+                files: [
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/security/test/ui/views/TrafficGroupsView.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/security/test/ui/views/TrafficGroupsParsers.test.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/security/trafficgroups/ui/js/**/.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/security/trafficgroups/ui/js/*.js',
+                        included: false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/monitor/security/trafficgroups/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir: __dirname + '/reports/tests/sm/views/',
+                    outputFile: 'traffic-groups-view-test-results.xml',
+                    suite: 'TrafficGroupsView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile: __dirname + '/reports/tests/sm/views/traffic-groups-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/sm/views/TrafficGroupsView/',
+                    subdir: browserSubdirFn
+                },
+                feature: 'sm'
+            }
+        },
         networkListView: {
             options: {
                 files: [
@@ -1349,6 +1389,7 @@ module.exports = function (grunt) {
 
     var allTestFiles = [],
         allNMTestFiles = [],
+        allSMTestFiles = [],
         allConfigTestFiles = [];
 
     for (var target in karmaConfig) {
@@ -1357,6 +1398,9 @@ module.exports = function (grunt) {
             var feature = karmaConfig[target]['options']['feature'];
             if (feature == 'nm') {
                 allNMTestFiles = allNMTestFiles.concat(karmaConfig[target]['options']['files']);
+            }
+            if (feature == 'sm') {
+                allSMTestFiles = allSMTestFiles.concat(karmaConfig[target]['options']['files']);
             }
             if(feature == 'config') {
                 allConfigTestFiles = allConfigTestFiles.concat(karmaConfig[target]['options']['files']);
@@ -1391,6 +1435,39 @@ module.exports = function (grunt) {
                     {
                         type: 'json',
                         dir: __dirname + '/reports/coverage/nm/',
+                        subdir: browserSubdirFn
+                    }
+                ]
+            }
+        }
+    };
+
+    karmaConfig['runAllSMTests'] = {
+        options: {
+            files: [],
+            preprocessors: {
+                'contrail-web-core/webroot/js/**/*.js': ['coverage'],
+                'contrail-web-controller/webroot/monitor/security/**/ui/js/**/*.js': ['coverage']
+            },
+            junitReporter: {
+                outputDir: __dirname + '/reports/tests/sm/',
+                outputFile: 'sm-test-results.xml',
+                suite: 'sm',
+                useBrowserName: false
+            },
+            htmlReporter: {
+                outputFile: __dirname + '/reports/tests/sm/sm-test-results.html'
+            },
+            coverageReporter: {
+                reporters: [
+                    {
+                        type: 'html',
+                        dir: __dirname + '/reports/coverage/sm/',
+                        subdir: browserSubdirFn
+                    },
+                    {
+                        type: 'json',
+                        dir: __dirname + '/reports/coverage/sm/',
                         subdir: browserSubdirFn
                     }
                 ]
@@ -1470,6 +1547,7 @@ module.exports = function (grunt) {
     };
     // Now add the test files along with common files.
     karmaConfig['runAllNMTests']['options']['files'] = commonFiles.concat(allNMTestFiles);
+    karmaConfig['runAllSMTests']['options']['files'] = commonFiles.concat(allSMTestFiles);
     karmaConfig['runAllConfigTests']['options']['files'] = commonFiles.concat(allConfigTestFiles);
     karmaConfig['runAllTests']['options']['files'] = commonFiles.concat(allTestFiles);
 
@@ -1492,6 +1570,9 @@ module.exports = function (grunt) {
             instanceView: 'instanceView',
             flowListView: 'flowListView',
             flowGridView: 'flowGridView'
+        },
+        smNoMerge: {
+            TrafficGroupsView: 'TrafficGroupsView'
         }
     });
 
@@ -1529,6 +1610,11 @@ module.exports = function (grunt) {
             grunt.task.run('karma:runAllNMTests');
             grunt.log.writeln('Test results: ' + karmaConfig['runAllNMTests']['options']['htmlReporter']['outputFile']);
             printCoverageReportLoc(karmaConfig['runAllNMTests']['options']['coverageReporter']);
+        } else if (feature == 'sm') {
+            grunt.log.writeln('>>>>>>>> Running Security Monitoring feature tests. <<<<<<<');
+            grunt.task.run('karma:runAllSMTests');
+            grunt.log.writeln('Test results: ' + karmaConfig['runAllSMTests']['options']['htmlReporter']['outputFile']);
+            printCoverageReportLoc(karmaConfig['runAllSMTests']['options']['coverageReporter']);
         }
     });
 
@@ -1562,6 +1648,20 @@ module.exports = function (grunt) {
             grunt.log.writeln('>>>>>>> Running all Network Monitoring tests one by one. Results will not be Merged. <<<<<<');
             grunt.task.run(['karma:networkView', 'karma:projectListView', 'karma:projectView', 'karma:dashBoardView',
                 'karma:instanceListView', 'karma:instanceView', 'karma:flowListView', 'karma:flowGridView']);
+        }
+    });
+
+    grunt.registerTask('sm', 'Security Monitoring Test Cases', function (target) {
+        if (target == null) {
+            grunt.log.writeln('>>>>>>>> Running Security Monitoring feature tests. <<<<<<<');
+            grunt.task.run('karma:runAllSMTests');
+            grunt.log.writeln('Test results: ' + karmaConfig['runAllSMTests']['options']['htmlReporter']['outputFile']);
+            printCoverageReportLoc(karmaConfig['runAllSMTests']['options']['coverageReporter']);
+        } else if (target == 'TrafficGroupsView') {
+            grunt.task.run('karma:TrafficGroupsView');
+        } else if (target == 'runAllNoMerge') {
+            grunt.log.writeln('>>>>>>> Running all Security Monitoring tests one by one. Results will not be Merged. <<<<<<');
+            grunt.task.run(['karma:TrafficGroupsView']);
         }
     });
 
