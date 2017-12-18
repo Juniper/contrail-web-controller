@@ -1348,44 +1348,43 @@ module.exports = function (grunt) {
                 },
                 feature: 'config'
             }
-        },//,
-        //loadBalancerGridView : {
-            //options: {
-                //files: [
-                    //{
-                       // pattern : 'contrail-web-controller/webroot/config/networking/loadbalancer/ui/js/*.js',
-                        //included : false
-                    //},
-                    //{
-                        //pattern : 'contrail-web-controller/webroot/config/networking/loadbalancer/ui/js/**/*.js',
-                        //included : false
-                    //},
-                    //{
-                       // pattern : 'contrail-web-controller/webroot/config/networking/loadbalancer/test/ui/views/*.js',
-                        //included : false
-                    //}
-                //],
-                //preprocessors: {
-                    //'contrail-web-controller/webroot/config/networking/loadbalancer/ui/js/**/*.js': ['coverage']
-                //},
-                //junitReporter: {
-                    //outputDir:__dirname + '/reports/tests/config/views/',
-                   // outputFile: 'Load-balancer-grid-view-test-results.xml',
-                    //suite: 'loadBalancerGridView',
-                    //useBrowserName: false
-                //},
-               // htmlReporter: {
-                    //outputFile:__dirname + '/reports/tests/config/views/load-balancer-grid-view-test-results.html'
-                //},
-                //coverageReporter: {
-                    //type: 'html',
-                    //dir: __dirname + '/reports/coverage/config/views/loadBalancerGridView/',
-                    //subdir : browserSubdirFn
-                //},
-                //feature: 'config'
-            //}
-        //}
-        //},
+        },
+        loadBalancerGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/loadbalancer/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/loadbalancer/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/loadbalancer/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/networking/loadbalancer/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'Load-balancer-grid-view-test-results.xml',
+                    suite: 'loadBalancerGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/load-balancer-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/loadBalancerGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
         alarmGridView : {
             options: {
                 files: [
@@ -2337,10 +2336,10 @@ module.exports = function (grunt) {
                 grunt.task.run('karma:routeAggregateGridView');
                 testDir = 'routeAggregateGridView'
                 break;
-            /*case 'loadbalancer' :
+            case 'loadbalancer' :
                 grunt.task.run('karma:loadBalancerGridView');
                 testDir = 'loadBalancerGridView'
-                break;*/
+                break;
             case 'alarm' :
                 grunt.task.run('karma:alarmGridView');
                 testDir = 'alarmGridView'

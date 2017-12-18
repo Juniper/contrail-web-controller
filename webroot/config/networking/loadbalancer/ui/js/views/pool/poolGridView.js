@@ -206,7 +206,7 @@ define([
                     var checkedRows = $(gridElId).data("contrailGrid").getCheckedRows();
 
                     poolEditView.model = new PoolModel();
-                    poolEditView.renderMultiDeletePool({"title": 'Delete Pools',
+                    poolEditView.renderMultiDeletePool({"title": 'Delete Pool',
                                                             checkedRows: checkedRows,
                                                             callback: function () {
                         $(gridElId).data("contrailGrid")._dataView.refreshData();
