@@ -56,12 +56,28 @@ define([
             });
         },
         renderMultiDeleteListener: function(options) {
-            var delTemplate =
-                //Fix the template to be common delete template
-                contrail.getTemplate4Id('core-generic-delete-form-template');
-            var self = this;
-
-            var delLayout = delTemplate({prefixId: prefixId});
+            var delTemplate = contrail.getTemplate4Id('core-generic-delete-form-template');
+            var self = this, itemText = '', items = "";
+            var selctedRows = options.checkedRows;
+            if(selctedRows.length > 1){
+                itemText = 'Listeners';
+            }else{
+                itemText = 'Listener';
+            }
+            _.each(selctedRows, function(selectedObj) {
+                if(selectedObj.display_name !== ''){
+                    if (items != "") {
+                        items += ', ';
+                    }
+                    items += selectedObj.display_name;
+                }else{
+                    if (items != "") {
+                        items += ', ';
+                    }
+                    items += selectedObj.uuid;
+                }
+            });
+            var delLayout = delTemplate({prefixId: prefixId, item: itemText, itemId: items});
             cowu.createModal({'modalId': modalId, 'className': 'modal-480',
                              'title': options['title'], 'btnName': 'Confirm',
                              'body': delLayout,
