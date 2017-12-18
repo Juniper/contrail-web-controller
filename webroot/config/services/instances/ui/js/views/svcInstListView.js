@@ -432,7 +432,7 @@ define([
                 totalActiveCnt};
         },
         getVlRemoteGLConfig: function (selectedProject) {
-        var vlRemoteGLConfig = [{
+            var openstackVLRemoteConfig = [{
             getAjaxConfig: function (resultJSON) {
                 var lazyAjaxConfig = {
                     url: ctwc.get(ctwc.URL_GET_SERVICE_INSTS_NOVA_STATUS,
@@ -492,8 +492,8 @@ define([
                     }
                 }
             }
-        },
-        {
+        }];
+        var vlRemoteGLConfig = [{
             getAjaxConfig: function(response) {
                 var lazyAjaxConfig = {
                     url: ctwc.get(ctwc.URL_GET_SERVICE_INST_TMPLTS,
@@ -572,6 +572,9 @@ define([
                 self.svcInstProjRole = roles;
             }
         }];
+        if(!isVCenter()) {
+            vlRemoteGLConfig = openstackVLRemoteConfig.concat(vlRemoteGLConfig);
+        }
         return vlRemoteGLConfig;
     }
     });
