@@ -22,6 +22,7 @@ define([
             'lb_vipsubnetid':'',
             'lb_operating_status':'',
             'lb_admin_state': true,
+            'lb_floating_ip': '',
             'lb_subnet': '',
             'listener_name':'Listener 1',
             'listener_description':'',
@@ -206,6 +207,24 @@ define([
 
                 loadbalancer['virtual_machine_interface_refs'] = newVMIObj;
                 obj.loadbalancer = loadbalancer;
+                // Floating IP Formation
+                var floatingIpColl = allData.floatingIpColl, floatingObj;
+                _.each(floatingIpColl, function(obj) {
+                    if(obj.uuid === model.lb_floating_ip){
+                        floatingObj = obj;
+                    }
+                });
+                var floatingChildObj = {};
+                floatingChildObj['fixed_ip_aap'] = 'fixed-ip';
+                floatingChildObj['floating_ip_fixed_ip_address'] = floatingObj.floating_ip_address;
+                floatingChildObj['fq_name'] = floatingObj.fq_name;
+                floatingChildObj['owner_visible'] = true;
+                floatingChildObj.uuid = floatingObj.uuid;
+                floatingChildObj['user_created_virtual_machine_interface_refs'] = '';
+                floatingChildObj['virtual_machine_interface_refs'] = [];
+                var floatingParentObj = {};
+                floatingParentObj['floating-ip'] = floatingChildObj;
+                obj['loadbalancer_floatingip'] = floatingParentObj;
             }else{
                 var lbObj = options.lbObj;
                 obj.loadbalancer = lbObj;
