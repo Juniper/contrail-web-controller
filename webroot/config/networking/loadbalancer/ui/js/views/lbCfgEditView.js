@@ -257,9 +257,9 @@ define([
                                             dataValueField : "id",
                                             placeholder : 'Select Protocol',
                                             data : [{id: 'HTTP', text:'HTTP'},
-                                                    {id: 'HTTPS', text:'HTTPS'},
-                                                    {id: 'TCP', text:'TCP'},
-                                                    {id: 'TERMINATED_HTTPS', text:'TERMINATED_HTTPS'}]
+                                                    //{id: 'HTTPS', text:'HTTPS'},
+                                                    {id: 'TCP', text:'TCP'}]
+                                                    //{id: 'TERMINATED_HTTPS', text:'TERMINATED_HTTPS'}]
                                         }
                                     }
                                 },
@@ -366,7 +366,7 @@ define([
                                              dataValueField : "id",
                                              placeholder : 'Select Protocol',
                                              data : [{id: 'HTTP', text:'HTTP'},
-                                                     {id: 'HTTPS', text:'HTTPS'},
+                                                     //{id: 'HTTPS', text:'HTTPS'},
                                                      {id: 'TCP', text:'TCP'}]
                                          }
                                      }
@@ -591,19 +591,6 @@ define([
                                     }
                                 },
                                 {
-                                    elementId: "pool_member_ip_address",
-                                    view: "FormInputView",
-                                    name: 'IP Address',
-                                    width: 120,
-                                    viewConfig: {
-                                        path: "pool_member_ip_address",
-                                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                        placeholder : 'xxx.xxx.xxx.xxx',
-                                        label: '',
-                                        dataBindValue: "pool_member_ip_address()"
-                                    }
-                                },
-                                {
                                     elementId: 'pool_member_subnet',
                                     view: "FormDropdownView",
                                     name: 'Subnet',
@@ -620,6 +607,19 @@ define([
                                             placeholder : 'Select Subnet',
                                             data : allData.subnetList
                                         }
+                                    }
+                                },
+                                {
+                                    elementId: "pool_member_ip_address",
+                                    view: "FormInputView",
+                                    name: 'IP Address',
+                                    width: 150,
+                                    viewConfig: {
+                                        path: "pool_member_ip_address",
+                                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                        placeholder : 'xxx.xxx.xxx.xxx',
+                                        label: '',
+                                        dataBindValue: "pool_member_ip_address()"
                                     }
                                 },
                                 {
@@ -749,10 +749,12 @@ define([
                                 if(params.model.listener_protocol() !== '' && params.model.listener_name() !== '' && params.model.listener_port() !== ''){
                                     var port = Number(params.model.listener_port());
                                     if(port >= 1 && port <= 65535){
-                                        $('#loadbalancer_loadbalancer_wizard .actions > ul > li > a')[0].setAttribute('style','visibility: visible');
-                                        $('#loadbalancer_loadbalancer_wizard-p-0 .alert-error').css({'display': 'none'});
-                                        $('#loadbalancer_loadbalancer_wizard-p-0 > div > span').text('');
-                                        return true;
+                                        if(params.model.existing_port().indexOf(port) === -1){
+                                            $('#loadbalancer_loadbalancer_wizard .actions > ul > li > a')[0].setAttribute('style','visibility: visible');
+                                            $('#loadbalancer_loadbalancer_wizard-p-0 .alert-error').css({'display': 'none'});
+                                            $('#loadbalancer_loadbalancer_wizard-p-0 > div > span').text('');
+                                            return true;
+                                        }
                                     }
                                 }else{
                                     $('#loadbalancer_loadbalancer_wizard-p-0 .alert-error').css({'display': 'block'});
@@ -825,6 +827,12 @@ define([
         var model = params.model.pool_member(), porNotValid = false;
         for(var i = 0; i < model.length; i++){
             var port = Number(model[i].model().attributes.pool_member_port());
+            var subnet = model[i].model().attributes.pool_member_subnet();
+            var ip_address = model[i].model().attributes.pool_member_ip_address();
+            if(subnet === '' || ip_address === ''){
+                porNotValid = true;
+                break;
+            }
             if(port < 1 || port > 65535){
                 porNotValid = true;
                 break;

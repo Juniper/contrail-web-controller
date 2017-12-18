@@ -424,6 +424,12 @@ function updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portC
 {
     async.map(instIpPostDataObjArr, createInstIP, function(err, result) {
     if (DataObjectArr.length === 0) {
+       portConfig['virtual-machine-interface']['instance_ip_back_refs']= [];
+	   portConfig['virtual-machine-interface']['instance_ip_back_refs'].push({
+			'href':result[0]['instance-ip']['href'],
+			'to': result[0]['instance-ip']['fq_name'],
+			'uuid':result[0]['instance-ip']['uuid']
+		})
         callback(null, portConfig)
         return;
     }

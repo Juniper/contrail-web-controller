@@ -156,13 +156,17 @@ define([
                         vnList.push(obj['virtual-network']);
                     });
                     _.each(vnList, function(obj) {
-                        ipamList = ipamList.concat(obj['network_ipam_refs']);
+                        if(obj['network_ipam_refs'] !== undefined){
+                            ipamList = ipamList.concat(obj['network_ipam_refs']);
+                        }
                     });
                     _.each(ipamList, function(obj) {
                         ipamSubnet = ipamSubnet.concat(obj['attr']['ipam_subnets']);
                     });
                     _.each(ipamSubnet, function(obj) {
-                        subnetList.push({id: obj.subnet_uuid, text:obj.subnet_name});
+                        var subnet = obj.subnet.ip_prefix + '/' + obj.subnet.ip_prefix_len;
+                        var id = obj.subnet_uuid + ';' + subnet;
+                        subnetList.push({id: id, text:obj.subnet_name});
                     });
                     returnArr["subnetList"] = subnetList;
                     callback(returnArr);
@@ -209,23 +213,10 @@ define([
                                     }
                                 },
                                 {
-                                    elementId: "pool_member_ip_address",
-                                    view: "FormInputView",
-                                    name: 'IP Address',
-                                    width: 200,
-                                    viewConfig: {
-                                        path: "pool_member_ip_address",
-                                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                        placeholder : 'xxx.xxx.xxx.xxx',
-                                        label: '',
-                                        dataBindValue: "pool_member_ip_address()"
-                                    }
-                                },
-                                {
                                     elementId: 'pool_member_subnet',
                                     view: "FormDropdownView",
                                     name: 'Subnet',
-                                    width: 300,
+                                    width: 275,
                                     viewConfig: {
                                         path : 'pool_member_subnet',
                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
@@ -238,6 +229,19 @@ define([
                                             placeholder : 'Select Subnet',
                                             data : allData.subnetList
                                         }
+                                    }
+                                },
+                                {
+                                    elementId: "pool_member_ip_address",
+                                    view: "FormInputView",
+                                    name: 'IP Address',
+                                    width: 225,
+                                    viewConfig: {
+                                        path: "pool_member_ip_address",
+                                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                        placeholder : 'xxx.xxx.xxx.xxx',
+                                        label: '',
+                                        dataBindValue: "pool_member_ip_address()"
                                     }
                                 },
                                 {
@@ -323,21 +327,15 @@ define([
                                     class: "col-xs-6"
                                 }
                             },{
-                                elementId: 'subnet',
-                                view: "FormDropdownView",
-                                name: 'Subnet',
+                                elementId: "port",
+                                view: "FormInputView",
                                 viewConfig: {
-                                    path : 'subnet',
-                                    label: 'Subnet',
-                                    class: "col-xs-6",
-                                    dataBindValue :
-                                        'subnet',
-                                    elementConfig : {
-                                        dataTextField : "text",
-                                        dataValueField : "id",
-                                        placeholder : 'Select Subnet',
-                                        data : allData.subnetList
-                                    }
+                                    path: "port",
+                                    label: 'Port',
+                                    disabled: true,
+                                    type:'number',
+                                    dataBindValue: "port",
+                                    class: "col-xs-6"
                                 }
                             }
                         ]
@@ -345,16 +343,6 @@ define([
                     {
                         columns: [
                             {
-                                elementId: "port",
-                                view: "FormInputView",
-                                viewConfig: {
-                                    path: "port",
-                                    label: 'Port',
-                                    type:'number',
-                                    dataBindValue: "port",
-                                    class: "col-xs-6"
-                                }
-                            },{
                                 elementId: "weight",
                                 view: "FormInputView",
                                 viewConfig: {
@@ -364,21 +352,7 @@ define([
                                     dataBindValue: "weight",
                                     class: "col-xs-6"
                                 }
-                            }
-                        ]
-                    },
-                    {
-                        columns: [
-                            /*{
-                                elementId: "status_description",
-                                view: "FormInputView",
-                                viewConfig: {
-                                    path: "status_description",
-                                    label: 'Status Description',
-                                    dataBindValue: "status_description",
-                                    class: "col-xs-6"
-                                }
-                            },*/
+                            },
                             {
                                 elementId: 'admin_state',
                                 view: "FormCheckboxView",
