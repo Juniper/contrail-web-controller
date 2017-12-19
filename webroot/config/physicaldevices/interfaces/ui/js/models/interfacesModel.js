@@ -918,7 +918,7 @@ define([
         },
 
         setEmptyDeviceOwnerForRemovedPorts : function(portRefs) {
-            var putDataList = {}, ajaxConfig = {};
+            var ajaxConfig = {};
             putDataList.data = [];
             _.each(portRefs, function(portRef){
                 var putData = {},
@@ -930,14 +930,11 @@ define([
                 putData["virtual-machine-interface"]["parent_type"] = "project";
                 putData["virtual-machine-interface"]
                     ["virtual_machine_interface_device_owner"] = "";
-                putDataList.data.push(
-                    {"data": putData,
-                    "reqUrl" : '/virtual-machine-interface/' + port.uuid});
             })
             if(putDataList.data.length) {
                 ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 ajaxConfig.type  = "POST";
-                ajaxConfig.data  = JSON.stringify(putDataList);
+                ajaxConfig.data  = JSON.stringify(putData);
                 contrail.ajaxHandler(ajaxConfig, null,
                         function(success){},
                         function(error){}

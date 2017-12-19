@@ -331,9 +331,7 @@ define([
                 //postFWRuleData['firewall-rules'] = postFWRules;
                 ajaxConfig.type  = "POST";
                 if(options.mode === 'edit'){
-                    var postData = {"data":[{"data":{"firewall-rule": newFWRuleData},
-                        "reqUrl": "/firewall-rule/" +
-                        attr.uuid}]};
+                    var postData = {"firewall-rule": newFWRuleData};
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                     ajaxConfig.data  = JSON.stringify(postData);
 

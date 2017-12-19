@@ -62,14 +62,8 @@ define([
                 userDefinedCountersData['global-system-config']['uuid'] =
                     currentGlobalSystemConfigData['uuid'];
                     putData = {
-                        "data" : [ {
-                            "data" : {
-                                "global-system-config" : userDefinedCountersData["global-system-config"]
-                            },
-                            "reqUrl" : ctwc.GLOBAL_SYSTEM_CONFIG
-                                    + currentGlobalSystemConfigData['uuid']
-                        } ]
-                    }
+                        "global-system-config" : userDefinedCountersData["global-system-config"]
+                    };
             }
             var ajaxConfig = {};
             ajaxConfig.type = "POST";
