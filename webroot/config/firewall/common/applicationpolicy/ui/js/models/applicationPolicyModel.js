@@ -102,15 +102,11 @@ define([
 	                this.updateRBACPermsAttrs(model);
 	                updatedModel.tag_refs = model.tag_refs;
 	                updatedModel.firewall_policy_refs = policyList;
+                    var postData = {"application-policy-set": updatedModel};
 	                if (options.mode == 'add') {
-	                	var postData = {"data":[{"data":{"application-policy-set": updatedModel},
-	                                "reqUrl": "/application-policy-sets"}]};
 	                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
 	                } else {
-	                	delete(updatedModel.name);
-	                	var postData = {"data":[{"data":{"application-policy-set": updatedModel},
-	                                "reqUrl": "/application-policy-set/" +
-	                                model.uuid}]};
+	                    delete postData["application-policy-set"].name;
 	                    ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
 	                }
 	                ajaxConfig.type  = 'POST';

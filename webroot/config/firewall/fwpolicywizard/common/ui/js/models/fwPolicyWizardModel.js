@@ -252,16 +252,15 @@ define([
                             var obj = {};
                             obj.description = model.description;
                             updatedModel.id_perms = obj;
-                            var postData = {"data":[{"data":{"application-policy-set": updatedModel},
-                                        "reqUrl": "/application-policy-sets"}]};
-                            ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
+                            var postData = {"application-policy-set":
+                                updatedModel};
+                            ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECTS;
                         } else {
                             delete(updatedModel.name);
                             model.id_perms.description = model.description;
                             updatedModel['id_perms'] = model.id_perms;
-                            var postData = {"data":[{"data":{"application-policy-set": updatedModel},
-                                        "reqUrl": "/application-policy-set/" +
-                                        model.uuid}]};
+                            var postData = {"application-policy-set":
+                                updatedModel};
                             ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                         }
                         ajaxConfig.type  = 'POST';
@@ -342,7 +341,7 @@ define([
                 newRuleList.push(obj);
             }
             var postData = {"data":newRuleList };
-            ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
+            ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECTS;
             ajaxConfig.type  = 'POST';
             ajaxConfig.data  = JSON.stringify(postData);
             contrail.ajaxHandler(ajaxConfig, function () {
@@ -380,9 +379,6 @@ define([
             delete policeyModel.perms2;
             delete policeyModel.cgrid;
             postFWPolicyData['firewall-policy'] = policeyModel;
-            postFWPolicyData = {"data":[{"data": postFWPolicyData,
-                        "reqUrl": ctwc.URL_UPDATE_FW_POLICY +
-                        policeyModel['uuid']}]};
             ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
             ajaxConfig.async = false;
             ajaxConfig.type  = "POST";
@@ -495,10 +491,7 @@ define([
             delete newFWPolicyData.onNext;
             postFWPolicyData['firewall-policy'] = newFWPolicyData;
 
-            postFWPolicyData = {"data":[{"data": postFWPolicyData,
-                            "reqUrl": ctwc.URL_CREATE_FW_POLICY}]};
-                ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
-            
+            ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
             ajaxConfig.async = false;
             ajaxConfig.type  = "POST";
             ajaxConfig.data  = JSON.stringify(postFWPolicyData);
@@ -649,16 +642,13 @@ define([
                 var obj = {};
                 obj.description = model.description;
                 updatedModel.id_perms = obj;
-                var postData = {"data":[{"data":{"application-policy-set": updatedModel},
-                            "reqUrl": "/application-policy-sets"}]};
+                var postData = {"application-policy-set": updatedModel};
                 ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
             } else {
                 delete(updatedModel.name);
                 model.id_perms.description =  model.description;
                 updatedModel['id_perms'] = model.id_perms;
-                var postData = {"data":[{"data":{"application-policy-set": updatedModel},
-                            "reqUrl": "/application-policy-set/" +
-                            model.uuid}]};
+                var postData = {"application-policy-set": updatedModel};
                 ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
             }
             ajaxConfig.type  = 'POST';

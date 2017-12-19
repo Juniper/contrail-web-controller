@@ -1209,13 +1209,14 @@ define([
 
                 var ajaxType       = contrail.checkIfExist(ajaxMethod) ?
                                                            ajaxMethod : "POST";
-                var postURL        = (isVCenter() ? '/vcenter' : '') +
-                                     '/api/tenants/config/virtual-networks';
-                var putURL         = '/api/tenants/config/virtual-network/' +
-                                     newVNCfgData['uuid'];
-                ajaxConfig.type    = ajaxType;
+                var postURL = "/api/tenants/config/create-config-object";
+                if (isVCenter()) {
+                    postURL = "/vcenter/api/tenants/config/virtual-networks";
+                }
+                var putURL         = '/api/tenants/config/update-config-object';
                 ajaxConfig.data    = JSON.stringify(postData);
                 ajaxConfig.url     = ajaxType == 'PUT' ? putURL : postURL;
+                ajaxConfig.type    = 'POST';
                 ajaxConfig.timeout = 300000;
 
 

@@ -91,8 +91,7 @@ define([
 	            	}
 	                if (options.mode == 'add') {
 	                	delete(newTagData.uuid);
-	                	var postData = {"data":[{"data":{"tag": newTagData},
-	                                "reqUrl": "/tags"}]};
+	                var postData = {"tag": newTagData};
 	                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
 	                } else {
 	                	delete(newTagData.cgrid);
@@ -103,9 +102,7 @@ define([
 	                    delete(newTagData.tag_type_name);
 	                    updatedVal.tag_value = newTagData.tag_value;
 	                    updatedVal.fq_name = newTagData.fq_name;
-	                	var postData = {"data":[{"data":{"tag": updatedVal},
-	                                "reqUrl": "/tag/" +
-	                                newTagData.uuid}]};
+	                    var postData = {"tag": updatedVal};
 	                    ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
 	                }
 	                ajaxConfig.type  = 'POST';

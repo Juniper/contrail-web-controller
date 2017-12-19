@@ -52,14 +52,10 @@ define([
                 ctwu.deleteCGridData(newConfigNodeData);
                 delete newConfigNodeData.id_perms;
 
+                postConfigNodeData = {"config-node": newConfigNodeData};
                 if(ajaxMethod === "POST") {
-                    postConfigNodeData = {"data":[{"data":{"config-node": newConfigNodeData},
-                                "reqUrl": ctwc.URL_CREATE_CONFIG_NODE}]};
                     ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 } else {
-                    postConfigNodeData = {"data":[{"data":{"config-node": newConfigNodeData},
-                                "reqUrl": ctwc.URL_UPDATE_CONFIG_NODE +
-                                newConfigNodeData['uuid']}]};
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 }
 

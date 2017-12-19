@@ -1233,7 +1233,11 @@ define([
         this.URL_GET_CONFIG_DETAILS = "/api/tenants/config/get-config-details";
         this.URL_GET_CONFIG_LIST = "/api/tenants/config/get-config-list";
         this.URL_CREATE_CONFIG_OBJECT = "/api/tenants/config/create-config-object";
+        this.URL_CREATE_CONFIG_OBJECTS =
+            "/api/tenants/config/create-config-objects";
         this.URL_UPDATE_CONFIG_OBJECT = "/api/tenants/config/update-config-object";
+        this.URL_UPDATE_CONFIG_OBJECTS =
+            "/api/tenants/config/update-config-objects";
        // Config Editor Constants
         this.CONFIG_OBJECT_LIST_VIEW = 'config-object-list-view';
         this.CONFIG_OBJECT_DETAILS_VIEW = 'config-object-details-view';
