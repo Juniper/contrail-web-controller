@@ -19,6 +19,7 @@ define([
              PortTupleModel, SvcHealthChkModel, IntfRtTableModel, RtPolicyModel,
              RtAggregateModel, AllowedAddressPairModel, StaticRTModel) {
     var self;
+    var svcTypeLBStr = "loadbalancer";
     var SvcInstModel = ContrailConfigModel.extend({
         defaultConfig: {
             service_template: null,
@@ -173,6 +174,10 @@ define([
                         getValueByJsonPath(svcTmplObj,
                                            'service_template_properties;service_mode',
                                            null);
+                    var svcType =
+                        getValueByJsonPath(svcTmplObj,
+                                           "service_template_properties;service_type",
+                                           null);
                     var interfaceCollection = data['interfaces'];
                     if (null == interfaceCollection) {
                         return;
@@ -180,9 +185,13 @@ define([
                     var models = interfaceCollection['models'];
                     var len = interfaceCollection.length;
                     var errStr = "Auto Configured network not allowed";
+                    var vnList = [];
                     for (var i = 0; i < len; i++) {
                         var attr = models[i]['attributes'];
                         var vn = attr['virtualNetwork']();
+                        if (null != vn) {
+                            vnList.push(vn);
+                        }
                         if ('management' !=
                              svcTmplIntfs[i]['service_interface_type']) {
                             if (('in-network' == svcMode) ||
@@ -199,6 +208,13 @@ define([
                                 return errStr;
                             }
                         }
+                    }
+                    /* In loadbalancer, we may have null VN, but at least 1 VN
+                     * should be valid
+                     */
+                    if ((svcTypeLBStr == svcType) && (!vnList.length)) {
+                        return "At least 1 Virtual Network should be set " +
+                            "for load balancer"
                     }
                 },
                 'interface': function(val, attr, data) {
@@ -255,11 +271,15 @@ define([
                         getValueByJsonPath(tmpl,
                                            'service_template_properties;image_name',
                                            null);
+                    var serviceType =
+                        getValueByJsonPath(tmpl,
+                                           "service_template_properties;service_type",
+                                           null);
                     var tmplVersion =
                         getValueByJsonPath(tmpl,
                                            'service_template_properties;version',
                                            1);
-                    if (2 == tmplVersion) {
+                    if ((2 == tmplVersion) || (svcTypeLBStr == serviceType)) {
                         return;
                     }
                     var svcVirtType =
@@ -689,13 +709,15 @@ define([
                 if ((null == vnList) || (!vnList.length)) {
                     vnList = configuredVNList;
                 }
+                var vn = getValueByJsonPath(intfList, i + ";virtual_network",
+                                            null);
                 var interfacesModel =
                     new InterfacesModel({interfaceType: intfType,
-                                        virtualNetwork:
-                                        intfList[i]['virtual_network'],
+                                        virtualNetwork: vn,
                                         interfaceIndex: i,
                                         interfaceData: intfList[i],
-                                        allVNListData: vnList});
+                                        allVNListData: vnList,
+                                        tmplData: svcTmpls[svcTmplFqn]});
                 interfacesModels.push(interfacesModel);
                 interfacesModel.__kb.view_model.model().on('change:virtualNetwork',
                                                            function(model,
@@ -1003,7 +1025,8 @@ define([
                                         'virtualNetwork': vn,
                                         'interfaceIndex': i,
                                         interfaceData: intfList[i],
-                                        allVNListData: vnList});
+                                        allVNListData: vnList,
+                                        tmplData: svcTmpls[svcTmplFqn]});
                 newInterface.__kb.view_model.model().on('change:virtualNetwork',
                                                            function(model,
                                                                     newValue) {
