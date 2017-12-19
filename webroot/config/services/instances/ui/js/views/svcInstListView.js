@@ -572,7 +572,7 @@ define([
                 self.svcInstProjRole = roles;
             }
         }];
-        if(!isVCenter()) {
+        if(isOpenstackOrchModel()) {
             vlRemoteGLConfig = openstackVLRemoteConfig.concat(vlRemoteGLConfig);
         }
         return vlRemoteGLConfig;

@@ -812,7 +812,7 @@ define([
         }
         var cnt = statusDataList.length;
         if (!cnt) {
-            return 'No Service Instance found.';
+            return 'No Server found.';
         }
         var statusHeader =
             '<tr ><thead>' +
@@ -927,7 +927,7 @@ define([
         var healthCheckStatusObjs =
             getValueByJsonPath(rowData, 'statusDetails;healthCheckStatus',
                                null);
-        if (("Active" != vmStatus) && (false == isVCenter())) {
+        if (("Active" != vmStatus) && (isOpenstackOrchModel())) {
             return vmStatusStr;
         }
         var intfStatusDownCnt = 0;
@@ -960,7 +960,7 @@ define([
             }
         }
         if ((!intfStatusDownCnt) && (!hlthChkStatusDownCnt)) {
-            if (true == isVCenter()) {
+            if (false == isOpenstackOrchModel()) {
                 return "-";
             }
             return vmStatusStr;

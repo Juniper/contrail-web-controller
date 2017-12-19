@@ -1466,9 +1466,6 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Service Templates</label>
                             <hash>config_service_templates</hash>
-                            <access>
-                                <accessFn>hideInNoneOrchestrationModel</accessFn>
-                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
@@ -1486,9 +1483,6 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Service Instances</label>
                             <hash>config_sc_svcInstances</hash>
-                            <access>
-                                <accessFn>hideInNoneOrchestrationModel</accessFn>
-                            </access>
                             <resources>
                                 <resource>
                                     <rootDir>/common/ui</rootDir>
