@@ -63,6 +63,12 @@ var configJsonModifyObj = {
                 'mandateFields': ['fq_name', 'uuid', 'display_name']
             }
         },
+        'children': {
+            'floating_ip_pool': {
+                "references": ["project"]
+            },
+            'bridge_domain': {}
+        }
     },
     'network-ipam': {
         'isConfig': true,
@@ -242,10 +248,23 @@ var configJsonModifyObj = {
         }
     },
     'arrayDiff': {
-     /*   'floating-ip-pool': {
-        }
-      */
-      'bgp-router':{}
+        'floating-ip-pool': {
+            'preProcessCB': {
+                'comparators': ['to']
+            },
+        },
+        'bgp-router':{},
+        'bridge-domain': {},
+        'service_health_check_back_refs': {
+            'preProcessCB': {
+                'comparators': ['to', 'uuid', 'attr']
+            }
+        },
+        'physical_router_back_refs': {
+            'preProcessCB': {
+                'comparators': ['uuid']
+            }
+        },
     },
     'configDelete': {
         'virtual-machine-interface': {

@@ -66,7 +66,7 @@ define([
             ctwu.getPermissionsValidation()];
             if (this.isDeepValid(validations)) {
                 var newRuleData = $.extend(true, {}, this.model().attributes);
-                var url = ctwc.URL_CREATE_CONFIG_OBJECT, reqUrl = "/alarms";
+                var url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 var orRules = newRuleData['orRules'].models, orRuleList = [];
                 ctwu.setNameFromDisplayName(newRuleData);
                 for (var i = 0; i < orRules.length; i++) {
@@ -140,7 +140,6 @@ define([
                         newRuleData['id_perms']['description'] = newRuleData['description'];
                     }*/
                     url = ctwc.URL_UPDATE_CONFIG_OBJECT;
-                    reqUrl = '/alarm/'+newRuleData['uuid'];
                 }
                 //permissions
                 this.updateRBACPermsAttrs(newRuleData);
@@ -148,9 +147,7 @@ define([
                 delete newRuleData['enable'];
                 delete newRuleData['description'];
                 ctwu.deleteCGridData(newRuleData);
-                var postData = {"data":[{"data": {
-                    alarm: newRuleData,
-                },"reqUrl": reqUrl}]},
+                var postData = {alarm: newRuleData};
                 ajaxConfig = {};
                 ajaxConfig.url = url;
                 ajaxConfig.type = 'POST';

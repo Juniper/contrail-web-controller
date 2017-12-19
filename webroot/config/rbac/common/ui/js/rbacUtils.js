@@ -6,7 +6,7 @@
      var rbacUtils = function(){
          this.configRBAC = function(model, callbackObj, options) {
              var ajaxConfig = {}, ajaxMethod, returnFlag = false,
-             putData, rbacPostData, gridData, rowsCnt, dataLen, mode,
+             putData, gridData, rowsCnt, dataLen, mode,
              defaultAALName = "default-api-access-list",
              rbacRuleObj, attr, uuid,
              domain = options.isGlobal ? "default-domain":
@@ -94,18 +94,13 @@
                  }
 
                  if(null == uuid) {
-                     rbacPostData = {"data":[{"data": putData,
-                                 "reqUrl": "/api-access-lists"}]};
                      ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                  } else {
-                     rbacPostData = {"data":[{"data": putData,
-                                 "reqUrl": "/api-access-list/" +
-                                 uuid}]};
                      ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                  }
 
                  ajaxConfig.type  = "POST";
-                 ajaxConfig.data  = JSON.stringify(rbacPostData);
+                 ajaxConfig.data  = JSON.stringify(putData);
 
                  contrail.ajaxHandler(ajaxConfig, function () {
                      if (contrail.checkIfFunction(callbackObj.init)) {
@@ -270,18 +265,13 @@
                      });
 
                      if(null == uuid) {
-                         rbacPostData = {"data":[{"data": putData,
-                                     "reqUrl": "/api-access-lists"}]};
                          ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                      } else {
-                         rbacPostData = {"data":[{"data": putData,
-                                     "reqUrl": "/api-access-list/" +
-                                     uuid}]};
                          ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                      }
 
                      ajaxConfig.type  = "POST";
-                     ajaxConfig.data  = JSON.stringify(rbacPostData);
+                     ajaxConfig.data  = JSON.stringify(putData);
 
                      contrail.ajaxHandler(ajaxConfig, function () {
                          if (contrail.checkIfFunction(callbackObj.init)) {
