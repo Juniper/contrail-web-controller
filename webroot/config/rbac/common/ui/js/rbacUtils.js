@@ -6,7 +6,7 @@
      var rbacUtils = function(){
          this.configRBAC = function(model, callbackObj, options) {
              var ajaxConfig = {}, ajaxMethod, returnFlag = false,
-             putData, rbacPostData, gridData, rowsCnt, dataLen, mode,
+             putData, gridData, rowsCnt, dataLen, mode,
              defaultAALName = "default-api-access-list",
              rbacRuleObj, attr, uuid,
              domain = options.isGlobal ? "default-domain":
@@ -94,18 +94,13 @@
                  }
 
                  if(null == uuid) {
-                     rbacPostData = {"data":[{"data": putData,
-                                 "reqUrl": "/api-access-lists"}]};
                      ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                  } else {
-                     rbacPostData = {"data":[{"data": putData,
-                                 "reqUrl": "/api-access-list/" +
-                                 uuid}]};
                      ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                  }
 
                  ajaxConfig.type  = "POST";
-                 ajaxConfig.data  = JSON.stringify(rbacPostData);
+                 ajaxConfig.data  = JSON.stringify(putData);
 
                  contrail.ajaxHandler(ajaxConfig, function () {
                      if (contrail.checkIfFunction(callbackObj.init)) {
@@ -168,7 +163,7 @@
 
          this.configAllRBAC = function(model, callbackObj, options) {
              var self = this, ajaxConfig = {}, ajaxMethod, returnFlag = false,
-             putData, rbacPostData, gridData, rowsCnt, dataLen, mode,
+             putData, gridData, rowsCnt, dataLen, mode,
              defaultAALName = "default-api-access-list",
              rbacRuleObj, attr, uuid,
              domain,
@@ -270,18 +265,13 @@
                      });
 
                      if(null == uuid) {
-                         rbacPostData = {"data":[{"data": putData,
-                                     "reqUrl": "/api-access-lists"}]};
                          ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                      } else {
-                         rbacPostData = {"data":[{"data": putData,
-                                     "reqUrl": "/api-access-list/" +
-                                     uuid}]};
                          ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                      }
 
                      ajaxConfig.type  = "POST";
-                     ajaxConfig.data  = JSON.stringify(rbacPostData);
+                     ajaxConfig.data  = JSON.stringify(putData);
 
                      contrail.ajaxHandler(ajaxConfig, function () {
                          if (contrail.checkIfFunction(callbackObj.init)) {
@@ -340,7 +330,7 @@
                      "configData", null),
              uuid =
                  getValueByJsonPath(putData, "api-access-list;uuid",
-                                null), rbacPostData, rbacRules, uuidList = [];
+                                null), rbacRules, uuidList = [];
              putData['api-access-list']['api_access_list_entries'] = {};
              putData['api-access-list']['api_access_list_entries']
                  ['rbac_rule'] = gridData;
@@ -369,12 +359,9 @@
                  return;
              }
 
-             rbacPostData = {"data":[{"data": putData,
-                 "reqUrl": "/api-access-list/" +
-                 uuid}]};
              ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
              ajaxConfig.type  = "POST";
-             ajaxConfig.data  = JSON.stringify(rbacPostData);
+             ajaxConfig.data  = JSON.stringify(putData);
 
              contrail.ajaxHandler(ajaxConfig, function () {
                  if (contrail.checkIfFunction(callbackObj.init)) {
@@ -399,7 +386,7 @@
              gridData = getValueByJsonPath(options, "gridData", []),
              checkedRows = getValueByJsonPath(options, "checkedRows"),
              putData, uuid, deleteAjax = [], projectIdMap = {},
-             projectList = [], rbacPostData, rbacRules, uuidList = [];
+             projectList = [], rbacRules, uuidList = [];
              for(var i = 0; i < checkedRows.length; i++) {
                  if(options.isDomain === true) {
                      if(projectIdMap[checkedRows[i].domain] == null) {
@@ -463,13 +450,10 @@
                     uuidList.push(uuid);
                     continue;
                 }
-                rbacPostData = {"data":[{"data": putData,
-                    "reqUrl": "/api-access-list/" +
-                    uuid}]};
 
                 ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 ajaxConfig.type  = "POST";
-                ajaxConfig.data  = JSON.stringify(rbacPostData);
+                ajaxConfig.data  = JSON.stringify(putData);
                 ajaxConfig.contentType = "application/json; charset=utf-8";
                 deleteAjax.push($.ajax(ajaxConfig));
              }

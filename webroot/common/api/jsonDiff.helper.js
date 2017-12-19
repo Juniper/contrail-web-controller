@@ -37,6 +37,12 @@ var configJsonModifyObj = {
                       "virtual_network_refs", "perms2","tag_refs", "physical_router_role"],
         "mandateFields":["fq_name", "uuid", "display_name"]
     },
+    'bridge-domain': {
+        'isConfig': true,
+        'optFields': ['isid', 'mac_aging_time', 'mac_learning_enabled',
+            'mac_limit_control', 'mac_move_control'],
+        'mandateFields': ['fq_name', 'uuid']
+    },
     'virtual-network': {
         'isConfig': true,
         'preProcessCB': {
@@ -63,6 +69,15 @@ var configJsonModifyObj = {
                 'mandateFields': ['fq_name', 'uuid', 'display_name']
             }
         },
+        'children': {
+            'floating_ip_pool': {
+                'comparators': ['to', 'projects'],
+                "references": ["project"]
+            },
+            'bridge_domain': {
+                'comparators': ['to']
+            }
+        }
     },
     'network-ipam': {
         'isConfig': true,
@@ -242,10 +257,24 @@ var configJsonModifyObj = {
         }
     },
     'arrayDiff': {
-     /*   'floating-ip-pool': {
-        }
-      */
-      'bgp-router':{}
+        'floating-ip-pool': {
+            'preProcessCB': {
+                'comparators': ['to', 'projects']
+            },
+        },
+        'bgp-router':{},
+        'bridge-domain':
+        {},
+        'service_health_check_back_refs': {
+            'preProcessCB': {
+                'comparators': ['to', 'uuid', 'attr']
+            }
+        },
+        'physical_router_back_refs': {
+            'preProcessCB': {
+                'comparators': ['uuid']
+            }
+        },
     },
     'configDelete': {
         'virtual-machine-interface': {

@@ -148,16 +148,10 @@ define([
                     delete newForwardingClass.parent_uuid;
 
 
+                    postData = {"forwarding-class": newForwardingClass};
                     if (mode == ctwl.CREATE_ACTION) {
-                        postData = {"data":[{"data":{"forwarding-class":
-                                    newForwardingClass},
-                                    "reqUrl": "/forwarding-classs"}]};
                         ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                     } else {
-                        postData = {"data":[{"data":{"forwarding-class":
-                                    newForwardingClass},
-                                    "reqUrl": "/forwarding-class/" +
-                                    newForwardingClass.uuid}]};
                         ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                     }
                     ajaxConfig.type  = 'POST';
@@ -191,7 +185,7 @@ define([
         },
 
         createQosQueue: function(attr, callback) {
-            var ajaxConfig = {}, postData = {}, actPostData,
+            var ajaxConfig = {}, postData = {},
                 qosQueueIdStr = getValueByJsonPath(attr,
                         "qos_queue_refs", "").toString();
                 qosQueueId = qosQueueIdStr.trim().length !== 0 ?
@@ -206,12 +200,10 @@ define([
                 postData["qos-queue"]["display_name"] = qosQueueIdStr;
                 postData["qos-queue"]["name"] = qosQueueIdStr;
                 postData["qos-queue"]["qos_queue_identifier"] = qosQueueId;
-                actPostData = {"data":[{"data":postData,
-                    "reqUrl": "/qos-queues"}]};
 
                 ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 ajaxConfig.type  = 'POST';
-                ajaxConfig.data  = JSON.stringify(actPostData);
+                ajaxConfig.data  = JSON.stringify(postData);
                 contrail.ajaxHandler(ajaxConfig, null,
                         function() {
                             callback(fqName);

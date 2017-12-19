@@ -52,14 +52,11 @@ define([
                 ctwu.deleteCGridData(newAnalyticsNodeData);
                 delete newAnalyticsNodeData.id_perms;
 
+                var postAnalyticsNodeData = {"analytics-node":
+                    newAnalyticsNodeData};
                 if(ajaxMethod === "POST") {
-                    postAnalyticsNodeData = {"data":[{"data":{"analytics-node": newAnalyticsNodeData},
-                                "reqUrl": ctwc.URL_CREATE_ANALYTICS_NODE}]};
                     ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 } else {
-                    postAnalyticsNodeData = {"data":[{"data":{"analytics-node": newAnalyticsNodeData},
-                                "reqUrl": ctwc.URL_UPDATE_ANALYTICS_NODE +
-                                newAnalyticsNodeData['uuid']}]};
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 }
 

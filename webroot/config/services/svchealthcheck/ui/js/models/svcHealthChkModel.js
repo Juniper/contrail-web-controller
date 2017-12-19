@@ -208,14 +208,10 @@ define([
                 var ajaxType     = contrail.checkIfExist(ajaxMethod) ?
                                                         ajaxMethod : "POST";
 
+                var postData = {"service-health-check": newsvcHealthChkCfgData};
                 if (ajaxType == 'POST') {
-                    postData = {"data":[{"data":{"service-health-check": newsvcHealthChkCfgData},
-                                "reqUrl": "/service-health-checks"}]};
                     ajaxConfig.url = '/api/tenants/config/create-config-object'; 
                 } else {
-                    postData = {"data":[{"data":{"service-health-check": newsvcHealthChkCfgData},
-                                "reqUrl": "/service-health-check/" +
-                                newsvcHealthChkCfgData.uuid}]};
                     ajaxConfig.url = '/api/tenants/config/update-config-object'; 
                 }
                 ajaxConfig.async = false;
