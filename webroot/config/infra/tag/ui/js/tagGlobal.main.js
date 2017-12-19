@@ -9,12 +9,16 @@ function TagGlobalPageLoader ()
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathTagView = rootDir + '/js/views/tagGlobalListView.js',
-            renderFn = paramObject['function'];
+            pathTagView = ctBaseDir + '/config/infra/tag/ui/js/views/tagGlobalListView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
             if (self.tagGlobalView == null) {
                 requirejs([pathTagView], function (TagGlobalView){
                     self.tagGlobalView = new TagGlobalView();
                     self.renderView(renderFn, hashParams);
+                    if(contrail.checkIfExist(loadingStartedDefObj)) {
+                        loadingStartedDefObj.resolve();
+                    }
                 });
             } else {
                 self.renderView(renderFn, hashParams);

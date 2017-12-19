@@ -57,6 +57,17 @@ define([
         this.FLOATING_IPS_GRID_VIEW_COMMON_TEST_MODULE = 'Floating IPs Grid View - Common Tests';
         this.ROUTERS_GRID_VIEW_COMMON_TEST_MODULE = 'Routers Grid View - Common Tests';
         this.LB_GRID_VIEW_COMMON_TEST_MODULE = 'Load Balancer Grid View - Common Tests';
+        this.ALARM_GRID_VIEW_COMMON_TEST_MODULE = 'Alarm Grid View - Common Tests';
+        this.PROJECT_TAG_GRID_VIEW_COMMON_TEST_MODULE = 'Project Tag Grid View - Common Tests';
+        this.GLOBAL_TAG_GRID_VIEW_COMMON_TEST_MODULE = 'Global Tag Grid View - Common Tests';
+        this.PROJECT_ADDRESS_GRP_GRID_VIEW_COMMON_TEST_MODULE = 'Project Address Group Grid View - Common Tests';
+        this.PROJECT_SERVICE_GRP_GRID_VIEW_COMMON_TEST_MODULE = 'Project Service Group Grid View - Common Tests';
+        this.PROJECT_FW_POLICY_GRID_VIEW_COMMON_TEST_MODULE = 'Project Firewall Policy Grid View - Common Tests';
+        this.PROJECT_APS_GRID_VIEW_COMMON_TEST_MODULE = 'Project APS Grid View - Common Tests';
+        this.GLOBAL_ADDRESS_GRP_GRID_VIEW_COMMON_TEST_MODULE = 'Global Address Group Grid View - Common Tests';
+        this.GLOBAL_SERVICE_GRP_GRID_VIEW_COMMON_TEST_MODULE = 'Global Service Group Grid View - Common Tests';
+        this.GLOBAL_FW_POLICY_GRID_VIEW_COMMON_TEST_MODULE = 'Global Firewall Policy Grid View - Common Tests';
+        this.GLOBAL_APS_GRID_VIEW_COMMON_TEST_MODULE = 'Global APS Grid View - Common Tests';
         this.get = function () {
             var args = arguments;
             return args[0].replace(/\{(\d+)\}/g, function (m, n) {
