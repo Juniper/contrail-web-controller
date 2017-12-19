@@ -35,7 +35,12 @@ var svcInst =
     require('../../services/instances/api/serviceinstanceconfig.api');
 var fwPolicy =
     require('../../firewall/common/fwpolicy/api/fwpolicyconfig.api');
-var _ = require('lodash');
+var configObjs = require("../../../common/api/jsonDiff.helper");
+var jsonDiff = require(process.mainModule.exports["corePath"] +
+                       "/src/serverroot/common/jsondiff");
+var _ = require("lodash");
+var configUtils = require(process.mainModule.exports["corePath"] +
+                          "/src/serverroot/common/config.utils");
 
 var errorData = [];
 var configCBDelete = 
@@ -62,12 +67,10 @@ var configCBCreateEdit =
 {
     'post' :
         {
-            'virtual-network': vnConfig.createVirtualNetworkCB,
             'virtual-machine-interface':portsConfig.createPortCB
         },
     'put'  :
         {
-            'virtual-network': vnConfig.updateVirtualNetworkCB,
             'virtual-machine-interface': portsConfig.updatePortsCB
         }
 };
@@ -648,26 +651,558 @@ function getUUIDByFQN (fqnAppObj, callback) {
 }
 
 
-function createOrUpdateConfigObjectCB (dataObjArr, callback)
+function getBackReferStrByChildName (childName, childObjs)
 {
-    var reqUrl = dataObjArr['reqUrl'];
-    var appData = dataObjArr['appData'];
-    var data = dataObjArr['data'];
-    var type = dataObjArr['type'];
-    var objType = dataObjArr['objType'];
-    var createEditHandler = getConfigCreateEditCallbackByType(type, objType);
-    if(null === createEditHandler) {
-        if (global.HTTP_REQUEST_PUT == type) {
-            configApiServer.apiPut(reqUrl, data, appData, function(error, data) {
-                callback(error, data);
+    var str = "";
+    /* Child Name with "s" */
+    childName = childName.substring(0, childName.length - 1);
+    var refs = _.result(childObjs, childName + ".references", []);
+    refs = refs.map(function(refName) {
+        return (refName + "_back_refs");
+    });
+    return refs.join(",");
+}
+
+function getReferencesByChildName (childName, childObjs)
+{
+    childName = childName.substring(0, childName.length - 1);
+    return _.result(childObjs, childName + ".references", []);
+}
+
+function filterChildrenData (dataObj, callback)
+{
+    var data = dataObj.data;
+    var resType = dataObj.parentType;
+    var appData = dataObj.appData;
+    var doLookup = dataObj.doLookup;
+    logutils.logger.info("Trying to filter data with Parent " + resType +
+                         " for data " + JSON.stringify(data));
+    var origData = commonUtils.cloneObj(data);
+    var configObj = configObjs.configJsonModifyObj;
+    var configObjByType = configObj[resType];
+    var childrenData = {};
+    if (null == configObjByType) {
+        return callback(null, {origData: data, filteredData: data});
+    }
+    var children = configObjByType.children;
+    if (null == children) {
+        return callback(null, {origData: data, filteredData: data});
+    }
+    var dataObjArr = [];
+    for (var childName in children) {
+        /* Please note UI sends with "s" along with child object name,
+           ex: floating_ip_pools where in UI schema we have floating_ip_pool,
+           so add "s" to map to UI data
+         */
+        var arrDiffName = childName.replace(/_/g, "-");
+        var arrDiffEntry = configObj.arrayDiff[arrDiffName];
+        if (null != arrDiffEntry) {
+            children[childName] =
+                configUtils.mergeObjects(children[childName], arrDiffEntry);
+        }
+        logutils.logger.info("childName as:" + childName);
+        childName = childName + "s";
+        if (null != data[resType][childName]) {
+            childrenData[childName] =
+                commonUtils.cloneObj(data[resType][childName]);
+            var cnt = childrenData[childName].length;
+            var uuidList = [];
+            for (var i = 0; i < cnt; i++) {
+                var uuid = childrenData[childName][i].uuid;
+                if (null == uuid) {
+                    continue;
+                }
+                uuidList.push(uuid);
+            }
+            var uuidCnt = uuidList.length;
+            if ((uuidCnt > 0) && (true == doLookup)) {
+                var backRefsStr = getBackReferStrByChildName(childName, children);
+                logutils.logger.info("getting backRefsStr as:" + backRefsStr +
+                                     " for child " + childName +
+                                     " with children " + children);
+                if ((null != backRefsStr) && (backRefsStr.length > 0)) {
+                    var chunk = 200;
+                    for (var j = 0, k = uuidCnt; j < k; j += chunk) {
+                        var tempArray = uuidList.slice(j, j + chunk);
+                        var reqUrl = "/" + arrDiffName + "s?detail=true&fields=" +
+                            backRefsStr + "&obj_uuids=" + tempArray.join(",");
+                        logutils.logger.info("Getting back_ref reqUrl as:" + reqUrl);
+                        commonUtils.createReqObj(dataObjArr, reqUrl, null, null, null, null,
+                                                 appData);
+                    }
+                }
+            }
+            delete data[resType][childName];
+        }
+    }
+    var returnObj =
+        {filteredData: data, childrenData: childrenData, origData: origData,
+         childObjs: children};
+
+    if (!dataObjArr.length) {
+        callback(null, returnObj);
+        return;
+    }
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer, true),
+              function(error, configData) {
+        /* Now attach the project details with floating-ip-pools */
+        updateReferencesToConfigChildren(childrenData, configData, children);
+        logutils.logger.info("Updated childrenData as:" +
+                    JSON.stringify(childrenData));
+        returnObj.childrenData = childrenData;
+        callback(error, returnObj);
+    });
+}
+
+function createChildEntry (refsDataObj, callback)
+{
+    logutils.logger.info("Creating child entry for " + refsDataObj.uiChildName);
+    var dataObjArr = [];
+    buildChildPostData(refsDataObj.parentType, dataObjArr,
+                       refsDataObj.uiChildName,
+                       [refsDataObj.childDataPerType], refsDataObj.appData);
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer, true),
+              function(error, data) {
+        callback(error, {configData: data[0], refsDataObj: refsDataObj});
+    });
+}
+
+function attachRefs (dataObj, callback)
+{
+    var configData = dataObj.configData;
+    var refsDataObj = dataObj.refsDataObj;
+    var uiChildName = refsDataObj.uiChildName.replace(/_/g, "-");
+    var childUUID = _.result(configData, uiChildName + ".uuid", null);
+    var childFqn = _.result(configData, uiChildName + ".fq_name", []);
+    var childDataPerType = refsDataObj.childDataPerType;
+    var refs = refsDataObj.refs;
+    var appData = refsDataObj.appData;
+    var refsCnt = refs.length;
+    var reqUrl = "/ref-update";
+    var dataObjArr = [];
+
+    for (var i = 0; i < refsCnt; i++) {
+        var refObjName = refs[i] + "s";
+        if (null != childDataPerType[refObjName]) {
+            var refsList = childDataPerType[refObjName];
+            var refsListLen = refsList.length;
+            for (var j = 0; j < refsListLen; j++) {
+                var postData = {
+                    "type": refs[i],
+                    "uuid": refsList[j].uuid,
+                    "ref-type": uiChildName,
+                    "ref-uuid": childUUID,
+                    "ref-fq-name": childFqn,
+                    "operation": "ADD",
+                    "attr": (null != refsList[j].attr) ? refsList[j].attr : null
+                };
+                commonUtils.createReqObj(dataObjArr, reqUrl,
+                                         global.HTTP_REQUEST_POST, postData,
+                                         null, null, appData);
+                logutils.logger.info("Getting Refs postData as:" + postData);
+            }
+        }
+    }
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer, true),
+              function(error, data) {
+        callback(error, data);
+    });
+}
+
+function createAndUpdateChildWithRefs (refsDataObj, callback)
+{
+    async.waterfall([
+        async.apply(createChildEntry, refsDataObj),
+        attachRefs
+    ],
+    function(error, data) {
+        callback(error, data);
+    });
+}
+
+function buildChildPostData (parentType, dataObjArr, childName, childDataPerType, appData)
+{
+    var childDataPerTypeCnt = childDataPerType.length;
+    var configChildName = childName.replace(/_/g, "-");
+    for (var i = 0; i < childDataPerTypeCnt; i++) {
+        var postData = {}
+        var childURL = "/" + configChildName + "s";
+        postData[configChildName] = childDataPerType[i];
+        if ("to" in postData[configChildName]) {
+            postData[configChildName].fq_name = postData[configChildName].to;
+            delete postData[configChildName].to;
+            postData[configChildName].parent_type = parentType;
+        }
+        commonUtils.createReqObj(dataObjArr, childURL, global.HTTP_REQUEST_POST,
+                                 postData, null, null, appData);
+        logutils.logger.info("getting childURL as:" + childURL +
+                             " with post data as " + JSON.stringify(postData));
+    }
+}
+
+function createDeleteRefsObjs (dataObjArr, childName, refName, refs, childData,
+                               appData)
+{
+    var uiChildName = childName.replace(/_/g, "-");
+    uiChildName = uiChildName.substring(0, uiChildName.length - 1);
+    var refsCnt = refs.length;
+    var reqUrl = "/ref-update";
+    for (var i = 0; i < refsCnt; i++) {
+        var postData = {
+            "type": refName,
+            "uuid": refs[i],
+            "ref-type": uiChildName,
+            "ref-uuid": childData.uuid,
+            "ref-fq-name": childData.to,
+            "operation": "DELETE",
+            "attr": (null != refs[i].attr) ? refs[i].attr : null
+        };
+        commonUtils.createReqObj(dataObjArr, reqUrl,
+                                 global.HTTP_REQUEST_POST, postData,
+                                 null, null, appData);
+        logutils.logger.info("Getting Child DEL Post Data as:" + JSON.stringify(postData));
+    }
+}
+
+function deleteReferences (data, callback)
+{
+    var parentType = data.parentType;
+    var dataObj = data.dataObj;
+    var appData = data.appData;
+    var childrenData = dataObj.childrenData;
+    var dataObjArr = [];
+    var childObjs = dataObj.childObjs;
+
+    for (var key in childrenData) {
+        var len = childrenData[key].length;
+        var refs = getReferencesByChildName(key, childObjs);
+        var refsLen = refs.length;
+        for (var i = 0; i < len; i++) {
+            for (var j = 0; j < refsLen; j++) {
+                var refsKey = refs[j] + "s";
+                if (null != childrenData[key][i][refsKey]) {
+                    createDeleteRefsObjs(dataObjArr, key, refs[j],
+                                         childrenData[key][i][refsKey],
+                                         childrenData[key][i], appData);
+                }
+            }
+        }
+    }
+    if (!dataObjArr.length) {
+        callback(null, data);
+        return;
+    }
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer,
+                                                     true),
+              function(error, configDelData) {
+        callback(error, data);
+    });
+}
+
+function deleteChildrenFromParent (data, callback)
+{
+    /* Just delete the children now */
+    var dataObj = data.dataObj;
+    var appData = data.appData;
+    logutils.logger.info("deleteChildren Data AS:" + JSON.stringify(dataObj));
+    var childrenData = dataObj.childrenData;
+    var dataObjArr = [];
+    for (var key in childrenData) {
+        var uiChildName = key.substring(0, key.length - 1);
+        uiChildName = uiChildName.replace(/_/g, "-");
+        var children = childrenData[key];
+        var len = children.length;
+        for (var i = 0; i < len; i++) {
+            var reqUrl = "/" + uiChildName + "/" + children[i].uuid;
+            commonUtils.createReqObj(dataObjArr, reqUrl,
+                                     global.HTTP_REQUEST_DEL,
+                                     null, null, null, appData);
+            logutils.logger.info("DEL from Parent reqUrl as:" + reqUrl);
+        }
+    }
+    if (!dataObjArr.length) {
+        callback(null, data);
+        return;
+    }
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer,
+                                                     true),
+              function(error, delData) {
+        callback(error, data);
+    });
+}
+
+function deleteChildren (data, callback)
+{
+    async.waterfall([
+        async.apply(deleteReferences, data),
+        deleteChildrenFromParent
+    ],
+    function(error, data) {
+        callback(error, data);
+    });
+}
+
+function createChildren (data, callback)
+{
+    var parentType = data.parentType;
+    var dataObj = data.dataObj;
+    var appData = data.appData;
+    logutils.logger.info("createChildren Data AS:" + JSON.stringify(dataObj));
+    var data = dataObj.origData;
+    var childrenData = dataObj.childrenData;
+    var dataObjArr = [];
+    var configChildObjs = dataObj.childObjs;
+    var refsDataObjArr = [];
+
+    /* Top level key in each element in childrenData is child name */
+    for (var childName in childrenData) {
+        /* childName contains "s" at end, but UI schema does not */
+        var uiChildName = childName.substring(0, childName.length - 1);
+        var childDataPerType = childrenData[childName];
+        var refs = _.result(configChildObjs[uiChildName],  "references", []);
+        logutils.logger.info("Getting refs as:" + refs + " with childObjs as " +
+                             configChildObjs + " for child " + childName);
+        if ((refs.length > 0) && (childDataPerType.length > 0)) {
+            var childDataPerTypeCnt = childDataPerType.length;
+            for (var j = 0; j < childDataPerTypeCnt; j++) {
+                refsDataObjArr.push({uiChildName: uiChildName,
+                                    childName: childName,
+                                    childDataPerType: childDataPerType[j],
+                                    parentType: parentType,
+                                    refs: refs, appData: appData});
+                logutils.logger.info("Pushing to refsDataObjArr:" +
+                                     childDataPerType[j]);
+            }
+            continue;
+        }
+        var childDataPerTypeCnt = childDataPerType.length;
+        buildChildPostData(parentType, dataObjArr, uiChildName, childDataPerType, appData);
+    }
+    async.parallel([
+        function(CB) {
+            async.map(dataObjArr,
+                      commonUtils.getServerResponseByRestApi(configApiServer,
+                                                             true),
+                      function(error, data) {
+                CB(error, data);
             });
-        } else {
-            configApiServer.apiPost(reqUrl, data, appData, function(error, data) {
-                callback(error, data);
+        },
+        function(CB) {
+            if (refsDataObjArr.length > 0) {
+                async.map(refsDataObjArr, createAndUpdateChildWithRefs,
+                          function(error, data) {
+                    CB(error, data);
+                });
+                return;
+            }
+            CB(null);
+        }
+    ],
+    function(error, results) {
+        callback(error, results);
+    });
+}
+
+function updateBackReferences (dataObj, callback)
+{
+    var filteredUIData = dataObj.filteredUIData;
+    var filteredConfigData = dataObj.filteredConfigData;
+    var appData = dataObj.appData;
+    var uiOrigData = filteredUIData.origData;
+    var configOrigData = filteredConfigData.origData;
+    var parentType = _.keys(uiOrigData)[0];
+
+    var newUIOrigData = commonUtils.cloneObj(uiOrigData[parentType]);
+    var newConfigOrigData = commonUtils.cloneObj(configOrigData[parentType]);
+    var deltas = {addedObjs: {}, deletedObjs: {}};
+    buildDeltasByOrigData(deltas, newUIOrigData, newConfigOrigData);
+    /* Now traverse configOrigData to see if anything needs to be deleted */
+    buildDeltasByOrigData(deltas, newConfigOrigData, newUIOrigData);
+    logutils.logger.info("Getting back_refs deltas as:" + JSON.stringify(deltas));
+    var addedObjs = deltas.addedObjs;
+    var deletedObjs = deltas.deletedObjs;
+    /* From the original uidata first delete all the back_refs */
+    var backRefStr = "_back_refs";
+    var backRefStrLen = backRefStr.length;
+    for (var key in uiOrigData[parentType]) {
+        if (backRefStr == key.substr(key.length - backRefStrLen, backRefStrLen)) {
+            delete uiOrigData[parentType][key];
+        }
+    }
+    newUIOrigData = commonUtils.cloneObj(uiOrigData);
+    for (var key in addedObjs) {
+        uiOrigData[parentType][key] = addedObjs[key];
+    }
+    for (var key in deletedObjs) {
+        newUIOrigData[parentType][key] = deletedObjs[key];
+    }
+    var updateData = {parentType: parentType, appData: appData,
+                   configData: configOrigData};
+    async.series([
+        function(CB) {
+            updateData.op = "DELETE";
+            updateData.data = {origData: newUIOrigData};
+            createOrDeleteBackReferences(updateData, function(error, data) {
+                CB(error, data);
+            });
+        },
+        function(CB) {
+            updateData.op = "ADD";
+            updateData.data = {origData: uiOrigData};
+            createOrDeleteBackReferences(updateData, function(error, data) {
+                CB(error, data);
             });
         }
-    } else {
-        createEditHandler(dataObjArr, callback);
+    ],
+    function(error, data) {
+        callback(error, dataObj);
+    })
+}
+
+function buildDeltasByOrigData (deltas, newOrigData, oldOrigData)
+{
+    var backRefStr = "_back_refs";
+    var backRefStrLen = backRefStr.length;
+    for (var key in newOrigData) {
+        if (backRefStr == key.substr(key.length - backRefStrLen, backRefStrLen)) {
+            var refName = key.substr(0, key.length - backRefStrLen);
+            refName = refName.replace(/_/g, "-");
+            var configBackRefsData = _.result(oldOrigData, key, []);
+            var delta = jsonDiff.getConfigArrayDelta(key, configBackRefsData,
+                                                     newOrigData[key]);
+            if (null != delta) {
+                if (delta.addedList.length > 0) {
+                    deltas.addedObjs[key] = delta.addedList;
+                }
+                if (delta.deletedList.length > 0) {
+                    deltas.deletedObjs[key] = delta.deletedList;
+                }
+            }
+        }
+        delete newOrigData[key];
+        delete oldOrigData[key];
+    }
+}
+
+function createOrDeleteBackReferences (dataObj, callback)
+{
+    var parentType = dataObj.parentType;
+    var data = dataObj.data;
+    var appData = dataObj.appData;
+    var op = dataObj.op;
+    var configData = dataObj.configData;
+    var reqUrl = "/ref-update";
+    var dataObjArr = [];
+
+    var origData = data.origData[parentType];
+    var backRefStr = "_back_refs";
+    var backRefStrLen = backRefStr.length;
+    for (var key in origData) {
+        if (backRefStr == key.substr(key.length - backRefStrLen, backRefStrLen)) {
+            var refName = key.substr(0, key.length - backRefStrLen);
+            refName = refName.replace(/_/g, "-");
+            var cnt = origData[key].length;
+            for (var i = 0; i < cnt; i++) {
+                var postData = {
+                    "type": refName,
+                    "uuid": origData[key][i].uuid,
+                    "ref-type": parentType,
+                    "ref-uuid": (null == origData.uuid) ? origData.uuid :
+                        configData[parentType].uuid,
+                    "ref-fq-name": origData.fq_name,
+                    "operation": op,
+                    "attr": (null != origData[key][i].attr) ?
+                        origData[key][i].attr : null
+                };
+                commonUtils.createReqObj(dataObjArr, reqUrl,
+                                         global.HTTP_REQUEST_POST, postData,
+                                         null, null, appData);
+                logutils.logger.info("Pushing back_refs post data for " +
+                                     refName + " with ref-type " + parentType +
+                                     " data as" + JSON.stringify(postData));
+            }
+        }
+    }
+    if (!dataObjArr.length) {
+        callback(null, null);
+        return;
+    };
+    logutils.logger.info("Updating back refs with op " + op + " for data");
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer, true),
+              function(error, data) {
+        callback(null, null);
+    });
+}
+
+function createConfigObjectCB (data, appData, callback)
+{
+    /* Find the reqUrl from first key in data */
+    var resType = _.keys(data)[0];
+    var reqUrl = "/" + resType + "s";
+    /* Filter out all children */
+    var dataObj = {data: data, parentType: resType, appData: appData,
+                   doLookup: false};
+    filterChildrenData(dataObj, function(error, data) {
+        configApiServer.apiPost(reqUrl, data.filteredData, appData,
+                                function(error, configData) {
+            if ((null != error) || (null == configData)) {
+                callback(error, configData);
+                return;
+            }
+            var configObj = configObjs.configJsonModifyObj;
+            var configObjByType = configObj[resType];
+            if (null == configObjByType) {
+                callback(null, configData);
+                return;
+            }
+            /* Now create all the children */
+            async.parallel([
+                function(CB) {
+                    createChildren({parentType: resType, dataObj: data,
+                                    appData: appData}, function(error, data) {
+                        CB(error, data);
+                    });
+                },
+                function(CB) {
+                    createOrDeleteBackReferences({appData: appData, op: "ADD",
+                                          data: data, configData: configData,
+                                          parentType: resType},
+                                          function(error, data) {
+                        CB(error, data);
+                    });
+                }
+            ],
+            function(error, data) {
+                callback(error, {configData: configData, otherData: data});
+            });
+        });
+    });
+}
+
+function buildSetTagMaps (mapObj, data, objType)
+{
+    if (null == mapObj) {
+        mapObj = {};
+    }
+    if (null == data) {
+        return;
+    }
+    if (null == objType) {
+        objType = _.keys(data)[0];
+    }
+    var tagRefs = _.get(data, [objType, "tag_refs"], []);
+    if (tagRefs.length) {
+        var uuid = _.get(data, [objType, "uuid"], null);
+        var fqName = _.get(data, [objType, "fq_name"], []).join(":");
+        partialKey = (null != uuid) ? uuid : fqName;
+        mapObj[objType + ';'+ partialKey] = tagRefs;
+        delete data[objType].tag_refs;
     }
 }
 
@@ -679,9 +1214,9 @@ function createConfigObject (req, res, appData)
         commonUtils.handleJSONResponse(error, res, null);
         return;
     }
-    createOrUpdateConfigObject(req, global.HTTP_REQUEST_POST,
-                               appData, function(error, results) {
-        commonUtils.handleJSONResponse(error, res, results);
+    doCreateOrUpdateConfigObject(global.HTTP_REQUEST_POST, body, appData,
+                                 function(error, result) {
+        commonUtils.handleJSONResponse(error, res, result);
     });
 }
 
@@ -693,13 +1228,364 @@ function updateConfigObject (req, res, appData)
         commonUtils.handleJSONResponse(error, res, null);
         return;
     }
-    createOrUpdateConfigObject(req, global.HTTP_REQUEST_PUT,
-                               appData, function(error, results) {
+    doCreateOrUpdateConfigObject(global.HTTP_REQUEST_PUT, body, appData,
+                                 function(error, result) {
+        commonUtils.handleJSONResponse(error, res, result);
+    });
+}
+
+function doCreateOrUpdateConfigObject (type, body, appData, callback)
+{
+    var setTagsMap = {};
+    var objType = _.keys(body)[0];
+    var dataObj = {appData: appData, data: body, type: type,
+        objType: objType};
+    createOrUpdateConfigObject(dataObj, function(error, result) {
+        if (null != error) {
+            callback(error, result);
+            return;
+        }
+        /* Set Tags */
+        buildSetTagMaps(setTagsMap, body);
+        setTags(setTagsMap, [result.configData], appData,
+                function(error, result) {
+            callback(error, result);
+            return;
+        });
+    });
+}
+
+function attachReferencesToChild (childData, refNames, configData)
+{
+    var refNamesCnt = refNames.length;
+    for (var i = 0; i < refNamesCnt; i++) {
+        var backRefKey = refNames[i] + "_back_refs";
+        if (null == configData[backRefKey]) {
+            continue;
+        }
+        var backRefsCnt = configData[backRefKey].length;
+        for (var j = 0; j < backRefsCnt; j++) {
+            var uuid = configData[backRefKey][j].uuid;
+            var refKey = refNames[i] + "s";
+            if (null == childData[refKey]) {
+                childData[refKey] = [];
+            }
+            childData[refKey].push(uuid);
+        }
+    }
+    logutils.logger.info("Attched childData as:" + JSON.stringify(childData));
+}
+
+function updateReferencesToConfigChildren (childrenData, configRefData,
+                                           childObjs)
+{
+    var refs = {};
+    var len = configRefData.length;
+    for (var i = 0; i < len; i++) {
+        for (var key in configRefData[i]) {
+            var uiKey = key.replace(/-/g, "_");
+            if (null == refs[uiKey]) {
+                refs[uiKey] = [];
+            }
+            refs[uiKey] = refs[uiKey].concat(configRefData[i][key]);
+        }
+    }
+    logutils.logger.info("Getting refs as:" + JSON.stringify(refs));
+    var refObjs = {};
+    for (var uiKey in refs) {
+        refObjs[uiKey] = {};
+        var len = refs[uiKey].length;
+        for (var i = 0; i < len; i++) {
+            var resourceKey = uiKey.replace(/_/g, "-");
+            resourceKey = resourceKey.substring(0, resourceKey.length - 1);
+            var uuid = refs[uiKey][i][resourceKey].uuid;
+            refObjs[uiKey][uuid] = refs[uiKey][i][resourceKey];
+        }
+    }
+    logutils.logger.info("getting refObjs as:" + JSON.stringify(refObjs));
+    for (var key in childrenData) {
+        if (null != refs[key]) {
+            var childObjKey = key.substring(0, key.length - 1);
+            var configRefNames = _.result(childObjs, childObjKey +
+                                          ".references", []);
+            if (!configRefNames.length) {
+                /* Weired... we have refs, but we do not have in UI schema */
+                logutils.logger.error("Did not find the references in schema," +
+                                      " but we have data " + key);
+                continue;
+            }
+            var childPerKeyCnt = childrenData[key].length;
+            for (var i = 0; i < childPerKeyCnt; i++) {
+                var uuid = childrenData[key][i].uuid;
+                if (null == uuid) {
+                    /* Weired...we came here but do not have uuid */
+                    logutils.logger.error("UUID is null for key " + key +
+                                          " in child data");
+                    continue;
+                }
+                if (null == refObjs[key][uuid]) {
+                    logutils.logger.error("UUID not found in refObjs " + key +
+                                          " for child data");
+                    continue;
+                }
+                attachReferencesToChild(childrenData[key][i], configRefNames,
+                                        refObjs[key][uuid]);
+            }
+        }
+    }
+}
+
+function updateChildren (dataObj, callback)
+{
+    var deltas      = [];
+    var uiData      = dataObj.uiData;
+    var configData  = dataObj.configData;
+    var appData     = dataObj.appData;
+    var parentType  = dataObj.parentType;
+
+    var configObj       = configObjs.configJsonModifyObj;
+    var configObjByType = configObj[parentType];
+    if (null == configObjByType) {
+        logutils.logger.debug("We do not have " + parentType + " in UI Schema");
+        callback(null, {filteredUIData: {filteredData: uiData, origData: uiData},
+                 appData: appData});
+        return;
+    }
+    var uiDataObj = {data: uiData, parentType: parentType, appData: appData,
+                   doLookup: true};
+    var configDataObj = {data: configData, parentType: parentType, appData: appData,
+                   doLookup: true};
+    async.parallel([
+        function(CB) {
+            filterChildrenData(uiDataObj, function(error, data) {
+                CB(error, data);
+            });
+        },
+        function(CB) {
+            filterChildrenData(configDataObj, function(error, data) {
+                CB(error, data);
+            });
+        }
+    ],
+    function(error, data) {
+        var filteredUIData = data[0];
+        var filteredConfigData = data[1];
+        var dataObj = {
+            appData: appData,
+            filteredUIData: filteredUIData,
+            filteredConfigData: filteredConfigData,
+            parentType: parentType,
+            configData: configData
+        };
+        getUpdateChildDeltaAndUpdate(dataObj, callback);
+    });
+}
+
+function getUpdateChildDeltaAndUpdate (dataObj, callback)
+{
+    var deltas              = [];
+    var appData             = dataObj.appData;
+    var parentType          = dataObj.parentType;
+    var filteredUIData      = dataObj.filteredUIData;
+    var filteredConfigData  = dataObj.filteredConfigData;
+
+    logutils.logger.info("Getting filteredUIData as:" + JSON.stringify(filteredUIData));
+    var clonedUIChildData =
+        commonUtils.cloneObj(_.result(filteredUIData, "childrenData", []));
+    var clonedConfigChildData =
+        commonUtils.cloneObj(_.result(filteredConfigData, "childrenData", []));
+
+    for (var uiChildKey in clonedUIChildData) {
+        var arrDiffKey = uiChildKey.substring(0, uiChildKey.length - 1);
+        arrDiffKey = arrDiffKey.replace(/_/g, "-");
+        var childDelta =
+            jsonDiff.getConfigArrayDelta(arrDiffKey,
+                                         clonedConfigChildData[uiChildKey],
+                                         clonedUIChildData[uiChildKey]);
+        delete clonedUIChildData[uiChildKey];
+        delete clonedConfigChildData[uiChildKey];
+        if (null == childDelta) {
+            continue;
+        }
+        childDelta["uiChildName"] = uiChildKey;
+        deltas.push(childDelta);
+    }
+    for (var configChildKey in clonedConfigChildData) {
+        var arrDiffKey = configChildKey.substring(0, configChildKey.length - 1);
+        arrDiffKey = arrDiffKey.replace(/_/g, "-");
+        var childDelta =
+            jsonDiff.getConfigArrayDelta(arrDiffKey,
+                                         clonedConfigChildData[uiChildKey],
+                                         clonedUIChildData[uiChildKey]);
+        if (null == childDelta) {
+            continue;
+        }
+        childDelta["uiChildName"] = configChildKey;
+        deltas.push(childDelta);
+    }
+    logutils.logger.info("Getting Child deltas as:" + JSON.stringify(deltas));
+    updateChildrenCB(dataObj, deltas, callback);
+}
+
+function updateChildrenCB (dataObj, deltas, callback)
+{
+    var appData             = dataObj.appData;
+    var parentType          = dataObj.parentType;
+    var filteredUIData      = dataObj.filteredUIData;
+    var filteredConfigData  = dataObj.filteredConfigData;
+
+    var deltasCnt = deltas.length;
+    var allAddedObjs = {};
+    var allDeletedObjs = {};
+    for (var i = 0; i < deltasCnt; i++) {
+        var addedList = deltas[i].addedList;
+        var deletedList = deltas[i].deletedList;
+        var childName = deltas[i].uiChildName;
+        if (addedList.length > 0) {
+            allAddedObjs[childName] = addedList;
+        }
+        if (deletedList.length > 0) {
+            allDeletedObjs[childName] = deletedList;
+        }
+    }
+    /* All ADD happens WRT data from filteredUIData */
+    /* All DEL happens WRT data from filteredConfigData */
+    var filteredAddData = commonUtils.cloneObj(filteredUIData);
+    filteredAddData.childrenData = allAddedObjs;
+    var filteredDelData = commonUtils.cloneObj(filteredConfigData);
+    filteredDelData.childrenData = allDeletedObjs;
+    logutils.logger.info("Getting filteredAddData as:" + JSON.stringify(filteredAddData));
+    logutils.logger.info("Getting filteredDelData as:" + JSON.stringify(filteredDelData));
+    async.parallel([
+        function(CB) {
+            deleteChildren({parentType: parentType, dataObj: filteredDelData,
+                           appData: appData}, function(error, data) {
+                CB(error, data);
+            });
+        },
+        function(CB) {
+            createChildren({parentType: parentType, dataObj: filteredAddData,
+                           appData: appData}, function(error, data) {
+                CB(error, data);
+            });
+        }
+    ],
+    function(error, data) {
+        callback(error, {filteredUIData: filteredUIData,
+                 filteredConfigData: filteredConfigData, appData: appData,
+                 configData: dataObj.configData});
+    });
+}
+
+function updateResource (dataObj, callback)
+{
+    var filteredData = _.result(dataObj, "filteredUIData.filteredData", null);
+    if (null == filteredData) {
+        logutils.logger.error("updateResource error, filteredData is null");
+        /* We must not come here */
+        callback(null, null);
+        return;
+    }
+    logutils.logger.info("Getting filteredData in updateResource() " +
+                         JSON.stringify(filteredData));
+
+    var parentKey = _.keys(filteredData)[0];
+    var appData = _.result(dataObj, "appData", null);
+    var uuid = _.result(filteredData, parentKey + ".uuid", null);
+    var reqUrl = "/" + parentKey + "/" + uuid;
+    jsonDiff.getConfigDiffAndMakeCall(reqUrl, appData, filteredData,
+                                      function(error, data) {
+        callback(error, data);
+    });
+}
+
+function updateConfigObjectCB (body, appData, callback)
+{
+    var error;
+    /* Update the children first */
+    var resType = _.keys(body)[0];
+    var resUUID = _.result(body, resType + ".uuid", null);
+    if (null == resUUID) {
+        error = new appErrors.RESTServerError("UUID is not provided");
+        callback(error, null);
+        return;
+    }
+    var getReqURL = "/" + resType + "/" + resUUID;
+    configApiServer.apiGet(getReqURL, appData, function(error, configData) {
+        /* Now let us find the diff of child objects */
+        var dataObj =
+            {configData: configData, appData: appData, parentType: resType,
+             uiData: body};
+        async.waterfall([
+            async.apply(updateChildren, dataObj),
+            updateBackReferences,
+            updateResource
+        ],
+        function(error, data) {
+            callback(error, {configData: body, otherData: data});
+        });
+    });
+}
+
+function createOrUpdateConfigObject (dataObj, callback)
+{
+    var appData = dataObj.appData;
+    var body = dataObj.data;
+    var type = dataObj.type;
+    var objType = dataObj.objType;
+
+    var createEditHandler = getConfigCreateEditCallbackByType(type, objType);
+    if (null !== createEditHandler) {
+        createEditHandler(dataObj, function(error, data) {
+            callback(error, {configData: data});
+        });
+        return;
+    }
+    createOrUpdateConfigObjectCB(type, body, appData, callback);
+}
+
+function createOrUpdateConfigObjectCB (type, body, appData, callback)
+{
+    if (global.HTTP_REQUEST_PUT == type) {
+        updateConfigObjectCB(body, appData, function(error, data) {
+            callback(error, data);
+        });
+    } else {
+        createConfigObjectCB(body, appData, function(error, data) {
+            callback(error, data);
+        });
+    }
+}
+
+function createConfigObjects (req, res, appData)
+{
+    var body = req.body;
+    if (null === body) {
+        var error = new appErrors.RESTServerError('Invalid POST Data');
+        commonUtils.handleJSONResponse(error, res, null);
+        return;
+    }
+    createOrUpdateConfigObjects(req, global.HTTP_REQUEST_POST,
+                                appData, function(error, results) {
         commonUtils.handleJSONResponse(error, res, results);
     });
 }
 
-function createOrUpdateConfigObject (req, type, appData, callback)
+function updateConfigObjects (req, res, appData)
+{
+    var body = req.body;
+    if (null === body) {
+        var error = new appErrors.RESTServerError('Invalid POST Data');
+        commonUtils.handleJSONResponse(error, res, null);
+        return;
+    }
+    createOrUpdateConfigObjects(req, global.HTTP_REQUEST_PUT,
+                                appData, function(error, results) {
+        commonUtils.handleJSONResponse(error, res, results);
+    });
+}
+
+function createOrUpdateConfigObjects (req, type, appData, callback)
 {
     var dataObjArr = [];
     var body = req.body;
@@ -708,27 +1594,20 @@ function createOrUpdateConfigObject (req, type, appData, callback)
     var dataObjArr = [];
     var setTagsMap = {}, objType, tagRefs, fqName, uuid, partialKey;
     for (var i = 0; i < reqCnt; i++) {
+        var uiData = _.get(data, [i, "data"], null);
         dataObjArr[i] = {};
         dataObjArr[i]['type'] = type;
-        dataObjArr[i]['data'] = data[i]['data'];
+        dataObjArr[i]['data'] = uiData;
         dataObjArr[i]['request'] = req;
         dataObjArr[i]['appData'] = appData;
-        dataObjArr[i]['reqUrl'] = data[i]['reqUrl'];
         objType =  _.get(data, i + '.type', null);
         if(objType === null) {
             objType = _.keys(data[i]['data'])[0];
         }
         dataObjArr[i]['objType'] = objType;
-        tagRefs = _.get(data, [i, 'data', objType, 'tag_refs'], []);
-        if(tagRefs.length) {
-            uuid = _.get(data, [i, 'data', objType, 'uuid'], null);
-            fqName = _.get(data, [i, 'data', objType, 'fq_name'], []).join(':');
-            partialKey = uuid !== null ? uuid : fqName;
-            setTagsMap[objType + ';'+ partialKey] = tagRefs;
-            delete data[i]['data'][objType]['tag_refs'];
-        }
+        buildSetTagMaps(setTagsMap, uiData, objType);
     }
-    async.map(dataObjArr, createOrUpdateConfigObjectCB,
+    async.map(dataObjArr, createOrUpdateConfigObject,
               function(err, results) {
               if(err){
                   callback(err, null);
@@ -844,6 +1723,8 @@ exports.deleteMultiObject = deleteMultiObject;
 exports.getConfigDetails = getConfigDetails;
 exports.createConfigObject = createConfigObject;
 exports.updateConfigObject = updateConfigObject;
+exports.createConfigObjects = createConfigObjects;
+exports.updateConfigObjects = updateConfigObjects;
 exports.getConfigList = getConfigList;
 exports.getConfigObjects = getConfigObjects;
 exports.deleteMultiObjectCB = deleteMultiObjectCB;
