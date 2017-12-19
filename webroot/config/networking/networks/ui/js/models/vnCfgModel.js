@@ -819,9 +819,14 @@ define([
             var phyRouters = getValueByJsonPath(attr,
                         'physical_router_back_refs', '');
 
-            attr['physical-routers'] = phyRouters.length ?
-                phyRouters.split(cowc.DROPDOWN_VALUE_SEPARATOR) : [];
-            delete attr['physical_router_back_refs'];
+            var prList = phyRouters.split(cowc.DROPDOWN_VALUE_SEPARATOR);
+            var prListCnt = prList.length;
+            attr['physical_router_back_refs'] = [];
+            for (var i = 0; i < prListCnt; i++) {
+                if (prList[i].length > 0) {
+                    attr['physical_router_back_refs'].push({uuid: prList[i]});
+                }
+            }
         },
 
         getAdminState: function(attr) {
@@ -1199,7 +1204,6 @@ define([
                 delete newVNCfgData.user_created_import_route_targets;
                 delete newVNCfgData.user_created_sriov_enabled;
                 delete newVNCfgData.user_created_dns_servers;
-                delete newVNCfgData.physical_router_back_refs;
                 delete newVNCfgData.sVlanId;
                 delete newVNCfgData.disable;
                 delete newVNCfgData.user_created_vxlan_mode;
@@ -1209,13 +1213,14 @@ define([
 
                 var ajaxType       = contrail.checkIfExist(ajaxMethod) ?
                                                            ajaxMethod : "POST";
-                var postURL        = (isVCenter() ? '/vcenter' : '') +
-                                     '/api/tenants/config/virtual-networks';
-                var putURL         = '/api/tenants/config/virtual-network/' +
-                                     newVNCfgData['uuid'];
-                ajaxConfig.type    = ajaxType;
+                var postURL = "/api/tenants/config/create-config-object";
+                if (isVCenter()) {
+                    postURL = "/vcenter/api/tenants/config/virtual-networks";
+                }
+                var putURL         = '/api/tenants/config/update-config-object';
                 ajaxConfig.data    = JSON.stringify(postData);
                 ajaxConfig.url     = ajaxType == 'PUT' ? putURL : postURL;
+                ajaxConfig.type    = 'POST';
                 ajaxConfig.timeout = 300000;
 
 

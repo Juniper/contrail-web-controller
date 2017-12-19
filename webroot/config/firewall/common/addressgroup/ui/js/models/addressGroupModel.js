@@ -131,15 +131,11 @@ define([
 		                updatedModel.address_group_prefix.subnet = subnetList;
 		                this.updateRBACPermsAttrs(model);
 	                    updatedModel.tag_refs = model.tag_refs;
+                        var postData = {"address-group": updatedModel};
 		                if (options.mode == 'add') {
-		                	var postData = {"data":[{"data":{"address-group": updatedModel},
-		                                "reqUrl": "/address-groups"}]};
 		                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
 		                } else {
 		                	delete(updatedModel.name);
-		                	var postData = {"data":[{"data":{"address-group": updatedModel},
-		                                "reqUrl": "/address-group/" +
-		                                model.uuid}]};
 		                    ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
 		                }
 		                ajaxConfig.type  = 'POST';

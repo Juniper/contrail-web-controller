@@ -274,16 +274,10 @@ define([
                 delete newQOSConfigData.mpls_exp_entries_fc_pair;
 
 
+                postQOSConfigData = {"qos-config": newQOSConfigData};
                 if(mode === ctwl.CREATE_ACTION) {
-                    postQOSConfigData = {"data":[{"data":
-                                {"qos-config": newQOSConfigData},
-                                "reqUrl": "/qos-configs"}]};
                     ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 } else {
-                    postQOSConfigData = {"data":[{"data":
-                                {"qos-config": newQOSConfigData},
-                                "reqUrl": "/qos-config/"+
-                                newQOSConfigData['uuid']}]};
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 }
 

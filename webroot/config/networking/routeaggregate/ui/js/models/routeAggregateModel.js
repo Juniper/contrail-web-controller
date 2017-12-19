@@ -111,14 +111,11 @@ define([
 
                 postRouteAggregateData['route-aggregate'] = newRouteAggregateData;
 
+                postRouteAggregateData = {"route-aggregate":
+                    newRouteAggregateData};
                 if(ajaxMethod === "POST") {
-                    postRouteAggregateData = {"data":[{"data":{"route-aggregate": newRouteAggregateData},
-                                "reqUrl": ctwc.URL_CREATE_ROUTE_AGGREGATE}]};
                     ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 } else {
-                    postRouteAggregateData = {"data":[{"data":{"route-aggregate": newRouteAggregateData},
-                                "reqUrl": ctwc.URL_UPDATE_ROUTE_AGGREGATE +
-                                newRouteAggregateData['uuid']}]};
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 }
 
