@@ -54,6 +54,7 @@ define([
         this.URL_GET_LOADBALANCER_LIST = '/api/tenant/networking/get-loadbalancers-list?startAt={0}';
         this.URL_VM_VN_STATS = '/api/tenant/networking/stats';
         this.URL_VM_INTERFACES = '/api/tenant/networking/virtual-machine-interfaces/summary';
+        this.URL_VIRTUAL_MACHINE = '/api/tenant/networking/virtual-machine';
 
         this.URL_GET_GLOBAL_VROUTER_CONFIG = '/api/tenants/config/global-vrouter-config';
 

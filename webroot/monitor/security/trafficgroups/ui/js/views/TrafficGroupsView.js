@@ -9,9 +9,12 @@ define(
          'monitor/security/trafficgroups/ui/js/models/TrafficGroupsSettingsModel',
          'monitor/security/trafficgroups/ui/js/models/TrafficGroupsFilterModel',
          'monitor/security/trafficgroups/ui/js/views/TrafficGroupsHelpers',
+         'monitor/security/trafficgroups/ui/js/views/TrafficGroupsSubViews',
+         'monitor/security/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView',
          "core-basedir/js/views/ContainerSettingsView"],
         function(_, ContrailView, ContrailChartsView,
-                ContrailListModel, settingsView, settingsModel, filterModel, TgHelpersView, ContainerSettings) {
+                ContrailListModel, settingsView, settingsModel, filterModel,
+                TgHelpersView, TgSubViews, EPSTabsView, ContainerSettings) {
             var tgView,
                 tgHelpers = new TgHelpersView(),
                 TrafficGroupsView = ContrailView.extend({
@@ -54,54 +57,49 @@ define(
                     });
                 },
                 showLinkSessions: function(e, option) {
-                    require(['monitor/security/trafficgroups/ui/js/views/TrafficGroupsEPSTabsView'], function(EPSTabsView) {
-                        var srcNodeData = _.filter(tgView.selectedLinkData, function (val, idx){
-                            return _.result(val, 'data.type') == 'src';
-                            }),
-                            dstNodeData = _.filter(tgView.selectedLinkData, function (val, idx){
-                                return _.result(val, 'data.type') == 'dst';
-                            }),
-                            externalProject = dstNodeData[0].data.arcType,
-                            linkData = _.result(srcNodeData, '0.data', ''),
-                            srcId = tgHelpers.getFormatedName(
-                                _.result(srcNodeData, '0.data.currentNode.displayLabels'), tgView.tgSetObj),
-                            dstId = tgHelpers.getFormatedName(
-                                _.result(dstNodeData, '0.data.currentNode.displayLabels'), tgView.tgSetObj),
-                            curSession = _.find(linkData.dataChildren, function(session) {
-                            return tgHelpers.isRecordMatched(
-                                _.result(linkData, 'currentNode.names'), session, linkData, tgView.tgSetObj);
-                            }),
-                            tagData = tgHelpers.getTagsFromSession(curSession, '', externalProject, tgView.tgSetObj),
-                            linkData = {
-                                endpointNames: [srcId, dstId],
-                                endpointStats: [],
-                                tags: [tagData.endpoint1Data, tagData.endpoint2Data],
-                                breadcrumb: [['All'], [srcId, dstId]],
-                                where: [[], []],
-                                filter: tagData.filter,
-                                sliceByProject: tagData.sliceByProject,
-                                selectedEndpoint: 'endpoint1',
-                                sessionType: 'all',
-                                level : 1,
-                                external : tagData.external
-                            },
-                            epsTabsView = new EPSTabsView({
-                                el : $('#traffic-groups-radial-chart'),
-                                parentView : tgView,
-                                sessionData : linkData
-                            });
-                        if(option == 'policy') {
-                            epsTabsView.onPolicyClick(e);
-                        } else {
-                            epsTabsView.sessionDrilldown();
-                        }
-                    });
+                    var obj = {
+                       linkData : tgView.selectedLinkData,
+                       renderFn :  tgView.render.bind(tgView),
+                       tgSetObj : tgView.tgSetObj,
+                       option : option
+                    };
+                    if(option == 'policy') {
+                        var ele = $(e.currentTarget);
+                        obj.policyObj = {
+                            fqn: ele.attr('data-policyFQN'),
+                            name: ele.find('.ruleName').text(),
+                            uuid: ele.attr('data-ruleId')
+                        };
+                    }
+                    $('#traffic-groups-radial-chart').empty();
+                    var linkDDView = new TgSubViews.linkDrillDownView();
+                    linkDDView.render(obj);
                 },
-                getSessionData: function(childData, endpointData, d) {
+                showArcSessions: function(e, option) {
+                    var obj = {
+                       arcData : tgView.selectedArcData,
+                       renderFn :  tgView.render.bind(tgView),
+                       tgSetObj : tgView.tgSetObj,
+                       showOtherProjectTraffic: tgView.showOtherProjectTraffic,
+                       option : option
+                    };
+                    if(option == 'policy') {
+                        var ele = $(e.currentTarget);
+                        obj.policyObj = {
+                            fqn: ele.attr('data-policyFQN'),
+                            name: ele.find('.ruleName').text(),
+                            uuid: ele.attr('data-ruleId')
+                        };
+                    }
+                    $('#traffic-groups-radial-chart').empty();
+                    var arcDDView = new TgSubViews.arcDrillDownView();
+                    arcDDView.render(obj);
+                },
+                getSessionData: function(childData, namePath, data) {
                     var sessionData = _.chain(childData)
                     .filter(function (val, idx) {
-                        var namePath = _.result(endpointData, '0.data.currentNode.names');
-                        return tgHelpers.isRecordMatched(namePath, val, d.link[0].data, tgView.tgSetObj);
+                        //var namePath = _.result(endpointData, '0.data.currentNode.names');
+                        return tgHelpers.isRecordMatched(namePath, val, data, tgView.tgSetObj);
                     })
                     .groupBy("eps.__key")
                     .map(function (objs, key) {
@@ -137,78 +135,70 @@ define(
                     }).value();
                     return sessionData;
                 },
-                getCurrentSessionDetails: function(src, dst, id) {
-                    var srcSessionInfo = {
-                            'columns' : ['Sessions', 'Initiated', 'Responded'],
-                            'rows' : [{
-                                values: ['In Bytes:', formatBytes(_.result(src, id+'.0.session_initiated_in_bytes')), formatBytes(_.result(src, id+'.0.session_responded_in_bytes'))]
-                            },{
-                                values: ['Out Bytes:', formatBytes(_.result(src, id+'.0.session_initiated_out_bytes')), formatBytes(_.result(src, id+'.0.session_responded_out_bytes'))]
-                            },{
-                                values: ['MAX (Active):', _.result(src, id+'.0.session_initiated_max_active', '-'), _.result(src, id+'.0.session_responded_max_active', '-')]
-                            },{
-                                values: ['MIN (Active):', _.result(src, id+'.0.session_initiated_min_active', '-'), _.result(src, id+'.0.session_responded_min_active', '-')]
-                            },{
-                                values: ['Deleted:', _.result(src, id+'.0.session_initiated_deleted', '-'), _.result(src, id+'.0.session_responded_deleted', '-')]
-                            }]
-                        },
-                        dstSessionInfo = {
-                            'columns' : ['Sessions', 'Initiated', 'Responded'],
-                            'rows' : [{
-                                values: ['In Bytes:', formatBytes(_.result(dst, id+'.0.session_initiated_in_bytes')), formatBytes(_.result(dst, id+'.0.session_responded_in_bytes'))]
-                            },{
-                                values: ['Out Bytes:', formatBytes(_.result(dst, id+'.0.session_initiated_out_bytes')), formatBytes(_.result(dst, id+'.0.session_responded_out_bytes'))]
-                            },{
-                                values: ['MAX (Active):', _.result(dst, id+'.0.session_initiated_max_active', '-'), _.result(dst, id+'.0.session_responded_max_active', '-')]
-                            },{
-                                values: ['MIN (Active):', _.result(dst, id+'.0.session_initiated_min_active', '-'), _.result(dst, id+'.0.session_responded_min_active', '-')]
-                            },{
-                                values: ['Deleted:', _.result(dst, id+'.0.session_initiated_deleted', '-'), _.result(dst, id+'.0.session_responded_deleted', '-')]
-                            }]
-                        };
-                        return { srcSessionInfo, dstSessionInfo };
-                },
-                showLinkInfo: function(d,el,e,option) {
-                    var self = this,
-                        tooltipTemplate = contrail.getTemplate4Id(cowc.TOOLTIP_CUSTOM_TEMPLATE);
-                        ruleUUIDs = [], ruleKeys = [], level = 1;
-                    if (_.result(d, 'innerPoints.length') == 4)
-                        level = 2;
-                    var srcNodeData = _.filter(d.link, function (val, idx){
+                showLinkInfo: function(d,el,e, option) {
+                    tgView.selectedLinkData = d.link;
+                    var children = _.result(d.link, '0.data.dataChildren'),
+                        appList = [],
+                        matchedRuleUUIDs = [],
+                        srcNodeData = _.filter(d.link, function (val, idx){
                             return _.result(val, 'data.type') == 'src';
-                    });
-                    var dstNodeData = _.filter(d.link, function (val, idx){
+                        }),
+                        dstNodeData = _.filter(d.link, function (val, idx){
                             return _.result(val, 'data.type') == 'dst';
-                    });
-                    var srcId = tgHelpers.getFormatedName(
-                            _.result(srcNodeData, '0.data.currentNode.displayLabels'), tgView.tgSetObj),
-                        dstId = tgHelpers.getFormatedName(
-                            _.result(dstNodeData, '0.data.currentNode.displayLabels'), tgView.tgSetObj);
-                    self.selectedLinkData = d.link;
-                    var childData = _.result(d, 'link.0.data.dataChildren', []);
-                    var srcSessionObjArr = self.getSessionData(childData, srcNodeData, d);
-                    var dstSessionObjArr, dstSessionObj;
+                        }),
+                        srcId = tgHelpers.getFormatedName(_.result(srcNodeData,
+                            '0.data.currentNode.displayLabels'), tgView.tgSetObj),
+                        dstId = tgHelpers.getFormatedName(_.result(dstNodeData,
+                            '0.data.currentNode.displayLabels'), tgView.tgSetObj),
+                        namePath = _.result(srcNodeData, '0.data.currentNode.names'),
+                        childData = _.result(d, 'link.0.data.dataChildren', []),
+                        srcSessionObjArr = tgView.getSessionData(childData, namePath, d.link[0].data),
+                        dstSessionObjArr, dstSessionObj;
                     //If it is intralink no need to calculate endpoint2 sessions
                     if (srcId != dstId) {
-                        dstSessionObjArr = self.getSessionData(childData, dstNodeData, d);
+                        namePath = _.result(dstNodeData, '0.data.currentNode.names');
+                        dstSessionObjArr = tgView.getSessionData(childData, namePath, d.link[0].data);
                         dstSessionObj = _.groupBy(dstSessionObjArr, 'eps.__key');
                     }
                     var srcSessionObj = _.groupBy(srcSessionObjArr, 'eps.__key');
+
+                    // Matched Rules only
                     _.each(d.link, function(link) {
                         ruleKeys = _.uniq(_.map(link['data']['dataChildren'], 'eps.__key'));
                         $.each(ruleKeys, function (idx, key) {
                             if (key != null) {
                                 var uuid = key.split(':').pop();
-                                ruleUUIDs.push(uuid);
+                                matchedRuleUUIDs.push(uuid);
                             }
-                        });
+                         });
                     });
-                    ruleUUIDs = _.uniq(ruleUUIDs);
-                    if (ruleUUIDs.length > 0) {
+                    matchedRuleUUIDs = _.uniq(matchedRuleUUIDs);
+
+                    appList = _.map(children, 'app_fqn');
+                    appList.concat(_.map(children, 'eps.traffic.remote_app_id_fqn'));
+                    appList.push('all');
+                    appList = _.uniq(appList);
+                    var obj = {
+                        app: appList[0],
+                        d: d,
+                        appList: appList,
+                        srcId: srcId,
+                        dstId: dstId,
+                        srcSessionObj: srcSessionObj,
+                        dstSessionObj: dstSessionObj,
+                        option: 'linkInfo',
+                        matchedRuleUUIDs: matchedRuleUUIDs
+                    };
+                    tgView.showTGSidePanel(obj, option);
+                },
+                renderPolicyRuleDetails: function(resObj) {
+                    var ruleUUIDs = resObj.ruleUUIDs,
+                        policyContainer = $('.trafficGroups_sidePanel #tg_policy_rules');
+                     if (ruleUUIDs.length > 0) {
                         var listModelConfig = {
                             remote: {
                                 ajaxConfig: {
-                                    url: "/api/tenants/config/get-config-details",
+                                    url: ctwc.URL_GET_CONFIG_DETAILS,
                                     type: "POST",
                                     data: JSON.stringify(
                                         {data: [{type: 'firewall-rules',obj_uuids: ruleUUIDs, fields: ['firewall_policy_back_refs',
@@ -217,168 +207,128 @@ define(
                                 dataParser: function (data) {
                                     var defaultRuleUUIDs = _.keys(cowc.DEFAULT_FIREWALL_RULES);
                                         ruleDetails = _.result(data, '0.firewall-rules', []),
-                                        ruleMap = {}, formattedRuleDetails = [];
-                                    $.each(defaultRuleUUIDs, function (idx, uuid) {
-                                        if (ruleUUIDs.indexOf(uuid) > -1) {
-                                            var defaultRuleDetails = cowc.DEFAULT_FIREWALL_RULES[uuid],
-                                                sessionInfo = self.getCurrentSessionDetails(srcSessionObj, dstSessionObj, uuid);
-                                            formattedRuleDetails.push({
-                                                policy_name: _.result(defaultRuleDetails, 'name'),
-                                                rule_name: uuid,
-                                                srcId: srcId,
-                                                dstId: dstId,
-                                                rule_fqn: uuid,
-                                                srcTooltipContent: tooltipTemplate(sessionInfo.srcSessionInfo),
-                                                dstTooltipContent: tooltipTemplate(sessionInfo.dstSessionInfo),
-                                                implicitRule: 'implicitRuleStyle',
-                                                src_session_initiated: _.result(srcSessionObj, uuid+'.0.session_initiated', 0),
-                                                src_session_responded: _.result(srcSessionObj, uuid+'.0.session_responded', 0),
-                                                src_session_initiated_active: _.result(srcSessionObj, uuid+'.0.session_initiated_active', 0),
-                                                src_session_responded_active: _.result(srcSessionObj, uuid+'.0.session_responded_active', 0),
-                                                dst_session_initiated: _.result(dstSessionObj, uuid+'.0.session_initiated', 0),
-                                                dst_session_responded: _.result(dstSessionObj, uuid+'.0.session_responded', 0),
-                                                dst_session_initiated_active: _.result(dstSessionObj, uuid+'.0.session_initiated_active', 0),
-                                                dst_session_responded_active: _.result(dstSessionObj, uuid+'.0.session_responded_active', 0)
-                                            });
-                                        }
-                                    });
-                                    $.each(ruleDetails, function (idx, detailsObj) {
-                                        if (detailsObj['firewall-rule'] != null) {
-                                            var ruleDetailsObj = detailsObj['firewall-rule'],
-                                                ruleUUID = detailsObj['firewall-rule']['uuid'];
-                                            ruleMap[detailsObj['firewall-rule']['uuid']] = ruleDetailsObj;
-                                            var src = _.result(ruleDetailsObj, 'endpoint_1.tags', []);
-                                                srcType = '';
-                                                src = src.join(' && ')
-                                            if (src.length == 0) {
-                                                src = _.result(ruleDetailsObj, 'endpoint_1.address_group', '-');
-                                                srcType = 'address_group';
-                                            }
-                                            if (!src || src == '-') {
-                                                src = _.result(ruleDetailsObj, 'endpoint_1.any', '-');
-                                                if (src == true) {
-                                                    src = 'any';
-                                                }
-                                                srcType = ''
-                                            }
-                                            if (!src || src == '-') {
-                                                src = _.result(ruleDetailsObj, 'endpoint_1.virtual_network', '-');
-                                                srcType = 'virtual_network';
-                                            }
-                                            var dst = _.result(ruleDetailsObj, 'endpoint_2.tags', []),
-                                                dstType = '';
-                                                dst = dst.join(' && ');
-                                            if (!dst || dst.length == 0) {
-                                                dst = _.result(ruleDetailsObj, 'endpoint_2.address_group', '-');
-                                                dstType = 'address_group';
-                                            }
-                                            if (!dst || dst == '-') {
-                                                dst = _.result(ruleDetailsObj, 'endpoint_2.any', '-');
-                                                if (dst == true)
-                                                    dst = 'any';
-                                                dstType = ''
-                                            }
-                                            if (!dst || dst == '-') {
-                                                dst = _.result(ruleDetailsObj, 'endpoint_2.virtual_network', '-');
-                                                dstType = 'virtual_network';
-                                            }
-                                            if(!src || src == '-' || src.length == 0) {
-                                                srcType = '';
-                                                src = '-';
-                                            }
-                                            if(!dst || dst == '-' || dst.length == 0) {
-                                                dstType = '';
-                                                dst = '-';
-                                            }
-                                            var policy_name_arr = _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to', []),
-                                                service = _.result(ruleDetailsObj, 'service'),
-                                                service_group_refs = _.result(ruleDetailsObj, 'service_group_refs'),
-                                                serviceStr,
-                                                service_dst_port_obj = _.result(ruleDetailsObj, 'service.dst_ports'),
-                                                service_dst_port = '-',
-                                                service_protocol = _.result(ruleDetailsObj, 'service.protocol'),
-                                                policy_name = _.result(policy_name_arr.slice(-1), '0', '-'),
-                                                rule_name = _.result(ruleDetailsObj, 'display_name'),
-                                                rule_fqn =  _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to', []).join(':') + ':' + ruleUUID,
-                                                direction = cowu.deSanitize(_.result(ruleDetailsObj, 'direction'));
-                                            if (service_dst_port_obj != null && service_dst_port_obj['start_port'] != null &&
-                                                service_dst_port_obj['end_port'] != null) {
-                                                if (service_dst_port_obj['start_port'] == service_dst_port_obj['end_port']) {
-                                                    service_dst_port = service_dst_port_obj['start_port'];
-                                                } else {
-                                                    service_dst_port = contrail.format('{0}-{1}', service_dst_port_obj['start_port'], service_dst_port_obj['end_port']);
-                                                }
-                                                service_dst_port == '-1' ? 'any' : service_dst_port;
-                                                serviceStr = contrail.format('{0}: {1}', service_protocol, service_dst_port);
-                                            }
-                                            if (service_group_refs != null) {
-                                                serviceStr = _.result(service_group_refs, '0.to.1');
-                                            }
-                                            var simple_action = _.result(ruleDetailsObj, 'action_list.simple_action', '-');
-                                            if (simple_action == 'pass') {
-                                                simple_action = 'permit';
-                                            }
-                                            var sessionInfo = self.getCurrentSessionDetails(srcSessionObj, dstSessionObj, ruleUUID);
-                                            formattedRuleDetails.push({
-                                                policy_name: policy_name,
-                                                srcId: srcId,
-                                                rule_fqn: rule_fqn,
-                                                src_session_initiated: _.result(srcSessionObj, ruleUUID+'.0.session_initiated', 0),
-                                                src_session_responded: _.result(srcSessionObj, ruleUUID+'.0.session_responded', 0),
-                                                src_session_initiated_active: _.result(srcSessionObj, ruleUUID+'.0.session_initiated_active', 0),
-                                                src_session_responded_active: _.result(srcSessionObj, ruleUUID+'.0.session_responded_active', 0),
-                                                dstId: dstId,
-                                                srcTooltipContent: tooltipTemplate(sessionInfo.srcSessionInfo),
-                                                dstTooltipContent: tooltipTemplate(sessionInfo.dstSessionInfo),
-                                                dst_session_initiated: _.result(dstSessionObj, ruleUUID+'.0.session_initiated', 0),
-                                                dst_session_responded: _.result(dstSessionObj, ruleUUID+'.0.session_responded', 0),
-                                                dst_session_initiated_active: _.result(dstSessionObj, ruleUUID+'.0.session_initiated_active', 0),
-                                                dst_session_responded_active: _.result(dstSessionObj, ruleUUID+'.0.session_responded_active', 0),
-                                                rule_name: rule_name,
-                                                implicitRule: '',
-                                                simple_action: simple_action,
-                                                service: serviceStr,
-                                                direction: direction == '>' ? 'uni': 'bi',
-                                                srcType: srcType,
-                                                dstType: dstType,
-                                                src: src == '-' ? 'any' : src,
-                                                dst: dst == '-' ? 'any' : dst
-                                            });
-                                        }
-                                    });
-                                    TrafficGroupsView.ruleMap = ruleMap;
-                                    data.srcId = srcId;
-                                    data.dstId = dstId;
-                                    data.option = 'linkInfo';
-                                    data.policyRules = formattedRuleDetails;
-                                    if(!formattedRuleDetails.length) {
+                                        formattedRuleDetails = [];
+                                    resObj.ruleDetails = ruleDetails;
+                                    resObj.formattedRuleDetails = formattedRuleDetails;
+                                    resObj.ruleUUIDs = ruleUUIDs;
+                                    var fPolicyRuleObj =
+                                        tgHelpers.parseAndSortPolicyDetailObj(resObj);
+                                    TrafficGroupsView.ruleMap = fPolicyRuleObj.ruleMap;
+                                    data.policyRules = fPolicyRuleObj.formattedRuleDetails;
+                                    if(!data.policyRules.length) {
                                         data.rules = ruleUUIDs;
                                     }
-                                    self.showTGSidePanel(data, d, option);
-                                    $('.allSessionInfo').on('click', self.showSessionsInfo);
-                                    $('.trafficGroups_sidePanel .showMoreInfo')
-                                        .data("toggle", "tooltip").tooltip({
-                                        html: 'true'
-                                    });
-                                    $('.policyRules .policyName')
-                                      .off('click.policyDrilldown');
-                                    $('.policyRules .policyName').on('click.policyDrilldown', function(e) {
-                                        e.preventDefault();
-                                        self.showLinkSessions(e, 'policy');
-                                    });
+                                    var ruleTemplate = contrail.getTemplate4Id('tg-policy-rule-template');
+                                    policyContainer.html(ruleTemplate(data));
+                                    tgView.policyRenderComplete(resObj, policyContainer);
                                     return ruleDetails;
                                 }
                             }
                         }
                         var ruleDetailsModel = new ContrailListModel(listModelConfig);
+                    } else {
+                        policyContainer.html('No policy details found.');
+                        tgView.policyRenderComplete(resObj, policyContainer);
                     }
                 },
-                showTGSidePanel: function(data, d, option, updateData) {
-                    this.selectedLink = data.title;
-                    var self = this,
-                        ruleDetailsTemplate = contrail.getTemplate4Id('traffic-rule-template');
-                    $('#traffic-groups-link-info').html(ruleDetailsTemplate(data));
-                    if(!updateData) {
+                renderMatchedRuleDetails: function(resObj) {
+                    var resObj = $.extend({}, resObj)
+                    resObj.showImplicitRules = true;
+                    resObj.showSessionData = true;
+                    var ruleUUIDs = resObj.matchedRuleUUIDs,
+                        policyContainer = $('.trafficGroups_sidePanel #tg_matched_rules');
+                     if (ruleUUIDs.length > 0) {
+                        var listModelConfig = {
+                            remote: {
+                                ajaxConfig: {
+                                    url: ctwc.URL_GET_CONFIG_DETAILS,
+                                    type: "POST",
+                                    data: JSON.stringify(
+                                        {data: [{type: 'firewall-rules',obj_uuids: ruleUUIDs, fields: ['firewall_policy_back_refs',
+                                         'service', 'service_group_refs']}]})
+                                },
+                                dataParser: function (data) {
+                                    var defaultRuleUUIDs = _.keys(cowc.DEFAULT_FIREWALL_RULES);
+                                        ruleDetails = _.result(data, '0.firewall-rules', []),
+                                        formattedRuleDetails = [];
+                                    resObj.ruleDetails = ruleDetails;
+                                    resObj.formattedRuleDetails = formattedRuleDetails;
+                                    resObj.ruleUUIDs = ruleUUIDs;
+                                    var fPolicyRuleObj =
+                                        tgHelpers.parseAndSortPolicyDetailObj(resObj);
+                                    TrafficGroupsView.ruleMap = fPolicyRuleObj.ruleMap;
+                                    data.policyRules = fPolicyRuleObj.formattedRuleDetails;
+                                    if(!data.policyRules.length) {
+                                        data.rules = ruleUUIDs;
+                                    }
+                                    var ruleTemplate = contrail.getTemplate4Id('tg-policy-rule-template');
+                                    policyContainer.html(ruleTemplate(data));
+                                    tgView.policyRenderComplete(resObj, policyContainer, true);
+                                    return ruleDetails;
+                                }
+                            }
+                        }
+                        var ruleDetailsModel = new ContrailListModel(listModelConfig);
+                    } else {
+                        policyContainer.html('No matched rules found.');
+                        tgView.policyRenderComplete(resObj, policyContainer);
+                    }
+                },
+                policyRenderComplete: function(obj, selector, policyClick) {
+                    $('.trafficGroups_sidePanel .showMoreInfo')
+                        .data("toggle", "tooltip").tooltip({
+                        html: 'true'
+                    });
+                    if(!obj.data) {
+                        $('.allSessionInfo').on('click', tgView.showSessionsInfo);
+                    }
+                    if(selector && policyClick) {
+                        selector.find('.policyRules .policyName')
+                          .off('click.policyDrilldown');
+                        selector.find('.policyName').on('click.policyDrilldown',
+                          function(e) {
+                            e.preventDefault();
+                            if(obj.data) {
+                                tgView.showArcSessions(e, 'policy');
+                            } else {
+                                tgView.showLinkSessions(e, 'policy');
+                            }
+                        });
+                    }
+                },
+                renderAppDropdown: function(resObj) {
+                    var appList = [];
+                    _.each(resObj.appList, function(app) {
+                        var appName = app.indexOf('=') > -1 ? app.split('=')[1] :
+                                    (app == 'all') ? 'All Apps' : app;
+                        appList.push({
+                            'id': app,
+                            'text': appName
+                        });
+                    });
+                    $('#tg_app_select').prev().removeClass('hidden');
+                    $('#tg_app_select').select2({
+                        dataTextField:"text",
+                        dataValueField:"id",
+                        dropdownAutoWidth: true,
+                        width: 'auto',
+                        dropdownCssClass: 'tg_app_select',
+                        data: appList
+                    }).on("change",function(appObj) {
+                        resObj.app = appObj.added.id,
+                        resObj.callback = tgView.renderPolicyRuleDetails;
+                        tgHelpers.getPolicyInfoByApp(resObj);
+                    });
+                    $("#tg_app_select").select2("val", appList[0].id);
+                },
+                showTGSidePanel: function(resObj, option) {
+                    if(resObj.data)
+                    this.selectedLink = resObj.data.title;
+                    var self = tgView,
+                        tmplData =  resObj.data ? resObj.data : resObj,
+                        sidePanelTemplate = contrail.getTemplate4Id('tg-sidepanel-template');
+                    $('#traffic-groups-link-info').html(sidePanelTemplate(tmplData));
+                    if(!resObj.updateData) {
                         $('#traffic-groups-link-info').removeClass('hidden')
                         _.each(self.chartInfo.component.ribbons, function (ribbon) {
                            ribbon.selected = false;
@@ -388,8 +338,8 @@ define(
                            arc.selected = false;
                            arc.active = false;
                         });
-                        d.selected = true;
-                        d.active = true;
+                        resObj.d.selected = true;
+                        resObj.d.active = true;
                         self.chartInfo.component._render();
                         if(option != 'drill-down') {
                             $('#traffic-groups-radial-chart').addClass('addAnimation');
@@ -419,10 +369,37 @@ define(
                                    arc.selected = false;
                                    arc.active = false;
                                 });
-                                if(option != 'drill-down') {
-                                    self.hideTgSidePanel();
+                                if(resObj.option != 'drill-down') {
+                                    $('#traffic-groups-radial-chart')
+                                            .removeClass('showTgSidePanel');
+                                    $('#traffic-groups-link-info').addClass('hidden');
                                     self.chartInfo.component._render();
                                 }
+                            }
+                        });
+                    }
+                    if(resObj.data) {
+                        self.renderView4Config($('#arcTabsSection'), tmplData,
+                            tgHelpers.getTabsViewConfig('arcInfoSection', ['vmi-details-tab', 'matched-rules-tab']),
+                            null, null, null, function() {
+                                if(resObj.appList) {
+                                    resObj.app = resObj.appList[0];
+                                    resObj.callback = tgView.renderPolicyRuleDetails;
+                                    resObj.callback2 = tgView.renderMatchedRuleDetails;
+                                    tgHelpers.getPolicyInfoByApp(resObj);
+                                    self.renderAppDropdown(resObj);
+                                }
+                        });
+                    } else {
+                        self.renderView4Config($('#linkTabsSection'), tmplData,
+                            tgHelpers.getTabsViewConfig('linkInfoSection', ['matched-rules-tab']), null, null, null,
+                        function() {
+                            if(resObj.appList) {
+                                resObj.app = resObj.appList[0];
+                                resObj.callback = tgView.renderPolicyRuleDetails;
+                                resObj.callback2 = tgView.renderMatchedRuleDetails;
+                                tgHelpers.getPolicyInfoByApp(resObj);
+                                self.renderAppDropdown(resObj);
                             }
                         });
                     }
@@ -668,6 +645,12 @@ define(
                         },
                         {
                             event: 'dblclick',
+                            selector: 'node',
+                            handler: this._onDoubleClickNode,
+                            handlerName: '_onDoubleClickNode'
+                        },
+                        {
+                            event: 'dblclick',
                             selector: 'link',
                             handler: this._onDoubleClickLink,
                             handlerName: '_onDoubleClickLink'
@@ -703,113 +686,123 @@ define(
                     ];
                 },
                 _onClickNode: function(d, el ,e) {
-                    tgView.updateTgSettingsView('viewMode');
-                    var chartScope = tgView.chartInfo.component;
-                    if(chartScope.clearArcTootltip) {
-                      clearTimeout(chartScope.clearArcTootltip);
-                    }
-                    var arcData = tgHelpers.getArcData(d.data, tgView.tgSetObj),
-                        childData = _.filter(arcData.dataChildren, function(children) {
-                            return tgHelpers.isRecordMatched(d.data.namePath, children, d.data, tgView.tgSetObj);
-                        }),
-                        tagData = tgHelpers.getTagsFromSession(childData[0], d.depth, '', tgView.tgSetObj);
-                    if(tagData) {
-                        var whereTags = tagData.endpoint1Data.slice(0),
-                            whereClause = [],
-                            selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)',
-                            'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)', 'vn', 'vmi', 'vrouter'];
-                            _.each(whereTags, function(tag) {
-                                if (!tag.value)
-                                    tag.value =  cowc.UNKNOWN_VALUE;
-                                whereClause.push({
-                                    "suffix": null, "value2": null, "name": tag.name, "value": tag.value, "op": tag.operator ? tag.operator : 1
+                    tgView.selectedArcData = d;
+                    setTimeout(function() {
+                        if(tgView.arcClicks) {
+                            tgView.arcClicks--;
+                            if(tgView.arcClicks == 1) {
+                                $('#traffic-groups-radial-chart')
+                                            .addClass('showTgSidePanel');
+                                tgView.showArcSessions(e);
+                            }
+                        }
+                        var chartScope = tgView.chartInfo.component,
+                            matchedRuleUUIDs = [];
+                        if(chartScope.clearArcTootltip) {
+                          clearTimeout(chartScope.clearArcTootltip);
+                        }
+                        var arcData = tgHelpers.getArcData(d.data, tgView.tgSetObj),
+                            srcId = tgHelpers.getFormatedName(d.data.displayLabels, tgView.tgSetObj),
+                            childData = _.filter(arcData.dataChildren, function(children) {
+                                return tgHelpers.isRecordMatched(d.data.namePath, children, d.data, tgView.tgSetObj);
+                            });
+                            srcSessionObjArr = tgView.getSessionData(childData, d.data.namePath, d.data),
+                            srcSessionObj = _.groupBy(srcSessionObjArr, 'eps.__key');
+                        // Matched Rules only
+                        var ruleKeys = _.uniq(_.map(childData, 'eps.__key'));
+                        $.each(ruleKeys, function (idx, key) {
+                            if (key != null) {
+                                var uuid = key.split(':').pop();
+                                matchedRuleUUIDs.push(uuid);
+                            }
+                        });
+                        matchedRuleUUIDs = _.uniq(matchedRuleUUIDs);
+                        var appList = _.map(childData, 'app_fqn');
+                        appList.push('all');
+                        appList = _.uniq(appList);
+                        var reqObj = {
+                            callback : tgView.renderVMIDetails,
+                            vmiObj: {},
+                            app: appList[0],
+                            srcId: srcId,
+                            dstId: srcId,
+                            srcSessionObj: srcSessionObj,
+                            dstSessionObj: '',
+                            matchedRuleUUIDs: matchedRuleUUIDs,
+                            appList: appList,
+                            data : {
+                                data : 'nodata',
+                                title : arcData.title,
+                                vmiLabel: ctwl.VMI_LABEL,
+                                vmiCount: ''
+                            },
+                            d : d
+                        };
+                        if(childData.length) {
+                            var vmNames = [];
+                            var data = _.groupBy(childData, 'name_fqn'),
+                                vmiObj = {};
+                            reqObj.data.data = [];
+                            _.each(data, function(session, key) {
+                                vmNames.push(key);
+                                var inBytes = formatBytes(_.sumBy(session, function(bytes) {
+                                        return _.result(bytes,'SUM(eps.traffic.in_bytes)', '-');
+                                    })),
+                                    outBytes = formatBytes(_.sumBy(session,function(bytes) {
+                                        return _.result(bytes,'SUM(eps.traffic.out_bytes)', '-');
+                                    })),
+                                    vn = tgHelpers.formatVN(session[0]['vn']);
+                                reqObj.data.data.push({
+                                    uuid: tgHelpers.getFormattedValue(key),
+                                    sampledIn : inBytes,
+                                    sampledOut : outBytes,
+                                    vn: vn ? vn : '-',
+                                    vrouter: '-',
+                                    name: '-'
                                 });
                             });
-                        var projectPrefix = tgHelpers.getProjectPrefix();
-                        whereClause.push({
-                            "suffix": null, "value2": null, "name": 'vmi', "value": projectPrefix, "op": 7
-                        });
-                        var reqObj = {
-                                selectFields : selectFields,
-                                whereClause : whereClause,
-                                type : 'both',
-                                callback : tgView.renderVMIDetails,
-                                vmiDetails : {
-                                    data : [],
-                                    title : arcData.title,
-                                    vmiLabel: ctwl.VMI_LABEL,
-                                    vmiCount: ''
-                                },
-                                d : d
-                            };
-                        tgView.showTGSidePanel(reqObj.vmiDetails, d);
-                        tgHelpers.querySessionSeries(reqObj, tgView.tgSetObj);
-                    } else {
-                        tgView.noSessionResults(d, arcData.title);
-                    }
-                },
-                noSessionResults: function(d, title) {
-                    this.showTGSidePanel({
-                        data : 'nodata',
-                        title : title,
-                        vmiLabel: ctwl.VMI_LABEL,
-                        vmiCount: ''
-                    }, d);
+                            reqObj.vmNames = vmNames;
+                            tgHelpers.queryUveVmis(reqObj, tgView.tgSetObj);
+                        } else {
+                            tgView.showTGSidePanel(reqObj);
+                        }
+                    }, 300);
                 },
                 renderVMIDetails: function(resObj) {
-                    var data = resObj.clientData.concat(resObj.serverData);
+                    var data = resObj.vmiData,
+                        vmiDetails = resObj.data.data;
                     if(data.length) {
-                        $.each(data, function (idx, value) {
-                            $.each(['vn','vmi'],function(idx,tagName) {
-                                value[tagName + '_fqn'] = value[tagName];
-                                value[tagName] = tagName == 'vn' ?
-                                        tgHelpers.formatVN(value[tagName]) :
-                                        tgHelpers.getFormattedValue(value[tagName]);
+                        resObj.data.vmiCount = data.length;
+                        $.each(data, function (idx, obj) {
+                            var vmiObj = _.result(obj, 'value.UveVMInterfaceAgent', {}),
+                                vrouter = '-',
+                                curVMObj = _.find(resObj.vmData, function(vmObj) {
+                                    return vmObj.name == vmiObj.vm_uuid
+                                }),
+                                vmiDetOb = _.find(vmiDetails, function(vmDet) {
+                                return vmDet.uuid == tgHelpers.getFormattedValue(obj.name)
                             });
+                            if(curVMObj) {
+                               vrouter = _.result(curVMObj, 'value.UveVirtualMachineAgent.vrouter', '-');
+                            }
+                            if(vmiDetOb) {
+                                vmiDetOb.name = vmiObj.vm_name ? vmiObj.vm_name : '-';
+                                vmiDetOb.vrouter = vrouter;
+                            }
                         });
-                        data = _.groupBy(data, 'vmi');
-                        resObj.vmiDetails.vmiCount =  Object.keys(data).length;
-                        _.each(data, function(session, key) {
-                            var loggedIn = formatBytes(_.sumBy(session,
-                            function(bytes) {
-                                return _.result(bytes,'SUM(forward_logged_bytes)',0);
-
-                            })),
-                            loggedIn = formatBytes(_.sumBy(session,
-                            function(bytes) {
-                                return _.result(bytes,'SUM(reverse_logged_bytes)',0);
-
-                            })),
-                            sampledIn = formatBytes(_.sumBy(session,
-                            function(bytes) {
-                                return _.result(bytes,'SUM(forward_sampled_bytes)',0);
-
-                            })),
-                            sampledOut = formatBytes(_.sumBy(session,
-                            function(bytes) {
-                                return _.result(bytes,'SUM(reverse_sampled_bytes)',0);
-
-                            }));
-                            resObj.vmiDetails.data.push({
-                                name: key ? key : '-',
-                                loggedIn: loggedIn,
-                                loggedOut: loggedIn,
-                                sampledIn : sampledIn,
-                                sampledOut : sampledOut,
-                                vn: session[0]['vn'] ? session[0]['vn'] : '-',
-                                vrouter: session[0]['vrouter'] ?
-                                     session[0]['vrouter'] : '-'
-                            });
-                        });
-                       if(tgView.selectedLink == resObj.vmiDetails.title)
-                        tgView.showTGSidePanel(resObj.vmiDetails, resObj.d, '', true);
+                        tgView.showTGSidePanel(resObj);
                     } else {
-                        tgView.noSessionResults(resObj.d, resObj.vmiDetails.title);
+                        resObj.data.data = 'nodata';
+                        tgView.showTGSidePanel(resObj);
                     }
                 },
                 _onDoubleClickLink: function(d, el ,e) {
                     e.preventDefault();
                     tgView.linkClicks = 2 ;
+                },
+                _onDoubleClickNode: function(d, el ,e) {
+                    e.preventDefault();
+                    tgView.arcClicks = 2 ;
                 },
                 _onClickLink: function(d, el ,e) {
                     tgView.updateTgSettingsView('viewMode');

@@ -27,16 +27,29 @@ define([
                 if(!self.model) {
                     self.model = new (ContrailModel.extend({
                         defaultConfig: {
-                            //'group_by_columns' : null,
-                            'Session_Endpoint' : 'endpoint1'
+                            'Session_Endpoint' : 'endpoint1',
+                            'remote_endpoints': null
                         },
                         onEndpointChanged: function(newVal) {
                             sessionData.selectedEndpoint = newVal;
                             self.sessionDrilldown();
                             self.renderBreadcrumb();
                         },
-                        onGroupByChanged: function(newVal) {
-                            sessionData.groupBy = newVal;
+                        onRemoteEndpointChanged: function(newVal) {
+                            var curDst = _.filter(sessionData.remoteEndpoints,
+                                function(obj) {
+                                    var external = (obj.externalProject == 'externalProject') ?
+                                        ' (External Project)' : '';
+                                    return (newVal == obj.id+external)
+                                })[0];
+                            var project = contrail.getCookie(cowc.COOKIE_PROJECT),
+                                tagData = self.tgHelpers.
+                                getTagsFromSession(curDst.session, '', curDst.externalProject, self.parentView.tgSetObj, project)
+                            sessionData.endpointNames[1] = curDst.id;
+                            sessionData.breadcrumb[1][1] = curDst.id
+                            sessionData.tags[1] = tagData.endpoint2Data;
+                            sessionData.filter = tagData.filter;
+                            sessionData.external = tagData.external;
                             self.sessionDrilldown();
                             self.renderBreadcrumb();
                         }
@@ -51,20 +64,18 @@ define([
                     function() {
                         self.renderBreadcrumb();
                         if(sessionData.level == 1 || (sessionData.level == 2 && sessionData.groupBy == 'policy')) {
-                            $('#Session_Endpoint, #group_by_columns').show();
-                            /*sessionData.sessionType = $('#Client_Sessions-tab-link')
-                                .parent().hasClass('ui-tabs-active')
-                                                       ? 'client' : 'server';*/
+                            $('#Session_Endpoint, #remote_endpoints').show();
                             if(!$._data($('#Session_Endpoint input')[0], 'events')) {
                                 self.subscribeModelChangeEvents(self.model, ctwl.EDIT_ACTION);
                                 Knockback.applyBindings(self.model,
                                     document.getElementById('Session_Endpoint'));
-                                //Knockback.applyBindings(self.model,
-                                  //  document.getElementById('group_by_columns'));
+                                if(sessionData.remoteEndpoints)
+                                Knockback.applyBindings(self.model,
+                                    document.getElementById('remote_endpoints'));
                                 kbValidation.bind(self);
                             }
                         } else {
-                            $('#Session_Endpoint, #group_by_columns').hide();
+                            $('#Session_Endpoint, #remote_endpoints').hide();
                         }
                         $('.policyRules .policyName')
                                       .off('click.policyDrilldown');
@@ -102,9 +113,9 @@ define([
                     sessionModel.onEndpointChanged(newValue);
                 }
             );
-            sessionModel.__kb.view_model.model().on('change:group_by_columns',
+            sessionModel.__kb.view_model.model().on('change:remote_endpoints',
                 function(model, newValue){
-                    sessionModel.onGroupByChanged(newValue);
+                    sessionModel.onRemoteEndpointChanged(newValue);
                 }
             );
         },
@@ -155,7 +166,9 @@ define([
                         columns: [{
                             elementId: ctwl.TRAFFIC_GROUPS_ENDPOINT_STATS + '-tabs',
                             view: 'TabsView',
-                            viewConfig: this.getEndpointStatsTabs()
+                            viewConfig: $.extend({}, {
+                                type: cowc.TAB_FORM_TYPE
+                            }, this.getEndpointStatsTabs())
                         }]
                     }]
                 }
@@ -198,97 +211,72 @@ define([
                             ((this.sessionData.sessionType == 'client') ?
                                         'Client' : 'Server');
                 if(!$('#TG_Sessions_View').length) {
-                    configRows.push({
-                        columns:[{
-                            elementId: 'Session_Endpoint',
-                            view: "FormRadioButtonView",
-                            viewConfig: {
-                                label: 'Select Endpoint',
-                                class: 'col-xs-12 iconFontStyle margin-10-0-0',
-                                templateId: cowc.TMPL_RADIO_BUTTON_VIEW,
-                                path: 'Session_Endpoint',
-                                dataBindValue: 'Session_Endpoint',
-                                disabled: external ? true : false,
-                                elementConfig: {
-                                    dataObj: [
-                                        {value: 'endpoint1', label: names[0]},
-                                        {value: 'endpoint2', label: names[1]}
-                                    ]
-                                }
+                    var dataObj = [
+                        {value: 'endpoint1', label: names[0], cssClass: 'col-xs-11'}
+                    ],
+                    cssClassWidth = 'col-xs-6',
+                    remoteEndpoints = this.sessionData.remoteEndpoints,
+                    label = 'Selected Endpoint';
+                    if(!remoteEndpoints) {
+                       dataObj[0].cssClass = 'col-xs-6';
+                       dataObj.push({value: 'endpoint2', label: names[1], cssClass: 'col-xs-6'});
+                       cssClassWidth = "col-xs-12",
+                       label = 'Select Endpoint';
+                    }
+                    var configCols = [{
+                        elementId: 'Session_Endpoint',
+                        view: "FormRadioButtonView",
+                        viewConfig: {
+                            label: label,
+                            class: cssClassWidth + ' iconFontStyle margin-10-0-0',
+                            templateId: cowc.TMPL_RADIO_BUTTON_VIEW,
+                            path: 'Session_Endpoint',
+                            dataBindValue: 'Session_Endpoint',
+                            disabled: external ? true : false,
+                            elementConfig: {
+                                dataObj: dataObj
                             }
-                        }],
-                    });/*, {
-                        columns: [{
-                            elementId: 'group_by_columns',
+                        }
+                    }];
+                    if(remoteEndpoints) {
+                        var endpointData = [];
+                        _.each(remoteEndpoints, function(obj) {
+                            var external = (obj.externalProject == 'externalProject') ?
+                                        ' (External Project)' : '';
+                            endpointData.push({
+                                id: obj.id + external,
+                                text: obj.id + external,
+                                html: obj.id + external
+                            });
+                        });
+                        configCols.push({
+                            elementId: 'remote_endpoints',
                             view: 'FormDropdownView',
                             viewConfig: {
-                                label: 'Group By',
-                                class: 'col-xs-6',
-                                path: 'group_by_columns',
-                                dataBindValue: 'group_by_columns',
+                                label: 'Remote Endpoint',
+                                class: 'col-xs-6 margin-10-0-0',
+                                path: 'remote_endpoints',
+                                dataBindValue: 'remote_endpoints',
                                 elementConfig: {
-                                    defaultValue: 'Protocol (Server Port)',
+                                    defaultValue: endpointData[0].text,
                                     defaultValueId: 0,
-                                    data:[{
-                                        id:'protocol',
-                                        text:'Protocol (Server Port)'
-                                    },{
-                                        id:'policy',
-                                        text:'Policy (Rule)'
-                                    }]
+                                    data: endpointData,
+                                    escapeMarkup: function(markup) {
+                                        return markup;
+                                    },
+                                    templateResult: function(data) {
+                                        return data.html;
+                                    },
+                                    templateSelection: function(data) {
+                                        return data.text;
+                                    }
                                 }
                             }
-                        }]
-                    }, {
-                        columns: [{
-                            elementId: 'TG_Sessions_View',
-                            view: "SectionView",
-                            viewConfig: {
-                                rows: [
-                                {
-                                    columns:[{
-                                        elementId: ctwl.TRAFFIC_GROUPS_SESSION_STATS + '-tabs',
-                                        view: 'TabsView',
-                                        viewConfig: {
-                                            theme: 'default',
-                                            active: 0,
-                                            tabs: this.getSessionTabConfig()
-                                        }
-                                    }]
-                                 }]
-                            }
-                        }]
-                    });
-                }  else if(this.sessionData.type == 'both') {
+                        });
+                    }
                     configRows.push({
-                        columns: [{
-                            elementId: ctwl.TRAFFIC_GROUPS_SESSION_STATS + '-tabs',
-                            view: 'TabsView',
-                            viewConfig: {
-                                theme: 'default',
-                                active: 0,
-                                tabs: this.getSessionTabConfig()
-                            }
-                        }]
+                        columns: configCols
                     });
-                  } else {
-                    var type = (this.sessionData.sessionType == 'client') ?
-                                        'Client' : 'Server';
-                    configRows.push({
-                        columns: [{
-                            elementId: type + "_Sessions",
-                            view: "TrafficGroupsEPSGridView",
-                            app: cowc.APP_CONTRAIL_CONTROLLER,
-                            viewPathPrefix: "monitor/security/trafficgroups/ui/js/views/",
-                            viewConfig: {
-                                data: this.curSessionData,
-                                tabid: type + "_Sessions",
-                                title: type + " Sessions",
-                                configTye: 'sessions'
-                            }
-                        }]
-                    });
-                  }*/
                   }
                   configRows.push({
                         columns: [{

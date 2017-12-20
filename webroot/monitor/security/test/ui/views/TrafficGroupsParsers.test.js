@@ -50,4 +50,19 @@ define([
 	    console.log('Executng link-direction-external-reverse...');
 	    equal(JSON.stringify(result), JSON.stringify(dataObj.expected));
 	});
+	var policyObj = '', ruleUUIDs = '';
+	test("get-and-sort-app-aps", function() {
+	    var dataObj = TGMockData.getAppAPSData,
+	        result = tgHelpers.getAndSortAppAPS(dataObj.data, 'hrdev', 'default-domain', 'application=HR');
+	    console.log('Executng get-and-sort-app-aps...');
+	    policyObj = result;
+	    equal(JSON.stringify(result), JSON.stringify(dataObj.expected));
+	});
+	test("get-and-sort-app-rule-uuids", function() {
+	    var dataObj = TGMockData.getPolicyRuleList,
+	        result = tgHelpers.getAndSortAppRullUUIDs(dataObj.data, policyObj);
+	    console.log('Executng get-and-sort-app-rule-uuids...');
+	    ruleUUIDs = result;
+	    equal(JSON.stringify(result), JSON.stringify(dataObj.expected));
+	});
 });
