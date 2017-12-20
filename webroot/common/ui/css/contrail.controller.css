@@ -990,22 +990,22 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
 #firewall_rules td.data-cell.data-cell-security_logging_object_refs .form-element .select2-container {
     width: calc(100% - 16px);
 }
-#firewall_policy_rules #firewall_rules tr.error-row td.action-cell{
+#firewall_policy_rules #firewall_rules tr.error-row td.action-cell, #applicationpolicyset_policy_wizard #firewall_rules .error-row .action-cell{
     display:none;}
-#firewall_policy_rules #firewall_rules .contrail-editable-grid-table {
+#firewall_policy_rules #firewall_rules .contrail-editable-grid-table, #applicationpolicyset_policy_wizard #firewall_rules table.contrail-editable-grid-table {
     width: 100%;
 }
-#firewall_policy_rules #firewall_rules td.action-cell {
+#firewall_policy_rules #firewall_rules td.action-cell, #applicationpolicyset_policy_wizard #firewall_rules td.action-cell {
     width: 30px;
 }
-#firewall_policy_rules #firewall_rules th a.editable-grid-add-link {
+#firewall_policy_rules #firewall_rules th a.editable-grid-add-link, #applicationpolicyset_policy_wizard #firewall_rules th a.editable-grid-add-link {
     padding-left: 3px;
 }
-body #firewall_policy_rules #firewall_rules th.text-center{
+body #firewall_policy_rules #firewall_rules th.text-center, body #applicationpolicyset_policy_wizard #firewall_rules th.text-center {
     text-align:center;}
-#user_created_ipam_subnets table{
+/*#user_created_ipam_subnets table{
     width:100%;
-}
+}*/
 #user_created_ipam_subnets table td.action-cell,
 #user_created_ipam_subnets table th.action-cell{
     text-align:left;
@@ -1015,4 +1015,13 @@ body #firewall_policy_rules #firewall_rules th.text-center{
 }
 #user_created_ipam_subnets .collapsibleChildContainer table:first-child{
     margin-left:5px;
+}
+#firewall_rules td.data-cell.data-cell-security_logging_object_refs .form-label {
+    padding: 5px;
+    width: 68px!important;
+}
+#firewall_rules td.data-cell.data-cell-security_logging_object_refs .form-element {
+    padding: 0px;
+    text-align: left;
+    width: 897px!important;
 }
