@@ -681,7 +681,7 @@ define([
                             getPolicyRelatedRules(policyEditSet.model, function(policyRule){
                                 var ruleCollection = [];
                                 for(var i = 0; i < policyRule.length; i++){
-                                    var ruleModel = new RuleModel($.extend({}, policyRule[i], { disabled: true, isGlobal: options.viewConfig.isGlobal }));
+                                    var ruleModel = new RuleModel($.extend({}, policyRule[i], { disabled: false, isGlobal: options.viewConfig.isGlobal }));
                                     ruleCollection.push(ruleModel);
                                 }
                                 var coll = new Backbone.Collection(ruleCollection);

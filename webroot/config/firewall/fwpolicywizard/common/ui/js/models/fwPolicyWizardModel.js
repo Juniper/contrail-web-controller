@@ -307,7 +307,8 @@ define([
             }
         },
         createAndUpdateRules: function(fwRules, options, serviceGroupList, policyObj, callbackObj){
-            var existingRules = [], newRules = [], sequnceList = [];
+            var existingRules = [], newRules = [], sequnceList = [], editableRuleList = [],
+            ruleObjList = [], ajaxConfig = {};
             _.each(fwRules, function(rule) {
                 var ruleModel = $.extend(true, {}, rule.model().attributes);
                 if(ruleModel.uuid != undefined){
@@ -315,6 +316,7 @@ define([
                     obj.to = ruleModel.fq_name;
                     obj.uuid = ruleModel.uuid;
                     obj.attr = {};
+                    editableRuleList.push(ruleModel);
                     var firewallBackRef = getValueByJsonPath(ruleModel, "firewall_policy_back_refs",[]);
                     _.each(firewallBackRef, function(ref) {
                         if(ref.uuid === policyObj.uuid){
@@ -327,11 +329,43 @@ define([
                     newRules.push(ruleModel);
                 }
             });
-            if(newRules.length > 0){
-                var formatedNewRule = self.ruleFormation(newRules, options, serviceGroupList, true);
-                self.policyEditNewRuleCreation(formatedNewRule, existingRules, options, callbackObj, sequnceList, policyObj); 
+            if(editableRuleList.length > 0){
+                var formatedRule = self.editRuleFormation(editableRuleList, serviceGroupList);
+                for(var j = 0; j < formatedRule.length; j++){
+                    var reqUrl = '/firewall-rule/' + formatedRule[j].uuid;
+                    delete formatedRule[j].uuid;
+                    var ruleobj = {"data":{"firewall-rule": formatedRule[j]},
+                            "reqUrl": reqUrl};
+                    ruleObjList.push(ruleobj);
+                }
+                var postData = {"data": ruleObjList };
+                ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
+                ajaxConfig.type  = 'POST';
+                ajaxConfig.data  = JSON.stringify(postData);
+                contrail.ajaxHandler(ajaxConfig, function () {
+                    if (contrail.checkIfFunction(callbackObj.init)) {
+                        callbackObj.init();
+                    }
+                }, function (response) {
+                    if(newRules.length > 0){
+                        var formatedNewRule = self.ruleFormation(newRules, options, serviceGroupList, true);
+                        self.policyEditNewRuleCreation(formatedNewRule, existingRules, options, callbackObj, sequnceList, policyObj);
+                    }else{
+                        self.updatePolicy(policyObj, options, callbackObj, existingRules);
+                    }
+                }, function (error) {
+                    if (contrail.checkIfFunction(callbackObj.error)) {
+                        callbackObj.error(error);
+                    }
+                    returnFlag = false;
+                });
             }else{
-                self.updatePolicy(policyObj, options, callbackObj, existingRules);
+                if(newRules.length > 0){
+                    var formatedNewRule = self.ruleFormation(newRules, options, serviceGroupList, true);
+                    self.policyEditNewRuleCreation(formatedNewRule, existingRules, options, callbackObj, sequnceList, policyObj);
+                }else{
+                    self.updatePolicy(policyObj, options, callbackObj, existingRules);
+                }
             }
         },
         policyEditNewRuleCreation: function(formatedNewRule, existingRules, options, callbackObj, sequnceList, policyObj){
@@ -404,6 +438,36 @@ define([
                 }
                 returnFlag = false;
             });
+        },
+        editRuleFormation: function(fwRules, serviceGroupList){
+            var postFWRules = [], attr;
+            _.each(fwRules, function(rule) {
+                    attr = rule;
+                    var newFWRuleData = {};
+                    newFWRuleData.uuid = attr.uuid;
+                    newFWRuleData['endpoint_1'] = self.populateEndpointData(attr['endpoint_1']);
+                    newFWRuleData['endpoint_2'] = self.populateEndpointData(attr['endpoint_2']);
+                    var getSelectedService = self.getFormatedService(attr['user_created_service'], serviceGroupList);
+                    if(getSelectedService.isServiceGroup){
+                        newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
+                        if(attr['service'] !== undefined){
+                            newFWRuleData['service'] = {};
+                        }
+                    }else{
+                        if(getSelectedService['service'] !== undefined){
+                            newFWRuleData['service'] = getSelectedService['service'];
+                            newFWRuleData['service_group_refs'] = [];
+                        }
+                    }
+                    newFWRuleData['action_list'] = {};
+                    newFWRuleData['action_list']['simple_action'] = attr['simple_action'];
+                    newFWRuleData['direction'] = attr['direction'];
+                    newFWRuleData['match_tags'] = {};
+                    newFWRuleData['match_tags']['tag_list'] =
+                        attr.match_tags ? attr.match_tags.split(',') : [];
+                    postFWRules.push(newFWRuleData);
+                });
+            return postFWRules;
         },
         ruleFormation: function(fwRules, options, serviceGroupList, newRule){
             var postFWRules = [], attr;
