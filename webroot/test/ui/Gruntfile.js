@@ -789,6 +789,10 @@ module.exports = function (grunt) {
                         included : false
                     },
                     {
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloModal.test.suite.js',
+                        included : false
+                    },
+                    {
                         pattern : 'contrail-web-controller/webroot/config/networking/slo/common/ui/js/**/*.js',
                         included : false
                     }
@@ -821,7 +825,11 @@ module.exports = function (grunt) {
                         included : false
                     },
                     {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/globalSloGridView.mock.data.js',
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloGridView.mock.data.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloModal.test.suite.js',
                         included : false
                     },
                     {

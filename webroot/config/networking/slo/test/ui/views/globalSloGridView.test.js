@@ -6,10 +6,11 @@ define([
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
-    'config/networking/slo/test/ui/views/globalSloGridView.mock.data',
+    'config/networking/slo/test/ui/views/sloGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
-    'co-grid-view-test-suite'
-], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+    'co-grid-view-test-suite',
+    'config/networking/slo/test/ui/views/sloModal.test.suite'
+], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, SLOModalTestSuite) {
 
     var moduleId = cttm.GLOBAL_SLO_GRID_VIEW_COMMON_TEST_MODULE;
 
@@ -21,16 +22,23 @@ define([
         var responses = [];
         responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/admin\/config\/get-data.*$/,
-            body: JSON.stringify(TestMockdata.networkPolicyMockData)
+            body: JSON.stringify(TestMockdata.globalNetworkPolicyMockData)
         }));
         responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/tenants\/config\/securitygroup-details.*$/,
-            body: JSON.stringify(TestMockdata.secGrpMockData)
+            body: JSON.stringify(TestMockdata.globalSecGrpMockData)
         }));
         responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/tenants\/config\/get-config-details.*$/,
             method : 'POST',
-            body: JSON.stringify(TestMockdata.sloMockData)
+            postBody: JSON.stringify(TestMockdata.globalSloMockDataInput),
+            body: JSON.stringify(TestMockdata.globalSloMockDataOutput)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            url: /\/api\/tenants\/config\/create-config-object.*$/,
+            method: 'POST',
+            postBody: JSON.stringify(TestMockdata.globalSloModalMockCNOutput),
+            body: JSON.stringify(null)
         }));
         return responses;
     };
@@ -57,6 +65,11 @@ define([
                         {
                             class: GridViewTestSuite,
                             groups: ['all']
+                        },
+                        {
+                            class: SLOModalTestSuite,
+                            groups: ['all'],
+                            isGlobal: true
                         }
                     ]
                 }
