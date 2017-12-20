@@ -311,7 +311,7 @@ define([
                 icon : icon
             }
         },
-        this.getFormatedName = function(names, setObj) {
+        this.getFormatedName = function(names, setObj, removeIcons) {
             var self = this,
                 displayNames = names.slice(0),
                 projectName = '',
@@ -328,19 +328,26 @@ define([
                     var disLabel = '';
                     if(label) {
                         var labelObj = self.formatLabel(label);
-                        disLabel = '<span class="'+labelObj.iconClass+'">' +
-                        labelObj.icon + '</span> ' + labelObj.label;
-                        disLabel = disLabel.replace(/<Untagged>/g, '&lt;untagged>')
+                        if(removeIcons) {
+                            disLabel =  labelObj.label;
+                            disLabel = disLabel.replace(/<Untagged>/g, '-').trim();
+                        } else {
+                            disLabel = '<span class="'+labelObj.iconClass+'">' +
+                            labelObj.icon + '</span> ' + labelObj.label;
+                            disLabel = disLabel.replace(/<Untagged>/g, '&lt;untagged>');
+                        }
                     }
                     return disLabel;
                 });
-                return _.compact(labels).join('-');
+                return (removeIcons) ? _.compact(labels).join('/') :
+                                       _.compact(labels).join('-');
             });
             displayNames = _.remove(displayNames, function(name, idx) {
                 return !(name && name.indexOf('External') > -1 && idx > 0);
             });
-            return _.compact(displayNames).join('-')
-                + (projectName ? ' (' + projectName + ')' : '') ;
+            return ((removeIcons ? _.compact(displayNames).join('/') :
+                _.compact(displayNames).join('-')) +
+                (projectName ? ' (' + projectName + ')' : '')) ;
         },
         this.isRecordMatched = function(names, record, data, setObj) {
             var self = this,
@@ -947,7 +954,7 @@ define([
                     }
                 });
             }
-            tabConfig.push({
+            /*tabConfig.push({
                 elementId: "tg_rules",
                 title: 'Rules',
                 view: "TextView",
@@ -961,7 +968,7 @@ define([
                 tabConfig: {
                    activate: function(event, ui) {}
                 }
-            });
+            });*/
             if($.inArray('matched-rules-tab', displayTabs) >  -1) {
                 tabConfig.push({
                     elementId: "matched-rules-tab",

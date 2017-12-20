@@ -24,9 +24,9 @@ define([
                         externalProject = dstNodeData[0].data.arcType,
                         linkData = _.result(srcNodeData, '0.data', ''),
                         srcId = tgHelpers.getFormatedName(
-                            _.result(srcNodeData, '0.data.currentNode.displayLabels'), linkObj.tgSetObj),
+                            _.result(srcNodeData, '0.data.currentNode.displayLabels'), linkObj.tgSetObj, true),
                         dstId = tgHelpers.getFormatedName(
-                            _.result(dstNodeData, '0.data.currentNode.displayLabels'), linkObj.tgSetObj),
+                            _.result(dstNodeData, '0.data.currentNode.displayLabels'), linkObj.tgSetObj, true),
                         curSession = _.find(linkData.dataChildren, function(session) {
                             return tgHelpers.isRecordMatched(
                             _.result(linkData, 'currentNode.names'), session, linkData, linkObj.tgSetObj);
@@ -34,6 +34,8 @@ define([
                         tagData = tgHelpers.getTagsFromSession(curSession, '', externalProject, linkObj.tgSetObj);
                         tagData.srcId = srcId;
                         tagData.dstId = dstId;
+                    tagData.breadcrumb = [[tagData.srcId, tagData.dstId], [['All Services']]];
+                    tagData.selectedEndpoint = 'endpoint1';
                     var ddObj = self.prepareDrillDownObj(tagData, linkObj),
                         drillDownView = new DrillDownView({
                             el : $('#traffic-groups-radial-chart'),
@@ -71,14 +73,14 @@ define([
                             return arcTags.join('-');
                         });
                         var srcId = tgHelpers.getFormatedName(
-                                _.result(d, 'data.displayLabels'), arcObj.tgSetObj),
+                                _.result(d, 'data.displayLabels'), arcObj.tgSetObj, true),
                             remoteEndpoints = [];
                         _.each(childData, function(endpoint) {
                             var session = endpoint[0],
                                 otherEndpoint = tgHelpers.parseHierarchyConfig(session, arcObj.tgSetObj,
                                         project, arcObj.showOtherProjectTraffic, d.depth),
                                 dstId = tgHelpers.getFormatedName(
-                                _.result(otherEndpoint[1], 'displayLabels'), arcObj.tgSetObj);
+                                _.result(otherEndpoint[1], 'displayLabels'), arcObj.tgSetObj, true);
                             remoteEndpoints.push({
                                 id : dstId,
                                 session : session,
@@ -92,6 +94,8 @@ define([
                             tagData.srcId = srcId;
                             tagData.dstId = curDst.id;
                             tagData.remoteEndpoints = remoteEndpoints;
+                        tagData.selectedEndpoint = curDst.id;
+                        tagData.breadcrumb = [[tagData.srcId, tagData.remoteEndpoints], [['All Services']]];
                             var ddObj = self.prepareDrillDownObj(tagData, arcObj),
                                 drillDownView = new DrillDownView({
                                     el : $('#traffic-groups-radial-chart'),
@@ -131,11 +135,12 @@ define([
                     endpointNames: [tagData.srcId, tagData.dstId],
                     tags: [tagData.endpoint1Data, tagData.endpoint2Data],
                     filter: tagData.filter,
-                    breadcrumb: [['All'], [tagData.srcId, tagData.dstId]],
+                    breadcrumb: tagData.breadcrumb,
                     commonWhere: self.getCommomWhereClause,
                     sliceByProject: tagData.sliceByProject,
                     external : tagData.external,
                     sessionType: 'all',
+                    selectedEndpoint: tagData.selectedEndpoint,
                     onRemoteEndpointChanged: self.onRemoteEndpointChanged,
                     remoteEndpoints: tagData.remoteEndpoints,
                     data: [],
@@ -144,7 +149,7 @@ define([
                     tgSetObj: options.tgSetObj,
                     updateReqObj: self.updateReqObj,
                     parseData: self.parseFn,
-                    where: [[], []],
+                    where: [[]],
                     level: 1,
                     option: options.option,
                     onBreadcrumbClick: self.onBreadcrumbClick,
@@ -165,14 +170,11 @@ define([
                             },
                             updateData: self.updateSessionType,
                             breadcrumb: [{
-                                label: 'Session Type',
-                                value: function(d) { return (ddObj.sessionType == 'client' ? 'Client' : 'Server');}
-                            }, {
-                                label: 'Protocol',
+                                label: '',
                                 value: function(d) {return cowf.format.protocol(d['protocol']);}
                             }, {
-                                label: 'Port',
-                                value: function(d) {return d['server_port'];}
+                                label: '',
+                                value: function(d) {return ' : ' + (d['server_port']);}
                             }]
                         }],
                         detailFields: [{
@@ -194,11 +196,11 @@ define([
                                 return self.getWhereClause({local_ip:d['local_ip'],vn:d['vn']});
                             },
                             breadcrumb: [{
-                                label: 'Local IP',
+                                label: '',
                                 value: function(d) {return d['local_ip'];}
                             }, {
-                                label: 'VN',
-                                value: function(d) {return formatVN(d['vn']);}
+                                label: '',
+                                value: function(d) {return ' ('+formatVNWithoutProject(d['vn']) + ')';}
                             }]
                         }, {
                             key: 'vn',
@@ -266,7 +268,7 @@ define([
                                 return self.getWhereClause({protocol:d['protocol'],server_port:d['server_port']});
                             },
                             breadcrumb: [{
-                                label: 'Policy',
+                                label: '',
                                 value: function(d) { return options.policyObj.name;}
                             }, {
                                 label: 'Rule',
@@ -284,10 +286,11 @@ define([
                         }]
                     });
                     ddObj.level = 2;
-                    ddObj.where[2] = [{
+                    ddObj.where[1] = [{
                         "suffix": null, "value2": null, "name": "security_policy_rule", "value": options.policyObj.fqn, "op": 1
                     }];
-                    ddObj.breadcrumb[2] = ['Policy: ' + options.policyObj.name, 'Rule: ' + options.policyObj.uuid];
+                    ddObj.breadcrumb[2] = [options.policyObj.name + ' (<span title=' + options.policyObj.uuid +
+                            ' class="tgEllipsis">' + options.policyObj.uuid + '</span>)'];
                     ddObj.groupBy = 'policy';
                 }
                 return ddObj;
@@ -302,7 +305,6 @@ define([
                     tagData = tgHelpers.getTagsFromSession(curDst.session, '',
                         curDst.externalProject, data.tgSetObj, project)
                 self.ddData.endpointNames[1] = curDst.id;
-                self.ddData.breadcrumb[1][1] = curDst.id
                 self.ddData.tags[1] = tagData.endpoint2Data;
                 self.ddData.filter = tagData.filter;
                 self.ddData.external = tagData.external;
@@ -331,6 +333,23 @@ define([
                     });
                 }
                 view.curSessionData = resObj.curSessionData;
+            },
+            this.grouByColumns = function(columns, data) {
+                data = _.groupBy(data, function(d) {
+                    var groupBy = [];
+                    _.each(columns, function(key) {
+                        groupBy.push(d[key]);
+                    });
+                    return groupBy.join('-');
+                });
+                data = _.map(data, function(objs, keys) {
+                    objs[0]['SUM(forward_logged_bytes)'] = _.sumBy(objs, 'SUM(forward_logged_bytes)');
+                    objs[0]['SUM(reverse_logged_bytes)'] = _.sumBy(objs, 'SUM(reverse_logged_bytes)');
+                    objs[0]['SUM(forward_sampled_bytes)'] = _.sumBy(objs, 'SUM(forward_sampled_bytes)');
+                    objs[0]['SUM(reverse_sampled_bytes)'] = _.sumBy(objs, 'SUM(reverse_sampled_bytes)');
+                    return objs[0];
+                });
+                return data;
             },
             this.updateReqObj = function(data, reqObj) {
                 if(self.isFilterApplied(data))
@@ -363,7 +382,8 @@ define([
                 _.each(whereTags[0], function(tag) {
                     if (!tag.value)
                         tag.value =  cowc.UNKNOWN_VALUE;
-                    if (tag.name != 'vn' || level < 3) {
+                    var vnLevel = (data.option == 'policy') ? 4 : 3;
+                    if (tag.name != 'vn' || level < vnLevel) {
                         where.push({
                             "suffix": null, "value2": null, "name": tag.name,
                             "value": tag.value, "op": tag.operator ? tag.operator : 1
@@ -393,11 +413,12 @@ define([
             },
             this.onBreadcrumbClick = function(data) {
                 if(data.level == 1 && data.option == 'policy') {
-                    data.levels.shift();
+                    data.levels.shift()
                     data.option = '';
                 }
-                if(data.level == 1 || (data.level == 2 && data.option == 'policy')) {
-                    data.showEndpointSelection = true;
+                if(data.level == 0) {
+                    data.level++;
+                    if(data.option == 'policy') data.level++;
                 }
                 return data;
             },
@@ -406,7 +427,7 @@ define([
                 return data;
             },
             this.isFilterApplied = function(data) {
-                var level = (data.groupBy == 'policy') ? data.level-1 : data.level;
+                var level = (data.option == 'policy') ? data.level-1 : data.level;
                 if(data.external == 'externalProject' && !data.sliceByProject
                     && level !=3) {
                     return true;

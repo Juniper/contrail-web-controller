@@ -958,7 +958,7 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
    #configure-applicationpolicyset{
    top:0px!important;
    height:auto!important;}
-   .modal{
+   .modal:not(#settings_modal){
    top:0px!important;}
 }
 #security-policy-tag-grid .slick-viewport, #security-policy-address-grp-grid_fw_wizard .slick-viewport,

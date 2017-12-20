@@ -275,10 +275,11 @@ define(
                     }
                 },
                 policyRenderComplete: function(obj, selector, policyClick) {
-                    $('.trafficGroups_sidePanel .showMoreInfo')
-                        .data("toggle", "tooltip").tooltip({
-                        html: 'true'
-                    });
+                    var tooltipConfig = {
+                        selector: $('.trafficGroups_sidePanel .showMoreInfo'),
+                        container:  $('.traffic-groups-view')
+                    };
+                    cowu.createTooltip(tooltipConfig);
                     if(!obj.data) {
                         $('.allSessionInfo').on('click', tgView.showSessionsInfo);
                     }
@@ -686,6 +687,8 @@ define(
                     ];
                 },
                 _onClickNode: function(d, el ,e) {
+                  if(d.data && d.data.arcType != "externalProject"
+                            && d.data.arcType != 'external') {
                     tgView.selectedArcData = d;
                     setTimeout(function() {
                         if(tgView.arcClicks) {
@@ -767,6 +770,7 @@ define(
                             tgView.showTGSidePanel(reqObj);
                         }
                     }, 300);
+                  }
                 },
                 renderVMIDetails: function(resObj) {
                     var data = resObj.vmiData,
@@ -1055,10 +1059,20 @@ define(
                         } else {
                             subCategory = ["-"];
                         }
-                        if(sliceByProject) {
-                            category.push(tgHelpers.sliceByProjectOnly
-                                                ? 'Project' : 'VN (Project)');
+                        var tagsSelected = category;
+                        if(subCategory[0] != '-') {
+                            tagsSelected = tagsSelected.concat(subCategory).join('/');
                         }
+                        var projectTxt = '';
+                        if(sliceByProject) {
+                            projectTxt = tgHelpers.sliceByProjectOnly
+                                                ? 'Project' : 'VN (Project)';
+                            tagsSelected += ' (' + projectTxt + ')';
+                        }
+                        if(!$('#tg_selected_tags:visible').length)
+                            $('#tg_tags_view').html(tagsSelected);
+                        if(sliceByProject)
+                            category.push(projectTxt);
                         $('#tgCategory').html(category.join(', '));
                         $('#tgSubCategory').html(subCategory.join(', '));
                     }

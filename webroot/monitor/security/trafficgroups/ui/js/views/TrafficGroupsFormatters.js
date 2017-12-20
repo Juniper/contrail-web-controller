@@ -113,9 +113,13 @@
               }
               return policyInfo;
           };
-          this.formatVN = function(vnName) {
+          this.formatVN = function(vnName, hideProject) {
               return (vnName && vnName != cowc.UNKNOWN_VALUE) ? vnName
                       .replace(/([^:]*):([^:]*):([^:]*)/,'$3 ($2)') : '-';
+          };
+          this.formatVNWithoutProject = function(vnName) {
+              return (vnName && vnName != cowc.UNKNOWN_VALUE) ? vnName
+                      .replace(/([^:]*):([^:]*):([^:]*)/,'$3') : '-';
           };
           this.getEndpointTags = function(dc, endpoint) {
                var tags = '';

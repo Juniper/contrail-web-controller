@@ -53,9 +53,11 @@ define([
                                 if(obj.updateData)
                                    data = obj.updateData(data, d);
                                 data.level++;
+                                var breadcrumbTxt = '';
                                 _.each(breadcrumbObj, function(obj) {
-                                    breadcrumb.push(obj.label + ': ' + obj.value(d));
+                                    breadcrumbTxt += obj.value(d);
                                 });
+                                breadcrumb.push(breadcrumbTxt);
                                 data.breadcrumb.push(breadcrumb);
                                 self.rootView.drillDown();
                             }

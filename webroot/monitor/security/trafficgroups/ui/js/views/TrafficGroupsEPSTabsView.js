@@ -143,7 +143,7 @@ define([
                         data: endpoint,
                         tabid: "Endpoint_" + idx + "_Stats",
                         names: names,
-                        title: names.join(' ' + cowc.ARROW_RIGHT_ICON + ' ')
+                        title: names.join('<span class="tgSeperator">' + cowc.ARROW_RIGHT_ICON + '</span>')
                     },
                     tabConfig: {
                        activate: function(event, ui) {

@@ -22,196 +22,23 @@ define([
         render: function (containerEle) {
             var self = this;
             if(containerEle) {
-                if(!self.model) {
-                    self.model = new (ContrailModel.extend({
-                        defaultConfig: {
-                            'Session_Endpoint' : 'endpoint1',
-                            'remote_endpoints': null
-                        },
-                        onEndpointChanged: function(newVal) {
-                            self.ddData.selectedEndpoint = newVal;
-                            self.drillDown();
-                            self.renderBreadcrumb();
-                        },
-                        onRemoteEndpointChanged: function(newVal) {
-                            if(self.ddData.onRemoteEndpointChanged) {
-                                self.ddData = self.ddData.onRemoteEndpointChanged(self.ddData, newVal);
-                            }
-                            self.drillDown();
-                            self.renderBreadcrumb();
-                        }
-                    }))();
-                }
                 if($('#TG_Sessions_View').length) {
                     containerEle = $("#TG_Sessions_View");
                     containerEle.empty();
                 }
-                this.renderView4Config(containerEle, self.model,
-                    this.getSessionsTabViewConfig(self.ddData.endpointNames, self.ddData.external), null, null, null,
-                    function() {
+                this.renderView4Config(containerEle, null,
+                    this.getSessionsTabViewConfig(self.ddData.endpointNames, self.ddData.external),
+                    null, null, null, function() {
                         self.renderBreadcrumb();
-                        if(self.ddData.showEndpointSelection) {
-                            $('#Session_Endpoint, #remote_endpoints').show();
-                            if(!$._data($('#Session_Endpoint input')[0], 'events')) {
-                                self.subscribeModelChangeEvents(self.model, ctwl.EDIT_ACTION);
-                                Knockback.applyBindings(self.model,
-                                    document.getElementById('Session_Endpoint'));
-                                if(self.ddData.remoteEndpoints)
-                                    Knockback.applyBindings(self.model,
-                                        document.getElementById('remote_endpoints'));
-                                kbValidation.bind(self);
-                            }
-                        } else {
-                            $('#Session_Endpoint, #remote_endpoints').hide();
-                        }
                     });
             }
-        },
-        subscribeModelChangeEvents: function(sessionModel) {
-            sessionModel.__kb.view_model.model().on('change:Session_Endpoint',
-                function(model, newValue){
-                    sessionModel.onEndpointChanged(newValue);
-                }
-            );
-            sessionModel.__kb.view_model.model().on('change:remote_endpoints',
-                function(model, newValue){
-                    sessionModel.onRemoteEndpointChanged(newValue);
-                }
-            );
-        },
-        getSessionsTabViewConfig1: function (names, external) {
-                var configRows = [],
-                    type = this.ddData.type == 'both' ? 'All' :
-                            ((this.ddData.sessionType == 'client') ?
-                                        'Client' : 'Server');
-                if(!$('#TG_Sessions_View').length) {
-                    configRows.push({
-                        columns:[{
-                            elementId: 'Session_Endpoint',
-                            view: "FormRadioButtonView",
-                            viewConfig: {
-                                label: 'Select Endpoint',
-                                class: 'col-xs-12 iconFontStyle margin-10-0-0',
-                                templateId: cowc.TMPL_RADIO_BUTTON_VIEW,
-                                path: 'Session_Endpoint',
-                                dataBindValue: 'Session_Endpoint',
-                                disabled: external ? true : false,
-                                elementConfig: {
-                                    dataObj: [
-                                        {value: 'endpoint1', label: names[0]},
-                                        {value: 'endpoint2', label: names[1]}
-                                    ]
-                                }
-                            }
-                        }],
-                    });
-                  }
-                  configRows.push({
-                        columns: [{
-                            elementId: 'TG_Sessions_View',
-                            view: "SectionView",
-                            viewConfig: {
-                                rows: [{
-                                 columns: [{
-                                    elementId: type + "_Sessions",
-                                    view: "TGDrillDownGridView",
-                                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                                    viewPathPrefix: "monitor/security/trafficgroups/ui/js/views/",
-                                    viewConfig: {
-                                        data: this.curSessionData,
-                                        tabid: type + "_Sessions",
-                                        title: type + " Sessions",
-                                        configTye: 'sessions'
-                                    }
-                                  }]
-                                }]
-                            }
-                        }]
-                   });
-                return {
-                    elementId: cowu.formatElementId([ctwl.TRAFFIC_GROUPS_SESSION_STATS + '-list']),
-                    view: "SectionView",
-                    viewConfig: {
-                        rows: configRows
-                    }
-                }
         },
         getSessionsTabViewConfig: function (names, external) {
                 var configRows = [],
                     type = this.ddData.type == 'both' ? 'All' :
                             ((this.ddData.sessionType == 'client') ?
                                         'Client' : 'Server');
-                if(!$('#TG_Sessions_View').length) {
-                    var dataObj = [
-                        {value: 'endpoint1', label: names[0], cssClass: 'col-xs-11'}
-                    ],
-                    cssClassWidth = 'col-xs-6',
-                    remoteEndpoints = this.ddData.remoteEndpoints,
-                    label = 'Selected Endpoint';
-                    if(!remoteEndpoints) {
-                       dataObj[0].cssClass = 'col-xs-6';
-                       dataObj.push({value: 'endpoint2', label: names[1], cssClass: 'col-xs-6'});
-                       cssClassWidth = "col-xs-12",
-                       label = 'Select Endpoint';
-                    }
-                    var configCols = [{
-                        elementId: 'Session_Endpoint',
-                        view: "FormRadioButtonView",
-                        viewConfig: {
-                            label: label,
-                            class: cssClassWidth + ' iconFontStyle margin-10-0-0',
-                            templateId: cowc.TMPL_RADIO_BUTTON_VIEW,
-                            path: 'Session_Endpoint',
-                            dataBindValue: 'Session_Endpoint',
-                            disabled: external ? true : false,
-                            elementConfig: {
-                                dataObj: dataObj
-                            }
-                        }
-                    }];
-                    if(remoteEndpoints) {
-                        var endpointData = [];
-                        _.each(remoteEndpoints, function(obj) {
-                            var external = (obj.externalProject == 'externalProject') ?
-                                        ' (External Project)' : '';
-                            endpointData.push({
-                                id: obj.id + external,
-                                text: obj.id + external,
-                                html: obj.id + external
-                            });
-                        });
-                        configCols.push({
-                            elementId: 'remote_endpoints',
-                            view: 'FormDropdownView',
-                            viewConfig: {
-                                label: 'Remote Endpoint',
-                                class: 'col-xs-6 select2Noborder margin-10-0-0',
-                                path: 'remote_endpoints',
-                                dataBindValue: 'remote_endpoints',
-                                elementConfig: {
-                                    defaultValue: endpointData[0].text,
-                                    defaultValueId: 0,
-                                    dropdownAutoWidth: true,
-                                    width: 'auto',
-                                    data: endpointData,
-                                    escapeMarkup: function(markup) {
-                                        return markup;
-                                    },
-                                    templateResult: function(data) {
-                                        return data.html;
-                                    },
-                                    templateSelection: function(data) {
-                                        return data.text;
-                                    }
-                                }
-                            }
-                        });
-                    }
                     configRows.push({
-                        columns: configCols
-                    });
-                  }
-                  configRows.push({
                         columns: [{
                             elementId: 'TG_Sessions_View',
                             view: "SectionView",
@@ -232,7 +59,7 @@ define([
                                 }]
                             }
                         }]
-                   });
+                    });
                 return {
                     elementId: cowu.formatElementId([ctwl.TRAFFIC_GROUPS_SESSION_STATS + '-list']),
                     view: "SectionView",
@@ -244,42 +71,93 @@ define([
         renderBreadcrumb: function() {
             $('#TGsessionsBreadcrumb').remove();
             var self = this,
+                endpoints = [],
                 items = self.ddData.breadcrumb.slice(0);
                 if(self.ddData.selectedEndpoint == 'endpoint2') {
-                    items[1] = items[1].slice(0).reverse();
+                    items[0] = items[0].slice(0).reverse();
                 }
                 breadCrumbTmpl = contrail.getTemplate4Id('breadcrumb-template');
+            $('#tgBackBtn').remove();
             $('#traffic-groups-radial-chart').prepend(breadCrumbTmpl({
                 items : items,
-                breadcrumbId : 'TGsessionsBreadcrumb'
+                breadcrumbId : 'TGsessionsBreadcrumb',
+                backBtnId : 'tgBackBtn',
+                showBackBtn: true
             }));
-            if(self.ddData.level > 1) {
-                var endpointEle =  $('#TGsessionsBreadcrumb li')[1],
-                    selectedEndpoint = $(endpointEle).find('a div')[0];
-                $(selectedEndpoint).addClass('selected');
+            var breadcrumbEndpts = self.ddData.breadcrumb[0],
+                endpointSeperator = '<i class="fa fa-long-arrow-right tgSeperator"></i>';
+            if(self.ddData.remoteEndpoints) {
+                _.each(self.ddData.remoteEndpoints, function(obj) {
+                    var external = (obj.externalProject == 'externalProject') ?
+                                ' (External Project)' : '';
+                    endpoints.push({
+                        id: obj.id + external,
+                        text: obj.id + external,
+                        html: obj.id + external
+                    });
+                });
+            } else {
+                endpoints.push({
+                    'id': 'endpoint1',
+                    'text': breadcrumbEndpts[0] + endpointSeperator + breadcrumbEndpts[1]
+                });
+                if(breadcrumbEndpts[1] != 'External' && breadcrumbEndpts[1] != 'externalProject'
+                   && breadcrumbEndpts[1] != breadcrumbEndpts[0]) {
+                    endpoints.push({
+                        'id': 'endpoint2',
+                        'text': breadcrumbEndpts[1] + endpointSeperator + breadcrumbEndpts[0]
+                    });
+                }
             }
+            if(self.ddData.remoteEndpoints)
+                $('#TGsessionsBreadcrumb li:eq(0)')
+                    .prepend('<span>'+breadcrumbEndpts[0]+endpointSeperator+'</span>')
+            $('#TGsessionsBreadcrumb li:eq(0) a').select2({
+                dataTextField:"text",
+                dataValueField:"id",
+                dropdownAutoWidth: true,
+                minimumResultsForSearch: 5,
+                escapeMarkup: function(markup) {return markup;},
+                templateResult: function(data) {return data.html;},
+                templateSelection: function(data) {return data.text;},
+                width: 'auto',
+                data: endpoints
+            }).on("change",function(endpoint) {
+                if(self.ddData.remoteEndpoints && self.ddData.onRemoteEndpointChanged) {
+                    self.ddData = self.ddData.onRemoteEndpointChanged(
+                                        self.ddData, endpoint.added.id);
+                }
+                self.ddData.selectedEndpoint = endpoint.added.id;
+                self.onbreacrumbChange(0);
+            });
+            $('#TGsessionsBreadcrumb li:eq(0)').addClass('select2Noborder');
+            $("#TGsessionsBreadcrumb li:eq(0) a").select2("val", self.ddData.selectedEndpoint);
             $('#TGsessionsBreadcrumb li:last').addClass('active');
             $('#TGsessionsBreadcrumb li a').on('click', function(e) {
                 e.preventDefault();
                 var curIndex = $(e.target).parents('li').index();
                 if(self.ddData.level != curIndex) {
-                    if(curIndex == 0) {
-                    self.parentRender();
-                    } else {
-                        self.ddData.breadcrumb = self.ddData.breadcrumb.slice(0, curIndex+1);
-                        self.ddData.where = self.ddData.where.slice(0, curIndex+1);
-                        self.ddData.level = curIndex;
-                        if(self.ddData.onBreadcrumbClick) {
-                            self.ddData = self.ddData.onBreadcrumbClick(self.ddData);
-                        }
-                        self.drillDown();
-                    }
+                    self.onbreacrumbChange(curIndex);
                 }
             });
+            $('#tgBackBtn a').on('click', function(e) {
+                e.preventDefault();
+                self.parentRender();
+            });
+        },
+        onbreacrumbChange: function(curIndex) {
+            this.ddData.level = curIndex;
+            if(this.ddData.onBreadcrumbClick) {
+                this.ddData = this.ddData.onBreadcrumbClick(this.ddData);
+            }
+            this.ddData.breadcrumb = this.ddData.breadcrumb.slice(0, this.ddData.level+1);
+            this.ddData.where = this.ddData.where.slice(0, this.ddData.level);
+            this.renderBreadcrumb();
+            this.drillDown();
         },
         drillDown: function() {
-            $('#tg_settings_container, #filterByTagNameSec').hide();
-            $('#traffic-groups-link-info').addClass('noSettings');
+            $('#tg_settings_view, #tg_settings_sec_edit, #filterByTagNameSec').hide();
+            $('#tg_selected_tags').removeClass('hidden');
             var parentEle = $('#TG_Sessions_View').length ?
                 $('#TG_Sessions_View') : $('#traffic-groups-radial-chart');
                 parentEle.html('<h4 class="noStatsMsg">Loading...</h4>');
