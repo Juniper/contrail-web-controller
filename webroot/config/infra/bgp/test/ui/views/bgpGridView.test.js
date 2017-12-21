@@ -64,11 +64,11 @@ define([
                         {
                             class: GridViewTestSuite,
                             groups: ['all']
-                        }/*,
+                        },
                         {
                             class: BGPModalTestSuite,
                             groups: ['all']
-                        }*/
+                        }
                     ]
                 }
             ]

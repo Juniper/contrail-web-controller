@@ -240,7 +240,7 @@ define([
                 //tags
                 if(srcArr.length == 2 && (srcArr[1] === 'Application' ||
                         srcArr[1] === 'Deployment' ||  srcArr[1] === 'Site' ||
-                        srcArr[1] === 'Tier'|| srcArr[1] === 'label')) {
+                        srcArr[1] === 'Tier'|| srcArr[1] === 'label' || srcArr[1] === 'udtag')) {
                     endpoint["tags"].push(srcArr[0]);
                 } else if(srcArr.length == 2 && srcArr[1] === 'address_group'){
                     endpoint[srcArr[1]] = srcArr[0];

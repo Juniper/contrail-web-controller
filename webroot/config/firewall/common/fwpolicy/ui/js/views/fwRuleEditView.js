@@ -147,13 +147,17 @@ define([
                         labelChild = [{text:'Select Labels',
                             value:"dummy" + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
                             id:"dummy" + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
+                            disabled : true }],
+                        udTagChild = [{text:'Select Custom tags',
+                            value:"dummy" + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
+                            id:"dummy" + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
                             disabled : true }];
 
                     var addressGrpChild = [{text:'Select Address Group',
                         value:"dummy" + cowc.DROPDOWN_VALUE_SEPARATOR + "address_group",
                         id:"dummy" + cowc.DROPDOWN_VALUE_SEPARATOR + "address_group",
                         disabled : true }];
-                    var tagList = ['Application','Deployment','Site','Tier', 'Label'];
+                    var tagList = ['Application','Deployment','Site','Tier', 'Label', 'Custom'];
                     var tags = fwPolicyFormatter.filterTagsByProjects(results[0][0][0]['tags']);
                     var addressGrp = fwPolicyFormatter.filterAddressGroupByProjects(results[1][0][0]['address-groups']);
                     var virtualNet = results[2][0]['virtual-networks'];
@@ -192,6 +196,14 @@ define([
                                     value : val + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
                                     id : val + cowc.DROPDOWN_VALUE_SEPARATOR + "label",
                                     parent : "label" });
+                            } else {
+                                txt = tags[i]['tag'].fq_name.length === 1 ?
+                                        'global:' + tags[i]['tag']['name'] :
+                                            tags[i]['tag']['name'];
+                                udTagChild.push({text : txt,
+                                    value : val + cowc.DROPDOWN_VALUE_SEPARATOR + "udtag",
+                                    id : val + cowc.DROPDOWN_VALUE_SEPARATOR + "udtag",
+                                    parent : "udtag" });
                             }
                         }
                         for(var j = 0; j < tagList.length; j++){
@@ -211,6 +223,9 @@ define([
                             }else if(tagList[j] === 'Label'){
                                 tagVal = 'label';
                                 tagData = labelChild;
+                            } else {
+                                tagVal = 'udtag';
+                                tagData = udTagChild;
                             }
                             addrFields.push({text : tagList[j], value : tagVal, children : tagData});
                         }
@@ -393,6 +408,7 @@ define([
                                             { name : 'Deployment',  value : 'deployment', iconClass:'fa fa-database' },
                                             { name : 'Site',  value : 'site', iconClass:'fa fa-life-ring' },
                                             { name : 'Tier',  value : 'tier', iconClass:'fa fa-clone' },
+                                            { name : 'Custom',  value : 'udtag', iconClass:'fa fa-asterisk' },
                                             { name : 'Label',  value : 'label', iconClass:'fa fa-tags' },
                                             { name : 'Address Group',  value : 'address_group', iconClass:'icon-contrail-network-ipam' },
                                             { name : 'Virtual Networks',  value : 'virtual_network', iconClass:'icon-contrail-virtual-network' },
@@ -440,6 +456,7 @@ define([
                                             { name : 'Deployment',  value : 'deployment', iconClass:'fa fa-database' },
                                             { name : 'Site',  value : 'site', iconClass:'fa fa-life-ring' },
                                             { name : 'Tier',  value : 'tier', iconClass:'fa fa-clone' },
+                                            { name : 'Custom',  value : 'udtag', iconClass:'fa fa-asterisk' },
                                             { name : 'Label',  value : 'label', iconClass:'fa fa-tags' },
                                             { name : 'Address Group',  value : 'address_group', iconClass:'icon-contrail-network-ipam' },
                                             { name : 'Virtual Networks',  value : 'virtual_network', iconClass:'icon-contrail-virtual-network' },

@@ -9,8 +9,10 @@ define([
     'ct-test-messages',
     'config/firewall/project/tag/test/ui/views/projectTagView.mock.data',
     'co-grid-contrail-list-model-test-suite',
-    'co-grid-view-test-suite'
-], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+    'co-grid-view-test-suite',
+    'config/firewall/project/tag/test/ui/views/projectTagModal.test.suite',
+    'config/firewall/project/tag/test/ui/views/projectTagCustomModal.test.suite'
+], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, TagModalTestSuite, CustomTagModalTest) {
 
     var moduleId = cttm.PROJECT_TAG_GRID_VIEW_COMMON_TEST_MODULE;
 
@@ -38,6 +40,18 @@ define([
             method : 'POST',
             body: JSON.stringify(TestMockdata.projectTagMockData)
         }));
+        responses.push(cotr.createFakeServerResponse({
+            url: /\/api\/tenants\/config\/create-config-object.*$/,
+            method: 'POST',
+            postBody: JSON.stringify(TestMockdata.projectTagModalOutput),
+            body: JSON.stringify(null)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            url: /\/api\/tenants\/config\/create-config-object.*$/,
+            method: 'POST',
+            postBody: JSON.stringify(TestMockdata.customTagModalOutput),
+            body: JSON.stringify(null)
+        }));
         return responses;
     };
     fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;
@@ -57,6 +71,14 @@ define([
                     suites: [
                         {
                             class: GridViewTestSuite,
+                            groups: ['all']
+                        },
+                        {
+                            class: TagModalTestSuite,
+                            groups: ['all']
+                        },
+                        {
+                            class: CustomTagModalTest,
                             groups: ['all']
                         }
                     ]

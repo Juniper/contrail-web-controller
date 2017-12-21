@@ -135,11 +135,48 @@
            }
          ];
        this.projectTagProjectRole = null;
+       this.projectTagModalInput = {
+               "tag_type": "Application",
+               "tag_value": "sales"
+       };
+       this.projectTagModalOutput = {
+               "data": [{
+                   "data": {
+                       "tag": {
+                           "tag_value": "sales",
+                           "tag_type_name": "Application",
+                           "fq_name": ["default-domain", "admin", "Application-sales"],
+                           "parent_type": "project"
+                       }
+                   },
+                   "reqUrl": "/tags"
+               }]
+       };
+       this.customTagModalInput = {
+               "tag_type": "Custom",
+               "tag_value": "custom_value"
+       };
+       this.customTagModalOutput = {
+               "data": [{
+                   "data": {
+                       "tag": {
+                           "tag_value": "custom_value",
+                           "tag_type_name": "Custom",
+                           "fq_name": ["default-domain", "admin", "Custom-custom_value"],
+                           "parent_type": "project"
+                       }
+                   },
+                   "reqUrl": "/tags"
+               }]
+       };
        return {
            projectTagDomainsData: TestCommonMockdata.domainData,
            projectTagPojectsData: TestCommonMockdata.projectData,
            projectTagMockData: projectTagMockData,
-           projectTagProjectRole: projectTagProjectRole
-           
+           projectTagProjectRole: projectTagProjectRole,
+           projectTagModalInput: projectTagModalInput,
+           projectTagModalOutput: projectTagModalOutput,
+           customTagModalInput: customTagModalInput,
+           customTagModalOutput: customTagModalOutput
        };
  });

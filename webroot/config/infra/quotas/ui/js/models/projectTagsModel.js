@@ -12,7 +12,8 @@ define([
             'Tier': '',
             'Site': '',
             'Deployment': '',
-            'Labels': ''
+            'Labels': '',
+            "Custom": ''
         },
         formatModelConfig: function (modelConfig) {
             modelConfig["Application"] = modelConfig["Application"].replace(/,/g, ":");
@@ -20,6 +21,7 @@ define([
             modelConfig["Deployment"] = modelConfig["Deployment"].replace(/,/g, ":");
             modelConfig["Tier"] = modelConfig["Tier"].replace(/,/g, ":");
             modelConfig["Labels"] = modelConfig["Labels"];
+            modelConfig["Custom"] = modelConfig["Custom"];
             return modelConfig;
         },
         configureProjectTags: function (projUUID, callbackObj) {
@@ -37,6 +39,7 @@ define([
                                  actRef =  $.makeArray(refsItems);
                                  tagList.push({to: actRef});
                              });
+                             return false;
                          }
                          tagList.push({to: actRef});
                     }

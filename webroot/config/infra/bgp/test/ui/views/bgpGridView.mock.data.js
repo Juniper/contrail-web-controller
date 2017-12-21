@@ -378,7 +378,7 @@
                            "autonomous_system": 64510,
                            "local_autonomous_system": null,
                            "address_families": {
-                               "family": ["route-target", "inet-vpn", "inet6-vpn", "e-vpn", "erm-vpn", "inet"]
+                               "family": ["route-target", "inet-vpn", "inet6-vpn", "e-vpn", "erm-vpn"]
                            },
                            "auth_data": null
                        },
