@@ -954,6 +954,8 @@ define([
         this.FW_WZ_SECURITY_POLICY_SERVICE_GRP_LIST_VIEW_ID = 'fw_security_policy_service_gp_list_view';
         this.FW_WZ_SECURITY_POLICY_ADDRESS_GRP_GRID_ID = 'fw_security_policy_as_grid_view';
         this.FW_WZ_SECURITY_POLICY_SERVICE_GRP_GRID_ID = 'fw_security_policy_service_gp_grid_view';
+        this.FW_WZ_ID_PREFIX = '_fw_wizard';
+        this.STANDALONE_ID_PREFIX = '_standalone';
         this.GLOBAL_APPLICATION_POLICY_SET = 'global-application-policy-set';
         this.FW_POLICY_GLOBAL_PAGE_ID = "config-fw-policy-global-list";
         this.CONFIG_FW_POLICY_GLOBAL_SECTION_ID = "config-fw-policy-global-section";

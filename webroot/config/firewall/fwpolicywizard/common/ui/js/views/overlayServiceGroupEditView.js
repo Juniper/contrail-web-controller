@@ -43,11 +43,11 @@ define([
                                      $('#aps-overlay-container').hide();
                                      Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                                      $("#aps-gird-container").empty();
-                                     if($('#fw_security_policy_service_gp_grid_view').data("contrailGrid") !== undefined){
-                                         $('#fw_security_policy_service_gp_grid_view').data("contrailGrid")._dataView.refreshData();
+                                     if($('#security-policy-service-grp-grid_fw_wizard').data("contrailGrid") !== undefined){
+                                         $('#security-policy-service-grp-grid_fw_wizard').data("contrailGrid")._dataView.refreshData();
                                      }
-                                     if($('#security-policy-service-grp-grid').data("contrailGrid") !== undefined){
-                                         $('#security-policy-service-grp-grid').data("contrailGrid")._dataView.refreshData();
+                                     if($('#security-policy-service-grp-grid_standalone').data("contrailGrid") !== undefined){
+                                         $('#security-policy-service-grp-grid_standalone').data("contrailGrid")._dataView.refreshData();
                                      }
                                      $("#overlay-background-id").removeClass("overlay-background");
                                  },
@@ -75,28 +75,6 @@ define([
             $('#aps-gird-container').append($('<div id = "gird-details-container"></div>'));
         }
     });
-    function getServiceGroup(viewConfig){
-        if(viewConfig.isGlobal) {
-            return {
-                elementId:
-                    cowu.formatElementId([ctwc.SECURITY_POLICY_TAG_LIST_VIEW_ID]),
-                    view: "fwPolicyWizardServiceGlobalListView",
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
-                viewConfig: $.extend(true, {}, viewConfig)
-            };
-        } else {
-            return {
-                elementId:
-                    cowu.formatElementId([ctwc.SECURITY_POLICY_TAG_LIST_VIEW_ID]),
-                    view: "fwPolicyWizardServiceProjectListview",
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
-                viewConfig: $.extend(true, {}, viewConfig,
-                                     {projectSelectedValueData: viewConfig.projectSelectedValueData})
-            };
-        }
-    };
     var getServiceGroupViewConfig = function (isDisable) {
         return {
             elementId: ctwc.APS_SERVICE_GRP_ID,

@@ -883,14 +883,16 @@ right:12px;}
 #new-application-policy-set-grid-header .widget-toolbar:nth-child(n+5) a{
       line-height:20px;
 }
-#fw_security_policy_global_adressgroup,
-#fw_security_policy_service_gp_grid_view,
-#security-policy-tag, #fw-policy-grid-id{
+#security-policy-address-group_fw_wizard,
+#security-policy-service-grp-grid_fw_wizard,
+#security-policy-tag_fw_wizard, #fw-policy-grid-id,
+#security-policy-tag{
     padding:0px 10px;
 }
-div#aps-landing-container[style='display: block;'] #fw_security_policy_global_adressgroup,
-div#aps-landing-container[style='display: block;'] #fw_security_policy_service_gp_grid_view,
-div#aps-landing-container[style='display: block;'] #security-policy-tag, #fw-policy-grid-id{
+div#aps-landing-container[style='display: block;'] #security-policy-address-group_fw_wizard,
+div#aps-landing-container[style='display: block;'] #security-policy-service-grp-grid_fw_wizard,
+div#aps-landing-container[style='display: block;'] #security-policy-tag_fw_wizard, #fw-policy-grid-id,
+#security-policy-tag{
     padding:0px 15px;
 }
 div#aps-landing-container[style='display: block;'], div#aps-landing-container[style='display: block;'] #aps-main-container{
@@ -903,28 +905,29 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
     float:right;
     margin-right:10px;
 }
-#fw_security_policy_as_grid_view .grid-body .grid-canvas,
+#security-policy-address-grp-grid_fw_wizard .grid-body .grid-canvas,
 #aps-sub-container #security-policy-tag .grid-body .grid-canvas,
-#fw_security_policy_service_gp_grid_view .grid-body .grid-canvas {
+#aps-sub-container #security-policy-tag_fw_wizard .grid-body .grid-canvas,
+#security-policy-service-grp-grid_fw_wizard .grid-body .grid-canvas {
     max-height: 330px;
     overflow-y: auto!important;
 }
 #new-application-policy-set-grid .grid-body .grid-canvas{
     max-height:256px;
     overflow-y:auto!important;
-    } 
+    }
 #configure-applicationpolicyset{
     overflow:auto;
 }
-    @media screen and ( max-height: 570px ){
-       #configure-applicationpolicyset{
-       top:0px!important;
-       height:auto!important;}
-       .modal{
-       top:0px!important;}
-    }
-#security-policy-tag-grid .slick-viewport, #fw_security_policy_as_grid_view .slick-viewport,
-#fw_security_policy_service_gp_grid_view .slick-viewport{
+@media screen and ( max-height: 570px ){
+   #configure-applicationpolicyset{
+   top:0px!important;
+   height:auto!important;}
+   .modal{
+   top:0px!important;}
+}
+#security-policy-tag-grid .slick-viewport, #security-policy-address-grp-grid_fw_wizard .slick-viewport,
+#security-policy-service-grp-grid_fw_wizard .slick-viewport{
     overflow-x: hidden !important;
 }
 #applicationpolicyset_policy_wizard.wizard > .steps ul {
