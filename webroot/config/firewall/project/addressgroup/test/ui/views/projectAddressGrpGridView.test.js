@@ -58,7 +58,7 @@ define([
             rootView: fwProjectPageLoader.fwPolicyView,
             tests: [
                 {
-                    viewId: ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID,
+                    viewId: "security-policy-address-grp-grid_standalone",
                     suites: [
                         {
                             class: GridViewTestSuite,

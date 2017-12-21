@@ -12,22 +12,28 @@ define([
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig,
-                currentProject = viewConfig["projectSelectedValueData"];;
-            var listModelConfig = {
-                remote: {
-                    ajaxConfig: {
-                        url: "/api/tenants/config/get-config-details",
-                        type: "POST",
-                        data: JSON.stringify(
-                            {data: [{type: 'service-groups',
-                                parent_id: currentProject.value}]})
-                    },
-                    dataParser: self.parseServiceGroupsData,
+                currentProject = viewConfig["projectSelectedValueData"],
+                elementId;
+                if(viewConfig.isWizard === true){
+                    elementId = ctwc.FW_WZ_ID_PREFIX;
+                }else{
+                    elementId = ctwc.STANDALONE_ID_PREFIX;
                 }
-            };
+                var listModelConfig = {
+                    remote: {
+                        ajaxConfig: {
+                            url: "/api/tenants/config/get-config-details",
+                            type: "POST",
+                            data: JSON.stringify(
+                                {data: [{type: 'service-groups',
+                                    parent_id: currentProject.value}]})
+                        },
+                        dataParser: self.parseServiceGroupsData,
+                    }
+                };
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                    contrailListModel, getServiceGroupGridViewConfig(viewConfig));
+                    contrailListModel, getServiceGroupGridViewConfig(viewConfig,elementId));
             $("#aps-back-button").off('click').on('click', function(){
                 $('#modal-landing-container').show();
                 $("#aps-gird-container").empty();
@@ -41,21 +47,21 @@ define([
                         if("service-group" in val) {
                             dataItems.push(val["service-group"]);
                         }
-                }); 
+                });
             return dataItems;
         }
     });
 
-    var getServiceGroupGridViewConfig = function (viewConfig) {
+    var getServiceGroupGridViewConfig = function (viewConfig,elementId) {
         return {
-            elementId: cowu.formatElementId([ctwc.SECURITY_POLICY_SERVICE_GRP_SECTION_ID]),
+            elementId: cowu.formatElementId([ctwc.SECURITY_POLICY_SERVICE_GRP_SECTION_ID.concat(elementId)]),
             view: "SectionView",
             viewConfig: {
                 rows: [
                     {
                         columns: [
                             {
-                                elementId: ctwc.SECURITY_POLICY_SERVICE_GRP_ID,
+                                elementId: ctwc.SECURITY_POLICY_SERVICE_GRP_ID.concat(elementId),
                                 view: "serviceGroupGridView",
                                 viewPathPrefix: "config/firewall/common/servicegroup/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
@@ -67,8 +73,10 @@ define([
                                         }
                                     },
                                     isGlobal: false,
+                                    elementIdPrefix:elementId,
                                     projectSelectedValueData: viewConfig.projectSelectedValueData,
-                                    hashParams:viewConfig.hashParams
+                                    hashParams:viewConfig.hashParams,
+                                    isWizard: viewConfig.isWizard
                                 }
                             }
                         ]

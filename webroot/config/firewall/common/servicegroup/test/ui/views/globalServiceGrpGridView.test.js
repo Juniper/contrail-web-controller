@@ -45,7 +45,7 @@ define([
             rootView: fwGlobalPageLoader.securityPolicyView,
             tests: [
                 {
-                    viewId: ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID,
+                    viewId: "security-policy-service-grp-grid_standalone",
                     suites: [
                         {
                             class: GridViewTestSuite,
