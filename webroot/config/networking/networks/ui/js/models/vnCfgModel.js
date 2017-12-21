@@ -1082,7 +1082,7 @@ define([
 
         addEditVNCfg: function (callbackObj, ajaxMethod) {
             var ajaxConfig = {}, returnFlag = false;
-            var postData = {'virtual-network':{}};
+            var postData = {'virtual-network':{}}, postReq;
 
             var validation = [{
                                 key: null,
@@ -1213,9 +1213,23 @@ define([
                                      '/api/tenants/config/virtual-networks';
                 var putURL         = '/api/tenants/config/virtual-network/' +
                                      newVNCfgData['uuid'];
-                ajaxConfig.type    = ajaxType;
-                ajaxConfig.data    = JSON.stringify(postData);
-                ajaxConfig.url     = ajaxType == 'PUT' ? putURL : postURL;
+                if(ajaxType === "POST") {
+                    postReq = {"data":[{"data":{"virtual-network": newVNCfgData},
+                                "reqUrl": '/virtual-networks', "type": 'virtual-network'}]};
+                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
+                } else {
+                    postReq = {"data":[{"data":{"virtual-network": newVNCfgData},
+                                "reqUrl": '/virtual-network/' +
+                                newVNCfgData['uuid'], "type": 'virtual-network'}]};
+                    ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
+                }
+                ajaxConfig.type    = 'POST';
+                ajaxConfig.data    = JSON.stringify(postReq);
+                if(isVCenter()) {
+                    ajaxConfig.url = postURL;
+                    ajaxConfig.data = JSON.stringify(postData);
+                }
+                //ajaxConfig.url     = ajaxType == 'PUT' ? putURL : postURL;
                 ajaxConfig.timeout = 300000;
 
 

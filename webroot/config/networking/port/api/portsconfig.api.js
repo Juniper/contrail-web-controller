@@ -28,6 +28,7 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
 var configUtil = require('../../../common/api/configUtil.api');
 var jsonDiff = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/common/jsondiff');
+var _ = require('lodash');
 
 /**
  * Bail out if called directly as "nodejs portsconfig.api.js"
@@ -196,7 +197,7 @@ function createPortCB (dataObj, callback)
     var req = dataObj.request;
     var response = dataObj.response;
     var appData = dataObj.appData;
-    var data = dataObj.vmidata;
+    var data = dataObj.data;
 
     createPortValidate(req, data, appData, function(error, results) {
         callback(error, results);
@@ -442,17 +443,19 @@ function updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portC
  * 1. Update the ports from config api server
  * 2. Return back the result to the called function.
  */
-function updatePortsCB (request, appData, callback)
+function updatePortsCB (dataObject, callback)
 {
     var portId = "";
-    portId = request.param('uuid');
-    var portPutData = request.body;
+    var portPutData = dataObject.data;
+    var appData = dataObject.appData;
+    var request = dataObject.request;
+    portId = _.get(portPutData, 'virtual-machine-interface.uuid', null);
     readVMIwithUUID(portId, appData, function(err , vmiData){
         updateVMIFlow(err, request, portPutData, vmiData, appData, function(error, protUpdateConfig) {
             if (error) {
                 callback(error, null);
             } else {
-                callback(error, protUpdateConfig);
+                callback(error, vmiData);
             }
             return;
         });

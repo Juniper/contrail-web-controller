@@ -35,6 +35,7 @@ var svcInst =
     require('../../services/instances/api/serviceinstanceconfig.api');
 var fwPolicy =
     require('../../firewall/common/fwpolicy/api/fwpolicyconfig.api');
+var _ = require('lodash');
 
 var errorData = [];
 var configCBDelete = 
@@ -55,6 +56,20 @@ var configCBDelete =
 var getConfigPageRespCB = {
     'virtual-network': vnConfig.getVirtualNetworkCb,
     'network-ipam': nwIpam.getIpamCb
+};
+
+var configCBCreateEdit = 
+{
+    'post' :
+        {
+            'virtual-network': vnConfig.createVirtualNetworkCB,
+            'virtual-machine-interface':portsConfig.createPortCB
+        },
+    'put'  :
+        {
+            'virtual-network': vnConfig.updateVirtualNetworkCB,
+            'virtual-machine-interface': portsConfig.updatePortsCB
+        }
 };
 
 /**
@@ -187,6 +202,11 @@ function sendBackDeleteResult(err, res, result)
 function getConfigDeleteCallbackByType (type)
 {
     return configCBDelete[type];
+}
+
+function getConfigCreateEditCallbackByType (type, objType)
+{
+    return _.get(configCBCreateEdit, type + '.' + objType, null);
 }
 
 function getConfigDetailsAsync (dataObj, callback)
@@ -634,14 +654,20 @@ function createOrUpdateConfigObjectCB (dataObjArr, callback)
     var appData = dataObjArr['appData'];
     var data = dataObjArr['data'];
     var type = dataObjArr['type'];
-    if (global.HTTP_REQUEST_PUT == type) {
-        configApiServer.apiPut(reqUrl, data, appData, function(error, data) {
-            callback(error, data);
-        });
+    var objType = dataObjArr['objType'];
+    var createEditHandler = getConfigCreateEditCallbackByType(type, objType);
+    if(null === createEditHandler) {
+        if (global.HTTP_REQUEST_PUT == type) {
+            configApiServer.apiPut(reqUrl, data, appData, function(error, data) {
+                callback(error, data);
+            });
+        } else {
+            configApiServer.apiPost(reqUrl, data, appData, function(error, data) {
+                callback(error, data);
+            });
+        }
     } else {
-        configApiServer.apiPost(reqUrl, data, appData, function(error, data) {
-            callback(error, data);
-        });
+        createEditHandler(dataObjArr, callback);
     }
 }
 
@@ -653,7 +679,7 @@ function createConfigObject (req, res, appData)
         commonUtils.handleJSONResponse(error, res, null);
         return;
     }
-    createOrUpdateConfigObject(body, global.HTTP_REQUEST_POST,
+    createOrUpdateConfigObject(req, global.HTTP_REQUEST_POST,
                                appData, function(error, results) {
         commonUtils.handleJSONResponse(error, res, results);
     });
@@ -667,31 +693,151 @@ function updateConfigObject (req, res, appData)
         commonUtils.handleJSONResponse(error, res, null);
         return;
     }
-    createOrUpdateConfigObject(body, global.HTTP_REQUEST_PUT,
+    createOrUpdateConfigObject(req, global.HTTP_REQUEST_PUT,
                                appData, function(error, results) {
         commonUtils.handleJSONResponse(error, res, results);
     });
 }
 
-function createOrUpdateConfigObject (body, type, appData, callback)
+function createOrUpdateConfigObject (req, type, appData, callback)
 {
     var dataObjArr = [];
+    var body = req.body;
     var data = commonUtils.getValueByJsonPath(body, 'data', [], false);
     var reqCnt = data.length;
     var dataObjArr = [];
+    var setTagsMap = {}, objType, tagRefs, fqName, uuid, partialKey;
     for (var i = 0; i < reqCnt; i++) {
         dataObjArr[i] = {};
         dataObjArr[i]['type'] = type;
         dataObjArr[i]['data'] = data[i]['data'];
+        dataObjArr[i]['request'] = req;
         dataObjArr[i]['appData'] = appData;
         dataObjArr[i]['reqUrl'] = data[i]['reqUrl'];
+        objType =  _.get(data, i + '.type', null);
+        if(objType === null) {
+            objType = _.keys(data[i]['data'])[0];
+        }
+        dataObjArr[i]['objType'] = objType;
+        tagRefs = _.get(data, [i, 'data', objType, 'tag_refs'], []);
+        if(tagRefs.length) {
+            uuid = _.get(data, [i, 'data', objType, 'uuid'], null);
+            fqName = _.get(data, [i, 'data', objType, 'fq_name'], []).join(':');
+            partialKey = uuid !== null ? uuid : fqName;
+            setTagsMap[objType + ';'+ partialKey] = tagRefs;
+            delete data[i]['data'][objType]['tag_refs'];
+        }
     }
     async.map(dataObjArr, createOrUpdateConfigObjectCB,
               function(err, results) {
-        callback(err, results);
+              if(err){
+                  callback(err, null);
+                  return;
+              }
+              setTags(setTagsMap, results, appData, function(errTag, resultsTag){
+                  if(errTag){
+                      callback(errTag, null);
+                      return;
+                  }
+                  callback(err, results);
+              });
     });
 }
 
+function setTags(setTagsMap, results, appData, callback)
+{
+    try {
+        var dataObjArray = [];
+        _.forIn(setTagsMap, function(tagRefs, key) {
+            var objTypeArry = key.split(';'),
+                objType = objTypeArry[0],
+                partialKey = objTypeArry[1];
+            var objDetails = _.find(results, function(o){
+                var fqName = _.get(o, objType +'.fq_name', []).join(':'),
+                    uuid =  _.get(o, objType +'.uuid', null);
+                return (fqName === partialKey || uuid === partialKey);
+            });
+            var reqUrl = '/set-tag';
+            var postData = {};
+            postData.obj_type = objType;
+            postData.obj_uuid = objDetails[objType].uuid;
+            //delete existing tag refs for edit case
+            var existingTagRefs = objDetails[objType].tag_refs;
+            var deleteTagArray = [];
+            if(existingTagRefs && existingTagRefs.length) {
+                _.each(existingTagRefs, function(existingTag){
+                    var tagExist = _.find(tagRefs, function(tag){
+                            var tagTo = tag.to.join(':');
+                            var existingTagTo = existingTag.to.join(':');
+                            return tagTo === existingTagTo;
+                        });
+                    if(tagExist === undefined) {
+                        deleteTagArray.push(existingTag);
+                    }
+                });
+            }
+            _.each(deleteTagArray, function(tag){
+                var tagInfo = tag.to[tag.to.length -1];
+                tagInfo = tagInfo.split('=');
+                var tagType = tagInfo[0];
+                var tagValue = tagInfo[1];
+                if(tagType === 'label') {
+                    if(!postData[tagType]) {
+                        postData[tagType] = {};
+                    }
+                    if(!postData[tagType]['delete_values']){
+                        postData[tagType]['delete_values'] = [];
+                    }
+                    postData[tagType]['delete_values'].push(tagValue);
+                } else {
+                    postData[tagType] = {};
+                    postData[tagType]['value'] = null;
+                }
+                if(tag.to.length === 3) {
+                    postData[tagType]['is_global'] = false;
+                } else if(tag.to.length === 1) {
+                    postData[tagType]['is_global'] = true;
+                }
+            });
+            _.each(tagRefs, function(tag){
+                var tagInfo = tag.to[tag.to.length -1];
+                tagInfo = tagInfo.split('=');
+                var tagType = tagInfo[0];
+                var tagValue = tagInfo[1];
+                if(tagType === 'label') {
+                    if(!postData[tagType]) {
+                        postData[tagType] = {};
+                    }
+                    if(!postData[tagType]['add_values']){
+                        postData[tagType]['add_values'] = [];
+                    }
+                    postData[tagType]['add_values'].push(tagValue);
+                } else {
+                    postData[tagType] = {};
+                    postData[tagType]['value'] = tagValue;
+                }
+                if(tag.to.length === 3) {
+                    postData[tagType]['is_global'] = false;
+                } else if(tag.to.length === 1) {
+                    postData[tagType]['is_global'] = true;
+                }
+            });
+            commonUtils.createReqObj(dataObjArray, reqUrl,
+                                     global.HTTP_REQUEST_POST,
+                                     commonUtils.cloneObj(postData), null,
+                                     null, appData);
+        });
+        async.map(dataObjArray,
+                commonUtils.getServerResponseByRestApi(configApiServer, true),
+                function(error, results) {
+                    callback(error, results);
+                    return;
+                }
+            );
+    } catch(e){
+        callback(e, null);
+    }
+}
 
 exports.getConfigUUIDList = getConfigUUIDList;
 exports.deleteMultiObject = deleteMultiObject;

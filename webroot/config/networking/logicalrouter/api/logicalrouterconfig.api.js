@@ -255,7 +255,7 @@ function createLogicalRouter(request, response, appData)
             }
             allDataArr.push({
                 request: request,
-                vmidata: vmidata,
+                data: vmidata,
                 response: response,
                 appData: appData
             });
@@ -397,7 +397,7 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
                 }
                 allDataArr.push({
                     request: request,
-                    vmidata: vmidata,
+                    data: vmidata,
                     response: response,
                     appData: appData
                 });
