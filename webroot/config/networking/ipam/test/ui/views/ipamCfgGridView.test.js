@@ -9,8 +9,9 @@ define([
     'ct-test-messages',
     'config/networking/ipam/test/ui/views/ipamCfgGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
-    'co-grid-view-test-suite'
-], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+    'co-grid-view-test-suite',
+    'config/networking/ipam/test/ui/views/ipamCfgModal.test.suite'
+], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite,ipamModalTestSuite) {
 
     var moduleId = cttm.IPAM_GRID_VIEW_COMMON_TEST_MODULE;
 
@@ -33,6 +34,20 @@ define([
             url: /\/api\/tenants\/config\/ipam-details.*$/,
             body: JSON.stringify(TestMockdata.ipamsData)
         }));
+        responses.push(cotr.createFakeServerResponse( {
+            url: /\/api\/tenants\/config\/virtual-DNSs.*$/,
+            body: JSON.stringify(TestMockdata.virtualDNsData)
+        }));
+        responses.push(cotr.createFakeServerResponse( {
+            url: /\/api\/tenants\/config\/get-config-details.*$/,
+            body: JSON.stringify(TestMockdata.tagsMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            url: /\/api\/tenants\/config\/ipams.*$/,
+            method: 'POST',
+            postBody: JSON.stringify(TestMockdata.ipamModalMockCNIOutput),
+            body: JSON.stringify(null)
+        }));
         return responses;
     };
     fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;
@@ -52,6 +67,10 @@ define([
                     suites: [
                         {
                             class: GridViewTestSuite,
+                            groups: ['all']
+                        },
+                        {
+                            class: ipamModalTestSuite,
                             groups: ['all']
                         }
                     ]
