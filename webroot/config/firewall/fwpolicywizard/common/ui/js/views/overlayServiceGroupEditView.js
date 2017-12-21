@@ -43,11 +43,11 @@ define([
                                      $('#aps-overlay-container').hide();
                                      Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                                      $("#aps-gird-container").empty();
-                                     if($('#fw_security_policy_service_gp_grid_view').data("contrailGrid") !== undefined){
-                                         $('#fw_security_policy_service_gp_grid_view').data("contrailGrid")._dataView.refreshData();
+                                     if($('#security-policy-service-grp-grid_fw_wizard').data("contrailGrid") !== undefined){
+                                         $('#security-policy-service-grp-grid_fw_wizard').data("contrailGrid")._dataView.refreshData();
                                      }
-                                     if($('#security-policy-service-grp-grid').data("contrailGrid") !== undefined){
-                                         $('#security-policy-service-grp-grid').data("contrailGrid")._dataView.refreshData();
+                                     if($('#security-policy-service-grp-grid_standalone').data("contrailGrid") !== undefined){
+                                         $('#security-policy-service-grp-grid_standalone').data("contrailGrid")._dataView.refreshData();
                                      }
                                      $("#overlay-background-id").removeClass("overlay-background");
                                  },
