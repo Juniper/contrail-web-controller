@@ -758,19 +758,19 @@ define([
         if(viewConfig.isGlobal) {
             return {
                 elementId:
-                    cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_AS_GLOBAL_LIST_VIEW_ID]),
-                view: "fwPolicyWizardASGlobalListView",
+                cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_AS_GLOBAL_LIST_VIEW_ID]),
+                view: "addressGroupGlobalListView",
+                viewPathPrefix: "config/infra/firewall/ui/js/views/",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
                 viewConfig: $.extend(true, {}, viewConfig)
             };
         } else {
             return {
                 elementId:
                     cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_AS_PROJECT_LIST_VIEW_ID]),
-                view: "fwPolicyWizardASProjectListView",
+                view: "addressGroupProjectListView",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
+                viewPathPrefix: "config/firewall/project/addressgroup/ui/js/views/",
                 viewConfig: $.extend(true, {}, viewConfig,
                                      {projectSelectedValueData: viewConfig.projectSelectedValueData})
             };
@@ -781,18 +781,18 @@ define([
             return {
                 elementId:
                     cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_SG_GLOBAL_LIST_VIEW_ID]),
-                view: "fwPolicyWizardServiceGlobalListView",
+                view: "serviceGroupGlobalListView",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
+                viewPathPrefix: "config/infra/firewall/ui/js/views/",
                 viewConfig: $.extend(true, {}, viewConfig)
             };
         } else {
             return {
                 elementId:
                     cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_SG_PROJECT_LIST_VIEW_ID]),
-                view: "fwPolicyWizardServiceProjectListview",
+                view: "serviceGroupProjectListView",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
+                viewPathPrefix: "config/firewall/project/servicegroup/ui/js/views/",
                 viewConfig: $.extend(true, {}, viewConfig,
                                      {projectSelectedValueData: viewConfig.projectSelectedValueData})
             };
