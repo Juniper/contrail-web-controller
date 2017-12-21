@@ -628,7 +628,10 @@ div#config-fw-rule {
 form h5.margin-0-0-10~.section-content {
     padding-top: 15px;
 }
-
+#configure-firewall_policy .modal-body{
+    overflow-y:hidden;
+    max-height: 480px;
+}
 #configure-firewallRule .modal-body #configure-firewallRule-form .section-content .select2-container[class*="col-xs-"] {
     float: none;
 }
@@ -968,9 +971,6 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
 }
 #aps-overlay-container .slick-viewport .grid-canvas{
     width:100%!important;}
-#firewall_rules li.select2-search-field>input.select2-input {
-    width: 100%!important;
-}
 #firewall_rules .wizard > .content > .body .form-label label {
     display: block;
     padding: 0px;
