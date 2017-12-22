@@ -453,7 +453,7 @@ define([
             return retStr;
         }
         self.createApplicationPolicySet = function(){
-            $("#overlay-background-id").addClass("overlay-background");
+            //$("#overlay-background-id").addClass("overlay-background");
             $('#view-address-group').show();
             $('#view-service-group').show();
             $('#view-visble-tags').show();

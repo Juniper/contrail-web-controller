@@ -720,7 +720,6 @@ form h5.margin-0-0-10~.section-content {
 }
 #aps-landing-container{
     background:linear-gradient(#f7fdff,#fff);
-    display:none;
     height:500px;
     position: relative;
 }

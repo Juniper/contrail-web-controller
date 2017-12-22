@@ -32,8 +32,25 @@ define([
                 newModel = self.model
             cowu.createModal({'modalId': modalId, 'className': 'modal-1120',
                              'title': options['title'], 'body': editLayout});
-
-            self.renderView4Config($("#" + modalId).find('#aps-button-container'),
+                $('.modal-header-title').text("Firewall Policy Wizard");
+                //$('#aps-main-container').show();
+                $('#aps-create-fwpolicy-remove-icon').show();
+                $('#aps-remove-icon').hide();
+                $('#aps-overlay-container').hide();
+                self.fetchAllData(self, options, function(allData){
+                    self.renderView4Config($("#" + modalId).find('#aps-sub-container'), self.model,
+                        getAddPolicyViewConfig(self, options['viewConfig'], allData, options),'policyValidation', null, null,function(){
+                            Knockback.applyBindings(self.model, document.getElementById('applicationpolicyset_add-new-firewall-policy'));
+                            if(Object.keys(policyEditSet).length > 0){
+                                if(policyEditSet.mode === 'edit'){
+                                    $("#policy_name input").attr('disabled','disabled'); 
+                                }
+                            }
+                            Knockback.applyBindings(self.model, document.getElementById('applicationpolicyset_rules'));
+                            kbValidation.bind(self);
+                    },null,false);
+                });
+            /*self.renderView4Config($("#" + modalId).find('#aps-button-container'),
                                    this.model,
                                    getApplicationPolicyViewConfig(options), "",
                                    null, null, function() {
@@ -102,13 +119,13 @@ define([
                         $("#overlay-background-id").removeClass("overlay-background");
                         fwzUtils.backButtonClick();
                     })
-            },null,false);
+            },null,false);*/
         },
-        renderObject: function(options, objName, self){
-            $('#modal-landing-container').hide();
+        /*renderObject: function(options, objName, self){
+            //$('#modal-landing-container').hide();
             $('#aps-save-button').hide();
-            $('#aps-landing-container').show();
-            var placeHolder = $('#aps-gird-container');
+            //$('#aps-landing-container').show();
+            //var placeHolder = $('#aps-gird-container');
             var viewConfig = options['viewConfig'];
             if(objName === 'address_groups'){
                 $('#aps-main-container').show();
@@ -138,7 +155,7 @@ define([
                 this.renderView4Config($('#aps-sub-container'), null, getTag(viewConfig));
             }else if(objName === 'addIcon'){
                 $('.modal-header-title').text("Firewall Policy Wizard");
-                $('#aps-main-container').show();
+                //$('#aps-main-container').show();
                 $('#aps-create-fwpolicy-remove-icon').show();
                 $('#aps-remove-icon').hide();
                 $('#aps-overlay-container').hide();
@@ -160,7 +177,7 @@ define([
                     });
                 });
             }
-         },
+         },*/
          fetchAllData : function(self, options, callback) {
              var getAjaxs = [];
              var data;
@@ -688,6 +705,7 @@ define([
                             }
                         ]
                     }
+                    
                 ]
             },
             title: "Select set",
@@ -820,7 +838,7 @@ define([
             };
         }
     }
-    var getApplicationPolicyViewConfig = function (options) {
+    /*var getApplicationPolicyViewConfig = function (options) {
         if(options.viewConfig.isGlobal === true){
             titleTags = "Review Visible Tags";
         }
@@ -874,7 +892,7 @@ define([
                     ]
                }
           }
-     };
+     };*/
 
     return fwPolicyWizardEditView;
 });
