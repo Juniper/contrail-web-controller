@@ -1044,3 +1044,6 @@ body #firewall_policy_rules #firewall_rules th.text-center, body #applicationpol
 #alarms-event-drops .item-content {
     display: block;
 }
+body.navbar-fixed{
+    padding-right:0px!important;
+}
