@@ -1032,3 +1032,6 @@ body #firewall_policy_rules #firewall_rules th.text-center, body #applicationpol
     text-align: left;
     width: 897px!important;
 }
+body.navbar-fixed{
+    padding-right:0px!important;
+}
