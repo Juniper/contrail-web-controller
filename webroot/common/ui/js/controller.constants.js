@@ -1039,7 +1039,18 @@ define([
         this.APS_TAG_ID = 'aps-tag';
         this.APS_TAG_GRID_ID = "aps-tag-grid";
         this.APS_TAG_LIST_VIEW_ID = "aps-tag-list-view";
-        this.NEW_APPLICATION_POLICY_SET_LIST_VIEW_ID = "new-application-policy-set-list-view";
+        this.ASSOCIATED_POLICY_GRID_ID = {
+           'sectionId': 'associated-fw-policy-section',
+           'id': 'associated-fw-policy-id',
+           'gridId': 'fw-wz-policy-grid'
+        };
+        this.INVENTORY_POLICY_GRID_ID = {
+                'sectionId': 'inventory-fw-policy-section',
+                'id': 'inventory-fw-policy-id',
+                'gridId': 'inventory-policy-grid'
+             };
+        //this.NEW_APPLICATION_POLICY_SET_LIST_VIEW_ID = "new-application-policy-set-list-view";
+        this.CREATE_NEW_APPLICATION_POLICY_SET_VIEW_ID = 'create-new-application-policy-set-view';
         this.NEW_APPLICATION_POLICY_SET_SECTION_ID = 'new-application-policy-set-section';
         this.NEW_APPLICATION_POLICY_SET = 'new-application-policy-set';
         this.NEW_APPLICATION_POLICY_SET_GRID_ID = "new-application-policy-set-grid";

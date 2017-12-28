@@ -8,11 +8,15 @@ define([
     'config/firewall/common/fwpolicy/ui/js/fwPolicyFormatter',
     'config/firewall/common/fwpolicy/ui/js/models/fwPolicyModel',
     'config/firewall/common/fwpolicy/ui/js/views/fwPolicyEditView',
-    'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizard.utils'
-], function(_, ContrailView, FWPolicyFormatter, FWPolicyModel, FWPolicyEditView, FWZUtils) {
+    'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizard.utils',
+    'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizardEditView',
+    'config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel'
+], function(_, ContrailView, FWPolicyFormatter, FWPolicyModel, FWPolicyEditView, FWZUtils,
+        FwPolicyWizardEditView, FWPolicyWizardModel) {
     var self, gridElId = '#' + ctwc.FW_POLICY_GRID_ID, gridObj,
       fwPolicyFormatter = new FWPolicyFormatter(),
       fwPolicyEditView =  new FWPolicyEditView(),
+      fwPolicyWizardEditView = new FwPolicyWizardEditView(),
       fwzUtils = new FWZUtils();
     var fwPolicyGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -60,20 +64,17 @@ define([
             var rowActionConfig = [];
             rowActionConfig.push(ctwgc.getEditConfig("Edit", function (rowIndex) {
                     var dataItem = $(gridElId).data("contrailGrid").
-                        _dataView.getItem(rowIndex),
-                    fwPolicyModel = new FWPolicyModel(dataItem);
-                        fwPolicyEditView.model = fwPolicyModel;
-                        fwPolicyEditView.renderEditFirewallPolicyDescription(
-                            {"title": ctwl.EDIT,
-                                mode: ctwl.EDIT_ACTION,
-                                isGlobal: viewConfig.isGlobal,
-                                callback: function () {
-                                    var dataView =
-                                        $(gridElId).data("contrailGrid")._dataView;
-                                    dataView.refreshData();
-                                }
-                            }
-                        );
+                        _dataView.getItem(rowIndex);
+                    newApplicationSet = {};
+                    fwPolicyWizardEditView.model = new FWPolicyWizardModel(dataItem);
+                    fwPolicyWizardEditView.renderFwWizard({
+                                    "title": 'Edit Firewall Policy',
+                                    'viewConfig': $.extend(viewConfig.viewConfig, { mode: 'edit', isGlobal: viewConfig.isGlobal , 
+                                     seletedRows : [], isWizard: viewConfig.isWizard, wizardMode: 'policy', model: dataItem}),
+                                     callback: function () {
+                                           $(gridElId).data("contrailGrid")._dataView.refreshData();
+                                     }
+                    });
                 }));
             rowActionConfig.push(ctwgc.getDeleteAction(function (rowIndex) {
                          var dataItem = $(gridElId).data("contrailGrid").
@@ -189,20 +190,16 @@ define([
                         "title" : ctwl.TITLE_CREATE_FW_POLICY,
                         "iconClass" : "fa fa-plus",
                         "onClick" : function() {
-                            var fwPolicyModel = new FWPolicyModel();
-                            fwPolicyEditView.model = fwPolicyModel;
-                            fwPolicyEditView.renderAddEditFWPolicy(
-                                {"title": ctwl.CREATE,
-                                    callback: function () {
-                                        var dataView =
-                                            $(gridElId).
-                                            data("contrailGrid")._dataView;
-                                        dataView.refreshData();
-                                    },
-                                    mode : ctwl.CREATE_ACTION,
-                                    isGlobal: viewConfig.isGlobal
-                                }
-                            );
+                            newApplicationSet = {};
+                            fwPolicyWizardEditView.model = new FWPolicyWizardModel();
+                            fwPolicyWizardEditView.renderFwWizard({
+                                            "title": 'Create Firewall Policy',
+                                            'viewConfig': $.extend(viewConfig.viewConfig, { mode: 'add', isGlobal: viewConfig.isGlobal , 
+                                             seletedRows : [], isWizard: viewConfig.isWizard, wizardMode: 'policy'}),
+                                             callback: function () {
+                                                   $(gridElId).data("contrailGrid")._dataView.refreshData();
+                                             }
+                            });
                         }
                     }
                 ];

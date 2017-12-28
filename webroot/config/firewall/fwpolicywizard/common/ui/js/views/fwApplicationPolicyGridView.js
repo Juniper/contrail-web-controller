@@ -11,7 +11,7 @@ define([
     'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizardEditView',
     'config/firewall/fwpolicywizard/common/ui/js/views/inventoryPolicyView'
 ], function(_, ContrailView, Knockback, FWPolicyFormatter, FWPolicyModel, FWPolicyEditView, InventoryPolicyView) {
-    var self, gridElId = '#' + ctwc.FW_WZ_POLICY_GRID_ID;
+    var self, gridElId;
       fwPolicyFormatter = new FWPolicyFormatter(),
       fwPolicyEditView =  new FWPolicyEditView(),
       inventoryPolicyView = new InventoryPolicyView();
@@ -22,6 +22,7 @@ define([
             updatedGridList = [];
             var viewConfig = self.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+            gridElId = '#'+ viewConfig.viewConfig.idList.gridId;
             self.renderView4Config(self.$el, self.model,
                 getFWPolicyGridViewConfig(viewConfig));
         }
@@ -39,7 +40,7 @@ define([
                     {
                         columns: [
                             {
-                                elementId: ctwc.FW_WZ_POLICY_GRID_ID,
+                                elementId: viewConfig.viewConfig.idList.gridId,
                                 view: "GridView",
                                 viewConfig: {
                                     elementConfig:
@@ -61,7 +62,7 @@ define([
                 "title" : 'Move Policy Up',
                 "iconClass" : "fa fa-arrow-up",
                 "onClick" : function(rowIndex) {
-                    var dataView = $('#' + ctwc.FW_WZ_POLICY_GRID_ID).data("contrailGrid")._dataView;
+                    var dataView = $('#' + viewConfig.viewConfig.idList.gridId).data("contrailGrid")._dataView;
                     var items = dataView.getItems();
                     var nextIndex = rowIndex - 1;
                     var currentData = items[rowIndex];
@@ -85,7 +86,7 @@ define([
                 "title" : 'Move Policy Down',
                 "iconClass" : "fa fa-arrow-down",
                 "onClick" : function(rowIndex) {
-                    var dataView = $('#' + ctwc.FW_WZ_POLICY_GRID_ID).data("contrailGrid")._dataView;
+                    var dataView = $('#' + viewConfig.viewConfig.idList.gridId).data("contrailGrid")._dataView;
                     var items = dataView.getItems();
                     var nextIndex = rowIndex + 1;
                     var currentData = items[rowIndex];
@@ -201,7 +202,7 @@ define([
                 "onClick": function () {
                     if(ko.contextFor($('#name').get(0)).$data.name() !== ''){
                         policyEditSet = {};
-                        $('#aps-main-back-button').hide();
+                        $('#applicationpolicyset_policy_wizard-p-0 .alert-error').hide();
                         $("#overlay-background-id").removeClass("overlay-background");
                         newApplicationSet = {
                                 name:  ko.contextFor($('#name').get(0)).$data.name(),
@@ -215,17 +216,16 @@ define([
                         var existingRows = $(gridElId).data("contrailGrid")._dataView.getItems();
                         newApplicationSet.existingRows = existingRows;
                         newApplicationSet.mode = viewConfig.viewConfig.mode;
-                        $('#aps-overlay-container').hide();
-                        Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                        $('#aps-save-btn-container').hide();
                         $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
-                        var modelHeader = ctwc.APS_MODAL_HEADER+ ' > '+ newApplicationSet.name;
+                        var modelHeader = newApplicationSet.name + ' > '+ 'New Policy';
                         $('.modal-header-title').text('');
                         $('.modal-header-title').text(modelHeader);
                         $($('#applicationpolicyset_policy_wizard a.btn-primary')[0]).trigger("click");
                     }else{
-                        $("#grid-details-error-container").text('');
-                        $("#grid-details-error-container").text('Please enter the name.');
-                        $(".aps-details-error-container").show();
+                        $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text('');
+                        $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text('Please enter the name.');
+                        $('#applicationpolicyset_policy_wizard-p-0 .alert-error').show();
                     }
                 }
             },

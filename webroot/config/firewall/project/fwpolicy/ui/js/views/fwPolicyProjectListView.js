@@ -28,7 +28,7 @@ define([
             };
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                    contrailListModel, getfwPolicyGridViewConfig());
+                    contrailListModel, getfwPolicyGridViewConfig(viewConfig));
         },
         parseFWPolicyData : function(response){
             var dataItems = [],
@@ -43,7 +43,7 @@ define([
         }
     });
 
-    var getfwPolicyGridViewConfig = function () {
+    var getfwPolicyGridViewConfig = function (viewConfig) {
         return {
             elementId:
                 cowu.formatElementId([ctwc.CONFIG_FW_POLICY_GLOBAL_SECTION_ID]),
@@ -65,6 +65,8 @@ define([
                                             pageSizeSelect: [10, 50, 100]
                                         }
                                     },
+                                    viewConfig: viewConfig,
+                                    isWizard: false,
                                     isGlobal: false                            
                                 }
                             }

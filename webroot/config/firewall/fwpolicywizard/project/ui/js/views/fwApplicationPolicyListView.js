@@ -193,13 +193,13 @@ define([
         getFWPolicyGlobalGridViewConfig: function(viewConfig, policyGridList) {
             return {
                 elementId:
-                cowu.formatElementId(["fw-policy-list-view"]),
+                cowu.formatElementId([viewConfig.idList.sectionId]),
                 view: "SectionView",
                 viewConfig: {
                     rows: [{
                         columns: [
                             {
-                                elementId: "fw-policy-grid-id",
+                                elementId: viewConfig.idList.id,
                                 view: "fwApplicationPolicyGridView",
                                 viewPathPrefix:
                                     "config/firewall/fwpolicywizard/common/ui/js/views/",
