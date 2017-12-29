@@ -1197,13 +1197,11 @@ function buildSetTagMaps (mapObj, data, objType)
         objType = _.keys(data)[0];
     }
     var tagRefs = _.get(data, [objType, "tag_refs"], []);
-    if (tagRefs.length) {
-        var uuid = _.get(data, [objType, "uuid"], null);
-        var fqName = _.get(data, [objType, "fq_name"], []).join(":");
-        partialKey = (null != uuid) ? uuid : fqName;
-        mapObj[objType + ';'+ partialKey] = tagRefs;
-        delete data[objType].tag_refs;
-    }
+    var uuid = _.get(data, [objType, "uuid"], null);
+    var fqName = _.get(data, [objType, "fq_name"], []).join(":");
+    partialKey = (null != uuid) ? uuid : fqName;
+    mapObj[objType + ';'+ partialKey] = tagRefs;
+    delete data[objType].tag_refs;
 }
 
 function createConfigObject (req, res, appData)
@@ -1669,13 +1667,7 @@ function setTags(setTagsMap, results, appData, callback)
                     }
                     postData[tagType]['delete_values'].push(tagValue);
                 } else {
-                    postData[tagType] = {};
-                    postData[tagType]['value'] = null;
-                }
-                if(tag.to.length === 3) {
-                    postData[tagType]['is_global'] = false;
-                } else if(tag.to.length === 1) {
-                    postData[tagType]['is_global'] = true;
+                    postData[tagType] = null;
                 }
             });
             _.each(tagRefs, function(tag){
