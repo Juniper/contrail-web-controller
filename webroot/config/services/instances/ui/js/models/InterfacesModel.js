@@ -14,7 +14,8 @@ define([
             virtualNetwork: null,
             interfaceIndex: -1,
             interfaceData: null,
-            allVNListData: []
+            allVNListData: [],
+            tmplData: null
         },
 
         validateAttr: function (attributePath, validation, data) {
@@ -69,6 +70,13 @@ define([
         validations: {
             interfacesValidation: {
                 'virtualNetwork': function(val, attr, obj) {
+                    var svcType = getValueByJsonPath(obj,
+                                                     "tmplData;service_template_properties;service_type",
+                                                     null);
+                    if ("loadbalancer" == svcType) {
+                        /* VN can be null */
+                        return;
+                    }
                     if (null == val) {
                         /* Note "" is a valid value, that is for Auto
                          * Configgured
