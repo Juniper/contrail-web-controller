@@ -145,7 +145,6 @@ function deleteByType(dataObj, callback)
 {
     var delCB = getConfigDeleteCallbackByType(dataObj[0]["type"]);
     if (null == delCB || "" == delCB) {
-        console.log("Didnt find the handler");
         delCB = defaultConfigDeleteHandler;
     }
     async.mapLimit(dataObj, 100, delCB,
@@ -1971,7 +1970,7 @@ function setTags(setTagsMap, results, appData, callback)
             var objDetails = _.find(results, function(o){
                 var fqName = _.get(o, objType +'.fq_name', []).join(':'),
                     uuid =  _.get(o, objType +'.uuid', null);
-                return (fqName === partialKey || uuid === partialKey);
+                return (fqName.toLowerCase() === partialKey.toLowerCase() || uuid === partialKey);
             });
             var reqUrl = '/set-tag';
             var postData = {};

@@ -73,7 +73,8 @@ define([
                                         }
                                     },
                                     isGlobal: true,
-                                    isWizard: viewConfig ? viewConfig.isWizard : false
+                                    isWizard: viewConfig ? viewConfig.isWizard : false,
+                                    wizardMode:viewConfig.wizardMode
                                 }
                             }
                         ]
