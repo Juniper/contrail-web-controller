@@ -31,18 +31,22 @@ define([
                     null, null, function() {
                          $("#aps-back-button").off('click').on('click', function(){
                              $('#aps-save-button').hide();
-                             $('#aps-overlay-container').hide();
+                             $('#aps-overlay-container').show();
                              $("#overlay-background-id").removeClass("overlay-background");
                              Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                              $("#aps-gird-container").empty();
+                             $("#aps-gird-container").append($("<div id='addressgroup-wrapper'></div>"));
+                             self.renderView4Config($('#addressgroup-wrapper'), null, getAddressGroup(viewConfig));
                          });
                          $("#aps-save-button").off('click').on('click', function(){
                              self.model.addEditAddressGroup({
                                  success: function () {
                                      $('#aps-save-button').hide();
-                                     $('#aps-overlay-container').hide();
+                                     $('#aps-overlay-container').show();
                                      Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                                      $("#aps-gird-container").empty();
+                                     $("#aps-gird-container").append($("<div id='addressgroup-wrapper'></div>"));
+                                     self.renderView4Config($('#addressgroup-wrapper'), null, getAddressGroup(viewConfig));
                                      if($('#security-policy-address-grp-grid_fw_wizard').data("contrailGrid") !== undefined){
                                          $('#security-policy-address-grp-grid_fw_wizard').data("contrailGrid")._dataView.refreshData();
                                      }
@@ -75,6 +79,28 @@ define([
             $('#aps-gird-container').append($('<div id = "gird-details-container"></div>'));
         }
     });
+    function getAddressGroup(viewConfig){
+        if(viewConfig.isGlobal) {
+            return {
+                elementId:
+                cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_AS_GLOBAL_LIST_VIEW_ID]),
+                view: "addressGroupGlobalListView",
+                viewPathPrefix: "config/infra/firewall/ui/js/views/",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewConfig: $.extend(true, {}, viewConfig)
+            };
+        } else {
+            return {
+                elementId:
+                    cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_AS_PROJECT_LIST_VIEW_ID]),
+                view: "addressGroupProjectListView",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewPathPrefix: "config/firewall/project/addressgroup/ui/js/views/",
+                viewConfig: $.extend(true, {}, viewConfig,
+                                     {projectSelectedValueData: viewConfig.projectSelectedValueData})
+            };
+        }
+    }
     var getAddressGroupViewConfig = function (isDisable) {
         return {
             elementId: ctwc.APS_ADDRESS_GRP_ID,

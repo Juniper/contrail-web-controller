@@ -8,8 +8,9 @@ define([
     'config/firewall/common/addressgroup/ui/js/models/addressGroupModel',
     'config/firewall/common/addressgroup/ui/js/views/addressGroupEditView',
     'config/firewall/fwpolicywizard/common/ui/js/views/overlayAddressGroupEditView',
-    'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizard.utils'
-], function (_, ContrailView, AddressGroupModel, AddressGroupEditView, OverlayAddressGroupEditView,FWZUtils) {
+    'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizard.utils',
+    'knockback',
+], function (_, ContrailView, AddressGroupModel, AddressGroupEditView, OverlayAddressGroupEditView,FWZUtils,Knockback) {
     var addressGroupEditView = new AddressGroupEditView(),
         overlayAddressGroupEditView = new OverlayAddressGroupEditView(),
         gridElId = "#" + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID;
@@ -24,6 +25,20 @@ define([
                 pagerOptions = viewConfig['pagerOptions'];
             self.renderView4Config(self.$el, self.model,
                                    getAddressGroupGridViewConfig(viewConfig,elementId));
+            $("#aps-back-button").off('click').on('click', function(){
+                $('#helper').show();
+                $('#modal-header-close').show();
+                if(viewConfig.wizardMode === "policy"){
+                    $('.modal-header-title').text("Create Firewall Policy");
+                }
+                else{
+                    $('.modal-header-title').text("Create Application Policy Set");
+                }
+                $('#aps-overlay-container').hide();
+                $("#overlay-background-id").removeClass("overlay-background");
+                Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                $("#aps-gird-container").empty();
+            });
         }
     });
 
