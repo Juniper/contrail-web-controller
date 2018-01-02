@@ -76,7 +76,8 @@ define([
                                     elementIdPrefix:elementId,
                                     projectSelectedValueData: viewConfig.projectSelectedValueData,
                                     hashParams:viewConfig.hashParams,
-                                    isWizard: viewConfig.isWizard
+                                    isWizard: viewConfig.isWizard,
+                                    wizardMode:viewConfig.wizardMode
                                 }
                             }
                         ]

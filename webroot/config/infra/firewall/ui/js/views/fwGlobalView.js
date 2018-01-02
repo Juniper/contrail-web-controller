@@ -12,7 +12,6 @@ define([
             var self = this;
             self.renderView4Config(self.$el, null, getSecurityPolicy(viewConfig),
                     null, null, null, function() {
-                //$('#' + ctwc.FW_POLICY_WIZARD).on('click', function() {self.openFWPolicyWizard();});
             });
         },
         renderInfraPolicyDetails: function(viewConfig) {
@@ -20,22 +19,7 @@ define([
             currentHashParams = layoutHandler.getURLHashParams(),
             policyName = currentHashParams.focusedElement.policy;
             self.renderView4Config(self.$el, null, getInfraPolicyDetails(viewConfig,policyName));
-        }/*,
-        openFWPolicyWizard: function () {
-            require(['config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel',
-            'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizardEditView'],
-            function (FWPolicyWizardModel, FWPolicyWizardEditView) {
-                var fwPolicyWizardModel =  new FWPolicyWizardModel(),
-                    fwPolicyWizardEditView = new FWPolicyWizardEditView();
-                fwPolicyWizardEditView.model = fwPolicyWizardModel;
-                fwPolicyWizardEditView.renderFwWizard({
-                                "title": ctwc.APS_MODAL_HEADER,
-                                'viewConfig': { isGlobal: true , isWizard: true },
-                                 callback: function () {
-                                 }
-                });
-            });
-        }*/
+        }
     });
     
     function getInfraPolicyDetails(viewConfig,policyName){
@@ -67,16 +51,7 @@ define([
                             elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
                             view: 'TabsView',
                             viewConfig: getSecurityPolicyTabs(viewConfig)
-                        }/*, {
-                            elementId: ctwc.FW_POLICY_WIZARD,
-                            view: 'FormButtonView',
-                            viewConfig: {
-                                label: ctwl.FW_POLICY_WIZARD,
-                                elementConfig:{
-                                    btnClass:'btn-primary'
-                                }
-                            }
-                        }*/]
+                        }]
                     }]
                 }
             };
@@ -199,10 +174,10 @@ define([
                view: "serviceGroupGlobalListView",
                app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/firewall/ui/js/views/",
-               viewConfig: viewConfig,
+               viewConfig: $.extend(viewConfig, {isWizard: false}),
                tabConfig: {
                    activate: function(event, ui) {
-                       var gridId = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID);
+                       var gridId = $('#security-policy-service-group_standalone');
                        if (gridId.data('contrailGrid')) {
                            gridId.data('contrailGrid').refreshView();
                        }
@@ -215,10 +190,10 @@ define([
                view: "addressGroupGlobalListView",
                app: cowc.APP_CONTRAIL_CONTROLLER,
                viewPathPrefix: "config/infra/firewall/ui/js/views/",
-               viewConfig: viewConfig,
+               viewConfig: $.extend(viewConfig, {isWizard: true}),
                tabConfig: {
                    activate: function(event, ui) {
-                       var gridId = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID);
+                       var gridId = $('#security-policy-address-grp-grid_standalone');
                        if (gridId.data('contrailGrid')) {
                            gridId.data('contrailGrid').refreshView();
                        }

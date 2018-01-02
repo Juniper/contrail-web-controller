@@ -28,18 +28,22 @@ define([
                     null, null, function() {
                          $("#aps-back-button").off('click').on('click', function(){
                              $('#aps-save-button').hide();
-                             $('#aps-overlay-container').hide();
+                             $('#aps-overlay-container').show();
                              $("#overlay-background-id").removeClass("overlay-background");
                              Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                              $("#aps-gird-container").empty();
+                             $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
+                             self.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
                          });
                          $("#aps-save-button").off('click').on('click', function(){
                              self.model.addEditTag({
                                  success: function () {
                                      $('#aps-save-button').hide();
-                                     $('#aps-overlay-container').hide();
+                                     $('#aps-overlay-container').show();
                                      Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                                      $("#aps-gird-container").empty();
+                                     $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
+                                     self.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
                                      $('#security-policy-tag-grid').data("contrailGrid")._dataView.refreshData();
                                      $("#overlay-background-id").removeClass("overlay-background");
                                  },

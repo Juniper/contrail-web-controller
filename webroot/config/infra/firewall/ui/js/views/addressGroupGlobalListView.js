@@ -13,6 +13,13 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 elementId;
+                //aps-landing-container
+//                if($('#aps-landing-container').length > 0){
+//                    viewConfig['isWizard'] = true;
+//                }
+//                else{
+//                    viewConfig['isWizard'] = false;
+//                }
                 if(viewConfig.isWizard === true){
                     elementId = ctwc.FW_WZ_ID_PREFIX;
                 }else{
@@ -72,7 +79,8 @@ define([
                                     },
                                     isGlobal: true,
                                     elementIdPrefix:elementId,
-                                    isWizard: viewConfig.isWizard
+                                    isWizard: viewConfig.isWizard,
+                                    wizardMode:viewConfig.wizardMode
                                 }
                             }
                         ]
