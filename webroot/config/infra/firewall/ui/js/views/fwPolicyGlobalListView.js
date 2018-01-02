@@ -31,7 +31,7 @@ define([
             };
             contrailListModel = new ContrailListModel(listModelConfig);
             self.renderView4Config(self.$el,
-                    contrailListModel, self.getFWPolicyGlobalGridViewConfig());
+                    contrailListModel, self.getFWPolicyGlobalGridViewConfig(viewConfig));
         },
 
         parseFWPolicyGlobalData: function(result) {
@@ -45,7 +45,7 @@ define([
             return fwPolicyList;
         },
 
-        getFWPolicyGlobalGridViewConfig: function() {
+        getFWPolicyGlobalGridViewConfig: function(viewConfig) {
             return {
                 elementId:
                 cowu.formatElementId([ctwc.CONFIG_FW_POLICY_GLOBAL_SECTION_ID]),
@@ -67,7 +67,9 @@ define([
                                         }
                                     },
                                     isProject: false,
-                                    isGlobal: true
+                                    isGlobal: true,
+                                    viewConfig: viewConfig,
+                                    isWizard: false
                                 }
                             }
                         ]
