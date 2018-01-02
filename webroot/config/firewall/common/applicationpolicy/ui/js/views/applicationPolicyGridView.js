@@ -12,9 +12,9 @@ define([
     'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizardEditView',
     'config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel'
 ], function (_, moment, Backbone, ContrailView, ApplicationPolicyModel, ApplicationPolicyEditView,
-        FwPolicyWizardEditView, FwPolicyWizardModel) {
+        FwPolicyWizardEditView, FWPolicyWizardModel) {
     var applicationPolicyEditView = new ApplicationPolicyEditView(),
-        FwPolicyWizardEditView = new FwPolicyWizardEditView(),
+        fwPolicyWizardEditView = new FwPolicyWizardEditView(),
         gridElId = "#" + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID;
 
     var applicationPolicyGridView = ContrailView.extend({
@@ -156,14 +156,27 @@ define([
                 rowActionConfig = [
                 ctwgc.getEditConfig('Edit', function(rowIndex) {
                     dataView = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView;
-                    applicationPolicyEditView.model = new ApplicationPolicyModel(dataView.getItem(rowIndex));
+                    var rowData = dataView.getItem(rowIndex);
+                    var policy = rowData.firewall_policy_refs;
+                    delete rowData.perms2;
+                    var apsName = rowData.fq_name[rowData.fq_name.length - 1];
+                    /*applicationPolicyEditView.model = new ApplicationPolicyModel(dataView.getItem(rowIndex));
                     applicationPolicyEditView.renderAddEditApplicationPolicy({
                                           "title": 'Edit Application Policy Set',
                                           'mode':'edit',
                                           'isGlobal': viewConfig.isGlobal,
                                            callback: function () {
                                               dataView.refreshData();
-                    }});
+                    }});*/
+                    fwPolicyWizardEditView.model = new FWPolicyWizardModel(rowData);
+                    fwPolicyWizardEditView.renderFwWizard({
+                                    "title": 'Edit Application Policy Set',
+                                    'viewConfig': $.extend(viewConfig.viewConfig, { policy: policy, mode: 'edit', apsName: apsName,
+                                        isGlobal: viewConfig.isGlobal , seletedRows : [], isWizard: viewConfig.isWizard, wizardMode: 'aps'}),
+                                        callback: function () {
+                                         dataView.refreshData();
+                                     }
+                    });
                 })];
             if(appPolicySetName !== ctwc.GLOBAL_APPLICATION_POLICY_SET) {
                 var deleteActionConfig = ctwgc.getDeleteConfig('Delete',
@@ -192,8 +205,8 @@ define([
             return false;
         }
         else{
-    	var headerActionConfig = [
-    		{
+        var headerActionConfig = [
+            {
                 "type" : "link",
                 "title" : ctwl.TITLE_APP_POLICY_SET_MULTI_DELETE,
                 "iconClass": 'fa fa-trash',
@@ -202,10 +215,10 @@ define([
                     var applicationPolicyModel = new ApplicationPolicyModel();
                     var checkedRows = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid").getCheckedRows();
                     if(checkedRows && checkedRows.length > 0) {
-                    	applicationPolicyEditView.model = applicationPolicyModel;
-                    	applicationPolicyEditView.renderDeleteApplicationPolicy(
+                        applicationPolicyEditView.model = applicationPolicyModel;
+                        applicationPolicyEditView.renderDeleteApplicationPolicy(
                             {"title": ctwl.TITLE_APP_POLICY_SET_MULTI_DELETE,
-                            	selectedGridData: checkedRows,
+                                selectedGridData: checkedRows,
                                 callback: function () {
                                     var dataView =
                                         $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).
@@ -222,14 +235,24 @@ define([
                 "title": ctwl.TITLE_CREATE_APP_POLICY_SET,
                 "iconClass": "fa fa-plus",
                 "onClick": function () {
-                        applicationPolicyEditView.model = new ApplicationPolicyModel();
+                        //var fwPolicyWizardModel =  new FWPolicyWizardModel();
+                        //fwPolicyWizardEditView = new FWPolicyWizardEditView();
+                        fwPolicyWizardEditView.model = new FWPolicyWizardModel();
+                        fwPolicyWizardEditView.renderFwWizard({
+                                        "title": ctwl.TITLE_CREATE_APP_POLICY_SET,
+                                        'viewConfig': $.extend(viewConfig.viewConfig, { mode: 'add', isGlobal: viewConfig.isGlobal , 
+                                         seletedRows : [], isWizard: viewConfig.isWizard, wizardMode: 'aps'}),
+                                         callback: function () {
+                             $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView.refreshData();}
+                        });
+                        /*applicationPolicyEditView.model = new ApplicationPolicyModel();
                         applicationPolicyEditView.renderAddEditApplicationPolicy({
                                                   "title": ctwl.TITLE_CREATE_APP_POLICY_SET,
                                                   'mode': 'add',
                                                   'isGlobal': viewConfig.isGlobal,
                                                   callback: function () {
                            $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView.refreshData();
-                        }});
+                        }});*/
                 }
             }
         ];
