@@ -79,8 +79,13 @@ define([
 	                delete(newTagData.tag_id);
 	                delete(newTagData.name);
 	                newTagData.fq_name = [];
-	                var name = newTagData.tag_type_name + '-'+ newTagData.tag_value;
-	            	
+	                $.each(ctwc.FW_PREDEFINED_TAGS, function (key, val) {
+	                    if(val.charAt(0).toUpperCase() + val.substr(1)
+                                == newTagData.tag_type_name){
+                            newTagData.tag_type_name = newTagData.tag_type_name.toLowerCase();
+                        }
+	                });
+	                var name = newTagData.tag_type_name + '='+ newTagData.tag_value;
 	            	if(options.isGlobal) {
 	            	    newTagData.fq_name.push(name);
 	            	} else {

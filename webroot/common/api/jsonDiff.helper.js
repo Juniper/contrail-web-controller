@@ -261,7 +261,7 @@ var configJsonModifyObj = {
     },
     'application-policy-set': {
         'isConfig': true,
-        'optFields': ['firewall_policy_refs', 'global_vrouter_config_refs',
+        'optFields': ['firewall_policy_refs', 'global_vrouter_config_refs', 'id_perms',
             'parent_type'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },

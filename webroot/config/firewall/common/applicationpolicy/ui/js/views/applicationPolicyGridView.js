@@ -172,7 +172,7 @@ define([
                     fwPolicyWizardEditView.renderFwWizard({
                                     "title": 'Edit Application Policy Set',
                                     'viewConfig': $.extend(viewConfig.viewConfig, { policy: policy, mode: 'edit', apsName: apsName,
-                                        isGlobal: viewConfig.isGlobal , seletedRows : [], isWizard: viewConfig.isWizard, wizardMode: 'aps'}),
+                                        isGlobal: viewConfig.isGlobal , seletedRows : [], isWizard: true, wizardMode: 'aps'}),
                                         callback: function () {
                                          dataView.refreshData();
                                      }
@@ -235,24 +235,14 @@ define([
                 "title": ctwl.TITLE_CREATE_APP_POLICY_SET,
                 "iconClass": "fa fa-plus",
                 "onClick": function () {
-                        //var fwPolicyWizardModel =  new FWPolicyWizardModel();
-                        //fwPolicyWizardEditView = new FWPolicyWizardEditView();
                         fwPolicyWizardEditView.model = new FWPolicyWizardModel();
                         fwPolicyWizardEditView.renderFwWizard({
                                         "title": ctwl.TITLE_CREATE_APP_POLICY_SET,
                                         'viewConfig': $.extend(viewConfig.viewConfig, { mode: 'add', isGlobal: viewConfig.isGlobal , 
-                                         seletedRows : [], isWizard: viewConfig.isWizard, wizardMode: 'aps'}),
+                                         seletedRows : [], isWizard: true, wizardMode: 'aps'}),
                                          callback: function () {
                              $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView.refreshData();}
                         });
-                        /*applicationPolicyEditView.model = new ApplicationPolicyModel();
-                        applicationPolicyEditView.renderAddEditApplicationPolicy({
-                                                  "title": ctwl.TITLE_CREATE_APP_POLICY_SET,
-                                                  'mode': 'add',
-                                                  'isGlobal': viewConfig.isGlobal,
-                                                  callback: function () {
-                           $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView.refreshData();
-                        }});*/
                 }
             }
         ];

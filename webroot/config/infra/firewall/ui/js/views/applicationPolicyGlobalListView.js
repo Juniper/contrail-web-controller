@@ -60,8 +60,7 @@ define([
                                         }
                                     },
                                     viewConfig: viewConfig,
-                                    isGlobal: true,
-                                    isWizard: true
+                                    isGlobal: true
                                 }
                             }
                         ]
