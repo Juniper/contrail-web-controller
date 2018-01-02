@@ -77,7 +77,8 @@ define([
                                     isGlobal: false,
                                     projectSelectedValueData: viewConfig.projectSelectedValueData,
                                     hashParams:viewConfig.hashParams,
-                                    isWizard: viewConfig ? viewConfig.isWizard : false
+                                    isWizard: viewConfig ? viewConfig.isWizard : false,
+                                    wizardMode:viewConfig.wizardMode
                                 }
                             }
                         ]
