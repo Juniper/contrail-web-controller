@@ -9,17 +9,17 @@ define([
     'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizard.utils',
     'config/firewall/common/fwpolicy/ui/js/fwPolicyFormatter',
     'config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel',
-    'config/firewall/fwpolicywizard/common/ui/js/views/fwApplicationPolicyEditView',
+    //'config/firewall/fwpolicywizard/common/ui/js/views/fwApplicationPolicyEditView',
     'config/firewall/common/fwpolicy/ui/js/models/fwRuleCollectionModel',
     'knockout'
 ], function (_, ContrailView, Knockback, FWZUtils, FwPolicyFormatter, FwPolicyWizardModel,
-        FwApplicationPolicyEditView, RuleModel, ko) {
+        /*FwApplicationPolicyEditView,*/ RuleModel, ko) {
     var gridElId = '#' + ctwc.APPLICATION_POLICY_SET_GRID_ID,
         prefixId = ctwc.APPLICATION_POLICY_SET_PREFIX_ID,
-        modalId = 'configure-' + prefixId,
+        modalId = 'configure-' + prefixId, firewallPolicyId;
         formId = '#' + modalId + '-form';
         var self;
-    var fwApplicationPolicyEditView = new FwApplicationPolicyEditView();
+    //var fwApplicationPolicyEditView = new FwApplicationPolicyEditView();
     var titleTags = '';
     var fwzUtils = new FWZUtils();
     var fwPolicyFormatter = new FwPolicyFormatter();
@@ -29,11 +29,56 @@ define([
                 editLayout = editTemplate({prefixId: prefixId, modalId: modalId});
                 self = this;
                 policyEditSet = {};
-                newModel = self.model
-            cowu.createModal({'modalId': modalId, 'className': 'modal-1120',
-                             'title': options['title'], 'body': editLayout});
-
-            self.renderView4Config($("#" + modalId).find('#aps-button-container'),
+                //newModel = self.model;
+                if(!options.noResetModal){
+                    cowu.createModal({'modalId': modalId, 'className': 'modal-1120',
+                        'title': options['title'], 'body': editLayout});
+                }
+                //cowu.createModal({'modalId': modalId, 'className': 'modal-1120',
+                             //'title': options['title'], 'body': editLayout});
+                //$('.modal-header-title').text("Firewall Policy Wizard");
+                //$('#aps-main-container').show();
+                $('#aps-create-fwpolicy-remove-icon').show();
+                $('#aps-remove-icon').hide();
+                $('#aps-overlay-container').hide();
+                $("#overlay-background-id").removeClass("overlay-background");
+                self.fetchAllData(self, options, function(allData){
+                    self.renderView4Config($("#" + modalId).find('#aps-sub-container'), self.model,
+                        getAddPolicyViewConfig(self, options['viewConfig'], allData, options),'policyValidation', null, null,function(){
+                            Knockback.applyBindings(self.model, document.getElementById('applicationpolicyset_add-new-firewall-policy'));
+                            if(Object.keys(policyEditSet).length > 0){
+                                if(policyEditSet.mode === 'edit'){
+                                    $("#policy_name input").attr('disabled','disabled'); 
+                                }
+                            }
+                            Knockback.applyBindings(self.model, document.getElementById('applicationpolicyset_rules'));
+                            kbValidation.bind(self);
+                            //$("#aps-error-container").hide();
+                    },null,false);
+                });
+                $("#save-aps").off('click').on('click', function(){
+                    self.model.addEditApplicationSet({
+                        success: function () {
+                            options['callback']();
+                            $("#" + modalId).find(".contrailWizard").data("contrailWizard").destroy();
+                            $('#applicationpolicyset_policy_wizard-p-0 .alert-error').hide();
+                            $("#" + modalId).modal('hide');
+                        },
+                        error: function (error) {
+                            $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text('');
+                            $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text(error.responseText);
+                            $('#applicationpolicyset_policy_wizard-p-0 .alert-error').show();
+                        }
+                    }, options, true, undefined);
+               });
+                $("#aps-cancel-btn").off('click').on('click', function(){
+                    Knockback.release(self.model,
+                            document.getElementById(modalId));
+                    kbValidation.unbind(self);
+                    $("#" + modalId).find(".contrailWizard").data("contrailWizard").destroy();
+                    $("#" + modalId).modal("hide");
+               });
+            /*self.renderView4Config($("#" + modalId).find('#aps-button-container'),
                                    this.model,
                                    getApplicationPolicyViewConfig(options), "",
                                    null, null, function() {
@@ -88,7 +133,7 @@ define([
                     $("#aps-back-button").on('click', function(){
                         fwzUtils.backButtonClick();
                     });
-                    $("#aps-main-back-button").on('click', function(){
+                    $("#aps-cancel-btn").on('click', function(){
                         $('.modal-header-title').text("Firewall Policy Wizard");
                         fwzUtils.backButtonClick();
                     });
@@ -102,13 +147,13 @@ define([
                         $("#overlay-background-id").removeClass("overlay-background");
                         fwzUtils.backButtonClick();
                     })
-            },null,false);
+            },null,false);*/
         },
-        renderObject: function(options, objName, self){
-            $('#modal-landing-container').hide();
+        /*renderObject: function(options, objName, self){
+            //$('#modal-landing-container').hide();
             $('#aps-save-button').hide();
-            $('#aps-landing-container').show();
-            var placeHolder = $('#aps-gird-container');
+            //$('#aps-landing-container').show();
+            //var placeHolder = $('#aps-gird-container');
             var viewConfig = options['viewConfig'];
             if(objName === 'address_groups'){
                 $('#aps-main-container').show();
@@ -138,7 +183,7 @@ define([
                 this.renderView4Config($('#aps-sub-container'), null, getTag(viewConfig));
             }else if(objName === 'addIcon'){
                 $('.modal-header-title').text("Firewall Policy Wizard");
-                $('#aps-main-container').show();
+                //$('#aps-main-container').show();
                 $('#aps-create-fwpolicy-remove-icon').show();
                 $('#aps-remove-icon').hide();
                 $('#aps-overlay-container').hide();
@@ -160,7 +205,7 @@ define([
                     });
                 });
             }
-         },
+         },*/
          fetchAllData : function(self, options, callback) {
              var getAjaxs = [];
              var data;
@@ -390,7 +435,7 @@ define([
          }
     });
     
-    function getPolicyRelatedRules(model, callback){
+    function getPolicyRelatedRules(uuid, callback){
         var getAjaxs = [];
         getAjaxs[0] = $.ajax({
             url:"/api/tenants/config/get-config-details",
@@ -399,7 +444,7 @@ define([
             async: false,
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(
-                    {data: [{type: 'firewall-policys', obj_uuids:[model.uuid]},
+                    {data: [{type: 'firewall-policys', obj_uuids:[uuid]},
                         {type: 'firewall-rules',
                     fields: ['firewall_policy_back_refs']}]})
         });
@@ -434,7 +479,7 @@ define([
     function sequenceFormatter(r, c, v, cd, dc) {
         var sequence = '', policies = getValueByJsonPath(dc,
             "firewall_policy_back_refs", [], false),
-            policyId = policyEditSet.uuid;
+            policyId = firewallPolicyId;
 
         for(var i = 0; i < policies.length; i++) {
             if(policies[i].uuid === policyId) {
@@ -445,7 +490,7 @@ define([
         }
         return sequence ? sequence : (cd ? '-' : '');
     };
-    Knockback.ko.utils.clone = function (obj) {
+    /*Knockback.ko.utils.clone = function (obj) {
         var target = new obj.constructor();
         for (var prop in obj) {
             var propVal = obj[prop];
@@ -459,7 +504,7 @@ define([
             }
         }
         return target;
-    };
+    };*/
     function getFWRuleIds(dc) {
         var ruleIds = [],
              rules = getValueByJsonPath(dc, 'firewall_rule_refs', [], false);
@@ -468,7 +513,11 @@ define([
         });
         return ruleIds;
     }
-    function getNewFirewallPolicyViewConfig(model, viewConfig, allData) {
+    function getNewFirewallPolicyViewConfig(model, viewConfig, allData, policyPreviousBtn) {
+        var isPolicyDisable = false;
+        if(viewConfig.wizardMode === 'policy' && viewConfig.mode === 'edit'){
+            isPolicyDisable = true;
+        }
         var gridPrefix = "add-firewall-policy",
             addNewFwPolicyViewConfig = {
             elementId:  cowu.formatElementId([prefixId, "add-new-firewall-policy1"]),
@@ -479,7 +528,7 @@ define([
                         elementId:  cowu.formatElementId([prefixId, "add-new-firewall-policy"]),
                         title: "Name Policy",
                         view: "AccordianView",
-                        viewConfig: fwzUtils.getFirewallPolicyViewConfig(prefixId, allData),
+                        viewConfig: fwzUtils.getFirewallPolicyViewConfig(prefixId, allData, isPolicyDisable),
                         stepType: "step",
                         onInitRender: true,
                         buttons: {
@@ -488,7 +537,7 @@ define([
                                 label: "Next"
                             },
                             previous: {
-                                visible: true,
+                                visible: policyPreviousBtn,
                                 label: "Back"
                             }
                         },
@@ -496,46 +545,91 @@ define([
                             if(params.model.policy_name() !== ''){
                                 var modalHeader;
                                 if(Object.keys(newApplicationSet).length > 0){
-                                  modalHeader = ctwc.APS_MODAL_HEADER + ' > '+ newApplicationSet.name + ' > ' + params.model.policy_name();
+                                  modalHeader = newApplicationSet.name + ' > ' + params.model.policy_name() + ' > New Rules';
+                                  if(newApplicationSet.mode === 'add' || newApplicationSet.mode === 'edit'){
+                                      params.model.firewall_rules(new Backbone.Collection([]));
+                                  }
                                 } else {
-                                  modalHeader = ctwc.APS_MODAL_HEADER + ' > '+ params.model.policy_name();
+                                  if(viewConfig.mode === 'add'){
+                                      params.model.firewall_rules(new Backbone.Collection([]));
+                                      modalHeader = params.model.policy_name() + ' > New Rules'; 
+                                  }else{
+                                      modalHeader = params.model.policy_name() + ' > Existing Rules';
+                                      /*TO DO** Need to move into model*/
+                                      if(params.model.firewall_rule_refs != undefined && params.model.firewall_rule_refs().length > 0){
+                                          firewallPolicyId = params.model.uuid();
+                                          getPolicyRelatedRules(params.model.uuid(), function(policyRule){
+                                              var ruleCollection = [];
+                                              for(var i = 0; i < policyRule.length; i++){
+                                                  var ruleModel = new RuleModel($.extend({}, policyRule[i], { disabled: false, isGlobal: viewConfig.isGlobal }));
+                                                  ruleCollection.push(ruleModel);
+                                              }
+                                              var coll = new Backbone.Collection(ruleCollection);
+                                              params.model.firewall_rules([]);
+                                              params.model.firewall_rules(coll);
+                                         });
+                                      }
+                                  }  
                                 }
                                 $('.modal-header-title').text('');
                                 $('.modal-header-title').text(modalHeader);
-                                $('#applicationpolicyset_policy_wizard .alert-error span').text('');
-                                $('#applicationpolicyset_policy_wizard .alert-error').hide();
+                                if(viewConfig.wizardMode === 'policy'){
+                                    $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text('');
+                                    $('#applicationpolicyset_policy_wizard-p-0 .alert-error').hide();
+                                }else{
+                                    $('#applicationpolicyset_policy_wizard-p-1 .alert-error span').text('');
+                                    $('#applicationpolicyset_policy_wizard-p-1 .alert-error').hide();
+                                }
                                 return true;
                             } else {
-                                $('#applicationpolicyset_policy_wizard .alert-error span').text('Please enter the Policy Name.');
-                                $('#applicationpolicyset_policy_wizard .alert-error').show();
+                                if(viewConfig.wizardMode === 'policy'){
+                                    $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text('Please enter the Policy Name.');
+                                    $('#applicationpolicyset_policy_wizard-p-0 .alert-error').show();
+                                }else{
+                                    $('#applicationpolicyset_policy_wizard-p-1 .alert-error span').text('Please enter the Policy Name.');
+                                    $('#applicationpolicyset_policy_wizard-p-1 .alert-error').show();
+                                }
                             }
                         },
                         onPrevious: function(params) {
-                            $('#applicationpolicyset_policy_wizard .alert-error').hide();
-                            $("#aps-main-back-button").show();
+                            $('#applicationpolicyset_policy_wizard-p-1 .alert-error').hide();
+                            //$("#aps-cancel-btn").show();
                             $('#applicationpolicyset_policy_wizard .actions').css("display", "none");
                             params.model.onNext(false);
                             if(Object.keys(newApplicationSet).length > 0){
+                                $('.modal-header-title').text('');
                                 if(newApplicationSet.mode === 'add'){
-                                    fwzUtils.createApplicationPolicySet();
-                                    var policy = newApplicationSet.existingRows;
-                                    fwApplicationPolicyEditView.model = new FwPolicyWizardModel(newApplicationSet);
-                                    fwApplicationPolicyEditView.renderApplicationPolicy({
-                                                              'viewConfig': $.extend({mode:'add'}, viewConfig),
-                                                              'policy': policy
-                                    });
-                                }else if(newApplicationSet.mode === 'edit'){
-                                    var policy = newApplicationSet.existingRows;
-                                    var apsName = newApplicationSet.name;
-                                    fwApplicationPolicyEditView.model = new FwPolicyWizardModel(newApplicationSet);
-                                    fwApplicationPolicyEditView.renderApplicationPolicy({
-                                                              'viewConfig': $.extend({mode:'edit'}, viewConfig),
-                                                              'policy': policy,
-                                                              'apsName':apsName
-                                    });
-                                } 
+                                    $('.modal-header-title').text(ctwl.TITLE_CREATE_APP_POLICY_SET);
+                                }
+                                if(newApplicationSet.mode === 'edit'){
+                                    $('.modal-header-title').text('Edit Application Policy Set');
+                                }
+                                $('#aps-save-btn-container').show();
+                                /*require(['config/firewall/fwpolicywizard/common/ui/js/views/fwApplicationPolicyEditView'],
+                                    function (FwApplicationPolicyEditView) {
+                                        var fwApplicationPolicyEditView = new FwApplicationPolicyEditView();
+                                        if(newApplicationSet.mode === 'add'){
+                                            //fwzUtils.createApplicationPolicySet();
+                                            var policy = newApplicationSet.existingRows;
+                                            fwApplicationPolicyEditView.model = new FwPolicyWizardModel(newApplicationSet);
+                                            fwApplicationPolicyEditView.render({
+                                                viewConfig: $.extend(true, {}, viewConfig, { mode:'add' },{ seletedRows : policy },
+                                                        { projectSelectedValueData: viewConfig.projectSelectedValueData },
+                                                        { idList: ctwc.ASSOCIATED_POLICY_GRID_ID })
+                                            });
+                                        }else if(newApplicationSet.mode === 'edit'){
+                                            var policy = newApplicationSet.existingRows;
+                                            var apsName = newApplicationSet.name;
+                                            fwApplicationPolicyEditView.model = new FwPolicyWizardModel(newApplicationSet);
+                                            fwApplicationPolicyEditView.render({
+                                                                      'viewConfig': $.extend({mode:'edit'}, viewConfig),
+                                                                      'policy': policy,
+                                                                      'apsName':apsName
+                                            });
+                                        } 
+                                    });*/
                             }
-                            if(Object.keys(policyEditSet).length > 0){
+                            /*if(Object.keys(policyEditSet).length > 0){
                                 if(policyEditSet.mode === 'edit'){
                                     $("#policy_name input").removeAttr('disabled');
                                 }
@@ -554,9 +648,7 @@ define([
                                     policyEditSet = {};
                                 }
                                 $("#overlay-background-id").addClass("overlay-background");
-                            }
-                            $('.modal-header-title').text('');
-                            $('.modal-header-title').text(ctwc.APS_MODAL_HEADER);
+                            }*/
                             return true;
                         }
                     }
@@ -566,7 +658,7 @@ define([
         return addNewFwPolicyViewConfig;
     }
     function getAddRulesViewConfig(viewConfig, allData, options, self) {
-        var gridPrefix = "add-rules",
+        var gridPrefix = "add-rules",policySet = {},
         addRulesViewConfig = {
             elementId:  cowu.formatElementId([prefixId, ctwl.TITLE_CREATE_FW_RULES]),
             view: "WizardView",
@@ -586,12 +678,29 @@ define([
                             }
                         },
                         onNext: function(params) {
+                            if(viewConfig.wizardMode === 'policy'){
+                                policySet.mode =  viewConfig.mode; 
+                                if(viewConfig.mode === 'edit'){
+                                   policySet.model = viewConfig.model;
+                                }
+                            }
                             return params.model.addEditApplicationSet({
                                 success: function () {
+                                    if(viewConfig.wizardMode === 'aps'){
+                                        options['callback']();
+                                    }
                                     if($('#fw-policy-grid').data("contrailGrid") !== undefined){
                                         $('#fw-policy-grid').data("contrailGrid")._dataView.refreshData();
                                     }
-                                    if($('#firewall-application-policy-grid').data("contrailGrid") !== undefined){
+                                    $("#" + modalId).find(".contrailWizard").data("contrailWizard").destroy();
+ 
+                                    if(viewConfig.wizardMode === 'policy'){
+                                        $('#applicationpolicyset_policy_wizard-p-1 .alert-error').hide(); 
+                                    }else{
+                                        $('#applicationpolicyset_policy_wizard-p-2 .alert-error').hide();
+                                    }
+                                    $("#" + modalId).modal('hide');
+                                    /*if($('#firewall-application-policy-grid').data("contrailGrid") !== undefined){
                                         $('#firewall-application-policy-grid').data("contrailGrid")._dataView.refreshData();
                                     }
                                     if(Object.keys(policyEditSet).length > 0){
@@ -616,21 +725,32 @@ define([
                                     }
                                     $('.modal-header-title').text('');
                                     $('.modal-header-title').text(ctwc.APS_MODAL_HEADER);
-                                    $("#aps-main-back-button").show();
+                                    $("#aps-cancel-btn").show();*/
                                 },
                                 error: function (error) {
-                                    $('#applicationpolicyset_policy_wizard .alert-error span').text(error.responseText);
-                                    $('#applicationpolicyset_policy_wizard .alert-error').show();
+                                    if(viewConfig.wizardMode === 'policy'){
+                                        $('#applicationpolicyset_policy_wizard-p-1 .alert-error span').text('');
+                                        $('#applicationpolicyset_policy_wizard-p-1 .alert-error span').text(error.responseText);
+                                        $('#applicationpolicyset_policy_wizard-p-1 .alert-error').show();
+                                    }else{
+                                        $('#applicationpolicyset_policy_wizard-p-2 .alert-error span').text('');
+                                        $('#applicationpolicyset_policy_wizard-p-2 .alert-error span').text(error.responseText);
+                                        $('#applicationpolicyset_policy_wizard-p-2 .alert-error').show(); 
+                                    }
                                 }
-                            }, options, false, allData.serviceGrpList, policyEditSet);
+                            }, options, false, allData.serviceGrpList, policySet);
                         },
                         onPrevious: function(params) {
                             var modalHeader;
-                            $('#applicationpolicyset_policy_wizard .alert-error').hide();
-                            if(Object.keys(newApplicationSet).length > 0){
-                              modalHeader = ctwc.APS_MODAL_HEADER + ' > '+ newApplicationSet.name;
+                            if(viewConfig.wizardMode === 'policy'){
+                                $('#applicationpolicyset_policy_wizard-p-0 .alert-error').hide();
                             }else{
-                              modalHeader = ctwc.APS_MODAL_HEADER;
+                                $('#applicationpolicyset_policy_wizard-p-1 .alert-error').hide();
+                            }
+                            if(Object.keys(newApplicationSet).length > 0){
+                              modalHeader =  newApplicationSet.name + ' > New Policy';
+                            }else{
+                              modalHeader = 'Create Firewall Policy';
                             }
                             $('.modal-header-title').text('');
                             $('.modal-header-title').text(modalHeader);
@@ -650,109 +770,135 @@ define([
                 steps: []
             }
         }, model = self.model;
-    steps = [];
-    createStepViewConfig = null;
-    addnewFwPolicyStepViewConfig = null;
-    addRulesStepViewConfig = null;
-    createStepViewConfig = {
-            elementId: cowu.formatElementId([ctwc.NEW_APPLICATION_POLICY_SET_SECTION_ID]),
-            view: "SectionView",
-            viewConfig: {
-                rows: [
-                    {
-                        columns: [
+        steps = [];
+        createStepViewConfig = null;
+        addnewFwPolicyStepViewConfig = null;
+        addRulesStepViewConfig = null;
+        var policyPreviousBtn = false;
+        if(viewConfig.wizardMode === 'aps'){
+            policyPreviousBtn = true;
+            createStepViewConfig = {
+                    elementId: cowu.formatElementId([ctwc.NEW_APPLICATION_POLICY_SET_SECTION_ID]),
+                    view: "SectionView",
+                    viewConfig: {
+                        rows: [
+                            /*{
+                                columns: [
+                                    {
+                                        elementId: 'top_bar_id',
+                                        view: 'fwWizardTxtValContainerView',
+                                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                                        viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
+                                        viewConfig: {
+                                            firewallPolicyLen : allData['fwPolicies-len'],
+                                            standAlonePolicyLen : allData['standAlonePolicies-len'],
+                                            isGlobal:viewConfig.isGlobal,
+                                            projectSelectedValueData:viewConfig.projectSelectedValueData
+                                        }
+                                    }
+                                ]
+                            },
                             {
-                                elementId: 'top_bar_id',
-                                view: 'fwWizardTxtValContainerView',
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
-                                viewConfig: {
-                                    firewallPolicyLen : allData['fwPolicies-len'],
-                                    standAlonePolicyLen : allData['standAlonePolicies-len'],
-                                    isGlobal:viewConfig.isGlobal,
-                                    projectSelectedValueData:viewConfig.projectSelectedValueData
-                                }
+                                columns: [
+                                    {
+                                        elementId:
+                                            cowu.formatElementId([ctwc.NEW_APPLICATION_POLICY_SET_LIST_VIEW_ID]),
+                                        view: "fwPolicyWizardListView",
+                                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                                        viewPathPrefix: "config/firewall/fwpolicywizard/project/ui/js/views/",
+                                        viewConfig: $.extend(true, {}, viewConfig,
+                                                             {projectSelectedValueData: viewConfig.projectSelectedValueData})
+                                    }
+                                ]
+                            }*/
+                            {
+                                columns: [
+                                    {
+                                        elementId:
+                                            cowu.formatElementId([ctwc.CREATE_NEW_APPLICATION_POLICY_SET_VIEW_ID]),
+                                        view: "fwApplicationPolicyEditView",
+                                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                                        viewPathPrefix: "config/firewall/fwpolicywizard/common/ui/js/views/",
+                                        viewConfig: $.extend(true, {}, viewConfig, { mode: options.mode },{ policy: options.policy },{ seletedRows : options.seletedRows },
+                                                             { projectSelectedValueData: viewConfig.projectSelectedValueData },
+                                                             { idList: ctwc.ASSOCIATED_POLICY_GRID_ID })
+                                    }
+                                ]
                             }
+                            
                         ]
                     },
-                    {
-                        columns: [
-                            {
-                                elementId:
-                                    cowu.formatElementId([ctwc.NEW_APPLICATION_POLICY_SET_LIST_VIEW_ID]),
-                                view: "fwPolicyWizardListView",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewPathPrefix: "config/firewall/fwpolicywizard/project/ui/js/views/",
-                                viewConfig: $.extend(true, {}, viewConfig,
-                                                     {projectSelectedValueData: viewConfig.projectSelectedValueData})
-                            }
-                        ]
-                    }
-                ]
-            },
-            title: "Select set",
-            stepType: "step",
-            onNext: function (params) {
-                if(params.model.policy_name() != ''){
-                    params.model.policy_name('');
-                }
-                if(params.model.policy_description() != ''){
-                    params.model.policy_description('');
-                }
-                $('#applicationpolicyset_policy_wizard .alert-error').hide();
-                if(Object.keys(policyEditSet).length > 0){
-                    if(policyEditSet.mode === 'edit'){
-                        params.model.policy_name(policyEditSet.model.name);
-                        if(policyEditSet.model.id_perms.description != null){
-                            params.model.policy_description(policyEditSet.model.id_perms.description);
+                    title: "Select set",
+                    stepType: "step",
+                    onNext: function (params) {
+                        if(params.model.policy_name() != ''){
+                            params.model.policy_name('');
                         }
-                        var slo = policyEditSet.model.security_logging_object_refs, sloList = [];
-                        if(slo !== undefined && slo.length > 0){
-                            _.each(slo, function(obj) {
-                                sloList.push(obj.to.join(':'));
-                            });
-                            var updatedSloList = sloList.join(';');
-                            params.model.security_logging_object_refs(updatedSloList);
+                        if(params.model.policy_description() != ''){
+                            params.model.policy_description('');
                         }
-                        if(policyEditSet.model.firewall_rule_refs != undefined && policyEditSet.model.firewall_rule_refs.length > 0){
-                            getPolicyRelatedRules(policyEditSet.model, function(policyRule){
-                                var ruleCollection = [];
-                                for(var i = 0; i < policyRule.length; i++){
-                                    var ruleModel = new RuleModel($.extend({}, policyRule[i], { disabled: false, isGlobal: options.viewConfig.isGlobal }));
-                                    ruleCollection.push(ruleModel);
+                        if(params.model.security_logging_object_refs() != ''){
+                            params.model.security_logging_object_refs([]);
+                        }
+                        $('#applicationpolicyset_policy_wizard .alert-error').hide();
+                        /*if(Object.keys(policyEditSet).length > 0){
+                            if(policyEditSet.mode === 'edit'){
+                                params.model.policy_name(policyEditSet.model.name);
+                                if(policyEditSet.model.id_perms.description != null){
+                                    params.model.policy_description(policyEditSet.model.id_perms.description);
                                 }
-                                var coll = new Backbone.Collection(ruleCollection);
-                                params.model.firewall_rules([]);
-                                params.model.firewall_rules(coll);
-                           });
-                        } else {
-                            params.model.firewall_rules(new Backbone.Collection([]));
+                                var slo = policyEditSet.model.security_logging_object_refs, sloList = [];
+                                if(slo !== undefined && slo.length > 0){
+                                    _.each(slo, function(obj) {
+                                        sloList.push(obj.to.join(':'));
+                                    });
+                                    var updatedSloList = sloList.join(';');
+                                    params.model.security_logging_object_refs(updatedSloList);
+                                }
+                                if(policyEditSet.model.firewall_rule_refs != undefined && policyEditSet.model.firewall_rule_refs.length > 0){
+                                    getPolicyRelatedRules(policyEditSet.model, function(policyRule){
+                                        var ruleCollection = [];
+                                        for(var i = 0; i < policyRule.length; i++){
+                                            var ruleModel = new RuleModel($.extend({}, policyRule[i], { disabled: false, isGlobal: options.viewConfig.isGlobal }));
+                                            ruleCollection.push(ruleModel);
+                                        }
+                                        var coll = new Backbone.Collection(ruleCollection);
+                                        params.model.firewall_rules([]);
+                                        params.model.firewall_rules(coll);
+                                   });
+                                } else {
+                                    params.model.firewall_rules(new Backbone.Collection([]));
+                                }
+                                if($("#policy_name input").length == 1){
+                                   $("#policy_name input").attr('disabled','disabled');
+                                }
+                            }else{
+                                params.model.firewall_rules(new Backbone.Collection([]));
+                            }
+                        }*/
+                        return true;
+                    },
+                    buttons: {
+                        next: {
+                            visible: false
+                        },
+                        previous: {
+                            visible: false,
                         }
-                        if($("#policy_name input").length == 1){
-                           $("#policy_name input").attr('disabled','disabled');
-                        }
-                    }else{
-                        params.model.firewall_rules(new Backbone.Collection([]));
                     }
-                }
-                return true;
-            },
-            buttons: {
-                next: {
-                    visible: false
-                },
-                previous: {
-                    visible: false,
-                }
-            }
-        };
-    steps = steps.concat(createStepViewConfig);
-    addnewFwPolicyStepViewConfig = $.extend(true, {}, getNewFirewallPolicyViewConfig(model, viewConfig, allData).viewConfig).steps;
-    addRulesStepViewConfig = $.extend(true, {}, getAddRulesViewConfig(viewConfig, allData, options, self).viewConfig).steps;
-    steps = steps.concat(addnewFwPolicyStepViewConfig);
-    steps = steps.concat(addRulesStepViewConfig);
-    addPolicyViewConfig.viewConfig.steps = steps;
-    return addPolicyViewConfig;
+                };
+            steps = steps.concat(createStepViewConfig);
+        }
+        if(!policyPreviousBtn){
+            $('#aps-save-btn-container').hide();
+            $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
+        }
+        addnewFwPolicyStepViewConfig = $.extend(true, {}, getNewFirewallPolicyViewConfig(model, viewConfig, allData, policyPreviousBtn).viewConfig).steps;
+        addRulesStepViewConfig = $.extend(true, {}, getAddRulesViewConfig(viewConfig, allData, options, self).viewConfig).steps;
+        steps = steps.concat(addnewFwPolicyStepViewConfig);
+        steps = steps.concat(addRulesStepViewConfig);
+        addPolicyViewConfig.viewConfig.steps = steps;
+        return addPolicyViewConfig;
   }
     function getAddressGroup(viewConfig){
         if(viewConfig.isGlobal) {
@@ -820,7 +966,7 @@ define([
             };
         }
     }
-    var getApplicationPolicyViewConfig = function (options) {
+    /*var getApplicationPolicyViewConfig = function (options) {
         if(options.viewConfig.isGlobal === true){
             titleTags = "Review Visible Tags";
         }
@@ -874,7 +1020,7 @@ define([
                     ]
                }
           }
-     };
+     };*/
 
     return fwPolicyWizardEditView;
 });
