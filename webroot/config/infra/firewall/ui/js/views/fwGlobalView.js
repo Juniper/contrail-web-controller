@@ -12,15 +12,15 @@ define([
             var self = this;
             self.renderView4Config(self.$el, null, getSecurityPolicy(viewConfig),
                     null, null, null, function() {
-                $('#' + ctwc.FW_POLICY_WIZARD).on('click', function() {self.openFWPolicyWizard();});
+                //$('#' + ctwc.FW_POLICY_WIZARD).on('click', function() {self.openFWPolicyWizard();});
             });
         },
         renderInfraPolicyDetails: function(viewConfig) {
             var self = this,
             currentHashParams = layoutHandler.getURLHashParams(),
             policyName = currentHashParams.focusedElement.policy;
-            self.renderView4Config(self.$el, null, getInfraPolicyDetails(viewConfig,policyName));            
-        },
+            self.renderView4Config(self.$el, null, getInfraPolicyDetails(viewConfig,policyName));
+        }/*,
         openFWPolicyWizard: function () {
             require(['config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel',
             'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizardEditView'],
@@ -35,7 +35,7 @@ define([
                                  }
                 });
             });
-        }
+        }*/
     });
     
     function getInfraPolicyDetails(viewConfig,policyName){
@@ -67,7 +67,7 @@ define([
                             elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
                             view: 'TabsView',
                             viewConfig: getSecurityPolicyTabs(viewConfig)
-                        }, {
+                        }/*, {
                             elementId: ctwc.FW_POLICY_WIZARD,
                             view: 'FormButtonView',
                             viewConfig: {
@@ -76,7 +76,7 @@ define([
                                     btnClass:'btn-primary'
                                 }
                             }
-                        }]
+                        }*/]
                     }]
                 }
             };
