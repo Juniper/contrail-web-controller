@@ -27,7 +27,7 @@ define([
             };
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
-                 contrailListModel, getApplicationPolicyGridViewConfig());
+                 contrailListModel, getApplicationPolicyGridViewConfig(viewConfig));
         },
         parseApplicationPolicyData : function(response){
             var dataItems = [],
@@ -39,7 +39,7 @@ define([
         }
     });
 
-    var getApplicationPolicyGridViewConfig = function () {
+    var getApplicationPolicyGridViewConfig = function (viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwc.FIREWALL_APPLICATION_POLICY_SECTION_ID]),
             view: "SectionView",
@@ -59,7 +59,9 @@ define([
                                             pageSizeSelect: [10, 50, 100]
                                         }
                                     },
-                                    isGlobal: true
+                                    viewConfig: viewConfig,
+                                    isGlobal: true,
+                                    isWizard: true
                                 }
                             }
                         ]
