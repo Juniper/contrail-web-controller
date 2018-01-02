@@ -68,8 +68,7 @@ define([
                                     },
                                     isProject: false,
                                     isGlobal: true,
-                                    viewConfig: viewConfig,
-                                    isWizard: false
+                                    viewConfig: viewConfig
                                 }
                             }
                         ]

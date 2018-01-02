@@ -72,7 +72,8 @@ define([
                                     },
                                     isGlobal: true,
                                     elementIdPrefix:elementId,
-                                    isWizard: viewConfig.isWizard
+                                    isWizard: viewConfig.isWizard,
+                                    wizardMode:viewConfig.wizardMode
                                 }
                             }
                         ]

@@ -31,18 +31,22 @@ define([
                     null, null, function() {
                          $("#aps-back-button").off('click').on('click', function(){
                              $('#aps-save-button').hide();
-                             $('#aps-overlay-container').hide();
+                             $('#aps-overlay-container').show();
                              $("#overlay-background-id").removeClass("overlay-background");
                              Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                              $("#aps-gird-container").empty();
+                             $("#aps-gird-container").append($("<div id='servicegroup-wrapper'></div>"));
+                             self.renderView4Config($('#servicegroup-wrapper'), null, getServiceGroup(viewConfig));
                          });
                          $("#aps-save-button").off('click').on('click', function(){
                              self.model.addEditServiceGroup({
                                  success: function () {
                                      $('#aps-save-button').hide();
-                                     $('#aps-overlay-container').hide();
+                                     $('#aps-overlay-container').show();
                                      Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                                      $("#aps-gird-container").empty();
+                                     $("#aps-gird-container").append($("<div id='servicegroup-wrapper'></div>"));
+                                     self.renderView4Config($('#servicegroup-wrapper'), null, getServiceGroup(viewConfig));
                                      if($('#security-policy-service-grp-grid_fw_wizard').data("contrailGrid") !== undefined){
                                          $('#security-policy-service-grp-grid_fw_wizard').data("contrailGrid")._dataView.refreshData();
                                      }
@@ -75,6 +79,50 @@ define([
             $('#aps-gird-container').append($('<div id = "gird-details-container"></div>'));
         }
     });
+    function getServiceGroup(viewConfig){
+        if(viewConfig.isGlobal) {
+            return {
+                elementId:
+                    cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_SG_GLOBAL_LIST_VIEW_ID]),
+                view: "serviceGroupGlobalListView",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewPathPrefix: "config/infra/firewall/ui/js/views/",
+                viewConfig: $.extend(true, {}, viewConfig)
+            };
+        } else {
+            return {
+                elementId:
+                    cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_SG_PROJECT_LIST_VIEW_ID]),
+                view: "serviceGroupProjectListView",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewPathPrefix: "config/firewall/project/servicegroup/ui/js/views/",
+                viewConfig: $.extend(true, {}, viewConfig,
+                                     {projectSelectedValueData: viewConfig.projectSelectedValueData})
+            };
+        }
+    }
+    function getServiceGroup(viewConfig){
+        if(viewConfig.isGlobal) {
+            return {
+                elementId:
+                    cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_SG_GLOBAL_LIST_VIEW_ID]),
+                view: "serviceGroupGlobalListView",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewPathPrefix: "config/infra/firewall/ui/js/views/",
+                viewConfig: $.extend(true, {}, viewConfig)
+            };
+        } else {
+            return {
+                elementId:
+                    cowu.formatElementId([ctwc.FW_WZ_SECURITY_POLICY_SG_PROJECT_LIST_VIEW_ID]),
+                view: "serviceGroupProjectListView",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewPathPrefix: "config/firewall/project/servicegroup/ui/js/views/",
+                viewConfig: $.extend(true, {}, viewConfig,
+                                     {projectSelectedValueData: viewConfig.projectSelectedValueData})
+            };
+        }
+    }
     var getServiceGroupViewConfig = function (isDisable) {
         return {
             elementId: ctwc.APS_SERVICE_GRP_ID,
