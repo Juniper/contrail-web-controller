@@ -78,14 +78,14 @@ define([
                             if(deletedObj.indexOf(policy.uuid) === -1){
                                 delete policy.cgrid;
                                 updatedList.push(policy);
-                            } 
+                            }
                         });
                         updatedGridList = [];
                         self.policyGridList.list = self.getFqNameList(updatedList);
-                        return updatedList; 
+                        return updatedList;
                     }else{
                         self.policyGridList.list = self.getFqNameList(self.selectedPolicy);
-                        return self.selectedPolicy; 
+                        return self.selectedPolicy;
                     }
                 }else{
                     self.policyGridList.list = [];
@@ -118,7 +118,7 @@ define([
                        _.each(policyList, function(policy) {
                            if(deletedObj.indexOf(policy.uuid) === -1){
                                updatedList.push(policy);
-                           } 
+                           }
                        });
                        updatedGridList = [];
                        return self.sortPolicy(updatedList, self.apsName);
@@ -142,7 +142,7 @@ define([
         },
         sortPolicy: function(policyList, apsName){
             var matchAps;
-            var updatedList = 
+            var updatedList =
                 _.sortBy(policyList, function (pol) {
                     var apsBackRefs = getValueByJsonPath(pol, 'application_policy_set_back_refs', []);
                     _.each(apsBackRefs, function(aps) {
@@ -183,23 +183,23 @@ define([
                 _.each(policyList, function(policy) {
                     if(policy.fq_name.length === 3){
                         if(policy.fq_name[1] === projectSelected){
-                           newUpdatedList.push(policy); 
+                           newUpdatedList.push(policy);
                         }
                     }
                 });
-                return newUpdatedList;  
+                return newUpdatedList;
             }
         },
         getFWPolicyGlobalGridViewConfig: function(viewConfig, policyGridList) {
             return {
                 elementId:
-                cowu.formatElementId(["fw-policy-list-view"]),
+                cowu.formatElementId([viewConfig.idList.sectionId]),
                 view: "SectionView",
                 viewConfig: {
                     rows: [{
                         columns: [
                             {
-                                elementId: "fw-policy-grid-id",
+                                elementId: viewConfig.idList.id,
                                 view: "fwApplicationPolicyGridView",
                                 viewPathPrefix:
                                     "config/firewall/fwpolicywizard/common/ui/js/views/",
