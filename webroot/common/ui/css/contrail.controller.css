@@ -714,13 +714,13 @@ form h5.margin-0-0-10~.section-content {
     background: -o-linear-gradient(#f7fdff, white); /* For Opera 11.1 to 12.0 */
     background: -moz-linear-gradient(#f7fdff, white); /* For Firefox 3.6 to 15 */
     background: linear-gradient(#f7fdff, white); /* Standard syntax (must be last) */
+    height: 93% !important;
 }
-#aps-main-back-button{
+/*#aps-cancel-btn{
     margin: 15px 15px 0 15px;
-}
+}*/
 #aps-landing-container{
     background:linear-gradient(#f7fdff,#fff);
-    display:none;
     height:500px;
     position: relative;
 }
@@ -822,8 +822,13 @@ div#aps-landing-container:not[style='display: block;'] #security-policy-tag-grid
 .error-font-weight {
     font-weight: bold;
 }
-#applicationpolicyset_policy_wizard .actions{
+/*#applicationpolicyset_policy_wizard .actions{
     display:none;
+}*/
+#applicationpolicyset_policy_wizard .actions{
+    /*display:none;*/
+    margin-top: 10px !important;
+    padding: 5px 3px 0px 0px !important;
 }
 #fw_policy_wizard{
 position:absolute;
@@ -912,10 +917,20 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
     max-height: 330px;
     overflow-y: auto!important;
 }
+#aps-sub-container {
+	height: 100% !important;
+}
+#create-new-application-policy-set-view #description .textarea-input-group {
+	width:100%;
+}
 #new-application-policy-set-grid .grid-body .grid-canvas{
     max-height:256px;
     overflow-y:auto!important;
     }
+#fw-wz-policy-grid .grid-canvas{
+  overflow-y:auto!important;
+  max-height:120px;
+}
 #configure-applicationpolicyset{
     overflow:auto;
 }

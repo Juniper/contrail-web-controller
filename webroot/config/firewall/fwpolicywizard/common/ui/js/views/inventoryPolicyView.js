@@ -7,9 +7,11 @@ define([
     'contrail-view',
     'knockback',
     'config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel',
-    'config/firewall/fwpolicywizard/common/ui/js/views/fwApplicationPolicyEditView'
-], function (_, ContrailView, Knockback, FwPolicyWizardModel, FwApplicationPolicyEditView) {
-    var fwApplicationPolicyEditView = new FwApplicationPolicyEditView();
+    'config/firewall/fwpolicywizard/common/ui/js/views/fwApplicationPolicyEditView',
+    'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizardEditView',
+], function (_, ContrailView, Knockback, FwPolicyWizardModel, FwApplicationPolicyEditView, FwPolicyWizardEditView) {
+    var fwApplicationPolicyEditView = new FwApplicationPolicyEditView(),
+    fwPolicyWizardEditView = new FwPolicyWizardEditView();
     var inventryPolicyView = ContrailView.extend({
         renderInventoryView: function(options) {
             var self = this;
@@ -22,6 +24,7 @@ define([
             if(viewConfig.projectSelectedValueData !== undefined){
                 projectSelected = viewConfig.projectSelectedValueData.name;
             }
+            $("#overlay-background-id").addClass("overlay-background");
             $('#aps-overlay-container').show();
             $("#aps-gird-container").empty();
             $('#aps-save-button').show();
@@ -29,37 +32,41 @@ define([
             $("#aps-back-button").text('Cancel');
             $("#aps-save-button").text('Add Selected');
             $("#aps-back-button").off('click').on('click', function(){
-                Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                 $('#aps-save-button').text('Save');
-                Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                 var seletedRows = getSelectedRows(previousRows, []);
+                viewConfig.seletedRows = seletedRows;
                 if(applicationObj.id_perms !== undefined){
                     applicationObj.id_perms.description = applicationObj.description;
                 }
-                fwApplicationPolicyEditView.model = new FwPolicyWizardModel(applicationObj);
-                fwApplicationPolicyEditView.renderApplicationPolicy({
-                                          'mode': mode,
-                                          'isGlobal': viewConfig.isGlobal,
-                                          'viewConfig': viewConfig,
-                                          'seletedRows': seletedRows
-                });
-            });
-            $("#aps-save-button").off('click').on('click', function(){
-                $('#aps-save-button').text('Save');
-                var gridElId = '#' + ctwc.FW_WZ_POLICY_GRID_ID;
-                var seletedRows = getSelectedRows($(gridElId).data("contrailGrid").getCheckedRows(), previousRows);
-                Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                if(applicationObj.id_perms !== undefined){
-                    applicationObj.id_perms.description = applicationObj.description;
-                }
-                fwApplicationPolicyEditView.model = new FwPolicyWizardModel(applicationObj);
-                fwApplicationPolicyEditView.renderApplicationPolicy({
+                fwPolicyWizardEditView.model = new FwPolicyWizardModel(applicationObj);
+                fwPolicyWizardEditView.renderFwWizard({
                                           'mode': mode,
                                           'isGlobal': viewConfig.isGlobal,
                                           'viewConfig': viewConfig,
                                           'seletedRows': seletedRows,
+                                          'isWizard': viewConfig.isWizard,
+                                           'noResetModal': true,
+                                           callback: function () {
+                                               $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView.refreshData();
+                }});
+            });
+            $("#aps-save-button").off('click').on('click', function(){
+                $('#aps-save-button').text('Save');
+                var gridElId = '#inventory-policy-grid';
+                var seletedRows = getSelectedRows($(gridElId).data("contrailGrid").getCheckedRows(), previousRows);
+                if(applicationObj.id_perms !== undefined){
+                    applicationObj.id_perms.description = applicationObj.description;
+                }
+                fwPolicyWizardEditView.model = new FwPolicyWizardModel(applicationObj);
+                fwPolicyWizardEditView.renderFwWizard({
+                                          'mode': mode,
+                                          'isGlobal': viewConfig.isGlobal,
+                                          'viewConfig': viewConfig,
+                                          'seletedRows': seletedRows,
+                                          'isWizard': viewConfig.isWizard,
+                                          'noResetModal': true,
                                           callback: function () {
-                   $('#' + ctwc.APPLICATION_POLICY_SET_GRID_ID).data("contrailGrid")._dataView.refreshData();
+                                       $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView.refreshData();
                 }});
             });
             self.renderView4Config($('#gird-details-container'),'',
@@ -87,14 +94,13 @@ define([
             });
         }
         return {
-            elementId:
-                cowu.formatElementId([ctwc.SECURITY_POLICY_TAG_LIST_VIEW_ID]),
+            elementId: "inventory-policy-list-view",
             view: "fwApplicationPolicyListView",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewPathPrefix: "config/firewall/fwpolicywizard/project/ui/js/views/",
             viewConfig: $.extend(true, {}, {isInventory: true,
                 oldRecords: oldRecordsID, isGlobal: viewConfig.isGlobal,
-                projectSelected: projectSelected})
+                projectSelected: projectSelected, idList: ctwc.INVENTORY_POLICY_GRID_ID})
         }
     }
     function getSelectedRows(model, previousRows){
