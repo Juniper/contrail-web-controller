@@ -13,7 +13,7 @@ define([
             self.newViewConfig = {viewConfig: {}};
             self.renderView4Config(self.$el, null, self.getDomainProjectDetails(viewConfig),
                     null, null, null, function(){
-                $('#' + ctwc.FW_POLICY_WIZARD).on('click', function() {self.openFWPolicyWizard();});
+                //$('#' + ctwc.FW_POLICY_WIZARD).on('click', function() {self.openFWPolicyWizard();});
             });
         },
         renderProjectPolicyDetails: function(viewConfig) {
@@ -31,7 +31,7 @@ define([
             self.renderView4Config(self.$el, null,
                     getProjectPolicyDetails(viewConfig,policyNameFormat));
         },
-        openFWPolicyWizard: function () {
+        /*openFWPolicyWizard: function () {
             var self = this;
             require(['config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel',
             'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizardEditView'],
@@ -46,7 +46,7 @@ define([
                                  }
                 });
             });
-        },
+        },*/
         getDomainProjectDetails: function(viewConfig) {
             var hashParams = viewConfig.hashParams,
                 self = this,
@@ -92,7 +92,7 @@ define([
                                 elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
                                 view: 'TabsView',
                                 viewConfig: getSecurityPolicyTabs(newViewConfig)
-                            }, {
+                            }/*, {
                                 elementId: ctwc.FW_POLICY_WIZARD,
                                 view: 'FormButtonView',
                                 viewConfig: {
@@ -101,7 +101,7 @@ define([
                                         btnClass:'btn-primary'
                                     }
                                 }
-                            }]
+                            }*/]
                         }]
                     }
                 };
@@ -125,7 +125,7 @@ define([
             }
         };
     };
-    function getDomainProjectDetails (viewConfig) {
+    /*function getDomainProjectDetails (viewConfig) {
         var hashParams = viewConfig.hashParams,
             customProjectDropdownOptions = {
                 config: true,
@@ -141,7 +141,7 @@ define([
             };
         return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams,
                                                      customDomainDropdownOptions)
-    };
+    };*/
 
     function getfwRulePolicyTabs(viewConfig){
         return {
