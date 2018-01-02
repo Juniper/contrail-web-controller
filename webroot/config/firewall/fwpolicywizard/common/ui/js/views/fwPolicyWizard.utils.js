@@ -8,7 +8,7 @@ define([
 ], function (_, ContrailListModel) {
     var FWZUtils = function () {
         var self = this;
-        self.getFirewallPolicyViewConfig = function(prefixId, allData){
+        self.getFirewallPolicyViewConfig = function(prefixId, allData, isPolicyDisable){
             var createPolicyViewConfig = [{
                 elementId: cowu.formatElementId([prefixId, ctwl.TITLE_DETAILS]),
                 title: ctwl.TITLE_POLICY_INFO,
@@ -23,7 +23,8 @@ define([
                                     viewConfig: {
                                         path: "policy_name",
                                         dataBindValue: "policy_name",
-                                        class: "col-xs-6"
+                                        class: "col-xs-6",
+                                        disabled : isPolicyDisable
                                     }
                                 }
                             ]
@@ -453,7 +454,7 @@ define([
             return retStr;
         }
         self.createApplicationPolicySet = function(){
-            $("#overlay-background-id").addClass("overlay-background");
+            //$("#overlay-background-id").addClass("overlay-background");
             $('#view-address-group').show();
             $('#view-service-group').show();
             $('#view-visble-tags').show();

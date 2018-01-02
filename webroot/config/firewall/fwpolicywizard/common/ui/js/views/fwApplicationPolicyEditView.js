@@ -12,147 +12,36 @@ define([
     modalId = 'configure-' + prefixId,
     formId = '#' + modalId + '-form';
     var fwApplicationPolicyEditView = ContrailView.extend({
-        renderApplicationPolicy: function(options) {
-
-            var self = this,disable = false, slecectedPolicyList, apsName;
-            var mode = options.viewConfig.mode, headerText;
-            var viewConfig = options.viewConfig;
+        el: $(contentContainer),
+        render: function(options) {
+            var self = this,disable = false, slecectedPolicyList, apsName, viewConfig;
+            if(options !== undefined){
+                viewConfig = options.viewConfig;
+            }else{
+                viewConfig = this.attributes.viewConfig;
+            }
+            var mode = viewConfig.mode, headerText;
             if(mode === 'edit'){
                 disable = true;
-                headerText = 'Edit Application Policy Sets';
+                headerText = 'Edit Application Policy Set';
                 viewConfig.isEdit = true;
-                slecectedPolicyList  = getPolicyList(options.policy);
-                apsName = options.apsName;
+                slecectedPolicyList  = getPolicyList(viewConfig.policy);
+                apsName = viewConfig.apsName;
             }else if(mode === 'add'){
-                headerText = 'Create Application Policy Sets';
-                if(options.policy !== undefined){
-                  slecectedPolicyList  = options.policy;
-                }
-            } else if(mode === 'grid_stand_alone'){
-                headerText = 'Stand Alone Firewall policies';
+                headerText = 'Create Application Policy Set';
             }
-            else if(mode === 'grid_firewall_policies'){
-                headerText = 'All Firewall policies';
-            }
-            else{
-                headerText = 'Delete Application Policy Sets';
-            }
-            viewConfig.mode = mode;
             deletedObj = [];
-            if(viewConfig.seletedRows !== undefined){
-                viewConfig.seletedRows =  options.seletedRows;
-            }
-            if(options.seletedRows !== undefined){
-                var seletedRows = options.seletedRows;
-            }
-            $('#aps-overlay-container').show();
-            $("#aps-gird-container").empty();
-            $('#aps-save-button').show();
-            self.setErrorContainer(headerText);
-            if(mode === 'delete'){
-                $('#aps-save-button').text('Confirm');
-                var deleteContainer = $('<div style="padding-top:30px;"></div>');
-                var deletText = $('<span style="padding-left:300px;">Are you sure you want to delete ?</span>');
-                deleteContainer.append(deletText);
-                $('#gird-details-container').append(deleteContainer);
-                //back method
-                $("#aps-back-button").off('click').on('click', function(){
-                    $('#aps-save-button').hide();
-                    Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                    $("#aps-gird-container").empty();
-                   // self.renderView4Config($("#aps-gird-container"), null, getAddressGroup(viewConfig));
-                    $('#aps-save-button').text('Save');
-                });
-                // save method
-                $("#aps-save-button").off('click').on('click', function(){
-                    self.model.deleteAddressGroup(options['selectedGridData'],{
-                        success: function () {
-                            $('#aps-save-button').text('Save');
-                            $('#aps-save-button').hide();
-                            Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                            $("#aps-gird-container").empty();
-                            //self.renderView4Config($("#aps-gird-container"), null, getAddressGroup(viewConfig));
-                        },
-                        error: function (error) {
-                            $("#grid-details-error-container").text('');
-                            $("#grid-details-error-container").text(error.responseText);
-                            $(".aps-details-error-container").show();
-                        }
-                    });
-                });
-            }else{
-                $("#aps-back-button").text('Cancel');
-                $("#aps-back-button").off('click').on('click', function(){
-                    $("#overlay-background-id").removeClass("overlay-background");
-                    Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                    $("#aps-gird-container").empty();
-                    $('#aps-save-button').text('Save');
-                    $('#aps-overlay-container').hide();
-                });
-                $("#aps-save-button").off('click').on('click', function(){
-                    $("#overlay-background-id").addClass("overlay-background");
-                    self.model.addEditApplicationSet({
-                        success: function () {
-                            $('#aps-save-button').hide();
-                            Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                            $("#aps-gird-container").empty();
-                            var modalId = 'configure-' + ctwc.APPLICATION_POLICY_SET_PREFIX_ID;
-                            $("#overlay-background-id").removeClass("overlay-background");
-                            $('#aps-overlay-container').hide();
-                            if($('#firewall-application-policy-grid').data("contrailGrid") !== undefined){
-                            $('#firewall-application-policy-grid').data("contrailGrid")._dataView.refreshData();
-                            }
-                            if($('#new-application-policy-set-grid').data("contrailGrid") !== undefined){
-                                $('#new-application-policy-set-grid').data("contrailGrid")._dataView.refreshData();
-                            }
-                        },
-                        error: function (error) {
-                            $("#grid-details-error-container").text('');
-                            $("#grid-details-error-container").text(error.responseText);
-                            $(".aps-details-error-container").show();
-                        }
-                    }, options, true, undefined);
-                });
-                if(mode === 'grid_firewall_policies' || mode === 'grid_stand_alone'){
-                    if(viewConfig.isGlobal === true){
-                    self.renderView4Config($('#gird-details-container'),
-                            this.model,
-                            getAllfwPoliciesStandAlonePoliciesViewConfig(viewConfig, mode),
-                            "applicationPolicyValidation",
-                            null, null, function() {
-                        //self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
-                        Knockback.applyBindings(self.model,
-                                document.getElementById('aps-gird-container'));
-                        kbValidation.bind(self);
-                    },null,false);
-                 }
-                 if(viewConfig.isGlobal === false){
-                     self.renderView4Config($('#gird-details-container'),
-                             this.model,
-                             getAllfwPoliciesStandAloneProjectPoliciesViewConfig(viewConfig, mode),
-                             "applicationPolicyValidation",
-                             null, null, function() {
-                         //self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
-                         Knockback.applyBindings(self.model,
-                                 document.getElementById('aps-gird-container'));
-                         kbValidation.bind(self);
-                     },null,false);
-                 }
-                }
-                else{
-                    self.renderView4Config($('#gird-details-container'),
-                            this.model,
-                            getApplicationPolicyViewConfig(disable, viewConfig, seletedRows, slecectedPolicyList, apsName),
-                            "applicationPolicyValidation",
-                            null, null, function() {
-                        //self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
-                        Knockback.applyBindings(self.model,
-                                document.getElementById('aps-gird-container'));
-                        kbValidation.bind(self);
-                    },null,false);
-                }
-            }
+            var seletedRows = viewConfig.seletedRows;
+            self.renderView4Config(self.$el,
+                    this.model,
+                    getApplicationPolicyViewConfig(disable, viewConfig, seletedRows, slecectedPolicyList, apsName),
+                    "applicationPolicyValidation",
+                    null, null, function() {
+                    Knockback.applyBindings(self.model, document.getElementById('new-application-policy-set-section'));
+                    kbValidation.bind(self);
+            },null,false);
         },
+ 
         setErrorContainer : function(headerText){
             $('#aps-gird-container').append($('<h6></h6>').text(headerText).addClass('aps-details-header'));
             var errorHolder = $('<div></div>').addClass('alert-error clearfix aps-details-error-container');
@@ -172,12 +61,10 @@ define([
         return uuidList;
     };
     var getAllfwPoliciesStandAlonePoliciesViewConfig = function (viewConfig, mode) {
-        //var policyParam = {data: [{type: 'firewall-policys'}]};
         return {
             elementId: "create_application_policy_prefixid",
             view: 'SectionView',
             title: "Application Policy",
-           // active:false,
             viewConfig: {
                 rows: [
                        {
@@ -197,7 +84,6 @@ define([
         }
     }
     var getAllfwPoliciesStandAloneProjectPoliciesViewConfig = function (viewConfig, mode) {
-        //var policyParam = {data: [{type: 'firewall-policys'}]};
         return {
             elementId: "fw-policies-wizard-project-section",
             view: 'SectionView',
@@ -228,29 +114,22 @@ define([
             elementId: "create_application_policy_prefixid",
             view: 'SectionView',
             title: "Application Policy",
-           // active:false,
             viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: 'name',
-                                view: 'FormInputView',
-                                viewConfig: {
-                                    label: 'Name',
-                                    path: 'name',
-                                    class: 'col-xs-6',
-                                    dataBindValue: 'name',
-                                    disabled : isDisable
-                                }
-                            }
-                        ]
-                    },
-                       {
+                rows: [{
                            columns: [
                                {
+                                   elementId: 'name',
+                                   view: 'FormInputView',
+                                   viewConfig: {
+                                       label: 'Name',
+                                       path: 'name',
+                                       class: 'col-xs-6',
+                                       dataBindValue: 'name',
+                                       disabled : isDisable
+                                   }
+                               },{
                                    elementId: 'Application',
-                                   view: 'FormMultiselectView',
+                                   view: 'FormDropdownView',
                                    viewConfig: {
                                        visible:
                                            'name() !== "' + ctwc.GLOBAL_APPLICATION_POLICY_SET + '"',
@@ -260,7 +139,7 @@ define([
                                        class: 'col-xs-6',
                                        elementConfig: {
                                            dataTextField: "text",
-                                           dataValueField: "value",
+                                           dataValueField: "id",
                                            placeholder:
                                                "Select Tags",
                                                dataSource : {
@@ -300,7 +179,7 @@ define([
                                                               if(tagName !== ''){
                                                                   data = {
                                                                           "text": tagName,
-                                                                          "value":actValue
+                                                                          "id":actValue
                                                                      };
                                                                   if (tagsDetails[j].tag.tag_type_name === 'application') {
                                                                       tagsArray.push(data);
@@ -345,7 +224,8 @@ define([
                                        projectSelectedValueData: viewConfig.projectSelectedValueData,
                                        seletedRows : seletedRows,
                                        policyList : slecectedPolicyList,
-                                       apsName : apsName
+                                       apsName : apsName,
+                                       girdId : viewConfig.girdId
                                    })
                                }
                            ]
