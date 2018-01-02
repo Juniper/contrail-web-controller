@@ -27,13 +27,13 @@ define([
                 "owner_access": "",
                 "global_access": "",
                 "share": []
-            }, 
+            },
             'onNext': false
         },
         formatModelConfig: function(modelConfig) {
             self = this;
-            var shareModel, shareModelCol = [], share, fwRuleModel, fwRuleModelCol = [];
-            modelConfig["firewall_rules"] = new Backbone.Collection(fwRuleModelCol); 
+            var shareModel, shareModelCol = [], share, fwRuleModel, fwRuleModelCol = [], sloList = [];
+            modelConfig["firewall_rules"] = new Backbone.Collection(fwRuleModelCol);
             var tagRef = getValueByJsonPath(modelConfig, 'tag_refs', []), tagList = [],
             description = getValueByJsonPath(modelConfig, 'id_perms;description', '');
             if((modelConfig["perms2"]["owner_access"] != "") || (modelConfig["perms2"]["global_access"] != "")) {
@@ -68,6 +68,21 @@ define([
             }
             if(description !== ''){
                 modelConfig['description'] = description;
+            }
+            var slo = getValueByJsonPath(modelConfig,
+                    "security_logging_object_refs", []);
+            if(slo.length > 0){
+                _.each(slo, function(obj) {
+                    var to = obj.to.join(':');
+                    sloList.push(to);;
+                });
+                modelConfig['security_logging_object_refs'] = sloList.join(';');
+            }
+            if(modelConfig.name !== ''){
+                modelConfig.policy_name = modelConfig.name;
+            }
+            if(modelConfig.id_perms !== undefined && modelConfig.id_perms.description !== undefined){
+                modelConfig.policy_description = modelConfig.id_perms.description;
             }
             return modelConfig;
         },
@@ -208,7 +223,7 @@ define([
             }
             return returnval;
         },
-        addEditApplicationSet: function (callbackObj, options, firstStep, serviceGroupList, policyEditSet) {
+        addEditApplicationSet: function (callbackObj, options, firstStep, serviceGroupList, policySet) {
             var ajaxConfig = {}, returnFlag = true,updatedVal = {}, postFWRuleData = {};
             var postFWPolicyData = {}, newFWPolicyData, attr;
             var updatedModel = {},policyList = [];
@@ -250,18 +265,19 @@ define([
                         updatedModel.tag_refs = model.tag_refs;
                         updatedModel.firewall_policy_refs = policyList;
                         if (options.viewConfig.mode == 'add') {
-                            var obj = {};
-                            obj.description = model.description;
-                            updatedModel.id_perms = obj;
-                            var postData = {"application-policy-set":
-                                updatedModel};
+                           if(model.description !== ''){
+                                var obj = {};
+                                obj.description = model.description;
+                                updatedModel.id_perms = obj;
+                            }
+                            var postData = {"application-policy-set": updatedModel};
                             ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                         } else {
                             delete(updatedModel.name);
                             model.id_perms.description = model.description;
                             updatedModel['id_perms'] = model.id_perms;
-                            var postData = {"application-policy-set":
-                                updatedModel};
+                            updatedModel.uuid = model.uuid;
+                            var postData = {"application-policy-set": updatedModel};
                             ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                         }
                         ajaxConfig.type  = 'POST';
@@ -290,12 +306,12 @@ define([
             }else{
                var fwRules = this.model().attributes.firewall_rules ?
                         this.model().attributes.firewall_rules.toJSON(): [];
-                    if(Object.keys(policyEditSet).length > 0){
-                        if(policyEditSet.mode == 'edit'){
-                            policyEditSet.description = this.model().attributes.policy_description;
-                            policyEditSet.sloRef = ctwu.setSloToModel(this.model().attributes);
-                            self.createAndUpdateRules(fwRules, options, serviceGroupList, policyEditSet, callbackObj);
-                        }else if(policyEditSet.mode == 'add'){
+                    if(Object.keys(policySet).length > 0){
+                        if(policySet.mode == 'edit'){
+                            policySet.description = this.model().attributes.policy_description;
+                            policySet.sloRef = ctwu.setSloToModel(this.model().attributes);
+                            self.createAndUpdateRules(fwRules, options, serviceGroupList, policySet, callbackObj);
+                        }else if(policySet.mode == 'add'){
                             postFWRuleData['firewall-rules'] = self.ruleFormation(fwRules, options, serviceGroupList, false);
                             attr = this.model().attributes;
                             self.addPolicy(attr, postFWRuleData, callbackObj, options);
@@ -303,8 +319,14 @@ define([
                     }else{
                         postFWRuleData['firewall-rules'] = self.ruleFormation(fwRules, options, serviceGroupList, false);
                         attr = this.model().attributes;
-                        self.addPolicy(attr, postFWRuleData, callbackObj, options); 
-                    }   
+                        if(newApplicationSet.mode === 'edit'){
+                            delete attr.uuid;
+                            delete attr.parent_uuid;
+                            delete attr.firewall_policy_refs;
+                            delete attr.href;
+                        }
+                        self.addPolicy(attr, postFWRuleData, callbackObj, options);
+                    }
             }
         },
         createAndUpdateRules: function(fwRules, options, serviceGroupList, policyObj, callbackObj){
@@ -567,12 +589,11 @@ define([
             delete newFWPolicyData.description;
             delete newFWPolicyData.onNext;
             postFWPolicyData['firewall-policy'] = newFWPolicyData;
-
             ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
             ajaxConfig.async = false;
             ajaxConfig.type  = "POST";
             ajaxConfig.data  = JSON.stringify(postFWPolicyData);
-            
+
             contrail.ajaxHandler(ajaxConfig, function () {
                 if (contrail.checkIfFunction(callbackObj.init)) {
                     callbackObj.init();
@@ -581,8 +602,6 @@ define([
                 var fwPolicyId = getValueByJsonPath(response,
                         'configData;firewall-policy;uuid', '');
                 self.addPolicyRules(fwPolicyId, postFWRuleData, callbackObj, options);
-                
-                
             }, function (error) {
                 if (contrail.checkIfFunction(callbackObj.error)) {
                     callbackObj.error(error);
@@ -725,6 +744,7 @@ define([
                 delete(updatedModel.name);
                 model.id_perms.description =  model.description;
                 updatedModel['id_perms'] = model.id_perms;
+                updatedModel.uuid = model.uuid;
                 var postData = {"application-policy-set": updatedModel};
                 ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
             }
