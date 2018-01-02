@@ -8,8 +8,9 @@ define([
     'config/firewall/common/tag/ui/js/models/tagModel',
     'config/firewall/common/tag/ui/js/views/tagEditView',
     'config/firewall/fwpolicywizard/common/ui/js/views/overlayTagEditView',
-    'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizard.utils'
-], function (_, ContrailView, TagModel, TagEditView, OverlayTagEditView,FWZUtils) {
+    'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizard.utils',
+    'knockback',
+], function (_, ContrailView, TagModel, TagEditView, OverlayTagEditView,FWZUtils,Knockback) {
     var tagEditView = new TagEditView(),
         overlayTagEditView = new OverlayTagEditView(),
         gridElId = "#" + ctwc.SECURITY_POLICY_TAG_GRID_ID;
@@ -24,6 +25,14 @@ define([
             isGlobal = viewConfig["isGlobal"];
             self.renderView4Config(self.$el, self.model,
                                    getTagGridViewConfig(viewConfig));
+            $("#aps-back-button").off('click').on('click', function(){
+                $('#helper').show();
+                $('.modal-header-title').text("Create Application Policy Set");
+                $('#aps-overlay-container').hide();
+                $("#overlay-background-id").removeClass("overlay-background");
+                Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                $("#aps-gird-container").empty();
+            });
         }
     });
 
