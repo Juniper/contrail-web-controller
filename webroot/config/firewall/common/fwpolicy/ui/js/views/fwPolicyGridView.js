@@ -70,7 +70,7 @@ define([
                     fwPolicyWizardEditView.renderFwWizard({
                                     "title": 'Edit Firewall Policy',
                                     'viewConfig': $.extend(viewConfig.viewConfig, { mode: 'edit', isGlobal: viewConfig.isGlobal , 
-                                     seletedRows : [], isWizard: viewConfig.isWizard, wizardMode: 'policy', model: dataItem}),
+                                     seletedRows : [], isWizard: true, wizardMode: 'policy', model: dataItem}),
                                      callback: function () {
                                            $(gridElId).data("contrailGrid")._dataView.refreshData();
                                      }
@@ -195,7 +195,7 @@ define([
                             fwPolicyWizardEditView.renderFwWizard({
                                             "title": 'Create Firewall Policy',
                                             'viewConfig': $.extend(viewConfig.viewConfig, { mode: 'add', isGlobal: viewConfig.isGlobal , 
-                                             seletedRows : [], isWizard: viewConfig.isWizard, wizardMode: 'policy'}),
+                                             seletedRows : [], isWizard: true, wizardMode: 'policy'}),
                                              callback: function () {
                                                    $(gridElId).data("contrailGrid")._dataView.refreshData();
                                              }
