@@ -16,9 +16,9 @@ define([
             },
             "graceful_restart_parameters": {
                 "enable": false,
-                "restart_time": 60,
+                "restart_time": 300,
                 "long_lived_restart_time": 300,
-                "end_of_rib_timeout": 30,
+                "end_of_rib_timeout": 300,
                 "bgp_helper_enable": false,
                 "xmpp_helper_enable": false
             },
@@ -222,7 +222,7 @@ define([
                 grTime = getValueByJsonPath(newBGPOptionsConfig,
                         "graceful_restart_parameters;restart_time", "");
                 grTime = grTime.toString().trim().length > 0 ?
-                        Number(grTime) : 60;
+                        Number(grTime) : 300;
                 globalSysConfigData['global-system-config']
                 ["graceful_restart_parameters"]["restart_time"] = grTime;
 
@@ -241,7 +241,7 @@ define([
                         "graceful_restart_parameters;end_of_rib_timeout", "");
                 endOfRIBRecTime =
                     endOfRIBRecTime.toString().trim().length > 0 ?
-                        Number(endOfRIBRecTime) : 30;
+                        Number(endOfRIBRecTime) : 300;
                 globalSysConfigData['global-system-config']
                 ["graceful_restart_parameters"]["end_of_rib_timeout"] =
                     endOfRIBRecTime;

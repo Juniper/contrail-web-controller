@@ -192,7 +192,7 @@ define([
                                     "graceful_restart_parameters." +
                                     "restart_time",
                                 label : "Restart Time (secs)",
-                                placeholder : "0 - 4095 (60)",
+                                placeholder : "0 - 4095 (300)",
                                 dataBindValue: "graceful_restart_parameters()." +
                                     "restart_time",
                                 class: "col-xs-6"
@@ -222,7 +222,7 @@ define([
                                 path: "graceful_restart_parameters." +
                                     "end_of_rib_timeout",
                                 label : "End of RIB (secs)",
-                                placeholder : '0 - 4095 (30)',
+                                placeholder : '0 - 4095 (300)',
                                 dataBindValue: "graceful_restart_parameters()." +
                                     "end_of_rib_timeout",
                                 class: "col-xs-6"
