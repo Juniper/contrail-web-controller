@@ -221,6 +221,7 @@ define([
                                     elementConfig : {
                                         dataTextField : "text",
                                         dataValueField : "id",
+                                        allowClear: true,
                                         placeholder : 'Select HTTP Method',
                                         data : [{id: 'GET', text:'GET'},
                                                 {id: 'HEAD', text:'HEAD'}]
