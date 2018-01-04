@@ -55,9 +55,7 @@ define([
 
                 ajaxConfig.type = "POST";
 
-                var postData = {"data":[{"data":{"project": updatedVal},
-                    "reqUrl": "/project/"+
-                    updatedVal.uuid}]};
+                var postData = {"project": updatedVal};
 
                 ajaxConfig.data = JSON.stringify(postData);
                 ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;

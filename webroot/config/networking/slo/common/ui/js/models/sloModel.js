@@ -278,16 +278,10 @@ define([
                 }
                 delete newSloObj.rules_entries;
                 delete newSloObj.sloRuleDetails;
+                postData = {"security-logging-object": newSloObj};
                 if (mode == ctwl.CREATE_ACTION) {
-                    postData = {"data":[{"data":{"security-logging-object":
-                                 newSloObj},
-                                "reqUrl": "/security-logging-objects"}]};
                     ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 } else {
-                    postData = {"data":[{"data":{"security-logging-object":
-                                 newSloObj},
-                                "reqUrl": "/security-logging-object/" +
-                                newSloObj.uuid}]};
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 }
                 ajaxConfig.type  = 'POST';

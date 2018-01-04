@@ -1614,14 +1614,10 @@ define([
                 vmiData["virtual-machine-interface"] = {};
                 vmiData["virtual-machine-interface"] = newPortData;
                 ajaxConfig = {};
+                vmiData = {"virtual-machine-interface": newPortData};
                 if(mode == ctwl.CREATE_ACTION) {
-                    vmiData = {"data":[{"data":{"virtual-machine-interface": newPortData},
-                                "reqUrl": '/virtual-machine-interfaces', "type": 'virtual-machine-interface'}]};
                     ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 } else {
-                    vmiData = {"data":[{"data":{"virtual-machine-interface": newPortData},
-                                "reqUrl": '/virtual-machine-interface/' +
-                                newPortData['uuid'], "type": 'virtual-machine-interface'}]};
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 }
                 ajaxConfig.type = 'POST';

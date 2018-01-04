@@ -337,8 +337,6 @@ define([
                 postFWPolicyData['firewall-policy'] = newFWPolicyData;
 
                 if(options.mode === ctwl.CREATE_ACTION) {
-                    postFWPolicyData = {"data":[{"data": postFWPolicyData,
-                                "reqUrl": ctwc.URL_CREATE_FW_POLICY}]};
                     ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 } else {
                   // Delete the all fields which not required for the Edit Firewall Policies
@@ -350,9 +348,6 @@ define([
                     delete newFWPolicyData.perms2;
                     delete newFWPolicyData.tag_refs;
                     postFWPolicyData['firewall-policy'] = newFWPolicyData;
-                    postFWPolicyData = {"data":[{"data": postFWPolicyData,
-                                "reqUrl": ctwc.URL_UPDATE_FW_POLICY +
-                                newFWPolicyData['uuid']}]};
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 }
                 ajaxConfig.async = false;
