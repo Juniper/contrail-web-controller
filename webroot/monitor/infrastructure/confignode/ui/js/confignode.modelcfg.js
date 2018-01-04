@@ -22,16 +22,6 @@ define(['lodash', 'contrail-view', 'legend-view', 'monitor-infra-confignode-mode
                         " api_stats.resp_code, name"
                 }
             },
-            'CONFIGNODE_APIREQUESTS_MODEL' : {
-                type: "configNode",
-                source: 'STATTABLE',
-                config: {
-                    table_name: 'StatTable.VncApiStatsLog.api_stats',
-                    select: "Source, T, api_stats.operation_type," +
-                        " api_stats.response_time_in_usec, api_stats.response_size," +
-                        " api_stats.resp_code, name"
-                }
-            },
             'CONFIGNODE_USERAGENT_MODEL' : {
                 type: "configNode",
                 source:'STATTABLE',

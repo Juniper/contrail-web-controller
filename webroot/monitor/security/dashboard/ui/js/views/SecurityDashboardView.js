@@ -56,9 +56,8 @@ define([
                                                     widgetCfgList: [
                                                         {id: 'vmi-implicit-allow-deny-scatterchart'},
                                                         {id: 'top-10-allowed-rules'},
-                                                        {id: 'top-5-services'}
-                                                        //{id: 'top-10-denied-rules'}
-                                                        //{id: 'top-10-deny-rules'},
+                                                        //{id: 'top-5-services'}
+                                                        {id: 'top-10-denied-rules'}
                                                     ]
                                                  }
                                              },
