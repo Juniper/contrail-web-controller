@@ -9,7 +9,7 @@ define(['lodash', 'contrail-view','monitor-infra-vrouter-model'],
                 config: {
                     table_name: 'StatTable.VrouterStatsAgent.flow_rate',
                     select: 'T=, Source, MAX(flow_rate.active_flows)',
-                    parser: function(d){return parseDataForFlowsDrops(d,'MAX(flow_rate.active_flows)')},
+                    parser: parseDataForFlowsDrops
                 }    
             },
             'VROUTER_DROP_PACKET_MODEL': {
@@ -52,10 +52,11 @@ define(['lodash', 'contrail-view','monitor-infra-vrouter-model'],
             }
         }
 
-        function parseDataForFlowsDrops (response,field) {
+        function parseDataForFlowsDrops (response) {
             var ret = [];
             var data = getValueByJsonPath(response,'data',[]);
             var groupedByTime = _.groupBy(data,'T=');
+            var field = 'MAX(flow_rate.active_flows)';
             for(var key in groupedByTime) {
                 var tmp = {"T=":_.isNaN(key)? key: parseInt(key)};
                 var arr = groupedByTime[key];

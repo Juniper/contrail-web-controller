@@ -2,7 +2,8 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['contrail-list-model'], function(ContrailListModel) {
+define(['contrail-list-model', 'core-utils'], function(ContrailListModel, CoreUtils) {
+    var cowu = new CoreUtils();
     var VRouterDetailsSystemChartListModel = function(config) {
         var hostname = config['node'];
         var isTORAgent = config['isTORAgent'];
@@ -27,7 +28,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                     },
                     successCallback: function(response, contrailListModel) {
                         var flowRateData = getValueByJsonPath(response,'data',[]);
-                        monitorInfraUtils.parseAndMergeStats (flowRateData,contrailListModel,'MAX(system_mem_usage.used)');
+                        cowu.parseAndMergeStats (flowRateData,contrailListModel,'MAX(system_mem_usage.used)');
                     }
                 }
             ]
