@@ -24,27 +24,24 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                         config: [{
                             "table_name": "StatTable.EndpointSecurityStats.eps.client",
                             "select": "eps.__key, name, SUM(eps.client.in_bytes), SUM(eps.client.out_bytes), SUM(eps.client.added)",
-                            "from_time_utc": Date.now() - (1 * 60 * 60 * 1000),
-                            "from_time": Date.now() - (1 * 60 * 60 * 1000),
-                            "end_time": Date.now(),
-                            "end_time_utc": Date.now(),
                             "where": "(name Starts with " + ctwu.getCurrentDomainProject() +')',
-                            /*"parser": function(response){
-                                return _.result(response, 'data', []);
-                            }*/
                         },{
-                            type: 'non-stats-query',
-                            getAjaxConfig: function(epsClientData, postData) {
-                                var ruleUUIDs = getRuleUUIDs(epsClientData, 'eps.__key');
-                                return getAPIServerAjaxConfigOfRuleUUIDs(ruleUUIDs);
+                            table_name: 'firewall-rules',
+                            source: 'APISERVER',
+                            fields: ['firewall_policy_back_refs',
+                                     'service', 'service_group_refs'],
+                            where: function (model, defObj) {
+                                return getRuleUUIDs(model.get('data'), 'eps.__key', defObj);
                             },
-                            /*parser: function (response) {
-                                return response;
-                            },*/
-                            mergeFn: function (response, contrailListModel) {
-                                var analyticsEpsClientData = contrailListModel.getItems(),
-                                    ruleDataArr =
-                                    mergeAnalyticsSessionDataWithConfigRuleData (response, analyticsEpsClientData, 'eps.__key');
+                            mergeFn: function (response, model) {
+                                var analyticsEpsClientData = model.get('data');
+                                    ruleDataArr = cowu.mergeAnalyticsAndConfigData({
+                                        configData: response,
+                                        analyticsData: analyticsEpsClientData,
+                                        analyticsDataKey: 'eps.__key',
+                                        configDataKey: 'uuid',
+                                        configObjType: 'firewall-rule'
+                                    });
                                 // Adding the implicit rules as these are not available
                                 // in config server
                                 var implicitDenied = _.filter (analyticsEpsClientData, function (value, key) {
@@ -55,7 +52,8 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                                         implicit: true,
                                     }));
                                 });
-                                contrailListModel.setData(ruleDataArr);
+                                model.set({data:ruleDataArr});
+                                return ruleDataArr;
                             }
                         }]
                     },
@@ -130,35 +128,74 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                     }
                 }
             },
-            'top-10-deny-rules': function () {
-            	return topRulesWidgetCfg('deny');
-            },
             'top-5-services': function () {
                 return {
                     modelCfg: {
                         modelId:'top-5-services',
-                        config: {
-                            remote : {
-                                ajaxConfig : {
-                                    url:monitorInfraConstants.monitorInfraUrls['ANALYTICS_QUERY'],
-                                    type:'POST',
-                                    data:JSON.stringify({
-                                        "session_type": "client",
-                                        "start_time": "now-1h",
-                                        "end_time": "now",
-                                        "where": [[{"name":"vn","value":ctwu.getCurrentDomainProject(),"op":7}]],
-                                        "select_fields": ["SUM(reverse_sampled_bytes)", "SUM(forward_sampled_bytes)", "protocol", "server_port"],
-                                        "table": "SessionSeriesTable"
-                                    })
-                                },
-                                dataParser : function (response) {
-                                    var data =  _.result(response, 'value', []);
-                                    return  _.filter(data, function (value) {
-                                        return value['server_port'] < 36768 ? true : false;
-                                    });
-                                }
+                        needContrailListModel: true,
+                        source: 'STATTABLE',
+                        config: [{
+                            "table_name": "StatTable.EndpointSecurityStats.eps.client",
+                            "select": "eps.__key, name, SUM(eps.client.in_bytes), SUM(eps.client.out_bytes), SUM(eps.client.added)",
+                            "where": "(eps.local_vn Starts with " + ctwu.getCurrentDomainProject() +')',
+                        }, {
+                            "table_name": 'firewall-rules',
+                            "source": 'APISERVER',
+                            "fields": ['firewall_policy_back_refs',
+                                     'service', 'service_group_refs'],
+                            "where": function (model, defObj) {
+                                return getRuleUUIDs(model.get('data'), 'eps.__key', defObj);
+                            },
+                            "mergeFn": function (data, model) {
+                                return cowu.mergeAnalyticsAndConfigData({
+                                    configData: data,
+                                    analyticsData: model.get('data'),
+                                    analyticsDataKey: 'eps.__key',
+                                    configDataKey: 'uuid',
+                                    configObjType: 'firewall-rule'
+                                });
                             }
-                        }
+                        }, {
+                            "table_name": 'service-groups',
+                            "source": 'APISERVER',
+                            //"fields": ['firewall_policy_back_refs',
+                              //       'service', 'service_group_refs'],
+                            "where": function (model, defObj) {
+                                var data = model.get('data'),
+                                    serviceGrpUUID = [],
+                                    serviceGrpRefArr = [];
+                                _.forEach(data, function (obj) {
+                                    serviceGrpRefArr = _.result(obj, 'configData.service_group_refs',[]);
+                                    serviceGrpUUID.concat(_.map(serviceGrpRefArr, 'uuid'));
+                                })
+                                if (defObj != null) {
+                                    defObj.resolve(serviceGrpUUID);
+                                } else {
+                                    return serviceGrpUUID;
+                                }
+                            },
+                            mergeFn: function (response, model) {
+                                var serviceGrpArr = _.result(response, '0.service-groups', []),
+                                    serviceGrpArr = _.keyBy(serviceGrpArr, 'uuid'),
+                                    serviceGrpRef = [],
+                                    service = {};
+                                    data = model.get('data');
+                                data = _.filter(data, function (statObj) {
+                                    return _.result(statObj, 'configData.service_group_refs', []).length > 0 ? true : false
+                                });
+                                $.each(data, function (idx, statObj) {
+                                    service = _.result(statObj, 'configData.service', {});
+                                    serviceGrpRef = _.result(statObj, 'configData.service_group_refs', [])
+                                    _.forEach(serviceGrpRef, function (refObj) {
+                                        var serviceGrpObj = serviceGrpArr[refObj['uuid']];
+                                        service = $.extend(true, service,
+                                            _.result(serviceGrpObj, 'service_group_firewall_service_list.firewall_service', []));
+                                    });
+                                    _.set(statObj, 'configData.service', service);
+                                });
+                                return data;
+                            }
+                        }]
                     },
                     viewCfg:{
                         elementId : 'top-5-services',
@@ -212,39 +249,23 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
             })
             return color;
         }
-        function getRuleUUIDs (data, uuidKey) {
+        function getRuleUUIDs (data, uuidKey, defObj) {
             var rule = _.map(data, uuidKey),
-            ruleUUIDs = [];
+            ruleUUIDs = [], ruleUUID;
             _.forEach(rule, function (value) {
                 if (value != null && typeof value == 'string' &&
                     value.indexOf(':') > -1) {
-                    ruleUUIDs.push(value.split(':').pop());
+                    ruleUUID = value.split(':').pop();
+                    if (ruleUUIDs.indexOf(ruleUUID) == -1) {
+                        ruleUUIDs.push(ruleUUID);
+                    }
                 }
             })
+            if (defObj != null) {
+                defObj.resolve(ruleUUIDs);
+            }
             return ruleUUIDs;
         };
-        function getAPIServerAjaxConfigOfRuleUUIDs (ruleUUIDs) {
-            return {
-                url: "/api/tenants/config/get-config-details",
-                type: "POST",
-                data: JSON.stringify(
-                    {data: [{type: 'firewall-rules',obj_uuids: ruleUUIDs, fields: ['firewall_policy_back_refs',
-                     'service', 'service_group_refs']}]})
-            };
-        }
-        function mergeAnalyticsSessionDataWithConfigRuleData (configData, analyticsSessionData, analyticsDataKey, configDataKey) {
-            var firewallRules = _.result(configData, '0.'+(configDataKey || 'firewall-rules'), []);
-                ruleMap = _.keyBy(analyticsSessionData, (analyticsDataKey || 'security_policy_rule')),
-                ruleDataArr = [];
-                _.forEach(firewallRules, function(value) {
-                    var firewallObj = _.result(value, 'firewall-rule');
-                    var ruleStats = _.filter(ruleMap, function (value, key) {
-                        return _.includes(key, _.result(firewallObj, 'uuid'));
-                    })
-                    ruleDataArr.push($.extend({}, _.result(ruleStats, '0', {}), {configData: firewallObj}));
-                });
-            return ruleDataArr;
-        }
         function ruleUUIdFormatter (d) {
             if (cowc.DEFAULT_FIREWALL_RULES[d] != null) {
                 d = cowc.DEFAULT_FIREWALL_RULES[d]['name'];
@@ -271,49 +292,34 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
         	return {
                 modelCfg: {
                     modelId:'top-10-rule',
-                    config: {
-                        remote : {
-                            ajaxConfig : {
-                                url:monitorInfraConstants.monitorInfraUrls['ANALYTICS_QUERY'],
-                                type:'POST',
-                                data:JSON.stringify({
-                                    "session_type": "client",
-                                    "start_time": "now-1h",
-                                    "end_time": "now",
-                                    "where": [[{"name":"vn","value":ctwu.getCurrentDomainProject(),"op":7}]],
-                                    //"select_fields": ["SUM(forward_logged_bytes)", "SUM(reverse_logged_bytes)", "security_policy_rule", "forward_action"],
-                                    "select_fields": ["SUM(forward_sampled_bytes)", "SUM(reverse_sampled_bytes)", "security_policy_rule"],
-                                    "table": "SessionSeriesTable"
-                                })
-                            },
-                            dataParser : function (response) {
-                                return _.result(response, 'value', []);
-                            }
+                    source: 'STATTABLE',
+                    config: [{
+                        table_name: 'StatTable.EndpointSecurityStats.eps.server',
+                        select: 'eps.__key, eps.server.action, SUM(eps.server.in_bytes), SUM(eps.server.out_bytes), SUM(eps.server.in_pkts), SUM(eps.server.out_pkts)',
+                        where: '(eps.server.local_vn Starts with '+ctwu.getCurrentDomainProject()+')',
+                    }, {
+                        table_name: 'StatTable.EndpointSecurityStats.eps.client',
+                        select: 'eps.__key, eps.client.action, SUM(eps.client.in_bytes), SUM(eps.client.out_bytes), SUM(eps.client.in_pkts), SUM(eps.client.out_pkts)',
+                        where: '(eps.client.local_vn Starts with '+ctwu.getCurrentDomainProject()+')',
+                        type: 'concat'
+                    }, {
+                        table_name: 'firewall-rules',
+                        source: 'APISERVER',
+                        fields: ['firewall_policy_back_refs',
+                                 'service', 'service_group_refs'],
+                        where: function (model, defObj) {
+                            return getRuleUUIDs(model.get('data'), 'eps.__key', defObj);
                         },
-                        vlRemoteConfig : {
-                            vlRemoteList : [{
-                                getAjaxConfig : function (sessionSeries) {
-                                    var ruleUUIDs = getRuleUUIDs(sessionSeries, 'security_policy_rule');
-                                    return getAPIServerAjaxConfigOfRuleUUIDs(ruleUUIDs);
-                                },
-                                successCallback : function(response, contrailListModel) {
-                                    var ruleDataArr =
-                                        mergeAnalyticsSessionDataWithConfigRuleData (response, contrailListModel.getItems());
-                                    // Adding the implicit rules as these are not available
-                                    // in config server
-                                    /*_.map(cowc.DEFAULT_FIREWALL_RULES, function (value, key) {
-                                        if (ruleMap[key] != null) {
-                                            ruleDataArr.push($.extend(ruleMap[key], {
-                                                implicit: true,
-                                                name: _.result(value, 'name', '-')
-                                            }));
-                                        }
-                                    });*/
-                                    contrailListModel.setData(ruleDataArr);
-                                }
-                            }],
+                        mergeFn: function (data, model) {
+                            return cowu.mergeAnalyticsAndConfigData({
+                                configData: data,
+                                analyticsData: model.get('data'),
+                                analyticsDataKey: 'eps.__key',
+                                configDataKey: 'uuid',
+                                configObjType: 'firewall-rule'
+                            });
                         }
-                    }
+                    }]
                 },
                 viewCfg:{
                     elementId : 'top-10-rules',
@@ -328,9 +334,15 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                             xLblFormatter: ruleUUIdFormatter
                         },
                         parseFn: function (data) {
-                            /*data = _.filter(data, function (obj) {
-                                return _.result(obj, 'forward_action') == action;
-                            });*/
+                            var ruleAction;
+                            data = _.filter(data, function (obj) {
+                                if (obj != null && obj['eps.server.action'] != null) {
+                                    ruleAction = obj['eps.server.action']
+                                } else if (obj != null && obj['eps.client.action'] != null) {
+                                    ruleAction = obj['eps.client.action']
+                                }
+                                return ruleAction != null && ruleAction.indexOf(action) > -1 ? true : false;
+                            });
                             return cowu.parseDataForDiscreteBarChart(data, {
                                 groupBy: function (obj) {
                                     if (obj['implicit']) {
@@ -358,8 +370,9 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                                     }
                                     return endpoint1_tags + endpoint1_ag + endpoint1_any + direction + endpoint2_tags + endpoint2_ag + endpoint2_any;
                                 },
-                                    axisField: function (obj) {
-                                    return (_.result(obj, 'SUM(forward_sampled_bytes)', 0) + _.result(obj, 'SUM(reverse_sampled_bytes)', 0));
+                                axisField: function (obj) {
+                                    return (_.result(obj, 'SUM(eps.client.in_bytes)', 0) + _.result(obj, 'SUM(eps.client.out_bytes)', 0)
+                                            + _.result(obj, 'SUM(eps.server.in_bytes)', 0) + _.result(obj, 'SUM(eps.server.out_bytes)', 0));
                                 },
                                 label: 'Traffic',
                                 topCnt: topServiceCnt,
@@ -371,8 +384,8 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                 itemAttr: {
                     width: 0.5,
                     height: 1,
-                    //title: action == 'pass' ? 'Top Allowed Rules': 'Top Denied Rules',
-                    title: 'Top Endpoints',
+                    title: action == 'pass' ? 'Top Allowed Rules': 'Top Denied Rules',
+                    //title: 'Top Endpoints',
                     showTitle: true
                 }
             
