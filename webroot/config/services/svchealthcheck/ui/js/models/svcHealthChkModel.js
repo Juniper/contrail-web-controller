@@ -210,9 +210,9 @@ define([
 
                 var postData = {"service-health-check": newsvcHealthChkCfgData};
                 if (ajaxType == 'POST') {
-                    ajaxConfig.url = '/api/tenants/config/create-config-object'; 
+                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 } else {
-                    ajaxConfig.url = '/api/tenants/config/update-config-object'; 
+                    ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 }
                 ajaxConfig.async = false;
                 ajaxConfig.type  = 'POST';
