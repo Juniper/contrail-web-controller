@@ -1035,3 +1035,12 @@ body #firewall_policy_rules #firewall_rules th.text-center, body #applicationpol
     text-align: left;
     width: 897px!important;
 }
+#alarms-active-alarm-chart .item-content {
+	display: block;
+}
+#alarms-grid-view .item-content {
+	display: block;
+}
+#alarms-event-drops .item-content {
+    display: block;
+}

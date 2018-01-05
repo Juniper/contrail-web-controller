@@ -76,15 +76,16 @@ and need to add the iconClass tag wherever we need to show some icons
                             <resources>
                                 <resource>
                                     <rootDir>.</rootDir>
+                                    <!--<template>monInfraDashboard.tmpl</template>-->
                                     <js>monInfraDashboard.main.js</js>
                                     <class>monInfraDashboardLoader</class>
                                 </resource>
-                                <resource>
+                                <!--<resource>
                                     <rootDir>/monitor/infrastructure/dashboard/ui</rootDir>
                                     <template>monInfraDashboard.tmpl</template>
                                     <js>controllerInfraDashboard.main.js</js>
                                     <class>controllerInfraDashboardLoader</class>
-                                </resource>
+                                </resource>-->
                             </resources>
                             <queryParams>
                                 <tab>vRouters</tab>

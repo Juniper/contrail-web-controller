@@ -50,13 +50,13 @@ define([
                                                  viewConfig : {
                                                     elementId : 'security-dashboard-stackview-0',
                                                     gridAttr : {
-                                                        defaultWidth : cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                        defaultHeight : 8
+                                                        widthMultiplier : cowc.GRID_STACK_DEFAULT_WIDTH,
+                                                        heightMultiplier : 10
                                                     },
                                                     widgetCfgList: [
                                                         {id: 'vmi-implicit-allow-deny-scatterchart'},
                                                         {id: 'top-10-allowed-rules'},
-                                                        {id: 'top-5-services'},
+                                                        {id: 'top-5-services'}
                                                         //{id: 'top-10-denied-rules'}
                                                         //{id: 'top-10-deny-rules'},
                                                     ]

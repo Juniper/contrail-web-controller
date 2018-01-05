@@ -4,8 +4,9 @@
 define(
        [ 'underscore' ,
         'core-alarm-utils',
-        "core-constants"],
-       function(_,coreAlarmUtils, cowc) {
+        "core-constants",
+        'node-color-mapping'],
+       function(_,coreAlarmUtils, cowc, NodeColorMapping) {
             var MonInfraParsers = function() {
                 var self = this;
                 var noDataStr = monitorInfraConstants.noDataStr;
@@ -509,7 +510,12 @@ define(
                         var analyticsDbSize = parseFloat(jsonPath(d,
                             '$.value.DatabaseUsageInfo.'+
                             'database_usage[0].analytics_db_size_1k')[0]);
-
+                        var memCpuUsage = getValueByJsonPath(d,
+                                'value;NodeStatus;process_mem_cpu_usage;cassandra',{}),
+                            cpuShare = parseFloat(getValueByJsonPath(memCpuUsage,'cpu_share')),
+                            memory = parseInt(getValueByJsonPath(memCpuUsage,'mem_res'))/1024;
+                        obj['cpu'] = $.isNumeric(cpuShare) ? cpuShare.toFixed(2) : NaN;
+                        obj['memory'] = formatBytes(memory * 1024 * 1024);
                         obj['x'] = $.isNumeric(dbSpaceAvailable)?
                             dbSpaceAvailable / 1024 / 1024 : 0;
                         obj['y'] = $.isNumeric(dbSpaceUsed)?
@@ -585,8 +591,8 @@ define(
                 };
 
                 self.percentileAnalyticsNodeSummaryChart = function (chartModel) {
-                    var percentileSizeobjVal = getValueByJsonPath(chartModel, 'data;0;PERCENTILES(msg_info.bytes);95', '-');
-                    var percentileMessagesobjVal = getValueByJsonPath(chartModel, 'data;0;PERCENTILES(msg_info.messages);95', '-');
+                    var percentileSizeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(msg_info.bytes);95', '-');
+                    var percentileMessagesobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(msg_info.messages);95', '-');
                     percentileMessagesobjVal = Math.round(percentileMessagesobjVal);
                     var parsedData = [];
                     var formatBytespercentileSizeVal = formatBytes(percentileSizeobjVal);
@@ -596,9 +602,9 @@ define(
                     });
                     return parsedData;
                 };
-                self.percentileConfigNodeNodeSummaryChart = function (chartModel) {
-                    var percentileSizeobjVal = getValueByJsonPath(chartModel, 'data;0;PERCENTILES(api_stats.response_size);95', '-');
-                    var percentileTimeobjVal = getValueByJsonPath(chartModel, 'data;0;PERCENTILES(api_stats.response_time_in_usec);95', '-');
+                self.percentileConfigNodeSummaryChart = function (chartModel) {
+                    var percentileSizeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(api_stats.response_size);95', '-');
+                    var percentileTimeobjVal = getValueByJsonPath(chartModel, '0;PERCENTILES(api_stats.response_time_in_usec);95', '-');
                     console.log(percentileTimeobjVal);
                     var secs = percentileTimeobjVal / 1000;
                     var seconds = Number((secs).toFixed(2))+' ms' // 6.7
@@ -612,7 +618,7 @@ define(
                     return parsedData;
                 };
                 
-                this.parseConfigNodeRequestForDonutChart = function (apiStats, reqType, color) {
+                this.parseConfigNodeRequestForDonutChart = function (apiStats, reqType, viewConfig) {
                     var cf = crossfilter(apiStats),
                         parsedData = [],
                         colors = [];
@@ -629,7 +635,8 @@ define(
                     });
                     var sourceGrpData = sourceGrpDim.all();
                     var sorceGrpKeys = _.pluck(sourceGrpData, 'key');
-                    colors = (color != null && typeof color == 'function') ? color(_.sortBy(sorceGrpKeys)): {};
+                    colors = NodeColorMapping.getNodeColorMap(sorceGrpKeys,
+                        cowu.getValueByJsonPath(viewConfig, 'chartOptions;resetColor', 'configNode'));
                     $.each(sourceGrpData, function (key, value){
                         parsedData.push({
                             label: value['key'],

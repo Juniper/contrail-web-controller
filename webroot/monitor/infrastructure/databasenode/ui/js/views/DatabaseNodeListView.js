@@ -3,20 +3,19 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view', 'node-color-mapping'],
+        [ 'underscore', 'contrail-view'],
         function(
-                _, ContrailView, NodeColorMapping) {
+                _, ContrailView) {
             var DatabaseNodeListView = ContrailView.extend({
                 render : function() {
-                    var nodeColorMapping = new NodeColorMapping(),
-                        colorFn = nodeColorMapping.getNodeColorMap;
+                    
                     this.renderView4Config(this.$el, null,
-                            getDatabaseNodeListViewConfig(colorFn));
+                            getDatabaseNodeListViewConfig());
                 }
             });
-            function getDatabaseNodeListViewConfig(colorFn) {
+            function getDatabaseNodeListViewConfig() {
                 var viewConfig = {
-                    rows : [monitorInfraUtils.getToolbarViewConfig(),
+                    rows : [
                         {
                             columns : [{
                                 elementId: 'database-node-carousel-view',
@@ -30,21 +29,15 @@ define(
                                                  viewConfig: {
                                                      elementId : 'database-node-grid-stackview-0',
                                                      gridAttr : {
-                                                         defaultWidth : cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                         defaultHeight : 8
+                                                         widthMultiplier : cowc.GRID_STACK_DEFAULT_WIDTH,
+                                                         heightMultiplier : 8
                                                      },
                                                      widgetCfgList: [
                                                          {id:'databsenode-percentile-bar-view'},
                                                          {id:'databasenode-pending-compactions'},
                                                          {id:'databasenode-cpu-share'},
                                                          {id:'databasenode-memory'},
-                                                         {id:'databasenode-disk-usage-info',
-                                                             itemAttr:{
-                                                                 config:{
-                                                                     nodeType:'database-node'
-                                                                 }
-                                                             }
-                                                         },
+                                                         {id:'databasenode-disk-usage-info'},
                                                          {id:'database-grid-view'}
                                                      ]
                                                   }
@@ -56,26 +49,14 @@ define(
                                                  viewConfig: {
                                                      elementId : 'database-node-grid-stackview-1',
                                                      gridAttr : {
-                                                         defaultWidth : cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                         defaultHeight : 8
+                                                         widthMultiplier : cowc.GRID_STACK_DEFAULT_WIDTH,
+                                                         heightMultiplier : 8
                                                      },
                                                      widgetCfgList: [
                                                          {id:'databasenode-zookeeper'},
                                                          {id:'databasenode-kafka'},
-                                                         {id:'databasenode-system-cpu-share',
-                                                             itemAttr:{
-                                                                 config:{
-                                                                     nodeType:'database-node'
-                                                                 }
-                                                             }
-                                                         },
-                                                         {id:'databasenode-system-memory-usage',
-                                                             itemAttr:{
-                                                                 config:{
-                                                                     nodeType:'database-node'
-                                                                 }
-                                                             }
-                                                         },
+                                                         {id:'databasenode-system-cpu-share'},
+                                                         {id:'databasenode-system-memory-usage'},
                                                         // {id:'disk-usage-info'},
                                                          {id:'database-grid-view'}
                                                      ]

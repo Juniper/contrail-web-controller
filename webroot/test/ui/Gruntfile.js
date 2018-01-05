@@ -88,7 +88,7 @@ module.exports = function (grunt) {
                         included: false
                     },
                     {
-                        pattern: 'contrail-web-controller/webroot/monitor/security/trafficgroups/ui/js/**/.js',
+                        pattern: 'contrail-web-controller/webroot/monitor/security/trafficgroups/ui/js/**/*.js',
                         included: false
                     },
                     {

@@ -3,21 +3,18 @@
  */
 
 define(
-        [ 'underscore', 'contrail-view', 'node-color-mapping'],
+        [ 'underscore', 'contrail-view'],
         function(
-                _, ContrailView, NodeColorMapping) {
+                _, ContrailView) {
             var AnalyticsNodeListView = ContrailView.extend({
                 render : function() {
-                    nodeColorMapping = new NodeColorMapping(),
-                    colorFn = nodeColorMapping.getNodeColorMap;
                     this.renderView4Config(this.$el, null,
-                            getAnalyticsNodeListViewConfig(colorFn));
+                            getAnalyticsNodeListViewConfig());
                 }
             });
-            function getAnalyticsNodeListViewConfig(colorFn) {
+            function getAnalyticsNodeListViewConfig() {
                 var viewConfig = {
                         rows : [
-                                monitorInfraUtils.getToolbarViewConfig(),
                                 {
                                     columns : [
                                                {
@@ -32,8 +29,8 @@ define(
                                                          viewConfig : {
                                                             elementId : 'analytics-node-grid-stackview-0',
                                                             gridAttr : {
-                                                                defaultWidth : cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                                defaultHeight : 8
+                                                                widthMultiplier : 24,
+                                                                heightMultiplier : 8
                                                             },
                                                             widgetCfgList: [
                                                                 {id:'analyticsnode-percentile-count-size'},
@@ -52,8 +49,8 @@ define(
                                                          viewConfig: {
                                                              elementId: 'analytics-node-grid-stackview-1',
                                                              gridAttr: {
-                                                                 defaultWidth: cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                                 defaultHeight: 8
+                                                                 widthMultiplier: 24,
+                                                                 heightMultiplier: 8
                                                              },
                                                              widgetCfgList: [
                                                                 {id:'analyticsnode-top-messagetype'},
@@ -71,15 +68,15 @@ define(
                                                          viewConfig: {
                                                             elementId: 'analytics-node-grid-stackview-2',
                                                             gridAttr: {
-                                                                defaultWidth: cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                                defaultHeight: 8
+                                                                widthMultiplier: 24,
+                                                                heightMultiplier: 8
                                                             },
                                                             widgetCfgList: [
-                                                            {id:'analyticsnode-qe-cpu-share'},
-                                                            {id:'analyticsnode-alarm-gen-cpu-share'},
-                                                            {id:'analyticsnode-snmp-collector-cpu-share'},
-                                                            {id:'analyticsnode-api-cpu-share'},
-                                                            {id:'analyticsnode-grid-view'}
+	                                                            {id:'analyticsnode-qe-cpu-share'},
+	                                                            {id:'analyticsnode-alarm-gen-cpu-share'},
+	                                                            {id:'analyticsnode-snmp-collector-cpu-share'},
+	                                                            {id:'analyticsnode-api-cpu-share'},
+	                                                            {id:'analyticsnode-grid-view'}
                                                             ]
                                                          }
                                                      }
@@ -90,32 +87,14 @@ define(
                                                          viewConfig: {
                                                              elementId: 'analytics-node-grid-stackview-3',
                                                              gridAttr: {
-                                                                 defaultWidth: cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                                 defaultHeight: 8
+                                                                 widthMultiplier: 24,
+                                                                 heightMultiplier: 8
                                                              },
                                                              widgetCfgList: [
                                                                 {id:'analyticsnode-contrail-topology-cpu-share'},
-                                                                {id:'analyticsnode-disk-usage-info',
-                                                                    itemAttr:{
-                                                                        config:{
-                                                                            nodeType:'analytics-node'
-                                                                        }
-                                                                    }
-                                                                },
-                                                                {id:'analyticsnode-system-cpu-share',
-                                                                    itemAttr:{
-                                                                        config:{
-                                                                            nodeType:'analytics-node'
-                                                                        }
-                                                                    }
-                                                                },
-                                                                {id:'analyticsnode-system-memory-usage',
-                                                                    itemAttr:{
-                                                                        config:{
-                                                                            nodeType:'analytics-node'
-                                                                        }
-                                                                    }
-                                                                },
+                                                                {id:'analyticsnode-disk-usage-info'},
+                                                                {id:'analyticsnode-system-cpu-share'},
+                                                                {id:'analyticsnode-system-memory-usage'},
                                                                 {id:'analyticsnode-grid-view'}
                                                              ]
                                                          }
