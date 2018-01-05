@@ -4,12 +4,12 @@
 
 define(['underscore'], function (_) {
     this.tgSettingsMockData = {
-       "groupByTagType": "app,deployment",
-       "subGroupByTagType": "tier",
+       "group_by_tag_type": "app,deployment",
+       "sub_group_by_tag_type": "tier",
        "filter_by_endpoints": {
           "endpoint": []
        },
-       "tagTypeList": [],
+       "tag_type_list": [],
        "time_range": "3600",
        "from_time": "null",
        "to_time": "null",

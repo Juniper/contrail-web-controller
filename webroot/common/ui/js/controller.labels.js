@@ -1438,6 +1438,8 @@ define([
         this.TITLE_TRAFFIC_GROUPS_ENDPOINT_STATS = 'Endpoint Statistics';
         this.TRAFFIC_GROUPS_SESSION_STATS = 'traffic-groups-session-statistics';
         this.TRAFFIC_GROUPS_SETTINGS = 'Traffic_Groups_Settings';
+        this.TRAFFIC_GROUPS_FILTERS = 'Traffic_Groups_Filters';
+        this.TRAFFIC_GROUPS_TIMERANGCE = 'Traffic_Groups_Timerange';
         this.TITLE_TRAFFIC_GROUPS_SETTINGS = 'Traffic Groups Settings';
         this.TRAFFIC_GROUPS_NO_DATA = 'No Statistics found for the selected duration in this project';
 

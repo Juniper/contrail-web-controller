@@ -420,20 +420,22 @@ define(
                                    arc.active = false;
                                 });
                                 if(option != 'drill-down') {
-                                    $('#traffic-groups-radial-chart')
-                                            .removeClass('showTgSidePanel');
-                                    $('#traffic-groups-link-info').addClass('hidden');
+                                    self.hideTgSidePanel();
                                     self.chartInfo.component._render();
                                 }
                             }
                         });
                     }
                 },
+                hideTgSidePanel: function() {
+                    $('#traffic-groups-radial-chart')
+                            .removeClass('showTgSidePanel');
+                    $('#traffic-groups-link-info').addClass('hidden');
+                },
                 showEndPointStatsInGrid: function () {
                     var self = this,
                         data = tgHelpers.handleUntaggedEndpoints(self.filterdData);
                     $('#traffic-groups-link-info').addClass('hidden');
-                    $('.tgChartLegend, .tgCirclesLegend').hide();
                     self.showHideLegendInfo(data);
                     self.renderView4Config($('#traffic-groups-grid-view'), null, {
                         elementId: 'traffic-groups-grid-view',
@@ -643,20 +645,19 @@ define(
                         } else {
                             this.viewInst.render(data, this.chartInfo.chartView);
                         }
-                        $('.tgChartLegend, .tgCirclesLegend').show();
                     } else {
                         this.showEndPointStatsInGrid();
                     }
-                    this.updateCircleLegends();
                     $('#traffic-groups-options').removeClass('hidden');
                 },
                 showHideLegendInfo: function(data) {
-                    if(data && data.length) {
-                        $('#traffic-groups-legend-info').removeClass('hidden');
-
-                    } else {
-                        $('#traffic-groups-legend-info').addClass('hidden');
-                    }
+                    var selectors = '#traffic-groups-legend-info,'+
+                                ' #tg_settings_container, #filterByTagNameSec';
+                     if(data && data.length) {
+                        $(selectors).removeClass('hidden');
+                     } else {
+                        $(selectors).addClass('hidden');
+                     }
                 },
                 addtionalEvents: function() {
                     return [{
@@ -702,6 +703,7 @@ define(
                     ];
                 },
                 _onClickNode: function(d, el ,e) {
+                    tgView.updateTgSettingsView('viewMode');
                     var chartScope = tgView.chartInfo.component;
                     if(chartScope.clearArcTootltip) {
                       clearTimeout(chartScope.clearArcTootltip);
@@ -811,6 +813,7 @@ define(
                     tgView.linkClicks = 2 ;
                 },
                 _onClickLink: function(d, el ,e) {
+                    tgView.updateTgSettingsView('viewMode');
                     setTimeout(function() {
                         if(tgView.linkClicks) {
                             tgView.linkClicks--;
@@ -886,14 +889,13 @@ define(
                         oldTimeRange = tgSettings.time_range,
                         oldFromTime = tgSettings.from_time,
                         oldToTime = tgSettings.to_time;
-                    tgView.tgSetObj = modelObj;
+                    tgView.tgSetObj = JSON.parse(JSON.stringify(modelObj.attributes));
 
                     //To retain applied categorization, adding to session storage
-                    sessionStorage.TG_CATEGORY = modelObj.groupByTagType;
-                    sessionStorage.TG_SUBCATEGORY = modelObj.subGroupByTagType;
+                    sessionStorage.TG_CATEGORY = tgView.tgSetObj.group_by_tag_type;
+                    sessionStorage.TG_SUBCATEGORY = tgView.tgSetObj.sub_group_by_tag_type;
 
                     tgView.filterdData = tgHelpers.filterDataByEndpoints(tgView.trafficData, tgView.tgSetObj);
-                    tgView.updateCircleLegends();
                     var newTGSettings = tgHelpers.getTGSettings(tgView.tgSetObj);
                     sessionStorage.TG_TIME_RANGE = newTGSettings.time_range,
                     sessionStorage.TG_FROM_TIME = newTGSettings.from_time,
@@ -906,38 +908,6 @@ define(
                     } else {
                         tgView.updateContainerSettings('', false);
                     }
-                },
-                updateCircleLegends: function() {
-                    var trafficChartLegendTmpl =
-                        contrail.getTemplate4Id('traffic-chart-legend-template'),
-                        outerLegends = [],
-                        innerLegends = [],
-                        sliceByProject =
-                            tgHelpers.getSettingValue('sliceByProject');
-                    _.map(tgHelpers.getCategorizationObj(tgView.tgSetObj)[0].split('-'), function(tag) {
-                        outerLegends.push(_.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
-                            function(obj) {
-                            return obj.value == tag
-                        }).text);
-                    });
-                    if(sliceByProject) {
-                        outerLegends.push(tgHelpers.sliceByProjectOnly ? 'Project'
-                                            : 'VN (Project)');
-                    }
-                    if(tgHelpers.getCategorizationObj(tgView.tgSetObj)[1]) {
-                        _.map(tgHelpers.getCategorizationObj(tgView.tgSetObj)[1].split('-'), function(tag) {
-                            innerLegends.push(_.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
-                                function(obj) {
-                                return obj.value == tag
-                            }).text);
-                        });
-                    }
-                    $('#traffic-groups-legend-info .tgCirclesLegend').html(
-                        trafficChartLegendTmpl({
-                            outerTags: outerLegends,
-                            innerTags: innerLegends.length ? innerLegends : ['-']
-                        })
-                    );
                 },
                 removeFilter: function(e) {
                     var curElem = $(e.currentTarget).parent('li').find('div'),
@@ -965,52 +935,24 @@ define(
                     }
                 },
                 updateTGFilterSec: function() {
-                    var filterByTags = [],
-                        tgSettings = tgHelpers.getTGSettings(tgView.tgSetObj);
-                    if(tgSettings.filterByEndpoints.length > 0) {
-                        _.each(tgSettings.filterByEndpoints,
-                            function(endpoint, idx) {
-                            if(endpoint) {
-                                var endpointObj = {
-                                    'tags': []
-                                };
-                                _.each(endpoint.split(','), function(tag) {
-                                    var tagObj = tag
-                                        .split(cowc.DROPDOWN_VALUE_SEPARATOR);
-                                    endpointObj.tags.push({
-                                        tag: tagObj[1],
-                                        value: tagObj[0],
-                                        index: idx,
-                                    });
-                                });
-                                if(endpointObj.tags.length > 0)
-                                    filterByTags.push(endpointObj);
-                            }
-                        });
-                    }
-                    var filterViewTmpl =
-                        contrail.getTemplate4Id('traffic-filter-view-template');
-                    $('#filterByTagNameSec .dropdown-menu')
-                        .html(filterViewTmpl({
-                            endpoints : filterByTags
-                    }));
-                    var filterIconEle =  $('#filterByTagNameSec a');
-                    if(filterByTags.length) {
-                        filterIconEle.removeClass('noFiltersApplied')
-                        filterIconEle.attr('data-action', 'clear');
-                        filterIconEle.find('.filterCount').removeClass('hidden')
-                                        .html(filterByTags.length);
-                    } else {
-                        filterIconEle.addClass('noFiltersApplied');
-                        filterIconEle.removeAttr('data-action');
-                        filterIconEle.find('.filterCount').addClass('hidden')
-                                        .html('');
-                    }
-                    $('.tgRemoveFilter').on('click', this.removeFilter);
                     $('#filterByTagNameSec .dropdown-menu')
                         .on('click', function(e) {
                             e.stopPropagation();
                     });
+                    if(tgView.tgSetObj) {
+                        var filterIconEle =  $('#filterByTagNameSec a'),
+                            endpoints = _.filter(tgView.tgSetObj.endpoints,
+                                            function(obj) {
+                                                return obj.endpoint;
+                                            });
+                        if(endpoints.length) {
+                            filterIconEle.find('.filterCount').removeClass('hidden')
+                                            .html(endpoints.length);
+                        } else {
+                            filterIconEle.find('.filterCount').addClass('hidden')
+                                            .html('');
+                        }
+                    }
                 },
                 showFilterOptions: function() {
                     tgView.settingsView.model = new settingsModel(
@@ -1073,6 +1015,62 @@ define(
                     });
                     return data;
                 },
+                editTgSettings: function() {
+                    tgView.hideTgSidePanel();
+                    tgView.settingsView.model = new settingsModel(tgHelpers.getTGSettings(tgView.tgSetObj));
+                    var options = {
+                        tagTypeList: tgView.tagTypeList,
+                        callback: tgView.applySelectedFilter,
+                        tgView: tgView
+                    };
+                    tgView.settingsView.editTgSettings(options);
+                },
+                editTgFilters: function() {
+                    tgView.settingsView.model = new settingsModel(tgHelpers.getTGSettings(tgView.tgSetObj));
+                    var options = {
+                        tagTypeList: tgView.tagTypeList,
+                        callback: tgView.applySelectedFilter,
+                        tgView: tgView
+                    };
+                    tgView.settingsView.editTgFilters(options);
+                },
+                updateTgSettingsView: function(option) {
+                    var category = [], subCategory = [];
+                    if(option == 'viewMode' || (option && option.currentTarget)) {
+                        $('#tg_settings_sec_edit').addClass('hidden');
+                        $('#tg_settings_sec_view').removeClass('hidden');
+                    }
+                    if(option == 'edit') {
+                        $('#tg_settings_sec_edit').removeClass('hidden');
+                        $('#tg_settings_sec_view').addClass('hidden');
+                    }
+                    if(option != 'edit') {
+                        var sliceByProject = tgHelpers.getSettingValue('sliceByProject'),
+                            catObj = tgHelpers.getCategorizationObj(tgView.tgSetObj, true);
+                        _.each(catObj[0].split('-'), function(tag) {
+                            category.push(_.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
+                                function(obj) {
+                                return obj.value == tag
+                            }).text);
+                        });
+                        if(catObj[1]) {
+                            _.each(catObj[1].split('-'), function(tag) {
+                                subCategory.push(_.find(cowc.TRAFFIC_GROUP_TAG_TYPES,
+                                    function(obj) {
+                                    return obj.value == tag
+                                }).text);
+                            });
+                        } else {
+                            subCategory = ["-"];
+                        }
+                        if(sliceByProject) {
+                            category.push(tgHelpers.sliceByProjectOnly
+                                                ? 'Project' : 'VN (Project)');
+                        }
+                        $('#tgCategory').html(category.join(', '));
+                        $('#tgSubCategory').html(subCategory.join(', '));
+                    }
+                },
                 resetChartView: function() {
                    $('#traffic-groups-legend-info').addClass('hidden');
                    $(this.el).find('svg g').empty();
@@ -1120,6 +1118,7 @@ define(
                                 });
                             }
                         }
+                        tgView.updateTgSettingsView('viewMode');
                     } else {
                         this.updateChart({
                             'freshData': isFreshData
@@ -1275,6 +1274,8 @@ define(
                     this.$el.html(trafficGroupsTmpl({widgetTitle:'Traffic Groups'}));
                     $('.refresh-traffic-stats').on('click', this.resetTrafficStats);
                     $('.settings-traffic-stats').on('click', this.showFilterOptions);
+                    $('#editTgSettings').on('click', this.editTgSettings);
+                    $('#filterByTagNameSec .dropdown-toggle').on('click', this.editTgFilters);
                     TrafficGroupsView.colorMap = {};
                     TrafficGroupsView.colorArray = [];
                     TrafficGroupsView.tagMap = {};
