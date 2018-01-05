@@ -137,13 +137,12 @@ define([
                 if (null != newFlowOptionsConfig['uuid']) {
                     flowOptionsData['global-vrouter-config']['uuid'] =
                         newFlowOptionsConfig['uuid'];
-                    putData = {"data":[{"data":{"global-vrouter-config": flowOptionsData["global-vrouter-config"]},
-                                "reqUrl": "/global-vrouter-config/" +
-                                newFlowOptionsConfig['uuid']}]}
+                    putData = {"global-vrouter-config":
+                        flowOptionsData["global-vrouter-config"]};
                 }
                 ajaxConfig.type = "POST";
                 ajaxConfig.data = JSON.stringify(putData);
-                ajaxConfig.url = '/api/tenants/config/update-config-object';
+                ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
                         callbackObj.init();
