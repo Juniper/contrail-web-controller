@@ -242,14 +242,6 @@ define([
                 fwdOptionsData['global-vrouter-config']['ecmp_hashing_include_fields']
                     = ecmpHashIncFields;
 
-                if (null != newFwdOptionsConfig['uuid']) {
-                    fwdOptionsData['global-vrouter-config']['uuid'] =
-                        newFwdOptionsConfig['uuid'];
-                    putData = {"data":[{"data":{"global-vrouter-config": fwdOptionsData["global-vrouter-config"]},
-                                "reqUrl": "/global-vrouter-config/" +
-                                newFwdOptionsConfig['uuid']}]}
-                }
-
                 //flow export rate
                 if (newFwdOptionsConfig['flow_export_rate']) {
                     fwdOptionsData['global-vrouter-config']['flow_export_rate'] =
@@ -258,9 +250,16 @@ define([
                     fwdOptionsData['global-vrouter-config']['flow_export_rate'] = null;
                 }
 
+                if (null != newFwdOptionsConfig['uuid']) {
+                    fwdOptionsData['global-vrouter-config']['uuid'] =
+                        newFwdOptionsConfig['uuid'];
+                    putData = {"global-vrouter-config":
+                        fwdOptionsData["global-vrouter-config"]};
+                }
+
                 ajaxConfig.type = "POST";
                 ajaxConfig.data = JSON.stringify(putData);
-                ajaxConfig.url = '/api/tenants/config/update-config-object';
+                ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
                         callbackObj.init();
