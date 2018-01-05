@@ -29,7 +29,7 @@ define([
         },
 
         configureProjectOtherSettings: function (projUUID, callbackObj) {
-            var ajaxConfig = {}, putData, projData, returnFlag = false;
+            var ajaxConfig = {}, projData, returnFlag = false;
 
             if (this.model().isValid(true, "projectOtherSettingsValidations")) {
                 var attr = $.extend({}, true, this.model().attributes);
@@ -42,12 +42,9 @@ define([
                 projData["project"]["vxlan_routing"] =
                     attr.vxlan_routing === ctwc.CONFIG_VXLAN_ROUTING_ENABLED ? true : false;
 
-                putData = {"data":[{"data": projData,
-                                "reqUrl": "/project/" + projUUID}]}
-
                 ajaxConfig.type = "POST";
-                ajaxConfig.data = JSON.stringify(putData);
-                ajaxConfig.url = '/api/tenants/config/update-config-object';
+                ajaxConfig.data = JSON.stringify(projData);
+                ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
                         callbackObj.init();
