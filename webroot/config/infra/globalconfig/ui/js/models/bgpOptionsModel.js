@@ -263,22 +263,21 @@ define([
                     newBGPOptionsConfig["graceful_restart_parameters"]
                         ["xmpp_helper_enable"];
 
-
-                if (null != newBGPOptionsConfig['uuid']) {
-                    globalSysConfigData['global-system-config']['uuid'] =
-                        newBGPOptionsConfig['uuid'];
-                    putData = {"data":[{"data":{"global-system-config": globalSysConfigData["global-system-config"]},
-                                "reqUrl": "/global-system-config/" +
-                                newBGPOptionsConfig['uuid']}]}
-                }
-
                 globalSysConfigData['global-system-config']['ibgp_auto_mesh'] =
                     $.parseJSON(newBGPOptionsConfig['ibgp_auto_mesh']);
                 globalSysConfigData['global-system-config']['bgp_always_compare_med'] =
                     $.parseJSON(newBGPOptionsConfig['bgp_always_compare_med']);
+
+                if (null != newBGPOptionsConfig['uuid']) {
+                    globalSysConfigData['global-system-config']['uuid'] =
+                        newBGPOptionsConfig['uuid'];
+                    putData = {"global-system-config":
+                        globalSysConfigData["global-system-config"]};
+                }
+
                 ajaxConfig.type = "POST";
                 ajaxConfig.data = JSON.stringify(putData);
-                ajaxConfig.url = '/api/tenants/config/update-config-object';
+                ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
                         callbackObj.init();

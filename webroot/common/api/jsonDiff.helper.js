@@ -215,7 +215,10 @@ var configJsonModifyObj = {
     },
     'global-system-config': {
         'isConfig': true,
-        'optFields': ['autonomous_system', 'ibgp_auto_mesh', 'ip_fabric_subnets', 'bgp_always_compare_med'],
+        'optFields': ['autonomous_system', 'ibgp_auto_mesh',
+        'ip_fabric_subnets', 'bgp_always_compare_med', 'bgpaas_parameters',
+        'user_defined_log_statistics', 'mac_limit_control', 'mac_aging_time',
+        'mac_move_control'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'global-vrouter-config': {
@@ -255,6 +258,12 @@ var configJsonModifyObj = {
             'applyOnOldJSON': modifyPhyTopoData,
             'applyOnNewJSON': modifyPhyTopoData,
         }
+    },
+    'application-policy-set': {
+        'isConfig': true,
+        'optFields': ['firewall_policy_refs', 'global_vrouter_config_refs',
+            'parent_type'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'arrayDiff': {
         'floating-ip-pool': {
@@ -335,6 +344,9 @@ function modifyConfigDataByHrefUUID (type, configData,
 function modifyVirtualNetworkConfigData (type, configData, optFields, mandateFields)
 {
     /* Modify network ipam_refs in configData */
+    if (null == configData[type]) {
+        return configData;
+    }
     var ipamRefs = configData[type]['network_ipam_refs'];
     if (null == ipamRefs) {
         return modifyConfigData(type, configData, optFields, mandateFields,

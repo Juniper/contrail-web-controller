@@ -360,7 +360,7 @@ define([
                     }
                 }, function (response) {
                     self.fwPolicyId = getValueByJsonPath(response,
-                            '0;firewall-policy;uuid', '');
+                            'configData;firewall-policy;uuid', '');
                     if (contrail.checkIfFunction(callbackObj.success)) {
                         callbackObj.success();
                     }
