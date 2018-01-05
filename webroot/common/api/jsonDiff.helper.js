@@ -8,14 +8,12 @@ var configJsonModifyObj = {
     "bgp-router": {
         "isConfig": true,
         "optFields": ["bgp_router_parameters",
-                      "bgp_router_refs", "perms2","tag_refs"],
-        "mandateFields":["fq_name", "uuid", "display_name"]
+                      "bgp_router_refs", "perms2","tag_refs"]
     },
     "virtual-router": {
         "isConfig": true,
         "optFields": ["virtual_router_ip_address",
-                      "virtual_router_type", "perms2","tag_refs", "network_ipam_refs"],
-        "mandateFields":["fq_name", "uuid", "display_name"]
+                      "virtual_router_type", "perms2","tag_refs", "network_ipam_refs"]
     },
     "physical-router": {
         "isConfig": true,
@@ -34,40 +32,12 @@ var configJsonModifyObj = {
                       "virtual_router_refs",
                       "bgp_router_refs",
                       "physical_router_vnc_managed",
-                      "virtual_network_refs", "perms2","tag_refs", "physical_router_role"],
-        "mandateFields":["fq_name", "uuid", "display_name"]
-    },
-    'bridge-domain': {
-        'isConfig': true,
-        'optFields': ['isid', 'mac_aging_time', 'mac_learning_enabled',
-            'mac_limit_control', 'mac_move_control'],
-        'mandateFields': ['fq_name', 'uuid']
+                      "virtual_network_refs", "perms2","tag_refs", "physical_router_role"]
     },
     'virtual-network': {
         'isConfig': true,
         'preProcessCB': {
             'applyOnOldJSON': modifyVirtualNetworkConfigData,
-        },
-        'optFields': ['virtual_network_properties',
-            'network_ipam_refs', 'network_policy_refs',
-            'route_target_list', 'export_route_target_list',
-            'import_route_target_list', 'is_shared',
-            'router_external', 'id_perms:enable',
-            'flood_unknown_unicast', 'multi_policy_service_chains_enabled',
-            'route_table_refs', 'provider_properties',
-            'ecmp_hashing_include_fields',
-            'address_allocation_mode',
-            'qos_config_refs',
-            'perms2', 'pbb_evpn_enable', 'pbb_etree_enable',
-            'layer2_control_word', 'mac_learning_enabled',
-            'mac_limit_control', 'mac_move_control', 'mac_aging_time','security_logging_object_refs',
-            'tag_refs', 'virtual_network_refs'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name'],
-        'subType': {
-            'project': {
-                'optFields': ['floating_ip_pool_refs'],
-                'mandateFields': ['fq_name', 'uuid', 'display_name']
-            }
         },
         'children': {
             'floating_ip_pool': {
@@ -213,19 +183,6 @@ var configJsonModifyObj = {
         'optFields': ['virtual_machine_interface_refs', 'perms2','tag_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
-    'global-system-config': {
-        'isConfig': true,
-        'optFields': ['autonomous_system', 'ibgp_auto_mesh', 'ip_fabric_subnets', 'bgp_always_compare_med'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
-    },
-    'global-vrouter-config': {
-        'isConfig': true,
-        'optFields': ['forwarding_mode', 'vxlan_network_identifier_mode',
-                      'encapsulation_priorities', 'linklocal_services',
-                      'flow_export_rate', 'flow_aging_timeout_list',
-                      'ecmp_hashing_include_fields'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
-    },
     'service-appliance': {
         'isConfig': true,
         'optFields': ['service_appliance_ip_address',
@@ -256,6 +213,12 @@ var configJsonModifyObj = {
             'applyOnNewJSON': modifyPhyTopoData,
         }
     },
+    'application-policy-set': {
+        'isConfig': true,
+        'optFields': ['firewall_policy_refs', 'global_vrouter_config_refs',
+            'parent_type'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
     'arrayDiff': {
         'floating-ip-pool': {
             'preProcessCB': {
@@ -266,6 +229,11 @@ var configJsonModifyObj = {
         'bridge-domain':
         {},
         'service_health_check_back_refs': {
+            'preProcessCB': {
+                'comparators': ['to', 'uuid', 'attr']
+            }
+        },
+        'application_policy_set_back_refs': {
             'preProcessCB': {
                 'comparators': ['to', 'uuid', 'attr']
             }
@@ -335,6 +303,9 @@ function modifyConfigDataByHrefUUID (type, configData,
 function modifyVirtualNetworkConfigData (type, configData, optFields, mandateFields)
 {
     /* Modify network ipam_refs in configData */
+    if (null == configData[type]) {
+        return configData;
+    }
     var ipamRefs = configData[type]['network_ipam_refs'];
     if (null == ipamRefs) {
         return modifyConfigData(type, configData, optFields, mandateFields,

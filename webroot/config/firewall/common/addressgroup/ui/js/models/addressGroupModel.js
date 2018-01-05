@@ -129,6 +129,9 @@ define([
 		                updatedModel.name = model.name;
 		                updatedModel.address_group_prefix = {};
 		                updatedModel.address_group_prefix.subnet = subnetList;
+                        if (null != model.uuid) {
+                            updatedModel.uuid = model.uuid;
+                        }
 		                this.updateRBACPermsAttrs(model);
 	                    updatedModel.tag_refs = model.tag_refs;
                         var postData = {"address-group": updatedModel};

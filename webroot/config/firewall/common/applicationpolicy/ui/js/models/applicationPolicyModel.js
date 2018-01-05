@@ -102,6 +102,9 @@ define([
 	                this.updateRBACPermsAttrs(model);
 	                updatedModel.tag_refs = model.tag_refs;
 	                updatedModel.firewall_policy_refs = policyList;
+                    if (null != model.uuid) {
+                        updatedModel.uuid = model.uuid;
+                    }
                     var postData = {"application-policy-set": updatedModel};
 	                if (options.mode == 'add') {
 	                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;

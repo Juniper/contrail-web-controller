@@ -160,6 +160,9 @@ define([
 	                updatedModel.service_group_firewall_service_list.firewall_service = firewallService;
 	                this.updateRBACPermsAttrs(model);
 	                updatedModel.tag_refs = model.tag_refs;
+                    if (null != model.uuid) {
+                        updatedModel.uuid = model.uuid;
+                    }
                     var postData = {"service-group": updatedModel};
 	                if (options.mode == 'add') {
 	                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;

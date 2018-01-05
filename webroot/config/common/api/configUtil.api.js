@@ -35,7 +35,6 @@ var svcInst =
     require('../../services/instances/api/serviceinstanceconfig.api');
 var fwPolicy =
     require('../../firewall/common/fwpolicy/api/fwpolicyconfig.api');
-var configObjs = require("../../../common/api/jsonDiff.helper");
 var jsonDiff = require(process.mainModule.exports["corePath"] +
                        "/src/serverroot/common/jsondiff");
 var _ = require("lodash");
@@ -145,7 +144,6 @@ function deleteByType(dataObj, callback)
 {
     var delCB = getConfigDeleteCallbackByType(dataObj[0]["type"]);
     if (null == delCB || "" == delCB) {
-        console.log("Didnt find the handler");
         delCB = defaultConfigDeleteHandler;
     }
     async.mapLimit(dataObj, 100, delCB,
@@ -212,6 +210,16 @@ function getConfigCreateEditCallbackByType (type, objType)
     return _.get(configCBCreateEdit, type + '.' + objType, null);
 }
 
+function buildConfigURLSuffix (startDone, url, urlSuffix)
+{
+    if (true == startDone) {
+        url += '&';
+    } else {
+        url += '?';
+    }
+    return url + urlSuffix;
+}
+
 function getConfigDetailsAsync (dataObj, callback)
 {
     var appData = dataObj['appData'];
@@ -221,94 +229,84 @@ function getConfigDetailsAsync (dataObj, callback)
         url += '?detail=true';
         startDone = true;
     }
-    if (null != dataObj['fields']) {
-        if (true == startDone) {
-            url += '&';
-        } else {
-            url += '?';
+    var fields = dataObj['fields'];
+    if (null != fields) {
+        if (fields instanceof Array) {
+            fields = fields.join(":");
         }
-        url += 'fields=' + dataObj['fields'];
+        url = buildConfigURLSuffix(startDone, url,
+                                   'fields=' + fields);
         startDone = true;
     }
-    if (null != dataObj['parent_id']) {
-        if (true == startDone) {
-            url += '&';
-        } else {
-            url += '?';
+    var parentIds = dataObj['parent_id'];
+    if (null != parentIds) {
+        if (parentIds instanceof Array) {
+            parentIds = parentIds.join(",");
         }
-        url += 'parent_id=' + dataObj['parent_id'];
+        url = buildConfigURLSuffix(startDone, url,
+                                   'parent_id=' + parentIds);
         startDone = true;
     } else {
         if ((null != dataObj['parent_fq_name_str']) &&
             (null != dataObj['parent_type'])) {
-            if (true == startDone) {
-                url += '&';
-            } else {
-                url += '?';
-            }
-            url += 'parent_fq_name_str=' + dataObj['parent_fq_name_str'] +
+            var urlSuffix = 'parent_fq_name_str=' + dataObj['parent_fq_name_str'] +
                 '&parent_type=' + dataObj['parent_type'];
+            buildConfigURLSuffix(startDone, url, urlSuffix);
             startDone = true;
         }
     }
-    if (null != dataObj['back_ref_id']) {
-        if (true == startDone) {
-            url += '&';
-        } else {
-            url += '?';
+    var backRefIds = dataObj['back_ref_id'];
+    if (null != backRefIds) {
+        if (backRefIds instanceof Array) {
+            backRefIds = backRefIds.join(",");
         }
-        url += 'back_ref_id=' + dataObj['back_ref_id'];
+        url = buildConfigURLSuffix(startDone, url,
+                                   'back_ref_id=' + backRefIds);
         startDone = true;
     }
-    if (null != dataObj['obj_uuids']) {
-        if (true == startDone) {
-            url += '&';
-        } else {
-            url += '?';
+    var objIds = dataObj['obj_uuids'];
+    if (null != objIds) {
+        if (objIds instanceof Array) {
+            objIds = objIds.join(",");
         }
-        url += 'obj_uuids=' + dataObj['obj_uuids'].join(',');
+        url = buildConfigURLSuffix(startDone, url,
+                                   'obj_uuids=' + objIds);
         startDone = true;
     }
-    if (null != dataObj['filters']) {
-        if (true == startDone) {
-            url += '&';
-        } else {
-            url += '?';
+    var filters = dataObj['filters'];
+    if (null != filters) {
+        if (filters instanceof Array) {
+            filters = filters.join(",");
         }
-        url += 'filters=' + dataObj['filters'];
+        url = buildConfigURLSuffix(startDone, url,
+                                   'filters=' + filters);
         startDone = true;
     }
     if (null != dataObj['fq_name']) {
-        var postData = {
-            'appData': appData,
-            'fqnReq' : {
-                'fq_name': dataObj['fq_name'].split(':'),
-                'type':
-                    dataObj['type'] != null ? dataObj['type'].slice(0, -1) : null}
-        };
-        getUUIDByFQN(postData, function(error, data) {
-            if ( null != error) {
-                var error = new appErrors.RESTServerError('Invalid fqn provided');
-                callback(error, null);
-                return;
-            }
-            var uuid = data.uuid;
-            if (true == startDone) {
-                url += '&';
-            } else {
-                url += '?';
-            }
-            url += 'obj_uuids=' + uuid;
-            configApiServer.apiGet(url, appData, function(err, data) {
-                callback(err, data);
-            });
-        });
-    } else {
-        configApiServer.apiGet(url, appData, function(err, data) {
-            callback(err, data);
-        });
+        url = buildConfigURLSuffix(startDone, url,
+                                   'fq_names=' + dataObj['fq_name']);
+        startDone = true;
     }
-
+    var fqNames = dataObj['fq_names'];
+    var fqNameList = [];
+    if (null != fqNames) {
+        if (fqNames instanceof Array) {
+            var len = fqNames.length;
+            for (var i = 0; i < len; i++) {
+                if (fqNames[i] instanceof Array) {
+                    fqNameList.push(fqNames[i].join(":"));
+                } else {
+                    fqNameList.push(fqNames[i]);
+                }
+            }
+        }
+        url = buildConfigURLSuffix(startDone, url,
+                                   'fq_names=' + fqNameList.join(","));
+        startDone = true;
+    }
+    configApiServer.apiGet(url, appData, function(err, data) {
+        callback(err, data);
+    });
 }
 
 function getConfigDetails (req, res, appData)
@@ -322,42 +320,18 @@ function getConfigDetails (req, res, appData)
 
 function getConfigAsync (postData, detail, appData, callback)
 {
-    var dataObjArr = [];
-    postData = postData['data'];
-    var reqCnt = postData.length;
-    for (var i = 0; i < reqCnt; i++) {
-        var fields = postData[i]['fields'];
-        dataObjArr[i] = {};
-        dataObjArr[i]['detail'] = detail;
-        dataObjArr[i]['type'] = postData[i]['type'];
-        dataObjArr[i]['appData'] = appData;
-        if ((null != fields) && (fields.length > 0)) {
-            dataObjArr[i]['fields'] = fields.join(',');
-        }
-        if (null != postData[i]['parent_id']) {
-            dataObjArr[i]['parent_id'] = postData[i]['parent_id'];
-        }
-        if (null != postData[i]['obj_uuids']) {
-            dataObjArr[i]['obj_uuids'] = postData[i]['obj_uuids'];
-        }
-        if ((null != postData[i]['parent_fq_name_str']) &&
-            (null != postData[i]['parent_type'])) {
-            dataObjArr[i]['parent_fq_name_str'] =
-                postData[i]['parent_fq_name_str'];
-            dataObjArr[i]['parent_type'] = postData[i]['parent_type'];
-        }
-        var backRefIds = postData[i]['back_ref_id'];
-        if ((null != backRefIds) && (backRefIds.length > 0)) {
-            dataObjArr[i]['back_ref_id'] = backRefIds.join(',');
-        }
-        if (null != postData[i]['fq_name']) {
-            dataObjArr[i]['fq_name'] = postData[i]['fq_name'];
-        }
-        if (null != postData[i]['filters']) {
-            dataObjArr[i]['filters'] = postData[i]['filters'];
-        }
+    var dataList = _.result(postData, "data", null);
+    if (null == dataList) {
+        var error = new appErrors.RESTServerError("Invalid data format");
+        callback(error, null);
+        return;
     }
-    async.map(dataObjArr, getConfigDetailsAsync, function(err, results) {
+    var reqCnt = dataList.length;
+    for (var i = 0; i < reqCnt; i++) {
+        dataList[i].appData = appData;
+        dataList[i].detail = detail;
+    }
+    async.map(dataList, getConfigDetailsAsync, function(err, results) {
         callback(err, results);
     });
 }
@@ -678,15 +652,17 @@ function filterChildrenData (dataObj, callback)
     logutils.logger.info("Trying to filter data with Parent " + resType +
                          " for data " + JSON.stringify(data));
     var origData = commonUtils.cloneObj(data);
-    var configObj = configObjs.configJsonModifyObj;
+    var configObj = process.mainModule.exports['configJsonModifyObj'];
     var configObjByType = configObj[resType];
     var childrenData = {};
     if (null == configObjByType) {
-        return callback(null, {origData: data, filteredData: data});
+        return callback(null, {origData: data, filteredData: data,
+                               childrenData: {}, childObjs: {}});
     }
     var children = configObjByType.children;
     if (null == children) {
-        return callback(null, {origData: data, filteredData: data});
+        return callback(null, {origData: data, filteredData: data,
+                               childrenData: {}, childObjs: {}});
     }
     var dataObjArr = [];
     for (var childName in children) {
@@ -1071,8 +1047,6 @@ function updateBackReferences (dataObj, callback)
     var newConfigOrigData = commonUtils.cloneObj(configOrigData[parentType]);
     var deltas = {addedObjs: {}, deletedObjs: {}};
     buildDeltasByOrigData(deltas, newUIOrigData, newConfigOrigData);
-    /* Now traverse configOrigData to see if anything needs to be deleted */
-    buildDeltasByOrigData(deltas, newConfigOrigData, newUIOrigData);
     logutils.logger.info("Getting back_refs deltas as:" + JSON.stringify(deltas));
     var addedObjs = deltas.addedObjs;
     var deletedObjs = deltas.deletedObjs;
@@ -1190,6 +1164,46 @@ function createOrDeleteBackReferences (dataObj, callback)
     });
 }
 
+function preBuildChildData (data)
+{
+    if (null == data) {
+        return;
+    }
+    data.allChildAddRefObjs =
+        commonUtils.cloneObj(data.childrenData);
+    for (var child in data.childrenData) {
+        var uiChildKey = child.substring(0, child.length - 1);
+        var refs = _.result(data, "childObjs." + uiChildKey + ".references",
+                            []);
+        refs = refs.map(function(ref) { return ref + "s"; });
+        if (data.childrenData[child].length > 0) {
+            var keys = _.keys(data.childrenData[child][0]);
+            if ((_.intersection(refs, keys)).length > 0) {
+                /* If there are references, then we split the
+                 * references with the child, so same child will
+                 * exist in multiple array elemets, so in that
+                 * case take the child list from childDataWORefs
+                 */
+                var childWORefs =
+                    _.result(data, "childDataWORefs." + child,
+                             null);
+                if (null == childWORefs) {
+                    /* We must not come here */
+                    logutils.logger.error("We got null " +
+                                          "childDataWORefs " +
+                                          "for key " + child);
+                    continue;
+                }
+                logutils.logger.info("Taking child data for " +
+                                     child + " from " +
+                                     "childDataWORefs");
+                data.childrenData[child] =
+                    commonUtils.cloneObj(childWORefs);
+            }
+        }
+    }
+}
+
 function createConfigObjectCB (data, appData, callback)
 {
     /* Find the reqUrl from first key in data */
@@ -1199,23 +1213,31 @@ function createConfigObjectCB (data, appData, callback)
     var dataObj = {data: data, parentType: resType, appData: appData,
                    doLookup: false};
     filterChildrenData(dataObj, function(error, data) {
-        configApiServer.apiPost(reqUrl, data.filteredData, appData,
+        var postData = jsonDiff.getConfigJSONDiff(resType, null,
+                                                  data.filteredData);
+        configApiServer.apiPost(reqUrl, postData, appData,
                                 function(error, configData) {
             if ((null != error) || (null == configData)) {
-                callback(error, configData);
+                callback(error, {configData: configData});
                 return;
             }
-            var configObj = configObjs.configJsonModifyObj;
+            var configObj = process.mainModule.exports['configJsonModifyObj'];
             var configObjByType = configObj[resType];
             if (null == configObjByType) {
-                callback(null, configData);
+                callback(null, {configData: configData});
                 return;
             }
             /* Now create all the children */
             async.parallel([
                 function(CB) {
+                    /* Update the uuid in data */
+                    var uuid = _.result(configData, resType + ".uuid", null);
+                    if (null != uuid) {
+                        data.origData[resType].uuid = uuid;
+                    }
+                    preBuildChildData(data);
                     createChildren({parentType: resType, dataObj: data,
-                                    appData: appData}, function(error, data) {
+                                   appData: appData}, function(error, data) {
                         CB(error, data);
                     });
                 },
@@ -1296,7 +1318,7 @@ function doCreateOrUpdateConfigObject (type, body, appData, callback)
         /* Set Tags */
         buildSetTagMaps(setTagsMap, body);
         setTags(setTagsMap, [result.configData], appData,
-                function(error, result) {
+                function(error, tagResult) {
             callback(error, result);
             return;
         });
@@ -1476,7 +1498,7 @@ function updateChildren (dataObj, callback)
     var appData     = dataObj.appData;
     var parentType  = dataObj.parentType;
 
-    var configObj       = configObjs.configJsonModifyObj;
+    var configObj       = process.mainModule.exports['configJsonModifyObj'];
     var configObjByType = configObj[parentType];
     if (null == configObjByType) {
         logutils.logger.debug("We do not have " + parentType + " in UI Schema");
@@ -1566,6 +1588,7 @@ function getUpdateChildDeltaAndUpdate (dataObj, callback)
         if (null == childDelta) {
             continue;
         }
+        childDelta["uiChildName"] = configChildKey;
         childDeltas.push(childDelta);
     }
     for (var uiChildKey in clonedUIChildData) {
@@ -1659,7 +1682,7 @@ function getToEditChildrenByDeltas (childDeltas, childRefDeltas, parentType)
      * in add/delete list, then it must be modify the child
      */
     var childDeltasCnt = childDeltas.length;
-    var configObj = configObjs.configJsonModifyObj;
+    var configObj = process.mainModule.exports['configJsonModifyObj'];
     var children = _.result(configObj, parentType + ".children", null);
     if (null == children) {
         return [];
@@ -1718,31 +1741,6 @@ function modifyChildren (dataObj, callback)
     });
 }
 
-function buildChildFQNToIdxMap (childToIdxMap, filteredData)
-{
-    var childrenData = _.result(filteredData, "childrenData", {});
-    for (var key in childrenData) {
-        var len = childrenData[key].length;
-        for (var i = 0; i < len; i++) {
-            if (null == childToIdxMap[key]) {
-                childToIdxMap[key] = {};
-            }
-            var fqn = childrenData[key][i].to;
-            if (null == fqn) {
-                logutils.logger.error("buildChildFQNToIdxMap() FQN null for key"
-                                      + key);
-                continue;
-            }
-            fqn = fqn.join(":");
-            if (null == childToIdxMap[key][fqn]) {
-                childToIdxMap[key][fqn] = [];
-            }
-            //childToIdxMap[key][fqn].push(i);
-            childToIdxMap[key][fqn] = childrenData[key][i].uuid;
-        }
-    }
-}
-
 function concatAddDelDeltaObjs (deltas)
 {
     var deltasCnt = deltas.length;
@@ -1786,9 +1784,9 @@ function updateChildrenCB (dataObj, childDeltas, childRefDeltas, callback)
     var allChildAddDelObjs = concatAddDelDeltaObjs(childDeltas);
     var allChildAddDelRefObjs = concatAddDelDeltaObjs(childRefDeltas);
 
-    logutils.logger.info("Getting allChildAddDelObjs as:",
+    logutils.logger.info("Getting allChildAddDelObjs as:" +
                          JSON.stringify(allChildAddDelObjs));
-    logutils.logger.info("Getting allChildAddDelRefObjs as:",
+    logutils.logger.info("Getting allChildAddDelRefObjs as:" +
                          JSON.stringify(allChildAddDelRefObjs));
 
     /* All ADD happens WRT data from filteredUIData */
@@ -1804,8 +1802,6 @@ function updateChildrenCB (dataObj, childDeltas, childRefDeltas, callback)
 
     logutils.logger.info("Getting allModifiedObjs as:" +
                          JSON.stringify(allModifiedObjs));
-    var childToIdxMap = {};
-    buildChildFQNToIdxMap(childToIdxMap, filteredConfigData);
     async.parallel([
         function(CB) {
             deleteChildren({parentType: parentType, dataObj: filteredDelData,
@@ -1816,7 +1812,7 @@ function updateChildrenCB (dataObj, childDeltas, childRefDeltas, callback)
         },
         function(CB) {
             createChildren({parentType: parentType, dataObj: filteredAddData,
-                           appData: appData, childToIdxMap: childToIdxMap},
+                           appData: appData},
                            function(error, data) {
                 CB(error, data);
             });
@@ -1965,13 +1961,26 @@ function createOrUpdateConfigObjects (req, type, appData, callback)
         dataObjArr[i]['objType'] = objType;
         buildSetTagMaps(setTagsMap, uiData, objType);
     }
+
     async.map(dataObjArr, createOrUpdateConfigObject,
               function(err, results) {
               if(err){
                   callback(err, null);
                   return;
               }
-              setTags(setTagsMap, results, appData, function(errTag, resultsTag){
+              var configDatas = [];
+              var cnt = results.length;
+              for (var i = 0; i < cnt; i++) {
+                if (null == results[i].configData) {
+                    /* We must not come here */
+                    logutils.logger.error("We did not get configData for " +
+                                          "result index as " + i);
+                    continue;
+                }
+                configDatas.push(results[i].configData);
+              }
+              setTags(setTagsMap, configDatas, appData,
+                      function(errTag, resultsTag){
                   if(errTag){
                       callback(errTag, null);
                       return;
