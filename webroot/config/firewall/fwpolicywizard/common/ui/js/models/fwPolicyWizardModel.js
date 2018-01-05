@@ -255,7 +255,7 @@ define([
                             updatedModel.id_perms = obj;
                             var postData = {"application-policy-set":
                                 updatedModel};
-                            ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECTS;
+                            ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
                         } else {
                             delete(updatedModel.name);
                             model.id_perms.description = model.description;
@@ -334,7 +334,6 @@ define([
                 var formatedRule = self.editRuleFormation(editableRuleList, serviceGroupList);
                 for(var j = 0; j < formatedRule.length; j++){
                     var reqUrl = '/firewall-rule/' + formatedRule[j].uuid;
-                    delete formatedRule[j].uuid;
                     var ruleobj = {"data":{"firewall-rule": formatedRule[j]},
                             "reqUrl": reqUrl};
                     ruleObjList.push(ruleobj);
@@ -389,8 +388,12 @@ define([
                 var lastSeq = seqList[seqList.length - 1];
                 for(var j = 0; j < response.length; j++){
                     var obj = {};
-                    obj.to = response[j]['firewall-rule'].fq_name;
-                    obj.uuid = response[j]['firewall-rule'].uuid;
+                    obj.to = getValueByJsonPath(response, j +
+                                                ";configData;firewall-rule;fq_name",
+                                                null);
+                    obj.uuid = getValueByJsonPath(response, j+
+                                                  ";configData;firewall-rule;uuid",
+                                                  null);
                     obj.attr = {};
                     lastSeq++;
                     obj.attr.sequence = lastSeq.toString();
@@ -425,8 +428,6 @@ define([
                     callbackObj.init();
                 }
             }, function (response) {
-                /*self.fwPolicyId = getValueByJsonPath(response,
-                        '0;firewall-policy;uuid', '');*/
                 if (contrail.checkIfFunction(callbackObj.success)) {
                     callbackObj.success();
                 }
@@ -578,7 +579,7 @@ define([
                 }
             }, function (response) {
                 var fwPolicyId = getValueByJsonPath(response,
-                        '0;firewall-policy;uuid', '');
+                        'configData;firewall-policy;uuid', '');
                 self.addPolicyRules(fwPolicyId, postFWRuleData, callbackObj, options);
                 
                 

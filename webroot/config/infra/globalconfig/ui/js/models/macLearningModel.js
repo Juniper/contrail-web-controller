@@ -119,14 +119,13 @@ define([
                 if (null != newMACLearningConfig['uuid']) {
                     globalSysConfigData['global-system-config']['uuid'] =
                         newMACLearningConfig['uuid'];
-                    putData = {"data":[{"data":{"global-system-config": globalSysConfigData["global-system-config"]},
-                                "reqUrl": "/global-system-config/" +
-                                newMACLearningConfig['uuid']}]}
+                    putData = {"global-system-config":
+                        globalSysConfigData["global-system-config"]};
                 }
 
                 ajaxConfig.type = "POST";
                 ajaxConfig.data = JSON.stringify(putData);
-                ajaxConfig.url = '/api/tenants/config/update-config-object';
+                ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
                         callbackObj.init();
