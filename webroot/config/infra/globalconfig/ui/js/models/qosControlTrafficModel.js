@@ -105,14 +105,13 @@ define([
                 if (null != newControlTrafficConfig['uuid']) {
                     globalSysConfigData['global-qos-config']['uuid'] =
                         newControlTrafficConfig['uuid'];
-                    putData = {"data":[{"data":{"global-qos-config": globalSysConfigData["global-qos-config"]},
-                                "reqUrl": "/global-qos-config/" +
-                                newControlTrafficConfig['uuid']}]}
+                    putData = {"global-qos-config":
+                        globalSysConfigData["global-qos-config"]};
                 }
 
                 ajaxConfig.type = "POST";
                 ajaxConfig.data = JSON.stringify(putData);
-                ajaxConfig.url = '/api/tenants/config/update-config-object';
+                ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
                         callbackObj.init();
