@@ -194,7 +194,8 @@ define([
                     tab: viewTab,
                     projectId: projectId,
                     lbFqName : dc.loadbalancer.fq_name,
-                    lbList : lbList
+                    lbList : lbList,
+                    lbProvider: dc.loadbalancer.loadbalancer_provider
                 }
             };
         if (contrail.checkIfKeyExistInObject(true,

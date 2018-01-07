@@ -17,7 +17,22 @@ define([
             "loadbalancer_method":"",
             "admin_state": true,
             "persistence_cookie_name": '',
-            'persistence_cookie_visible': false
+            'persistence_cookie_visible': false,
+            'pool_custom_attr_enable': false,
+            'pool_global_max_conn_attr': '',
+            'pool_global_max_conn_rate_attr': '',
+            'pool_global_max_sess_rate_attr': '',
+            'pool_global_max_ssl_conn_aatr': '',
+            'pool_global_max_ssl_rate_attr': '',
+            'pool_global_ssl_ciphers_attr': '',
+            'pool_global_tune_http_max_header_attr': '',
+            'pool_global_tune_ssl_max_record_attr': '',
+            'pool_default_server_timeout_attr': '',
+            'pool_default_client_timeout_attr':'',
+            'pool_default_connect_timeout_attr': '',
+            'pool_frontend_http_server_close_attr': false,
+            'pool_frontend_rate_limit_sessions_attr': '',
+            'pool_frontend_tls_container_attr': ''
         },
 
         formatModelConfig: function(modelConfig) {

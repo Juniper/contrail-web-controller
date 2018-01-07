@@ -135,7 +135,7 @@ define([
         }
     });
 
-    function getLoadBalancerControl(options, allData){
+    function getLoadBalancerControl(options, allData, self){
         return {
                 rows: [
                     {
@@ -205,7 +205,15 @@ define([
                                                 placeholder : 'Select Loadbalancer Provider',
                                                 dataTextField : "text",
                                                 dataValueField : "id",
-                                                data : allData.providerList
+                                                data : allData.providerList,
+                                                change: function(data) {
+                                                    var data = data.val.split(';')[1];
+                                                    if(data === 'opencontrail'){
+                                                        self.model.custom_attr_enable(true);
+                                                    }else{
+                                                        self.model.custom_attr_enable(false);
+                                                    }
+                                                }
                                             }
                                         }
                                     },
@@ -466,7 +474,223 @@ define([
                                      }
                                  }
                              ]
-                         }
+                         },
+                         {
+                             columns: [
+                                 {
+                                 elementId: 'custom_attr_global',
+                                 view: "AccordianView",
+                                 viewConfig: [
+                                     {
+                                     elementId: 'custom_attr_lb_global',
+                                     title: 'Global Custom Attribute',
+                                     view: "SectionView",
+                                     visible: 'custom_attr_enable',
+                                     active:false,
+                                     viewConfig: {
+                                             rows: [{
+                                                 columns:[{
+                                                     elementId: "global_max_conn_attr",
+                                                     view: "FormInputView",
+                                                     viewConfig: {
+                                                         path: "global_max_conn_attr",
+                                                         type:'number',
+                                                         label: 'Max Connection',
+                                                         dataBindValue: "global_max_conn_attr",
+                                                         class: "col-xs-6"
+                                                     }
+                                                 },{
+                                                     elementId: "global_max_conn_rate_attr",
+                                                     view: "FormInputView",
+                                                     viewConfig: {
+                                                         path: "global_max_conn_rate_attr",
+                                                         type:'number',
+                                                         label: 'Max Connection Rate',
+                                                         dataBindValue: "global_max_conn_rate_attr",
+                                                         class: "col-xs-6"
+                                                     }
+                                                 }]
+                                             },{
+                                                 columns:[{
+                                                     elementId: "global_max_sess_rate_attr",
+                                                     view: "FormInputView",
+                                                     viewConfig: {
+                                                         path: "global_max_sess_rate_attr",
+                                                         type:'number',
+                                                         label: 'Max Sess Rate',
+                                                         dataBindValue: "global_max_sess_rate_attr",
+                                                         class: "col-xs-6"
+                                                     }
+                                                 },{
+                                                     elementId: "global_max_ssl_conn_aatr",
+                                                     view: "FormInputView",
+                                                     viewConfig: {
+                                                         path: "global_max_ssl_conn_aatr",
+                                                         type:'number',
+                                                         label: 'Max Ssl Connection',
+                                                         dataBindValue: "global_max_ssl_conn_aatr",
+                                                         class: "col-xs-6"
+                                                     }
+                                                 }]
+                                             },
+                                             {
+                                                 columns:[{
+                                                     elementId: "global_max_ssl_rate_attr",
+                                                     view: "FormInputView",
+                                                     viewConfig: {
+                                                         path: "global_max_ssl_rate_attr",
+                                                         type:'number',
+                                                         label: 'Max Ssl Rate',
+                                                         dataBindValue: "global_max_ssl_rate_attr",
+                                                         class: "col-xs-6"
+                                                     }
+                                                 },{
+                                                     elementId: "global_ssl_ciphers_attr",
+                                                     view: "FormInputView",
+                                                     viewConfig: {
+                                                         path: "global_ssl_ciphers_attr",
+                                                         label: 'Ssl Ciphers',
+                                                         dataBindValue: "global_ssl_ciphers_attr",
+                                                         class: "col-xs-6"
+                                                     }
+                                                 }]
+                                             },
+                                             {
+                                                 columns:[{
+                                                     elementId: "global_tune_http_max_header_attr",
+                                                     view: "FormInputView",
+                                                     viewConfig: {
+                                                         path: "global_tune_http_max_header_attr",
+                                                         type:'number',
+                                                         label: 'Tune Http Max Header',
+                                                         dataBindValue: "global_tune_http_max_header_attr",
+                                                         class: "col-xs-6"
+                                                     }
+                                                 },{
+                                                     elementId: "global_tune_ssl_max_record_attr",
+                                                     view: "FormInputView",
+                                                     viewConfig: {
+                                                         path: "global_tune_ssl_max_record_attr",
+                                                         type:'number',
+                                                         label: 'Tune Ssl Max Record',
+                                                         dataBindValue: "global_tune_ssl_max_record_attr",
+                                                         class: "col-xs-6"
+                                                     }
+                                                 }]
+                                             }]
+                                         }
+                                     }]
+                                 }]
+                        },
+                        {
+                            columns: [
+                                {
+                                elementId: 'custom_attr_default',
+                                view: "AccordianView",
+                                viewConfig: [
+                                    {
+                                    elementId: 'custom_attr_lb_default',
+                                    title: 'Default Custom Attribute',
+                                    view: "SectionView",
+                                    visible: 'custom_attr_enable',
+                                    active:false,
+                                    viewConfig: {
+                                            rows: [{
+                                                columns:[{
+                                                    elementId: "default_server_timeout_attr",
+                                                    view: "FormInputView",
+                                                    viewConfig: {
+                                                        path: "default_server_timeout_attr",
+                                                        type:'number',
+                                                        label: 'Server Timeout',
+                                                        dataBindValue: "default_server_timeout_attr",
+                                                        class: "col-xs-6"
+                                                    }
+                                                },{
+                                                    elementId: "default_client_timeout_attr",
+                                                    view: "FormInputView",
+                                                    viewConfig: {
+                                                        path: "default_client_timeout_attr",
+                                                        type:'number',
+                                                        label: 'Client Timeout',
+                                                        dataBindValue: "default_client_timeout_attr",
+                                                        class: "col-xs-6"
+                                                    }
+                                                }]
+                                            },{
+                                                columns:[{
+                                                    elementId: "default_connect_timeout_attr",
+                                                    view: "FormInputView",
+                                                    viewConfig: {
+                                                        path: "default_connect_timeout_attr",
+                                                        type:'number',
+                                                        label: 'Connect Timeout',
+                                                        dataBindValue: "default_connect_timeout_attr",
+                                                        class: "col-xs-6"
+                                                    }
+                                                }]
+                                            }
+                                            ]
+                                        }
+                                    }]
+                                }]
+                       },
+                       {
+                           columns: [
+                               {
+                               elementId: 'custom_attr_frontend',
+                               view: "AccordianView",
+                               viewConfig: [
+                                   {
+                                   elementId: 'custom_attr_lb_frontend',
+                                   title: 'Frontend Custom Attribute',
+                                   view: "SectionView",
+                                   visible: 'custom_attr_enable',
+                                   active:false,
+                                   viewConfig: {
+                                           rows: [{
+                                               columns:[{
+                                                   elementId: "frontend_rate_limit_sessions_attr",
+                                                   view: "FormInputView",
+                                                   viewConfig: {
+                                                       path: "frontend_rate_limit_sessions_attr",
+                                                       type:'number',
+                                                       label: 'Rate Limit Sessions',
+                                                       dataBindValue: "frontend_rate_limit_sessions_attr",
+                                                       class: "col-xs-6"
+                                                   }
+                                               },
+                                               {
+                                                   elementId: "frontend_tls_container_attr",
+                                                   view: "FormInputView",
+                                                   viewConfig: {
+                                                       path: "frontend_tls_container_attr",
+                                                       type:'number',
+                                                       label: 'TLS Container',
+                                                       dataBindValue: "frontend_tls_container_attr",
+                                                       class: "col-xs-6"
+                                                   }
+                                               }]
+                                           },
+                                           {
+                                               columns:[{
+                                                   elementId: 'frontend_http_server_close_attr',
+                                                   view: "FormCheckboxView",
+                                                   viewConfig : {
+                                                       path : 'frontend_http_server_close_attr',
+                                                       class : "col-xs-6",
+                                                       label:'Http Server Close',
+                                                       dataBindValue : 'frontend_http_server_close_attr',
+                                                       elementConfig : {
+                                                           isChecked:false
+                                                       }
+                                                   }
+                                               }]
+                                           }]
+                                       }
+                                   }]
+                            }]
+                      }
                  ]
              }
      }
@@ -696,7 +920,7 @@ define([
                 }]
             };
      }
-    function getCreateLBViewConfig(lbModel, options, allData) {
+    function getCreateLBViewConfig(lbModel, options, allData, self) {
         var gridPrefix = "add-loadbalancer",
             addLBViewConfig = {
             elementId:  cowu.formatElementId([prefixId, ctwl.CFG_LB_TITLE]),
@@ -707,7 +931,7 @@ define([
                         elementId:  cowu.formatElementId([prefixId, ctwl.CFG_LB_TITLE]),
                         title: ctwl.CFG_LB_TITLE,
                         view: "SectionView",
-                        viewConfig: getLoadBalancerControl(options, allData),
+                        viewConfig: getLoadBalancerControl(options, allData, self),
                         stepType: "step",
                         onInitRender: true,
                         buttons: {
@@ -1032,7 +1256,7 @@ define([
             /*
               Appending create LB Steps
             */
-            createLB = $.extend(true, {}, getCreateLBViewConfig(lbModel, options, allData).viewConfig).steps;
+            createLB = $.extend(true, {}, getCreateLBViewConfig(lbModel, options, allData, self).viewConfig).steps;
 
             createLB[0].title = 'Load Balancer';
             createLB[0].onPrevious = function() {
@@ -1054,6 +1278,11 @@ define([
         /*
            Appending create Listener Steps
         */
+        if(options.lbObj !== undefined){
+            if(options.lbObj.lbProvider === 'opencontrail' && !listenerPrevious){
+                lbModel.custom_attr_enable(true);
+            }
+        }
         createListener = $.extend(true, {}, getCreateListenerViewConfig(lbModel, options, allData).viewConfig).steps;
 
         createListener[0].title = 'Listener';

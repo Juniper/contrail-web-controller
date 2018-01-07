@@ -34,7 +34,6 @@ define([
             'pool_description':'',
             'pool_method':'',
             'pool_member': [],
-             //'pool_status':'',
             'pool_protocol':'',
             'pool_session_persistence':'',
             'persistence_cookie_name':'',
@@ -49,7 +48,22 @@ define([
             'monitor_http_status_code':'200',
             'monitor_url_path':'/',
             'field_disable': false,
-            'existing_port' :''
+            'existing_port' :'',
+            'custom_attr_enable': false,
+            'global_max_conn_attr': '',
+            'global_max_conn_rate_attr': '',
+            'global_max_sess_rate_attr': '',
+            'global_max_ssl_conn_aatr': '',
+            'global_max_ssl_rate_attr': '',
+            'global_ssl_ciphers_attr': '',
+            'global_tune_http_max_header_attr': '',
+            'global_tune_ssl_max_record_attr': '',
+            'default_server_timeout_attr': '',
+            'default_client_timeout_attr':'',
+            'default_connect_timeout_attr': '',
+            'frontend_http_server_close_attr': false,
+            'frontend_rate_limit_sessions_attr': '',
+            'frontend_tls_container_attr': ''
         },
 
         formatModelConfig: function (modelConfig) {
