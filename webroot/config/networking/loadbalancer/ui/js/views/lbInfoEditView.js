@@ -215,18 +215,18 @@ define([
                 url: ctwc.get(ctwc.URL_CFG_FIP_DETAILS) + '/' + options.ProjectId,
                 type:"GET"
             });
-            getAjaxs[1] = $.ajax({
+            /*getAjaxs[1] = $.ajax({
                 url: '/api/tenants/config/floating-ip-pools/' +
                 contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
                 contrail.getCookie(cowc.COOKIE_PROJECT),
                 type:"GET"
-            });
+            });*/
             $.when.apply($, getAjaxs).then(
                 function () {
                     var returnArr = []
-                    var floatingList = arguments[0][0]['floating_ip_back_refs'];
-                    var fipPoolResponse = getValueByJsonPath(arguments[1][0],
-                            'floating_ip_pool_refs', []);
+                    var floatingList = arguments[0]['floating_ip_back_refs'];
+                    /*var fipPoolResponse = getValueByJsonPath(arguments[1][0],
+                            'floating_ip_pool_refs', []);*/
                     var floatingIpList = [], fipPoolList = [], floatingIpObj = [];
                     for(var i = 0; i < floatingList.length; i++){
                         var floatingIp = floatingList[i]['floating-ip'];
@@ -235,13 +235,14 @@ define([
                             if(floatingIpUuid.indexOf(floatingIp.uuid) === -1){
                                 floatingIpList.push(
                                         {text : floatingIp.floating_ip_address,
-                                            value : floatingIp.uuid + cowc.DROPDOWN_VALUE_SEPARATOR + "floating_ip_address",
-                                            id : floatingIp.uuid + cowc.DROPDOWN_VALUE_SEPARATOR + "floating_ip_address",
-                                            parent : "floating_ip_address"});
+                                            //value : floatingIp.uuid + cowc.DROPDOWN_VALUE_SEPARATOR + "floating_ip_address",
+                                            //id : floatingIp.uuid + cowc.DROPDOWN_VALUE_SEPARATOR + "floating_ip_address",
+                                            //parent : "floating_ip_address"});
+                                            id : floatingIp.uuid});
                             }
                         }
                     }
-                    if (fipPoolResponse.length > 0) {
+                    /*if (fipPoolResponse.length > 0) {
                         $.each(fipPoolResponse, function (i, obj) {
                             var flatName =      obj['to'][1] + ":" +
                                                 obj['to'][2] + ":" + obj['to'][3];
@@ -255,11 +256,11 @@ define([
                         });   
                     }
                     var addrFields = [];
-                    addrFields.push({text : 'Floating IP Addresses', value : 'floating_ip_address', id: 'floating_ip_address', children : floatingIpList},
-                                   {text : "Floating IP Pools", value: "floating_ip_pools", id:'floating_ip_pools', children: fipPoolList});
-                    returnArr["addrFields"] = addrFields;
+                    addrFields.push({text : 'Floating IP Addresses', value : 'floating_ip_address', id: 'floating_ip_address', children : floatingIpList}//,
+                                   {text : "Floating IP Pools", value: "floating_ip_pools", id:'floating_ip_pools', children: fipPoolList});*/
+                    returnArr["floatingIpList"] = floatingIpList;
                     options["floatingIpObj"] = floatingIpObj;
-                    options["fipPoolObj"] = fipPoolResponse;
+                    //options["fipPoolObj"] = fipPoolResponse;
                     callback(returnArr);
                 }
             )
@@ -305,7 +306,7 @@ define([
                                 elementId: 'associated-ip-text',
                                 view: "FormTextView",
                                 viewConfig: {
-                                    value: "Select a floating IP address to associate with the load balancer or a floating IP pool in which to allocate a new floating IP address.",
+                                    value: "Select a floating IP address to associate with the load balancer in which to allocate a new floating IP address.",
                                     elementConfig: {
                                         class: "and-clause-text",
                                         class: "col-xs-12"
@@ -316,14 +317,14 @@ define([
                     },
                     {
                         columns: [
-                            {
+                            /*{
                                 elementId: 'associated_ip_address',
                                 view:"FormHierarchicalDropdownView",
                                 name: 'Floating IP address or pool',
                                 viewConfig: {
                                     templateId: cowc.TMPL_MULTISELECT_VIEW,
                                     path: 'associated_ip_address',
-                                    label: 'Floating IP address or pool',
+                                    label: 'Floating IP address',
                                     class:'col-xs-12',
                                     dataBindValue: 'associated_ip_address',
                                     selectOnBlur: false,
@@ -338,6 +339,24 @@ define([
                                         queryMap: [
                                             { name : 'Floating IP Addresses',  value : 'floating_ip_address', iconClass:'icon-contrail-network-ipam' },
                                             { name : 'Floating IP Pools',  value : 'floating_ip_pools', iconClass:'fa fa-globe'}]
+                                    }
+                                }
+                            }*/
+                            {
+                                elementId: 'associated_ip_address',
+                                view: "FormDropdownView",
+                                viewConfig: {
+                                    label: 'Floating IP address',
+                                    path : 'associated_ip_address',
+                                    class: 'col-xs-12',
+                                    dataBindValue :
+                                        'associated_ip_address',
+                                    elementConfig : {
+                                        placeholder : 'Select Floating IP addressP',
+                                        allowClear: true,
+                                        dataTextField : "text",
+                                        dataValueField : "id",
+                                        data : allData.floatingIpList
                                     }
                                 }
                             }
