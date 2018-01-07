@@ -533,6 +533,43 @@ define([
             }
         };
 
+        this.customAttributesFormatter = function(keyValuePair){
+            var subnetString = "", key, value, returnString = '';
+            _.each(keyValuePair, function(obj) {
+                if(obj.key != undefined){
+                    key = obj.key;
+                }else{
+                    key = '-';
+                }
+                if(obj.value != undefined){
+                    value = obj.value;
+                }else{
+                    value = '-';
+                }
+                subnetString += "<tr style='vertical-align:top'><td>";
+                subnetString += key + "</td><td>";
+                subnetString += value + "</td>";
+                subnetString += "</tr>";
+            });
+            returnString =
+                "<table style='width:65%'><thead><tr>\
+                <th style='width:50%'>Key</th>\
+                <th style='width:50%'>Value</th>\
+                </tr></thead><tbody>";
+            returnString += subnetString;
+            returnString += "</tbody></table>";
+            return returnString;
+        };
+
+        this.customAttributesList = function(d, c, v, cd, dc){
+            var keyValuePair = getValueByJsonPath(dc, 'loadbalancer_pool_custom_attributes;key_value_pair', []);
+            if(keyValuePair.length > 0){
+                return this.customAttributesFormatter(keyValuePair);
+            }else{
+               return '-';
+            }
+        };
+
         this.subnetTmplFormatterList =  function(d, c, v, cd, dc) {
             var subnetString = "", flatSubnetIPAMs, ipamObjs = [];
             var count = 0,subnetCnt = 0, returnStr = '';
@@ -1274,7 +1311,19 @@ define([
                   return val.length;
               }
          }
-          return val;
+         if('loadbalancer_pool_custom_attributes' === rowData['key']) {
+              if(val == undefined || val.length == 0 || val == null ){
+                  return '-';
+              }else{
+                  var keyValuePair = getValueByJsonPath(val, 'key_value_pair', []);
+                  if(keyValuePair.length > 0){
+                      return self.customAttributesFormatter(keyValuePair);
+                  }else{
+                     return '-';
+                  }
+              }
+         }
+         return val;
      };
     }
     return lbCfgFormatters;

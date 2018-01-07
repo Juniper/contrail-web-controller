@@ -34,7 +34,6 @@ define([
             'pool_description':'',
             'pool_method':'',
             'pool_member': [],
-             //'pool_status':'',
             'pool_protocol':'',
             'pool_session_persistence':'',
             'persistence_cookie_name':'',
@@ -49,7 +48,21 @@ define([
             'monitor_http_status_code':'200',
             'monitor_url_path':'/',
             'field_disable': false,
-            'existing_port' :''
+            'existing_port' :'',
+            'custom_attr_enable': false,
+            'global_max_conn_attr': '',
+            'global_max_conn_rate_attr': '',
+            'global_max_sess_rate_attr': '',
+            'global_max_ssl_conn_aatr': '',
+            'global_max_ssl_rate_attr': '',
+            'global_ssl_ciphers_attr': '',
+            'global_tune_http_max_header_attr': '',
+            'global_tune_ssl_max_record_attr': '',
+            'default_server_timeout_attr': '',
+            'default_client_timeout_attr':'',
+            'default_connect_timeout_attr': '',
+            'frontend_http_server_close_attr': false,
+            'frontend_rate_limit_sessions_attr': ''
         },
 
         formatModelConfig: function (modelConfig) {
@@ -123,6 +136,114 @@ define([
                     if(value === ''){
                         return "Enter the name.";
                     }
+               },
+               'global_max_conn_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Maximum Connection must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'global_max_conn_rate_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Maximum Connection Rate must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'global_max_sess_rate_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Maximum Session Rate must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'frontend_rate_limit_sessions_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Rate Limit Session must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'default_server_timeout_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 5000000){
+                           return "The Server Timeout must be a number between 1 and 5000000.";
+                       }
+                   }
+               },
+               'default_client_timeout_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 5000000){
+                           return "The Client Timeout must be a number between 1 and 5000000.";
+                       }
+                   }
+               },
+               'default_connect_timeout_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 5000000){
+                           return "The Connect Timeout must be a number between 1 and 5000000.";
+                       }
+                   }
+               },
+               'global_max_ssl_conn_aatr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Maximum SSL Connection must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'global_max_ssl_rate_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Maximum SSL Rate must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'global_ssl_ciphers_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 100){
+                           return "The SSL Ciphers must be a number between 1 and 100.";
+                       }
+                   }
+               },
+               'global_tune_http_max_header_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 128){
+                           return "The Tune Http Maximum Header Ciphers must be a number between 1 and 128.";
+                       }
+                   }
+               },
+               'global_tune_ssl_max_record_attr': function(value, attr, data) {
+                   var lbProvider = data.lb_provider.split(';')[1];
+                   if(lbProvider === 'opencontrail' && value !== ''){
+                       var port = Number(value);
+                       if(port < 1 || port > 16384){
+                           return "The Tune SSL Maximum Record Ciphers must be a number between 1 and 16384.";
+                       }
+                   }
                }
              }
         },
@@ -130,7 +251,7 @@ define([
         configureLoadBalancer: function(callbackObj, options, allData, isListener){
             var ajaxConfig = {}, returnFlag = true,updatedVal = {}, postFWRuleData = {};
             var postFWPolicyData = {}, newFWPolicyData, attr;
-            var updatedModel = {},policyList = [];
+            var updatedModel = {},policyList = [], isCustom = false;;
             var self = this;
             //Validation we have to update
             var model = $.extend(true,{},this.model().attributes);
@@ -278,6 +399,57 @@ define([
             if(model.pool_protocol !== ''){
                 pool.loadbalancer_pool_properties['protocol'] = model.pool_protocol;
             }
+            if(obj.loadbalancer.loadbalancer_provider === 'opencontrail'){
+                isCustom = true;
+            }else if(obj.loadbalancer.lbProvider === 'opencontrail'){
+                isCustom = true;
+            }
+            if(isCustom){
+                var customObj = {}, customObjList = [];
+                if(model.global_max_conn_attr !== ''){
+                    customObjList.push({key : 'max_conn', value : model.global_max_conn_attr});
+                }
+                if(model.global_max_conn_rate_attr !== ''){
+                    customObjList.push({key : 'max_conn_rate', value : model.global_max_conn_rate_attr});
+                }
+                if(model.global_max_sess_rate_attr !== ''){
+                    customObjList.push({key : 'max_sess_rate', value : model.global_max_sess_rate_attr});
+                }
+                if(model.global_max_ssl_conn_aatr !== ''){
+                    customObjList.push({key : 'max_ssl_conn', value : model.global_max_ssl_conn_aatr});
+                }
+                if(model.global_max_ssl_rate_attr !== ''){
+                    customObjList.push({key : 'max_ssl_rate', value : model.global_max_ssl_rate_attr});
+                }
+                if(model.global_ssl_ciphers_attr !== ''){
+                    customObjList.push({key : 'ssl_ciphers', value : model.global_ssl_ciphers_attr});
+                }
+                if(model.global_tune_http_max_header_attr !== ''){
+                    customObjList.push({key : 'tune_http_max_header', value : model.global_tune_http_max_header_attr});
+                }
+                if(model.global_tune_ssl_max_record_attr !== ''){
+                    customObjList.push({key : 'tune_ssl_max_record', value : model.global_tune_ssl_max_record_attr});
+                }
+                if(model.default_server_timeout_attr !== ''){
+                    customObjList.push({key : 'server_timeout', value : model.default_server_timeout_attr});
+                }
+                if(model.default_client_timeout_attr !== ''){
+                    customObjList.push({key : 'client_timeout', value : model.default_client_timeout_attr});
+                }
+                if(model.default_connect_timeout_attr !== ''){
+                    customObjList.push({key : 'connect_timeout', value : model.default_connect_timeout_attr});
+                }
+                if(model.frontend_rate_limit_sessions_attr !== ''){
+                    customObjList.push({key : 'rate_limit_sessions', value : model.frontend_rate_limit_sessions_attr});
+                }
+                if(model.frontend_http_server_close_attr){
+                    customObjList.push({key : 'http_server_close', value : 'true'});
+                }
+                if(customObjList.length > 0){
+                    customObj['key_value_pair'] = customObjList;
+                    pool.loadbalancer_pool_custom_attributes = customObj;
+                }
+            }
             obj['loadbalancer-pool'] = pool;
 
             if(poolMember.length > 0){
@@ -295,7 +467,7 @@ define([
                     obj.loadbalancer_member_properties['address'] = poolObj.pool_member_ip_address();
                     obj.loadbalancer_member_properties['protocol_port'] = Number(poolObj.pool_member_port());
                     obj.loadbalancer_member_properties['weight'] = Number(poolObj.pool_member_weight());
-                    obj.loadbalancer_member_properties['vip_subnet_id'] = poolObj.pool_member_subnet();
+                    obj.loadbalancer_member_properties['subnet_id'] = poolObj.pool_member_subnet().split(';')[0];
                     poolStack.push(obj);
                 });
                 obj['loadbalancer-member'] = poolStack;
