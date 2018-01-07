@@ -25,6 +25,7 @@ define([
                 viewConfig.lbName = currentHashParams.focusedElement.lbName;
                 viewConfig.listenerId = currentHashParams.focusedElement.listenerId;
                 viewConfig.projectId = currentHashParams.focusedElement.projectId;
+                viewConfig.lbProvider = currentHashParams.focusedElement.lbProvider;
             var breadcrumbCount = $('#breadcrumb').children().length;
             if(breadcrumbCount === 3){
                 pushBreadcrumb([{label: lbName, href: listenerRef},{label: listener, href: ''}]);
@@ -83,7 +84,8 @@ define([
                                     lbId: viewConfig.lbId,
                                     lbName: viewConfig.lbName,
                                     listenerId: viewConfig.listenerId,
-                                    projectId: viewConfig.projectId
+                                    projectId: viewConfig.projectId,
+                                    lbProvider: viewConfig.lbProvider
                                 }
                             }
                         ]

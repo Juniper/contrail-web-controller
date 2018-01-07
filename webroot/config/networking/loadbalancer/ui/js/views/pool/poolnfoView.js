@@ -23,6 +23,7 @@ define([
             listenerId = currentHashParams.focusedElement.listenerId,
             poolId = currentHashParams.focusedElement.poolId;
             viewConfig.lbId = currentHashParams.focusedElement.uuid;
+            viewConfig.lbProvider = currentHashParams.focusedElement.lbProvider;
             self.pool = {};
             self.pool.list = [];
             if($('#breadcrumb').children().length === 4){
@@ -80,7 +81,8 @@ define([
                                         }
                                     },
                                     lbId: viewConfig.lbId,
-                                    pool: pool
+                                    pool: pool,
+                                    lbProvider: viewConfig.lbProvider
                                 }
                             }
                         ]

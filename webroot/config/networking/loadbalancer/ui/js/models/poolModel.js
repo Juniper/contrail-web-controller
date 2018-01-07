@@ -17,7 +17,22 @@ define([
             "loadbalancer_method":"",
             "admin_state": true,
             "persistence_cookie_name": '',
-            'persistence_cookie_visible': false
+            'persistence_cookie_visible': false,
+            'pool_custom_attr_enable': false,
+            'pool_global_max_conn_attr': '',
+            'pool_global_max_conn_rate_attr': '',
+            'pool_global_max_sess_rate_attr': '',
+            'pool_global_max_ssl_conn_aatr': '',
+            'pool_global_max_ssl_rate_attr': '',
+            'pool_global_ssl_ciphers_attr': '',
+            'pool_global_tune_http_max_header_attr': '',
+            'pool_global_tune_ssl_max_record_attr': '',
+            'pool_default_server_timeout_attr': '',
+            'pool_default_client_timeout_attr':'',
+            'pool_default_connect_timeout_attr': '',
+            'pool_frontend_http_server_close_attr': false,
+            'pool_frontend_rate_limit_sessions_attr': '',
+            'pool_frontend_tls_container_attr': ''
         },
 
         formatModelConfig: function(modelConfig) {
@@ -54,6 +69,107 @@ define([
                 modelConfig["persistence_cookie_name"] = cookieName;
             }
             return modelConfig;
+        },
+
+        validations: {
+            poolValidation: {
+               'pool_global_max_conn_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Maximum Connection must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'pool_global_max_conn_rate_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Maximum Connection Rate must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'pool_global_max_sess_rate_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Maximum Session Rate must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'pool_frontend_rate_limit_sessions_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Rate Limit Session must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'pool_default_server_timeout_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 5000000){
+                           return "The Server Timeout must be a number between 1 and 5000000.";
+                       }
+                   }
+               },
+               'pool_default_client_timeout_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 5000000){
+                           return "The Client Timeout must be a number between 1 and 5000000.";
+                       }
+                   }
+               },
+               'pool_default_connect_timeout_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 5000000){
+                           return "The Connect Timeout must be a number between 1 and 5000000.";
+                       }
+                   }
+               },
+               'pool_global_max_ssl_conn_aatr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Maximum SSL Connection must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'pool_global_max_ssl_rate_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 65535){
+                           return "The Maximum SSL Rate must be a number between 1 and 65535.";
+                       }
+                   }
+               },
+               'pool_global_ssl_ciphers_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 100){
+                           return "The SSL Ciphers must be a number between 1 and 100.";
+                       }
+                   }
+               },
+               'pool_global_tune_http_max_header_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 128){
+                           return "The Tune Http Maximum Header Ciphers must be a number between 1 and 128.";
+                       }
+                   }
+               },
+               'pool_global_tune_ssl_max_record_attr': function(value, attr, data) {
+                   if(data.lb_provider === 'opencontrail'){
+                       var port = Number(value);
+                       if(port < 1 || port > 16384){
+                           return "The Tune SSL Maximum Record Ciphers must be a number between 1 and 16384.";
+                       }
+                   }
+               }
+             }
         },
 
         updatePool: function(callbackObj){

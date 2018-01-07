@@ -111,7 +111,7 @@ define([
                             $('#poolDelete').removeClass('disabled-link');
                         }
                     },
-                    actionCell: getRowActionConfig,
+                    actionCell: getRowActionConfig(viewConfig),
                     detail: {
                         noCache: true,
                         template: cowu.generateDetailTemplateHTML(
@@ -218,13 +218,17 @@ define([
         return headerActionConfig;
     }
 
-    function  getRowActionConfig (dc) {
+    function  getRowActionConfig (viewConfig) {
         rowActionConfig = [
             ctwgc.getEditConfig('Edit Pool', function(rowIndex) {
+                var lbProvider = viewConfig.lbProvider;
                 dataView = $('#' + ctwc.CONFIG_LB_POOL_GRID_ID).data("contrailGrid")._dataView;
-                poolEditView.model = new PoolModel(dataView.getItem(rowIndex));
+                var model = dataView.getItem(rowIndex);
+                model['lb_provider'] = lbProvider;
+                poolEditView.model = new PoolModel(model);
                 poolEditView.renderEditPool({
                                       "title": 'Edit Pool',
+                                      'lbProvider': lbProvider,
                                       callback: function () {
                                           dataView.refreshData();
                 }});

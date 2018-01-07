@@ -43,11 +43,13 @@ define([
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
-
+            if(options.lbProvider === 'opencontrail'){
+                this.model.pool_custom_attr_enable(true);
+            }
             self.renderView4Config($("#" + modalId).find(formId),
                                    this.model,
                                    poolViewConfig(self),
-                                   "",
+                                   "poolValidation",
                                    null, null, function() {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
@@ -238,6 +240,235 @@ define([
                                 }
                             }
                         ]
+                    },
+                    {
+                        columns: [
+                            {
+                            elementId: 'pool_custom_attr_global',
+                            view: "AccordianView",
+                            viewConfig: [
+                                {
+                                elementId: 'pool_custom_attr_lb_global',
+                                title: 'Global Custom Attribute',
+                                view: "SectionView",
+                                visible: 'pool_custom_attr_enable',
+                                active:false,
+                                viewConfig: {
+                                        rows: [{
+                                            columns:[{
+                                                elementId: "pool_global_max_conn_attr",
+                                                view: "FormInputView",
+                                                viewConfig: {
+                                                    path: "pool_global_max_conn_attr",
+                                                    type:'number',
+                                                    label: 'Maximum Connection',
+                                                    dataBindValue: "pool_global_max_conn_attr",
+                                                    class: "col-xs-6"
+                                                }
+                                            },{
+                                                elementId: "pool_global_max_conn_rate_attr",
+                                                view: "FormInputView",
+                                                viewConfig: {
+                                                    path: "pool_global_max_conn_rate_attr",
+                                                    type:'number',
+                                                    label: 'Maximum Connection Rate',
+                                                    dataBindValue: "pool_global_max_conn_rate_attr",
+                                                    class: "col-xs-6"
+                                                }
+                                            }]
+                                        },{
+                                            columns:[{
+                                                elementId: "pool_global_max_sess_rate_attr",
+                                                view: "FormInputView",
+                                                viewConfig: {
+                                                    path: "pool_global_max_sess_rate_attr",
+                                                    type:'number',
+                                                    label: 'Maximum Session Rate',
+                                                    dataBindValue: "pool_global_max_sess_rate_attr",
+                                                    class: "col-xs-6"
+                                                }
+                                            },{
+                                                elementId: "pool_global_max_ssl_conn_aatr",
+                                                view: "FormInputView",
+                                                viewConfig: {
+                                                    path: "pool_global_max_ssl_conn_aatr",
+                                                    type:'number',
+                                                    label: 'Maximum SSL Connection',
+                                                    dataBindValue: "pool_global_max_ssl_conn_aatr",
+                                                    class: "col-xs-6"
+                                                }
+                                            }]
+                                        },
+                                        {
+                                            columns:[{
+                                                elementId: "pool_global_max_ssl_rate_attr",
+                                                view: "FormInputView",
+                                                viewConfig: {
+                                                    path: "pool_global_max_ssl_rate_attr",
+                                                    type:'number',
+                                                    label: 'Maximum SSL Rate',
+                                                    dataBindValue: "pool_global_max_ssl_rate_attr",
+                                                    class: "col-xs-6"
+                                                }
+                                            },{
+                                                elementId: "pool_global_ssl_ciphers_attr",
+                                                view: "FormInputView",
+                                                viewConfig: {
+                                                    path: "pool_global_ssl_ciphers_attr",
+                                                    label: 'SSL Ciphers',
+                                                    dataBindValue: "pool_global_ssl_ciphers_attr",
+                                                    class: "col-xs-6"
+                                                }
+                                            }]
+                                        },
+                                        {
+                                            columns:[{
+                                                elementId: "pool_global_tune_http_max_header_attr",
+                                                view: "FormInputView",
+                                                viewConfig: {
+                                                    path: "pool_global_tune_http_max_header_attr",
+                                                    type:'number',
+                                                    label: 'Tune Http Maximum Header',
+                                                    dataBindValue: "pool_global_tune_http_max_header_attr",
+                                                    class: "col-xs-6"
+                                                }
+                                            },{
+                                                elementId: "pool_global_tune_ssl_max_record_attr",
+                                                view: "FormInputView",
+                                                viewConfig: {
+                                                    path: "pool_global_tune_ssl_max_record_attr",
+                                                    type:'number',
+                                                    label: 'Tune SSL Maximum Record',
+                                                    dataBindValue: "pool_global_tune_ssl_max_record_attr",
+                                                    class: "col-xs-6"
+                                                }
+                                            }]
+                                        }]
+                                    }
+                                }]
+                            }]
+                      },
+                      {
+                          columns: [
+                              {
+                              elementId: 'pool_custom_attr_default',
+                              view: "AccordianView",
+                              viewConfig: [
+                                  {
+                                  elementId: 'pool_custom_attr_lb_default',
+                                  title: 'Default Custom Attribute',
+                                  view: "SectionView",
+                                  visible: 'pool_custom_attr_enable',
+                                  active:false,
+                                  viewConfig: {
+                                          rows: [{
+                                              columns:[{
+                                                  elementId: "pool_default_server_timeout_attr",
+                                                  view: "FormInputView",
+                                                  viewConfig: {
+                                                      path: "pool_default_server_timeout_attr",
+                                                      type:'number',
+                                                      label: 'Server Timeout',
+                                                      dataBindValue: "pool_default_server_timeout_attr",
+                                                      class: "col-xs-6"
+                                                  }
+                                              },{
+                                                  elementId: "pool_default_client_timeout_attr",
+                                                  view: "FormInputView",
+                                                  viewConfig: {
+                                                      path: "pool_default_client_timeout_attr",
+                                                      type:'number',
+                                                      label: 'Client Timeout',
+                                                      dataBindValue: "pool_default_client_timeout_attr",
+                                                      class: "col-xs-6"
+                                                  }
+                                              }]
+                                          },{
+                                              columns:[{
+                                                  elementId: "pool_default_connect_timeout_attr",
+                                                  view: "FormInputView",
+                                                  viewConfig: {
+                                                      path: "pool_default_connect_timeout_attr",
+                                                      type:'number',
+                                                      label: 'Connect Timeout',
+                                                      dataBindValue: "pool_default_connect_timeout_attr",
+                                                      class: "col-xs-6"
+                                                  }
+                                              }]
+                                          }
+                                          ]
+                                      }
+                                  }]
+                          }]
+                     },
+                     {
+                         columns: [
+                             {
+                             elementId: 'pool_custom_attr_frontend',
+                             view: "AccordianView",
+                             viewConfig: [
+                                 {
+                                 elementId: 'pool_custom_attr_lb_frontend',
+                                 title: 'Frontend Custom Attribute',
+                                 view: "SectionView",
+                                 visible: 'pool_custom_attr_enable',
+                                 active:false,
+                                 viewConfig: {
+                                         rows: [{
+                                             columns:[{
+                                                 elementId: "pool_frontend_rate_limit_sessions_attr",
+                                                 view: "FormInputView",
+                                                 viewConfig: {
+                                                     path: "pool_frontend_rate_limit_sessions_attr",
+                                                     type:'number',
+                                                     label: 'Rate Limit Session',
+                                                     dataBindValue: "pool_frontend_rate_limit_sessions_attr",
+                                                     class: "col-xs-6"
+                                                 }
+                                             },
+                                             {
+                                                 elementId: 'pool_frontend_http_server_close_attr',
+                                                 view: "FormCheckboxView",
+                                                 viewConfig : {
+                                                     path : 'pool_frontend_http_server_close_attr',
+                                                     class : "col-xs-6",
+                                                     label:'Http Server Close',
+                                                     dataBindValue : 'pool_frontend_http_server_close_attr',
+                                                     elementConfig : {
+                                                         isChecked:false
+                                                     }
+                                                 }
+                                             }/*,
+                                             {
+                                                 elementId: "pool_frontend_tls_container_attr",
+                                                 view: "FormInputView",
+                                                 viewConfig: {
+                                                     path: "pool_frontend_tls_container_attr",
+                                                     type:'number',
+                                                     label: 'TLS Container',
+                                                     dataBindValue: "pool_frontend_tls_container_attr",
+                                                     class: "col-xs-6"
+                                                 }
+                                             }*/]
+                                         }/*,
+                                         {
+                                             columns:[{
+                                                 elementId: 'pool_frontend_http_server_close_attr',
+                                                 view: "FormCheckboxView",
+                                                 viewConfig : {
+                                                     path : 'pool_frontend_http_server_close_attr',
+                                                     class : "col-xs-6",
+                                                     label:'Http Server Close',
+                                                     dataBindValue : 'pool_frontend_http_server_close_attr',
+                                                     elementConfig : {
+                                                         isChecked:false
+                                                     }
+                                                 }
+                                             }]
+                                         }*/]
+                                     }
+                                 }]
+                          }]
                     }
                 ]
             }

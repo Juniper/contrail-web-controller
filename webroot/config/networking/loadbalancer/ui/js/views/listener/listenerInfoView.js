@@ -20,6 +20,7 @@ define([
             var lbName = currentHashParams.focusedElement.lbName;
             var listenerRef = currentHashParams.focusedElement.listenerRef;
             viewConfig.lbId = currentHashParams.focusedElement.uuid;
+            viewConfig.lbProvider = currentHashParams.focusedElement.lbProvider;
             self.listener = {};
             self.listener.list = [];
             if($('#breadcrumb').children().length === 3){
@@ -71,7 +72,8 @@ define([
                                         }
                                     },
                                     lbId: viewConfig.lbId,
-                                    listener: listener
+                                    listener: listener,
+                                    lbProvider: viewConfig.lbProvider
                                 }
                             }
                         ]
