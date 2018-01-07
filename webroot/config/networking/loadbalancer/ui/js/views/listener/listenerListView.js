@@ -19,6 +19,7 @@ define([
                 viewConfig.lbFqName = currentHashParams.focusedElement.lbFqName.reverse();
                 viewConfig.lbName = loadBalancer;
                 viewConfig.listenerRef = window.location.href;
+                viewConfig.lbProvider = currentHashParams.focusedElement.lbProvider;
                 self.port = {};
                 self.port.list = [];
             var breadcrumbCount = $('#breadcrumb').children().length;
@@ -78,7 +79,8 @@ define([
                                     lbFqName: viewConfig.lbFqName,
                                     listenerRef: viewConfig.listenerRef,
                                     projectId: viewConfig.projectId,
-                                    port: port//,
+                                    port: port,
+                                    lbProvider: viewConfig.lbProvider//,
                                     //isGlobal: false
                                 }
                             }

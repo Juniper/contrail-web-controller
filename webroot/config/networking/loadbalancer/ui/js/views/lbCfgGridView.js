@@ -194,7 +194,8 @@ define([
                     tab: viewTab,
                     projectId: projectId,
                     lbFqName : dc.loadbalancer.fq_name,
-                    lbList : lbList
+                    lbList : lbList,
+                    lbProvider: dc.loadbalancer.loadbalancer_provider
                 }
             };
         if (contrail.checkIfKeyExistInObject(true,
@@ -238,7 +239,7 @@ define([
                     var lbodel = new LbCfgModel();
                     lbCfgEditView.model = lbodel;
                     lbCfgEditView.renderAddLb({
-                                              "title": 'Create Loadbalancer',
+                                              "title": 'Create Load Balancer',
                                               'mode': 'loadbalancer',
                                               'projectId': viewConfig.selectedProjId,
                                                callback: function () {

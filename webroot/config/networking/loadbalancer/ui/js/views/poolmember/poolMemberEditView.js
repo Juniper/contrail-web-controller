@@ -370,6 +370,21 @@ define([
                                 }
                             },
                             {
+                                elementId: "pool_member_subnet",
+                                view: "FormInputView",
+                                viewConfig: {
+                                    path: "pool_member_subnet",
+                                    label: 'Subnet',
+                                    disabled: true,
+                                    dataBindValue: "pool_member_subnet",
+                                    class: "col-xs-6"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
                                 elementId: 'admin_state',
                                 view: "FormCheckboxView",
                                 viewConfig : {

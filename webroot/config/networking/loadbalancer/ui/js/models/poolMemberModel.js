@@ -15,6 +15,7 @@ define([
             "port":"80",
             "weight":"1",
             "admin_state": true,
+            "pool_member_subnet": "",
             "status_description": "",
             "loadbalancer_member_properties": {},
             'pool_member': []
@@ -49,6 +50,12 @@ define([
                     "id_perms;description", '');
             if(description != ''){
                 modelConfig["description"] = description;
+            }
+            var subnet = getValueByJsonPath(modelConfig,
+                    "loadbalancer_member_properties;subnet_id", '');
+            subnet = subnet.split(';')[0];
+            if(subnet != ''){
+                modelConfig["pool_member_subnet"] = subnet;
             }
             return modelConfig;
         },
@@ -120,7 +127,7 @@ define([
                         }
                         if(poolObj.pool_member_subnet() !== ''){
                             var subnet = poolObj.pool_member_subnet().split(';')[0];
-                            obj.loadbalancer_member_properties['vip_subnet_id'] = subnet;
+                            obj.loadbalancer_member_properties['subnet_id'] = subnet;
                         }
                         poolStack.push(obj);
                     });

@@ -1110,7 +1110,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <iconClass>menu-icon fa fa-sitemap</iconClass>
                     <items>
                         <item>
-                          <label>Load Balancing</label>
+                          <label>Load Balancers</label>
                           <hash>config_load_balancer</hash>
                           <resources>
                               <resource>
