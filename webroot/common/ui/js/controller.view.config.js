@@ -11,36 +11,6 @@ define([
     var CTViewConfig = function () {
         var self = this;
 
-        self.getToolbarViewConfig = function() {
-            var toolBarItems =  {
-                    settings: [{
-                        id: cowc.COLOR_PALETTE,
-                        title: "Dashboard Colors",
-                        view: 'js/views/SettingsColorView',
-                        model: 'js/models/SettingsColorModel'
-                    }, {
-                        id: cowc.FULL_SCREEN,
-                        title: "Toggle Full Screen",
-                        // view: 'js/views/SettingsColorView',
-                        // model: 'js/models/SettingsColorModel'
-                    },{
-                        id: cowc.CHART_SETTINGS,
-                        title: "Chart Settings",
-                        view: "js/views/ChartSettingsView",
-                        model: "js/models/ChartSettingsModel"
-                    }]
-             }
-            if (cowc.panelLayout) {
-                toolBarItems['settings'].push({
-                    id: cowc.ADD_WIDGET,
-                    title: "Add Widget",
-                    // view: 'js/views/SettingsColorView',
-                    // model: 'js/models/SettingsColorModel'
-                });
-            }
-            return toolBarItems;
-        };
-
         self.getInstanceTabViewConfig = function (viewConfig) {
             var instanceUUID = viewConfig['instanceUUID'],
                 instanceDetailsUrl = ctwc.get(ctwc.URL_INSTANCE_DETAIL, instanceUUID),
