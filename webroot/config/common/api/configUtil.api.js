@@ -35,6 +35,7 @@ var svcInst =
     require('../../services/instances/api/serviceinstanceconfig.api');
 var fwPolicy =
     require('../../firewall/common/fwpolicy/api/fwpolicyconfig.api');
+var configObjs = require("../../../common/api/jsonDiff.helper");
 var jsonDiff = require(process.mainModule.exports["corePath"] +
                        "/src/serverroot/common/jsondiff");
 var _ = require("lodash");
@@ -676,7 +677,7 @@ function filterChildrenData (dataObj, callback)
     logutils.logger.info("Trying to filter data with Parent " + resType +
                          " for data " + JSON.stringify(data));
     var origData = commonUtils.cloneObj(data);
-    var configObj = process.mainModule.exports['configJsonModifyObj'];
+    var configObj = configObjs.configJsonModifyObj;
     var configObjByType = configObj[resType];
     var childrenData = {};
     if (null == configObjByType) {
@@ -1203,7 +1204,7 @@ function createConfigObjectCB (data, appData, callback)
                 callback(error, {configData: configData});
                 return;
             }
-            var configObj = process.mainModule.exports['configJsonModifyObj'];
+            var configObj = configObjs.configJsonModifyObj;
             var configObjByType = configObj[resType];
             if (null == configObjByType) {
                 callback(null, {configData: configData});
@@ -1217,11 +1218,6 @@ function createConfigObjectCB (data, appData, callback)
                     if (null != uuid) {
                         data.origData[resType].uuid = uuid;
                     }
-                    var childWORefs = _.result(data, "childDataWORefs",
-                                               data.childrenData);
-                    data.allChildAddRefObjs =
-                        commonUtils.cloneObj(data.childrenData);
-                    data.childrenData = childWORefs;
                     createChildren({parentType: resType, dataObj: data,
                                     appData: appData}, function(error, data) {
                         CB(error, data);
@@ -1484,7 +1480,7 @@ function updateChildren (dataObj, callback)
     var appData     = dataObj.appData;
     var parentType  = dataObj.parentType;
 
-    var configObj       = process.mainModule.exports['configJsonModifyObj'];
+    var configObj       = configObjs.configJsonModifyObj;
     var configObjByType = configObj[parentType];
     if (null == configObjByType) {
         logutils.logger.debug("We do not have " + parentType + " in UI Schema");
@@ -1574,7 +1570,6 @@ function getUpdateChildDeltaAndUpdate (dataObj, callback)
         if (null == childDelta) {
             continue;
         }
-        childDelta["uiChildName"] = configChildKey;
         childDeltas.push(childDelta);
     }
     for (var uiChildKey in clonedUIChildData) {
@@ -1668,7 +1663,7 @@ function getToEditChildrenByDeltas (childDeltas, childRefDeltas, parentType)
      * in add/delete list, then it must be modify the child
      */
     var childDeltasCnt = childDeltas.length;
-    var configObj = process.mainModule.exports['configJsonModifyObj'];
+    var configObj = configObjs.configJsonModifyObj;
     var children = _.result(configObj, parentType + ".children", null);
     if (null == children) {
         return [];
@@ -2079,4 +2074,3 @@ exports.deleteConfigObj = deleteConfigObj;
 exports.deleteConfigObjCB = deleteConfigObjCB;
 exports.getConfigPaginatedResponse = getConfigPaginatedResponse;
 exports.getUUIDByFQN = getUUIDByFQN;
-
