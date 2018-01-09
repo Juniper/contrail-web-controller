@@ -162,27 +162,27 @@ var configJsonModifyObj = {
     },
     'loadbalancer': {
         'isConfig': true,
-        'optFields': ['display_name','id_perms'],
+        'optFields': ['display_name','id_perms:description'],
         'mandateFields': ['fq_name', 'uuid', 'name']
     },
     'loadbalancer-listener': {
         'isConfig': true,
-        'optFields': ['loadbalancer_listener_properties','id_perms','display_name'],
+        'optFields': ['loadbalancer_listener_properties','id_perms:description','display_name'],
         'mandateFields': ['fq_name', 'uuid', 'name']
     },
     'loadbalancer-pool': {
         'isConfig': true,
-        'optFields': ['loadbalancer_pool_properties','display_name', 'id_perms'],
+        'optFields': ['loadbalancer_pool_properties','display_name', 'id_perms:description'],
         'mandateFields': ['fq_name', 'uuid', 'name']
     },
     'loadbalancer-healthmonitor': {
         'isConfig': true,
-        'optFields': ['loadbalancer_healthmonitor_properties','display_name', 'id_perms'],
+        'optFields': ['loadbalancer_healthmonitor_properties','display_name', 'id_perms:description'],
         'mandateFields': ['fq_name', 'uuid', 'name']
     },
     'loadbalancer-member': {
         'isConfig': true,
-        'optFields': ['loadbalancer_member_properties','display_name', 'id_perms'],
+        'optFields': ['loadbalancer_member_properties','display_name', 'id_perms:description'],
         'mandateFields': ['fq_name', 'uuid', 'name']
     },
     'bgp-as-a-service': {
