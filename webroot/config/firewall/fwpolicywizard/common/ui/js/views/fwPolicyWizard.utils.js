@@ -147,6 +147,7 @@ define([
                                 label:"",
                                 path: "firewall_rules",
                                 class: 'col-xs-12',
+                                plusFlag:true,
                                 validation: 'ruleValidation',
                                 templateId: cowc.TMPL_COLLECTION_HEADING_VIEW,
                                 collection: "firewall_rules",
@@ -207,6 +208,8 @@ define([
                                             path: 'endpoint_1',
                                             dataBindValue: 'endpoint_1()',
                                             disabled: "disabled()",
+                                            plusFlag : true,
+                                            //dataBindOptionList : "dataSourceAllData",
                                             elementConfig: {
                                                 placeholder: 'Select Endpoint',
                                                 minimumResultsForSearch : 1,
@@ -290,6 +293,7 @@ define([
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
                                             path: 'endpoint_2',
+                                            plusFlag : true,
                                             dataBindValue: 'endpoint_2()',
                                             disabled: "disabled()",
                                             elementConfig: {
