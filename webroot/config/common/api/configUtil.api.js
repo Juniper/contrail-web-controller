@@ -2066,7 +2066,8 @@ function setTags(setTagsMap, results, appData, callback)
                 }
             );
     } catch(e){
-        callback(e, null);
+        logutils.logger.info("Set Tags: " + e);
+        callback(null, null);
     }
 }
 

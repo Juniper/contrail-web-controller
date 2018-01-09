@@ -55,7 +55,7 @@ define([
             self.renderView4Config(
                 $("#" + modalId).find("#" + prefixId + "-form"),
                 self.model,
-                getForwardingClassViewConfig(disableFlag),
+                getForwardingClassViewConfig(disableFlag, self),
                 "fwdClassConfigValidations", null, null,
                 function () {
                     self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
@@ -107,7 +107,7 @@ define([
         }
     });
 
-    function getForwardingClassViewConfig (disableOnEdit) {
+    function getForwardingClassViewConfig (disableOnEdit, self) {
         var prefixId = ctwc.FORWARDING_CLASS_PREFIX_ID;
         var fwdClassViewConfig = {
             elementId: cowu.formatElementId([prefixId,
@@ -211,9 +211,12 @@ define([
                                         postData:
                                             JSON.stringify({data:
                                                 [{type: "qos-queues"}]}),
-                                        parse:
-                                            globalConfigFormatters.
-                                            formatQoSQueueData
+                                        parse: function(result){
+                                            var qosQueueDS = globalConfigFormatters.
+                                            formatQoSQueueData(result);
+                                            self.model.qosQueueDS = qosQueueDS;
+                                            return qosQueueDS;
+                                        }
                                     }
                                 }
                            }

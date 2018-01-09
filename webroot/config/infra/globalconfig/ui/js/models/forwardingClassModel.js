@@ -3,7 +3,7 @@
  */
 
 define([
-    'underscore',
+    'lodash',
     'contrail-config-model',
     'config/infra/globalconfig/ui/js/globalConfig.utils'
 ], function (_, ContrailConfigModel, GlobalConfigUtils) {
@@ -184,6 +184,14 @@ define([
             return returnFlag;
         },
 
+        isQoSQueueExists:function(queueId) {
+           var qosQueueDS = _.get(this, 'qosQueueDS', []);
+           var isQueueExist = _.find(qosQueueDS, function(queue){
+                                  return queue.value === queueId;
+                              });
+           return isQueueExist;
+        },
+
         createQosQueue: function(attr, callback) {
             var ajaxConfig = {}, postData = {},
                 qosQueueIdStr = getValueByJsonPath(attr,
@@ -192,7 +200,7 @@ define([
                     Number(qosQueueIdStr) : null,
                 fqName = ["default-global-system-config",
                     "default-global-qos-config"];
-            if(qosQueueId !== null) {
+            if(!this.isQoSQueueExists(qosQueueId)) {
                 fqName.push(qosQueueIdStr);
                 postData["qos-queue"] = {};
                 postData["qos-queue"]["parent_type"] = "global-qos-config";
@@ -214,7 +222,7 @@ define([
                         }
                 );
             } else {
-                fqName.push(null);
+                fqName.push(qosQueueIdStr);
                 callback(fqName);
             }
         },
