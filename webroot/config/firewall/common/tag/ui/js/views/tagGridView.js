@@ -244,7 +244,8 @@ define([
         return rowActionConfig;
    }
    function getHeaderActionConfig(viewConfig) {
-        var headerActionConfig = [
+   if(viewConfig.isWizard === undefined || viewConfig.isWizard === false){
+       var headerActionConfig = [
             {
                 "type" : "link",
                 "title" : ctwc.TITLE_TAG_MULTI_DELETE,
@@ -312,18 +313,19 @@ define([
                 "title": ctwc.SEC_POL_TAG_TITLE_CREATE,
                 "iconClass": "fa fa-plus",
                 "onClick": function () {
-                    if(viewConfig.isWizard){
-                        $("#overlay-background-id").addClass("overlay-background");
-                        if($("#fw-wizard-details-error-container")){
-                            $("#fw-wizard-details-error-container").remove();
-                        }
-                        overlayTagEditView.model = new TagModel();
-                        overlayTagEditView.renderTag({
-                                'mode': 'add',
-                                'viewConfig': viewConfig,
-                                'isGlobal': viewConfig.isGlobal
-                        });
-                    }else{
+//                    if(viewConfig.isWizard){
+//                        $("#overlay-background-id").addClass("overlay-background");
+//                        if($("#fw-wizard-details-error-container")){
+//                            $("#fw-wizard-details-error-container").remove();
+//                        }
+//                        overlayTagEditView.model = new TagModel();
+//                        overlayTagEditView.renderTag({
+//                                'mode': 'add',
+//                                'viewConfig': viewConfig,
+//                                'isGlobal': viewConfig.isGlobal
+//                        });
+//                    }
+                    //else{
                         tagEditView.model = new TagModel();
                         tagEditView.renderAddEditTag({
                                                   "title": 'Create Tag',
@@ -332,12 +334,13 @@ define([
                                                   callback: function () {
                            $('#' + ctwc.SECURITY_POLICY_TAG_GRID_ID).data("contrailGrid")._dataView.refreshData();
                         }});
-                    }
+                   // }
                 }
             }
 
         ];
         return headerActionConfig;
+      }
     }
     function getTagDetailsTemplateConfig() {
         return {

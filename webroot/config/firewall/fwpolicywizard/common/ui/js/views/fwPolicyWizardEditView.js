@@ -10,12 +10,16 @@ define([
     'config/firewall/common/fwpolicy/ui/js/fwPolicyFormatter',
     'config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel',
     'config/firewall/common/fwpolicy/ui/js/models/fwRuleCollectionModel',
+    'config/firewall/common/tag/ui/js/models/tagModel',
+    'config/firewall/fwpolicywizard/common/ui/js/views/overlayTagEditView',
     'knockout'
-], function (_, ContrailView, Knockback, FWZUtils, FwPolicyFormatter, FwPolicyWizardModel,RuleModel, ko) {
+], function (_, ContrailView, Knockback, FWZUtils, FwPolicyFormatter, FwPolicyWizardModel,RuleModel, TagModel,
+        OverlayTagEditView, ko) {
     var gridElId = '#' + ctwc.APPLICATION_POLICY_SET_GRID_ID,
         prefixId = ctwc.APPLICATION_POLICY_SET_PREFIX_ID,
         modalId = 'configure-' + prefixId, firewallPolicyId;
         formId = '#' + modalId + '-form';
+        overlayTagEditView = new OverlayTagEditView();
         var self;
     var titleTags = '';
     var fwzUtils = new FWZUtils();
@@ -38,9 +42,10 @@ define([
                 $('#aps-remove-icon').hide();
                 $('#aps-overlay-container').hide();
                 $("#overlay-background-id").removeClass("overlay-background");
-                self.fetchAllData(self, options, function(allData){
+                self.fetchAllData(self, options,function(allData){
                     self.renderView4Config($("#" + modalId).find('#aps-sub-container'), self.model,
                         getAddPolicyViewConfig(self, options['viewConfig'], allData, options),'policyValidation', null, null,function(){
+                            Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                             Knockback.applyBindings(self.model, document.getElementById('applicationpolicyset_add-new-firewall-policy'));
                             Knockback.applyBindings(self.model, document.getElementById('applicationpolicyset_rules'));
                             kbValidation.bind(self);
@@ -48,20 +53,26 @@ define([
                                 fwzUtils.viewAdressGroup();
                                 e.preventDefault();
                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                                self.renderObject(options, 'address_groups');
+                                self.renderObject(options, 'address_groups',self.model);
                                 return true;
                             }
                             function getServiceGroupClick(e){
                                 fwzUtils.viewServiceGroup();
                                 e.preventDefault();
                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                                self.renderObject(options, 'service_groups');
+                                self.renderObject(options, 'service_groups',self.model);
                             }
                             function visibleTagClick(e){
                                 fwzUtils.viewTags();
                                 e.preventDefault();
                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                                self.renderObject(options, 'tag');
+                                self.renderObject(options,'tag',self.model);
+                            }
+                            function createTags(e,tagCreate){
+                                fwzUtils.viewTags();
+                                e.preventDefault();
+                                Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                                self.renderObject(options,'tag-create',tagCreate, self.model);
                             }
                             $("#view-address-group").on('click', function(e) {
                                 getAdressGroupClick(e);
@@ -71,6 +82,12 @@ define([
                             });
                             $("#view-visble-tags").on('click', function(e) {
                                 visibleTagClick(e);
+                            });
+                            $(".plus-button").on('click',function(e){
+                                createTags(e,'create-tag');
+                            });
+                            $(".plus-button-endpoints").on('click',function(e){
+                                createTags(e,"create-tag-endpoints");
                             });
                     },null,false);
                 });
@@ -126,7 +143,7 @@ define([
                     kbValidation.bind(self);
             },null,false);
         },
-        renderObject: function(options, objName, self){
+        renderObject: function(options, objName, tagCreate, wizardModel){
             $('#aps-save-button').hide();
             var viewConfig = options['viewConfig'];
             if(objName === 'address_groups'){
@@ -137,7 +154,7 @@ define([
                 $('#aps-remove-icon').hide();
                 $('.modal-header-title').text("Review Address Groups");
                 $("#aps-gird-container").append($("<div id='addressgroup-wrapper'></div>"));
-                this.renderView4Config($('#addressgroup-wrapper'), null, getAddressGroup(viewConfig));
+                this.renderView4Config($('#addressgroup-wrapper'), null, getAddressGroup(viewConfig,wizardModel));
             }else if(objName === 'service_groups'){
                 $('#aps-overlay-container').show();
                 $('#helper').hide();
@@ -146,7 +163,7 @@ define([
                 $('#aps-remove-icon').hide();
                 $('.modal-header-title').text("Review Service Groups");
                 $("#aps-gird-container").append($("<div id='servicegroup-wrapper'></div>"));
-                this.renderView4Config($('#servicegroup-wrapper'), null, getServiceGroup(viewConfig));
+                this.renderView4Config($('#servicegroup-wrapper'), null, getServiceGroup(viewConfig,wizardModel));
             }else if(objName === 'tag'){
                 $('#aps-overlay-container').show();
                 $('#helper').hide();
@@ -160,7 +177,32 @@ define([
                     $('.modal-header-title').text("Review visible Tags");
                 }
                 $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
-                this.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
+                this.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig,wizardModel));
+            }
+            else if(objName === 'tag-create'){
+                $('#aps-overlay-container').show();
+                $('#helper').hide();
+                $('#app-tag-create-container').hide();
+                $("#aps-gird-container").empty();
+                $('#aps-create-fwpolicy-remove-icon').show();
+                $('#aps-remove-icon').hide();
+                if(options.viewConfig.isGlobal === false){
+                    $('.modal-header-title').text("Review Visible Tags For Project");
+                }
+                else{
+                    $('.modal-header-title').text("Review visible Tags");
+                }
+                overlayTagEditView.model = new TagModel();
+                overlayTagEditView.renderTag({
+                          'mode': 'add',
+                          'viewConfig': viewConfig,
+                          'isGlobal': viewConfig.isGlobal,
+                          viewConfig: $.extend(true, {}, viewConfig, { wizardModel: wizardModel}),
+                          'createTag' : true,
+                          'tagCreate' :tagCreate
+                });
+                //$("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
+                //this.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig,wizardModel));
             }
          },
          fetchAllData : function(self, options, callback) {
@@ -292,6 +334,8 @@ define([
                              }
                          }
                      }
+                     var applicationTagList = fwPolicyFormatter.filterApplicationTagList(getValueByJsonPath(results, '2;0;0;tags', [], false), options.viewConfig.isGlobal);
+                     self.model.dataSource(applicationTagList);
                      //tags
                      var tags = fwPolicyFormatter.filterTagsByProjects(getValueByJsonPath(results, '2;0;0;tags', [], false), options.viewConfig.isGlobal);
                      var addrFields = [];
@@ -350,6 +394,15 @@ define([
                          parent : "any_workload" });
                      addrFields.push({text : 'Any Workload', value : 'any_workload', children : anyList});
                      returnArr["addrFields"] = addrFields;
+                     //Update the dataSourceAllData list.
+//                     var ruleCollection = [];
+//                     var obj1 = {};
+//                     obj1.dataSourceAllData = addrFields;
+//                     var rulesModel = new RuleModel(obj1);
+//                     ruleCollection.push(rulesModel);
+//                     var coll = new Backbone.Collection(ruleCollection);
+//                     self.model.firewall_rules([]);
+//                     self.model.firewall_rules(coll);
                      var secGrpList = fwPolicyFormatter.filterServiceGroupByProjects(getValueByJsonPath(results, '4;0;0;service-groups', [], false), options.viewConfig.isGlobal);
                      var serviceGrpList = [];
                      $.each(secGrpList, function (i, obj) {
@@ -816,7 +869,7 @@ define([
             };
         }
     }
-    function getTag(viewConfig){
+    function getTag(viewConfig,wizardModel){
         if(viewConfig.isGlobal) {
             return {
                 elementId:
@@ -824,7 +877,7 @@ define([
                 view: "tagGlobalListView",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix: "config/infra/tag/ui/js/views/",
-                viewConfig: $.extend(true, {}, viewConfig)
+                viewConfig: $.extend(viewConfig, {wizardModel: wizardModel})
             };
         } else {
             return {
@@ -834,7 +887,7 @@ define([
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix: "config/firewall/project/tag/ui/js/views/",
                 viewConfig: $.extend(true, {}, viewConfig,
-                                     {projectSelectedValueData: viewConfig.projectSelectedValueData})
+                                     {projectSelectedValueData: viewConfig.projectSelectedValueData, wizardModel: wizardModel})
             };
         }
     }

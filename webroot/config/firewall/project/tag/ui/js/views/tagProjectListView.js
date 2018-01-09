@@ -78,7 +78,8 @@ define([
                                     projectSelectedValueData: viewConfig.projectSelectedValueData,
                                     hashParams:viewConfig.hashParams,
                                     isWizard: viewConfig ? viewConfig.isWizard : false,
-                                    wizardMode:viewConfig.wizardMode
+                                    wizardMode:viewConfig.wizardMode,
+                                    wizardModel:viewConfig.wizardModel
                                 }
                             }
                         ]
