@@ -28,7 +28,8 @@ define([
                 "global_access": "",
                 "share": []
             },
-            'onNext': false
+            'onNext': false,
+            'dataSource':[]
         },
         formatModelConfig: function(modelConfig) {
             self = this;

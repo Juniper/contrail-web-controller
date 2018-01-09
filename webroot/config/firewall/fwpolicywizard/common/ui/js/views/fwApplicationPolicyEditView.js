@@ -39,9 +39,10 @@ define([
                     null, null, function() {
                     Knockback.applyBindings(self.model, document.getElementById('new-application-policy-set-section'));
                     kbValidation.bind(self);
+                    //$('#Application').append('<div id="app-tag-create-container" style="font-size:15px;position:absolute;left:680px;top:75px;z-index:1000;" class="fa fa-plus" title="Create New Application Tags"></div>');
             },null,false);
         },
- 
+
         setErrorContainer : function(headerText){
             $('#aps-gird-container').append($('<h6></h6>').text(headerText).addClass('aps-details-header'));
             var errorHolder = $('<div></div>').addClass('alert-error clearfix aps-details-error-container');
@@ -135,61 +136,16 @@ define([
                                            'name() !== "' + ctwc.GLOBAL_APPLICATION_POLICY_SET + '"',
                                        label: "Application Tags",
                                        path: 'Application',
+                                       plusFlag : true,
                                        dataBindValue: 'Application',
                                        class: 'col-xs-6',
+                                       dataBindOptionList : "dataSource",
                                        elementConfig: {
                                            dataTextField: "text",
                                            dataValueField: "id",
+                                           allowClear: true,
                                            placeholder:
-                                               "Select Tags",
-                                               dataSource : {
-                                                   type: 'remote',
-                                                   requestType: 'post',
-                                                   postData: JSON.stringify(
-                                                         {data: [{type: 'tags'}]}),
-                                                   url:'/api/tenants/config/get-config-details',
-                                                   parse: function(result) {
-                                                       for(var i=0; i<result.length; i++){
-                                                         tagsDetails = result[i].tags;
-                                                         for(var j= 0; j<tagsDetails.length; j++){
-                                                             var domain = contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME);
-                                                             var project = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
-                                                             if (tagsDetails[j]['tag'].fq_name.length > 1 &&
-                                                                     (domain != tagsDetails[j]['tag'].fq_name[0] ||
-                                                                     project != tagsDetails[j]['tag'].fq_name[1])) {
-                                                                 continue;
-                                                             }
-                                                             if(tagsDetails[j].tag.fq_name &&
-                                                                     tagsDetails[j].tag.fq_name.length === 1) {
-                                                                 actValue = tagsDetails[j].tag.fq_name[0];
-                                                             }
-                                                             else{
-                                                                 actValue =  tagsDetails[j].tag.fq_name[0] +
-                                                                 ":" + tagsDetails[j].tag.fq_name[1] +
-                                                                 ":" + tagsDetails[j].tag.fq_name[2];
-                                                             }
-                                                             if(viewConfig.isGlobal){
-                                                                 tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
-                                                                         tagsDetails[j].tag.name : '';
-                                                              }else{
-                                                                  tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
-                                                                          "global:" + tagsDetails[j].tag.name :
-                                                                              tagsDetails[j].tag.name;
-                                                              }
-                                                              if(tagName !== ''){
-                                                                  data = {
-                                                                          "text": tagName,
-                                                                          "id":actValue
-                                                                     };
-                                                                  if (tagsDetails[j].tag.tag_type_name === 'application') {
-                                                                      tagsArray.push(data);
-                                                                  }
-                                                              }
-                                                         }
-                                                       }
-                                                       return tagsArray;
-                                                   }
-                                               }
+                                               "Select Tags"
                                        }
                                    }
                                }
