@@ -210,6 +210,16 @@ function getConfigCreateEditCallbackByType (type, objType)
     return _.get(configCBCreateEdit, type + '.' + objType, null);
 }
 
+function buildConfigURLSuffix (startDone, url, urlSuffix)
+{
+    if (true == startDone) {
+        url += '&';
+    } else {
+        url += '?';
+    }
+    return url + urlSuffix;
+}
+
 function getConfigDetailsAsync (dataObj, callback)
 {
     var appData = dataObj['appData'];
@@ -219,94 +229,84 @@ function getConfigDetailsAsync (dataObj, callback)
         url += '?detail=true';
         startDone = true;
     }
-    if (null != dataObj['fields']) {
-        if (true == startDone) {
-            url += '&';
-        } else {
-            url += '?';
+    var fields = dataObj['fields'];
+    if (null != fields) {
+        if (fields instanceof Array) {
+            fields = fields.join(":");
         }
-        url += 'fields=' + dataObj['fields'];
+        url = buildConfigURLSuffix(startDone, url,
+                                   'fields=' + fields);
         startDone = true;
     }
-    if (null != dataObj['parent_id']) {
-        if (true == startDone) {
-            url += '&';
-        } else {
-            url += '?';
+    var parentIds = dataObj['parent_id'];
+    if (null != parentIds) {
+        if (parentIds instanceof Array) {
+            parentIds = parentIds.join(",");
         }
-        url += 'parent_id=' + dataObj['parent_id'];
+        url = buildConfigURLSuffix(startDone, url,
+                                   'parent_id=' + parentIds);
         startDone = true;
     } else {
         if ((null != dataObj['parent_fq_name_str']) &&
             (null != dataObj['parent_type'])) {
-            if (true == startDone) {
-                url += '&';
-            } else {
-                url += '?';
-            }
-            url += 'parent_fq_name_str=' + dataObj['parent_fq_name_str'] +
+            var urlSuffix = 'parent_fq_name_str=' + dataObj['parent_fq_name_str'] +
                 '&parent_type=' + dataObj['parent_type'];
+            buildConfigURLSuffix(startDone, url, urlSuffix);
             startDone = true;
         }
     }
-    if (null != dataObj['back_ref_id']) {
-        if (true == startDone) {
-            url += '&';
-        } else {
-            url += '?';
+    var backRefIds = dataObj['back_ref_id'];
+    if (null != backRefIds) {
+        if (backRefIds instanceof Array) {
+            backRefIds = backRefIds.join(",");
         }
-        url += 'back_ref_id=' + dataObj['back_ref_id'];
+        url = buildConfigURLSuffix(startDone, url,
+                                   'back_ref_id=' + backRefIds);
         startDone = true;
     }
-    if (null != dataObj['obj_uuids']) {
-        if (true == startDone) {
-            url += '&';
-        } else {
-            url += '?';
+    var objIds = dataObj['obj_uuids'];
+    if (null != objIds) {
+        if (objIds instanceof Array) {
+            objIds = objIds.join(",");
         }
-        url += 'obj_uuids=' + dataObj['obj_uuids'].join(',');
+        url = buildConfigURLSuffix(startDone, url,
+                                   'obj_uuids=' + objIds);
         startDone = true;
     }
-    if (null != dataObj['filters']) {
-        if (true == startDone) {
-            url += '&';
-        } else {
-            url += '?';
+    var filters = dataObj['filters'];
+    if (null != filters) {
+        if (filters instanceof Array) {
+            filters = filters.join(",");
         }
-        url += 'filters=' + dataObj['filters'];
+        url = buildConfigURLSuffix(startDone, url,
+                                   'filters=' + filters);
         startDone = true;
     }
     if (null != dataObj['fq_name']) {
-        var postData = {
-            'appData': appData,
-            'fqnReq' : {
-                'fq_name': dataObj['fq_name'].split(':'),
-                'type':
-                    dataObj['type'] != null ? dataObj['type'].slice(0, -1) : null}
-        };
-        getUUIDByFQN(postData, function(error, data) {
-            if ( null != error) {
-                var error = new appErrors.RESTServerError('Invalid fqn provided');
-                callback(error, null);
-                return;
-            }
-            var uuid = data.uuid;
-            if (true == startDone) {
-                url += '&';
-            } else {
-                url += '?';
-            }
-            url += 'obj_uuids=' + uuid;
-            configApiServer.apiGet(url, appData, function(err, data) {
-                callback(err, data);
-            });
-        });
-    } else {
-        configApiServer.apiGet(url, appData, function(err, data) {
-            callback(err, data);
-        });
+        url = buildConfigURLSuffix(startDone, url,
+                                   'fq_names=' + dataObj['fq_name']);
+        startDone = true;
     }
-
+    var fqNames = dataObj['fq_names'];
+    var fqNameList = [];
+    if (null != fqNames) {
+        if (fqNames instanceof Array) {
+            var len = fqNames.length;
+            for (var i = 0; i < len; i++) {
+                if (fqNames[i] instanceof Array) {
+                    fqNameList.push(fqNames[i].join(":"));
+                } else {
+                    fqNameList.push(fqNames[i]);
+                }
+            }
+        }
+        url = buildConfigURLSuffix(startDone, url,
+                                   'fq_names=' + fqNameList.join(","));
+        startDone = true;
+    }
+    configApiServer.apiGet(url, appData, function(err, data) {
+        callback(err, data);
+    });
 }
 
 function getConfigDetails (req, res, appData)
@@ -320,42 +320,18 @@ function getConfigDetails (req, res, appData)
 
 function getConfigAsync (postData, detail, appData, callback)
 {
-    var dataObjArr = [];
-    postData = postData['data'];
-    var reqCnt = postData.length;
-    for (var i = 0; i < reqCnt; i++) {
-        var fields = postData[i]['fields'];
-        dataObjArr[i] = {};
-        dataObjArr[i]['detail'] = detail;
-        dataObjArr[i]['type'] = postData[i]['type'];
-        dataObjArr[i]['appData'] = appData;
-        if ((null != fields) && (fields.length > 0)) {
-            dataObjArr[i]['fields'] = fields.join(',');
-        }
-        if (null != postData[i]['parent_id']) {
-            dataObjArr[i]['parent_id'] = postData[i]['parent_id'];
-        }
-        if (null != postData[i]['obj_uuids']) {
-            dataObjArr[i]['obj_uuids'] = postData[i]['obj_uuids'];
-        }
-        if ((null != postData[i]['parent_fq_name_str']) &&
-            (null != postData[i]['parent_type'])) {
-            dataObjArr[i]['parent_fq_name_str'] =
-                postData[i]['parent_fq_name_str'];
-            dataObjArr[i]['parent_type'] = postData[i]['parent_type'];
-        }
-        var backRefIds = postData[i]['back_ref_id'];
-        if ((null != backRefIds) && (backRefIds.length > 0)) {
-            dataObjArr[i]['back_ref_id'] = backRefIds.join(',');
-        }
-        if (null != postData[i]['fq_name']) {
-            dataObjArr[i]['fq_name'] = postData[i]['fq_name'];
-        }
-        if (null != postData[i]['filters']) {
-            dataObjArr[i]['filters'] = postData[i]['filters'];
-        }
+    var dataList = _.result(postData, "data", null);
+    if (null == dataList) {
+        var error = new appErrors.RESTServerError("Invalid data format");
+        callback(error, null);
+        return;
     }
-    async.map(dataObjArr, getConfigDetailsAsync, function(err, results) {
+    var reqCnt = dataList.length;
+    for (var i = 0; i < reqCnt; i++) {
+        dataList[i].appData = appData;
+        dataList[i].detail = detail;
+    }
+    async.map(dataList, getConfigDetailsAsync, function(err, results) {
         callback(err, results);
     });
 }
