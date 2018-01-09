@@ -40,6 +40,7 @@ define([
                 self.fetchAllData(self, options, function(allData){
                     self.renderView4Config($("#" + modalId).find('#aps-sub-container'), self.model,
                         getAddPolicyViewConfig(self, options['viewConfig'], allData, options),'policyValidation', null, null,function(){
+                            Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                             Knockback.applyBindings(self.model, document.getElementById('applicationpolicyset_add-new-firewall-policy'));
                             Knockback.applyBindings(self.model, document.getElementById('applicationpolicyset_rules'));
                             kbValidation.bind(self);
@@ -47,20 +48,20 @@ define([
                                 fwzUtils.viewAdressGroup();
                                 e.preventDefault();
                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                                self.renderObject(options, 'address_groups');
+                                self.renderObject(options, 'address_groups',self.model);
                                 return true;
                             }
                             function getServiceGroupClick(e){
                                 fwzUtils.viewServiceGroup();
                                 e.preventDefault();
                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                                self.renderObject(options, 'service_groups');
+                                self.renderObject(options, 'service_groups',self.model);
                             }
                             function visibleTagClick(e){
                                 fwzUtils.viewTags();
                                 e.preventDefault();
                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                                self.renderObject(options, 'tag');
+                                self.renderObject(options,'tag',self.model);
                             }
                             $("#view-address-group").on('click', function(e) {
                                 getAdressGroupClick(e);
@@ -101,7 +102,7 @@ define([
                     options['viewConfig'].isWizard = false;
                });
         },
-        renderObject: function(options, objName, self){
+        renderObject: function(options, objName, wizardModel){
             $('#aps-save-button').hide();
             var viewConfig = options['viewConfig'];
             if(objName === 'address_groups'){
@@ -112,7 +113,7 @@ define([
                 $('#aps-remove-icon').hide();
                 $('.modal-header-title').text("Review Address Groups");
                 $("#aps-gird-container").append($("<div id='addressgroup-wrapper'></div>"));
-                this.renderView4Config($('#addressgroup-wrapper'), null, getAddressGroup(viewConfig));
+                this.renderView4Config($('#addressgroup-wrapper'), null, getAddressGroup(viewConfig,wizardModel));
             }else if(objName === 'service_groups'){
                 $('#aps-overlay-container').show();
                 $('#helper').hide();
@@ -121,7 +122,7 @@ define([
                 $('#aps-remove-icon').hide();
                 $('.modal-header-title').text("Review Service Groups");
                 $("#aps-gird-container").append($("<div id='servicegroup-wrapper'></div>"));
-                this.renderView4Config($('#servicegroup-wrapper'), null, getServiceGroup(viewConfig));
+                this.renderView4Config($('#servicegroup-wrapper'), null, getServiceGroup(viewConfig,wizardModel));
             }else if(objName === 'tag'){
                 $('#aps-overlay-container').show();
                 $('#helper').hide();
@@ -135,7 +136,7 @@ define([
                     $('.modal-header-title').text("Review visible Tags");
                 }
                 $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
-                this.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
+                this.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig,wizardModel));
             }
          },
          fetchAllData : function(self, options, callback) {
@@ -763,7 +764,7 @@ define([
             };
         }
     }
-    function getTag(viewConfig){
+    function getTag(viewConfig,wizardModel){
         if(viewConfig.isGlobal) {
             return {
                 elementId:
@@ -771,7 +772,7 @@ define([
                 view: "tagGlobalListView",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix: "config/infra/tag/ui/js/views/",
-                viewConfig: $.extend(true, {}, viewConfig)
+                viewConfig: $.extend(viewConfig, {wizardModel: wizardModel})
             };
         } else {
             return {
@@ -781,7 +782,7 @@ define([
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewPathPrefix: "config/firewall/project/tag/ui/js/views/",
                 viewConfig: $.extend(true, {}, viewConfig,
-                                     {projectSelectedValueData: viewConfig.projectSelectedValueData})
+                                     {projectSelectedValueData: viewConfig.projectSelectedValueData, wizardModel: wizardModel})
             };
         }
     }

@@ -11,6 +11,7 @@ define([
     prefixId = ctwc.FIREWALL_APPLICATION_POLICY_PREFIX_ID,
     modalId = 'configure-' + prefixId,
     formId = '#' + modalId + '-form';
+    var flag = false;
     var fwApplicationPolicyEditView = ContrailView.extend({
         el: $(contentContainer),
         render: function(options) {
@@ -32,8 +33,72 @@ define([
             }
             deletedObj = [];
             var seletedRows = viewConfig.seletedRows;
+           //this.fetchAllData(self, options, function(allData){
+                var ajaxConfig = {};
+                var tagsArray = [];
+                ajaxConfig.type = "POST";
+                ajaxConfig.url = '/api/tenants/config/get-config-details';
+                ajaxConfig.data  = JSON.stringify(
+                        {data: [{type: 'tags'}]});
+                contrail.ajaxHandler(ajaxConfig, function () {
+                }, function (response) {
+                    for(var i=0; i<response.length; i++){
+                      tagsDetails = response[i].tags;
+                      for(var j= 0; j<tagsDetails.length; j++){
+                          var domain = contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME);
+                          var project = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
+                          if (tagsDetails[j]['tag'].fq_name.length > 1 &&
+                                  (domain != tagsDetails[j]['tag'].fq_name[0] ||
+                                  project != tagsDetails[j]['tag'].fq_name[1])) {
+                              continue;
+                          }
+                          if(tagsDetails[j].tag.fq_name &&
+                                  tagsDetails[j].tag.fq_name.length === 1) {
+                              actValue = tagsDetails[j].tag.fq_name[0];
+                          }
+                          else{
+                              actValue =  tagsDetails[j].tag.fq_name[0] +
+                              ":" + tagsDetails[j].tag.fq_name[1] +
+                              ":" + tagsDetails[j].tag.fq_name[2];
+                          }
+                          if(viewConfig.isGlobal){
+                              tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                      tagsDetails[j].tag.name : '';
+                           }else{
+                               tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                       "global:" + tagsDetails[j].tag.name :
+                                           tagsDetails[j].tag.name;
+                           }
+                           if(tagName !== ''){
+                               data = {
+                                       "text": tagName,
+                                       "id":actValue
+                                  };
+                               if (tagsDetails[j].tag.tag_type_name === 'application') {
+                                   tagsArray.push(data);
+                               }
+                           }
+                      }
+                    }
+                    self.model.dataSource(tagsArray);
+                    //console.log(self.$el);
+//                    self.renderView4Config(self.$el,
+//                            self.model,
+//                            getApplicationPolicyViewConfig(disable, viewConfig, seletedRows, slecectedPolicyList, apsName),
+//                            "applicationPolicyValidation",
+//                            null, null, function() {
+//                            //Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+//                            Knockback.applyBindings(self.model, document.getElementById('new-application-policy-set-section'));
+//                            kbValidation.bind(self);
+//                    },null,false);
+//                    //return tagsArray;
+//                }, function (error) {
+//                   console.log(error);
+               //});
+        });
+            console.log(self.model);
             self.renderView4Config(self.$el,
-                    this.model,
+                    self.model,
                     getApplicationPolicyViewConfig(disable, viewConfig, seletedRows, slecectedPolicyList, apsName),
                     "applicationPolicyValidation",
                     null, null, function() {
@@ -41,7 +106,6 @@ define([
                     kbValidation.bind(self);
             },null,false);
         },
- 
         setErrorContainer : function(headerText){
             $('#aps-gird-container').append($('<h6></h6>').text(headerText).addClass('aps-details-header'));
             var errorHolder = $('<div></div>').addClass('alert-error clearfix aps-details-error-container');
@@ -137,59 +201,60 @@ define([
                                        path: 'Application',
                                        dataBindValue: 'Application',
                                        class: 'col-xs-6',
+                                       dataBindOptionList : "dataSource",
                                        elementConfig: {
                                            dataTextField: "text",
                                            dataValueField: "id",
                                            placeholder:
-                                               "Select Tags",
-                                               dataSource : {
-                                                   type: 'remote',
-                                                   requestType: 'post',
-                                                   postData: JSON.stringify(
-                                                         {data: [{type: 'tags'}]}),
-                                                   url:'/api/tenants/config/get-config-details',
-                                                   parse: function(result) {
-                                                       for(var i=0; i<result.length; i++){
-                                                         tagsDetails = result[i].tags;
-                                                         for(var j= 0; j<tagsDetails.length; j++){
-                                                             var domain = contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME);
-                                                             var project = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
-                                                             if (tagsDetails[j]['tag'].fq_name.length > 1 &&
-                                                                     (domain != tagsDetails[j]['tag'].fq_name[0] ||
-                                                                     project != tagsDetails[j]['tag'].fq_name[1])) {
-                                                                 continue;
-                                                             }
-                                                             if(tagsDetails[j].tag.fq_name &&
-                                                                     tagsDetails[j].tag.fq_name.length === 1) {
-                                                                 actValue = tagsDetails[j].tag.fq_name[0];
-                                                             }
-                                                             else{
-                                                                 actValue =  tagsDetails[j].tag.fq_name[0] +
-                                                                 ":" + tagsDetails[j].tag.fq_name[1] +
-                                                                 ":" + tagsDetails[j].tag.fq_name[2];
-                                                             }
-                                                             if(viewConfig.isGlobal){
-                                                                 tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
-                                                                         tagsDetails[j].tag.name : '';
-                                                              }else{
-                                                                  tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
-                                                                          "global:" + tagsDetails[j].tag.name :
-                                                                              tagsDetails[j].tag.name;
-                                                              }
-                                                              if(tagName !== ''){
-                                                                  data = {
-                                                                          "text": tagName,
-                                                                          "id":actValue
-                                                                     };
-                                                                  if (tagsDetails[j].tag.tag_type_name === 'application') {
-                                                                      tagsArray.push(data);
-                                                                  }
-                                                              }
-                                                         }
-                                                       }
-                                                       return tagsArray;
-                                                   }
-                                               }
+                                               "Select Tags"
+//                                               dataSource : {
+//                                                   type: 'remote',
+//                                                   requestType: 'post',
+//                                                   postData: JSON.stringify(
+//                                                         {data: [{type: 'tags'}]}),
+//                                                   url:'/api/tenants/config/get-config-details',
+//                                                   parse: function(result) {
+//                                                       for(var i=0; i<result.length; i++){
+//                                                         tagsDetails = result[i].tags;
+//                                                         for(var j= 0; j<tagsDetails.length; j++){
+//                                                             var domain = contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME);
+//                                                             var project = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
+//                                                             if (tagsDetails[j]['tag'].fq_name.length > 1 &&
+//                                                                     (domain != tagsDetails[j]['tag'].fq_name[0] ||
+//                                                                     project != tagsDetails[j]['tag'].fq_name[1])) {
+//                                                                 continue;
+//                                                             }
+//                                                             if(tagsDetails[j].tag.fq_name &&
+//                                                                     tagsDetails[j].tag.fq_name.length === 1) {
+//                                                                 actValue = tagsDetails[j].tag.fq_name[0];
+//                                                             }
+//                                                             else{
+//                                                                 actValue =  tagsDetails[j].tag.fq_name[0] +
+//                                                                 ":" + tagsDetails[j].tag.fq_name[1] +
+//                                                                 ":" + tagsDetails[j].tag.fq_name[2];
+//                                                             }
+//                                                             if(viewConfig.isGlobal){
+//                                                                 tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
+//                                                                         tagsDetails[j].tag.name : '';
+//                                                              }else{
+//                                                                  tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
+//                                                                          "global:" + tagsDetails[j].tag.name :
+//                                                                              tagsDetails[j].tag.name;
+//                                                              }
+//                                                              if(tagName !== ''){
+//                                                                  data = {
+//                                                                          "text": tagName,
+//                                                                          "id":actValue
+//                                                                     };
+//                                                                  if (tagsDetails[j].tag.tag_type_name === 'application') {
+//                                                                      tagsArray.push(data);
+//                                                                  }
+//                                                              }
+//                                                         }
+//                                                       }
+//                                                       return tagsArray;
+//                                                   }
+//                                               }
                                        }
                                    }
                                }

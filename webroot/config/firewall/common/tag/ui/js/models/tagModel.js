@@ -3,8 +3,8 @@
  */
 
 define([
-    'underscore',
-    'contrail-model'
+    'lodash',
+    'contrail-model',
 ], function (_, ContrailModel) {
     var tagModel = ContrailModel.extend({
         defaultConfig: {
@@ -63,6 +63,8 @@ define([
         addEditTag: function (callbackObj, options) {
             var ajaxConfig = {}, returnFlag = true,updatedVal = {};
             var self = this;
+            var upDateApplicationTags = [];
+            var wizardModel;
             var validations = [
                 {
                     key : null,
@@ -117,6 +119,11 @@ define([
 	                        callbackObj.init();
 	                    }
 	                }, function (response) {
+	                    console.log("response",response);
+	                    wizardModel = _.get(options.viewConfig, 'wizardModel', null);
+	                    if(wizardModel){
+	                        wizardModel.dataSource().push({text:response.configData.tag.name,id:response.configData.tag.name});
+	                    }
 	                    if (contrail.checkIfFunction(callbackObj.success)) {
 	                        callbackObj.success();
 	                    }

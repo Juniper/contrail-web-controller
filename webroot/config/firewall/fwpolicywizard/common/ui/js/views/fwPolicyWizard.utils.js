@@ -207,6 +207,7 @@ define([
                                             path: 'endpoint_1',
                                             dataBindValue: 'endpoint_1()',
                                             disabled: "disabled()",
+                                            //dataBindOptionList : "dataSourceAllData()",
                                             elementConfig: {
                                                 placeholder: 'Select Endpoint',
                                                 minimumResultsForSearch : 1,
