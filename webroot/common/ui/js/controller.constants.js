@@ -1022,6 +1022,7 @@ define([
                                 {text:'Deployment', value: 'deployment'},
                                 {text: 'Site', value: 'site'},
                                 {text: 'Label', value: 'label'}];
+        this.RULE_MATCH_TAGS_APPLICATION = [{text: "Application", value: "application"}];
         this.FW_PREDEFINED_TAGS = ['application', 'site', 'deployment', 'tier', 'label'];
         ///Application Policy Set
         this.APPLICATION_POLICY_SET_LIST_VIEW_ID = "application-policy-set-list-view";

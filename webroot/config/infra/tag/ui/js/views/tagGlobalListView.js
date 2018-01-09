@@ -72,6 +72,7 @@ define([
                                             pageSizeSelect: [10, 50, 100]
                                         }
                                     },
+                                    wizardModel:viewConfig.wizardModel,
                                     isGlobal: true,
                                     isWizard: viewConfig ? viewConfig.isWizard : false,
                                     wizardMode:viewConfig.wizardMode

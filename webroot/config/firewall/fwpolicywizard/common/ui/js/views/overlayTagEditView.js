@@ -10,11 +10,21 @@ define([
     var overlayTagEditView = ContrailView.extend({
         renderTag: function(options) {
             var self = this;
+            var dataTags;
             var mode = options.mode, headerText;
             if(mode === 'add'){
                 headerText = 'Create Tag';
             }else{
                 headerText = 'Delete Tag';
+            }
+            if(options.tagCreate === 'create-tag-endpoints'){
+                dataTags = ctwc.RULE_MATCH_TAGS;
+            }
+            else if(options.tagCreate === 'create-tag'){
+                dataTags = ctwc.RULE_MATCH_TAGS_APPLICATION;
+            }
+            else if(options.tagCreate === undefined){
+                dataTags = ctwc.RULE_MATCH_TAGS;
             }
             var viewConfig = options.viewConfig;
             $('#aps-overlay-container').show();
@@ -23,31 +33,49 @@ define([
             self.setErrorContainer(headerText);
             self.renderView4Config($('#gird-details-container'),
                     this.model,
-                    getTagViewConfig(),
+                    getTagViewConfig(dataTags),
                     "tagValidation",
                     null, null, function() {
                          $("#aps-back-button").off('click').on('click', function(){
-                             $('#aps-save-button').hide();
-                             $('#aps-overlay-container').show();
-                             $("#overlay-background-id").removeClass("overlay-background");
-                             Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                             $("#aps-gird-container").empty();
-                             $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
-                             self.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
+                             if(options.createTag === true){
+                                 $('#aps-overlay-container').hide();
+                                 $("#overlay-background-id").removeClass("overlay-background");
+                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                                 $("#aps-gird-container").empty();
+                                 $('#helper').show();
+                             }
+                             else{
+                                 $('#aps-save-button').hide();
+                                 $('#aps-overlay-container').show();
+                                 $("#overlay-background-id").removeClass("overlay-background");
+                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                                 $("#aps-gird-container").empty();
+                                 $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
+                                 self.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
+                             }
                          });
                          $("#aps-save-button").off('click').on('click', function(){
                              self.model.addEditTag({
                                  success: function () {
-                                     $('#aps-save-button').hide();
-                                     $('#aps-overlay-container').show();
-                                     Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                                     $("#aps-gird-container").empty();
-                                     $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
-                                     self.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
-                                     if($('#security-policy-tag-grid').data("contrailGrid") !== undefined){
-                                         $('#security-policy-tag-grid').data("contrailGrid")._dataView.refreshData();
+                                     if(options.createTag === true){
+                                         $('#aps-overlay-container').hide();
+                                         $("#overlay-background-id").removeClass("overlay-background");
+                                         Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                                         $("#aps-gird-contaainer").empty();
+                                         $('#helper').show();
                                      }
-                                     $("#overlay-background-id").removeClass("overlay-background");
+                                     else{
+                                         $('#aps-save-button').hide();
+                                         $('#aps-overlay-container').show();
+                                         Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                                         $("#aps-gird-container").empty();
+                                         $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
+                                         self.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
+                                         if($('#security-policy-tag-grid').data("contrailGrid") !== undefined){
+                                             $('#security-policy-tag-grid').data("contrailGrid")._dataView.refreshData();
+                                         }
+                                         $("#overlay-background-id").removeClass("overlay-background");
+                                     }
                                  },
                                  error: function (error) {
                                      $("#grid-details-error-container").text('');
@@ -94,7 +122,7 @@ define([
              };
         }
     };
-    var getTagViewConfig = function () {
+    var getTagViewConfig = function (dataTags) {
         return {
             elementId: ctwc.SEC_POLICY_TAG_PREFIX_ID,
             view: 'SectionView',
@@ -117,7 +145,7 @@ define([
                                         dataValueField: 'value',
                                         dataSource : {
                                             type: 'local',
-                                            data:ctwc.RULE_MATCH_TAGS
+                                            data:dataTags
                                         }
                                     }
                                 }

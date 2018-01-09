@@ -3,7 +3,7 @@
  */
 
 define([
-    'underscore',
+    'lodash',
     'contrail-view',
     'knockback'
 ], function (_, ContrailView, Knockback) {
@@ -15,7 +15,7 @@ define([
             var viewConfig = options.viewConfig.viewConfig;
             var policyGridId = options.gridElId;
             var applicationObj = options.applicationObj;
-            var previousRows = options.previousRows;
+            var previousRows = _.get(options, 'previousRows', []);
             var mode = options.mode;
             if(viewConfig.projectSelectedValueData !== undefined){
                 projectSelected = viewConfig.projectSelectedValueData.name;
@@ -24,11 +24,13 @@ define([
             $('#aps-overlay-container').show();
             $("#aps-gird-container").empty();
             $('#aps-save-button').show();
+            $('#helper').hide();
             self.setErrorContainer(headerText);
             $("#aps-back-button").text('Cancel');
             $("#aps-save-button").text('Add Selected');
             $("#aps-back-button").off('click').on('click', function(){
                 $('#aps-save-button').text('Save');
+                $('#helper').show();
                 seletedInventoryList = getSelectedRows(previousRows, []);
                 if(seletedInventoryList.length === 0){
                     seletedInventoryList.push('cancel');
@@ -41,8 +43,11 @@ define([
             });
             $("#aps-save-button").off('click').on('click', function(){
                 $('#aps-save-button').text('Save');
+                $('#helper').show();
                 seletedInventoryList = getSelectedRows($('#inventory-policy-grid').data("contrailGrid").getCheckedRows(), previousRows);
-                $(policyGridId).data("contrailGrid")._dataView.refreshData();
+                if($(policyGridId).data("contrailGrid") !== undefined){
+                    $(policyGridId).data("contrailGrid")._dataView.refreshData();
+                }
                 $('#aps-overlay-container').hide();
                 $("#overlay-background-id").removeClass("overlay-background");
                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
@@ -52,10 +57,8 @@ define([
                     getInventoryPolicyViewConfig(previousRows, viewConfig, projectSelected),
                     '',null, null, function() {
             },null,false);
-           
         },
         setErrorContainer : function(headerText){
-            $('#aps-gird-container').append($('<h6></h6>').text(headerText).addClass('aps-details-header'));
             var errorHolder = $('<div></div>').addClass('alert-error clearfix aps-details-error-container');
             var errorSpan = $('<span>Error : </span>').addClass('error-font-weight');
             var errorText = $('<span id="grid-details-error-container"></span>');

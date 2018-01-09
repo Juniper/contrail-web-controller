@@ -647,6 +647,25 @@ form h5.margin-0-0-10~.section-content {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.form-group label[for=Application_dropdown] {
+    width: auto;
+}
+.form-group label ~span.fa-plus {
+    color:#3182bd;
+}
+.form-group label~span.fa-plus:hover {
+    cursor: pointer;
+}
+#firewall_rules table tr th span:nth-child(2){
+    display:none;
+}
+.plus-button, .plus-button-endpoints {
+    border: #dadada solid 1px;
+    padding: 2px 3px;
+    margin: 2px 3px;
+    font-size: 10px;
+    vertical-align: top;
+}
 #security_share_accordion h3{
     margin-left:20px;
     color:#3182bd;
