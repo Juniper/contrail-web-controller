@@ -7,7 +7,7 @@
  *     - Handlers for Floating IP Configuration
  *     - Interfaces with config api server
  */
-
+var _ = require('lodash');
 var rest         = require(process.mainModule.exports["corePath"] +
                            '/src/serverroot/common/rest.api');
 var async        = require('async');
@@ -148,15 +148,15 @@ function getFipsForProjectCb (results, response, appData)
             }
             var instIpsDataCnt = instIpsData.length;
             for (var i = 0; i < instIpsDataCnt; i++) {
-                try {
-                    var vmiUUID =
-                        instIpsData[i]['instance-ip']['virtual_machine_interface_refs'][0]['uuid'];
-                    if (null == instIPObjs[vmiUUID]) {
-                        instIPObjs[vmiUUID] = [];
-                    }
-                    instIPObjs[vmiUUID].push(instIpsData[i]['instance-ip']);
-                } catch(e) {
-                }
+            		var ipVMIRefs = _.result(instIpsData, i + ".instance-ip.virtual_machine_interface_refs", []);
+            		var ipVMIRefsCnt = ipVMIRefs.length;
+            		for( var vCnt=0; vCnt < ipVMIRefsCnt; vCnt++){
+            			var vmiUUID = _.result(instIpsData, i +".instance-ip.virtual_machine_interface_refs."+vCnt+".uuid", null);
+            			if (null == instIPObjs[vmiUUID]) {
+            				instIPObjs[vmiUUID] = [];
+            			}
+            			instIPObjs[vmiUUID].push(instIpsData[i]['instance-ip']);
+            		}
             }
             for (var i = 0; i < fipBackRefsCnt; i++) {
                 var vmiRefsCnt = 0;
