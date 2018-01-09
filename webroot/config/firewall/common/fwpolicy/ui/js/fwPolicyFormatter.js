@@ -110,6 +110,46 @@
              	}
              };
              
+             this.filterApplicationTagList = function(tagsDetails, global){
+                 var tagsArray = [];
+                 for(var j= 0; j < tagsDetails.length; j++){
+                     var domain = contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME);
+                     var project = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
+                     if (tagsDetails[j]['tag'].fq_name.length > 1 &&
+                             (domain != tagsDetails[j]['tag'].fq_name[0] ||
+                             project != tagsDetails[j]['tag'].fq_name[1])) {
+                         continue;
+                     }
+                     if(tagsDetails[j].tag.fq_name &&
+                             tagsDetails[j].tag.fq_name.length === 1) {
+                         actValue = tagsDetails[j].tag.fq_name[0];
+                     }
+                     else{
+                         actValue =  tagsDetails[j].tag.fq_name[0] +
+                         ":" + tagsDetails[j].tag.fq_name[1] +
+                         ":" + tagsDetails[j].tag.fq_name[2];
+                     }
+                     if(global){
+                         tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                 tagsDetails[j].tag.name : '';
+                      }else{
+                          tagName = (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                  "global:" + tagsDetails[j].tag.name :
+                                      tagsDetails[j].tag.name;
+                      }
+                      if(tagName !== ''){
+                          data = {
+                                  "text": tagName,
+                                  "id":actValue
+                             };
+                          if (tagsDetails[j].tag.tag_type_name === 'application') {
+                              tagsArray.push(data);
+                          }
+                      }
+                 }
+                 return tagsArray;
+              };
+              
              this.filterAddressGroupByProjects = function(addressGroup, global){
             	 var filtedGlobalAddressGrp = [], filteredProjectAddressGrp = [], isGlobal;
             	 if(global !== undefined){

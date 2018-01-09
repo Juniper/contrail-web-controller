@@ -301,6 +301,9 @@ define([
             emptyText = 'No Associated Firewall Policies';
             gridTitle = ctwl.TITLE_ASSOCIATED_POLICY;
         }
+        else if(viewConfig.viewConfig.isInventory === true){
+            gridTitle = "Add firewall policy from inventory";
+        }
         else{
             gridTitle = "";
         }
