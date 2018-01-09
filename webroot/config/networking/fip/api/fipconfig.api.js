@@ -149,12 +149,16 @@ function getFipsForProjectCb (results, response, appData)
             var instIpsDataCnt = instIpsData.length;
             for (var i = 0; i < instIpsDataCnt; i++) {
                 try {
-                    var vmiUUID =
-                        instIpsData[i]['instance-ip']['virtual_machine_interface_refs'][0]['uuid'];
-                    if (null == instIPObjs[vmiUUID]) {
-                        instIPObjs[vmiUUID] = [];
-                    }
-                    instIPObjs[vmiUUID].push(instIpsData[i]['instance-ip']);
+                		var ipVMIRefs = instIpsData[i]['instance-ip']['virtual_machine_interface_refs'];
+                		var ipVMIRefsCnt = ipVMIRefs.length;
+                		for( var vCnt=0; vCnt < ipVMIRefsCnt; vCnt++){
+                			var vmiUUID =
+                				instIpsData[i]['instance-ip']['virtual_machine_interface_refs'][vCnt]['uuid'];
+                			if (null == instIPObjs[vmiUUID]) {
+                				instIPObjs[vmiUUID] = [];
+                			}
+                			instIPObjs[vmiUUID].push(instIpsData[i]['instance-ip']);
+                		}
                 } catch(e) {
                 }
             }
