@@ -35,7 +35,6 @@ define([
                              $("#overlay-background-id").removeClass("overlay-background");
                              Knockback.ko.cleanNode($("#aps-gird-container")[0]);
                              $("#aps-gird-container").empty();
-                             $("#aps-gird-container").append($("<div id='addressgroup-wrapper'></div>"));
                              self.renderView4Config($('#addressgroup-wrapper'), null, getAddressGroup(viewConfig));
                          });
                          $("#aps-save-button").off('click').on('click', function(){

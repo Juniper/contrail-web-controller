@@ -15,6 +15,7 @@ define([
         overlayAddressGroupEditView = new OverlayAddressGroupEditView(),
         gridElId = "#" + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID;
     var fwzUtils = new FWZUtils();
+    var filteredRowActionConfig = [];
 
     var addressGroupGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -120,6 +121,7 @@ define([
         return gridElementConfig;
     };
     function getRowActionConfig(viewConfig) {
+        filteredRowActionConfig = [];
         if(cowu.isAdmin() === false && viewConfig['is_global'] === true){
             return false;
         }
@@ -137,7 +139,8 @@ define([
                                                 'viewConfig': viewConfig,
                                                 'isGlobal': viewConfig.isGlobal
                         });
-                    }else{
+                    }
+                    if(viewConfig.isWizard === false){
                         dataView = $('#security-policy-address-grp-grid_standalone').data("contrailGrid")._dataView;
                         addressGroupEditView.model = new AddressGroupModel(dataView.getItem(rowIndex));
                         addressGroupEditView.renderAddEditAddressGroup({
@@ -202,14 +205,20 @@ define([
                    }
                 })
             ];
-            return rowActionConfig;
+            if(viewConfig.isWizard){
+                filteredRowActionConfig.push(rowActionConfig[1]); 
+            }
+            else{
+                filteredRowActionConfig = rowActionConfig;
+            }
+            return filteredRowActionConfig;
         }
     }
     function getHeaderActionConfig(viewConfig) {
         if(cowu.isAdmin() === false && viewConfig.isGlobal === true){
             return false;
         }
-        else{
+        else if(viewConfig.isWizard === undefined || viewConfig.isWizard === false){
             var headerActionConfig = [
                 {
                     "type" : "link",
@@ -217,49 +226,49 @@ define([
                     "iconClass": 'fa fa-trash',
                     "linkElementId": 'btnDeleteAddressGrp',
                     "onClick" : function() {
-                        if(viewConfig.isWizard){
-                            fwzUtils.appendDeleteContainer($('#btnDeleteAddressGrp')[0], 'security-policy-address-group_fw_wizard');
-                            $(".cancelWizardDeletePopup").off('click').on('click', function(e){
-                                if($('.confirmation-popover').length != 0){
-                                    $('.confirmation-popover').remove();
-                                    $('#overlay-background-id').removeClass('overlay-background');
-                                }
-                            });
-                            $(".saveWizardRecords").off('click').on('click', function(){
-                                var checkedRows = $('#security-policy-address-grp-grid_fw_wizard').data('contrailGrid').getCheckedRows();
-                                if(checkedRows && checkedRows.length > 0) {
-                                    var model = new AddressGroupModel();
-                                    model.deleteAddressGroup(checkedRows, {
-                                        success: function () {
-                                            if($('#security-policy-address-grp-grid_standalone').data("contrailGrid") !== undefined){
-                                                $('#security-policy-address-grp-grid_standalone').data('contrailGrid')._dataView.refreshData();
-                                           }
-                                            if($('#security-policy-address-grp-grid_fw_wizard').data("contrailGrid") !== undefined){
-                                                $('#security-policy-address-grp-grid_fw_wizard').data('contrailGrid')._dataView.refreshData();
-                                           }
-                                            if($("#fw-wizard-details-error-container")){
-                                                $("#fw-wizard-details-error-container").remove();
-                                            }
-                                            if($('.confirmation-popover').length != 0){
-                                                $('.confirmation-popover').remove();
-                                                $('#overlay-background-id').removeClass('overlay-background');
-                                            }
-                                        },
-                                        error: function (error) {
-                                            $("#security-policy-address-grp-grid_fw_wizard .grid-header").append("<div id='fw-wizard-details-error-container'></div>");
-                                            $("#fw-wizard-details-error-container").text('');
-                                            $("#fw-wizard-details-error-container").text(error.responseText);
-                                            $("#fw-wizard-details-error-container").addClass('alert-error');
-                                            if($('.confirmation-popover').length != 0){
-                                                $('.confirmation-popover').remove();
-                                                $('#overlay-background-id').removeClass('overlay-background');
-                                            }
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                        else{
+//                        if(viewConfig.isWizard){
+//                            fwzUtils.appendDeleteContainer($('#btnDeleteAddressGrp')[0], 'security-policy-address-group_fw_wizard');
+//                            $(".cancelWizardDeletePopup").off('click').on('click', function(e){
+//                                if($('.confirmation-popover').length != 0){
+//                                    $('.confirmation-popover').remove();
+//                                    $('#overlay-background-id').removeClass('overlay-background');
+//                                }
+//                            });
+//                            $(".saveWizardRecords").off('click').on('click', function(){
+//                                var checkedRows = $('#security-policy-address-grp-grid_fw_wizard').data('contrailGrid').getCheckedRows();
+//                                if(checkedRows && checkedRows.length > 0) {
+//                                    var model = new AddressGroupModel();
+//                                    model.deleteAddressGroup(checkedRows, {
+//                                        success: function () {
+//                                            if($('#security-policy-address-grp-grid_standalone').data("contrailGrid") !== undefined){
+//                                                $('#security-policy-address-grp-grid_standalone').data('contrailGrid')._dataView.refreshData();
+//                                           }
+//                                            if($('#security-policy-address-grp-grid_fw_wizard').data("contrailGrid") !== undefined){
+//                                                $('#security-policy-address-grp-grid_fw_wizard').data('contrailGrid')._dataView.refreshData();
+//                                           }
+//                                            if($("#fw-wizard-details-error-container")){
+//                                                $("#fw-wizard-details-error-container").remove();
+//                                            }
+//                                            if($('.confirmation-popover').length != 0){
+//                                                $('.confirmation-popover').remove();
+//                                                $('#overlay-background-id').removeClass('overlay-background');
+//                                            }
+//                                        },
+//                                        error: function (error) {
+//                                            $("#security-policy-address-grp-grid_fw_wizard .grid-header").append("<div id='fw-wizard-details-error-container'></div>");
+//                                            $("#fw-wizard-details-error-container").text('');
+//                                            $("#fw-wizard-details-error-container").text(error.responseText);
+//                                            $("#fw-wizard-details-error-container").addClass('alert-error');
+//                                            if($('.confirmation-popover').length != 0){
+//                                                $('.confirmation-popover').remove();
+//                                                $('#overlay-background-id').removeClass('overlay-background');
+//                                            }
+//                                        }
+//                                    });
+//                                }
+//                            });
+//                        }
+                       // if(viewConfig.isWizard === false){
                             var addressGroupModel = new AddressGroupModel();
                             var checkedRows = $('#security-policy-address-grp-grid_standalone').data("contrailGrid").getCheckedRows();
                             if(checkedRows && checkedRows.length > 0) {
@@ -276,9 +285,8 @@ define([
                                         }
                                     );
                             }
-                        }
+                        //}
                     }
-
                 },
                 {
                     "type": "link",

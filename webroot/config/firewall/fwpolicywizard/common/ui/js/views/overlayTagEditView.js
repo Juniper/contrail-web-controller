@@ -27,27 +27,45 @@ define([
                     "tagValidation",
                     null, null, function() {
                          $("#aps-back-button").off('click').on('click', function(){
-                             $('#aps-save-button').hide();
-                             $('#aps-overlay-container').show();
-                             $("#overlay-background-id").removeClass("overlay-background");
-                             Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                             $("#aps-gird-container").empty();
-                             $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
-                             self.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
+                             if(options.createTag === true){
+                                 $('#aps-overlay-container').hide();
+                                 $("#overlay-background-id").removeClass("overlay-background");
+                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                                 $("#aps-gird-container").empty();
+                                 $('#helper').show();
+                             }
+                             else{
+                                 $('#aps-save-button').hide();
+                                 $('#aps-overlay-container').show();
+                                 $("#overlay-background-id").removeClass("overlay-background");
+                                 Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                                 $("#aps-gird-container").empty();
+                                 $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
+                                 self.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
+                             }
                          });
                          $("#aps-save-button").off('click').on('click', function(){
                              self.model.addEditTag({
                                  success: function () {
-                                     $('#aps-save-button').hide();
-                                     $('#aps-overlay-container').show();
-                                     Knockback.ko.cleanNode($("#aps-gird-container")[0]);
-                                     $("#aps-gird-container").empty();
-                                     $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
-                                     self.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
-                                     if($('#security-policy-tag-grid').data("contrailGrid") !== undefined){
-                                         $('#security-policy-tag-grid').data("contrailGrid")._dataView.refreshData();
+                                     if(options.createTag === true){
+                                         $('#aps-overlay-container').hide();
+                                         $("#overlay-background-id").removeClass("overlay-background");
+                                         Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                                         $("#aps-gird-contaainer").empty();
+                                         $('#helper').show();
                                      }
-                                     $("#overlay-background-id").removeClass("overlay-background");
+                                     else{
+                                         $('#aps-save-button').hide();
+                                         $('#aps-overlay-container').show();
+                                         Knockback.ko.cleanNode($("#aps-gird-container")[0]);
+                                         $("#aps-gird-container").empty();
+                                         $("#aps-gird-container").append($("<div id='tag-wrapper'></div>"));
+                                         self.renderView4Config($('#tag-wrapper'), null, getTag(viewConfig));
+                                         if($('#security-policy-tag-grid').data("contrailGrid") !== undefined){
+                                             $('#security-policy-tag-grid').data("contrailGrid")._dataView.refreshData();
+                                         }
+                                         $("#overlay-background-id").removeClass("overlay-background");
+                                     }
                                  },
                                  error: function (error) {
                                      $("#grid-details-error-container").text('');

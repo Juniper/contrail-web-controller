@@ -3,7 +3,7 @@
  */
 
 define([
-    'underscore',
+    'lodash',
     'contrail-view',
     'knockback'
 ], function (_, ContrailView, Knockback) {
@@ -15,7 +15,7 @@ define([
             var viewConfig = options.viewConfig.viewConfig;
             var policyGridId = options.gridElId;
             var applicationObj = options.applicationObj;
-            var previousRows = options.previousRows;
+            var previousRows = _.get(options, 'previousRows', []);
             var mode = options.mode;
             if(viewConfig.projectSelectedValueData !== undefined){
                 projectSelected = viewConfig.projectSelectedValueData.name;
@@ -24,6 +24,7 @@ define([
             $('#aps-overlay-container').show();
             $("#aps-gird-container").empty();
             $('#aps-save-button').show();
+            $('#helper').hide();
             self.setErrorContainer(headerText);
             $("#aps-back-button").text('Cancel');
             $("#aps-save-button").text('Add Selected');
@@ -52,10 +53,8 @@ define([
                     getInventoryPolicyViewConfig(previousRows, viewConfig, projectSelected),
                     '',null, null, function() {
             },null,false);
-           
         },
         setErrorContainer : function(headerText){
-            $('#aps-gird-container').append($('<h6></h6>').text(headerText).addClass('aps-details-header'));
             var errorHolder = $('<div></div>').addClass('alert-error clearfix aps-details-error-container');
             var errorSpan = $('<span>Error : </span>').addClass('error-font-weight');
             var errorText = $('<span id="grid-details-error-container"></span>');
