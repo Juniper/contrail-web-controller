@@ -34,6 +34,37 @@
            };
 
            /*
+            * Wizard Rule List squenceFormatter
+            */
+            this.ruleListSequenceFormatter = function(r, c, v, cd, dc) {
+                var sequence = '', policies = getValueByJsonPath(dc,
+                    "firewall_policy_back_refs", [], false);
+                for(var i = 0; i < policies.length; i++) {
+                    for(var j = 0; j < policyUuidList.length; j++){
+                        if(policies[i].uuid === policyUuidList[j]) {
+                            sequence = getValueByJsonPath(policies[i],
+                                    'attr;sequence', '', false);
+                            break;
+                        }
+                    }
+                }
+                return sequence ? sequence : (cd ? '-' : '');
+            };
+
+            /*
+             * Member Of Firewall Policy
+             */
+             this.fwPolicyMemberFormatter = function(r, c, v, cd, dc) {
+                 var policyName, policies = getValueByJsonPath(dc,
+                     "firewall_policy_back_refs", [], false);
+                 for(var i = 0; i < policies.length; i++) {
+                     var to = policies[i].to;
+                     var policyName = to[to.length - 1];
+                 }
+                 return policyName;
+             };
+
+           /*
             * enabledFormatter
             */
             this.enabledFormatter = function(r, c, v, cd, dc) {
@@ -195,4 +226,3 @@
      };
      return fwRuleFormatter
  });
-

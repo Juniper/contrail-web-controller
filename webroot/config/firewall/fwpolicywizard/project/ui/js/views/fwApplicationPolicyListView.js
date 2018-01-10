@@ -19,8 +19,9 @@ define([
             self.mode = viewConfig.mode;
             self.selectedRows = [], self.oldRecords =[];
             deletedObj = [];
-            self.policyGridList = {};
-            self.policyGridList.list = [];
+            seletedInventoryList = [];
+            policyGridList = {};
+            policyGridList.list = [];
             self.apsName = viewConfig.apsName;
             self.selectedPolicy = viewConfig.policyList;
             self.oldRecords = viewConfig.oldRecords;
@@ -48,7 +49,7 @@ define([
             };
             contrailListModel = new ContrailListModel(listModelConfig);
             self.renderView4Config(self.$el,
-                    contrailListModel, self.getFWPolicyGlobalGridViewConfig(viewConfig, self.policyGridList));
+                    contrailListModel, self.getFWPolicyGlobalGridViewConfig(viewConfig));
         },
 
         parseFWPolicyData: function(result) {
@@ -69,7 +70,7 @@ define([
                         }
                     });
                     updatedGridList = [];
-                    self.policyGridList.list = self.getFqNameList(policyList);
+                    policyGridList.list = self.getFqNameList(policyList);
                     return policyList;
                 }else if(self.selectedPolicy !== undefined){
                     if(deletedObj.length > 0){
@@ -81,14 +82,14 @@ define([
                             }
                         });
                         updatedGridList = [];
-                        self.policyGridList.list = self.getFqNameList(updatedList);
+                        policyGridList.list = self.getFqNameList(updatedList);
                         return updatedList;
                     }else{
-                        self.policyGridList.list = self.getFqNameList(self.selectedPolicy);
+                        policyGridList.list = self.getFqNameList(self.selectedPolicy);
                         return self.selectedPolicy;
                     }
                 }else{
-                    self.policyGridList.list = [];
+                    policyGridList.list = [];
                     return [];
                 }
             } else if(self.mode === 'edit'){
@@ -101,10 +102,10 @@ define([
                             }
                         });
                         updatedGridList = [];
-                        self.policyGridList.list = self.getFqNameList(updatedList);
+                        policyGridList.list = self.getFqNameList(updatedList);
                         return updatedList;
                      }else{
-                         self.policyGridList.list = self.getFqNameList(self.selectedRows);
+                        policyGridList.list = self.getFqNameList(self.selectedRows);
                         return self.selectedRows;
                      }
                 } else if(self.selectedPolicy !== undefined){
@@ -127,7 +128,27 @@ define([
                     }
                 }
             } else {
-                if(self.oldRecords.length > 0){
+                if(seletedInventoryList.length > 0){
+                    if(seletedInventoryList[0] == 'cancel'){
+                        return [];
+                    }else{
+                        if(deletedObj.length > 0){
+                            var updatedInventoryList = [];
+                            _.each(seletedInventoryList, function(row) {
+                                if(deletedObj.indexOf(row.uuid) === -1){
+                                    updatedInventoryList.push(row);
+                                }
+                            });
+                            updatedGridList = [];
+                            policyGridList.list = self.getFqNameList(updatedInventoryList);
+                            return updatedInventoryList;
+                         }else{
+                             updatedGridList = [];
+                             policyGridList.list = self.getFqNameList(seletedInventoryList);
+                             return seletedInventoryList;
+                         }
+                    }
+                }else if(self.oldRecords.length > 0){
                     var newFwPolicyList = [];
                     _.each(fwPolicyList, function(policy) {
                         if(self.oldRecords.indexOf(policy.uuid) === -1){
@@ -154,7 +175,7 @@ define([
                     var sequence = Number(getValueByJsonPath(matchAps, 'attr;sequence', 0));
                     return ((1 + sequence) * 100000 ) - sequence;
                });
-            self.policyGridList.list = self.getFqNameList(updatedList);
+            policyGridList.list = self.getFqNameList(updatedList);
             return updatedList;
         },
         getFqNameList: function(list){
@@ -190,7 +211,7 @@ define([
                 return newUpdatedList;
             }
         },
-        getFWPolicyGlobalGridViewConfig: function(viewConfig, policyGridList) {
+        getFWPolicyGlobalGridViewConfig: function(viewConfig) {
             return {
                 elementId:
                 cowu.formatElementId([viewConfig.idList.sectionId]),
@@ -212,9 +233,7 @@ define([
                                         }
                                     },
                                     viewConfig: viewConfig,
-                                    //isProject: false,
-                                    isGlobal: false,
-                                    policyGridList : policyGridList
+                                    isGlobal: false
                                 }
                             }
                         ]
@@ -226,4 +245,3 @@ define([
 
     return fwPolicyListView;
 });
-

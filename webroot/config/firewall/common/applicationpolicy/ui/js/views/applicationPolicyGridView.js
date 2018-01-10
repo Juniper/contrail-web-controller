@@ -160,14 +160,6 @@ define([
                     var policy = rowData.firewall_policy_refs;
                     delete rowData.perms2;
                     var apsName = rowData.fq_name[rowData.fq_name.length - 1];
-                    /*applicationPolicyEditView.model = new ApplicationPolicyModel(dataView.getItem(rowIndex));
-                    applicationPolicyEditView.renderAddEditApplicationPolicy({
-                                          "title": 'Edit Application Policy Set',
-                                          'mode':'edit',
-                                          'isGlobal': viewConfig.isGlobal,
-                                           callback: function () {
-                                              dataView.refreshData();
-                    }});*/
                     fwPolicyWizardEditView.model = new FWPolicyWizardModel(rowData);
                     fwPolicyWizardEditView.renderFwWizard({
                                     "title": 'Edit Application Policy Set',
@@ -178,26 +170,43 @@ define([
                                      }
                     });
                 })];
-            if(appPolicySetName !== ctwc.GLOBAL_APPLICATION_POLICY_SET) {
-                var deleteActionConfig = ctwgc.getDeleteConfig('Delete',
-                    function(rowIndex) {
-                        var dataItem =
-                            $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).
-                                data('contrailGrid')._dataView.getItem(rowIndex);
-                        applicationPolicyEditView.model = new ApplicationPolicyModel(dataItem);
-                        applicationPolicyEditView.renderDeleteApplicationPolicy ({
-                             "title": ctwl.TITLE_APP_POLICY_SET_DELETE,
-                             selectedGridData: [dataItem],
-                             callback: function () {
-                                 var dataView =
-                                     $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).
-                                           data("contrailGrid")._dataView;
-                                 dataView.refreshData();
-                     }});
-                 })
-                rowActionConfig.push(deleteActionConfig);
-            }
-            return rowActionConfig;
+                if(appPolicySetName !== ctwc.GLOBAL_APPLICATION_POLICY_SET) {
+                    var deleteActionConfig = ctwgc.getDeleteConfig('Delete',
+                        function(rowIndex) {
+                            var dataItem =
+                                $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).
+                                    data('contrailGrid')._dataView.getItem(rowIndex);
+                            applicationPolicyEditView.model = new ApplicationPolicyModel(dataItem);
+                            applicationPolicyEditView.renderDeleteApplicationPolicy ({
+                                 "title": ctwl.TITLE_APP_POLICY_SET_DELETE,
+                                 selectedGridData: [dataItem],
+                                 callback: function () {
+                                     var dataView =
+                                         $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).
+                                               data("contrailGrid")._dataView;
+                                     dataView.refreshData();
+                         }});
+                     });
+                    rowActionConfig.push(deleteActionConfig);
+                 }
+                 var firewallRuleConfig = ctwgc.getActiveDnsConfig('View Firewall Rules',
+                         function(rowIndex) {
+                         var dataItem = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).
+                             data('contrailGrid')._dataView.getItem(rowIndex), uuidList = [];
+                         _.each(dataItem.firewall_policy_refs, function(row) {
+                            uuidList.push(row.uuid);
+                         });
+                         fwPolicyWizardEditView.model = new FWPolicyWizardModel();
+                         fwPolicyWizardEditView.renderFirewallRule({
+                                         "title": 'Firewall Rules Associated with Application Policy Set',
+                                         'uuidList': uuidList,
+                                         'isGlobal': viewConfig.isGlobal
+                         });
+                  });
+                  if(dc.firewall_policy_refs !== undefined && dc.firewall_policy_refs.length > 0){
+                      rowActionConfig.push(firewallRuleConfig);
+                  }
+                  return rowActionConfig;
         }
     }
     function getHeaderActionConfig(viewConfig) {
@@ -356,71 +365,70 @@ define([
         return lastUpdateExpFormatter(null, null, null, value, dc, true);
     };
     this.setIsGlobalFormatter = function(value, dc){
-    	return isGlobalFormatter(null, null, null, value, dc, true);
+        return isGlobalFormatter(null, null, null, value, dc, true);
     };
     this.isGlobalFormatter = function(value, dc){
-    	var apsGlobal = getValueByJsonPath(dc, 'is_global'), isGlobal;
-    	if(apsGlobal !== undefined){
-    		if(apsGlobal){
-        		isGlobal = 'Enabled';
-        		return isGlobal;
-        	}else{
-        		isGlobal = 'Disabled';
-        		return isGlobal;
-        	}
-    	}else{
-    		return '-';
-    	}
+        var apsGlobal = getValueByJsonPath(dc, 'is_global'), isGlobal;
+        if(apsGlobal !== undefined){
+            if(apsGlobal){
+                isGlobal = 'Enabled';
+                return isGlobal;
+            }else{
+                isGlobal = 'Disabled';
+                return isGlobal;
+            }
+        }else{
+            return '-';
+        }
     };
     this.setIsSharedFormatter = function(value, dc){
-    	return isSharedFormatter(null, null, null, value, dc, true);
+        return isSharedFormatter(null, null, null, value, dc, true);
     };
     this.setDescriptionFormatter = function(value, dc){
-    	return descriptionFormatter(null, null, null, value, dc, true);
+        return descriptionFormatter(null, null, null, value, dc, true);
     };
     this.setFirewallPolicyFormatter = function(value, dc){
-    	var policy = getValueByJsonPath(dc, 'firewall_policy_refs',[]),policyList = [];
-    	 var policy = 
+        var policy = getValueByJsonPath(dc, 'firewall_policy_refs',[]),policyList = [];
+         var policy =
              _.sortBy(policy, function (pol) {
                  var sequence =
                     Number(getValueByJsonPath(pol, 'attr;sequence', 0));
                  return ((1 + sequence) * 100000 ) - sequence;
             });
-    	var returnString = '';
-    	for(var i = 0; i < policy.length; i++){
-    		var to = policy[i].to;
-    		var name = to[to.length - 1];
-    		var text = '<span>'+ name +'</span>';
-    		policyList.push(text);
-    	}
-    	if(policyList.length > 0){
+        var returnString = '';
+        for(var i = 0; i < policy.length; i++){
+            var to = policy[i].to;
+            var name = to[to.length - 1];
+            var text = '<span>'+ name +'</span>';
+            policyList.push(text);
+        }
+        if(policyList.length > 0){
             for(var j = 0; j< policyList.length; j++){
                 if(policyList[j]) {
                     returnString += policyList[j] + "<br>";
                 }
             }
         }else{
-        	returnString = '-';
+            returnString = '-';
         }
-    	return returnString;
-    	
+        return returnString;
     };
     function isSharedFormatter(r, c, v, cd, dc, showAll){
-    	var enable = getValueByJsonPath(dc, 'id_perms;enable'), shared;
-    	if(enable){
-    		shared = 'Enabled';
-    	}else{
-    		shared = 'Disabled';
-    	}
+        var enable = getValueByJsonPath(dc, 'id_perms;enable'), shared;
+        if(enable){
+            shared = 'Enabled';
+        }else{
+            shared = 'Disabled';
+        }
         return  shared;
     }
     function descriptionFormatter(r, c, v, cd, dc, showAll){
-    	var description = getValueByJsonPath(dc, 'id_perms;description','-');
+        var description = getValueByJsonPath(dc, 'id_perms;description','-');
         return  description;
     }
     function noOfPoliciesFormatter(r, c, v, cd, dc, showAll){
-    	var policyRefs = getValueByJsonPath(dc, 'firewall_policy_refs',[]);
-    	var noOfRefs = policyRefs.length
+        var policyRefs = getValueByJsonPath(dc, 'firewall_policy_refs',[]);
+        var noOfRefs = policyRefs.length
         return  noOfRefs;
     }
     function lastUpdateFormatter(r, c, v, cd, dc, showAll){
@@ -443,4 +451,3 @@ define([
     }
    return applicationPolicyGridView;
 });
-

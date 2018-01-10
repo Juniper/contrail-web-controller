@@ -992,6 +992,10 @@ define([
         this.SECURITY_POLICY_ADDRESS_GRP_GRID_ID = "security-policy-address-grp-grid";
         this.FW_POLICY_GRID_ID = "fw-policy-grid";
         this.FW_RULE_GRID_ID = "fw-rule-grid";
+        this.APS_FW_RULE_LIST_GRID_ID = "aps-fw-rule-list-grid";
+        this.APS_FW_RULE_LIST_VIEW_ID = "aps-fw-rule-list-view";
+        this.APS_FW_RULE_LIST_SECTION_ID = "config-aps-fw-rule-list-section";
+        this.CONFIG_APS_FW_RULE_LIST = "config-aps-fw-rule-list";
         this.FW_RULE_PREFIX_ID = 'firewallRule',
         this.CONFIG_FW_POLICY_LIST_VIEW_ID = "config-fw-policy-list-view";
         this.CONFIG_FW_WZ_POLICY_LIST_VIEW_ID = "config-fw-wz-policy-list-view";

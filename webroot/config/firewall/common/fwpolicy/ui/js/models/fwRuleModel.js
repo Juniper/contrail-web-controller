@@ -331,6 +331,7 @@ define([
                 //postFWRuleData['firewall-rules'] = postFWRules;
                 ajaxConfig.type  = "POST";
                 if(options.mode === 'edit'){
+                    newFWRuleData.uuid = attr.uuid;
                     var postData = {"firewall-rule": newFWRuleData};
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                     ajaxConfig.data  = JSON.stringify(postData);
@@ -368,31 +369,31 @@ define([
                     ajaxConfig.url = ctwc.URL_CREATE_POLICY_RULE;
                     ajaxConfig.data  = JSON.stringify(postFWRuleData);
                 }
-	
+
                 ajaxConfig.type  = "POST";
-	
-	            contrail.ajaxHandler(ajaxConfig, function () {
-	                if (contrail.checkIfFunction(callbackObj.init)) {
-	                    callbackObj.init();
-	                }
-	            }, function (response) {
-	                if (contrail.checkIfFunction(callbackObj.success)) {
-	                    callbackObj.success();
-	                }
-	                returnFlag = true;
-	            }, function (error) {
-	                if (contrail.checkIfFunction(callbackObj.error)) {
-	                    callbackObj.error(error);
-	                }
-	                returnFlag = false;
-	            });
+
+                contrail.ajaxHandler(ajaxConfig, function () {
+                    if (contrail.checkIfFunction(callbackObj.init)) {
+                        callbackObj.init();
+                    }
+                }, function (response) {
+                    if (contrail.checkIfFunction(callbackObj.success)) {
+                        callbackObj.success();
+                    }
+                    returnFlag = true;
+                }, function (error) {
+                    if (contrail.checkIfFunction(callbackObj.error)) {
+                        callbackObj.error(error);
+                    }
+                    returnFlag = false;
+                });
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
                     callbackObj.error(this.getFormErrorText(
                                             ctwc.FW_RULE_PREFIX_ID));
                 }
             }
-	        return returnFlag;
+            return returnFlag;
         }
     });
     return fwRuleModel;
