@@ -619,7 +619,7 @@ define([
                                                                  projectName);
                             var errorStr = getValueByJsonPath(n, "error_string",
                                                               null);
-                            if(!dropdownOptions.includeDefaultProject &&
+                            if((!dropdownOptions.includeDefaultProject || isVCenter()) &&
                                 projectName === ctwc.DEFAULT_PROJECT) {
                                 return true;
                             }
