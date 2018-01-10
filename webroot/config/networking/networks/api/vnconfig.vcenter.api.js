@@ -290,6 +290,7 @@ function createVirtualNetwork(req,res,appData) {
             }
             appData['vnUUID'] = vnUUID;
             //Update network synced on Api Server 
+            delete req.body['virtual-network']['perms2'];
             vnConfigApi.updateVirtualNetwork(req,res,appData);
         });
     });
