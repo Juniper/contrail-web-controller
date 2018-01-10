@@ -60,7 +60,7 @@ define([
             {
                 "type" : "link",
                 "title" : 'Move Policy Up',
-                "iconClass" : "fa fa-arrow-up",
+                "iconClass" : "hide",
                 "onClick" : function(rowIndex) {
                     var dataView = $('#' + viewConfig.viewConfig.idList.gridId).data("contrailGrid")._dataView;
                     var items = dataView.getItems();
@@ -84,7 +84,7 @@ define([
             {
                 "type" : "link",
                 "title" : 'Move Policy Down',
-                "iconClass" : "fa fa-arrow-down",
+                "iconClass" : "hide",
                 "onClick" : function(rowIndex) {
                     var dataView = $('#' + viewConfig.viewConfig.idList.gridId).data("contrailGrid")._dataView;
                     var items = dataView.getItems();
@@ -104,11 +104,81 @@ define([
                     });
                     dataView.updateData(items);
                 }
+            },
+            {
+                "type" : "link",
+                "title" : 'Insert Policy Below',
+                "iconClass" : "hide",
+                "onClick" : function(rowIndex) {
+                    $("#overlay-background-id").removeClass("overlay-background");
+                    var apsName;
+                    newApplicationSet = {
+                            name:  ko.contextFor($('#name').get(0)).$data.name(),
+                            Application: ko.contextFor($('#Application').get(0)).$data.Application(),
+                            description : ko.contextFor($('#description').get(0)).$data.description()
+                        };
+                    if(ko.contextFor($('#name').get(0)).$data.uuid !== undefined){
+                        newApplicationSet.uuid = ko.contextFor($('#name').get(0)).$data.uuid();
+                        newApplicationSet.id_perms = ko.contextFor($('#name').get(0)).$data.id_perms();
+                    }
+                    var existingRows = $(gridElId).data("contrailGrid")._dataView.getItems();
+                    newApplicationSet.existingRows = existingRows;
+                    newApplicationSet.mode = viewConfig.viewConfig.mode;
+                    newApplicationSet.insert = 'below';
+                    newApplicationSet.currentIndex = rowIndex;
+                    $('#aps-save-btn-container').hide();
+                    $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
+                    if(newApplicationSet.name === ''){
+                        apsName = 'Add Application Policy Set';
+                    }else{
+                        apsName = newApplicationSet.name;
+                    }
+                    var modelHeader = apsName + ' > '+ 'New Policy';
+                    $('.modal-header-title').text('');
+                    $('.modal-header-title').text(modelHeader);
+                    $($('#applicationpolicyset_policy_wizard a.btn-primary')[0]).trigger("click");
+                }
+            },
+            {
+                "type" : "link",
+                "title" : 'Insert Policy Above',
+                "iconClass" : "hide",
+                "onClick" : function(rowIndex) {
+                    $("#overlay-background-id").removeClass("overlay-background");
+                    var apsName;
+                    newApplicationSet = {
+                            name:  ko.contextFor($('#name').get(0)).$data.name(),
+                            Application: ko.contextFor($('#Application').get(0)).$data.Application(),
+                            description : ko.contextFor($('#description').get(0)).$data.description()
+                        };
+                    if(ko.contextFor($('#name').get(0)).$data.uuid !== undefined){
+                        newApplicationSet.uuid = ko.contextFor($('#name').get(0)).$data.uuid();
+                        newApplicationSet.id_perms = ko.contextFor($('#name').get(0)).$data.id_perms();
+                    }
+                    var existingRows = $(gridElId).data("contrailGrid")._dataView.getItems();
+                    newApplicationSet.existingRows = existingRows;
+                    newApplicationSet.mode = viewConfig.viewConfig.mode;
+                    newApplicationSet.insert = 'above';
+                    newApplicationSet.currentIndex = rowIndex;
+                    $('#aps-save-btn-container').hide();
+                    $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
+                    if(newApplicationSet.name === ''){
+                        apsName = 'Add Application Policy Set';
+                    }else{
+                        apsName = newApplicationSet.name;
+                    }
+                    var modelHeader = apsName + ' > '+ 'New Policy';
+                    $('.modal-header-title').text('');
+                    $('.modal-header-title').text(modelHeader);
+                    $($('#applicationpolicyset_policy_wizard a.btn-primary')[0]).trigger("click");
+                }
             }
         ];
         var list = viewConfig.policyGridList.list;
         if(list.length == 1){
-            return [];
+            rowActionConfig.splice(0,1);
+            rowActionConfig.splice(0,1);
+            return rowActionConfig;
         }else {
            var fqName = dc.fq_name[dc.fq_name.length - 1];
            if(updatedGridList.length > 0){
@@ -116,13 +186,11 @@ define([
            }
            var lastCount = list.length - 1;
            if(list.indexOf(fqName) === 0){
-               var option = [];
-               option.push(rowActionConfig[1]);
-               return option;
+               rowActionConfig.splice(0,1);
+               return rowActionConfig;
            }else if(list.indexOf(fqName) === lastCount){
-               var option = [];
-               option.push(rowActionConfig[0]);
-               return option;
+               rowActionConfig.splice(1,1);
+               return rowActionConfig;
            }else{
               return rowActionConfig;
            }
@@ -200,9 +268,10 @@ define([
             {
                 "title": "Create new firewall policy",
                 "onClick": function () {
-                    if(ko.contextFor($('#name').get(0)).$data.name() !== ''){
-                        policyEditSet = {};
-                        $('#applicationpolicyset_policy_wizard-p-0 .alert-error').hide();
+                    //if(ko.contextFor($('#name').get(0)).$data.name() !== ''){
+                        //policyEditSet = {};
+                        //$('#applicationpolicyset_policy_wizard-p-0 .alert-error').hide();
+                        var apsName;
                         $("#overlay-background-id").removeClass("overlay-background");
                         newApplicationSet = {
                                 name:  ko.contextFor($('#name').get(0)).$data.name(),
@@ -218,15 +287,20 @@ define([
                         newApplicationSet.mode = viewConfig.viewConfig.mode;
                         $('#aps-save-btn-container').hide();
                         $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
-                        var modelHeader = newApplicationSet.name + ' > '+ 'New Policy';
+                        if(newApplicationSet.name === ''){
+                            apsName = 'Add Application Policy Set';
+                        }else{
+                            apsName = newApplicationSet.name;
+                        }
+                        var modelHeader = apsName + ' > '+ 'New Policy';
                         $('.modal-header-title').text('');
                         $('.modal-header-title').text(modelHeader);
                         $($('#applicationpolicyset_policy_wizard a.btn-primary')[0]).trigger("click");
-                    }else{
+                    /*}else{
                         $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text('');
                         $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text('Please enter the name.');
                         $('#applicationpolicyset_policy_wizard-p-0 .alert-error').show();
-                    }
+                    }*/
                 }
             },
             {

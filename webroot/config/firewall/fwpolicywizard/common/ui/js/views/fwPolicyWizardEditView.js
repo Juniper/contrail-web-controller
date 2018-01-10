@@ -29,6 +29,9 @@ define([
                     cowu.createModal({'modalId': modalId, 'className': 'modal-1120',
                         'title': options['title'], 'body': editLayout});
                 }
+                if(options.title !== undefined){
+                    $('.modal-header-title').text(options.title);
+                }
                 $('#helper').show();
                 $('#aps-create-fwpolicy-remove-icon').show();
                 $('#aps-remove-icon').hide();
@@ -553,22 +556,59 @@ define([
                                 }
                             }
                             return params.model.addEditApplicationSet({
-                                success: function () {
-                                    if(viewConfig.wizardMode === 'aps'){
-                                        options['callback']();
-                                    }
-                                    if($('#fw-policy-grid').data("contrailGrid") !== undefined){
-                                        $('#fw-policy-grid').data("contrailGrid")._dataView.refreshData();
-                                    }
-                                    $("#" + modalId).find(".contrailWizard").data("contrailWizard").destroy();
- 
-                                    if(viewConfig.wizardMode === 'policy'){
-                                        $('#applicationpolicyset_policy_wizard-p-1 .alert-error').hide(); 
-                                    }else{
+                                success: function (obj) {
+                                   if(viewConfig.wizardMode === 'aps'){
+                                        require(['config/firewall/fwpolicywizard/common/ui/js/models/fwPolicyWizardModel',
+                                            'config/firewall/fwpolicywizard/common/ui/js/views/fwPolicyWizardEditView'],
+                                            function (FWPolicyWizardModel, FWPolicyWizardEditView) {
+                                                var fwPolicyWizardModel =  new FWPolicyWizardModel(newApplicationSet),
+                                                    fwPolicyWizardEditView = new FWPolicyWizardEditView(), apsTitle;
+                                                if(options.viewConfig.mode === 'add'){
+                                                    apsTitle = 'Add Application Policy Set';
+                                                }else{
+                                                    apsTitle = 'Edit Application Policy Set';
+                                                }
+                                                if($('#fw-policy-grid').data("contrailGrid") !== undefined){
+                                                    $('#fw-policy-grid').data("contrailGrid")._dataView.refreshData();
+                                                }
+                                                options.seletedRows =  newApplicationSet.existingRows;
+                                                if(newApplicationSet.insert === 'above'){
+                                                    options.seletedRows.splice(newApplicationSet.currentIndex, 0, obj);
+                                                }else if(newApplicationSet.insert === 'below'){
+                                                    options.seletedRows.splice(newApplicationSet.currentIndex + 1, 0, obj);
+                                                }else{
+                                                    options.seletedRows.push(obj);
+                                                }
+                                                var policyList = [];
+                                                for(var i = 0; i < options.seletedRows.length; i++){
+                                                    policyList.push(options.seletedRows[i]);
+                                                }
+                                                options.seletedRows = policyList;
+                                                options.viewConfig.seletedRows = options.seletedRows;
+                                                fwPolicyWizardEditView.model = fwPolicyWizardModel;
+                                                fwPolicyWizardEditView.renderFwWizard({
+                                                    'mode': options.viewConfig.mode,
+                                                    "title": apsTitle,
+                                                    'isGlobal': options.viewConfig.isGlobal,
+                                                    'viewConfig': options.viewConfig,
+                                                    'seletedRows': options.seletedRows,
+                                                    'isWizard': options.viewConfig.isWizard,
+                                                     'noResetModal': true,
+                                                     callback: function () {
+                                                         $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView.refreshData();}
+                                                });
+                                                $('#aps-save-btn-container').show();
+                                        });
                                         $('#applicationpolicyset_policy_wizard-p-2 .alert-error').hide();
+                                    }else{
+                                        if($('#fw-policy-grid').data("contrailGrid") !== undefined){
+                                            $('#fw-policy-grid').data("contrailGrid")._dataView.refreshData();
+                                        }
+                                        $("#" + modalId).find(".contrailWizard").data("contrailWizard").destroy();
+                                        $('#applicationpolicyset_policy_wizard-p-1 .alert-error').hide();
+                                        $("#" + modalId).modal('hide');
+                                        options.viewConfig.isWizard = false;
                                     }
-                                    $("#" + modalId).modal('hide');
-                                    options.viewConfig.isWizard = false;
                                 },
                                 error: function (error) {
                                     if(viewConfig.wizardMode === 'policy'){
