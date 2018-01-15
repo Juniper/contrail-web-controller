@@ -662,6 +662,28 @@ define([
             return isValidEsi;
         };
 
+        this.isValidQfx5k = function(value){
+            var isValidQfx5k = false;
+            if(value.toLowerCase() === '5k'){
+                isValidQfx5k = true;
+            }else {
+                if(value.toLowerCase().indexOf('qfx') !== -1){
+                    var val = value.substr(3);
+                    if(val.toLowerCase() === '5k'){
+                        isValidQfx5k = true;
+                    }else if(val.toLowerCase() !== '10k' && (parseInt(val) >= 5000 && parseInt(val) < 10000)){
+                        isValidQfx5k = true;
+                    }
+                }else{
+                    var val = parseInt(value);
+                    if(parseInt(val) >= 5000 && parseInt(val) < 10000){
+                        isValidQfx5k = true;
+                    }
+                }
+            }
+            return isValidQfx5k;
+        };
+
     };
 
     return CTParsers;

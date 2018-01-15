@@ -831,7 +831,10 @@ define([
             {'value' : 'spine', "text" : 'Spine'},
             {'value' : 'leaf', "text" : 'Leaf'}
         ];
-
+        this.PHYSICAL_ROUTER_WITHOUT_SPINE = [
+            {'value' : 'none', "text" : 'None'},
+            {'value' : 'leaf', "text" : 'Leaf'}
+        ];
         // VRouter Config Constants
         this.URL_CFG_VROUTER_DETAILS =
             '/api/tenants/config/virtual-routers-detail';

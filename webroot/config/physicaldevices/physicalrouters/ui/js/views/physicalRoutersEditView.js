@@ -591,12 +591,13 @@ define([
                                     label : "Role",
                                     path: "physical_router_role",
                                     dataBindValue: "physical_router_role",
+                                    dataBindOptionList : "roleDataSource",
                                     class: "col-xs-6",
                                     elementConfig:{
                                         placeholder: 'Select a Role',
                                         dataTextField: "text",
-                                        dataValueField: "value",
-                                        data : ctwc.PHYSICAL_ROUTER_ROLE_DATA
+                                        dataValueField: "value"//,
+                                        //data : ctwc.PHYSICAL_ROUTER_ROLE_DATA
                                     }
                                 }
                             }]
@@ -692,12 +693,13 @@ define([
                                         label : "Role",
                                         path: "physical_router_role",
                                         dataBindValue: "physical_router_role",
+                                        dataBindOptionList : "roleDataSource",
                                         class: "col-xs-6",
                                         elementConfig:{
                                             placeholder: 'Select a Role',
                                             dataTextField: "text",
-                                            dataValueField: "value",
-                                            data : ctwc.PHYSICAL_ROUTER_ROLE_DATA
+                                            dataValueField: "value"//,
+                                            //data : ctwc.PHYSICAL_ROUTER_ROLE_DATA
                                         }
                                     }
                                 },
