@@ -222,6 +222,9 @@ define([
                     return (this.virtualRouterType() === ctwl.TOR_AGENT) ?
                         true : false;
                 }), pRouterModel);
+                if(ctwp.isValidQfx5k(pRouterModel.physical_router_product_name())){
+                    pRouterModel.roleDataSource(ctwc.PHYSICAL_ROUTER_WITHOUT_SPINE);
+                }
                 physicalRouterEditView.model = pRouterModel;
                 physicalRouterEditView.renderEditPhysicalRouter(
                     {"title": ctwl.EDIT, checkedRows: checkedRow,

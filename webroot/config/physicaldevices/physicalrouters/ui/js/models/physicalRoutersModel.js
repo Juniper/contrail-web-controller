@@ -60,7 +60,8 @@ define([
             'virtual_network_refs' : [],
             'user_created_virtual_network' : null,
             'physical_router_role': 'none',
-            'evpn_peered_tor': false
+            'evpn_peered_tor': false,
+            'roleDataSource': ctwc.PHYSICAL_ROUTER_ROLE_DATA
         },
         formatModelConfig: function (modelConfig) {
             /*
@@ -858,6 +859,13 @@ define([
                      if(checkIfDuplicates(virtualRouterList)) {
                          return "Enter diffrent names for TORs and TSNs";
                      }
+                },
+                "physical_router_product_name": function(value, attr, finalObj) {
+                    if(ctwp.isValidQfx5k(value)){
+                        self.roleDataSource(ctwc.PHYSICAL_ROUTER_WITHOUT_SPINE);
+                    }else{
+                        self.roleDataSource(ctwc.PHYSICAL_ROUTER_ROLE_DATA);
+                    }
                 }
             }
         }
