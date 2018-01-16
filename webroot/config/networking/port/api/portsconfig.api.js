@@ -424,23 +424,27 @@ function portSendResponse (error, req, portConfig, orginalPortData, appData, cal
 function updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portConfig, callback)
 {
     async.map(instIpPostDataObjArr, createInstIP, function(err, result) {
-    if (DataObjectArr.length === 0) {
-       portConfig['virtual-machine-interface']['instance_ip_back_refs']= [];
-	   portConfig['virtual-machine-interface']['instance_ip_back_refs'].push({
-			'href':result[0]['instance-ip']['href'],
-			'to': result[0]['instance-ip']['fq_name'],
-			'uuid':result[0]['instance-ip']['uuid']
-		})
-        callback(null, portConfig)
-        return;
-    }
-    async.map(DataObjectArr,
-        commonUtils.getServerResponseByRestApi(configApiServer, true),
-        function(error, results) {
-            callback(error, portConfig);
+        if ((null != err) || (null == result)) {
+            callback(err, result);
+            return;
+        }
+        if (0 === DataObjectArr.length) {
+            var href = _.result(result, "0.instance-ip.href", null);
+            var to = _.result(result, "0.instance-ip.fq_name", null);
+            var uuid = _.result(result, "0.instance-ip.uuid", null);
+            portConfig['virtual-machine-interface']['instance_ip_back_refs']= [];
+            portConfig['virtual-machine-interface']['instance_ip_back_refs'].push({
+                href: href, to: to, uuid: uuid
+            })
+            callback(null, portConfig)
+            return;
+        }
+        async.map(DataObjectArr,
+            commonUtils.getServerResponseByRestApi(configApiServer, true),
+            function(error, results) {
+                callback(error, portConfig);
+        });
     });
-  });
-
 }
 
 /**
