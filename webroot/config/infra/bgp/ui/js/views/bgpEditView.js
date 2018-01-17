@@ -266,7 +266,7 @@ define([
                                         'user_created_autonomous_system',
                                     view: 'FormInputView',
                                     viewConfig: {
-                                        disabled : 'disableAttr',
+                                        //disabled : 'disableAttr',
                                         placeholder : '1 - 65535',
                                         path:
                                             'user_created_autonomous_system',
