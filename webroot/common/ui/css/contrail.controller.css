@@ -1066,3 +1066,16 @@ body #firewall_policy_rules #firewall_rules th.text-center, body #applicationpol
 body.navbar-fixed{
     padding-right:0px!important;
 }
+#configure-firepolicyrulelist-form{
+	margin-top: -18px;
+}
+.rot90_antic{
+ transform:rotate(-90deg);
+ }
+ #configure-firepolicyrulelist-form .grid-canvas {
+    overflow-y: scroll;
+    max-height: 280px;
+}
+#configure-firepolicyrulelist-form #config-aps-fw-rule-list .margin-0-0-5 {
+    margin: 0px!important;
+}

@@ -330,9 +330,9 @@ define([
             }
         },
         createAndUpdateRules: function(fwRules, options, serviceGroupList, policyObj, callbackObj){
-            var existingRules = [], newRules = [], sequnceList = [], editableRuleList = [],
-            ruleObjList = [], ajaxConfig = {};
-            _.each(fwRules, function(rule) {
+            var existingRules = [], newRules = [], editableRuleList = [],
+            ruleObjList = [], ajaxConfig = {}, newSeqList = [];
+            _.each(fwRules, function(rule, count) {
                 var ruleModel = $.extend(true, {}, rule.model().attributes);
                 if(ruleModel.uuid != undefined){
                     var obj = {};
@@ -342,14 +342,14 @@ define([
                     editableRuleList.push(ruleModel);
                     var firewallBackRef = getValueByJsonPath(ruleModel, "firewall_policy_back_refs",[]);
                     _.each(firewallBackRef, function(ref) {
-                        if(ref.uuid === policyObj.uuid){
-                            obj.attr.sequence = ref.attr.sequence.toString();
-                            sequnceList.push(Number(ref.attr.sequence));
+                        if(ref.uuid === policyObj.model.uuid){
+                            obj.attr.sequence = count.toString();
                         }
                     });
                     existingRules.push(obj);
                 }else{
                     newRules.push(ruleModel);
+                    newSeqList.push(count);
                 }
             });
             if(editableRuleList.length > 0){
@@ -371,7 +371,7 @@ define([
                 }, function (response) {
                     if(newRules.length > 0){
                         var formatedNewRule = self.ruleFormation(newRules, options, serviceGroupList, true);
-                        self.policyEditNewRuleCreation(formatedNewRule, existingRules, options, callbackObj, sequnceList, policyObj);
+                        self.policyEditNewRuleCreation(formatedNewRule, existingRules, options, callbackObj, newSeqList, policyObj);
                     }else{
                         self.updatePolicy(policyObj, options, callbackObj, existingRules);
                     }
@@ -384,13 +384,13 @@ define([
             }else{
                 if(newRules.length > 0){
                     var formatedNewRule = self.ruleFormation(newRules, options, serviceGroupList, true);
-                    self.policyEditNewRuleCreation(formatedNewRule, existingRules, options, callbackObj, sequnceList, policyObj);
+                    self.policyEditNewRuleCreation(formatedNewRule, existingRules, options, callbackObj, newSeqList, policyObj);
                 }else{
                     self.updatePolicy(policyObj, options, callbackObj, existingRules);
                 }
             }
         },
-        policyEditNewRuleCreation: function(formatedNewRule, existingRules, options, callbackObj, sequnceList, policyObj){
+        policyEditNewRuleCreation: function(formatedNewRule, existingRules, options, callbackObj, newSeqList, policyObj){
             var newRuleList = [], ajaxConfig = {};
             for(var i = 0; i < formatedNewRule.length; i++){
                 var obj = {"data":{"firewall-rule": formatedNewRule[i]},
@@ -406,8 +406,6 @@ define([
                     callbackObj.init();
                 }
             }, function (response) {
-                var seqList = sequnceList.sort();
-                var lastSeq = seqList[seqList.length - 1];
                 for(var j = 0; j < response.length; j++){
                     var obj = {};
                     obj.to = getValueByJsonPath(response, j +
@@ -417,8 +415,7 @@ define([
                                                   ";configData;firewall-rule;uuid",
                                                   null);
                     obj.attr = {};
-                    lastSeq++;
-                    obj.attr.sequence = lastSeq.toString();
+                    obj.attr.sequence = newSeqList[j].toString();
                     existingRules.push(obj);
                 }
                 self.updatePolicy(policyObj, options, callbackObj, existingRules);
@@ -653,23 +650,27 @@ define([
             });
             $.when.apply($, getAjaxs).then(function(){
                 var fwPolicyData = getValueByJsonPath(arguments, "0;0;firewall-policys", []);
-                var policyList = [], sequenceCount = '0';
-                if(newApplicationSet.existingRows.length > 0){
+                var policyList = [];// sequenceCount = '0';
+                /*if(newApplicationSet.existingRows.length > 0){
                     sequenceCount = newApplicationSet.existingRows.length.toString();
-                }
+                }*/
                 _.each(fwPolicyData, function(val){
                         if('firewall-policy' in val){
                             if(val['firewall-policy'].uuid === policyUUID){
-                                var obj = {};
+                                /*var obj = {};
                                 var to = val['firewall-policy'].fq_name;
                                 obj.to = to;
                                 obj.attr = {};
                                 obj.attr.sequence = sequenceCount;
-                                policyList.push(obj);
+                                policyList.push(obj);*/
+                                policyList.push(val['firewall-policy']);
                             }
                        }
                 });
-                if(newApplicationSet.existingRows.length > 0){
+                if (contrail.checkIfFunction(callbackObj.success)) {
+                    callbackObj.success(policyList[0]);
+                }
+                /*if(newApplicationSet.existingRows.length > 0){
                     var existingRows = newApplicationSet.existingRows;
                     var existingPolicy = [];
                     for(var m = 0; m < existingRows.length; m++){
@@ -684,7 +685,7 @@ define([
                     self.addApplicationPolicySet(newPolicyList, callbackObj, options);
                 }else{
                     self.addApplicationPolicySet(policyList, callbackObj, options);
-                }
+                }*/
             })
         },
         deleteApplicationPolicy: function (checkedRows, callbackObj) {

@@ -25,6 +25,33 @@ define([
             gridElId = '#'+ viewConfig.viewConfig.idList.gridId;
             self.renderView4Config(self.$el, self.model,
                 getFWPolicyGridViewConfig(viewConfig));
+            $("#create-fw").off('click').on('click', function(){
+                var apsName;
+                $("#overlay-background-id").removeClass("overlay-background");
+                newApplicationSet = {
+                        name:  ko.contextFor($('#name').get(0)).$data.name(),
+                        Application: ko.contextFor($('#Application').get(0)).$data.Application(),
+                        description : ko.contextFor($('#description').get(0)).$data.description()
+                    };
+                if(ko.contextFor($('#name').get(0)).$data.uuid !== undefined){
+                    newApplicationSet.uuid = ko.contextFor($('#name').get(0)).$data.uuid();
+                    newApplicationSet.id_perms = ko.contextFor($('#name').get(0)).$data.id_perms();
+                }
+                var existingRows = $('#fw-wz-policy-grid').data("contrailGrid")._dataView.getItems();
+                newApplicationSet.existingRows = existingRows;
+                newApplicationSet.mode = viewConfig.viewConfig.mode;
+                $('#aps-save-btn-container').hide();
+                $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
+                if(newApplicationSet.name === ''){
+                    apsName = 'Add Application Policy Set';
+                }else{
+                    apsName = newApplicationSet.name;
+                }
+                var modelHeader = apsName + ' > '+ 'New Policy';
+                $('.modal-header-title').text('');
+                $('.modal-header-title').text(modelHeader);
+                $($('#applicationpolicyset_policy_wizard a.btn-primary')[0]).trigger("click");
+           });
         }
     });
 
@@ -60,9 +87,9 @@ define([
             {
                 "type" : "link",
                 "title" : 'Move Policy Up',
-                "iconClass" : "fa fa-arrow-up",
+                "iconClass" : "hide",
                 "onClick" : function(rowIndex) {
-                    var dataView = $('#' + viewConfig.viewConfig.idList.gridId).data("contrailGrid")._dataView;
+                    var dataView = $('#fw-wz-policy-grid').data("contrailGrid")._dataView;
                     var items = dataView.getItems();
                     var nextIndex = rowIndex - 1;
                     var currentData = items[rowIndex];
@@ -84,9 +111,9 @@ define([
             {
                 "type" : "link",
                 "title" : 'Move Policy Down',
-                "iconClass" : "fa fa-arrow-down",
+                "iconClass" : "hide",
                 "onClick" : function(rowIndex) {
-                    var dataView = $('#' + viewConfig.viewConfig.idList.gridId).data("contrailGrid")._dataView;
+                    var dataView = $('#fw-wz-policy-grid').data("contrailGrid")._dataView;
                     var items = dataView.getItems();
                     var nextIndex = rowIndex + 1;
                     var currentData = items[rowIndex];
@@ -104,11 +131,149 @@ define([
                     });
                     dataView.updateData(items);
                 }
+            },
+            {
+                "type" : "link",
+                "title" : 'Insert Policy Below',
+                "iconClass" : "hide",
+                "onClick" : function(rowIndex) {
+                    $("#overlay-background-id").removeClass("overlay-background");
+                    var apsName;
+                    newApplicationSet = {
+                            name:  ko.contextFor($('#name').get(0)).$data.name(),
+                            Application: ko.contextFor($('#Application').get(0)).$data.Application(),
+                            description : ko.contextFor($('#description').get(0)).$data.description()
+                        };
+                    if(ko.contextFor($('#name').get(0)).$data.uuid !== undefined){
+                        newApplicationSet.uuid = ko.contextFor($('#name').get(0)).$data.uuid();
+                        newApplicationSet.id_perms = ko.contextFor($('#name').get(0)).$data.id_perms();
+                    }
+                    var existingRows = $('#fw-wz-policy-grid').data("contrailGrid")._dataView.getItems();
+                    newApplicationSet.existingRows = existingRows;
+                    newApplicationSet.mode = viewConfig.viewConfig.mode;
+                    newApplicationSet.insert = 'below';
+                    newApplicationSet.currentIndex = rowIndex;
+                    $('#aps-save-btn-container').hide();
+                    $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
+                    if(newApplicationSet.name === ''){
+                        apsName = 'Add Application Policy Set';
+                    }else{
+                        apsName = newApplicationSet.name;
+                    }
+                    var modelHeader = apsName + ' > '+ 'New Policy';
+                    $('.modal-header-title').text('');
+                    $('.modal-header-title').text(modelHeader);
+                    $($('#applicationpolicyset_policy_wizard a.btn-primary')[0]).trigger("click");
+                }
+            },
+            {
+                "type" : "link",
+                "title" : 'Insert Policy Above',
+                "iconClass" : "hide",
+                "onClick" : function(rowIndex) {
+                    $("#overlay-background-id").removeClass("overlay-background");
+                    var apsName;
+                    newApplicationSet = {
+                            name:  ko.contextFor($('#name').get(0)).$data.name(),
+                            Application: ko.contextFor($('#Application').get(0)).$data.Application(),
+                            description : ko.contextFor($('#description').get(0)).$data.description()
+                        };
+                    if(ko.contextFor($('#name').get(0)).$data.uuid !== undefined){
+                        newApplicationSet.uuid = ko.contextFor($('#name').get(0)).$data.uuid();
+                        newApplicationSet.id_perms = ko.contextFor($('#name').get(0)).$data.id_perms();
+                    }
+                    var existingRows = $('#fw-wz-policy-grid').data("contrailGrid")._dataView.getItems();
+                    newApplicationSet.existingRows = existingRows;
+                    newApplicationSet.mode = viewConfig.viewConfig.mode;
+                    newApplicationSet.insert = 'above';
+                    newApplicationSet.currentIndex = rowIndex;
+                    $('#aps-save-btn-container').hide();
+                    $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
+                    if(newApplicationSet.name === ''){
+                        apsName = 'Add Application Policy Set';
+                    }else{
+                        apsName = newApplicationSet.name;
+                    }
+                    var modelHeader = apsName + ' > '+ 'New Policy';
+                    $('.modal-header-title').text('');
+                    $('.modal-header-title').text(modelHeader);
+                    $($('#applicationpolicyset_policy_wizard a.btn-primary')[0]).trigger("click");
+                }
+            },
+            {
+                "type" : "link",
+                "title" : 'Insert Policy at Top',
+                "iconClass" : "hide",
+                "onClick" : function(rowIndex) {
+                    $("#overlay-background-id").removeClass("overlay-background");
+                    var apsName;
+                    newApplicationSet = {
+                            name:  ko.contextFor($('#name').get(0)).$data.name(),
+                            Application: ko.contextFor($('#Application').get(0)).$data.Application(),
+                            description : ko.contextFor($('#description').get(0)).$data.description()
+                        };
+                    if(ko.contextFor($('#name').get(0)).$data.uuid !== undefined){
+                        newApplicationSet.uuid = ko.contextFor($('#name').get(0)).$data.uuid();
+                        newApplicationSet.id_perms = ko.contextFor($('#name').get(0)).$data.id_perms();
+                    }
+                    var existingRows = $('#fw-wz-policy-grid').data("contrailGrid")._dataView.getItems();
+                    newApplicationSet.existingRows = existingRows;
+                    newApplicationSet.mode = viewConfig.viewConfig.mode;
+                    newApplicationSet.insert = 'top';
+                    newApplicationSet.currentIndex = rowIndex;
+                    $('#aps-save-btn-container').hide();
+                    $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
+                    if(newApplicationSet.name === ''){
+                        apsName = 'Add Application Policy Set';
+                    }else{
+                        apsName = newApplicationSet.name;
+                    }
+                    var modelHeader = apsName + ' > '+ 'New Policy';
+                    $('.modal-header-title').text('');
+                    $('.modal-header-title').text(modelHeader);
+                    $($('#applicationpolicyset_policy_wizard a.btn-primary')[0]).trigger("click");
+                }
+            },
+            {
+                "type" : "link",
+                "title" : 'Insert Policy at End',
+                "iconClass" : "hide",
+                "onClick" : function(rowIndex) {
+                    $("#overlay-background-id").removeClass("overlay-background");
+                    var apsName;
+                    newApplicationSet = {
+                            name:  ko.contextFor($('#name').get(0)).$data.name(),
+                            Application: ko.contextFor($('#Application').get(0)).$data.Application(),
+                            description : ko.contextFor($('#description').get(0)).$data.description()
+                        };
+                    if(ko.contextFor($('#name').get(0)).$data.uuid !== undefined){
+                        newApplicationSet.uuid = ko.contextFor($('#name').get(0)).$data.uuid();
+                        newApplicationSet.id_perms = ko.contextFor($('#name').get(0)).$data.id_perms();
+                    }
+                    var existingRows = $('#fw-wz-policy-grid').data("contrailGrid")._dataView.getItems();
+                    newApplicationSet.existingRows = existingRows;
+                    newApplicationSet.mode = viewConfig.viewConfig.mode;
+                    newApplicationSet.insert = 'end';
+                    newApplicationSet.currentIndex = rowIndex;
+                    $('#aps-save-btn-container').hide();
+                    $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
+                    if(newApplicationSet.name === ''){
+                        apsName = 'Add Application Policy Set';
+                    }else{
+                        apsName = newApplicationSet.name;
+                    }
+                    var modelHeader = apsName + ' > '+ 'New Policy';
+                    $('.modal-header-title').text('');
+                    $('.modal-header-title').text(modelHeader);
+                    $($('#applicationpolicyset_policy_wizard a.btn-primary')[0]).trigger("click");
+                }
             }
         ];
-        var list = viewConfig.policyGridList.list;
+        var list = policyGridList.list;
         if(list.length == 1){
-            return [];
+            rowActionConfig.splice(0,1);
+            rowActionConfig.splice(0,1);
+            return rowActionConfig;
         }else {
            var fqName = dc.fq_name[dc.fq_name.length - 1];
            if(updatedGridList.length > 0){
@@ -116,13 +281,11 @@ define([
            }
            var lastCount = list.length - 1;
            if(list.indexOf(fqName) === 0){
-               var option = [];
-               option.push(rowActionConfig[1]);
-               return option;
+               rowActionConfig.splice(0,1);
+               return rowActionConfig;
            }else if(list.indexOf(fqName) === lastCount){
-               var option = [];
-               option.push(rowActionConfig[0]);
-               return option;
+               rowActionConfig.splice(1,1);
+               return rowActionConfig;
            }else{
               return rowActionConfig;
            }
@@ -195,85 +358,47 @@ define([
     };
 
     function getHeaderActionConfig(viewConfig) {
-        var dropdownActions;
-        dropdownActions = [
+        var headerActionConfig = [
             {
-                "title": "Create new firewall policy",
-                "onClick": function () {
-                    if(ko.contextFor($('#name').get(0)).$data.name() !== ''){
-                        policyEditSet = {};
-                        $('#applicationpolicyset_policy_wizard-p-0 .alert-error').hide();
-                        $("#overlay-background-id").removeClass("overlay-background");
-                        newApplicationSet = {
-                                name:  ko.contextFor($('#name').get(0)).$data.name(),
-                                Application: ko.contextFor($('#Application').get(0)).$data.Application(),
-                                description : ko.contextFor($('#description').get(0)).$data.description()
-                            };
-                        if(ko.contextFor($('#name').get(0)).$data.uuid !== undefined){
-                            newApplicationSet.uuid = ko.contextFor($('#name').get(0)).$data.uuid();
-                            newApplicationSet.id_perms = ko.contextFor($('#name').get(0)).$data.id_perms();
-                        }
-                        var existingRows = $(gridElId).data("contrailGrid")._dataView.getItems();
-                        newApplicationSet.existingRows = existingRows;
-                        newApplicationSet.mode = viewConfig.viewConfig.mode;
-                        $('#aps-save-btn-container').hide();
-                        $('#applicationpolicyset_policy_wizard .actions').css("display", "block");
-                        var modelHeader = newApplicationSet.name + ' > '+ 'New Policy';
-                        $('.modal-header-title').text('');
-                        $('.modal-header-title').text(modelHeader);
-                        $($('#applicationpolicyset_policy_wizard a.btn-primary')[0]).trigger("click");
-                    }else{
-                        $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text('');
-                        $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text('Please enter the name.');
-                        $('#applicationpolicyset_policy_wizard-p-0 .alert-error').show();
-                    }
+                "type" : "link",
+                "title" : ctwl.TITLE_FW_POLICY_MULTI_DELETE,
+                "iconClass": 'fa fa-trash',
+                "linkElementId": 'btnDeleteFWPolicy',
+                "onClick" : function() {
+                    var checkedRows = $('#fw-wz-policy-grid').data("contrailGrid").getCheckedRows();
+                    _.each(checkedRows, function(row){
+                        deletedObj.push(row.uuid);
+                    });
+                    $('#fw-wz-policy-grid').data("contrailGrid")._dataView.refreshData();
                 }
             },
             {
-                "title": "Add firewall Policy from inventory",
-                "onClick": function () {
+                "type" : "link",
+                "title" : 'Add firewall Policy from Inventory',
+                "iconClass": 'fa fa-reply rot90_antic',
+                "linkElementId": 'btnInventoryFWPolicy',
+                "onClick" : function() {
                     var applicationObj ={
-                        name:  ko.contextFor($('#name').get(0)).$data.name(),
-                        Application: ko.contextFor($('#Application').get(0)).$data.Application(),
-                        description : ko.contextFor($('#description').get(0)).$data.description()
-                    };
-                    var mode = viewConfig.viewConfig.mode;
-                    if(mode === 'edit'){
-                        applicationObj.uuid =  ko.contextFor($('#name').get(0)).$data.uuid();
-                        applicationObj.id_perms = ko.contextFor($('#name').get(0)).$data.id_perms();
-                    }
-                    var selectedRows = $(gridElId).data("contrailGrid")._dataView.getItems();
-                    inventoryPolicyView.renderInventoryView({
-                                    applicationObj : applicationObj,
-                                    viewConfig: viewConfig,
-                                    previousRows : selectedRows,
-                                    mode : mode
-                    });
+                            name:  ko.contextFor($('#name').get(0)).$data.name(),
+                            Application: ko.contextFor($('#Application').get(0)).$data.Application(),
+                            description : ko.contextFor($('#description').get(0)).$data.description()
+                        };
+                        var mode = viewConfig.viewConfig.mode;
+                        if(mode === 'edit'){
+                            applicationObj.uuid =  ko.contextFor($('#name').get(0)).$data.uuid();
+                            applicationObj.id_perms = ko.contextFor($('#name').get(0)).$data.id_perms();
+                        }
+                        var selectedRows = $('#fw-wz-policy-grid').data("contrailGrid")._dataView.getItems();
+                        inventoryPolicyView.renderInventoryView({
+                                        applicationObj : applicationObj,
+                                        viewConfig: viewConfig,
+                                        previousRows : selectedRows,
+                                        mode : mode,
+                                        gridElId: '#fw-wz-policy-grid'
+                        });
                 }
             }
         ];
-            var headerActionConfig = [
-                {
-                    "type" : "link",
-                    "title" : ctwl.TITLE_FW_POLICY_MULTI_DELETE,
-                    "iconClass": 'fa fa-trash',
-                    "linkElementId": 'btnDeleteFWPolicy',
-                    "onClick" : function() {
-                        var checkedRows = $(gridElId).data("contrailGrid").getCheckedRows();
-                        _.each(checkedRows, function(row){
-                            deletedObj.push(row.uuid);
-                        });
-                        $(gridElId).data("contrailGrid")._dataView.refreshData();
-                    }
-                },
-                {
-                    "type" : "dropdown",
-                    "title" : "Create/Add Firewall policy",
-                    "iconClass" : "fa fa-plus",
-                    "linkElementId": 'btnAddPolicy',
-                    "actions": dropdownActions
-                }
-            ];
         if(viewConfig.viewConfig.isInventory){
             return [];
         }else{
