@@ -9,8 +9,9 @@ define([
     'ct-test-messages',
     'config/networking/port/test/ui/views/portGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
-    'co-grid-view-test-suite'
-], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+    'co-grid-view-test-suite',
+    'config/networking/port/test/ui/views/portModal.test.suite'
+], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite,portModalTestSuite) {
 
     var moduleId = cttm.PORT_GRID_VIEW_COMMON_TEST_MODULE;
 
@@ -34,9 +35,23 @@ define([
             body: JSON.stringify(TestMockdata.portUUIDListData)
         }));
         responses.push(cotr.createFakeServerResponse( {
+            url: /\/api\/tenants\/config\/all-virtual-networks.*$/,
+            body: JSON.stringify(TestMockdata.allVirtualnetworks)
+        }));
+        responses.push(cotr.createFakeServerResponse( {
+            url: /\/api\/tenants\/config\/securitygroup.*$/,
+            body: JSON.stringify(TestMockdata.securityGrpData)
+        }));
+        responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/tenants\/config\/get-virtual-machine-details-paged.*$/,
             method : 'POST',
             body: JSON.stringify(TestMockdata.portMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            url: /\/api\/tenants\/config\/create-config-object.*$/,
+            method: 'POST',
+            postBody: JSON.stringify(TestMockdata.portModalMockCNOutput),
+            body: JSON.stringify(null)
         }));
 
         return responses;
@@ -58,6 +73,10 @@ define([
                     suites: [
                         {
                             class: GridViewTestSuite,
+                            groups: ['all']
+                        },
+                        {
+                            class: portModalTestSuite,
                             groups: ['all']
                         }
                     ]
