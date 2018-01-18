@@ -417,10 +417,20 @@ define([
                 from_time = null,
                 to_time = null;
                 if(setObj) {
-                    groupByTagType = setObj.groupByTagType.split(',');
-                    subGroupByTagType = setObj.subGroupByTagType;
-                    subGroupByTagType = subGroupByTagType ?
-                            subGroupByTagType.split(',') : null;
+                    groupByTagType = setObj.group_by_tag_type;
+                    if(!groupByTagType)
+                        groupByTagType = sessionStorage.TG_CATEGORY;
+                    if(groupByTagType) {
+                        groupByTagType = _.isArray(groupByTagType) ?
+                            _.flatten(groupByTagType) : groupByTagType.split(',');
+                    }
+                    subGroupByTagType = setObj.sub_group_by_tag_type;
+                    if(subGroupByTagType) {
+                        subGroupByTagType = _.isArray(subGroupByTagType) ?
+                         _.flatten(subGroupByTagType) : subGroupByTagType.split(',');
+                    } else {
+                        subGroupByTagType = null
+                    }
                     _.each(
                         setObj.endpoints,
                         function(obj) {
@@ -448,20 +458,20 @@ define([
                     }
                 }
             return {
-                groupByTagType: groupByTagType,
-                subGroupByTagType: subGroupByTagType,
+                group_by_tag_type: groupByTagType,
+                sub_group_by_tag_type: subGroupByTagType,
                 filterByEndpoints: filterByEndpoints,
                 time_range: time_range,
                 from_time: from_time,
                 to_time: to_time
             };
         },
-        this.getCategorizationObj = function(setObj) {
+        this.getCategorizationObj = function(setObj, allLevels) {
             var tgSettings = this.getTGSettings(setObj),
-                categorization = [tgSettings.groupByTagType.join('-')],
+                categorization = [tgSettings.group_by_tag_type.join('-')],
                 showInnerCircle = this.getSettingValue('showInnerCircle');
-            if(tgSettings.subGroupByTagType && showInnerCircle) {
-                categorization.push(tgSettings.subGroupByTagType.join('-'));
+            if(tgSettings.sub_group_by_tag_type && (showInnerCircle || allLevels)) {
+                categorization.push(tgSettings.sub_group_by_tag_type.join('-'));
             }
             return categorization;
         },
@@ -487,6 +497,7 @@ define([
             var curSettings = localStorage
                 .getItem('container_' + layoutHandler.getURLHashObj().p
                            + '_settings');
+            //tgView.updateTgSettingsView();
             if(curSettings) {
                 curSettings = JSON.parse(curSettings);
                 var selectedValue = curSettings[option];

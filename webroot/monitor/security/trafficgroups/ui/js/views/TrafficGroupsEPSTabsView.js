@@ -373,6 +373,8 @@ define([
             this.sessionDrilldown();
         },
         sessionDrilldown: function() {
+            $('#tg_settings_container, #filterByTagNameSec').hide();
+            $('#traffic-groups-link-info').addClass('noSettings');
             var parentEle = $('#TG_Sessions_View').length ?
                 $('#TG_Sessions_View') : $('#traffic-groups-radial-chart');
                 parentEle.html('<h4 class="noStatsMsg">Loading...</h4>');

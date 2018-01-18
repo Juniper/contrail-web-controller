@@ -9,27 +9,46 @@ define([
 ], function (_, ContrailModel, filterModel) {
     var TrafficGroupsSettingsModel = ContrailModel.extend({
         defaultConfig: {
-            "groupByTagType": null,
-            "subGroupByTagType": null,
+            "group_by_tag_type": null,
+            "sub_group_by_tag_type": null,
             "filter_by_endpoints": {
                 "endpoint" : []
             },
-            "tagTypeList": [],
+            "tag_type_list": [],
             "time_range": 3600,
             "from_time": null,
             "to_time": null
         },
         formatModelConfig : function(modelConfig) {
             var endpointsModelCol = [],
+                tgModel = this;
                 endpoints = getValueByJsonPath(modelConfig,
                 "filterByEndpoints", []);
-            _.each(endpoints, function(endpoint){
-                endpointsModelCol.push(new filterModel({
-                    endpoint : endpoint
-                }));
+            _.each(endpoints, function(endpoint) {
+                var newModel = new filterModel({
+                        endpoint : endpoint,
+                    });
+                tgModel.bindModelChange(newModel);
+                endpointsModelCol.push(newModel);
+            });
+            endpointsModelCol = _.filter(endpointsModelCol, function(epObj) {
+                return (epObj.endpoint && epObj.endpoint());
             });
             modelConfig["endpoints"] = new Backbone.Collection(endpointsModelCol);
             return modelConfig;
+        },
+        bindModelChange: function(currentModel) {
+            var tgModel = this;
+            currentModel.__kb.view_model.model().on('change',
+                function(model, newValue) {
+                    tgModel.tgSettingsRule({
+                        success: function (modelObj) {
+                            tgModel.callback(modelObj);
+                        },
+                        error: function (error) {}
+                    });
+                }
+            );
         },
         tgSettingsRule: function (callbackObj) {
             var validations = [
@@ -55,7 +74,7 @@ define([
             }
         },
         onGroupByTagTypeChanged: function(newVal) {
-            this.model().set('tagTypeList',
+            this.model().set('tag_type_list',
                 _.filter(cowc.TRAFFIC_GROUP_TAG_TYPES,
                     function(tag) {
                         return newVal.indexOf(tag.value) < 0;
@@ -67,20 +86,33 @@ define([
             return self.time_range() == -1;
         },
         addEndpoint: function() {
-          var endpoints = this.model().attributes["endpoints"];
-          endpoints.add([new filterModel()]);
+          var tgModel = this,
+              endpoints = this.model().attributes["endpoints"];
+              newModel = new filterModel();
+          tgModel.bindModelChange(newModel);
+          endpoints.add([newModel]);
         },
         addEndpointByIndex: function($data, kbInterface){
-          var selectedRuleIndex = $data.model().collection.indexOf(kbInterface.model());
-          var endpoints = this.model().attributes["endpoints"];
-          endpoints.add([new filterModel()],{at: selectedRuleIndex+1});
+          var tgModel = this,
+              selectedRuleIndex = $data.model().collection.indexOf(kbInterface.model()),
+              endpoints = this.model().attributes["endpoints"],
+              newModel = new filterModel();
+          tgModel.bindModelChange(newModel);
+          endpoints.add([newModel],{at: selectedRuleIndex+1});
         },
         deleteEndpoint: function(data, kbInterface) {
-            data.model().collection.remove(kbInterface.model())
+            var tgModel = this;
+            data.model().collection.remove(kbInterface.model());
+            tgModel.tgSettingsRule({
+                success: function (modelObj) {
+                    tgModel.callback(modelObj);
+                },
+                error: function (error) {}
+            });
         },
         validations: {
             tgSettingsRuleValidation: {
-                'groupByTagType': {
+                'group_by_tag_type': {
                     required: true,
                     msg: 'Select atleast one tag type'
                 },
