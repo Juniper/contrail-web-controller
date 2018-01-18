@@ -963,11 +963,6 @@ define([
                 if(this.protocol() == "icmp") {
                     this.port("0");
                     return true;
-                } else {
-                    if(this.port() == "0") {
-                        this.port("");
-                    }
-                    return false;
                 }
             }), fatFlowModel);
         },
@@ -1160,6 +1155,7 @@ define([
                         fatFlowLocal[i] = {};
                         fatFlowLocal[i]["protocol"] = fatFlowCollection[i].protocol();
                         fatFlowLocal[i]["port"] = Number(fatFlowCollection[i].port());
+                        fatFlowLocal[i]["ignore_remote_address"] = fatFlowCollection[i].ignore_remote_address();
                     }
                     newPortData.virtual_machine_interface_fat_flow_protocols.fat_flow_protocol = fatFlowLocal;
                 }
