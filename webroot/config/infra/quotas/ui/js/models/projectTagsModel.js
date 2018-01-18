@@ -36,11 +36,12 @@ define([
                          var actRef = refs.split(',');
                          if(actRef.length > 1){
                              _.each(actRef, function(refsItems){
-                                 actRef =  $.makeArray(refsItems);
+                                 actRef =  refsItems.split(':');
                                  tagList.push({to: actRef});
                              });
                              return false;
                          }
+                         actRef = actRef[0].split(':');
                          tagList.push({to: actRef});
                     }
                 });
