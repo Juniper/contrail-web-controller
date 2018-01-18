@@ -173,6 +173,47 @@
                     dispStr += formattedGR;
                     return dispStr;
                 }
+                if ('port_translation_pools' == rowData['key']) {
+                    var pools = getValueByJsonPath(val, "port_translation_pool", []);
+                    if(pools.length > 0){
+                        var poolString = "", protocol, portRange, portCount, returnString = '';
+                        _.each(pools, function(obj) {
+                            if(obj.protocol != undefined){
+                                protocol = obj.protocol.toUpperCase();
+                            }else{
+                                protocol = '-';
+                            }
+                            if(obj.port_range != undefined){
+                                var startPort = obj.port_range.start_port;
+                                var endPort = obj.port_range.end_port;
+                                portRange = startPort + '-' + endPort;
+                            }else{
+                                portRange = '-';
+                            }
+                            if(obj.port_count != undefined){
+                                portCount = obj.port_count;
+                            }else{
+                                portCount = '-';
+                            }
+                            poolString += "<tr style='vertical-align:top'><td>";
+                            poolString += protocol + "</td><td>";
+                            poolString += portRange + "</td><td>";
+                            poolString += portCount + "</td>";
+                            poolString += "</tr>";
+                        });
+                        returnString =
+                            "<table style='width:70%'><thead><tr>\
+                            <th style='width:30%'>Protocol</th>\
+                            <th style='width:30%'>Port Range</th>\
+                            <th style='width:30%'>Port Count</th>\
+                            </tr></thead><tbody>";
+                        returnString += poolString;
+                        returnString += "</tbody></table>";
+                        return returnString;
+                    }else{
+                        return '-';
+                    }
+                }
                 return val;
           };
 

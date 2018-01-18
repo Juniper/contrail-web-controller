@@ -339,6 +339,14 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    label: 'SNAT',
+                                                    key: 'uuid',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'snatFormatter'
+                                                    }
+                                                },
+                                                {
                                                     label: 'Attached Network Policies',
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
@@ -654,6 +662,10 @@ define([
     }
     this.rtrExternalFormatter = function (v, dc) {
         return formatVNCfg.rtrExternalFormatter(null,
+                                        null, null, null, dc);
+    };
+    this.snatFormatter = function (v, dc) {
+        return formatVNCfg.snatFormatter(null,
                                         null, null, null, dc);
     }
     this.polColFormatter = function (v, dc) {

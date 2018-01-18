@@ -1104,3 +1104,9 @@ body.navbar-fixed{
 #addressgroup .select2-search-field{
     width:0;
 }
+#portTranslationCollection table {
+    margin-top: 3px;
+}
+#portTranslationCollection table thead{
+    background: #fafafa;
+}
