@@ -929,7 +929,7 @@ define([
                                           view: "FormCheckboxView",
                                           viewConfig : {
                                               path : 'pbb_evpn_enable',
-                                              class : "col-xs-4",
+                                              class : "col-xs-3",
                                               label:'PBB Encapsulation',
                                               templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                               dataBindValue : 'pbb_evpn_enable'
@@ -939,7 +939,7 @@ define([
                                           view: "FormCheckboxView",
                                           viewConfig : {
                                               path : 'pbb_etree_enable',
-                                              class : "col-xs-4 no-padding",
+                                              class : "col-xs-3 no-padding",
                                               label:'PBB ETree',
                                               templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                               dataBindValue : 'pbb_etree_enable'
@@ -949,10 +949,20 @@ define([
                                           view: "FormCheckboxView",
                                           viewConfig : {
                                               path : 'layer2_control_word',
-                                              class : "col-xs-4 no-padding",
+                                              class : "col-xs-3 no-padding",
                                               label:'Layer2 Control Word',
                                               templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                               dataBindValue : 'layer2_control_word'
+                                          }
+                                      },{
+                                          elementId: 'fabric_snat',
+                                          view: "FormCheckboxView",
+                                          viewConfig : {
+                                              path : 'fabric_snat',
+                                              class : "col-xs-3 no-padding",
+                                              label:'SNAT',
+                                              templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                              dataBindValue : 'fabric_snat'
                                           }
                                       }]
                                     },

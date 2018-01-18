@@ -1101,3 +1101,9 @@ body.navbar-fixed{
 #configure-firepolicyrulelist-form #config-aps-fw-rule-list .margin-0-0-5 {
     margin: 0px!important;
 }
+#portTranslationCollection table {
+    margin-top: 3px;
+}
+#portTranslationCollection table thead{
+    background: #fafafa;
+}

@@ -52,8 +52,9 @@ define([
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
-                kbValidation.bind(self);
-            });
+                kbValidation.bind(self, {collection:
+                    self.model.model().attributes.portTranslationCollection});
+            }, null, null, false);
         }
     });
 
@@ -216,6 +217,88 @@ define([
                                                  id: 'destination_port'}
                                             ]
                                     }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'portTranslationCollection',
+                                view: 'FormCollectionView',
+                                viewConfig: {
+                                    path: 'portTranslationCollection',
+                                    label:"Port Translation Pool (s)",
+                                    class: 'col-xs-12',
+                                    collection: 'portTranslationCollection',
+                                    validation: 'portTranslationValidation',
+                                    templateId: cowc.TMPL_COLLECTION_HEADING_VIEW,
+                                    rows:[{
+                                        rowActions: [
+                                             {onClick: "function() { $root.addPortTranslation(); }",
+                                              iconClass: 'fa fa-plus'},
+                                              {onClick: "function() { $root.deletePortTranslation($data, this); }",
+                                              iconClass: 'fa fa-minus'}
+                                        ],
+                                     columns: [
+                                         {
+                                             elementId: 'protocol',
+                                             name: 'Protocol',
+                                             view: "FormComboboxView",
+                                             width: 200,
+                                             viewConfig: {
+                                                 templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
+                                                 width: 200,
+                                                 path: "protocol",
+                                                 dataBindValue: "protocol()",
+                                                 elementConfig:{
+                                                     dataTextField: 'text',
+                                                     dataValueField: 'value',
+                                                     dataSource: {
+                                                         type: 'local',
+                                                         data:[{text:'tcp', value:'tcp' },
+                                                               {text:'udp', value:'udp' },
+                                                               {text:'icmp', value:'icmp' }]
+                                                        }
+                                                    }
+                                                }
+                                         },
+                                         {
+                                             elementId: 'port_range',
+                                             name: 'Port Range',
+                                             view: 'FormInputView',
+                                             width: 230,
+                                             viewConfig: {
+                                                 placeholder: 'Start-End Port',
+                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                 width: 230,
+                                                 label: '',
+                                                 path: 'port_range',
+                                                 class: 'col-xs-4',
+                                                 dataBindValue: 'port_range()'
+                                             }
+                                         },
+                                         {
+                                             elementId: 'port_count',
+                                             name: 'Port Count',
+                                             view: 'FormInputView',
+                                             width: 170,
+                                             viewConfig: {
+                                                 placeholder: 'Enter Port Count',
+                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                 width: 170,
+                                                 label: '',
+                                                 path: 'port_count',
+                                                 class: 'col-xs-4',
+                                                 dataBindValue: 'port_count()'
+                                             }
+                                         }
+                                       ]
+                                     }],
+                                     gridActions: [{
+                                         onClick: "function() { $root.addPortTranslation(); }",
+                                         iconClass: 'fa fa-plus'
+                                     }]
                                 }
                             }
                         ]

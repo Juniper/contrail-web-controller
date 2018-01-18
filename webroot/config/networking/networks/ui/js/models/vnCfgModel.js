@@ -70,6 +70,7 @@ define([
             'pbb_evpn_enable': false,
             'pbb_etree_enable': false,
             'layer2_control_word': false,
+            'fabric_snat': false,
             'mac_learning_enabled': false,
             'mac_limit_control' : {
                 'mac_limit': 0, //unlimited
