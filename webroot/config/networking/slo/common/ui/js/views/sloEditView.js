@@ -81,8 +81,9 @@ define([
         },
 
         fetchRuleList : function(options, self, callback) {
-                var returnArr = [];
-                self.policyList = {}, self.secGrpList = {}, self.sloRuleList = [];
+                var returnArr = [],
+                sloRuleList = [], networkPolicyChildList = [], secGrpChildList = [];
+                self.policyList = {}, self.secGrpList = {};/*, self.sloRuleList = [];*/
                 self.policyObj = [], self.secGrpObj = [];
                 $.each(options.policyModel, function (i, obj) {
                     self.policyObj.push(obj);
@@ -91,6 +92,7 @@ define([
                     if(ruleList.length > 0){
                         for(var j = 0; j < ruleList.length; j++){
                             self.policyList[ruleList[j].rule_uuid] = obj.name;
+                            networkPolicyChildList.push(policyHierarchicalList(ruleList[j], obj));
                         }
                     }
                 });
@@ -101,11 +103,17 @@ define([
                     if(ruleList.length > 0){
                         for(var k = 0; k < ruleList.length; k++){
                             self.secGrpList[ruleList[k].rule_uuid] = obj.name;
+                            secGrpChildList.push(secGrpHierarchicalList(ruleList[k], obj));
                         }
                     }
                 });
-                self.sloRuleList.push({text : 'Policy', value : 'network_policy', id :'network_policy', children : []},
-                                {text : 'Security Group', value : 'security_group', id : 'security_group', children : []});
+                /*self.sloRuleList.push({text : 'Policy', value : 'network_policy', id :'network_policy', children : []},
+                                {text : 'Security Group', value : 'security_group', id : 'security_group', children : []});*/
+
+                sloRuleList.push({text : 'Policy', value : 'network_policy', id :'network_policy', children : networkPolicyChildList},
+                {text : 'Security Group', value : 'security_group', id : 'security_group', children : secGrpChildList});
+
+                returnArr["sloRuleList"] = sloRuleList;
                 callback(returnArr);
         },
 
@@ -349,7 +357,7 @@ define([
                                         placeholder: 'Enter Rate'
                                    }
                                 }]},
-                                {
+                                /*{
                                     columns: [
                                         {
                                             elementId: 'network_policy_refs',
@@ -395,7 +403,7 @@ define([
                                                 }
                                            }
                                       }]
-                                },
+                                },*/
                                 {
                                     columns: [{
                                         elementId: 'sloRuleDetails',
@@ -424,13 +432,13 @@ define([
                                                            templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                            path: 'rule_uuid',
                                                            dataBindValue: 'rule_uuid()',
-                                                           dataBindOptionList : "dataSource()",
+                                                           //dataBindOptionList : "dataSource()",
                                                            elementConfig: {
                                                                minimumResultsForSearch : 1,
                                                                placeholder:"Select Policy or Security Group Rule",
                                                                dataTextField: "text",
                                                                dataValueField: "value",
-                                                               //data: allData.sloRuleList,
+                                                               data: allData.sloRuleList,
                                                                queryMap: [
                                                                    {
                                                                        name : 'Policy',
