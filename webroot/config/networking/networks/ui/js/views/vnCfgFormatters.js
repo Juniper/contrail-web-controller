@@ -162,6 +162,16 @@ define([
         };
 
         /*
+         * @snatFormatter
+         */
+        this.snatFormatter = function(d, c, v, cd, dc) {
+            var fabricSnat =
+                getValueByJsonPath(dc, 'fabric_snat', false);
+
+            return fabricSnat ? 'Enabled' : 'Disabled';
+        };
+
+        /*
          * @polColFormatter
          */
         this.polColFormatter = function(d, c, v, cd, dc) {
