@@ -89,7 +89,8 @@ define([
             'sequence': null,
             'simple_action': 'pass',
             'slo_check' : false,
-            'security_logging_object_refs':''
+            'security_logging_object_refs':'',
+            'dataSourceAllData':[]
         },
         formatModelConfig: function (modelConfig) {
             self = this;
