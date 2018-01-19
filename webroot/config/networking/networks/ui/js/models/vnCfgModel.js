@@ -1085,6 +1085,22 @@ define([
             }
         },
 
+        setVNPolicySequence: function(vnData) {
+            var policyRefs =
+                getValueByJsonPath(vnData,
+                                   "virtual-network;network_policy_refs",
+                                   []);
+            var policyRefsLen = policyRefs.length;
+            for (var i = 0; i < policyRefsLen; i++) {
+                if (null == policyRefs[i].attr) {
+                    vnData["virtual-network"]["network_policy_refs"][i].attr = {};
+                }
+                var timer = getValueByJsonPath(policyRefs, i + ";attr;timer", null);
+                vnData["virtual-network"]["network_policy_refs"][i].attr.timer = timer;
+                vnData["virtual-network"]["network_policy_refs"][i].attr.sequence =
+                    {major: i, minor: 0};
+            }
+        },
         addEditVNCfg: function (callbackObj, ajaxMethod) {
             var ajaxConfig = {}, returnFlag = false;
             var postData = {'virtual-network':{}}, postReq;
@@ -1210,6 +1226,8 @@ define([
                 delete newVNCfgData.user_created_ip_fabric_forwarding;
 
                 postData['virtual-network'] = newVNCfgData;
+                /* Set the sequence number in policy_refs */
+                this.setVNPolicySequence(postData);
 
                 var ajaxType       = contrail.checkIfExist(ajaxMethod) ?
                                                            ajaxMethod : "POST";
