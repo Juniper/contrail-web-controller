@@ -5,13 +5,13 @@
 define([
     'underscore',
     'contrail-view',
-    'config/networking/loadbalancer/ui/js/models/poolInfoModel',
+    'config/networking/loadbalancer/ui/js/models/poolModel',
     'config/networking/loadbalancer/ui/js/views/lbCfgFormatters',
-    'config/networking/loadbalancer/ui/js/views/pool/poolInfoEditView'
-], function (_, ContrailView, PoolInfoModel, LbCfgFormatters, PoolInfoEditView) {
+    'config/networking/loadbalancer/ui/js/views/pool/poolEditView'
+], function (_, ContrailView, PoolModel, LbCfgFormatters, PoolEditView) {
     var gridElId = "#" + ctwc.CONFIG_POOL_INFO_GRID_ID;
     var lbCfgFormatters = new LbCfgFormatters();
-    var poolInfoEditView = new PoolInfoEditView();
+    var poolEditView = new PoolEditView();
     var poolInfoGridView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
@@ -109,13 +109,17 @@ define([
                 "title": 'Edit Pool Details',
                 "iconClass": 'fa fa-pencil-square-o',
                 "onClick": function() {
-                    poolInfoEditView.model = new PoolInfoModel(viewConfig.pool.list);
-                    poolInfoEditView.renderEditPoolInfo({
-                                  "title": 'Edit Pool Details',
-                                  callback: function() {
-                        var dataView =
-                            $(gridElId).data("contrailGrid")._dataView;
-                        dataView.refreshData();
+                    var lbProvider = viewConfig.lbProvider;
+                    var model = viewConfig.pool.list;
+                    model['lb_provider'] = lbProvider;
+                    poolEditView.model = new PoolModel(model);
+                    poolEditView.renderEditPool({
+                              "title": 'Edit Pool Details',
+                              'lbProvider': lbProvider,
+                              callback: function () {
+                                  var dataView =
+                                      $(gridElId).data("contrailGrid")._dataView;
+                                  dataView.refreshData();
                     }});
                 }
             }

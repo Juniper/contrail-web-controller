@@ -67,23 +67,23 @@ define([
             var model = $.extend(true,{},this.model().attributes);
             var obj = {};
             if(model.associated_ip_address !== ''){
-                var uuid = model.associated_ip_address.split(';')[0];
-                var objType = model.associated_ip_address.split(';')[1];
-                if(objType === 'floating_ip_address'){
+                var uuid = model.associated_ip_address;
+                //var objType = model.associated_ip_address.split(';')[1];
+                //if(objType === 'floating_ip_address'){
                     var fipObj = options.floatingIpObj;
                     _.each(fipObj, function(obj) {
                         if(obj.uuid === uuid){
                             floatingObj = obj;
                         }
                     });
-                }else{
+                /*}else{
                     var poolObj = options.fipPoolObj;
                     _.each(poolObj, function(obj) {
                         if(obj.uuid === uuid){
                             floatingObj = obj;
                         }
                     });
-                }
+                }*/
                 obj['fixed_ip_aap'] = 'fixed-ip';
                 obj['floating_ip_fixed_ip_address'] = options.vmiFixedIp;
                 if(floatingObj.fq_name === undefined){

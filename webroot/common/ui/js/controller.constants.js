@@ -1358,7 +1358,8 @@ define([
             {'key': 'loadbalancer_pool_properties', 'name': 'Loadbalancer Method'},
             {'key': 'loadbalancer_pool_properties', 'name': 'Admin State'},
             {'key': 'loadbalancer-healthmonitor', 'name': 'Monitor Count'},
-            {'key': 'loadbalancer-members', 'name': 'Pool Member Count'}
+            {'key': 'loadbalancer-members', 'name': 'Pool Member Count'},
+            {'key': 'loadbalancer_pool_custom_attributes', 'name': 'Custom Attributes'}
         ];
 
         this.OPERATING_STATUS_MAP = ['ONLINE', 'Online', 'DRAINING', 'Draining', 'OFFLINE', 'Offline', 'DEGRADED', 'Degraded', 'ERROR', 'Error', 'NO_MONITOR', 'No Monitor'];

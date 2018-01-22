@@ -54,6 +54,7 @@ define([
     function onListenerClick(e, dc) {
         var lbId = this.viewConfig.lbId;
         var lbName = this.viewConfig.lbName;
+        var lbProvider = this.viewConfig.lbProvider;
         var projectId = this.viewConfig.projectId;
         var listenerRef = this.viewConfig.listenerRef;
         var viewTab = 'config_listener_details';
@@ -68,7 +69,8 @@ define([
                     tab: viewTab,
                     lbName: lbName,
                     listenerRef: listenerRef,
-                    projectId : projectId
+                    projectId : projectId,
+                    lbProvider: lbProvider
                 }
             };
         if (contrail.checkIfKeyExistInObject(true,
@@ -212,7 +214,8 @@ define([
                     var lbObj = {
                         'fq_name':  viewConfig.lbFqName,
                         'uuid': viewConfig.lbId,
-                        'parent_type': 'project'
+                        'parent_type': 'project',
+                        'lbProvider': viewConfig.lbProvider
                     }
                     lbCfgEditView.model = lbodel;
                     lbCfgEditView.renderAddLb({

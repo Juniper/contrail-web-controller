@@ -58,6 +58,7 @@ define([
         var projectId =  this.viewConfig.projectId;
         var viewTab = 'config_pool_details';
         var hashP = 'config_load_balancer';
+        var lbProvider = this.viewConfig.lbProvider;
         var hashParams = null,
             hashObj = {
                 view: viewTab,
@@ -71,7 +72,8 @@ define([
                     listenerName: listenerName,
                     listenerId: listenerId,
                     poolId: dc.uuid,
-                    projectId: projectId
+                    projectId: projectId,
+                    lbProvider: lbProvider
                 }
             };
         if (contrail.checkIfKeyExistInObject(true,
@@ -111,7 +113,7 @@ define([
                             $('#poolDelete').removeClass('disabled-link');
                         }
                     },
-                    actionCell: getRowActionConfig,
+                    actionCell: getRowActionConfig(viewConfig),
                     detail: {
                         noCache: true,
                         template: cowu.generateDetailTemplateHTML(
@@ -218,13 +220,17 @@ define([
         return headerActionConfig;
     }
 
-    function  getRowActionConfig (dc) {
+    function  getRowActionConfig (viewConfig) {
         rowActionConfig = [
             ctwgc.getEditConfig('Edit Pool', function(rowIndex) {
+                var lbProvider = viewConfig.lbProvider;
                 dataView = $('#' + ctwc.CONFIG_LB_POOL_GRID_ID).data("contrailGrid")._dataView;
-                poolEditView.model = new PoolModel(dataView.getItem(rowIndex));
+                var model = dataView.getItem(rowIndex);
+                model['lb_provider'] = lbProvider;
+                poolEditView.model = new PoolModel(model);
                 poolEditView.renderEditPool({
                                       "title": 'Edit Pool',
+                                      'lbProvider': lbProvider,
                                       callback: function () {
                                           dataView.refreshData();
                 }});
@@ -379,6 +385,16 @@ define([
                                                     templateGenerator: 'TextGenerator',
                                                     keyClass:'col-xs-3',
                                                     valueClass:'col-xs-9'
+                                                },
+                                                {
+                                                    label: 'Custom Attributes',
+                                                    key: 'uuid',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'customAttributes'
+                                                    },
+                                                    templateGenerator: 'TextGenerator',
+                                                    keyClass:'col-xs-3',
+                                                    valueClass:'col-xs-9'
                                                 }
                                             ]
                                         },
@@ -416,6 +432,11 @@ define([
 
     this.poolAdminState = function (v, dc){
         return lbCfgFormatters.poolAdminStateFormatter(null,
+                null, null, null, dc);
+    };
+
+    this.customAttributes = function (v, dc){
+        return lbCfgFormatters.customAttributesList(null,
                 null, null, null, dc);
     };
 

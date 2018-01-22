@@ -23,6 +23,7 @@ define([
             listenerId = currentHashParams.focusedElement.listenerId,
             poolId = currentHashParams.focusedElement.poolId;
             viewConfig.lbId = currentHashParams.focusedElement.uuid;
+            viewConfig.lbProvider = currentHashParams.focusedElement.lbProvider;
             self.pool = {};
             self.pool.list = [];
             if($('#breadcrumb').children().length === 4){
@@ -48,10 +49,16 @@ define([
         parsePoolinfoData : function(response) {
            var dataItems = [];
             self.pool.list = response[0];
+            var mapList = $.extend(true,[],ctwc.POOL_INFO_OPTIONS_MAP);
             if(response[0].loadbalancer_pool_properties.persistence_cookie_name == undefined){
-                ctwc.POOL_INFO_OPTIONS_MAP.splice(5, 1);
+                for(var i = 0; i < mapList.length; i++){
+                    if(mapList[i].name === 'Persistence Cookie Name'){
+                        mapList.splice(i, 1);
+                        break;
+                    }
+                }
             }
-            _.each(ctwc.POOL_INFO_OPTIONS_MAP, function(poolOption){
+            _.each(mapList, function(poolOption){
                 dataItems.push({ name: poolOption.name,
                     value: response[0][poolOption.key], key: poolOption.key});
             });
@@ -80,7 +87,8 @@ define([
                                         }
                                     },
                                     lbId: viewConfig.lbId,
-                                    pool: pool
+                                    pool: pool,
+                                    lbProvider: viewConfig.lbProvider
                                 }
                             }
                         ]

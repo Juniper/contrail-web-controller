@@ -1449,8 +1449,8 @@ define([
         this.CFG_LB_TITLE = 'Load Balancers';
         this.CFG_LB_LIST_VIEW_ID = 'config-lb-list-view';
         this.CFG_LB_GRID_ID = 'config-lb-grid';
-        this.CFG_LB_TITLE_CREATE = 'Create Loadbalancer';
-        this.CFG_LB_TITLE_DELETE = 'Delete Loadbalancers';
+        this.CFG_LB_TITLE_CREATE = 'Create Load Balancer';
+        this.CFG_LB_TITLE_DELETE = 'Delete Load Balancers';
         this.CFG_LB_PREFIX_ID = 'Loadbalancer';
     };
     return CTLabels;
