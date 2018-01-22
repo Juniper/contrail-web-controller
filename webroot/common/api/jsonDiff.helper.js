@@ -142,7 +142,7 @@ var configJsonModifyObj = {
     },
     'loadbalancer-pool': {
         'isConfig': true,
-        'optFields': ['loadbalancer_pool_properties','display_name', 'id_perms:description'],
+        'optFields': ['loadbalancer_pool_properties','loadbalancer_pool_custom_attributes','display_name', 'id_perms:description'],
         'mandateFields': ['fq_name', 'uuid', 'name']
     },
     'loadbalancer-healthmonitor': {
