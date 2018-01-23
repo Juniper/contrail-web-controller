@@ -253,14 +253,23 @@ define([
                                 {
                                   elementId: 'viewTgSettings',
                                   view: "FormButtonView",
-                                  cssClass: 'btn-primary',
                                   viewConfig: {
                                        label: "Apply",
                                        elementConfig: {
-                                        btnClass: 'btn-primary apply'
+                                        btnClass: 'btn-primary pull-left margin-5 apply'
                                        }
                                   }
-                              }
+                               },
+                               {
+                                  elementId: 'cancelTgSettings',
+                                  view: "FormButtonView",
+                                  viewConfig: {
+                                       label: "Cancel",
+                                       elementConfig: {
+                                        btnClass: 'btn-secondary pull-left margin-5 cancel'
+                                       }
+                                  }
+                               }
                             ]
                         }
                     ]
@@ -289,6 +298,9 @@ define([
                     },
                     error: function (error) {}
                 });
+            });
+            $('#cancelTgSettings .cancel').on('click', function(e) {
+                view.updateTgSettingsView('viewMode');
             });
         }
     });

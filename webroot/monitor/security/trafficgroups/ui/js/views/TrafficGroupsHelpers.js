@@ -506,21 +506,28 @@ define([
             }
             return selectedValue;
         },
-        this.getSelectedTime = function(setObj) {
+        this.getSelectedTime = function(setObj, option) {
             var tgSettings = this.getTGSettings(setObj),
                 fromTime = tgSettings.time_range,
                 toTime = 0;
-            if(fromTime == -1 || fromTime == -2) {
-                if(fromTime == -1) {
-                    toTime = (new Date().getTime() - new Date(
-                            tgSettings.to_time).getTime());
-                    toTime = Math.round(toTime / (1000 * 60));
-                }
-                fromTime = (new Date().getTime() - new Date(
-                        tgSettings.from_time).getTime());
-                fromTime = Math.round(fromTime / (1000 * 60));
+            if(option != "update" && sessionStorage.tg_from_time &&
+                                     sessionStorage.tg_to_time) {
+                fromTime = parseInt(sessionStorage.tg_from_time) * 1000;
+                toTime = parseInt(sessionStorage.tg_to_time) * 1000;
             } else {
-                fromTime /= 60;
+                if(fromTime == -1 || fromTime == -2) {
+                    if(fromTime == -1) {
+                        toTime = new Date(tgSettings.to_time).getTime();
+                    }
+                    if(fromTime == -2) {
+                        toTime = "now";
+                    }
+                    fromTime = new Date(tgSettings.from_time).getTime();
+                } else {
+                    fromTime /= 60;
+                    fromTime = "now-" + (fromTime + 'm');
+                    toTime = "now-" + (toTime + 'm')
+                }
             }
             return {
                 fromTime : fromTime,
@@ -540,8 +547,8 @@ define([
                 selectedTime = this.getSelectedTime(setObj);
                 clientPostData = {
                     "session_type": "client",
-                    "start_time": "now-" + (selectedTime.fromTime + 'm'),
-                    "end_time": "now-" + (selectedTime.toTime + 'm'),
+                    "start_time": selectedTime.fromTime,
+                    "end_time": selectedTime.toTime,
                     "select_fields": reqObj.selectFields,
                     "table": "SessionSeriesTable",
                     "where": [reqObj.whereClause],
@@ -549,8 +556,8 @@ define([
                 },
                 serverPostData = {
                     "session_type": "server",
-                    "start_time": "now-" + (selectedTime.fromTime + 'm'),
-                    "end_time": "now-" + (selectedTime.toTime + 'm'),
+                    "start_time": selectedTime.fromTime,
+                    "end_time": selectedTime.toTime,
                     "select_fields": reqObj.selectFields,
                     "table": "SessionSeriesTable",
                     "where": [reqObj.whereClause],

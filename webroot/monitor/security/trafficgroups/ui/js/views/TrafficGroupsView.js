@@ -714,8 +714,7 @@ define(
                         }),
                         tagData = tgHelpers.getTagsFromSession(childData[0], d.depth, '', tgView.tgSetObj);
                     if(tagData) {
-                        var selectedTime = tgHelpers.getSelectedTime(tgView.tgSetObj),
-                            whereTags = tagData.endpoint1Data.slice(0),
+                        var whereTags = tagData.endpoint1Data.slice(0),
                             whereClause = [],
                             selectFields = ['SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)',
                             'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)', 'vn', 'vmi', 'vrouter'];
@@ -1128,7 +1127,7 @@ define(
                 renderTrafficChart: function(option) {
                     this.resetChartView();
                     var self = this,
-                        selctedTime = tgHelpers.getSelectedTime(tgView.tgSetObj);
+                        selectedTime = tgHelpers.getSelectedTime(tgView.tgSetObj, 'update');
                     self.updateStatsTimeSec();
                     var configTagDefObj = $.ajax({
                         url: ctwc.URL_GET_CONFIG_DETAILS,
@@ -1142,8 +1141,9 @@ define(
                         clientPostData = {
                         "async": false,
                         "formModelAttrs": {
-                            "from_time_utc": "now-" + (selctedTime.fromTime+ 'm'),
-                            "to_time_utc": "now-" + (selctedTime.toTime + 'm'),
+                            "from_time_utc": selectedTime.fromTime,
+                            "to_time_utc": selectedTime.toTime,
+                            "use_absolute_time": true,
                             "select": "eps.client.remote_app_id, eps.client.remote_tier_id, eps.client.remote_site_id,"+
                                  "eps.client.remote_deployment_id, eps.client.remote_prefix, eps.client.remote_vn, eps.__key,"+
                                  " eps.client.app, eps.client.tier, eps.client.site, eps.client.deployment, eps.client.local_vn, name, SUM(eps.client.in_bytes),"+
@@ -1159,8 +1159,8 @@ define(
                     var serverPostData = {
                         "async": false,
                         "formModelAttrs": {
-                            "from_time_utc": "now-" + (selctedTime.fromTime + 'm'),
-                            "to_time_utc": "now-" + (selctedTime.toTime + 'm'),
+                            "from_time_utc": selectedTime.fromTime,
+                            "to_time_utc": selectedTime.toTime,
                             "select": "eps.server.remote_app_id, eps.server.remote_tier_id, eps.server.remote_site_id,"+
                                  "eps.server.remote_deployment_id, eps.server.remote_prefix, eps.server.remote_vn, eps.__key,"+
                                  " eps.server.app, eps.server.tier, eps.server.site, eps.server.deployment, eps.server.local_vn, name, SUM(eps.server.in_bytes),"+
@@ -1182,6 +1182,11 @@ define(
                             },
                             dataParser : function (response) {
                                 var clientData = cowu.getValueByJsonPath(response, 'data', []);
+                                var selectedTimeRange = cowu.getValueByJsonPath(response, 'queryJSON', {});
+                                sessionStorage.tg_from_time = selectedTimeRange.start_time;
+                                sessionStorage.tg_to_time = selectedTimeRange.end_time;
+                                serverPostData.formModelAttrs.from_time_utc = sessionStorage.tg_from_time;
+                                serverPostData.formModelAttrs.to_time_utc = sessionStorage.tg_to_time;
                                 var modifiedClientData = [];
                                     _.each(clientData, function (val, idx) {
                                         if(val['SUM(eps.client.in_bytes)'] || val['SUM(eps.client.out_bytes)']) {
