@@ -265,6 +265,22 @@ define([
                 {
                     columns: [
                         {
+                            elementId: 'expected_codes',
+                            view: 'FormInputView',
+                            viewConfig: {
+                                visible: 'user_created_monitor_type() === "HTTP"',
+                                templateId: ctwc.CONTROLLER_CONFIG_INPUT_VIEW_TEMPLATE,
+                                label:'expected_codes_label',
+                                path : 'service_health_check_properties.expected_codes',
+                                class: 'col-xs-6',
+                                dataBindValue : 'service_health_check_properties().expected_codes'
+                           }
+                        }
+                    ]
+                },
+                {
+                    columns: [
+                        {
                             elementId: 'delay',
                             view: 'FormInputView',
                             viewConfig: {
@@ -324,6 +340,7 @@ define([
                             elementId: 'max_retries',
                             view: 'FormInputView',
                             viewConfig: {
+                                visible: 'user_created_monitor_type() === "HTTP"',
                                 templateId: ctwc.CONTROLLER_CONFIG_INPUT_VIEW_TEMPLATE,
                                 label:'max_retries_label',
                                 path : 'service_health_check_properties.max_retries',
