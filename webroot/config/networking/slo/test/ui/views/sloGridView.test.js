@@ -9,8 +9,9 @@ define([
     'ct-test-messages',
     'config/networking/slo/test/ui/views/sloGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
-    'co-grid-view-test-suite'
-], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+    'co-grid-view-test-suite',
+    'config/networking/slo/test/ui/views/sloModal.test.suite'
+], function (cotc, cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, SLOModalTestSuite) {
 
     var moduleId = cttm.SLO_GRID_VIEW_COMMON_TEST_MODULE;
 
@@ -29,7 +30,6 @@ define([
             url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS),
             body: JSON.stringify(TestMockdata.sloPojectsData)
         }));
-        
         responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/admin\/config\/get-data.*$/,
             body: JSON.stringify(TestMockdata.networkPolicyMockData)
@@ -41,7 +41,14 @@ define([
         responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/tenants\/config\/get-config-details.*$/,
             method : 'POST',
-            body: JSON.stringify(TestMockdata.sloMockData)
+            postBody: JSON.stringify(TestMockdata.sloMockDataInput),
+            body: JSON.stringify(TestMockdata.sloMockDataOutput)
+        }));
+        responses.push(cotr.createFakeServerResponse({
+            url: /\/api\/tenants\/config\/create-config-object.*$/,
+            method: 'POST',
+            postBody: JSON.stringify(TestMockdata.sloModalMockCNOutput),
+            body: JSON.stringify(null)
         }));
         return responses;
     };
@@ -63,6 +70,11 @@ define([
                         {
                             class: GridViewTestSuite,
                             groups: ['all']
+                        },
+                        {
+                            class: SLOModalTestSuite,
+                            groups: ['all'],
+                            isGlobal: false
                         }
                     ]
                 }
