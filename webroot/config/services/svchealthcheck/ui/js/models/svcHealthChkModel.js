@@ -23,7 +23,7 @@ define([
                 'url_path': null,       // i.e. http://local-ip, icmp://local-ip,
                                         // 192.168.2.1,
                                         // http://my-vm-hostname:8080
-                'expected_codes': null,  // Unsupported
+                'expected_codes': '',
                 'health_check_type': 'link-local',
                 'delayUsecs': 0,
                 'timeoutUsecs': 0
@@ -31,6 +31,7 @@ define([
             delay_label: 'Delay (secs)',
             timeout_label: 'Timeout (secs)',
             max_retries_label: 'Retries',
+            expected_codes_label: 'Expected Codes',
             user_created_monitor_type: 'PING',
             user_created_health_check_type: "link-local",
             'monitor_type_list': []
@@ -157,6 +158,8 @@ define([
                                 'service_health_check_properties;timeout', '').toString();
                 max_retries = getValueByJsonPath(newsvcHealthChkCfgData,
                                 'service_health_check_properties;max_retries', '').toString();
+                var expected_codes = getValueByJsonPath(newsvcHealthChkCfgData,
+                        'service_health_check_properties;expected_codes', '').toString();
 
                 delay = delay.trim().length != 0 ? Number(delay) : null;
                 newsvcHealthChkCfgData['service_health_check_properties']['delay'] = delay;
@@ -164,6 +167,7 @@ define([
                 newsvcHealthChkCfgData['service_health_check_properties']['timeout'] = timeout;
                 max_retries = max_retries.trim().length != 0 ? Number(max_retries) : null;
                 newsvcHealthChkCfgData['service_health_check_properties']['max_retries'] = max_retries;
+                newsvcHealthChkCfgData['service_health_check_properties']['expected_codes'] = expected_codes;
 
                 //BFD
                 if(monitorType === ctwc.BFD) {
@@ -205,6 +209,7 @@ define([
                 delete newsvcHealthChkCfgData.delay_label;
                 delete newsvcHealthChkCfgData.timeout_label;
                 delete newsvcHealthChkCfgData.max_retries_label;
+                delete newsvcHealthChkCfgData.expected_codes_label;
                 var ajaxType     = contrail.checkIfExist(ajaxMethod) ?
                                                         ajaxMethod : "POST";
 

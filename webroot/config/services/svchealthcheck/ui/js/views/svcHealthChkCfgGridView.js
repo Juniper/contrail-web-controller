@@ -252,6 +252,11 @@ define([
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    label: 'Expected Codes',
+                                                    key: 'service_health_check_properties.expected_codes',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
                                                     label: 'Monitor Target',
                                                     key: 'service_health_check_properties.url_path',
                                                     templateGenerator: 'TextGenerator'
