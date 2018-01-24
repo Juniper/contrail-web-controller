@@ -11,7 +11,7 @@ define([
         defaultConfig: {
             'uuid': '',
             'name': '',
-            'label':'',
+            'Labels':'',
             'role_entries':{"roles":[]},
             'parent_type': 'policy-management',
             'parent_uuid': '',
@@ -134,6 +134,7 @@ define([
                         }
 		                this.updateRBACPermsAttrs(model);
 	                    updatedModel.tag_refs = model.tag_refs;
+	                    updatedModel.Labels = model.Labels;
                         var postData = {"address-group": updatedModel};
 		                if (options.mode == 'add') {
 		                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;

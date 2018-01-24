@@ -162,11 +162,31 @@ define([
                                 ]
                         }
                         }]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'Labels',
+                                view: 'FormMultiselectView',
+                                viewConfig: {
+                                    label: "Labels",
+                                    path: 'Labels',
+                                    dataBindValue: 'Labels',
+                                    class: 'col-xs-6',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        placeholder:
+                                            "Select Labels",
+                                             dataSource : ctwu.getDataSourceForDropdown('label')
+                                    }
+                                }
+                            }
+                        ]
                     }
                 ]
             }
         }
     };
-
     return overlayAddressGroupEditView;
 });
