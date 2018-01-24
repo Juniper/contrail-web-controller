@@ -1101,3 +1101,6 @@ body.navbar-fixed{
 #configure-firepolicyrulelist-form #config-aps-fw-rule-list .margin-0-0-5 {
     margin: 0px!important;
 }
+#addressgroup .select2-search-field{
+    width:0;
+}
