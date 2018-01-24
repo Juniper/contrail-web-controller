@@ -134,7 +134,7 @@ define([
         self.getTagsExpandDetails = function() {
             var tagsList = [
             {
-                keyClass:'col-xs-3',
+                keyClass:'col-xs-4',
                 valueClass:'col-xs-9',
                 key: 'tag_refs',
                 name:"tag_refs",
@@ -1203,6 +1203,18 @@ define([
                 projectName = contrail.getCookie(cowc.COOKIE_PROJECT);
             return projectName != 'undefined' ? domainName + ":"+ projectName : domainName + ":";
         };
+        this.getDataSourceForDropdown = function(tagName) {
+            return {
+                type: 'remote',
+                requestType: 'post',
+                postData: JSON.stringify(
+                      {data: [{type: 'tags'}]}),
+                url:'/api/tenants/config/get-config-details',
+                parse: function(result) {
+                    return tagsParser(result,tagName);
+                }
+            }
+        };
     };
 
     this.permissionFormatter =  function(v, dc) {
@@ -1290,5 +1302,56 @@ define([
         }
         return formattedSharedPerms;
     };
+    this.tagsParser = function(result, tagName) {
+        var textValue, actValue, tagsArray = [];
+        var pHashParam = getValueByJsonPath(layoutHandler.getURLHashObj(),"p");
+        var isGlobal = false;
+        if (pHashParam != null) {
+            var parts = pHashParam.split('_');
+            if(parts[0] != null && parts[0] == 'config' &&
+                    parts[1] != null && parts[1] == 'infra'){
+                isGlobal = true;
+            }
+        }
+        for(var i=0; i<result.length; i++){
+          tagsDetails = result[i].tags;
+          for(var j= 0; j < tagsDetails.length; j++){
+              //If its a global page and if the tags are from project then continue
+              //If not global and not from same project then continue
+              if (isGlobal && tagsDetails[j]['tag'].fq_name.length > 1) {
+                  continue;
+              } else if (!isGlobal && tagsDetails[j]['tag'].fq_name.length > 1) {
+                  var domain = contrail.getCookie(cowc.COOKIE_DOMAIN_DISPLAY_NAME);
+                  var project = contrail.getCookie(cowc.COOKIE_PROJECT_DISPLAY_NAME);
+                  if (domain != tagsDetails[j]['tag'].fq_name[0] ||
+                          project != tagsDetails[j]['tag'].fq_name[1]) {
+                      continue;
+                  }
+              }
+              if(tagsDetails[j].tag.fq_name &&
+                      tagsDetails[j].tag.fq_name.length === 1) {
+                  actValue = tagsDetails[j].tag.fq_name[0];
+              }
+              else{
+                  actValue =  tagsDetails[j].tag.fq_name[0] +
+                  ":" + tagsDetails[j].tag.fq_name[1] +
+                  ":" + tagsDetails[j].tag.fq_name[2];
+              }
+              data = {
+                      "text": (tagsDetails[j]['tag'].fq_name.length == 1)?
+                                  "global:" + tagsDetails[j].tag.name :
+                                   tagsDetails[j].tag.name,
+                      "value":actValue
+                 };
+              if (tagsDetails[j].tag.tag_type_name === tagName) {
+                  tagsArray.push(data);
+              } else if (tagName === 'custom' &&
+                      $.inArray(tagsDetails[j].tag.tag_type_name, ctwc.FW_PREDEFINED_TAGS) === -1){
+                  tagsArray.push(data);
+              }
+          }
+        }
+        return tagsArray;
+    }
     return CTUtils;
 });
