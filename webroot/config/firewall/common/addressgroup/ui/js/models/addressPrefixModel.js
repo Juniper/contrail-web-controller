@@ -33,6 +33,19 @@ define([
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] =
                                 (isValid == true) ? false : isValid;
             errors.set(attrErrorObj);
+        },
+        validations:{
+            addressPrefixConfigValidations:{
+                'prefix': function(value,attr,finalObj){
+                    var ipPrefix = $("#subnetCollection table tbody input");
+                    if(ipPrefix.length > 0){
+                        if ((finalObj.prefix == '' || finalObj.prefix.includes("/") == false) ||
+                                !isValidIP(finalObj.prefix)) {
+                            return "Please enter valid prefix";
+                        }
+                    }
+                }
+            }
         }
     });
     return addressPrefixModel;
