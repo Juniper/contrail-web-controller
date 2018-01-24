@@ -995,3 +995,40 @@ body #firewall_policy_rules #firewall_rules th.text-center{
 #user_created_ipam_subnets table thead {
     background: #fafafa;
 }
+#firewall_rules td.data-cell.data-cell-security_logging_object_refs .form-label {
+    padding: 5px;
+    width: 68px!important;
+}
+#firewall_rules td.data-cell.data-cell-security_logging_object_refs .form-element {
+    padding: 0px;
+    text-align: left;
+    width: 897px!important;
+}
+#alarms-active-alarm-chart .item-content {
+	display: block;
+}
+#alarms-grid-view .item-content {
+	display: block;
+}
+#alarms-event-drops .item-content {
+    display: block;
+}
+body.navbar-fixed{
+    padding-right:0px!important;
+}
+#configure-firepolicyrulelist-form{
+	margin-top: -18px;
+}
+.rot90_antic{
+ transform:rotate(-90deg);
+ }
+ #configure-firepolicyrulelist-form .grid-canvas {
+    overflow-y: scroll;
+    max-height: 280px;
+}
+#configure-firepolicyrulelist-form #config-aps-fw-rule-list .margin-0-0-5 {
+    margin: 0px!important;
+}
+#addressgroup .select2-search-field{
+    width:0;
+}
