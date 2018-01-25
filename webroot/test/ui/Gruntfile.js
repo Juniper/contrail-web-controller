@@ -769,102 +769,102 @@ module.exports = function (grunt) {
                 feature: 'config'
             }
         },
-        sloGridView : {
-            options: {
-                files: [
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/ui/js/*.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/ui/js/**/*.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloGridView.test.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloGridView.mock.data.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloModal.test.suite.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/common/ui/js/**/*.js',
-                        included : false
-                    }
-                ],
-                preprocessors: {
-                    'contrail-web-controller/webroot/config/networking/slo/ui/js/**/*.js': ['coverage']
-                },
-                junitReporter: {
-                    outputDir:__dirname + '/reports/tests/config/views/',
-                    outputFile: 'Slo-grid-view-test-results.xml',
-                    suite: 'sloGridView',
-                    useBrowserName: false
-                },
-                htmlReporter: {
-                    outputFile:__dirname + '/reports/tests/config/views/slo-grid-view-test-results.html'
-                },
-                coverageReporter: {
-                    type: 'html',
-                    dir: __dirname + '/reports/coverage/config/views/sloGridView/',
-                    subdir : browserSubdirFn
-                },
-                feature: 'config'
-            }
-        },
-        gloablSloGridView : {
-            options: {
-                files: [
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/globalSloGridView.test.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloGridView.mock.data.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloModal.test.suite.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/networking/slo/common/ui/js/**/*.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/*.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js',
-                        included : false
-                    }
-                ],
-                preprocessors: {
-                    'contrail-web-controller/webroot/config/networking/infra/globalconfig/ui/js/**/*.js': ['coverage']
-                },
-                junitReporter: {
-                    outputDir:__dirname + '/reports/tests/config/views/',
-                    outputFile: 'Gloabl-slo-grid-view-test-results.xml',
-                    suite: 'gloablSloGridView',
-                    useBrowserName: false
-                },
-                htmlReporter: {
-                    outputFile:__dirname + '/reports/tests/config/views/global-slo-grid-view-test-results.html'
-                },
-                coverageReporter: {
-                    type: 'html',
-                    dir: __dirname + '/reports/coverage/config/views/gloablSloGridView/',
-                    subdir : browserSubdirFn
-                },
-                feature: 'config'
-            }
-        },
+        //sloGridView : {
+        //    options: {
+        //        files: [
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/networking/slo/ui/js/*.js',
+        //                included : false
+        //            },
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/networking/slo/ui/js/**/*.js',
+        //                included : false
+        //            },
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloGridView.test.js',
+        //                included : false
+        //            },
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloGridView.mock.data.js',
+        //                included : false
+        //            },
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloModal.test.suite.js',
+        //                included : false
+        //            },
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/networking/slo/common/ui/js/**/*.js',
+        //                included : false
+        //            }
+        //        ],
+        //        preprocessors: {
+        //            'contrail-web-controller/webroot/config/networking/slo/ui/js/**/*.js': ['coverage']
+        //        },
+        //        junitReporter: {
+        //            outputDir:__dirname + '/reports/tests/config/views/',
+        //            outputFile: 'Slo-grid-view-test-results.xml',
+        //            suite: 'sloGridView',
+        //            useBrowserName: false
+        //        },
+        //        htmlReporter: {
+        //            outputFile:__dirname + '/reports/tests/config/views/slo-grid-view-test-results.html'
+        //        },
+        //        coverageReporter: {
+        //            type: 'html',
+        //            dir: __dirname + '/reports/coverage/config/views/sloGridView/',
+        //            subdir : browserSubdirFn
+        //        },
+        //        feature: 'config'
+        //    }
+        //},
+        //gloablSloGridView : {
+        //    options: {
+        //        files: [
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/globalSloGridView.test.js',
+        //                included : false
+        //            },
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloGridView.mock.data.js',
+        //                included : false
+        //            },
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/networking/slo/test/ui/views/sloModal.test.suite.js',
+        //                included : false
+        //            },
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/networking/slo/common/ui/js/**/*.js',
+        //                included : false
+        //            },
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/*.js',
+        //                included : false
+        //            },
+        //            {
+        //                pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js',
+        //                included : false
+        //            }
+        //        ],
+        //        preprocessors: {
+        //            'contrail-web-controller/webroot/config/networking/infra/globalconfig/ui/js/**/*.js': ['coverage']
+        //        },
+        //        junitReporter: {
+        //            outputDir:__dirname + '/reports/tests/config/views/',
+        //            outputFile: 'Gloabl-slo-grid-view-test-results.xml',
+        //            suite: 'gloablSloGridView',
+        //            useBrowserName: false
+        //        },
+        //        htmlReporter: {
+        //            outputFile:__dirname + '/reports/tests/config/views/global-slo-grid-view-test-results.html'
+        //        },
+        //        coverageReporter: {
+        //            type: 'html',
+        //            dir: __dirname + '/reports/coverage/config/views/gloablSloGridView/',
+        //            subdir : browserSubdirFn
+        //        },
+        //        feature: 'config'
+        //    }
+        //},
         qosGridView : {
             options: {
                 files: [
