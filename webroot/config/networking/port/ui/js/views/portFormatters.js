@@ -1194,12 +1194,12 @@ define([
                     refList.push(refText);
                 }
                 if(refList.length > 0){
-                	for(var l = 0; l< refList.length,l < 2; l++){
+                    for(var l = 0; l< refList.length,l < 4; l++){
                         if(refList[l]) {
                         	tags += refList[l] + "<br>";
                         }
                     }
-                    if (refList.length > 2) {
+                    if (refList.length > 4) {
                     	tags += '<span class="moredataText" style="color: #393939 !important;cursor: default !important;">(' +
                             (refList.length-2) + ' more)</span> \
                             <span class="moredata" style="display:none;" ></span>';
