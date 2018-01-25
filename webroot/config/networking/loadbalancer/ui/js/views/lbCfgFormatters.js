@@ -546,15 +546,15 @@ define([
                 }else{
                     value = '-';
                 }
-                subnetString += "<tr style='vertical-align:top'><td>";
+                subnetString += "<tr style='vertical-align:top; border-bottom:1pt solid #F1F1F1;'><td>";
                 subnetString += key + "</td><td>";
                 subnetString += value + "</td>";
                 subnetString += "</tr>";
             });
             returnString =
-                "<table style='width:65%'><thead><tr>\
-                <th style='width:50%'>Key</th>\
-                <th style='width:50%'>Value</th>\
+                "<table style='width:50%'><thead style='background-color:#f9f9f9;'><tr>\
+                <th style='width:60%'>Key</th>\
+                <th style='width:40%'>Value</th>\
                 </tr></thead><tbody>";
             returnString += subnetString;
             returnString += "</tbody></table>";
