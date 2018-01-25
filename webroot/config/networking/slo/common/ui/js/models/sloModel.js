@@ -15,7 +15,8 @@ define([
             "security_logging_object_rate": 100,
             "rules_entries":{"rules":[]},
             "network_policy_refs": [],
-            "security_group_refs": []
+            "security_group_refs": [],
+            "admin_state": 'true'
         },
 
         validations: {
@@ -40,13 +41,21 @@ define([
             var policyRuleList = [], secGrpRuleList =[], dataSourceList = [];
             var policyRefs = getValueByJsonPath(modelConfig, 'network_policy_refs',[]);
             var secGrpRefs = getValueByJsonPath(modelConfig, 'security_group_refs',[]);
-            var policyUuidList = [], secGrpUuidList = [];
+            var policyUuidList = [], secGrpUuidList = [], policyEmptyRuleUuid = [],
+            secGrpEmptyRuleUuid = [];
             /*Start for dataSourceList List*/
             if(modelConfig.policyModel !== undefined){
                 _.each(policyRefs, function(policy) {
-                    policyUuidList.push(policy.uuid);
-                });
-
+                    var policyRule = getValueByJsonPath(policy, 'attr;rule',[]);
+                    if(policyRule.length === 0){
+                        policyEmptyRuleUuid.push(policy.uuid);
+                    }
+                 });
+                _.each(modelConfig.policyModel, function(policyModel) {
+                    if(policyEmptyRuleUuid.indexOf(policyModel.uuid) === -1){
+                        policyUuidList.push(policyModel.uuid);
+                    }
+                 });
                 _.each(modelConfig.policyModel, function(model) {
                     if(policyUuidList.indexOf(model.uuid) !== -1){
                         var ruleList = getValueByJsonPath(model, ctwc.POLICY_RULE, []);
@@ -63,9 +72,16 @@ define([
 
             if(modelConfig.secGrpModel !== undefined){
                _.each(secGrpRefs, function(secGrp) {
-                    secGrpUuidList.push(secGrp.uuid);
+                   var secGroupRule = getValueByJsonPath(secGrp, 'attr;rule',[]);
+                   if(secGroupRule.length === 0){
+                      secGrpEmptyRuleUuid.push(secGrp.uuid);
+                   }
                 });
-
+               _.each(modelConfig.secGrpModel, function(secGrpModel) {
+                   if(secGrpEmptyRuleUuid.indexOf(secGrpModel.uuid) === -1){
+                       secGrpUuidList.push(secGrpModel.uuid);
+                   }
+                });
                 _.each(modelConfig.secGrpModel, function(model) {
                     if(secGrpUuidList.indexOf(model.uuid) !== -1){
                         var ruleList = getValueByJsonPath(model, ctwc.SERVICE_GRP_RULE, []);
@@ -115,14 +131,23 @@ define([
             modelConfig["rules_entries"]["rules"] = rulesCollectionModel;
 
             _.each(policyRefs, function(policy) {
-                var to = policy.to.join(':');
-                newPolicyRefs.push(to);
+                var policyRules = getValueByJsonPath(policy, 'attr;rule',[]);
+                if(policyRules.length === 0){
+                   var to = policy.to.join(':');
+                   newPolicyRefs.push(to);
+                }
             });
             _.each(secGrpRefs, function(secGrp) {
-                var to = secGrp.to.join(':');
-                newSecGrpRefs.push(to);
+                var secGrpRules = getValueByJsonPath(secGrp, 'attr;rule',[]);
+                if(secGrpRules.length === 0){
+                   var to = secGrp.to.join(':');
+                   newSecGrpRefs.push(to);
+                }
             });
-
+            var adminState = getValueByJsonPath(modelConfig, 'id_perms;enable', true);
+            if(!adminState){
+                modelConfig['admin_state'] = 'false';
+            }
             modelConfig['network_policy_refs'] = newPolicyRefs;
             modelConfig['security_group_refs'] = newSecGrpRefs;
             this.formatRBACPermsModelConfig(modelConfig);
@@ -131,18 +156,13 @@ define([
 
         addSloRule: function(){
             var rulesList = this.model().attributes['sloRuleDetails'];
-            if(this.model().attributes.network_policy_refs !== '' || this.model().attributes.security_group_refs !== ''){
-                var newRuleModel = new SloRuleModel({
-                    "rule_uuid": "",
-                    "rate": '',
-                    "dataSource" : this.sloEditView.sloRuleList
-                });
-                self.subscribeSloRuleModelChangeEvents(newRuleModel);
-                rulesList.add([newRuleModel]);
-            }else{
-                this.sloEditView.model.showErrorAttr(ctwc.SLO_PREFIX_ID + cowc.FORM_SUFFIX_ID,
-                        'Please select Network Policy  or Security Group.');
-            }
+            var newRuleModel = new SloRuleModel({
+                "rule_uuid": "",
+                "rate": '',
+                "dataSource" : this.sloEditView.sloRuleList
+            });
+            self.subscribeSloRuleModelChangeEvents(newRuleModel);
+            rulesList.add([newRuleModel]);
         },
 
         deleteSloRule: function(data, rules) {
@@ -220,6 +240,7 @@ define([
                 if(newSloObj.security_logging_object_rate === ''){
                     newSloObj.security_logging_object_rate = '100';
                 }
+                var policyList = [], secGrpList = [];
                 if(sloRules.length > 0){
                     var policyRuleList = {}, secGrpRuleList = {};
                     for(var i = 0; i < sloRules.length; i++){
@@ -247,7 +268,6 @@ define([
                         }
                     }
                     if(Object.keys(policyRuleList).length > 0){
-                        var policyList = [];
                         for(var j in policyRuleList){
                             var policyObj = {};
                             policyObj.to = self.sloEditView.policyList[j].split(';');
@@ -255,12 +275,8 @@ define([
                             policyObj.attr.rule = policyRuleList[j];
                             policyList.push(policyObj);
                         }
-                       newSloObj['network_policy_refs'] = policyList;
-                    }else{
-                        newSloObj['network_policy_refs'] = [];
                     }
                     if(Object.keys(secGrpRuleList).length > 0){
-                        var secGrpList = [];
                         for(var k in secGrpRuleList){
                             var secGrpObj = {};
                             secGrpObj.to = self.sloEditView.secGrpList[k].split(';');
@@ -268,22 +284,55 @@ define([
                             secGrpObj.attr.rule = secGrpRuleList[k];
                             secGrpList.push(secGrpObj);
                         }
+                    }
+                }
+                if(newSloObj.network_policy_refs !== ''){
+                    var polList = [], policyRuleList = newSloObj.network_policy_refs.split(';');
+                    for(var j = 0; j < policyRuleList.length; j++){
+                        var policyObj = {};
+                        policyObj.to = policyRuleList[j].split(':');
+                        policyObj.attr = {};
+                        policyObj.attr.rule = [];
+                        polList.push(policyObj);
+                    }
+                    var updatedPolicy = polList.concat(policyList);
+                    newSloObj['network_policy_refs'] = updatedPolicy;
+                }else{
+                    if(policyList.length > 0){
+                        newSloObj['network_policy_refs'] = policyList;
+                    }else{
+                        newSloObj['network_policy_refs'] = [];
+                    }
+                }
+                if(newSloObj.security_group_refs !== ''){
+                    var secGroupList = [], secGrpRuleList = newSloObj.security_group_refs.split(';');
+                    for(var j = 0; j < secGrpRuleList.length; j++){
+                        var secGrpObj = {};
+                        secGrpObj.to = secGrpRuleList[j].split(':');
+                        secGrpObj.attr = {};
+                        secGrpObj.attr.rule = [];
+                        secGroupList.push(secGrpObj);
+                    }
+                    var updatedSecGrpList = secGroupList.concat(secGrpList);
+                    newSloObj['security_group_refs'] = updatedSecGrpList;
+                }else{
+                    if(secGrpList.length > 0){
                         newSloObj['security_group_refs'] = secGrpList;
                     }else{
                         newSloObj['security_group_refs'] = [];
                     }
-                }else{
-                    newSloObj['security_group_refs'] = [];
-                    newSloObj['network_policy_refs'] = [];
                 }
                 delete newSloObj.rules_entries;
                 delete newSloObj.sloRuleDetails;
-                postData = {"security-logging-object": newSloObj};
                 if (mode == ctwl.CREATE_ACTION) {
                     ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
+                    newSloObj['id_perms'] = {};
+                    newSloObj['id_perms']['enable'] = (newSloObj.admin_state === 'true');
                 } else {
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
+                    newSloObj['id_perms']['enable'] = (newSloObj.admin_state === 'true');
                 }
+                postData = {"security-logging-object": newSloObj};
                 ajaxConfig.type  = 'POST';
                 ajaxConfig.data  = JSON.stringify(postData);
 

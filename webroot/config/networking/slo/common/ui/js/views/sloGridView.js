@@ -282,6 +282,15 @@ define([
                                     keyClass:'col-xs-3',
                                     valueClass:'col-xs-9'
                                 },{
+                                    label: 'Admin State',
+                                    key: 'uuid',
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
+                                    templateGeneratorConfig: {
+                                        formatter: 'adminStateFormatter'
+                                    },
+                                    templateGenerator: 'TextGenerator'
+                                },{
                                     key: "uuid",
                                     templateGenerator: "TextGenerator",
                                     keyClass:'col-xs-3',
@@ -330,6 +339,11 @@ define([
     this.FormatFirewallRule = function(v, dc){
         return sloFormatters.FormatFirewallRule("", "", v, "", dc);
     };
+
+    this.adminStateFormatter = function (v, dc) {
+        return sloFormatters.adminStateFormatter(null,
+                                        null, null, null, dc);
+    }
 
     return sloGridView;
 });
