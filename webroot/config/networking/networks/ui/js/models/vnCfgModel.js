@@ -864,16 +864,6 @@ define([
             } else {
                 this.user_created_forwarding_mode("default");
             }
-
-            //reset user defined ipam_subnets for flat subnet only case
-            if(value === 'flat-subnet-only') {
-                this.model().attributes.network_ipam_refs.reset();
-            }
-
-            //clear flat_subnets for user defined subnet only case
-            if(value === 'user-defined-subnet-only') {
-                this.user_created_flat_subnet_ipam('');
-            }
         },
 
         readSRIOV: function (modelConfig) {
@@ -1178,6 +1168,15 @@ define([
                 this.getAdminState(newVNCfgData);
                 this.getPhysicalRouters(newVNCfgData);
                 this.getProperties(newVNCfgData);
+                //reset user defined ipam_subnets for flat subnet only case
+                if(newVNCfgData.address_allocation_mode === 'flat-subnet-only') {
+                    newVNCfgData.network_ipam_refs.reset();
+                }
+
+                //clear flat_subnets for user defined subnet only case
+                if(newVNCfgData.address_allocation_mode === 'user-defined-subnet-only') {
+                    newVNCfgData.user_created_flat_subnet_ipam = '';
+                }
                 this.getSubnetList(newVNCfgData);
                 this.getPolicyList(newVNCfgData);
                 this.getStaticRouteList(newVNCfgData);
