@@ -14,6 +14,7 @@ var async        = require('async');
 var fipconfigapi = module.exports;
 var logutils     = require(process.mainModule.exports["corePath"] +
                            '/src/serverroot/utils/log.utils');
+
 var commonUtils  = require(process.mainModule.exports["corePath"] +
                            '/src/serverroot/utils/common.utils');
 var messages     = require(process.mainModule.exports["corePath"] +
@@ -321,8 +322,8 @@ function getFipPoolsForProjectCb (error, projectData, appData, callback)
             async.map(fipPoolReqArry, commonUtils.getAPIServerResponse(configApiServer.apiGet, true)
                 , function(err, data){
                 var nwReqArry = [];
-                if (error) {
-                     commonUtils.handleJSONResponse(error, response, null);
+                if (err) {
+                     commonUtils.handleJSONResponse(err, response, null);
                      return;
                 }
                 if(data && data.length > 0) {
@@ -334,7 +335,7 @@ function getFipPoolsForProjectCb (error, projectData, appData, callback)
                                 null, null, null, appData);            
                               
                         } catch (e) {
-                            logUtils.logger.error('getFipPoolsForProjectCb: JSON parse error :' + e);
+                            logutils.logger.error('getFipPoolsForProjectCb: JSON parse error :' + e);
                         }
                     }
                     if(nwReqArry.length > 0) { 
