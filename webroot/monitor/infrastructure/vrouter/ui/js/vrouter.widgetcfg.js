@@ -2,10 +2,103 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['underscore', 'contrail-view'],
-        function(_, ContrailView){
+define(['underscore', 'contrail-view', 'contrail-list-model', 'cf-datasource', 'monitor-infra-vrouter-model'],
+        function(_, ContrailView, ContrailListModel, CFDataSource, VRouterListModel){
     var VRouterViewConfig = function () {
         var self = this;
+        self.vRouterListModel = new ContrailListModel({data:[]});
+        self.vRouterUIListModel = new ContrailListModel({data:[]});
+        self.currentRegion = null;
+        self.isRegionChanged = function() {
+            var currentRegionFromCookie = contrail.getCookie('region');
+            if (self.currentRegion != currentRegionFromCookie) {
+                self.currentRegion = currentRegionFromCookie;
+                return true;
+            } else {
+                return false;
+            }
+        };
+        self.populateVRouterListModels = function() {
+            self.vRouterListModel = new ContrailListModel(VRouterListModel);
+            //ListModel that is kept in sync with crossFilter
+            self.vRouterUIListModel = new ContrailListModel({data:[]});
+            var cfDataSource = new CFDataSource();
+            self.cfDataSource = cfDataSource;
+            //vRouterListModel -> crossFilter(optional) & vRouterUIListModel
+            //crossFilter -> vRouterListModel
+            //Update cfDataSource on vRouterListModel update
+
+            if(cfDataSource.getDimension('gridFilter') == null) {
+                cfDataSource.addDimension('gridFilter',function(d) {
+                    return d['name'];
+                });
+            }
+            if(cfDataSource.getDimension('colorFilter') == null) {
+                cfDataSource.addDimension('colorFilter',function(d) {
+                    return d['color'];
+                });
+            }
+
+            function onUpdatevRouterListModel() {
+                cfDataSource.updateData(self.vRouterListModel.getItems());
+
+                cfDataSource.fireCallBacks({source:'fetch'});
+            }
+
+            function onUpdatevRouterUIListModel() {
+                if(self.vRouterUIListModel.updateFromcrossFilter != true) {
+                    var selRecords = self.vRouterUIListModel.getFilteredItems();
+                    var selIds = $.map(selRecords,function(obj,idx) {
+                        return obj.name;
+                    });
+
+                    self.vRouterListModel.updateFromUIListModel = true;
+                    //Apply filter only if filteredRows is < totalRows else remove the filter
+                    if(self.vRouterUIListModel.getFilteredItems().length < self.vRouterUIListModel.getItems().length) {
+                        cfDataSource.applyFilter('gridFilter',function(d) {
+                            return $.inArray(d,selIds) > -1;
+                        });
+                        cfDataSource.fireCallBacks({source:'grid'});
+                    } else {
+                        //Remove if an earlier filter exists
+                        if(cfDataSource.getFilter('gridFilter') != null) {
+                            cfDataSource.removeFilter('gridFilter');
+                            cfDataSource.fireCallBacks({source:'grid'});
+                        }
+                    }
+                } else {
+                    self.vRouterUIListModel.updateFromcrossFilter = false;
+                }
+            }
+
+            //As cfDataSource is core one,triggered whenever filters applied/removed
+            //If udpate is triggered from
+            //  1. vRouterListModel, update both crossfilter & grid
+            //  2. crossfilter, update grid
+            //  3. grid, update crossfilter
+            cfDataSource.addCallBack('updateCFListModel',function(data) {
+                self.vRouterUIListModel.updateFromcrossFilter = false;
+                //Update listUIModel with crossfilter data
+                if(data['cfg']['source'] != 'grid') {
+                    //Need to get the data after filtering from dimensions other than gridFilter
+                    var currGridFilter = cfDataSource.removeFilter('gridFilter');
+                    self.vRouterUIListModel.setData(cfDataSource.getDimension('gridFilter').top(Infinity).sort(dashboardUtils.sortNodesByColor));
+                    if(currGridFilter != null) {
+                        cfDataSource.applyFilter('gridFilter',currGridFilter);
+                    }
+                }
+                if(data['cfg']['source'] == 'crossFilter')
+                    self.vRouterUIListModel.updateFromcrossFilter = true;
+            });
+
+            //Need to trigger/register the event once callbacks are registered
+            self.vRouterListModel.onDataUpdate.subscribe(onUpdatevRouterListModel);
+            //Adding grid search filter
+            self.vRouterUIListModel.onDataUpdate.subscribe(onUpdatevRouterUIListModel);
+            if(self.vRouterListModel.loadedFromCache) {
+                onUpdatevRouterListModel();
+            }
+        }
         self.viewConfig = {
              "vrouter-flow-rate-area-chart": {
                 baseModel: 'VROUTER_FLOW_RATE_MODEL',
@@ -218,7 +311,7 @@ define(['underscore', 'contrail-view'],
                     width: 1/3
                 }
              },
-             "vrouter-summary-grid": {
+             /*"vrouter-summary-grid": {
                  baseModel: 'VROUTER_LIST_MODEL',
                  baseView: 'VROUTER_GRID_VIEW',
                  viewCfg: {
@@ -232,6 +325,30 @@ define(['underscore', 'contrail-view'],
                  itemAttr: {
                     height: 10
                  }                 
+             },*/
+             "vrouter-summary-grid" : function(cfg,i) {
+                 if(self.vRouterListModel == null || self.isRegionChanged() || i == 0) {
+                    self.populateVRouterListModels();
+                 }
+                 return {
+                     modelCfg: {listModel: self.vRouterUIListModel},
+                     viewCfg: {
+                         elementId: ctwl.VROUTER_SUMMARY_GRID_ID,
+                         class:"y-overflow-scroll",
+                         title: ctwl.VROUTER_SUMMARY_TITLE,
+                         view: "VRouterSummaryGridView",
+                         viewPathPrefix: ctwl.VROUTER_VIEWPATH_PREFIX,
+                         app: cowc.APP_CONTRAIL_CONTROLLER,
+                         viewConfig: {
+                             cfDataSource : self.cfDataSource,
+                             colorFn: {},
+                             cssClass:"y-overflow-scroll"
+                         }
+                     },itemAttr: {
+                        height: 10,
+                        width: 2
+                     }
+                 }
              },
              "vrouter-system-cpu-mem-chart": {
                  baseModel: 'VROUTER_LIST_MODEL',
@@ -414,7 +531,94 @@ define(['underscore', 'contrail-view'],
                      height: 0.7,
                      width: 1/3
                  }
-             }
+             },
+             "vrouter-summary-cpu-mem-scatter-chart" : function(cfg,i) {
+                 if(self.vRouterListModel == null || self.isRegionChanged() || i == 0) {
+                    self.populateVRouterListModels();
+                 }
+                 return {
+                     modelCfg: {listModel:self.vRouterUIListModel},
+                     viewCfg: {
+                         elementId : 'vrouter-cpu-mem-chart',
+                         view:"ZoomScatterChartView",
+                         viewConfig: {
+                             widgetConfig: {
+                                 elementId: ctwl.VROUTER_SUMMARY_CHART_ID + '-widget',
+                                 view: "WidgetView",
+                                 viewConfig: {
+                                     header: {
+                                         title: ctwl.VROUTER_SUMMARY_TITLE,
+                                         // iconClass: "icon-search"
+                                     },
+                                     controls: {
+                                         top: {
+                                             default: {
+                                                 collapseable: false
+                                             }
+                                         }
+                                     }
+                                 }
+                             },
+                             chartOptions: {
+                                 xLabel: 'CPU Share (%)',
+                                 yLabel: 'Memory (MB)',
+                                 xFormatter: function(x) {
+                                     return cowu.numberFormatter(x,0);
+                                 },
+                                 bubbleCfg : {
+                                     defaultMaxValue : monitorInfraConstants.VROUTER_DEFAULT_MAX_THROUGHPUT
+                                 },
+                                 showColorFilter:true,
+                                 bucketTooltipFn: monitorInfraUtils.vRouterBucketTooltipFn,
+                                 clickCB: monitorInfraUtils.onvRouterDrillDown,
+                                 tooltipConfigCB: monitorInfraUtils.vRouterTooltipFn
+                             },
+                             cfDataSource : self.cfDataSource
+                         }
+                     },
+                     itemAttr: {
+                         title: ctwl.VROUTER_CPU_MEM_UTILIZATION,
+                         height: 1.5,
+                         width: 2
+                     }
+                 }
+            },
+            "vrouter-crossfilters-chart" : function(cfg,i) {
+                 if(self.vRouterListModel == null || self.isRegionChanged() || i == 0) {
+                    self.populateVRouterListModels();
+                 }
+                 return {
+                     modelCfg: {listModel: self.vRouterUIListModel},
+                     viewCfg: {
+                         elementId: ctwl.VROUTER_SUMMARY_CROSSFILTER_ID,
+                         title: ctwl.VROUTER_SUMMARY_TITLE,
+                         view: "VRouterCrossFiltersView",
+                         viewPathPrefix: ctwl.VROUTER_VIEWPATH_PREFIX,
+                         app: cowc.APP_CONTRAIL_CONTROLLER,
+                         viewConfig: {
+                             vRouterListModel:self.vRouterListModel,
+                             cfDataSource: self.cfDataSource,
+                             config:[{
+                                 field:'vnCnt',
+                                 title:'vRouters over Virtual Networks'
+                             },
+                             {
+                                 field:'instCnt',
+                                 title:'vRouters over Instances'
+                             },{
+                                 field:'intfCnt',
+                                 title:'vRouters over Interfaces'
+                             }
+                             ]
+                         }
+                     },itemAttr: {
+                         title: ctwl.VROUTER_CROSSFILTERS,
+                         height: 0.5,
+                         width: 2
+//                         width:0.4
+                     }
+                 }
+            }
         }
         self.getViewConfig = function(id) {
             return self.viewConfig[id]();

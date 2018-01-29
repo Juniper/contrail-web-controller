@@ -39,11 +39,31 @@ define(
                          viewConfig: {
                              pages : [
                                   {
-                                      page: {
+                                      page : {
                                           view: 'GridStackView',
                                           elementId: 'grid-stack-view-page-1',
                                           viewConfig: {
                                               elementId: 'grid-stack-view-page-1',
+                                              disableDrag: true,
+                                              disableResize: true,
+                                              gridAttr: {
+                                                widthMultiplier: cowc.GRID_STACK_DEFAULT_WIDTH,
+                                                heightMultiplier: 10
+                                              },
+                                              widgetCfgList: [
+                                                  {id:'vrouter-summary-cpu-mem-scatter-chart'},
+                                                  {id:'vrouter-crossfilters-chart'},
+                                                  {id:'vrouter-summary-grid'}
+                                              ]
+                                          }
+                                      }
+                                  },
+                                  {
+                                      page: {
+                                          view: 'GridStackView',
+                                          elementId: 'grid-stack-view-page-2',
+                                          viewConfig: {
+                                              elementId: 'grid-stack-view-page-2',
                                               gridAttr: {
                                                   widthMultiplier: cowc.GRID_STACK_DEFAULT_WIDTH,
                                                   heightMultiplier: 10
@@ -77,9 +97,9 @@ define(
 
                                       page : {
                                           view: 'GridStackView',
-                                          elementId: 'grid-stack-view-page-2',
+                                          elementId: 'grid-stack-view-page-3',
                                           viewConfig: {
-                                              elementId: 'grid-stack-view-page-2',
+                                              elementId: 'grid-stack-view-page-3',
                                               gridAttr: {
                                             	  widthMultiplier: cowc.GRID_STACK_DEFAULT_WIDTH,
                                                   heightMultiplier: 10
@@ -94,7 +114,7 @@ define(
                                               ]
                                           }
                                       }
-                                  },
+                                  }
                              ]
                          }
                     };
