@@ -354,6 +354,9 @@ function modifySecurityGroupConfigData (type, configData, optFields,
 
 function modifyConfigData (type, configData, optFields, mandateFields, skipArr)
 {
+    if ((null == configData) || (null == configData[type])) {
+        return configData;
+    }
     var newConfigData = commonUtils.cloneObj(configData[type]);
     var optFieldsLen = 0;
     if (null != optFields) {
