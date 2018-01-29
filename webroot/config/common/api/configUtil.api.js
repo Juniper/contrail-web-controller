@@ -66,11 +66,13 @@ var configCBCreateEdit =
 {
     'post' :
         {
-            'virtual-machine-interface':portsConfig.createPortCB
+            'virtual-machine-interface':portsConfig.createPortCB,
+            'logical-router': logicalRtr.createLogicalRouterCB
         },
     'put'  :
         {
-            'virtual-machine-interface': portsConfig.updatePortsCB
+            'virtual-machine-interface': portsConfig.updatePortsCB,
+            'logical-router': logicalRtr.updateLogicalRouterCB
         }
 };
 
@@ -251,7 +253,7 @@ function getConfigDetailsAsync (dataObj, callback)
             (null != dataObj['parent_type'])) {
             var urlSuffix = 'parent_fq_name_str=' + dataObj['parent_fq_name_str'] +
                 '&parent_type=' + dataObj['parent_type'];
-            buildConfigURLSuffix(startDone, url, urlSuffix);
+            url = buildConfigURLSuffix(startDone, url, urlSuffix);
             startDone = true;
         }
     }
@@ -1285,7 +1287,7 @@ function createConfigObject (req, res, appData)
         return;
     }
     doCreateOrUpdateConfigObject(global.HTTP_REQUEST_POST, body, appData,
-                                 function(error, result) {
+                                 req, function(error, result) {
         commonUtils.handleJSONResponse(error, res, result);
     });
 }
@@ -1299,17 +1301,17 @@ function updateConfigObject (req, res, appData)
         return;
     }
     doCreateOrUpdateConfigObject(global.HTTP_REQUEST_PUT, body, appData,
-                                 function(error, result) {
+                                 req, function(error, result) {
         commonUtils.handleJSONResponse(error, res, result);
     });
 }
 
-function doCreateOrUpdateConfigObject (type, body, appData, callback)
+function doCreateOrUpdateConfigObject (type, body, appData, req, callback)
 {
     var setTagsMap = {};
     var objType = _.keys(body)[0];
     var dataObj = {appData: appData, data: body, type: type,
-        objType: objType};
+        objType: objType, request: req};
     createOrUpdateConfigObject(dataObj, function(error, result) {
         if (null != error) {
             callback(error, result);
