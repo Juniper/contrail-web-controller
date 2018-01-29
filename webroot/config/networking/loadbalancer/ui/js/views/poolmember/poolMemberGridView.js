@@ -267,6 +267,16 @@ define([
                                                     valueClass:'col-xs-9'
                                                 },
                                                 {
+                                                    key: 'uuid',
+                                                    label: 'Subnet',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'poolMemberSubnet'
+                                                    },
+                                                    templateGenerator: 'TextGenerator',
+                                                    keyClass:'col-xs-3',
+                                                    valueClass:'col-xs-9'
+                                                },
+                                                {
                                                     label: 'Address',
                                                     key: 'uuid',
                                                     templateGeneratorConfig: {
@@ -311,6 +321,10 @@ define([
 
     this.poolMemberPort = function (v, dc) {
         return lbCfgFormatters.poolMemberPortFormatter(null,
+                                        null, null, null, dc);
+    };
+    this.poolMemberSubnet = function (v, dc) {
+        return lbCfgFormatters.poolMemberSubnetFormatter(null,
                                         null, null, null, dc);
     };
 
