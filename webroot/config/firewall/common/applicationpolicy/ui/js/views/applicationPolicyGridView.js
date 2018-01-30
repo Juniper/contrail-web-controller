@@ -200,7 +200,8 @@ define([
                          fwPolicyWizardEditView.renderFirewallRule({
                                          "title": 'Firewall Rules Associated with Application Policy Set',
                                          'uuidList': uuidList,
-                                         'isGlobal': viewConfig.isGlobal
+                                         'isGlobal': viewConfig.isGlobal,
+                                         'projectSelectedValueData': getValueByJsonPath(viewConfig, "viewConfig;projectSelectedValueData", false)
                          });
                   });
                   if(dc.firewall_policy_refs !== undefined && dc.firewall_policy_refs.length > 0){

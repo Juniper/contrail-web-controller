@@ -107,14 +107,97 @@
                 }else if(dc['service_group_refs'] !== undefined){
                     var serviceGrpRef = getValueByJsonPath(dc,
                             "service_group_refs",[]);
+                    var protocol = '';
                     if(serviceGrpRef.length > 0){
                         for(var i = 0; i < serviceGrpRef.length; i++){
                             var to = serviceGrpRef[i].to;
+                            var serviceGrpInfo = getValueByJsonPath(serviceGrpRef[i],
+                                    "service-group-info;firewall_service",[]);
+                            if(serviceGrpInfo.length > 0){
+                                for(var j = 0; j < serviceGrpInfo.length; j++){
+                                    protocol += "<div style='font-weight:bold;width:60px !important;display:inline-block;'>Protocol:</div>"+
+                                    "<div style='width:50px !important;display:inline-block;'>"+serviceGrpInfo[j].protocol+"</div>"+
+                                    "<div style='font-weight:bold;width:50px !important;display:inline-block;'>Ports:</div>"+
+                                    "<div style='width:50px !important;display:inline-block;'>"+serviceGrpInfo[j].dst_ports.end_port+" - "+
+                                    serviceGrpInfo[j].dst_ports.start_port+"</div><br />";
+                                }
+                                if(serviceGrpInfo.length > 2){
+                                    protocol = protocol.split("<br />");
+                                    protocol = protocol[0]+"<br />"+protocol[1]+"  ...";
+                                }
+                            }
                             if(isGlobal){
-                                serviceStr = to[to.length - 1];
+                                serviceStr = to[to.length - 1] + "<br />" + protocol;
                             }else{
                                if(to.length < 3){
-                                 serviceStr = 'global:' + to[to.length - 1];
+                                 serviceStr = 'global:' + to[to.length - 1] +"<br />" + protocol;
+                               } else{
+                                 serviceStr = to[to.length - 1];
+                               }
+                            }
+                        }
+                        return serviceStr;
+                    }else{
+                        return '-';
+                    }
+
+                }else{
+                    return '-';
+                }
+
+            };
+
+            this.serviceExpandFormatter = function(r, c, v, cd, dc, global) {
+                var serviceStr = "", isGlobal;
+                if(global === undefined){
+                  isGlobal = this.isGlobal;
+                } else{
+                    isGlobal = global;
+                }
+                if(dc['service'] !== undefined && Object.keys(dc['service']).length > 0){
+                    var service = getValueByJsonPath(dc,
+                            "service", {}, false);
+                        serviceStr += service.protocol ? service.protocol : '';
+                        var startPort = getValueByJsonPath(service, 'dst_ports;start_port', '');
+                        var endPort = getValueByJsonPath(service, 'dst_ports;end_port', '');
+                        if(startPort !== '' && endPort !== ''){
+                            if(startPort === endPort){
+                                serviceStr += ':'  +
+                                    (endPort === -1 ? ctwl.FIREWALL_POLICY_ANY : endPort);
+                            } else{
+                                if(startPort === 0 && endPort === 65535){
+                                    serviceStr += ':any';
+                                }else{
+                                    serviceStr += ':' + (service && service.dst_ports ?
+                                            startPort + '-' +
+                                            endPort : '-');
+                                }
+                            }
+                        }
+                        return serviceStr ? serviceStr : '-';
+                }else if(dc['service_group_refs'] !== undefined){
+                    var serviceGrpRef = getValueByJsonPath(dc,
+                            "service_group_refs",[]);
+                    var protocol = '';
+                    if(serviceGrpRef.length > 0){
+                        for(var i = 0; i < serviceGrpRef.length; i++){
+                            var to = serviceGrpRef[i].to;
+                            var serviceGrpInfo = getValueByJsonPath(serviceGrpRef[i],
+                                    "service-group-info;firewall_service",[]);
+                            protocol += "<div style='width:100px;float:left;font-weight:bold;'>Protocol</div>" +
+                            "<div style='width:100px;float:left;font-weight:bold;'>Ports</div><br />";
+                            if(serviceGrpInfo.length > 0){
+                                for(var j = 0; j < serviceGrpInfo.length; j++){
+                                    protocol += "<div style='width:100px;float:left;'>"+serviceGrpInfo[j].protocol+"</div>"+
+                                    "<div style='width:100px;float:left;'>"+serviceGrpInfo[j].dst_ports.end_port+" - "+
+                                    serviceGrpInfo[j].dst_ports.start_port+"</div><br />";
+                                }
+                            }
+                            if(isGlobal){
+                                serviceStr = to[to.length - 1] + "<br />" + protocol;
+                            }else{
+                               if(to.length < 3){
+                                 serviceStr = 'global:' + to[to.length - 1] +"<br />" + protocol;
                                } else{
                                  serviceStr = to[to.length - 1];
                                }
