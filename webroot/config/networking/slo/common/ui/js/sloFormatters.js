@@ -6,7 +6,7 @@
      function(_){
      var sloFormatters = function(){
           this.formatSloRules = function(r, c, v, cd, dc) {
-              var sloRuleList = [], returnString = '', sloRules = [];
+              var sloRuleList = [], returnString = '', sloRules = [], newObj;
               var policyRefs = getValueByJsonPath(dc, 'network_policy_refs',[]);
               var secGrpRefs = getValueByJsonPath(dc, 'security_group_refs',[]);
               var refs = policyRefs.concat(secGrpRefs);
@@ -18,10 +18,19 @@
                       _.each(rule, function(obj) {
                           obj.objName = objName;
                       });
-                      sloRules = sloRules.concat(rule);
+                      if(rule.length === 0){
+                          rule.push({rule_uuid: '', objName: objName});
+                          sloRules = sloRules.concat(rule);
+                      }else{
+                         sloRules = sloRules.concat(rule);
+                      }
                   }
                   for(var i = 0; i < sloRules.length; i++){
-                      var newObj = sloRules[i].rule_uuid + ' ('+ sloRules[i].objName + ')';// + sloRules[i].rate;
+                      if(sloRules[i].rule_uuid === ''){
+                         newObj = '* ('+ sloRules[i].objName + ')';
+                      }else{
+                         newObj = sloRules[i].rule_uuid + ' ('+ sloRules[i].objName + ')';
+                      }
                       var sloRule = '<span>'+ newObj +'</span>';
                       sloRuleList.push(sloRule);
                   }
@@ -44,7 +53,7 @@
           };
 
           this.formatSloRuleDetails = function(r, c, v, cd, dc) {
-              var sloRuleList = [], returnString = '', sloRules = [];
+              var sloRuleList = [], returnString = '', sloRules = [], ruleUUID, sloRule;
               var policyRefs = getValueByJsonPath(dc, 'network_policy_refs',[]);
               var secGrpRefs = getValueByJsonPath(dc, 'security_group_refs',[]);
               var refs = policyRefs.concat(secGrpRefs);
@@ -57,11 +66,21 @@
                       _.each(rule, function(obj) {
                           obj.objName = objName;
                       });
-                      sloRules = sloRules.concat(rule);
+                      if(rule.length === 0){
+                          rule.push({rule_uuid: '', objName: objName});
+                          sloRules = sloRules.concat(rule);
+                      }else{
+                         sloRules = sloRules.concat(rule);
+                      }
                   }
                   for(var i = 0; i < sloRules.length; i++){
-                      var ruleUUID = sloRules[i].rule_uuid + ' (' + sloRules[i].objName + ')';
-                      var sloRule = '<span style="width: 400px !important;display:inline-block;">'+ ruleUUID +'</span><span>'+ sloRules[i].rate +'</span>';
+                      if(sloRules[i].rule_uuid === ''){
+                          ruleUUID = '* (' + sloRules[i].objName + ')';
+                          sloRule = '<span style="width: 400px !important;display:inline-block;">'+ ruleUUID +'</span><span></span>';
+                      }else{
+                          ruleUUID = sloRules[i].rule_uuid + ' (' + sloRules[i].objName + ')';
+                          sloRule = '<span style="width: 400px !important;display:inline-block;">'+ ruleUUID +'</span><span>'+ sloRules[i].rate +'</span>';
+                      }
                       sloRuleList.push(sloRule);
                   }
               }
@@ -149,6 +168,13 @@
               }else{
                  return '-';
               }
+          };
+
+          this.adminStateFormatter = function(d, c, v, cd, dc) {
+              var  adminState =
+                  getValueByJsonPath(dc, 'id_perms;enable', false);
+
+              return adminState ? 'Up' : 'Down';
           };
      };
      return sloFormatters;
