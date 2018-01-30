@@ -59,6 +59,12 @@ define([
                         return "Enter valid IPv4 or IPv6 Gateway";
                     }
                 },
+                'dns_server_address':
+                 function (value, attr, finalObj){
+                    if(value && !isValidIP(value)){
+                        return "Enter the valid IP address";
+                    }
+                },
                 'user_created_ipam_fqn' : {
                     required: true,
                     msg: 'Select IPAM',

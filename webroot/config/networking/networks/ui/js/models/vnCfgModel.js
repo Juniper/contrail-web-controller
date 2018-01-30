@@ -632,7 +632,9 @@ define([
             var disabledDNS = [{'dhcp_option_name': '6', 'dhcp_option_value' : '0.0.0.0'}];
             for(var i = 0; i < subnetCollection.length; i++) {
                 var subnet = $.extend(true, {}, subnetCollection[i].model().attributes);
-
+                if(subnet['dns_server_address'] === null){
+                    delete subnet['dns_server_address'];
+                }
                 if (dnsServers.length && subnet.user_created_enable_dns) {
                     this.setDHCPOptionList(subnet, dnsServers);
                 } else if(!dnsServers.length && subnet.user_created_enable_dns){
