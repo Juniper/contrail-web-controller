@@ -533,7 +533,7 @@ define([
                 steps: [
                     {
                         elementId:  cowu.formatElementId([prefixId, "add-new-firewall-policy"]),
-                        title: "Firewall Policy",
+                        title: "Add Firewall Policy",
                         view: "AccordianView",
                         viewConfig: fwzUtils.getFirewallPolicyViewConfig(prefixId, allData, isPolicyDisable),
                         stepType: "step",
@@ -586,7 +586,7 @@ define([
                                 }else{
                                     $('#applicationpolicyset_policy_wizard-p-1 .alert-error span').text('');
                                     $('#applicationpolicyset_policy_wizard-p-1 .alert-error').hide();
-                                    $('#applicationpolicyset_policy_wizard .actions > ul li:nth-child(3) a').text('Save');
+                                    $('#applicationpolicyset_policy_wizard .actions > ul li:nth-child(3) a').text('Save Policy');
                                 }
                                 return true;
                             } else {
@@ -630,7 +630,7 @@ define([
                 steps: [
                     {
                         elementId:  cowu.formatElementId([prefixId, ctwl.TITLE_CREATE_FW_RULES]),
-                        title: "Firewall Rules",
+                        title: "Add Firewall Rules",
                         view: "SectionView",
                         viewConfig: fwzUtils.getRulesViewConfig(allData),
                         stepType: "step",
@@ -782,14 +782,20 @@ define([
                     title: "Policy Set",
                     stepType: "step",
                     onNext: function (params) {
+                        if(params.model.name() === ''){
+                              $('#applicationpolicyset_policy_wizard-p-0 .alert-error span').text('Enter Application Policy set name');
+                              $('#applicationpolicyset_policy_wizard-p-0 .alert-error').show();
+                              $('#aps-save-btn-container').show();
+                              return false;
+                        }
                         if(params.model.policy_name() != ''){
-                            params.model.policy_name('');
+                              params.model.policy_name('');
                         }
                         if(params.model.policy_description() != ''){
-                            params.model.policy_description('');
+                             params.model.policy_description('');
                         }
                         if(params.model.security_logging_object_refs() != ''){
-                            params.model.security_logging_object_refs([]);
+                             params.model.security_logging_object_refs([]);
                         }
                         $('#applicationpolicyset_policy_wizard .alert-error').hide();
                         return true;
