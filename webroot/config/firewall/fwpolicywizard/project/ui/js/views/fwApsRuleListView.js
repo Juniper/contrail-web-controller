@@ -46,6 +46,11 @@ define([
                           'firewall-rule;uuid', '', false);
                   if($.inArray(currentRuleID,
                           currentPolicyRuleIds) !== -1) {
+                      let policyName = getValueByJsonPath(rule,
+                              'firewall-rule;firewall_policy_back_refs;0;to;1', '', undefined);
+                      if(policyName != undefined){
+                          rule['firewall-rule']['policy_name'] = policyName;
+                      }
                       dataItems.push(rule['firewall-rule']);
                   }
           });
