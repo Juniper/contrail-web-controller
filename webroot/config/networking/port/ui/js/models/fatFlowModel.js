@@ -10,7 +10,8 @@ define([
 
         defaultConfig: {
             'protocol': 'tcp',
-            'port':''
+            'port':'',
+            'ignore_remote_address':false,
         },
 
         validateAttr: function (attributePath, validation, data) {
@@ -45,8 +46,8 @@ define([
                         if (value % 1 != 0) {
                             return "Fat Flow Protocol's Port has to be a number";
                         }
-                        if (Number(value) < 1 || Number(value) > 65535) {
-                            return "Enter valid port between 1 to 65535 for Fat Flow Record";
+                        if (Number(value) < 0 || Number(value) > 65535) {
+                            return "Enter valid port between 0 to 65535 for Fat Flow Record";
                         }
                     } else {
                         if(value.trim() != "0") {

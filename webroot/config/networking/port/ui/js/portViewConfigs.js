@@ -1029,7 +1029,7 @@
                                                  dataBindValue: 'protocol()',
                                                  placeholder: 'Protocol',
                                                  class: "col-xs-6",
-                                                 width:275,
+                                                 width:180,
                                                  label: 'Protocol',
                                                  elementConfig:{
                                                      dataTextField: "text",
@@ -1048,13 +1048,26 @@
                                              view: "FormInputView",
                                              viewConfig: {
                                                  path: 'port',
-                                                 placeholder: '1 to 65535',
+                                                 placeholder: '0 to 65535',
                                                  templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                  dataBindValue: 'port()',
                                                  disabled: "disablePort()",
                                                  class: "col-xs-6",
-                                                 width:275,
+                                                 width:180,
                                                  label: 'Value'
+                                             }
+                                         },
+                                         {
+                                             elementId: 'ignore_remote_address',
+                                             name: "Ignore Remote Address",
+                                             view: "FormCheckboxView",
+                                             viewConfig: {
+                                                 path: 'ignore_remote_address',
+                                                 label: "",
+                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                 dataBindValue: 'ignore_remote_address()',
+                                                 class: "col-xs-6",
+                                                 width:190,
                                              }
                                          }],
                                          rowActions: [{
