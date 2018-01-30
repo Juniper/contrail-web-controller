@@ -11,7 +11,7 @@ define([
         defaultConfig: {
             'uuid': '',
             'name': '',
-            'label':'',
+            'Labels':'',
             'role_entries':{"roles":[]},
             'parent_type': 'policy-management',
             'parent_uuid': '',
@@ -21,7 +21,7 @@ define([
               }
         },
         formatModelConfig: function(modelConfig) {
-        	var roleModels = [];
+            var roleModels = [];
             deletedRule = [],rule_obj = {};
             var list = modelConfig["address_group_prefix"];
             var subnetList = list['subnet'];
@@ -93,6 +93,11 @@ define([
                     key : null,
                     type : cowc.OBJECT_TYPE_MODEL,
                     getValidation : "addressGroupValidation"
+                },
+                {
+                    key: 'subnetCollection',
+                    type: cowc.OBJECT_TYPE_COLLECTION,
+                    getValidation: 'addressPrefixConfigValidations'
                 }];
             if (self.isDeepValid(validations)) {
 		            var model = $.extend(true,{},this.model().attributes);
@@ -134,6 +139,7 @@ define([
                         }
 		                this.updateRBACPermsAttrs(model);
 	                    updatedModel.tag_refs = model.tag_refs;
+	                    updatedModel.Labels = model.Labels;
                         var postData = {"address-group": updatedModel};
 		                if (options.mode == 'add') {
 		                    ajaxConfig.url = ctwc.URL_CREATE_CONFIG_OBJECT;
