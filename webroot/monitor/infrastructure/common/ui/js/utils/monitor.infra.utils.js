@@ -3,9 +3,8 @@ define([
     'handlebars',
     'contrail-list-model',
     'core-alarm-utils',
-    'core-utils',
     "core-constants"
-], function (_, Handlebars, ContrailListModel,coreAlarmUtils,cowu,cowc) {
+], function (_, Handlebars, ContrailListModel,coreAlarmUtils,cowc) {
     var MonitorInfraUtils = function () {
         var self = this;
         var noDataStr = monitorInfraConstants.noDataStr;
@@ -2405,37 +2404,6 @@ define([
                 }
             }
         },
-        self.parseAndMergeStats = function (response,primaryDS,key) {
-            var primaryData = primaryDS.getItems();
-            if(primaryData.length == 0) {
-                primaryDS.setData(response);
-                return response;
-            }
-            if(response.length == 0) {
-                return primaryData;
-            }
-            //If both arrays are not having first element at same time
-            //remove one item accordingly
-            while (primaryData[0]['T='] != response[0]['T=']) {
-                if(primaryData[0]['T='] > response[0]['T=']) {
-                    response = response.slice(1,response.length-1);
-                } else {
-                    primaryData = primaryData.slice(1,primaryData.length-1);
-                }
-            }
-            var cnt = primaryData.length;
-            for (var i = 0; i < cnt ; i++) {
-                primaryData[i]['T='] = primaryData[i]['T='];
-                if (response[i] != null && response[i][key] != null) {
-                    primaryData[i][key] =
-                        response[i][key];
-                } else if (i > 0){
-                    primaryData[i][key] =
-                        primaryData[i-1][key];
-                }
-            }
-            primaryDS.updateData(primaryData);
-        }
         self.getScatterChartClickFn = function(currObj,options) {
             layoutHandler.setURLHashParams({
                 type: getValueByJsonPath(options,'type'),
@@ -2447,21 +2415,6 @@ define([
             }, {
                 p: getValueByJsonPath(options,'hash')
             });
-        }
-        self.fetchWhereClauseForNodeType = function(nodeType) {
-            var defObj = $.Deferred();
-            var whereClause = self.fetchHostNamesForNodeType({nodeType:nodeType}).
-                then(function(nodeNames) {
-                    return self.getWhereClauseForSystemStats(nodeNames);
-                }).done(function(whereClause) {
-                    defObj.resolve(whereClause);
-                });
-            var whereClause;
-            // listModel.onAllRequestsComplete(function() {
-            //     var nodeNames = listModel.getItems();
-            //     whereClause = self.getWhereClauseForSystemStats(nodeNames);
-            //     defObj.resolve(whereClause);
-            // });
         }
         self.fetchHostNamesForNodeType = function(cfg) {
             var nodeType = getValueByJsonPath(cfg,"nodeType","");
