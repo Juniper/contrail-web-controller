@@ -21,6 +21,7 @@ define([
                                     elementId: "policy_name",
                                     view: "FormInputView",
                                     viewConfig: {
+                                        label: 'Name',
                                         path: "policy_name",
                                         dataBindValue: "policy_name",
                                         class: "col-xs-6",
@@ -34,6 +35,7 @@ define([
                                           elementId: "policy_description",
                                           view: "FormInputView",
                                           viewConfig: {
+                                              label: 'Description',
                                               path: "policy_description",
                                               dataBindValue: "policy_description",
                                               class: "col-xs-12"

@@ -216,20 +216,6 @@ define([
             }
             return uuid;
         },
-        checkIsGlobal: function(){
-            var isGlobal = false;
-            var url = decodeURIComponent(location.hash).split('&');
-            for(var i = 0; i < url.length; i++){
-                if(url[i].search('isGlobal') !== -1){
-                    var spliturl = url[i].split('=').reverse();
-                    if(spliturl[0] === 'true'){
-                        isGlobal = true;
-                    }
-                    break;
-                }
-            }
-            return isGlobal;
-        },
         getFormatedService : function(selectedData, list){
             var svcListRef = [], service = {};
             for(var i = 0; i < list.length; i++){
@@ -324,7 +310,7 @@ define([
                 var ajaxConfig = {}, returnFlag = true, postFWRules = [];
                 var postFWRuleData = {};
                 var self = this;
-                var isGlobal = self.checkIsGlobal();
+                var isGlobal = options.isGlobal;
                 var attr = $.extend(true,{},this.model().attributes), newFWRuleData = {};
 
                 newFWRuleData['endpoint_1'] = self.populateEndpointData(attr['endpoint_1']);
