@@ -1486,6 +1486,10 @@ function deleteVirtualNetworkAsync (dataObj, callback)
                 dataObjArr[i]['appData'] = appData;
             }
             async.map(dataObjArr, fipPoolDelete, function(err, results) {
+                if(err) {
+                    callback(null, {'error': err, 'data': null});
+                    return;
+                }
                 if ('vcenter' == loggedInOrchMode) {
                     vCenterAPI.deletevCenterPortGroup(data['virtual-network'],
                                                         appData, function (error, data) {
@@ -2038,21 +2042,29 @@ function updateVNFipPoolReadDel (error, fipPool, virtualNetworkId,
         });
         return;
     }
-
-    for (i = 0; i < fipProjRefsLen; i++) {
-        reqUrl = '/project/' + fipProjRef[i]['uuid']; 
-        commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
-                                 null, null, null, appData);
+    for (var i = 0; i < fipProjRefsLen; i++) {
+        var putData = {
+            'type': 'project',
+            'uuid': fipProjRef[i]['uuid'],
+            'ref-type': 'floating-ip-pool',
+            'ref-uuid': fipPool['floating-ip-pool']['uuid'],
+            'operation': 'DELETE'
+        };
+        var reqUrl = '/ref-update';
+        commonUtils.createReqObj(dataObjArr, reqUrl,
+                                 global.HTTP_REQUEST_POST,
+                                 commonUtils.cloneObj(putData), null,
+                                 null, appData);
     }
-
     async.map(dataObjArr,
-              commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-              function(error, results) {
-                  deleteFipPoolUpdateProjects(error, results, 
-                                              fipPool, virtualNetworkId,
-                                              appData, callback);
-              });
-
+            commonUtils.getServerResponseByRestApi(configApiServer, true),
+            function(error, results) {
+                deleteFipPoolUpdateSendResponse(error, results,
+                        fipPool, virtualNetworkId,
+                        appData, callback);
+                return;
+            }
+    );
 }
 
 /**
