@@ -947,9 +947,9 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
     max-height:256px;
     overflow-y:auto!important;
     }
-#fw-wz-policy-grid .grid-canvas{
-  overflow-y:auto!important;
-  max-height:120px;
+#applicationpolicyset_policy_wizard section.body {
+    height: 100%;
+    overflow-y: auto;
 }
 #configure-applicationpolicyset{
     overflow:auto;
@@ -970,6 +970,99 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
     margin-left: -10px;
     padding: 10px;
 }
+/** firewall policy wizard comments changes**/
+  #applicationpolicyset_policy_wizard.wizard.wizard > .steps ul li.current:before,
+  #applicationpolicyset_policy_wizard.wizard.wizard > .steps ul li.done:before{
+      border-color:#ced2d6 !important;
+  }
+  #applicationpolicyset_policy_wizard.wizard.wizard > .steps ul li.current .number,
+  #applicationpolicyset_policy_wizard.wizard.wizard > .steps ul li.done .number{
+      border-color:#5293C4 !important;
+  }
+  #applicationpolicyset_policy_wizard.wizard > .steps ul li.done:before, #applicationpolicyset_policy_wizard.wizard > .steps ul li.current .number, #applicationpolicyset_policy_wizard.wizard > .steps ul li.done .number {
+    color: #fff;
+    background: #5293C4;
+  }
+  #applicationpolicyset_policy_wizard.wizard >.steps ul li.half-enabled .number {
+      background: #fff;
+      color: #888;
+  }
+  #applicationpolicyset_policy_wizard.wizard.wizard > .steps ul li.half-done:before {
+      border-color: #5293c4 !important;
+      width: 100%;
+      max-width: 100%;
+      z-index: 2;
+  }
+  #applicationpolicyset_policy_wizard.wizard.wizard > .steps ul li.done:before {
+      border-color: #5293c4 !important;
+      width: 100%;
+      max-width: 100%;
+      z-index: 2;
+  }
+  #applicationpolicyset_policy_wizard.wizard.wizard > .steps ul li.current:last-child:before {
+      width: 50%;
+      border-color: #5293c4 !important;
+      max-width: 100%;
+      z-index: 2;
+  }
+  #associated-fw-policy-id{
+      margin-left:13px;
+  }
+  #associated-fw-policy-id h4.grid-header-text{
+      font-size:13px;
+  }
+  #fw_security_application_permission_accordion_create{
+      margin-left:5px;
+  }
+  #aps-fw-rule-list-grid .slick-group>.slick-cell {
+      text-align: left!important;
+      color: #3182bd;
+      margin-left: -5px;
+  }
+  #aps-fw-rule-list-grid .rule-formatter-txt{
+      font-size:12px;
+      display:inline-block;
+  }
+  #aps-fw-rule-list-grid .rule-formatter-expand-txt{
+      width:100px;
+      float:left;
+      font-weight:bold;
+  }
+  #aps-fw-rule-list-grid .grid-canvas{
+      width:100% !important;
+  }
+  #applicationpolicyset_policy_wizard .grid-canvas {
+      width: 100%!important;
+  }
+  #applicationpolicyset_policy_wizard.wizard > .steps ul li .number {
+      color: white;
+      background: #ced2d6;
+  }
+  #applicationpolicyset_policy_wizard.wizard > .steps ul li.current + li.done:before{
+   border-color:#ced2d6 !important;
+ }
+ #applicationpolicyset_policy_wizard.wizard > .steps ul li.current + li.done .number{
+   background:#ccc !important;
+   border-color:#ced2d6 !important;
+ }
+ #applicationpolicyset_policy_wizard.wizard > .steps ul li.current + li.done.last:before {
+     max-width: 50% !important;
+     width: 50% !important;
+ }
+ #applicationpolicyset_policy_wizard.wizard > .content {
+     min-height: 380px !important;
+     overflow: hidden;
+     padding-top: 10px;
+     border-radius: 0;
+     -webkit-box-shadow: inset 0px 6px 11px -5px rgb(240, 240, 240);
+     -moz-box-shadow: inset 0px 6px 11px -5px rgba(240,240,240,1);
+     box-shadow: inset 0px 6px 11px -5px rgba(240,240,240,1);
+ }
+ #inventory-fw-policy-id .l2{
+     text-overflow: ellipsis; 
+     white-space: nowrap;
+ }
+/** Ends here **/
 #applicationpolicyset_policy_wizard.wizard > .steps > ul > li {
     width: 28%;
 }
@@ -1091,8 +1184,8 @@ body.navbar-fixed{
 #configure-firepolicyrulelist-form{
 	margin-top: -18px;
 }
-.rot90_antic{
- transform:rotate(-90deg);
+.rot45_antic{
+ transform:rotate(-45deg);
  }
  #configure-firepolicyrulelist-form .grid-canvas {
     overflow-y: scroll;
