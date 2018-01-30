@@ -86,8 +86,8 @@ define([
         var rowActionConfig = [
             {
                 "type" : "link",
-                "title" : 'Move Policy Up',
-                "iconClass" : "hide",
+                "title" : 'Move Up',
+                "iconClass" : "fa fa-arrow-up",
                 "onClick" : function(rowIndex) {
                     var dataView = $('#fw-wz-policy-grid').data("contrailGrid")._dataView;
                     var items = dataView.getItems();
@@ -110,8 +110,8 @@ define([
             },
             {
                 "type" : "link",
-                "title" : 'Move Policy Down',
-                "iconClass" : "hide",
+                "title" : 'Move Down',
+                "iconClass" : "fa fa-arrow-down",
                 "onClick" : function(rowIndex) {
                     var dataView = $('#fw-wz-policy-grid').data("contrailGrid")._dataView;
                     var items = dataView.getItems();
@@ -134,8 +134,8 @@ define([
             },
             {
                 "type" : "link",
-                "title" : 'Insert Policy Below',
-                "iconClass" : "hide",
+                "title" : 'Insert Below',
+                "iconClass" : "fa contrailGlyph-insert-below",
                 "onClick" : function(rowIndex) {
                     $("#overlay-background-id").removeClass("overlay-background");
                     var apsName;
@@ -168,8 +168,8 @@ define([
             },
             {
                 "type" : "link",
-                "title" : 'Insert Policy Above',
-                "iconClass" : "hide",
+                "title" : 'Insert Above',
+                "iconClass" : "fa contrailGlyph-insert-above",
                 "onClick" : function(rowIndex) {
                     $("#overlay-background-id").removeClass("overlay-background");
                     var apsName;
@@ -202,8 +202,8 @@ define([
             },
             {
                 "type" : "link",
-                "title" : 'Insert Policy at Top',
-                "iconClass" : "hide",
+                "title" : 'Insert at Top',
+                "iconClass" : "fa contrailGlyph-insert-top",
                 "onClick" : function(rowIndex) {
                     $("#overlay-background-id").removeClass("overlay-background");
                     var apsName;
@@ -236,8 +236,8 @@ define([
             },
             {
                 "type" : "link",
-                "title" : 'Insert Policy at End',
-                "iconClass" : "hide",
+                "title" : 'Insert at End',
+                "iconClass" : "fa contrailGlyph-insert-bottom",
                 "onClick" : function(rowIndex) {
                     $("#overlay-background-id").removeClass("overlay-background");
                     var apsName;
@@ -302,7 +302,7 @@ define([
             gridTitle = ctwl.TITLE_ASSOCIATED_POLICY;
         }
         else if(viewConfig.viewConfig.isInventory === true){
-            gridTitle = "Add firewall policy from inventory";
+            gridTitle = "Select firewall policy";
         }
         else{
             gridTitle = "";
@@ -378,7 +378,7 @@ define([
             {
                 "type" : "link",
                 "title" : 'Add firewall Policy from Inventory',
-                "iconClass": 'fa fa-reply rot90_antic',
+                "iconClass": 'fa fa-link rot45_antic',
                 "linkElementId": 'btnInventoryFWPolicy',
                 "onClick" : function() {
                     var applicationObj ={

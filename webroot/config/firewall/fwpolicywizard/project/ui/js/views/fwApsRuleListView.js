@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-view',
     'contrail-list-model',
-    'config/firewall/common/fwpolicy/ui/js/fwRuleFormatter'
-], function (_, ContrailView, ContrailListModel, FWRuleFormatter) {
+    'config/firewall/common/fwpolicy/ui/js/fwRuleFormatter',
+    'knockback'
+], function (_, ContrailView, ContrailListModel, FWRuleFormatter,Knockback) {
     var fwRuleFormatter = new FWRuleFormatter();
     var fwApsRuleListView = ContrailView.extend({
         el: $(contentContainer),
@@ -15,37 +16,86 @@ define([
             var self = this, viewConfig = this.attributes.viewConfig;
             policyUuidList = [];
             policyUuidList = viewConfig.uuidList;
-             var listModelConfig = {
-                remote: {
-                    ajaxConfig: {
-                        url: "/api/tenants/config/get-config-details",
-                        type: "POST",
-                        data: JSON.stringify(
-                            {data: [{type: 'firewall-policys', obj_uuids:viewConfig.uuidList},
-                                    {type: 'firewall-rules',
-                                fields: ['firewall_policy_back_refs']}]})
-                    },
-                    dataParser: self.parseFWRuleData,
-                }
-            };
-            var contrailListModel = new ContrailListModel(listModelConfig);
-            this.renderView4Config(this.$el,
-                    contrailListModel, getfwRuleListGridViewConfig(viewConfig));
+            var listModelConfigArray = [];
+            var ajaxConfig = {};
+            var data;
+            if(viewConfig.isGlobal === false && viewConfig.projectSelectedValueData){
+                data = JSON.stringify(
+                        {data: [{type: 'service-groups',
+                            parent_id: viewConfig["projectSelectedValueData"].value}]})
+            }
+            else{
+                data = JSON.stringify(
+                        {data: [{type: 'service-groups',
+                            parent_type: "policy-management",
+                            parent_fq_name_str:"default-policy-management"}]})
+            }
+            ajaxConfig.type = "POST";
+            ajaxConfig.url = "/api/tenants/config/get-config-details"
+            ajaxConfig.data  = JSON.stringify(
+                        {data: [{type: 'firewall-policys', obj_uuids:viewConfig.uuidList},
+                                {type: 'firewall-rules',
+                            fields: ['firewall_policy_back_refs']}]});
+            contrail.ajaxHandler(ajaxConfig, function () {
+            }, function (response) {
+                self.fwPolicy = response;
+                listModelConfig = {
+                        remote: {
+                            ajaxConfig: {
+                                url: "/api/tenants/config/get-config-details",
+                                type: "POST",
+                                data: data
+                            },
+                            dataParser: function(response){
+                                return self.parseFWRuleData(self.fwPolicy, response);
+                            }
+                        }
+                    };
+                var contrailListModel = new ContrailListModel(listModelConfig);
+               // Knockback.ko.cleanNode($("#configure-firepolicyrulelist")[0]);
+                self.renderView4Config(self.$el,
+                contrailListModel, getfwRuleListGridViewConfig(viewConfig));
+            },
+            function (error) {
+               console.log(error);
+           });
         },
-        parseFWRuleData : function(response) {
-            var firewallPolicies = getValueByJsonPath(response, "0;firewall-policys", [], false), policyList = [];  
+        parseFWRuleData : function(data, response) {
+            var firewallPolicies = getValueByJsonPath(data, "0;firewall-policys", [], false), policyList = []; 
+            var serviceGroupInfo = getValueByJsonPath(response, "0;service-groups", []);
+
             _.each(firewallPolicies, function(policy){
                 policyList.push(policy['firewall-policy']);
             });
             var currentPolicyRuleIds = getFWRuleIds(policyList),
-            dataItems = [],
-           rulesData = getValueByJsonPath(response,
+            dataItems = [],serviceGrpName,
+           rulesData = getValueByJsonPath(data,
                   "1;firewall-rules", [], false);
           _.each(rulesData, function(rule){
                   var currentRuleID = getValueByJsonPath(rule,
                           'firewall-rule;uuid', '', false);
                   if($.inArray(currentRuleID,
                           currentPolicyRuleIds) !== -1) {
+                      let policyName = getValueByJsonPath(rule,
+                              'firewall-rule;firewall_policy_back_refs;0;to;1', undefined);
+                      if(policyName != undefined){
+                          rule['firewall-rule']['policy_name'] = policyName;
+                      }
+                      var serviceGrp = getValueByJsonPath(rule, 'firewall-rule;service_group_refs;0;to', []);
+                      var serviceGrpLen = serviceGrp.length;
+                      if(serviceGrpLen > 0){
+                          serviceGrpName = serviceGrp[serviceGrpLen-1];
+                      }
+                      if(serviceGroupInfo.length > 0 && serviceGrpName != undefined){
+                          _.each(serviceGroupInfo, function(item){
+                              if(serviceGrpName === item['service-group'].name){
+                                  if(rule['firewall-rule'].service_group_refs){
+                                      rule['firewall-rule'].service_group_refs[0]['service-group-info'] = 
+                                          item['service-group'].service_group_firewall_service_list;
+                                  }
+                              }
+                          });
+                      }
                       dataItems.push(rule['firewall-rule']);
                   }
           });

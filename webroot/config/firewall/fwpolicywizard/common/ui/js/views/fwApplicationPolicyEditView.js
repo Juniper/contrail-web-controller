@@ -134,7 +134,7 @@ define([
                                    viewConfig: {
                                        visible:
                                            'name() !== "' + ctwc.GLOBAL_APPLICATION_POLICY_SET + '"',
-                                       label: "Application Tags",
+                                       label: "Application Tag",
                                        path: 'Application',
                                        plusFlag : true,
                                        dataBindValue: 'Application',
@@ -150,7 +150,6 @@ define([
                                    }
                                }
                            ]
-
                        },
                        {
                            columns: [
@@ -185,7 +184,99 @@ define([
                                    })
                                }
                            ]
-                       }
+                       },
+                       {
+                           columns: [
+                               {
+                                   elementId: "fw-policy-global-grid-id",
+                                   view: "fwApplicationPolicyListView",
+                                   viewPathPrefix:
+                                       "config/firewall/fwpolicywizard/project/ui/js/views/",
+                                   app: cowc.APP_CONTRAIL_CONTROLLER,
+                                   viewConfig: $.extend(true, {}, viewConfig,{
+                                       projectSelectedValueData: viewConfig.projectSelectedValueData,
+                                       seletedRows : seletedRows,
+                                       policyList : slecectedPolicyList,
+                                       apsName : apsName,
+                                       girdId : viewConfig.girdId
+                                   })
+                               }
+                           ]
+                       },
+                       {
+                           columns:[{
+                               elementId: "fw_security_application_permission_accordion_create",
+                               view: "AccordianView",
+                               viewConfig:[
+                                  {
+                                                           elementId: "fw_app_security_permissions",
+                                                           active:false,
+                                                           view: 'SectionView',
+                                                           title:"Permissions",
+                                                           viewConfig: {
+                                                               rows: [
+                                                                   {
+                                                                       columns: [
+                                                                           {
+                                                                               elementId: 'fw_app_owner_access_security',
+                                                                               view: 'FormMultiselectView',
+                                                                               viewConfig: {
+                                                                                   label: "Owner Permissions",
+                                                                                   path: 'perms2.owner_access',
+                                                                                   dataBindValue: 'perms2().owner_access',
+                                                                                   class: 'col-xs-6',
+                                                                                   elementConfig: {
+                                                                                       dataTextField: "text",
+                                                                                       dataValueField: "value",
+                                                                                       placeholder:
+                                                                                           "Select Permissions",
+                                                                                       data: cowc.RBAC_ACCESS_TYPE_LIST
+                                                                                   }
+                                                                               }
+                                                                           },
+                                                                           {
+                                                                               elementId: 'fw_app_global_access_secuirty',
+                                                                               view: 'FormMultiselectView',
+                                                                               viewConfig: {
+                                                                                   label: "Global Share Permissions",
+                                                                                   path: 'perms2.global_access',
+                                                                                   dataBindValue: 'perms2().global_access',
+                                                                                   class: 'col-xs-6',
+                                                                                   elementConfig: {
+                                                                                       dataTextField: "text",
+                                                                                       dataValueField: "value",
+                                                                                       placeholder:
+                                                                                           "Select Permissions",
+                                                                                       data: cowc.RBAC_ACCESS_TYPE_LIST
+                                                                                   }
+                                                                               }
+                                                                           }
+                                                                       ]
+                                                                   },
+                                                                   {
+                                                                       columns:[{
+                                                                           elementId: "fw_app_security_share_accordion_create",
+                                                                           view: "AccordianView",
+                                                                           viewConfig:[{
+                                                                              elementId: "security_app_share_accordion_create",
+                                                                              view:  "SectionView",
+                                                                              title: "Share List",
+                                                                              viewConfig:{
+                                                                                  rows: [{
+                                                                                      columns:
+                                                                                         shareViewConfig()
+                                                                                   }]
+                                                                               }
+                                                                           }]
+                                                                       }]
+                                                                    }
+
+                                                               ]
+                                                           }
+                        }
+                               ]
+                           }]
+                        }
                 ]
             }
         }

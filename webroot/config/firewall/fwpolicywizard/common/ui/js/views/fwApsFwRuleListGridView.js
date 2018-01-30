@@ -13,11 +13,19 @@ define([
         el: $(contentContainer),
         render: function () {
             self = this;
+            var gridGroupingOpt = {
+                    groupingField :"policy_name",
+                    groupHeadingPrefix : 'Policy: ',
+                    rowCountSuffix : []
+            };
             var viewConfig = self.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
             isGlobal = viewConfig.isGlobal;
-            self.renderView4Config(self.$el, self.model,
-                getFWRuleGridViewConfig(viewConfig));
+            self.renderView4Config(self.$el, self.model, 
+                    getFWRuleGridViewConfig(viewConfig),null,null,null,
+                    function(){
+                        cowu.addGridGrouping ('aps-fw-rule-list-grid', gridGroupingOpt);
+                    });
         }
     });
 
@@ -82,56 +90,59 @@ define([
         return gridElementConfig;
     };
     function getfwRuleColumns(viewConfig){
-        var fwRuleColumns = [{
-           id: 'action_list.simple_action',
-           field: 'action_list.simple_action',
-           width: 40,
-           name: 'Action',
-           sortable: false,
-           formatter: fwRuleFormatter.actionFormatter
-        }, {
-            id: 'service',
-            field: 'service',
-            width: 120,
-            name: 'Services',
+        var fwRuleColumns = [
+            {
+                id: 'policy_name',
+                field: 'policy_name',
+                minWidth: 90,
+                name: 'Policy Name',
+                hide:true,
+                sortable: false
+                //formatter: fwRuleFormatter.fwPolicyMemberFormatter
+          },
+          {
+            id: 'action_list.simple_action',
+            field: 'action_list.simple_action',
+            minWidth: 70,
+            name: 'Action',
             sortable: false,
-            formatter: fwRuleFormatter.serviceFormatter.bind(viewConfig)
-        }, {
-            id: 'firewall_policy_back_refs',
-            field: 'firewall_policy_back_refs',
-            width: 90,
-            name: 'Member Of Policy',
-            sortable: false,
-            formatter: fwRuleFormatter.fwPolicyMemberFormatter
-        },{
-            id: 'endpoint_1',
-            field: 'endpoint_1',
-            width: 200,
-            name: 'End Point 1',
-            sortable: false,
-            formatter: fwRuleFormatter.endPoint1Formatter
-        }, {
-            id: 'direction',
-            field: 'direction',
-            width: 40,
-            name: 'Dir',
-            sortable: false,
-            formatter: fwRuleFormatter.dirFormatter
-        }, {
-            id: 'endpoint_2',
-            field: 'endpoint_2',
-            width: 200,
-            name: 'End Point 2',
-            sortable: false,
-            formatter: fwRuleFormatter.endPoint2Formatter
-        }, {
-            id: 'match_tags',
-            field: 'match_tags',
-            width: 90,
-            name: 'Match Tags',
-            sortable: false,
-            formatter: fwRuleFormatter.matchFormatter
-        }];
+            formatter: fwRuleFormatter.actionFormatter
+         }, {
+             id: 'service',
+             field: 'service',
+             minWidth: 250,
+             name: 'Services',
+             sortable: false,
+             formatter: fwRuleFormatter.serviceFormatter.bind(viewConfig)
+         },{
+             id: 'endpoint_1',
+             field: 'endpoint_1',
+             minWidth: 150,
+             name: 'End Point 1',
+             sortable: false,
+             formatter: fwRuleFormatter.endPoint1Formatter
+         }, {
+             id: 'direction',
+             field: 'direction',
+             minWidth: 40,
+             name: 'Dir',
+             sortable: false,
+             formatter: fwRuleFormatter.dirFormatter
+         }, {
+             id: 'endpoint_2',
+             field: 'endpoint_2',
+             minWidth: 200,
+             name: 'End Point 2',
+             sortable: false,
+             formatter: fwRuleFormatter.endPoint2Formatter
+         }, {
+             id: 'match_tags',
+             field: 'match_tags',
+             minWidth: 90,
+             name: 'Match Tags',
+             sortable: false,
+             formatter: fwRuleFormatter.matchFormatter
+         }];
         return fwRuleColumns;
     }
 
@@ -180,7 +191,7 @@ define([
                                     templateGenerator: "TextGenerator",
                                     label: "Services",
                                     templateGeneratorConfig: {
-                                        formatter: "serviceFormatter"
+                                        formatter: "serviceExpandFormatter"
                                     }
                                 },{
                                     keyClass:'col-xs-3',
@@ -244,6 +255,9 @@ define([
 
     this.serviceFormatter = function(v, dc) {
         return fwRuleFormatter.serviceFormatter("", "", v, "", dc, isGlobal);
+    };
+    this.serviceExpandFormatter = function(v, dc) {
+        return fwRuleFormatter.serviceExpandFormatter("", "", v, "", dc, isGlobal);
     };
 
     this.dirFormatter = function(v, dc) {
