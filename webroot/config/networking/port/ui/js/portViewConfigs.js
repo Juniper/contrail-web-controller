@@ -579,7 +579,7 @@
                                      view: "FormCheckboxView",
                                      viewConfig: {
                                          path: 'virtual_machine_interface_disable_policy',
-                                         label: "Disable Policy",
+                                         label: "Packet Mode",
                                          templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                          dataBindValue: 'virtual_machine_interface_disable_policy',
                                          class: "col-xs-6"
