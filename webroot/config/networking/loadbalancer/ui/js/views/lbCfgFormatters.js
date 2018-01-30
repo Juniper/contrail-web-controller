@@ -846,6 +846,14 @@ define([
                 return '0';
             }
         };
+        this.poolMemberSubnetFormatter = function(d, c, v, cd, dc){
+            var subnet = getValueByJsonPath(dc, 'loadbalancer_member_properties;subnet_id', '');
+            if(subnet !== ''){
+                return subnet;
+            }else{
+                return '-';
+            }
+        };
 
         this.poolMemberAddressFormatter = function(d, c, v, cd, dc){
             var address = getValueByJsonPath(dc, 'loadbalancer_member_properties;address', '');

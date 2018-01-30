@@ -52,7 +52,7 @@ if (!module.parent) {
  * @returns
  */
 function listLoadBalancers(request, response, appData) {
-	console.log('listLoadBalancers');
+	logutils.logger.debuglog('listLoadBalancers');
 	var tenantId = null;
 	var requestParams = url.parse(request.url, true);
 	var lbListURL = '/loadbalancers';
@@ -83,7 +83,7 @@ function listLoadBalancers(request, response, appData) {
  * @returns
  */
 function getLoadBalancersDetails(request, response, appData) {
-	console.log('getLoadBalancersDetails');
+	logutils.logger.debug('getLoadBalancersDetails');
 	var tenantId = null;
 	var requestParams = url.parse(request.url, true);
 	var lbListURL = '/loadbalancers';
@@ -106,7 +106,7 @@ function getLoadBalancersDetails(request, response, appData) {
  * @returns
  */
 function getLoadBalancersDetailsCB(error, lbs, response, appData) {
-	console.log('getLoadBalancersDetailsCB');
+	logutils.logger.debug('getLoadBalancersDetailsCB');
 	var reqUrl = null;
 	var dataObjArr = [];
 	var i = 0, lbLength = 0;
@@ -157,7 +157,7 @@ function getLoadBalancersDetailsCB(error, lbs, response, appData) {
 }
 
 function parseLoadBalancerDetails(lbs, appData, callback){
-	console.log('parseLoadBalancerDetails');
+	logutils.logger.debug('parseLoadBalancerDetails');
 	var jsonstr = JSON.stringify(lbs);
 	var new_jsonstr = jsonstr.replace(
 			/loadbalancer_listener_back_refs/g,
@@ -188,7 +188,7 @@ function parseLoadBalancerDetails(lbs, appData, callback){
  * @returns
  */
 function getLoadBalancersTree(request, response, appData) {
-	console.log('getLoadBalancersTree');
+	logutils.logger.debug('getLoadBalancersTree');
 	var tenantId = null;
 	var requestParams = url.parse(request.url, true);
 	var lbListURL = '/loadbalancers';
@@ -216,7 +216,7 @@ function getLoadBalancersTree(request, response, appData) {
  * @returns
  */
 function getLoadBalancerbyId(request, response, appData) {
-	console.log('getLoadBalancerbyId');
+	logutils.logger.debug('getLoadBalancerbyId');
 	if (!(lb_uuid = request.param('uuid').toString())) {
 		error = new appErrors.RESTServerError('Loadbalancer uuid is missing');
 		commonUtils.handleJSONResponse(error, response, null);
@@ -243,7 +243,7 @@ function getLoadBalancerbyId(request, response, appData) {
 }
 
 function getLBaaSDetailsbyIdCB(lb, appData, callback) {
-	console.log('getLBaaSDetailsbyIdCB');
+	logutils.logger.debug('getLBaaSDetailsbyIdCB');
 	var jsonstr = JSON.stringify(lb);
 	var new_jsonstr = jsonstr.replace(/loadbalancer_listener_back_refs/g,
 			'loadbalancer-listener');
@@ -270,7 +270,7 @@ function getLBaaSDetailsbyIdCB(lb, appData, callback) {
  * @returns
  */
 function getLoadBalancersTreeInfo(error, lbs, response, appData) {
-	console.log('getLoadBalancersTreeInfo');
+	logutils.logger.debug('getLoadBalancersTreeInfo');
 	var reqUrl = null;
 	var dataObjArr = [];
 	var i = 0, lbLength = 0;
@@ -337,7 +337,7 @@ function getLoadBalancersTreeInfo(error, lbs, response, appData) {
 }
 
 function getLoadBalancerRefDetails(appData, lbs, callback){
-	console.log('getLoadBalancerRefDetails');
+	logutils.logger.debug('getLoadBalancerRefDetails');
 	async.parallel([
 			async.apply(getServiceInstanceDetailsfromLB, appData,lbs),
 			async.apply(getVMIDetailsfromLB, appData,lbs)],
@@ -359,7 +359,7 @@ function getServiceInstanceDetailsfromLB(appData, lbs, callback) {
 	var reqUrl = null;
 	var dataObjArr = [];
 	var i = 0, lisLength = 0;
-	console.log('getServiceInstanceDetailsfromLB');
+	logutils.logger.debug('getServiceInstanceDetailsfromLB');
 	var sviUUID = [];
 	for (var lb = 0; lb < lbs['loadbalancers'].length; lb++) {
 		var svi_refs = lbs['loadbalancers'][lb]['loadbalancer']['service_instance_refs'];
@@ -400,7 +400,7 @@ function getServiceInstanceDetailsfromLB(appData, lbs, callback) {
 }
 
 function parseServiceInstanceDetailsfromLB(sviData, lbs, callback) {
-	console.log('parseServiceInstanceDetailsfromLB');
+	logutils.logger.debug('parseServiceInstanceDetailsfromLB');
 	if (sviData != null && sviData.length > 0) {
 		if (lbs['loadbalancers'].length > 0 && sviData != null
 				&& sviData.length > 0) {
@@ -438,7 +438,7 @@ function getVMIDetailsfromLB(appData, lbs, callback) {
 	var reqUrl = null;
 	var dataObjArr = [];
 	var i = 0, lisLength = 0;
-	console.log('getVMIDetailsfromLB');
+	logutils.logger.debug('getVMIDetailsfromLB');
 	var vimUUID = [];
 	for (var lb = 0; lb < lbs['loadbalancers'].length; lb++) {
 		var vmi_refs = lbs['loadbalancers'][lb]['loadbalancer']['virtual_machine_interface_refs'];
@@ -450,7 +450,7 @@ function getVMIDetailsfromLB(appData, lbs, callback) {
 		}
 	}
 	var lisLength = vimUUID.length;
-	//console.log('getVMIDetailsfromLB-lisLength-'+lisLength);
+	//logutils.logger.debug('getVMIDetailsfromLB-lisLength-'+lisLength);
 	if(vimUUID.length < 1){
 		callback(null,{});
 		return;
@@ -509,7 +509,7 @@ function getVMIDetailsfromLB(appData, lbs, callback) {
  * @returns
  */
 function parseFloatingIps(vmiData, appData, lbs, callback) {
-	console.log('parseFloatingIps');
+	logutils.logger.debug('parseFloatingIps');
 	var reqUrlfp = null;
 	var dataObjArr = [];
 	var i = 0, lisLength = 0;
@@ -549,11 +549,11 @@ function parseFloatingIps(vmiData, appData, lbs, callback) {
 						var lb_vmi_refs = lbs['loadbalancers'][lb]['loadbalancer']['virtual_machine_interface_refs'];
 						if (lb_vmi_refs != null && lb_vmi_refs.length > 0) {
 							for (vmi = 0; vmi < lb_vmi_refs.length; vmi++) {
-								//console.log("lb_vmi_refs",lb_vmi_refs[vmi]);
+								//logutils.logger.debug("lb_vmi_refs",lb_vmi_refs[vmi]);
 								for (var fp = 0; fp < results.length; fp++) {
 									if (results[fp]['floating-ip'] != null) {
 										var vmi_ref_fip = results[fp]['floating-ip']['virtual_machine_interface_refs']
-										//console.log("vmi_ref_fip",vmi_ref_fip);
+										//logutils.logger.debug("vmi_ref_fip",vmi_ref_fip);
 										var vmi_ref_fip_len = vmi_ref_fip.length;
 										for (x = 0; x < vmi_ref_fip_len; x++) {
 											if (lb_vmi_refs[vmi]['uuid'] == vmi_ref_fip[x]['uuid']) {
@@ -584,7 +584,7 @@ function parseFloatingIps(vmiData, appData, lbs, callback) {
  * @returns
  */
 function parseInstanceIps(vmiData, appData, lbs, callback) {
-	console.log('parseInstanceIps');
+	logutils.logger.debug('parseInstanceIps');
 	var reqUrlfp = null;
 	var dataObjArr = [];
 	var i = 0, lisLength = 0;
@@ -600,7 +600,7 @@ function parseInstanceIps(vmiData, appData, lbs, callback) {
 			}
 		});
 	}
-//	console.log("instance_ip_back_refs:",instanceipPoolRef);
+//	logutils.logger.debug("instance_ip_back_refs:",instanceipPoolRef);
 	_.each(instanceipPoolRef, function(id) {
 		reqUrl = '/instance-ip/' + id + '?exclude_hrefs=true';
 		commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
@@ -618,7 +618,7 @@ function parseInstanceIps(vmiData, appData, lbs, callback) {
 				callback(error, lbs);
 				return;
 			}
-			//console.log(JSON.stringify(results));
+			//logutils.logger.debug(JSON.stringify(results));
 			if (results != null && results.length > 0) {
 				if (lbs['loadbalancers'].length > 0
 						&& results != null && results.length > 0) {
@@ -626,11 +626,11 @@ function parseInstanceIps(vmiData, appData, lbs, callback) {
 						var lb_vmi_refs = lbs['loadbalancers'][lb]['loadbalancer']['virtual_machine_interface_refs'];
 						if (lb_vmi_refs != null && lb_vmi_refs.length > 0) {
 							for (vmi = 0; vmi < lb_vmi_refs.length; vmi++) {
-								//console.log("lb_vmi_refs",lb_vmi_refs[vmi]);
+								//logutils.logger.debug("lb_vmi_refs",lb_vmi_refs[vmi]);
 								for (var ip = 0; ip < results.length; ip++) {
 									if (results[ip]['instance-ip'] != null) {
 										var vmi_ref_ip = results[ip]['instance-ip']['virtual_machine_interface_refs']
-										//console.log("vmi_ref_ip",vmi_ref_ip);
+										//logutils.logger.debug("vmi_ref_ip",vmi_ref_ip);
 										var vmi_ref_ip_len = vmi_ref_ip.length;
 										for (x = 0; x < vmi_ref_ip_len; x++) {
 											if (lb_vmi_refs[vmi]['uuid'] == vmi_ref_ip[x]['uuid']) {
@@ -639,7 +639,7 @@ function parseInstanceIps(vmiData, appData, lbs, callback) {
 												lb_vmi_refs[vmi]['instance-ip'].instance_ip_mode = results[ip]['instance-ip']['instance_ip_mode'];
 												var vipAddress = lbs['loadbalancers'][lb]['loadbalancer']['loadbalancer_properties']['vip_address'];
 												if(vipAddress== null || vipAddress==""){
-													console.log("VIP Address Empty"+vipAddress);
+													logutils.logger.debug("VIP Address Empty"+vipAddress);
 													lbs['loadbalancers'][lb]['loadbalancer']['loadbalancer_properties']['vip_address'] = results[ip]['instance-ip']['instance_ip_address'];
 										    		}
 											}
@@ -665,7 +665,7 @@ function parseInstanceIps(vmiData, appData, lbs, callback) {
  * @returns
  */
 function parseVNSubnets(vmiData, appData, lbs, callback) {
-	console.log('parseVNSubnets');
+	logutils.logger.debug('parseVNSubnets');
 	var reqUrlfp = null;
 	var dataObjArr = [];
 	var i = 0, lisLength = 0;
@@ -698,7 +698,7 @@ function parseVNSubnets(vmiData, appData, lbs, callback) {
 			if (results != null && results.length > 0) {
 				if (lbs['loadbalancers'].length > 0
 						&& results != null && results.length > 0) {
-					// console.log(JSON.stringify(results));
+					// logutils.logger.debug(JSON.stringify(results));
 					for (var lb = 0; lb < lbs['loadbalancers'].length; lb++) {
 						var vmi_refs = lbs['loadbalancers'][lb]['loadbalancer']['virtual_machine_interface_refs'];
 						if (lbs['loadbalancers'][lb]['loadbalancer'] != null
@@ -732,7 +732,7 @@ function parseVNSubnets(vmiData, appData, lbs, callback) {
  * @returns
  */
 function getListenersDetailInfo(appData, lbs, callback) {
-	console.log('getListenersDetailInfo');
+	logutils.logger.debug('getListenersDetailInfo');
 	var reqUrl = null;
 	var dataObjArr = [];
 	var i = 0, lisLength = 0;
@@ -780,7 +780,7 @@ function getListenersDetailInfo(appData, lbs, callback) {
  */
 function mergeListenerToLB(lbs, listeners, callback) {
 	// var lbs = dataObj.lbs;
-	console.log('mergeListenerToLB');
+	logutils.logger.debug('mergeListenerToLB');
 	if (lbs['loadbalancers'].length > 0 && listeners != null
 			&& listeners.length > 0) {
 		for (var lb = 0; lb < lbs['loadbalancers'].length; lb++) {
@@ -814,7 +814,7 @@ function mergeListenerToLB(lbs, listeners, callback) {
  * @returns
  */
 function getPoolDetailInfo(appData, lbs, callback) {
-	console.log('getPoolDetailInfo');
+	logutils.logger.debug('getPoolDetailInfo');
 	var reqUrl = null;
 	var dataObjArr = [];
 	var i = 0, lisLength = 0;
@@ -866,7 +866,7 @@ function getPoolDetailInfo(appData, lbs, callback) {
  * @returns
  */
 function mergePoolToLB(lbs, poolsData, callback) {
-	console.log('mergePoolToLB');
+	logutils.logger.debug('mergePoolToLB');
 	if (lbs['loadbalancers'].length > 0 && poolsData.length > 0) {
 		for (var lb = 0; lb < lbs['loadbalancers'].length; lb++) {
 			var llistener_ref = lbs['loadbalancers'][lb]['loadbalancer']['loadbalancer-listener'];
@@ -910,7 +910,7 @@ function getMemberHealthMonitorInfo(appData, lbs, callback) {
 	var reqUrl = null;
 	var dataObjArr = [];
 	var i = 0, lisLength = 0;
-	console.log('getMemberHealthMonitorInfo');
+	logutils.logger.debug('getMemberHealthMonitorInfo');
 	var memUUID = [];
 	for (var lb = 0; lb < lbs['loadbalancers'].length; lb++) {
 		var llistener_ref = lbs['loadbalancers'][lb]['loadbalancer']['loadbalancer-listener'];
@@ -922,7 +922,7 @@ function getMemberHealthMonitorInfo(appData, lbs, callback) {
 						&& pool_ref != null && pool_ref.length > 0) {
 					for (k = 0; k < pool_ref.length; k++) {
 						var mem = pool_ref[k]['loadbalancer-members'];
-						// console.log('mem:',mem);
+						// logutils.logger.debug('mem:',mem);
 						if (mem != undefined && mem.length > 0) {
 							for (q = 0; q < mem.length; q++) {
 								memUUID.push(mem[q]['uuid']);
@@ -996,7 +996,7 @@ function getMemberHealthMonitorInfo(appData, lbs, callback) {
  * @returns
  */
 function mergeMemberHealthDetailToLB(lbs, results, callback) {
-	console.log('mergeMemberHealthDetailToLB');
+	logutils.logger.debug('mergeMemberHealthDetailToLB');
 	if (lbs['loadbalancers'].length > 0 && results.length > 0) {
 		for (var lb = 0; lb < lbs['loadbalancers'].length; lb++) {
 			var llistener_ref = lbs['loadbalancers'][lb]['loadbalancer']['loadbalancer-listener'];
@@ -1043,7 +1043,7 @@ function mergeMemberHealthDetailToLB(lbs, results, callback) {
 }
 
 function listListenersByLBId(request, response, appData) {
-	console.log('listListenersByLBId');
+	logutils.logger.debug('listListenersByLBId');
 	var lb_uuid = request.param('lbid');
 	if (!(lb_uuid = request.param('lbid').toString())) {
 		error = new appErrors.RESTServerError('Loadbalancer uuid is missing');
@@ -1076,7 +1076,7 @@ function listListenersByLBId(request, response, appData) {
 }
 
 function getListenerById(request, response, appData) {
-	console.log('getListenerById');
+	logutils.logger.debug('getListenerById');
 	var lb_uuid = request.param('lbid');
 	var l_uuid = request.param('lid');
 	if (!(lb_uuid = request.param('lbid').toString())) {
@@ -1112,7 +1112,7 @@ function getListenerById(request, response, appData) {
 }
 
 function parseListenerbyId(l_uuid, lb, callback) {
-	console.log('parseListenerbyId');
+	logutils.logger.debug('parseListenerbyId');
 	listenerList = commonUtils.getValueByJsonPath(lb,
 			'loadbalancer;loadbalancer-listener', [], false);
 	var reLis = [];
@@ -1125,7 +1125,7 @@ function parseListenerbyId(l_uuid, lb, callback) {
 }
 
 function listPoolsByListernerId(request, response, appData) {
-	console.log('listPoolsByListernerId');
+	logutils.logger.debug('listPoolsByListernerId');
 	var lb_uuid = request.param('lbid');
 	var l_uuid = request.param('lid');
 	if (!(lb_uuid = request.param('lbid').toString())) {
@@ -1163,7 +1163,7 @@ function listPoolsByListernerId(request, response, appData) {
 }
 
 function parsePoolsbyListenerId(l_uuid, lb, callback) {
-	console.log('parsePoolsbyListenerId');
+	logutils.logger.debug('parsePoolsbyListenerId');
 	listenerList = commonUtils.getValueByJsonPath(lb,
 			'loadbalancer;loadbalancer-listener', [], false);
 	var reLis = [];
@@ -1189,7 +1189,7 @@ function parsePoolsbyListenerId(l_uuid, lb, callback) {
  * @returns
  */
 function createLoadBalancer(request, response, appData) {
-	console.log('createLoadBalancer');
+	logutils.logger.debug('createLoadBalancer');
 	var postData = request.body;
 	if (typeof(postData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
@@ -1222,7 +1222,7 @@ function createLoadBalancer(request, response, appData) {
 * 1. Basic validation before creating the Load Balancer
 */
 function createLoadBalancerValidate (appData, postData, callback){
-	console.log('createLoadBalancerValidate');
+	logutils.logger.debug('createLoadBalancerValidate');
 	if (!('loadbalancer' in postData)) {
         error = new appErrors.RESTServerError('Load Balancer object missing ');
         callback(error, postData);
@@ -1269,7 +1269,7 @@ function createLoadBalancerValidate (appData, postData, callback){
 				callback(error, null);
 				return;
 			}
-		//	console.log('lbData:'+ JSON.stringify(lbData));
+		//	logutils.logger.debug('lbData:'+ JSON.stringify(lbData));
 			var lbId = lbData['loadbalancer']['uuid'];
 			readLBwithUUID(lbId, appData, function(err, lbData) {
 				if (err) {
@@ -1285,14 +1285,14 @@ function createLoadBalancerValidate (appData, postData, callback){
 
 
 function createFloatingIPforLB (appData, postData, callback){
-	console.log('createFloatingIPforLB');
+	logutils.logger.debug('createFloatingIPforLB');
 	if (!('loadbalancer_floatingip' in postData)) {
-		console.log("no loadbalancer_floatingip object");
+		logutils.logger.debug("no loadbalancer_floatingip object");
 	    callback(null, postData);
 	    return;
 	}
 	if (!('floating-ip' in postData['loadbalancer_floatingip'])) {
-		console.log("no loadbalancer_floatingip - floating-ip object");
+		logutils.logger.debug("no loadbalancer_floatingip - floating-ip object");
 	    callback(null, postData);
 	    return;
 	}
@@ -1302,7 +1302,7 @@ function createFloatingIPforLB (appData, postData, callback){
 	if ((!('floating-ip' in fipPostData)) ||
 	    (!('fq_name' in fipPostData['floating-ip'])) ||
 	    (!('floating_ip_fixed_ip_address' in fipPostData['floating-ip'])) ) {
-		console.log("in floating-ip object no fq_name or floating_ip_fixed_ip_address properties");
+		logutils.logger.debug("in floating-ip object no fq_name or floating_ip_fixed_ip_address properties");
 	    callback(null, postData);
 	    return;
 	}
@@ -1314,7 +1314,6 @@ function createFloatingIPforLB (appData, postData, callback){
 					+ fipPostData['floating-ip']['floating_ip_fixed_ip_address'];
 
 	fipPostData['floating-ip']['user_created_virtual_machine_interface_refs'] = uVMIRefs;
-	//console.log("&&&&&&&after....fipPostData------"+ JSON.stringify(fipPostData));
 	if ('floating-ip' in fipPostData &&
 		        'virtual_machine_interface_refs' in fipPostData['floating-ip'] &&
 		        fipPostData['floating-ip']['virtual_machine_interface_refs'] &&
@@ -1323,7 +1322,7 @@ function createFloatingIPforLB (appData, postData, callback){
 
         vmRef = fipPostData['floating-ip']['virtual_machine_interface_refs'][0];
         if ((!('to' in vmRef)) || (vmRef['to'].length != 3)) {
-            console.log('Add valid Instance \n' +JSON.stringify(vmRef));
+            logutils.logger.debug('Add valid Instance \n' +JSON.stringify(vmRef));
             callback(null, postData);
             return;
         }
@@ -1337,7 +1336,7 @@ function createFloatingIPforLB (appData, postData, callback){
 }
 
 function readLBwithUUID(lbId, appData, callback){
-	console.log('readLBwithUUID');
+	logutils.logger.debug('readLBwithUUID');
 	var lbListURL = '/loadbalancer/' + lbId;
 	configApiServer.apiGet(lbListURL, appData, function(error, lb) {
 		if (error) {
@@ -1359,7 +1358,7 @@ function readLBwithUUID(lbId, appData, callback){
  * @returns
  */
 function updateLoadBalancer(request, response, appData) {
-	console.log('updateLoadBalancer');
+	logutils.logger.debug('updateLoadBalancer');
 	updateLoadBalancerCB(request, appData, function(error, results) {
 	    commonUtils.handleJSONResponse(error, response, results);
 	}) ;
@@ -1373,7 +1372,7 @@ function updateLoadBalancer(request, response, appData) {
  * 2. Send a call to Update the LoadBalancer diff
  */
 function updateLoadBalancerCB (request, appData, callback){
-	console.log('updateLoadBalancer');
+	logutils.logger.debug('updateLoadBalancer');
 	var lbId = request.param('uuid');
     var lbPutData= request.body;
     var lbPutURL = '/loadbalancer/';
@@ -1444,7 +1443,7 @@ function removeLoadBalancerRefs(lbPutData){
  * @returns
  */
 function deleteLoadBalancer(request, response, appData) {
-	console.log('deleteLoadBalancer');
+	logutils.logger.debug('deleteLoadBalancer');
 	if (!(uuid = request.param('uuid').toString())) {
         error = new appErrors.RESTServerError('Load Balancer id missing');
         commonUtils.handleJSONResponse(error, response, null);
@@ -1466,7 +1465,7 @@ function deleteLoadBalancer(request, response, appData) {
 }
 
 function deleteLoadBalancerbyIds(request, response, appData) {
-	console.log('deleteLoadBalancerbyIds');
+	logutils.logger.debug('deleteLoadBalancerbyIds');
 	var postData = request.body;
 	if (typeof(postData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
@@ -1503,7 +1502,7 @@ function deleteLoadBalancerbyIds(request, response, appData) {
 }
 
 function deleteLoadBalancerCB(dataObj,callback){
-	console.log('deleteLoadBalancerCB');
+	logutils.logger.debug('deleteLoadBalancerCB');
 	var uuid = dataObj.uuid;
     var appData = dataObj.appData;
     var request = dataObj.request;
@@ -1538,7 +1537,7 @@ function deleteLoadBalancerById(dataObj, eMessage, callback){
 					callback(error, null);
 					return;
 				}
-				//console.log(JSON.stringify('deleteLoadBalancerCB:'+results));
+				//logutils.logger.debug(JSON.stringify('deleteLoadBalancerCB:'+results));
 				var newMessage={};
 				newMessage.message="Load Balancer are deleted....";
 				callback(null,appendMessage(newMessage, eMessage));
@@ -1546,7 +1545,7 @@ function deleteLoadBalancerById(dataObj, eMessage, callback){
 }
 
 function deleteLoadBalancerRefs(dataObj, callback){
-	console.log('deleteLoadBalancerRefs');
+	logutils.logger.debug('deleteLoadBalancerRefs');
 	var lbData = dataObj.lbData;
     var appData = dataObj.appData;
     var request = dataObj.request;
@@ -1585,7 +1584,7 @@ function deleteLoadBalancerRefs(dataObj, callback){
  * @returns
  */
 function createListener(request, response, appData) {
-	console.log('createListener');
+	logutils.logger.debug('createListener');
 	var postData = request.body;
 	if (typeof(postData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
@@ -1608,7 +1607,7 @@ function createListener(request, response, appData) {
 * 1. Basic validation before creating the Load Balancer
 */
 function createListenerValidate (appData, postData, callback){
-	console.log('createListenerValidate');
+	logutils.logger.debug('createListenerValidate');
 	if (!('loadbalancer-listener' in postData)) {
         error = new appErrors.RESTServerError('Load Balancer Listener object missing ');
         callback(error, postData);
@@ -1671,7 +1670,7 @@ function createListenerValidate (appData, postData, callback){
 
 
 function readLLwithUUID(llId, appData, callback){
-	console.log('readLLwithUUID');
+	logutils.logger.debug('readLLwithUUID');
 	var llURL = '/loadbalancer-listener/' + llId;
 	configApiServer.apiGet(llURL, appData, function(error, listener) {
 		if (error) {
@@ -1695,7 +1694,7 @@ function readLLwithUUID(llId, appData, callback){
  * @returns
  */
 function updateListener(request, response, appData) {
-	console.log('updateListener');
+	logutils.logger.debug('updateListener');
 	updateListenerCB(request, appData, function(error, results) {
 	    commonUtils.handleJSONResponse(error, response, results);
 	}) ;
@@ -1710,7 +1709,7 @@ function updateListener(request, response, appData) {
  * 2. Send a call to Update the Listener diff
  */
 function updateListenerCB (request, appData, callback){
-	console.log('updateListenerCB');
+	logutils.logger.debug('updateListenerCB');
 	var lisId = request.param('uuid');
     var lisPutData= request.body;
     var lisPutURL = '/loadbalancer-listener/';
@@ -1775,7 +1774,7 @@ function removeListenerRefs(lisPutData){
  * @returns
  */
 function deleteListener(request, response, appData) {
-	console.log('deleteListener');
+	logutils.logger.debug('deleteListener');
 	if (!(uuid = request.param('uuid').toString())) {
         error = new appErrors.RESTServerError('Listener id missing');
         commonUtils.handleJSONResponse(error, response, null);
@@ -1796,7 +1795,7 @@ function deleteListener(request, response, appData) {
 }
 
 function deleteListenerbyIds(request, response, appData) {
-	console.log('deleteListener');
+	logutils.logger.debug('deleteListener');
 	var postData = request.body;
 	if (typeof(postData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
@@ -1828,7 +1827,7 @@ function deleteListenerbyIds(request, response, appData) {
 	});
 }
 function deleteListenerCB(dataObj, callback) {
-	console.log('deleteListenerCB:');
+	logutils.logger.debug('deleteListenerCB:');
 	var uuid = dataObj.uuid;
     var appData = dataObj.appData;
     var request = dataObj.request;
@@ -1851,7 +1850,7 @@ function deleteListenerCB(dataObj, callback) {
 }
 
 function deleteListenerRefs(dataObj, callback){
-	console.log('deleteListenerRefs');
+	logutils.logger.debug('deleteListenerRefs');
 	var uuid = dataObj.uuid;
     var appData = dataObj.appData;
     var request = dataObj.request;
@@ -1877,7 +1876,7 @@ function deleteListenerRefs(dataObj, callback){
 		for(i=0; i< pool_back_refs.length; i++){
 			pUUIDs.push(pool_back_refs[i]['uuid']);
 		}
-		//console.log(pUUIDs);
+		//logutils.logger.debug(pUUIDs);
 		if(pUUIDs== undefined || pUUIDs==false ){
 			callback(null,'');
 			return;
@@ -1885,14 +1884,14 @@ function deleteListenerRefs(dataObj, callback){
 		deletePoolCB(pUUIDs, appData, function(error, results){
 			var newMessage={};
 			newMessage.message="All Listener refs are deleted....";
-			//console.log("............"+lastMessage);
+			//logutils.logger.debug("............"+lastMessage);
 			callback(null,appendMessage(newMessage, results));
 		 });
 	});
 }
 
 function getPoolByListenerId(request, response, appData) {
-	console.log('getPoolById');
+	logutils.logger.debug('getPoolById');
 	var lb_uuid = request.param('lbid');
 	var l_uuid = request.param('lid');
 	var p_uuid = request.param('pid');
@@ -1943,7 +1942,7 @@ function getPoolByListenerId(request, response, appData) {
 
 
 function getPoolById(request, response, appData) {
-	console.log('getPoolById');
+	logutils.logger.debug('getPoolById');
 	if (!(p_uuid = request.param('uuid').toString())) {
 		error = new appErrors.RESTServerError('Pool uuid is missing');
 		commonUtils.handleJSONResponse(error, response, null);
@@ -1965,7 +1964,7 @@ function getPoolById(request, response, appData) {
 * 1. Basic validation before creating the Load Balancer - Pool
 */
 function createPoolMembers (appData, postData, callback){
-	console.log('createPoolMembers');
+	logutils.logger.debug('createPoolMembers');
 	async.waterfall([
 		async.apply(createHealthMonitorValidate, appData, postData),
 		async.apply(createPoolValidate, appData),
@@ -1980,7 +1979,7 @@ function createPoolMembers (appData, postData, callback){
 }
 
 function createPoolMember(appData, postData, callback){
-	console.log('createPoolMember');
+	logutils.logger.debug('createPoolMember');
 	if (!('loadbalancer-member' in postData)) {
          callback(null, postData);
         return;
@@ -2013,7 +2012,7 @@ function createPoolMember(appData, postData, callback){
  * @returns
  */
 function createPool(request, response, appData) {
-	console.log('createPool');
+	logutils.logger.debug('createPool');
 	createPoolValidate(request, request.body, appData, function(error, results) {
 	    commonUtils.handleJSONResponse(error, response, results);
 	}) ;
@@ -2024,7 +2023,7 @@ function createPool(request, response, appData) {
 * 1. Basic validation before creating the Load Balancer - Pool
 */
 function createPoolValidate (appData, postData, callback){
-	console.log('createPoolValidate');
+	logutils.logger.debug('createPoolValidate');
 	if (!('loadbalancer-pool' in postData)) {
         error = new appErrors.RESTServerError('Load Balancer Pool object missing ');
         callback(error, postData);
@@ -2070,7 +2069,7 @@ function createPoolValidate (appData, postData, callback){
 		    (!('uuid' in pPostData['loadbalancer_healthmonitor']))) {
 		pPostData['loadbalancer-pool']['loadbalancer_healthmonitor_refs'] = [{'to' : postData['loadbalancer-healthmonitor']['fq_name']}];
 	}
-//	console.log('pPostData:'+ JSON.stringify(pPostData));
+//	logutils.logger.debug('pPostData:'+ JSON.stringify(pPostData));
     configApiServer.apiPost(pCreateURL, pPostData, appData,
     		function(error, pData) {
 			if (error) {
@@ -2092,7 +2091,7 @@ function createPoolValidate (appData, postData, callback){
 					}
 				}
 				postData['loadbalancer-pool'] = pData['loadbalancer-pool'];
-				//console.log('postData:'+ JSON.stringify(postData));
+				//logutils.logger.debug('postData:'+ JSON.stringify(postData));
 				callback(err, postData);
 			});
     });
@@ -2100,7 +2099,7 @@ function createPoolValidate (appData, postData, callback){
 
 
 function readPoolwithUUID(pId, appData, callback){
-	console.log('readPoolwithUUID');
+	logutils.logger.debug('readPoolwithUUID');
 	var pURL = '/loadbalancer-pool/' + pId;
 	configApiServer.apiGet(pURL, appData, function(error, pool) {
 		if (error) {
@@ -2124,7 +2123,7 @@ function readPoolwithUUID(pId, appData, callback){
  * @returns
  */
 function updatePool(request, response, appData) {
-	console.log('updatePool');
+	logutils.logger.debug('updatePool');
 	updatePoolCB(request, appData, function(error, results) {
 	    commonUtils.handleJSONResponse(error, response, results);
 	}) ;
@@ -2139,7 +2138,7 @@ function updatePool(request, response, appData) {
  * 2. Send a call to Update the Pool diff
  */
 function updatePoolCB (request, appData, callback){
-	console.log('updatePoolCB');
+	logutils.logger.debug('updatePoolCB');
 	if (!(poolId = request.param('uuid').toString())) {
 		error = new appErrors.RESTServerError('Pooluuid is missing');
 		commonUtils.handleJSONResponse(error, response, null);
@@ -2229,7 +2228,7 @@ function deletePool(request, response, appData) {
 }
 
 function deletePoolByIds(request, response, appData) {
-	console.log('deletePoolByIds');
+	logutils.logger.debug('deletePoolByIds');
 	var postData = request.body;
 	if (typeof(postData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
@@ -2291,7 +2290,7 @@ function deletePoolMembers(pDataObj, callback){
 }
 
 function getPoolListbyIds(pIds, appData, callback){
-	console.log('getPoolListbyIds');
+	logutils.logger.debug('getPoolListbyIds');
 	if(!pIds.length){
 		callback(null, null);
 		return;
@@ -2313,7 +2312,7 @@ function getPoolListbyIds(pIds, appData, callback){
 }
 
 function deletePoolsBypData(pDataObj, message, callback) {
-	console.log('deletePoolsBypData');
+	logutils.logger.debug('deletePoolsBypData');
 	var appData= pDataObj['appData'];
 	var pId =  pDataObj['pData'];
 	var dataObjArr = [];
@@ -2333,7 +2332,7 @@ function deletePoolsBypData(pDataObj, message, callback) {
 }
 
 function getMemberById(request, response, appData) {
-	console.log('getMemberByPoolId');
+	logutils.logger.debug('getMemberByPoolId');
 	if (!(m_uuid = request.param('uuid').toString())) {
 		error = new appErrors.RESTServerError('Member uuid is missing');
 		commonUtils.handleJSONResponse(error, response, null);
@@ -2359,7 +2358,7 @@ function getMemberById(request, response, appData) {
  * @returns
  */
 function createMember(request, response, appData) {
-	console.log('createMember');
+	logutils.logger.debug('createMember');
 	var postData = request.body;
 	if (typeof(postData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
@@ -2383,7 +2382,7 @@ function createMember(request, response, appData) {
 		}
 
 		var members= commonUtils.cloneObj(postData);
-		//console.log(members);
+		//logutils.logger.debug(members);
 		var allDataObj =[];
 		if(members['loadbalancer-member'].length > 0 ){
 			for(i=0; i< members['loadbalancer-member'].length; i++){
@@ -2391,7 +2390,7 @@ function createMember(request, response, appData) {
 				members['loadbalancer-member'][i]['parent_type'] = 'loadbalancer-pool';
 				var mObj = {};
 				mObj['loadbalancer-member'] = members['loadbalancer-member'][i];
-				//console.log('mObj:'+ JSON.stringify(mObj));
+				//logutils.logger.debug('mObj:'+ JSON.stringify(mObj));
 			    mObj['appData'] = appData;
 			    allDataObj.push(mObj);
 			}
@@ -2409,7 +2408,7 @@ function createMember(request, response, appData) {
 * 1. Basic validation before creating the Load Balancer - Pool
 */
 function createMemberValidate (dataObj, callback){
-	console.log('createMemberValidate');
+	logutils.logger.debug('createMemberValidate');
 	if (!('loadbalancer-member' in dataObj)) {
         error = new appErrors.RESTServerError('Load Balancer Pool Member object missing ');
         callback(error, postData);
@@ -2468,7 +2467,7 @@ function createMemberValidate (dataObj, callback){
 }
 
 function readMemberwithUUID(mId, appData, callback){
-	console.log('readMemberwithUUID');
+	logutils.logger.debug('readMemberwithUUID');
 	var mURL = '/loadbalancer-member/' + mId;
 	configApiServer.apiGet(mURL, appData, function(error, member) {
 		if (error) {
@@ -2490,7 +2489,7 @@ function readMemberwithUUID(mId, appData, callback){
  * @returns
  */
 function updateMember(request, response, appData) {
-	console.log('updateMember');
+	logutils.logger.debug('updateMember');
 	updateMemberCB(request, appData, function(error, results) {
 	    commonUtils.handleJSONResponse(error, response, results);
 	}) ;
@@ -2503,7 +2502,7 @@ function updateMember(request, response, appData) {
  * 2. Send a call to Update the Member diff
  */
 function updateMemberCB(request, appData, callback){
-	console.log('updateMemberCB');
+	logutils.logger.debug('updateMemberCB');
 	if (!(memId = request.param('uuid').toString())) {
 		error = new appErrors.RESTServerError('Member uuid is missing');
 		commonUtils.handleJSONResponse(error, response, null);
@@ -2561,7 +2560,7 @@ function deleteMember(request, response, appData) {
 }
 
 function deleteMemberByIds(request, response, appData) {
-	console.log('deletePoolByIds');
+	logutils.logger.debug('deletePoolByIds');
 	var postData = request.body;
 	if (typeof(postData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
@@ -2606,7 +2605,7 @@ function deleteMembersbypData(pDataObj, callback){
 }
 
 function deleteMembersByUUIDList(mIds, appData, callback) {
-	console.log('deleteMembersByUUIDList');
+	logutils.logger.debug('deleteMembersByUUIDList');
 	var dataObjArr = [];
 	_.each(mIds, function(mId) {
 		reqUrl = '/loadbalancer-member/' + mId;
@@ -2627,7 +2626,7 @@ function deleteMembersByUUIDList(mIds, appData, callback) {
 
 
 function getHealthMonitorById(request, response, appData) {
-	console.log('getHealthMonitorById');
+	logutils.logger.debug('getHealthMonitorById');
 	if (!(hm_uuid = request.param('uuid').toString())) {
 		error = new appErrors.RESTServerError('Health Monitor uuid is missing');
 		commonUtils.handleJSONResponse(error, response, null);
@@ -2665,7 +2664,7 @@ function createHealthMonitor(request, response, appData) {
 * 1. Basic validation before creating the Load Balancer - Pool
 */
 function createHealthMonitorValidate (appData, postData, callback){
-	console.log('createHealthMonitorValidate');
+	logutils.logger.debug('createHealthMonitorValidate');
 	if (!('loadbalancer-healthmonitor' in postData)) {
         error = new appErrors.RESTServerError('Load Balancer Pool Health Monitor object missing ');
         callback(error, postData);
@@ -2726,31 +2725,26 @@ function createHealthMonitorValidate (appData, postData, callback){
 	    callback(error, null);
 	    return;
 	}
-	//console.log('hmPostData:'+ JSON.stringify(hmPostData));
-    configApiServer.apiPost(hmCreateURL, hmPostData, appData,
+	 configApiServer.apiPost(hmCreateURL, hmPostData, appData,
     		function(error, hmData) {
 			if (error) {
 				callback(error, null);
 				return;
 			}
-			//console.log('hmData:'+ JSON.stringify(hmData));
 			var hmId = hmData['loadbalancer-healthmonitor']['uuid'];
 			readHMwithUUID(hmId, appData, function(err, hmData) {
 				if (err) {
 					callback(err, postData);
 					return;
 				}
-				//console.log('hmData:'+ JSON.stringify(hmData));
-
 				postData['loadbalancer-healthmonitor'] = hmData['loadbalancer-healthmonitor'];
-				//console.log('postData:'+ JSON.stringify(postData));
 				callback(null, postData);
 			});
     });
 }
 
 function readHMwithUUID(hmId, appData, callback){
-	console.log('readHMwithUUID');
+	logutils.logger.debug('readHMwithUUID');
 	var pURL = '/loadbalancer-healthmonitor/' + hmId;
 	configApiServer.apiGet(pURL, appData, function(error, hm) {
 		if (error) {
@@ -2773,7 +2767,7 @@ function readHMwithUUID(hmId, appData, callback){
  * @returns
  */
 function updateHealthMonitor(request, response, appData) {
-	console.log('updateHealthMonitor');
+	logutils.logger.debug('updateHealthMonitor');
 	updateHealthMonitorCB(request, appData, function(error, results) {
 	    commonUtils.handleJSONResponse(error, response, results);
 	}) ;
@@ -2786,7 +2780,7 @@ function updateHealthMonitor(request, response, appData) {
  * 2. Send a call to Update the HM diff
  */
 function updateHealthMonitorCB (request, appData, callback){
-	console.log('updateHealthMonitorCB');
+	logutils.logger.debug('updateHealthMonitorCB');
 	if (!(hmId = request.param('uuid').toString())) {
 		error = new appErrors.RESTServerError('Health Monitor uuid is missing');
 		commonUtils.handleJSONResponse(error, response, null);
@@ -2855,7 +2849,7 @@ function deleteHealthMonitor(request, response, appData) {
 	});
 }
 function deleteHealthMonitorByIds(request, response, appData) {
-	console.log('deletePoolByIds');
+	logutils.logger.debug('deletePoolByIds');
 	var postData = request.body;
 	if (typeof(postData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
@@ -2893,7 +2887,7 @@ function deleteHealthMonitorCB(uuid, appData, callback){
 }
 
 function deleteHealthMonitorsbypData(pDataObj, eMessage, callback){
-	console.log('deleteHealthMonitorsbypData');
+	logutils.logger.debug('deleteHealthMonitorsbypData');
 	var appData= pDataObj['appData'];
 	var pId =  pDataObj['pData'];
 	var allDataArr = [];
@@ -2911,7 +2905,7 @@ function deleteHealthMonitorsbypData(pDataObj, eMessage, callback){
 
 
 function deleteHealthMonitorsByUUIDList(hmIds, appData, callback) {
-	console.log('deleteMembersByUUIDList');
+	logutils.logger.debug('deleteMembersByUUIDList');
 	var dataObjArr = [];
 	_.each(hmIds, function(id) {
 		reqUrl = '/loadbalancer-healthmonitor/' + id;
@@ -2931,7 +2925,7 @@ function deleteHealthMonitorsByUUIDList(hmIds, appData, callback) {
 }
 
 function createNewVMIObject(request, response, appData, postData, callback){
-    console.log('createNewVMIObject');
+    logutils.logger.debug('createNewVMIObject');
   	var lbPostData={};
   	lbPostData.loadbalancer = postData['loadbalancer'];
 	if ((!('loadbalancer' in lbPostData)) ||
@@ -2941,7 +2935,7 @@ function createNewVMIObject(request, response, appData, postData, callback){
         return;
     }
 	var vmiObj= lbPostData['loadbalancer']['virtual_machine_interface_refs'];
-	//console.log('createNewVMIObject',vmiObj);
+	//logutils.logger.debug('createNewVMIObject',vmiObj);
 	var vmi={};
 	vmi['virtual-machine-interface'] = lbPostData['loadbalancer']['virtual_machine_interface_refs'];
 	if ((!('virtual_network_refs' in vmi['virtual-machine-interface']))) {
@@ -2976,7 +2970,7 @@ function createNewVMIObject(request, response, appData, postData, callback){
 		secGrp.push('default');
 		vmi['virtual-machine-interface']['security_group_refs'] =  [{'to' : secGrp}];
 	}
-	//console.log('createNewVMIObject',vmi);
+	//logutils.logger.debug('createNewVMIObject',vmi);
 	var allDataArr = [];
 	allDataArr.push({
       request: request,
@@ -3009,7 +3003,7 @@ function createNewVMIObject(request, response, appData, postData, callback){
 }
 
 function readInstanceFromVMIUUID(vmiId, appData, callback){
-	console.log('readInstanceIPwithUUID');
+	logutils.logger.debug('readInstanceIPwithUUID');
 	var pURL = '/virtual-machine-interface/' + vmiId;
 	configApiServer.apiGet(pURL, appData, function(error, vmi) {
 		if (error) {
@@ -3018,7 +3012,7 @@ function readInstanceFromVMIUUID(vmiId, appData, callback){
 		}
 		var instanceUUID= vmi['instance_ip_back_refs'][0]['uuid'];
 		readInstanceIPwithUUID(instanceUUID, appData, function(error, instanceData){
-	    		console.log("instanceUUID:"+instanceData);
+	    		logutils.logger.debug("instanceUUID:"+instanceData);
 			callback(null, instanceData);
 		});
 	});
@@ -3026,7 +3020,7 @@ function readInstanceFromVMIUUID(vmiId, appData, callback){
 
 
   function readInstanceIPwithUUID(ipId, appData, callback){
-		console.log('readInstanceIPwithUUID');
+		logutils.logger.debug('readInstanceIPwithUUID');
 	var pURL = '/instance-ip/' + ipId;
 		configApiServer.apiGet(pURL, appData, function(error, result) {
 			if (error) {
@@ -3038,7 +3032,7 @@ function readInstanceFromVMIUUID(vmiId, appData, callback){
 	}
 
   function deleteLoadBalancerVMIbyId(dataObj, eMessage, callback){
-	  console.log('deleteLoadBalancerVMIbyId');
+	  logutils.logger.debug('deleteLoadBalancerVMIbyId');
 	  var allDataArr = [];
 	  var appData = dataObj.appData;
 	  var request = dataObj.request;

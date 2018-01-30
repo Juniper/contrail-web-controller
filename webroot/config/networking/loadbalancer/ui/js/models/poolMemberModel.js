@@ -125,7 +125,7 @@ define([
                             obj.loadbalancer_member_properties['weight'] = Number(poolObj.pool_member_weight());
                         }
                         if(poolObj.pool_member_subnet() !== ''){
-                            var subnet = poolObj.pool_member_subnet().split(';')[0];
+                            var subnet = poolObj.pool_member_subnet();
                             obj.loadbalancer_member_properties['subnet_id'] = subnet;
                         }
                         poolStack.push(obj);
