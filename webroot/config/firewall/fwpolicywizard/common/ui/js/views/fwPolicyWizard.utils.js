@@ -188,7 +188,7 @@ define([
                                             elementConfig:{
                                                 dataTextField: 'text',
                                                 dataValueField: 'value',
-                                                placeholder: "Select or Enter Protocol:Port",
+                                                placeholder: "Select or Enter Protocol:SrcPort:DstPort",
                                                 dataSource: {
                                                     type: 'local',
                                                     data: allData.serviceGrpList

@@ -154,7 +154,15 @@ define([
                 service['isServiceGroup'] = true;
             }else{
                 var ports = selectedData.split(':');
-                if(ports.length === 2) {
+                if(ports.length === 3) {
+                    service['service'] = {};
+                    service['service']['protocol'] = ports[0].toLowerCase();
+                    service['service']['dst_ports'] =
+                        policyFormatters.formatPort(ports[2], 'rule')[0];
+                    service['service']['src_ports'] =
+                        policyFormatters.formatPort(ports[1], 'rule')[0];
+                    service['isServiceGroup'] = false;
+                }else if(ports.length === 2) {
                     service['service'] = {};
                     service['service']['protocol'] = ports[0].toLowerCase();
                     service['service']['dst_ports'] =

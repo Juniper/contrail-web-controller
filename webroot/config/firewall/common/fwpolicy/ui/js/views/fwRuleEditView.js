@@ -371,7 +371,7 @@ define([
                                      elementConfig: {
                                          dataTextField: "text",
                                          dataValueField: "value",
-                                         placeholder: "Protocol:Port",
+                                         placeholder: "Protocol:SrcPort:DstPort",
                                          dataSource: {
                                              type: "remote",
                                              requestType: "POST",

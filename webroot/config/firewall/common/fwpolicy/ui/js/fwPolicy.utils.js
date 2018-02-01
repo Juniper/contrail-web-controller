@@ -37,7 +37,30 @@ define([
 
         };
 
+        this.portValidation = function(port){
+            var portArr = port.split(","), returnString = '';
+            for (var i = 0; i < portArr.length; i++) {
+                var portSplit = portArr[i].split("-");
+                if (portSplit.length > 2) {
+                    returnString = "Invalid Port Data";
+                }
+                for (var j = 0; j < portSplit.length; j++) {
+                    if (portSplit[j] == "") {
+                        returnString =  "Port has to be a number";
+                    }
+                    if (!isNumber(portSplit[j])) {
+                        returnString =  "Port has to be a number";
+                    }
+                    if (portSplit[j] % 1 != 0) {
+                        returnString =  "Port has to be a number";
+                    }
+                }
+            }
+            return returnString;
+        };
+
         this.validateServices = function(value, attr, finalObj) {
+             var returnString = '';
             if(!value) {
                 return;
             }
@@ -45,38 +68,36 @@ define([
             if(serviceArry[0] === 'global'){
                 serviceArry.splice(0,1);
             }
-            if(serviceArry.length !== 2) {
+            if(serviceArry.length < 2 || serviceArry.length > 3) {
                 return;
             }
             var protocol = serviceArry[0],
-                port = serviceArry[1];
+                srcPort = serviceArry[1],
+                dstPort = serviceArry[2];
             if($.inArray(protocol.toLowerCase(), ['tcp', 'udp', 'icmp','any']) === -1 &&
                     isNaN(protocol) || Number(protocol) < 0 || Number(protocol) > 255) {
                     return "Select a protocol or enter a code between 0 - 255";
             }
-            if (_.isString(port)) {
-                if (port.toLowerCase() != "any") {
-                    var portArr = port.split(",");
-                    for (var i = 0; i < portArr.length; i++) {
-                        var portSplit = portArr[i].split("-");
-                        if (portSplit.length > 2) {
-                            return "Invalid Port Data";
-                        }
-                        for (var j = 0; j < portSplit.length; j++) {
-                            if (portSplit[j] == "") {
-                                return "Port has to be a number";
-                            }
-                            if (!isNumber(portSplit[j])) {
-                                return "Port has to be a number";
-                            }
-                            if (portSplit[j] % 1 != 0) {
-                                return "Port has to be a number";
-                            }
-                        }
-                    }
+            if (_.isString(srcPort)) {
+                if (srcPort.toLowerCase() != "any") {
+                    returnString = self.portValidation(srcPort);
                 }
-            } else if (!isNumber(port)) {
-                return "Port has to be a number";
+            } else if (!isNumber(srcPort)) {
+                returnString = "Port has to be a number";
+            }
+            if(returnString !== ''){
+                return returnString;
+            }else{
+                if(dstPort !== undefined){
+                    if (_.isString(dstPort)) {
+                        if (dstPort.toLowerCase() != "any") {
+                            returnString = self.portValidation(dstPort);
+                        }
+                    } else if (!isNumber(dstPort)) {
+                        returnString = "Port has to be a number";
+                    }
+                    return returnString;
+                }
             }
             return;
         };

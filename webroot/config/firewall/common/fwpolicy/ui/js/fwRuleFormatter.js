@@ -87,19 +87,35 @@
                     var service = getValueByJsonPath(dc,
                             "service", {}, false);
                         serviceStr += service.protocol ? service.protocol : '';
-                        var startPort = getValueByJsonPath(service, 'dst_ports;start_port', '');
-                        var endPort = getValueByJsonPath(service, 'dst_ports;end_port', '');
-                        if(startPort !== '' && endPort !== ''){
-                            if(startPort === endPort){
+                        var srcStartPort = getValueByJsonPath(service, 'src_ports;start_port', '');
+                        var srcEndPort = getValueByJsonPath(service, 'src_ports;end_port', '');
+                        var dstStartPort = getValueByJsonPath(service, 'dst_ports;start_port', '');
+                        var dstEndPort = getValueByJsonPath(service, 'dst_ports;end_port', '');
+                        if(srcStartPort !== '' && srcEndPort !== ''){
+                            if(srcStartPort === srcEndPort){
                                 serviceStr += ':'  +
-                                    (endPort === -1 ? ctwl.FIREWALL_POLICY_ANY : endPort);
+                                    (srcEndPort === -1 ? ctwl.FIREWALL_POLICY_ANY : srcEndPort);
                             } else{
-                                if(startPort === 0 && endPort === 65535){
+                                if(srcStartPort === 0 && srcEndPort === 65535){
+                                    serviceStr += ':any';
+                                }else{
+                                    serviceStr += ':' + (service && service.src_ports ?
+                                            srcStartPort + '-' +
+                                            srcEndPort : '-');
+                                }
+                            }
+                        }
+                        if(dstStartPort !== '' && dstEndPort !== ''){
+                            if(dstStartPort === dstEndPort){
+                                serviceStr += ':'  +
+                                    (dstEndPort === -1 ? ctwl.FIREWALL_POLICY_ANY : dstEndPort);
+                            } else{
+                                if(dstStartPort === 0 && dstEndPort === 65535){
                                     serviceStr += ':any';
                                 }else{
                                     serviceStr += ':' + (service && service.dst_ports ?
-                                            startPort + '-' +
-                                            endPort : '-');
+                                            dstStartPort + '-' +
+                                            dstEndPort : '-');
                                 }
                             }
                         }

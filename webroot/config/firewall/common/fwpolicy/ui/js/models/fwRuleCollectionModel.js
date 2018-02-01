@@ -135,24 +135,38 @@ define([
                 }
             }else{
                 if(modelConfig['service'] !== undefined && Object.keys(modelConfig['service']).length > 0){
-                    var serviceList = [],port;
+                    var serviceList = [], srcPort, dstPort;
                     var protocol = getValueByJsonPath(modelConfig, "service;protocol", "");
+                    var srcStartPort = getValueByJsonPath(modelConfig, "service;src_ports;start_port", '');
+                    var srcEndtPort = getValueByJsonPath(modelConfig, "service;src_ports;end_port", '');
                     var dstStartPort = getValueByJsonPath(modelConfig, "service;dst_ports;start_port", '');
                     var dstEndtPort = getValueByJsonPath(modelConfig, "service;dst_ports;end_port", '');
                     if(protocol !== ''){
                        serviceList.push(protocol);
                     }
-                    if(dstStartPort === dstEndtPort){
-                        port = dstStartPort === -1 ? ctwl.FIREWALL_POLICY_ANY : dstStartPort;
+                    if(srcStartPort === srcEndtPort){
+                        srcPort = srcStartPort === -1 ? ctwl.FIREWALL_POLICY_ANY : srcStartPort;
                     }else{
-                       if(dstStartPort === 0 && dstEndtPort === 65535){
-                           port = 'any';
+                       if(srcStartPort === 0 && srcEndtPort === 65535){
+                           srcPort = 'any';
                        }else{
-                           port = dstStartPort + '-' + dstEndtPort;
+                           srcPort = srcStartPort + '-' + srcEndtPort;
                        }
                     }
-                    if(port !== ''){
-                       serviceList.push(port);
+                    if(srcPort !== ''){
+                       serviceList.push(srcPort);
+                    }
+                    if(dstStartPort === dstEndtPort){
+                        dstPort = dstStartPort === -1 ? ctwl.FIREWALL_POLICY_ANY : dstStartPort;
+                    }else{
+                       if(dstStartPort === 0 && dstEndtPort === 65535){
+                           dstPort = 'any';
+                       }else{
+                           dstPort = dstStartPort + '-' + dstEndtPort;
+                       }
+                    }
+                    if(dstPort !== ''){
+                       serviceList.push(dstPort);
                     }
                     modelConfig["user_created_service"] = serviceList.join(':');
                 }

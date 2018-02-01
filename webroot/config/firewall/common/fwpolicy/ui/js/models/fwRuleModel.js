@@ -44,24 +44,38 @@ define([
             var simpleAction = getValueByJsonPath(modelConfig, "action_list;simple_action", '');
             modelConfig["simple_action"] = simpleAction;
             if(modelConfig['service'] !== undefined && Object.keys(modelConfig['service']).length > 0){
-                var serviceList = [],port;
+                var serviceList = [], srcPort, dstPort;
                 var protocol = getValueByJsonPath(modelConfig, "service;protocol", "");
+                var srcStartPort = getValueByJsonPath(modelConfig, "service;src_ports;start_port", '');
+                var srcEndtPort = getValueByJsonPath(modelConfig, "service;src_ports;end_port", '');
                 var dstStartPort = getValueByJsonPath(modelConfig, "service;dst_ports;start_port", '');
                 var dstEndtPort = getValueByJsonPath(modelConfig, "service;dst_ports;end_port", '');
                 if(protocol !== ''){
                    serviceList.push(protocol);
                 }
-                if(dstStartPort === dstEndtPort){
-                    port = dstStartPort === -1 ? ctwl.FIREWALL_POLICY_ANY : dstStartPort;
+                if(srcStartPort === srcEndtPort){
+                    srcPort = srcStartPort === -1 ? ctwl.FIREWALL_POLICY_ANY : srcStartPort;
                 }else{
-                   if(dstStartPort === 0 && dstEndtPort === 65535){
-                       port = 'any';
+                   if(srcStartPort === 0 && srcEndtPort === 65535){
+                       srcPort = 'any';
                    }else{
-                       port = dstStartPort + '-' + dstEndtPort;
+                       srcPort = srcStartPort + '-' + srcEndtPort;
                    }
                 }
-                if(port !== ''){
-                   serviceList.push(port);
+                if(srcPort !== ''){
+                   serviceList.push(srcPort);
+                }
+                if(dstStartPort === dstEndtPort){
+                    dstPort = dstStartPort === -1 ? ctwl.FIREWALL_POLICY_ANY : dstStartPort;
+                }else{
+                   if(dstStartPort === 0 && dstEndtPort === 65535){
+                       dstPort = 'any';
+                   }else{
+                       dstPort = dstStartPort + '-' + dstEndtPort;
+                   }
+                }
+                if(dstPort !== ''){
+                   serviceList.push(dstPort);
                 }
                 modelConfig["user_created_service"] = serviceList.join(':');
             }else if(modelConfig['service_group_refs'] !== undefined){
@@ -229,13 +243,22 @@ define([
                 service['isServiceGroup'] = true;
             }else{
                 var services = selectedData.split(':');
-                if(services.length === 2) {
+                if(services.length === 3) {
+                    service['service'] = {};
+                    service['service']['protocol'] = services[0].toLowerCase();
+                    service['service']['dst_ports'] =
+                        policyFormatters.formatPort(services[2], 'rule')[0];
+                    service['service']['src_ports'] =
+                        policyFormatters.formatPort(services[1], 'rule')[0];
+                    service['isServiceGroup'] = false;
+                }else if(services.length === 2) {
                     service['service'] = {};
                     service['service']['protocol'] = services[0].toLowerCase();
                     service['service']['dst_ports'] =
                         policyFormatters.formatPort(services[1], 'rule')[0];
                     service['service']['src_ports'] =
                         policyFormatters.formatPort('0-65535', 'rule')[0];
+                    service['isServiceGroup'] = false;
                 } else if(services.length === 1){
                     service['service'] = {};
                     if(services[0] === ''){
