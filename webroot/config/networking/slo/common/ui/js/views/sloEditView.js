@@ -74,14 +74,20 @@ define([
                    ctwu.bindPermissionsValidation(self);
                    var secLoggingInfo = $('<i class="fa fa-info-circle" aria-hidden="true" title="Every nth matching session will be logged."></i>');
                    var ruleInfo = $('<i class="fa fa-info-circle" aria-hidden="true" title="Every nth matching session will be logged."></i>');
+                   var labelInfo = $('<i class="fa fa-info-circle" style = "margin-left: 3px" aria-hidden="true" title="Select Rules form unselected Network Policy and Security Group."></i>');
+                   var policyInfo = $('<i class="fa fa-info-circle" aria-hidden="true" title="All Rules of selected Network Policy."></i>');
+                   var securityGrpInfo = $('<i class="fa fa-info-circle" aria-hidden="true" title="All Rules of selected Security Group."></i>');
                    $('#security_logging_object_rate label').append(secLoggingInfo);
                    $('#sloRuleDetails  table thead tr th:nth-child(2)').append(ruleInfo);
+                   $('#sloRuleDetails > label').append(labelInfo);
+                   $('#network_policy_refs label').append(policyInfo);
+                   $('#security_group_refs label').append(securityGrpInfo);
                 }, null, true
             );
         },
 
         fetchRuleList : function(options, self, callback) {
-                var returnArr = [];
+                var returnArr = [], networkPolicyChildList = [], secGrpChildList = [];
                 self.policyList = {}, self.secGrpList = {}, self.sloRuleList = [];
                 self.policyObj = [], self.secGrpObj = [];
                 $.each(options.policyModel, function (i, obj) {
@@ -91,6 +97,7 @@ define([
                     if(ruleList.length > 0){
                         for(var j = 0; j < ruleList.length; j++){
                             self.policyList[ruleList[j].rule_uuid] = obj.name;
+                            networkPolicyChildList.push(policyHierarchicalList(ruleList[j], obj));
                         }
                     }
                 });
@@ -101,11 +108,12 @@ define([
                     if(ruleList.length > 0){
                         for(var k = 0; k < ruleList.length; k++){
                             self.secGrpList[ruleList[k].rule_uuid] = obj.name;
+                            secGrpChildList.push(secGrpHierarchicalList(ruleList[k], obj));
                         }
                     }
                 });
-                self.sloRuleList.push({text : 'Policy', value : 'network_policy', id :'network_policy', children : []},
-                                {text : 'Security Group', value : 'security_group', id : 'security_group', children : []});
+                self.sloRuleList.push({text : 'Policy', value : 'network_policy', id :'network_policy', children : networkPolicyChildList},
+                                {text : 'Security Group', value : 'security_group', id : 'security_group', children : secGrpChildList});
                 callback(returnArr);
         },
 
@@ -162,7 +170,7 @@ define([
         return hierarchicalList;
     }
 
-    function retainingPreviousRecords(updatedList, mode, deleteUUID){
+    function retainingPreviousRecords(updatedList, mode, ruleUUID){
         var sloRules = $.extend(true,{}, self.model.model().attributes.rules_entries.rules).toJSON();
         var existingRuleList = [];
         _.each(sloRules, function(obj) {
@@ -175,20 +183,17 @@ define([
                 obj.dataSource()[1].children = updatedList;
             }
             newObj.dataSource = obj.dataSource();
-            if(deleteUUID.length > 0){
-                var ruleUuid = newObj.rule_uuid.split(';');
-                if(deleteUUID.indexOf(ruleUuid[0]) === -1){
-                    existingRuleList.push(newObj);
-                }
-            }else{
-                existingRuleList.push(newObj);
-            }
+            existingRuleList.push(newObj);
         });
         if(existingRuleList.length > 0){
             var ruleModelColl = [];
             _.each(existingRuleList, function(obj) {
-               var newRuleModel = new SloRulesModel(obj);
-               ruleModelColl.push(newRuleModel);
+               var uuid = obj.rule_uuid.split(';')[0];
+               if(ruleUUID.indexOf(uuid) === -1){
+                   var newRuleModel = new SloRulesModel(obj);
+                   self.model.subscribeSloRuleModelChangeEvents(newRuleModel);
+                   ruleModelColl.push(newRuleModel);
+               }
             });
             var coll = new Backbone.Collection(ruleModelColl);
             self.model.sloRuleDetails([]);
@@ -202,20 +207,27 @@ define([
     }
 
     function onNetworkPolicyChanged(e){
-        var policyRule = [];
+        var policyRule = [], ruleUuid = [],updatedChild = [], existingChild;
         if(e.added !== undefined){
             if(e.added.constructor !== Array){
                 _.each(self.policyObj, function(obj) {
                     if(e.added.value === obj.uuid){
                         var ruleList = getValueByJsonPath(obj, ctwc.POLICY_RULE, []);
                         _.each(ruleList, function(rule) {
-                            policyRule.push(policyHierarchicalList(rule, obj));
+                            policyRule.push(rule.rule_uuid);
+                            ruleUuid.push(rule.rule_uuid);
                         });
                     }
                 });
-                var updatedList = self.sloRuleList[0].children.concat(policyRule);
-                self.sloRuleList[0].children = updatedList;
-                retainingPreviousRecords(updatedList, 'network', []);
+                existingChild = self.sloRuleList[0].children;
+                _.each(existingChild, function(child) {
+                    var id = child.id.split(';')[0];
+                   if(policyRule.indexOf(id) === -1){
+                       updatedChild.push(child);
+                   }
+                });
+                self.sloRuleList[0].children = updatedChild;
+                retainingPreviousRecords(updatedChild, 'network', ruleUuid);
             }else if(e.added.length > 0){
                 var existingList = [];
                 _.each(e.added, function(obj) {
@@ -225,12 +237,19 @@ define([
                     if(existingList.indexOf(obj.uuid) !== -1){
                         var ruleList = getValueByJsonPath(obj, ctwc.POLICY_RULE, []);
                         _.each(ruleList, function(rule) {
-                            policyRule.push(policyHierarchicalList(rule, obj));
+                            policyRule.push(rule.rule_uuid);
+                            ruleUuid.push(rule.rule_uuid);
                         });
                     }
                 });
-                var updatedList = self.sloRuleList[0].children.concat(policyRule);
-                self.sloRuleList[0].children = updatedList;
+                existingChild = self.sloRuleList[0].children;
+                _.each(existingChild, function(child) {
+                    var id = child.id.split(';')[0];
+                   if(policyRule.indexOf(id) === -1){
+                       updatedChild.push(child);
+                   }
+                });
+                self.sloRuleList[0].children = updatedChild;
             }
         }
         if(e.removed !== undefined){
@@ -239,42 +258,41 @@ define([
                 _.each(self.policyObj, function(policy) {
                     if(e.removed.value === policy.uuid){
                         ruleList = getValueByJsonPath(policy, ctwc.POLICY_RULE, []);
+                        _.each(ruleList, function(rule) {
+                            ruleUuid.push(rule.rule_uuid);
+                            policyRule.push(policyHierarchicalList(rule, policy));
+                        });
                     }
                 });
-                var updatedList = self.sloRuleList[0].children, deleteUUID = [];
-                _.each(ruleList, function(rule) {
-                    deleteUUID.push(rule.rule_uuid);
-                    _.each(updatedList, function(list, k) {
-                        if(list !== undefined){
-                            var ruleUuid = list.id.split(';')[0];
-                            if(ruleUuid === rule.rule_uuid){
-                                updatedList.splice(k,1);
-                            }
-                        }
-                    });
-                });
-                console.log(deleteUUID);
+                var updatedList = self.sloRuleList[0].children.concat(policyRule);
                 self.sloRuleList[0].children = updatedList;
-                retainingPreviousRecords(updatedList, 'network', deleteUUID);
+                retainingPreviousRecords(updatedList, 'network', ruleUuid);
             }
         }
     };
 
     function onSecurityGroupChanged(e){
-        var secGrpRule = [];
+        var secGrpRule = [], ruleUuid = [], updatedChild = [], existingChild;
         if(e.added !== undefined){
             if(e.added.constructor !== Array){
                 _.each(self.secGrpObj, function(obj) {
                     if(e.added.value === obj.uuid){
                         var ruleList = getValueByJsonPath(obj, ctwc.SERVICE_GRP_RULE, []);
                         _.each(ruleList, function(rule) {
-                            secGrpRule.push(secGrpHierarchicalList(rule, obj));
+                            secGrpRule.push(rule.rule_uuid);
+                            ruleUuid.push(rule.rule_uuid);
                         });
                     }
                 });
-                var updatedList = self.sloRuleList[1].children.concat(secGrpRule);
-                self.sloRuleList[1].children = updatedList;
-                retainingPreviousRecords(updatedList, 'sgp', []);
+                existingChild = self.sloRuleList[1].children;
+                _.each(existingChild, function(child) {
+                    var id = child.id.split(';')[0];
+                   if(secGrpRule.indexOf(id) === -1){
+                       updatedChild.push(child);
+                   }
+                });
+                self.sloRuleList[1].children = updatedChild;
+                retainingPreviousRecords(updatedChild, 'sgp', ruleUuid);
             }else if(e.added.length > 0){
                 var existingList = [];
                 _.each(e.added, function(obj) {
@@ -284,12 +302,19 @@ define([
                     if(existingList.indexOf(obj.uuid) !== -1){
                         var ruleList = getValueByJsonPath(obj, ctwc.SERVICE_GRP_RULE, []);
                         _.each(ruleList, function(rule) {
-                            secGrpRule.push(secGrpHierarchicalList(rule, obj));
+                            secGrpRule.push(rule.rule_uuid);
+                            ruleUuid.push(rule.rule_uuid);
                         });
                     }
                 });
-                var updatedList = self.sloRuleList[1].children.concat(secGrpRule);
-                self.sloRuleList[1].children = updatedList;
+                existingChild = self.sloRuleList[1].children;
+                _.each(existingChild, function(child) {
+                    var id = child.id.split(';')[0];
+                   if(secGrpRule.indexOf(id) === -1){
+                       updatedChild.push(child);
+                   }
+                });
+                self.sloRuleList[1].children = updatedChild;
             }
         }
         if(e.removed !== undefined){
@@ -298,22 +323,15 @@ define([
                 _.each(self.secGrpObj, function(secGrp) {
                     if(e.removed.value === secGrp.uuid){
                         ruleList = getValueByJsonPath(secGrp, ctwc.SERVICE_GRP_RULE, []);
+                        _.each(ruleList, function(rule) {
+                            ruleUuid.push(rule.rule_uuid);
+                            secGrpRule.push(secGrpHierarchicalList(rule, secGrp));
+                        });
                     }
                 });
-                var updatedList = self.sloRuleList[1].children, deleteUUID = [];
-                _.each(ruleList, function(rule) {
-                    deleteUUID.push(rule.rule_uuid);
-                    _.each(updatedList, function(list, k) {
-                        if(list !== undefined){
-                            var ruleUuid = list.id.split(';')[0];
-                            if(ruleUuid === rule.rule_uuid){
-                                updatedList.splice(k,1);
-                            }
-                        }
-                    });
-                });
+                var updatedList = self.sloRuleList[1].children.concat(secGrpRule);
                 self.sloRuleList[1].children = updatedList;
-                retainingPreviousRecords(updatedList, 'sgp', deleteUUID);
+                retainingPreviousRecords(updatedList, 'sgp', ruleUuid);
             }
         }
     };
@@ -349,6 +367,27 @@ define([
                                         placeholder: 'Enter Rate'
                                    }
                                 }]},
+                                {
+                                    columns: [
+                                    {
+                                        elementId: 'admin_state',
+                                        view: "FormDropdownView",
+                                        viewConfig: {
+                                            label: 'Admin State',
+                                            path : 'admin_state',
+                                            class: 'col-xs-6',
+                                            dataBindValue : 'admin_state',
+                                            elementConfig : {
+                                                dataTextField : "text",
+                                                dataValueField : "id",
+                                                placeholder : 'Select Admin State',
+                                                data : [{id: 'true', text:'Up'},
+                                                        {id: 'false', text:'Down'}]
+                                            }
+                                        }
+                                    }
+                                  ]
+                                },
                                 {
                                     columns: [
                                         {
