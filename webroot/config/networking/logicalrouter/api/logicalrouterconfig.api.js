@@ -213,13 +213,25 @@ function instanceIPRefAggCb(error, instanceIPList, logicalRouterDetail, vmiLen, 
  */
 function createLogicalRouter(request, response, appData)
 {
+    var dataObj = {request: request, appData: appData, data: request.body};
+    createLogicalRouterCB(dataObj, function(error, data) {
+        commonUtils.handleJSONResponse(error, response, data);
+    });
+}
+
+function createLogicalRouterCB (dataObj, callback)
+{
+    var request = dataObj.request;
+    var appData = dataObj.appData;
+    var data = dataObj.data;
+
     var logicalRouterCreateURL = '/logical-routers';
     var logicalRouterPostData = request.body;
     var orginalDataFromUI = commonUtils.cloneObj(request.body);
     var config = configUtils.getConfig();
     if (typeof(logicalRouterPostData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
-        commonUtils.handleJSONResponse(error, response, null);
+        callback(error, null);
         return;
     }
 
@@ -227,7 +239,7 @@ function createLogicalRouter(request, response, appData)
         (!('fq_name' in logicalRouterPostData['logical-router'])) ||
         (!(logicalRouterPostData['logical-router']['fq_name'][2].length))) {
         error = new appErrors.RESTServerError('Enter Logical Router Name ');
-        commonUtils.handleJSONResponse(error, response, null);
+        callback(error, null);
         return;
     }
     var networkUUID = null;
@@ -256,13 +268,12 @@ function createLogicalRouter(request, response, appData)
             allDataArr.push({
                 request: request,
                 data: vmidata,
-                response: response,
                 appData: appData
             });
         }
         async.mapSeries(allDataArr, portConfig.createPortCB, function(error, data){
             if(error){
-                commonUtils.handleJSONResponse(error, response, null);
+                callback(error, null);
                 return;
             }
             logicalRouterPostData['logical-router']['virtual_machine_interface_refs'] = [];
@@ -277,13 +288,13 @@ function createLogicalRouter(request, response, appData)
             removeBackRefFromPostData(logicalRouterPostData);
             configApiServer.apiPost(logicalRouterCreateURL, logicalRouterPostData, appData,
             function (error, data) {
-                logicalRouterSendResponse(error, data, response);
+                callback(error, data);
             });
         });
     } else {
     configApiServer.apiPost(logicalRouterCreateURL, logicalRouterPostData, appData,
         function (error, data) {
-            logicalRouterSendResponse(error, data, response);
+            callback(error, data);
         });
     }
 }
@@ -295,23 +306,20 @@ function updateRouterCB (request, routerObj, routerUUID, callback)
     });
 }
 
-/**
- * @logicalRouterSendResponse
- * private function
- * 1. Sends back the response of Logical Router read to clients after set operations.
- */
-function logicalRouterSendResponse(error, logicalRouterConfig, response)
-{
-    if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
-    } else {
-        commonUtils.handleJSONResponse(error, response, logicalRouterConfig);
-    }
-    return;
-}
-
 function updateLogicalRouter(request, response, appData)
 {
+    var dataObj = {request: request, appData: appData, data: request.body};
+    updateLogicalRouterCB(dataObj, function(error, data) {
+        commonUtils.handleJSONResponse(error, response, data);
+    });
+}
+
+function updateLogicalRouterCB (dataObj, callback)
+{
+    var request = dataObj.request;
+    var appData = dataObj.appData;
+    var data = dataObj.data;
+
     var logicalRouterId       = null;
     var logicalRouterPutURL   = '/logical-router/';
     var logicalRouterPostData = request.body;
@@ -321,15 +329,15 @@ function updateLogicalRouter(request, response, appData)
 
     if (typeof(logicalRouterPostData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Router Data');
-        commonUtils.handleJSONResponse(error, response, null);
+        callback(error, null);
         return;
     }
 
-    if (logicalRouterId = request.param('uuid').toString()) {
+    if (logicalRouterId = logicalRouterPostData['logical-router'].uuid) {
         logicalRouterPutURL += logicalRouterId;
     } else {
         error = new appErrors.RESTServerError('Add Logical Router ID');
-        commonUtils.handleJSONResponse(error, response, null);
+        callback(error, null);
         return;
     }
 
@@ -337,7 +345,7 @@ function updateLogicalRouter(request, response, appData)
         (!('fq_name' in logicalRouterPostData['logical-router'])) ||
         (!(logicalRouterPostData['logical-router']['fq_name'][2].length))) {
         error = new appErrors.RESTServerError('Invalid Logical Router');
-        commonUtils.handleJSONResponse(error, response, null);
+        callback(error, null);
         return;
     }
     var networkUUID = null;
@@ -349,11 +357,15 @@ function updateLogicalRouter(request, response, appData)
         }
     }
     configApiServer.apiGet(logicalRouterPutURL, appData, function(err, data) {
-        readLogicalRouterToUpdate(err, logicalRouterPutURL, orginalDataFromUI, logicalRouterPostData, data, networkUUID, request, response, appData);
+        readLogicalRouterToUpdate(err, logicalRouterPutURL, orginalDataFromUI,
+                                  logicalRouterPostData, data, networkUUID,
+                                  request, appData, callback);
     });
 }
 
-function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, logicalRouterPostData, datafromAPI, networkUUID, request, response, appData){
+function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI,
+                                   logicalRouterPostData, datafromAPI,
+                                   networkUUID, request, appData, callback){
     var updateRouteTableFlag = false;
     var resetExternalGateway = false;
 
@@ -398,7 +410,6 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
                 allDataArr.push({
                     request: request,
                     data: vmidata,
-                    response: response,
                     appData: appData
                 });
                 
@@ -406,7 +417,7 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
             
             async.mapSeries(allDataArr, portConfig.createPortCB, function(error, data){
                 if(error){
-                    commonUtils.handleJSONResponse(error, response, null);
+                    callback(error, null);
                     return;
                 }
                 var datalen = data.length;
@@ -425,15 +436,19 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
                     addVMIData = [];
                 }
                 removeBackRefFromPostData(logicalRouterPostData);
-                updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, response, appData);
+                updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData,
+                                           deleteVMIArray, networkUUID, addVMIData,
+                                           resetExternalGateway, request, appData, callback);
             });
         } else {
-            updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, [], resetExternalGateway, request, response, appData);
+            updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData,
+                                       deleteVMIArray, networkUUID, [],
+                                       resetExternalGateway, request, appData, callback);
         }
     });
 }
 
-function removeVMI(error, logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, response, appData, data){
+function removeVMI(error, logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, appData, data, callback){
     // delete vmi Reference 
     if(deleteVMIArray.length > 0){
         var allDataArr = [];
@@ -447,22 +462,22 @@ function removeVMI(error, logicalRouterURL, logicalRouterPostData, deleteVMIArra
             });
         }
         async.mapSeries(allDataArr, portConfig.deletePortsCB, function(error, data){
-            if(error){
-                commonUtils.handleJSONResponse(error, response, null);
-                return;
-            }
-            logicalRouterSendResponse(error, data, response);
+            callback(error, data);
         });
     } else {
-        logicalRouterSendResponse(error, data, response);
+        callback(error, data);
     }
 
 }
 
-function updateLogicalRouterWithVMI(logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, response, appData){
+function updateLogicalRouterWithVMI(logicalRouterPutURL, logicalRouterPostData,
+                                    deleteVMIArray, networkUUID, addVMIData,
+                                    resetExternalGateway, request, appData, callback){
     jsonDiff.getConfigDiffAndMakeCall(logicalRouterPutURL, appData, logicalRouterPostData,
                                           function(error, data) {
-        removeVMI(error, logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, response, appData, data);
+        removeVMI(error, logicalRouterPutURL, logicalRouterPostData, deleteVMIArray,
+                  networkUUID, addVMIData, resetExternalGateway, request, appData, data,
+                  callback);
     });
 }
 
@@ -670,3 +685,5 @@ exports.createLogicalRouter = createLogicalRouter;
 exports.updateLogicalRouter = updateLogicalRouter;
 exports.deleteLogicalRouter = deleteLogicalRouter;
 exports.deleteLogicalRouterAsync = deleteLogicalRouterAsync;
+exports.createLogicalRouterCB = createLogicalRouterCB;
+exports.updateLogicalRouterCB = updateLogicalRouterCB;

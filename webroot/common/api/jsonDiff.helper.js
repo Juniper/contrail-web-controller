@@ -88,10 +88,7 @@ var configJsonModifyObj = {
         'isConfig': true,
         'preProcessCB': {
             'applyOnOldJSON': modifySecurityGroupConfigData,
-        },
-        'optFields': ['security_group_entries', 'configured_security_group_id',
-                      'perms2',"tag_refs"],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     'logical-router': {
         'isConfig': true,
@@ -103,7 +100,7 @@ var configJsonModifyObj = {
             'virtual_machine_interface_refs',
             'virtual_network_refs',
             'configured_route_target_list',
-            'perms2',
+            'perms2', 'parent_type',
             'tag_refs',
             'vxlan_network_identifier',
             'physical_router_refs'
@@ -354,6 +351,9 @@ function modifySecurityGroupConfigData (type, configData, optFields,
 
 function modifyConfigData (type, configData, optFields, mandateFields, skipArr)
 {
+    if ((null == configData) || (null == configData[type])) {
+        return configData;
+    }
     var newConfigData = commonUtils.cloneObj(configData[type]);
     var optFieldsLen = 0;
     if (null != optFields) {

@@ -213,18 +213,15 @@ define([
                     delete(newLRData.href);
                 }
 
-                var type = "";
+                var type = "POST";
                 var url = "";
                 if(mode == "add") {
                 //create//
-                    type = "POST";
                     newLRData.display_name = newLRData["name"];
                     delete(newLRData["uuid"]);
-                    url = ctwc.URL_LOGICAL_ROUTER_POST;
+                    url = ctwc.URL_CREATE_CONFIG_OBJECT;
                 } else {
-                    type = "PUT";
-                    url = ctwc.get(ctwc.URL_LOGICAL_ROUTER_PUT,
-                                   newLRData["uuid"]);
+                    url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                 }
                 lRouter = {};
                 lRouter["logical-router"] = {};
