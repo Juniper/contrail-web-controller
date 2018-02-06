@@ -6,8 +6,9 @@ define([
     'underscore',
     'contrail-model',
     'config/infra/globalconfig/ui/js/models/encapPriorityModel',
+    'config/infra/globalconfig/ui/js/models/portTranslationPoolsModel',
     'config/infra/globalconfig/ui/js/globalConfig.utils'
-], function (_, ContrailModel, EncapPriorityModel,
+], function (_, ContrailModel, EncapPriorityModel, PortTranslationPoolsModel,
              GlobalConfigUtils) {
     var gcUtils = new GlobalConfigUtils();
     var forwardingOptionsModel = ContrailModel.extend({
@@ -68,6 +69,7 @@ define([
             /* Encap Priority Order */
             var encapPriOrdModel;
             var encapPriOrdModels = [];
+            var portTranslationPools = [];
             var encapPriOrdCollectionModel;
             var encapPrioList = getValueByJsonPath(modelConfig,
                 "encapsulation_priorities;encapsulation", []);
@@ -102,11 +104,40 @@ define([
             }
             modelConfig['ecmp_hashing_include_fields'] =
                 ecmpHashIncFields.join(',');
+            var portTranslationPool = getValueByJsonPath(modelConfig,
+                    "port_translation_pools;port_translation_pool", []);
+            if(portTranslationPool.length > 0){
+                for(var j = 0; j < portTranslationPool.length; j++){
+                    if(portTranslationPool[j].port_range !== '' && portTranslationPool[j].port_range !== undefined){
+                        var startPort = getValueByJsonPath(portTranslationPool[j], "port_range;start_port", '');
+                        var endPort = getValueByJsonPath(portTranslationPool[j], "port_range;end_port", '');
+                        var portRange = startPort + '-' + endPort;
+                        portTranslationPool[j].port_range = portRange;
+                    }
+                    var portModel = new PortTranslationPoolsModel(portTranslationPool[j]);
+                    portTranslationPools.push(portModel);
+                }
+            }
+            var portTranslationModel = new Backbone.Collection(portTranslationPools);
+            modelConfig['portTranslationCollection'] = portTranslationModel;
             return modelConfig;
         },
 
         getEncapPriorities: function() {
             return gcUtils.getDefaultUIEncapList();
+        },
+
+        addPortTranslation: function(){
+            var portTrans = this.model().attributes['portTranslationCollection'],
+            portTranslationPoolsModel = new PortTranslationPoolsModel();
+            portTrans.add([portTranslationPoolsModel]);
+        },
+
+        deletePortTranslation: function(data, portTrans) {
+            var portTransCollection = data.model().collection,
+            delPortTrans = portTrans.model();
+            var model = $.extend(true,{},delPortTrans.attributes);
+            portTransCollection.remove(delPortTrans);
         },
 
         getEncapPriOrdList: function(attr) {
@@ -193,16 +224,40 @@ define([
                         key: null,
                         type: cowc.OBJECT_TYPE_MODEL,
                         getValidation: 'forwardingOptionsValidations'
+                    },
+                    {
+                        key : 'portTranslationCollection',
+                        type : cowc.OBJECT_TYPE_COLLECTION,
+                        getValidation : 'portTranslationValidation'
                     }
                 ];
 
             if(self.isDeepValid(validations)) {
                 newFwdOptionsConfig =
                     $.extend({}, true, self.model().attributes);
+                var portTranslationCollection = newFwdOptionsConfig.portTranslationCollection.toJSON();
                 fwdOptionsData['global-vrouter-config'] = {};
-
                 ajaxConfig = {};
-
+                var portTranslationPool = [], portTranslationPoolObj = {};
+                if(portTranslationCollection.length > 0){
+                    for(var j = 0; j < portTranslationCollection.length; j++){
+                        var obj = {};
+                        obj.protocol = portTranslationCollection[j].protocol();
+                        if(portTranslationCollection[j].port_count() !== ''){
+                           obj.port_count = portTranslationCollection[j].port_count();
+                        }
+                        if(portTranslationCollection[j].port_range() !== ''){
+                            var port = portTranslationCollection[j].port_range().split('-');
+                            var portObj = {};
+                            portObj.start_port = port[0];
+                            portObj.end_port = port[1];
+                            obj.port_range = portObj;
+                        }
+                        portTranslationPool.push(obj);
+                    }
+                }
+                portTranslationPoolObj['port_translation_pool'] = portTranslationPool;
+                fwdOptionsData['global-vrouter-config']['port_translation_pools'] = portTranslationPoolObj;
                 if ('forwarding_mode' in newFwdOptionsConfig) {
                     if ("Default" == newFwdOptionsConfig['forwarding_mode']) {
                         newFwdOptionsConfig['forwarding_mode'] = null;
