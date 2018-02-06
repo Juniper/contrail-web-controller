@@ -601,7 +601,7 @@ function compareCreateRefObject (dataObject, callback)
                              DataObjectArr, currentVMIRef, appData);
     //fixed ip
     key = "instance_ip_back_refs";
-    if (key in tempPutData || key in tempVmiData) {
+    if (!portPutData.simple_edit && (key in tempPutData || key in tempVmiData)) {
         filterUpdateFixedIP(error, portPutData, vmiData, appData, function(createFixedIp,deleteFixedip){
             if (createFixedIp != null && createFixedIp != "") {
                 if (createFixedIp.length > 0) {
@@ -821,7 +821,7 @@ function processDataObjects (error, DataObjectArr, DataObjectDelArr, vmiData,
     portPutURL += vmiUUID;
     if (DataObjectArr.length > 0) {
         async.map(DataObjectArr,
-        commonUtils.getServerResponseByRestApi(configApiServer, false),
+        commonUtils.getServerResponseByRestApi(configApiServer, true),
         function(locError, result) {
             error = appendErrorMessage(locError, error);
             //Call to deviceOwnerChange
@@ -890,6 +890,7 @@ function updateVMI (error, portPutData, appData, callback)
     portPutURL += vmiUUID;
     portPutData = removeRefs(portPutData);
     portPutData = removeBackRef(portPutData);
+    delete portPutData.simple_edit;
     jsonDiff.getConfigDiffAndMakeCall(portPutURL, appData, portPutData,
                                           function(locError, data) {
         error = appendErrorMessage(locError, error);
@@ -1102,6 +1103,9 @@ function detachDeviceOwner(portPutData, vmiData, request, appData, callback) {
             return;
             break;
         }
+        default:
+            callback(null, null);
+            break;
     }
 }
 
@@ -1149,6 +1153,9 @@ function attachDeviceOwner(portPutData, vmiData, request, appData, callback) {
             callback(null, null);
             break;
         }
+        default: 
+            callback(null, null);
+            break;
     }
 }
 
