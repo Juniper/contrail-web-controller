@@ -13,9 +13,9 @@ define([
         defaultConfig: {
             'pool_member_ip_address' : '',
             'pool_member_subnet' : '',
-            'pool_member_port': '',
+            'pool_member_port': '80',
             'pool_member_weight':'1',
-            'pool_name':''
+            'pool_name':'Member 1'
         },
 
         formatModelConfig: function (modelConfig) {

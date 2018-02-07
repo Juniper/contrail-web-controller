@@ -145,6 +145,7 @@ define([
                                 view: "FormInputView",
                                 viewConfig: {
                                     path: "name",
+                                    placeholder : 'Enter load balancer name',
                                     dataBindValue: "name",
                                     class: "col-xs-6"
                                 }
@@ -268,6 +269,7 @@ define([
                                 viewConfig: {
                                     path: "listener_name",
                                     label: 'Name',
+                                    placeholder : 'Enter listener name',
                                     dataBindValue: "listener_name",
                                     class: "col-xs-6"
                                 }
@@ -359,6 +361,7 @@ define([
                                  viewConfig: {
                                      path: "pool_name",
                                      label: 'Name',
+                                     placeholder : 'Enter Pool name',
                                      dataBindValue: "pool_name",
                                      class: "col-xs-6"
                                  }
@@ -496,6 +499,7 @@ define([
                                                          path: "global_max_conn_attr",
                                                          type:'number',
                                                          label: 'Maximum Connection',
+                                                         placeholder: '1-65535',
                                                          dataBindValue: "global_max_conn_attr",
                                                          class: "col-xs-6"
                                                      }
@@ -506,6 +510,7 @@ define([
                                                          path: "global_max_conn_rate_attr",
                                                          type:'number',
                                                          label: 'Maximum Connection Rate',
+                                                         placeholder: '1-65535',
                                                          dataBindValue: "global_max_conn_rate_attr",
                                                          class: "col-xs-6"
                                                      }
@@ -518,6 +523,7 @@ define([
                                                          path: "global_max_sess_rate_attr",
                                                          type:'number',
                                                          label: 'Maximum Session Rate',
+                                                         placeholder: '1-65535',
                                                          dataBindValue: "global_max_sess_rate_attr",
                                                          class: "col-xs-6"
                                                      }
@@ -528,6 +534,7 @@ define([
                                                          path: "global_max_ssl_conn_aatr",
                                                          type:'number',
                                                          label: 'Maximum SSL Connection',
+                                                         placeholder: '1-65535',
                                                          dataBindValue: "global_max_ssl_conn_aatr",
                                                          class: "col-xs-6"
                                                      }
@@ -541,6 +548,7 @@ define([
                                                          path: "global_max_ssl_rate_attr",
                                                          type:'number',
                                                          label: 'Maximum SSL Rate',
+                                                         placeholder: '1-65535',
                                                          dataBindValue: "global_max_ssl_rate_attr",
                                                          class: "col-xs-6"
                                                      }
@@ -549,7 +557,9 @@ define([
                                                      view: "FormInputView",
                                                      viewConfig: {
                                                          path: "global_ssl_ciphers_attr",
+                                                         type:'number',
                                                          label: 'SSL Ciphers',
+                                                         placeholder: '1-100',
                                                          dataBindValue: "global_ssl_ciphers_attr",
                                                          class: "col-xs-6"
                                                      }
@@ -563,6 +573,7 @@ define([
                                                          path: "global_tune_http_max_header_attr",
                                                          type:'number',
                                                          label: 'Tune Http Maximum Header',
+                                                         placeholder: '1-128',
                                                          dataBindValue: "global_tune_http_max_header_attr",
                                                          class: "col-xs-6"
                                                      }
@@ -573,6 +584,7 @@ define([
                                                          path: "global_tune_ssl_max_record_attr",
                                                          type:'number',
                                                          label: 'Tune SSL Maximum Record',
+                                                         placeholder: '1-65535',
                                                          dataBindValue: "global_tune_ssl_max_record_attr",
                                                          class: "col-xs-6"
                                                      }
@@ -603,6 +615,7 @@ define([
                                                         path: "default_server_timeout_attr",
                                                         type:'number',
                                                         label: 'Server Timeout',
+                                                        placeholder: '1-5000000',
                                                         dataBindValue: "default_server_timeout_attr",
                                                         class: "col-xs-6"
                                                     }
@@ -613,6 +626,7 @@ define([
                                                         path: "default_client_timeout_attr",
                                                         type:'number',
                                                         label: 'Client Timeout',
+                                                        placeholder: '1-5000000',
                                                         dataBindValue: "default_client_timeout_attr",
                                                         class: "col-xs-6"
                                                     }
@@ -625,6 +639,7 @@ define([
                                                         path: "default_connect_timeout_attr",
                                                         type:'number',
                                                         label: 'Connect Timeout',
+                                                        placeholder: '1-5000000',
                                                         dataBindValue: "default_connect_timeout_attr",
                                                         class: "col-xs-6"
                                                     }
@@ -656,6 +671,7 @@ define([
                                                        path: "frontend_rate_limit_sessions_attr",
                                                        type:'number',
                                                        label: 'Rate Limit Session',
+                                                       placeholder: '1-65535',
                                                        dataBindValue: "frontend_rate_limit_sessions_attr",
                                                        class: "col-xs-6"
                                                    }
@@ -1071,7 +1087,7 @@ define([
         return addPoolViewConfig;
     }
 
-    function checkPoolValidation(params){
+    function checkPoolValidation(params, mode ){
         var model = params.model.pool_member(), porNotValid = false;
         for(var i = 0; i < model.length; i++){
             var port = Number(model[i].model().attributes.pool_member_port());
@@ -1079,10 +1095,24 @@ define([
             var ip_address = model[i].model().attributes.pool_member_ip_address();
             if(subnet === '' || ip_address === ''){
                 porNotValid = true;
-                break;
+                if(mode === 'loadbalancer'){
+                		$('#loadbalancer_loadbalancer_wizard-p-3 .alert-error').css({'display': 'block'});
+                		$('#loadbalancer_loadbalancer_wizard-p-3 > div > span').text('Subnet and IP Address missing.');
+                }else{
+                		$('#loadbalancer_loadbalancer_wizard-p-2 .alert-error').css({'display': 'block'});
+                		$('#loadbalancer_loadbalancer_wizard-p-2 > div > span').text('Subnet and IP Address missing.');
+                }
+                	break;
             }
             if(port < 1 || port > 65535){
-                porNotValid = true;
+            	    porNotValid = true;
+                if(mode === 'loadbalancer'){
+                		$('#loadbalancer_loadbalancer_wizard-p-3 .alert-error').css({'display': 'block'});
+                		$('#loadbalancer_loadbalancer_wizard-p-3 > div > span').text('Port number missing.');
+	            }else{
+	            		$('#loadbalancer_loadbalancer_wizard-p-2 .alert-error').css({'display': 'block'});
+	            		$('#loadbalancer_loadbalancer_wizard-p-2 > div > span').text('Port number missing.');
+	            }
                 break;
             }
         }
@@ -1111,12 +1141,12 @@ define([
                         onNext: function(params) {
                             if(options.mode === 'loadbalancer'){
                                 $('#loadbalancer_loadbalancer_wizard .actions > ul li:nth-child(3) a').text('Create Load Balancer'); 
-                                if(!checkPoolValidation(params)){
-                                    return true;
+                                if(!checkPoolValidation(params, options.mode)){
+                                	   return true;
                                 }
                             }else{
                                 $('#loadbalancer_loadbalancer_wizard .actions > ul li:nth-child(3) a').text('Create Listener');
-                                if(!checkPoolValidation(params)){
+                                if(!checkPoolValidation(params, options.mode)){
                                     return true;
                                 }
                             }
