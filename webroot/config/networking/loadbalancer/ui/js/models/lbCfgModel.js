@@ -11,7 +11,7 @@ define([
     var lbCfgFormatters = new LbCfgFormatters();
     var lbCfgModel = ContrailConfigModel.extend({
         defaultConfig: {
-            'name': 'Load balancer 1',
+            'name': '',
             'display_name': '',
             'description': '',
             'ip_address': '',
@@ -24,13 +24,13 @@ define([
             'lb_admin_state': true,
             'lb_floating_ip': '',
             'lb_subnet': '',
-            'listener_name':'Listener 1',
+            'listener_name':'',
             'listener_description':'',
             'listener_protocol':'',
             'listener_port':'',
             'listener_admin_state': true,
             'connection_limit': -1,
-            'pool_name':'Pool 1',
+            'pool_name':'',
             'pool_description':'',
             'pool_method':'',
             'pool_member': [],

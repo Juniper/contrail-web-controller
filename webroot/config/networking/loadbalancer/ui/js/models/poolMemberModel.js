@@ -5,8 +5,9 @@
 define([
     'underscore',
     'contrail-model',
-    'config/networking/loadbalancer/ui/js/models/poolMemberCollectionModel'
-], function (_, ContrailModel, PoolMemberCollectionModel) {
+    'config/networking/loadbalancer/ui/js/models/poolMemberCollectionModel',
+    'config/networking/loadbalancer/ui/js/views/lbCfgFormatters'
+], function (_, ContrailModel, PoolMemberCollectionModel, LbCfgFormatters) {
     var poolMemberModel = ContrailModel.extend({
         defaultConfig: {
             "display_name": "",
@@ -66,7 +67,26 @@ define([
                    if(port < 1 || port > 65535){
                        return "The Port must be a number between 1 and 65535.";
                    }
-                }
+                },
+                'ip_address' : function(value, attr, data) {
+                    if(value == null || value.trim() == "") {
+                        return;
+                    }
+                    if(!lbCfgFormatters.validateIP(value)){
+                        return "The IP address is not valid.";
+                    }
+                    if(data.lb_subnet != "") {
+                        var subnet = data.lb_subnet.split(';')[1];
+                        if(!isIPBoundToRange(subnet, value)){
+                            var ip = subnet.split('/')[0];
+                            return "Enter a fixed IP within the selected subnet range " + ip;
+                        }
+                        if(isStartAddress(subnet, value) == true ||
+                           isEndAddress(subnet, value) == true) {
+                            return "Fixed IP cannot be same as broadcast/start address";
+                        }
+                    }
+                 },
              }
         },
 
