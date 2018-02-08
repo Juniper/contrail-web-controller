@@ -224,17 +224,24 @@ function buildConfigURLSuffix (startDone, url, urlSuffix)
 
 function getConfigDetailsAsync (dataObj, callback)
 {
+    var type = dataObj['type'];
     var appData = dataObj['appData'];
-    var url = '/' + dataObj['type'];
+    var url = '/' + type;
     var startDone = false;
     if (true == dataObj['detail']) {
         url += '?detail=true';
         startDone = true;
     }
+    var details = dataObj["detail_fields"];
+    if (null != details) {
+        if (!(details instanceof Array)) {
+            details = details.split(",");
+        }
+    }
     var fields = dataObj['fields'];
     if (null != fields) {
         if (fields instanceof Array) {
-            fields = fields.join(":");
+            fields = fields.join(",");
         }
         url = buildConfigURLSuffix(startDone, url,
                                    'fields=' + fields);
@@ -307,8 +314,112 @@ function getConfigDetailsAsync (dataObj, callback)
         startDone = true;
     }
     configApiServer.apiGet(url, appData, function(err, data) {
-        callback(err, data);
+        if ((null != err) || (null == data) ||
+        /* Now check if we have request for details */
+            (null == details) || (!details.length)) {
+            callback(err, data);
+            return;
+        }
+        var detailsFieldsCnt = details.length;
+        var respDataArr = data[type];
+        var respCnt = respDataArr.length;
+        var uuidToApiRespDataArrMap = {};
+        var uuidObjs = {};
+        var uuidList = [];
+        for (var i = 0; i < respCnt; i++) {
+            updateUUIDListByFields(respDataArr[i], details, i,
+                                   uuidObjs, uuidToApiRespDataArrMap);
+        }
+        var dataObjArr = [];
+        for (var key in uuidObjs) {
+            var reqUrl = "/" + key + "s?detail=true&obj_uuids=" +
+                uuidObjs[key].join(",");
+            commonUtils.createReqObj(dataObjArr, reqUrl, null, null, null, null,
+                                     appData);
+        }
+        async.map(dataObjArr,
+                  commonUtils.getServerResponseByRestApi(configApiServer, true),
+                  function (error, fieldData) {
+            var len = fieldData.length;
+            var finalFieldData = [];
+            var subType = type.substring(0, type.length - 1);
+            for (var i = 0; i < len; i++) {
+                finalFieldData = finalFieldData.concat(_.values(fieldData[i])[0]);
+            }
+            var finalFieldDataLen = finalFieldData.length;
+            for (var i = 0; i < finalFieldDataLen; i++) {
+                var value = _.values(finalFieldData[i])[0];
+                var uuid = _.result(value, "uuid", null);
+                if (null == uuid) {
+                    logutils.logger.error("details data uuid null");
+                    continue;
+                }
+                if (null == uuidToApiRespDataArrMap[uuid]) {
+                    /* Weired */
+                    logutils.logger.error("details data uuid map error");
+                    continue;
+                }
+                var idx = uuidToApiRespDataArrMap[uuid].index;
+                var field = uuidToApiRespDataArrMap[uuid].field;
+                if (null == data[type][idx][subType].detail_fields) {
+                    data[type][idx][subType].detail_fields = {};
+                }
+                if (null == data[type][idx][subType].detail_fields[field]) {
+                    data[type][idx][subType].detail_fields[field] = [];
+                }
+                data[type][idx][subType].detail_fields[field].push(commonUtils.cloneObj(value));
+            }
+            callback(err, data);
+        });
     });
+}
+
+function getResTypeByFieldName (fieldName)
+{
+    var backRefStr = "_back_refs";
+    var backRefStrLen = backRefStr.length;
+    var refStr = "_refs";
+    var refStrLen = refStr.length;
+    var key = null;
+    if (backRefStr == fieldName.substr(fieldName.length - backRefStrLen, backRefStrLen)) {
+        key = fieldName.substr(0, fieldName.length - backRefStrLen);
+    }
+    if (refStr == fieldName.substr(fieldName.length - refStrLen, refStrLen)) {
+        key = fieldName.substr(0, fieldName.length - refStrLen);
+    }
+    if (null != key) {
+        return key.replace(/_/g, "-");
+    }
+    return fieldName;
+}
+
+function updateUUIDListByFields (respData, detailsFields,
+                                 index, uuidObjs, uuidToApiRespDataArrMap)
+{
+    var apiRespData = _.values(respData)[0];
+    var detailsFieldsCnt = detailsFields.length;
+    for (var i = 0; i < detailsFieldsCnt; i++) {
+        var fieldData = apiRespData[detailsFields[i]];
+        if ((null == fieldData) || (!(fieldData instanceof Array)) ||
+            (!fieldData.length)) {
+            continue;
+        }
+        var fieldDataType = getResTypeByFieldName(detailsFields[i]);
+        var fieldDataCnt = fieldData.length;
+        for (var j = 0; j < fieldDataCnt; j++) {
+            var uuid = fieldData[j].uuid;
+            if (null == uuid) {
+                continue;
+            }
+            if (null == uuidObjs[fieldDataType]) {
+                uuidObjs[fieldDataType] = [];
+            }
+            uuidObjs[fieldDataType].push(uuid);
+            uuidToApiRespDataArrMap[uuid] =
+                {index: index, field: detailsFields[i]};
+        }
+    }
+    return uuidObjs;
 }
 
 function getConfigDetails (req, res, appData)
