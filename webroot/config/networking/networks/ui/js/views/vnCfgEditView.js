@@ -452,6 +452,23 @@ define([
                                                         }
                                                      },
                                                      {
+                                                         elementId: 'service_address',
+                                                         name:
+                                                           'Service Address',
+                                                         width:160,
+                                                         view: "FormInputView",
+                                                         viewConfig:
+                                                           {
+                                                            class: "", width: 160,
+                                                            disabled: 'disable()',
+                                                            placeholder: 'xxx.xxx.xxx.xxx',
+                                                            path: "dns_server_address",
+                                                            templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                            dataBindValue:
+                                                                'dns_server_address()',
+                                                           }
+                                                     },
+                                                     {
                                                       elementId: 'user_created_enable_dns',
                                                       name:
                                                         'DNS',
