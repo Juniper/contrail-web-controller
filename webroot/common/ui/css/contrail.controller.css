@@ -995,3 +995,6 @@ body #firewall_policy_rules #firewall_rules th.text-center{
 #user_created_ipam_subnets table thead {
     background: #fafafa;
 }
+#addressgroup .select2-search-field{
+    width:0;
+}
