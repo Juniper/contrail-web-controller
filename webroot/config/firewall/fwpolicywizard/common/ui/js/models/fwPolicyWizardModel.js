@@ -273,6 +273,7 @@ define([
                         this.updateRBACPermsAttrs(model);
                         updatedModel.tag_refs = model.tag_refs;
                         updatedModel.firewall_policy_refs = policyList;
+                        updatedModel.perms2 = model.perms2;
                         if (options.viewConfig.mode == 'add') {
                            if(model.description !== ''){
                                 var obj = {};
@@ -741,9 +742,10 @@ define([
                 updatedModel.parent_type = 'project';
             }
             updatedModel.name = model.name;
-            this.updateRBACPermsAttrs(model);
+           this.updateRBACPermsAttrs(model);
             updatedModel.tag_refs = model.tag_refs;
             updatedModel.firewall_policy_refs = policyList;
+            updatedModel.perms2 = model.perms2;
             if (model.uuid === undefined) {
                 var obj = {};
                 obj.description = model.description;
