@@ -7,11 +7,17 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
 var configJsonModifyObj = {
     "bgp-router": {
         "isConfig": true,
+        'preProcessCB': {
+            'comparators': ['to']
+        },
         "optFields": ["bgp_router_parameters",
                       "bgp_router_refs", "perms2","tag_refs"]
     },
     "virtual-router": {
         "isConfig": true,
+        'preProcessCB': {
+            'comparators': ['to']
+        },
         "optFields": ["virtual_router_ip_address",
                       "virtual_router_type", "perms2","tag_refs", "network_ipam_refs"]
     },
@@ -19,7 +25,8 @@ var configJsonModifyObj = {
         "isConfig": true,
         'preProcessCB': {
             'applyOnOldJSON': modifyConfigDataByAttrHrefUUID,
-            'applyOnNewJSON': modifyConfigDataByAttrHrefUUID
+            'applyOnNewJSON': modifyConfigDataByAttrHrefUUID,
+            'comparators': ['to']
         },
         "optFields": ["physical_router_vendor_name",
                       "physical_router_product_name",
@@ -38,7 +45,9 @@ var configJsonModifyObj = {
         'isConfig': true,
         'preProcessCB': {
             'applyOnOldJSON': modifyVirtualNetworkConfigData,
+            'comparators': ['to']
         },
+        'exception_list': ['network_ipam_refs'],
         'children': {
             'floating_ip_pool': {
                 'comparators': ['to', 'projects'],
@@ -51,6 +60,9 @@ var configJsonModifyObj = {
     },
     'network-ipam': {
         'isConfig': true,
+        'preProcessCB': {
+            'comparators': ['to']
+        },
         'optFields': ['network_ipam_mgmt', 'virtual_DNS_refs', 'perms2', 'ipam_subnets','tag_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
@@ -94,7 +106,8 @@ var configJsonModifyObj = {
         'isConfig': true,
         'preProcessCB': {
             'applyOnOldJSON': modifyConfigDataByAttrHref,
-            'applyOnNewJSON': modifyConfigDataByAttrHref
+            'applyOnNewJSON': modifyConfigDataByAttrHref,
+            'comparators': ['to']
         },
         'optFields': [
             'virtual_machine_interface_refs',
@@ -155,7 +168,8 @@ var configJsonModifyObj = {
     'bgp-as-a-service': {
         'isConfig': true,
         'preProcessCB': {
-            'applyOnOldJSON': modifyConfigDataByAttrHref
+            'applyOnOldJSON': modifyConfigDataByAttrHref,
+            'comparators': ['to']
         },
         'optFields': ['bgpaas_session_attributes',
                       'autonomous_system',
@@ -169,13 +183,17 @@ var configJsonModifyObj = {
     },
     'physical-interface': {
         'isConfig': true,
+        'preProcessCB': {
+            'comparators': ['to']
+        },
         'optFields': ['physical_interface_refs', 'perms2','tag_refs', 'ethernet_segment_identifier'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'logical-interface': {
         'isConfig': true,
         'preProcessCB': {
-            'applyOnOldJSON': modifyConfigDataByAttrHref
+            'applyOnOldJSON': modifyConfigDataByAttrHref,
+            'comparators': ['to']
         },
         'optFields': ['virtual_machine_interface_refs', 'perms2','tag_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
@@ -190,6 +208,9 @@ var configJsonModifyObj = {
     },
     'service-appliance-set': {
         'isConfig': true,
+        'preProcessCB': {
+            'comparators': ['to']
+        },
         'optFields': ['service_appliance_ha_mode', 'service_appliance_driver',
             'service_appliance_set_properties', 'perms2','tag_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
@@ -212,6 +233,9 @@ var configJsonModifyObj = {
     },
     'application-policy-set': {
         'isConfig': true,
+        'preProcessCB': {
+            'comparators': ['to']
+        },
         'optFields': ['firewall_policy_refs', 'global_vrouter_config_refs', 'id_perms',
             'parent_type'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']

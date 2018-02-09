@@ -1852,7 +1852,7 @@ function updateResource (dataObj, callback)
     jsonDiff.getConfigDiffAndMakeCall(reqUrl, appData, filteredData,
                                       function(error, data) {
         callback(error, data);
-    });
+    }, null, uuid);
 }
 
 function updateConfigObjectCB (body, appData, callback)
