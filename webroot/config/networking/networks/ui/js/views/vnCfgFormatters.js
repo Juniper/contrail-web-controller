@@ -308,6 +308,7 @@ define([
                         continue;
                     }
                     var gw   = ip_block.default_gateway ? ip_block.default_gateway: "-";
+                    var serviceAddress = ip_block.dns_server_address ? ip_block.dns_server_address: "-";
                     var dhcp = ip_block.enable_dhcp ? 'Enabled' : 'Disabled'; 
                     var dns  = this.getSubnetDNSStatus(ip_block) ? 'Enabled' : 'Disabled';
                     var gwStatus =  (gw == null || gw == "" || gw == "0.0.0.0") ?
@@ -330,6 +331,7 @@ define([
                     subnetString += "<tr style='vertical-align:top'><td>";
                     subnetString += cidr + "</td><td>";
                     subnetString += gw + "</td><td>";
+                    subnetString += serviceAddress + "</td><td>";
                     subnetString += dns + "</td><td>";
                     subnetString += dhcp + "</td><td>";
                     subnetString += allocPoolStr+ "</td>";
@@ -352,11 +354,12 @@ define([
             if(subnetString != ""){
                 returnString =
                     "<table style='width:100%'><thead><tr>\
-                    <th style='width:25%'>CIDR</th>\
-                    <th style='width:25%'>Gateway</th>\
+                    <th style='width:20%'>CIDR</th>\
+                    <th style='width:20%'>Gateway</th>\
+                    <th style='width:20%'>Service Address</th>\
                     <th style='width:10%'>DNS</th>\
                     <th style='width:10%'>DHCP</th>\
-                    <th style='width:30%'>Allocation Pools</th>\
+                    <th style='width:20%'>Allocation Pools</th>\
                     </tr></thead><tbody>";
                 returnString += subnetString;
                 returnString += "</tbody></table>";
