@@ -150,3 +150,6 @@ dl.progress-percentage dd {
 .confignode-donut-chart .item-content {
     padding: 0px 15px;
 }
+#vrouter-nodes-chart-widget {
+    flex:1;
+}

@@ -139,7 +139,7 @@ define(
                 },
                 getCurrentSessionDetails: function(src, dst, id) {
                     var srcSessionInfo = {
-                            'columns' : ['Sessions', 'Intiated', 'Responded'],
+                            'columns' : ['Sessions', 'Initiated', 'Responded'],
                             'rows' : [{
                                 values: ['In Bytes:', formatBytes(_.result(src, id+'.0.session_initiated_in_bytes')), formatBytes(_.result(src, id+'.0.session_responded_in_bytes'))]
                             },{
@@ -153,7 +153,7 @@ define(
                             }]
                         },
                         dstSessionInfo = {
-                            'columns' : ['Sessions', 'Intiated', 'Responded'],
+                            'columns' : ['Sessions', 'Initiated', 'Responded'],
                             'rows' : [{
                                 values: ['In Bytes:', formatBytes(_.result(dst, id+'.0.session_initiated_in_bytes')), formatBytes(_.result(dst, id+'.0.session_responded_in_bytes'))]
                             },{
@@ -1117,12 +1117,12 @@ define(
                                 });
                             }
                         }
-                        tgView.updateTgSettingsView('viewMode');
                     } else {
                         this.updateChart({
                             'freshData': isFreshData
                         });
                     }
+                    tgView.updateTgSettingsView('viewMode');
                 },
                 renderTrafficChart: function(option) {
                     this.resetChartView();
