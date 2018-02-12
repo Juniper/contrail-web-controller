@@ -10,7 +10,16 @@ var cdbqueryapi = module.exports,
     cassandra = require("cassandra-driver");
 
 var hosts = getCassandraHostList(config.cassandra.server_ips, config.cassandra.server_port),
-    cClient = new cassandra.Client({ contactPoints: hosts, keyspace: "config_db_uuid"});
+    cUsername = config.cassandra.username,
+    cPassword = config.cassandra.password,
+    cClient;
+
+    if(cUsername && cPassword) {
+        var cAuthProvider = new cassandra.auth.PlainTextAuthProvider(cUsername, cPassword);
+        cClient = new cassandra.Client({ contactPoints: hosts, keyspace: "config_db_uuid", authProvider: cAuthProvider});
+    } else {
+        cClient = new cassandra.Client({ contactPoints: hosts, keyspace: "config_db_uuid"});
+    }
 
 cClient.on("error", function (err) {
     logutils.logger.error(err.stack);
