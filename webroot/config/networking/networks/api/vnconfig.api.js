@@ -2960,7 +2960,63 @@ function getBridgeDomains (vnList, appData, callback)
         callback({"virtual-networks" : actVNList});
     });
 }
+function deleteFippoolAsync (dataObj, callback)
+{
+    var dataObjArr = [];
+    var request = dataObj['request'];
+    var appData = dataObj['appData'];
+    var floatingIpPoolId = dataObj['uuid'];
+    var floatingIPoolURL = '/floating-ip-pool/' + floatingIpPoolId;
+    configApiServer.apiGet(floatingIPoolURL, appData, function(err, data) {
+        if (err || data == null) {
+            callback(err,null);
+            return;
+        }
+        if(data['floating-ip-pool']['project_back_refs'] != undefined){
+        var projectBackRefs = data['floating-ip-pool']['project_back_refs'];
+        for(var i=0; i<projectBackRefs.length; i++){
+            var putData = {
+                    'type': 'project',
+                    'uuid': projectBackRefs[i]['uuid'],
+                    'ref-type': 'floating-ip-pool',
+                    'ref-uuid': data['floating-ip-pool']['uuid'],
+                    'ref-fq-name': data['floating-ip-pool']['fq_name'],
+                     'operation': 'DELETE'
+                    //'attr': projbackrefsData[i]['attr']
+                };
+                var reqUrl = '/ref-update';
+                commonUtils.createReqObj(dataObjArr, reqUrl,
+                                         global.HTTP_REQUEST_POST,
+                                         commonUtils.cloneObj(putData), null,
+                                         null, appData);
+        }
+        async.map(dataObjArr,
+                commonUtils.getServerResponseByRestApi(configApiServer, true),
+                function(error, results) {
+                if (error || results == null) {
+                    callback(error,null);
+                    return;
+                }
+                configApiServer.apiDelete(floatingIPoolURL, appData,
+                        function(error, data) {
+                            callback(null, {'error': error,
+                                'data': data});
+                            return;
+                });
+                }
+            );
+        }
+        else{
+            configApiServer.apiDelete(floatingIPoolURL, appData,
+                    function(error, data) {
+                        callback(null, {'error': error,
+                            'data': data});
+                        return;
+            });
+        }
+    });
 
+}
 exports.listVirtualNetworks          = listVirtualNetworks;
 exports.getVirtualNetwork            = getVirtualNetwork;
 exports.readVirtualNetworks          = readVirtualNetworks;
@@ -2987,3 +3043,4 @@ exports.getAllVirtualNetworks        = getAllVirtualNetworks;
 exports.getVNDetails                 = getVNDetails;
 exports.createVirtualNetworkCB       = createVirtualNetworkCB;
 exports.updateVirtualNetworkCB       = updateVirtualNetworkCB;
+exports.deleteFippoolAsync           = deleteFippoolAsync;
