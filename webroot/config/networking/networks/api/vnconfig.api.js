@@ -2827,6 +2827,241 @@ function getBridgeDomains (vnList, appData, callback)
         callback({"virtual-networks" : actVNList});
     });
 }
+function createFloatingIPools (request, response, appData)
+{
+    var fipoolCreateURL = '/floating-ip-pools';
+    var fipoolPostData  = request.body;
+    if (typeof(fipoolPostData) != 'object') {
+        error = new appErrors.RESTServerError('Invalid Post Data');
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+    configApiServer.apiPost(fipoolCreateURL, fipoolPostData, appData,
+            function(error, data) {
+              if (error || data == null) {
+                  commonUtils.handleJSONResponse(error, response, null);
+                  return;
+              }
+               var createFIPool = "create";
+                 updateProjects(appData, data, fipoolPostData, createFIPool, function(error, fipoolData) {
+                    commonUtils.handleJSONResponse(error, response, null);
+                   });
+    });
+}
+function updateFloatingIPools (request, response, appData)
+{
+    var fipoolserviceId = null;
+    var fipoolUpdateURL = '/floating-ip-pool/';
+    var fipoolPostData  = request.body;
+    if (typeof(fipoolPostData) != 'object') {
+        error = new appErrors.RESTServerError('Invalid Post Data');
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+    if (fipoolserviceId = request.param('id').toString()) {
+        fipoolUpdateURL += fipoolserviceId;
+    } else {
+        error = new appErrors.RESTServerError('Provide floating ip pool Id');
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+    configApiServer.apiPut(fipoolUpdateURL, fipoolPostData, appData,
+            function(error, data) {
+              if (error || data == null) {
+                  commonUtils.handleJSONResponse(error, response, null);
+                  return;
+              }
+               var updateFIPool = "update";
+               updateProjects(appData, data, fipoolPostData, updateFIPool, function(error, fipoolData) {
+               commonUtils.handleJSONResponse(error, response, null);
+           });
+    });
+}
+function deleteAttrHrefinKeyObject(tempVmiKeyData) {
+    if (tempVmiKeyData.length > 0) {
+        var tempVmiKeyDataLength = tempVmiKeyData.length;
+        for (var i = 0; i < tempVmiKeyDataLength; i++) {
+            if ("attr" in tempVmiKeyData[i]) {
+                delete tempVmiKeyData[i]["attr"];
+            }
+            if ("href" in tempVmiKeyData[i]) {
+                delete tempVmiKeyData[i]["href"];
+            }
+        }
+    }
+    return tempVmiKeyData;
+}
+function updateProjects(appData, data, fipoolprojectBackRefs, createUpdate, callback){
+    var dataObjArr = [];
+    if(fipoolprojectBackRefs['floating-ip-pool']['project_back_refs'].length > 0){
+    var projectBackRefs = fipoolprojectBackRefs['floating-ip-pool']['project_back_refs'];
+    if(createUpdate === "create" && projectBackRefs.length > 0){
+      for(var i=0; i<projectBackRefs.length; i++){
+          var putData = {
+                  'type': 'project',
+                  'uuid': projectBackRefs[i]['uuid'],
+                  'ref-type': 'floating-ip-pool',
+                  'ref-uuid': data['floating-ip-pool']['uuid'],
+                  'ref-fq-name': data['floating-ip-pool']['fq_name'],
+                   'operation': 'ADD'
+                  //'attr': projbackrefsData[i]['attr']
+              };
+              var reqUrl = '/ref-update';
+              commonUtils.createReqObj(dataObjArr, reqUrl,
+                                       global.HTTP_REQUEST_POST,
+                                       commonUtils.cloneObj(putData), null,
+                                       null, appData);
+      }
+      async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer, true),
+              function(error, results) {
+                  callback(error, results);
+                  return;
+              }
+          );
+    }
+    else if(createUpdate === "update"){
+          configApiServer.apiGet('/floating-ip-pool/'+fipoolprojectBackRefs['floating-ip-pool']['uuid'], appData,
+                  function(error, apiData) {
+                    if (error || apiData == null) {
+                        callback(error,null);
+                        return;
+                    }
+                    if(apiData['floating-ip-pool']['project_back_refs'] != undefined){
+                        var key = 'project_back_refs';
+                        var apiDataItems = deleteAttrHrefinKeyObject(apiData['floating-ip-pool']['project_back_refs']);
+                        var fipoolprojectBackRefItems = deleteAttrHrefinKeyObject(fipoolprojectBackRefs['floating-ip-pool']['project_back_refs']);
+                        var result = jsonDiff.getConfigArrayDelta(key, apiDataItems, 
+                                fipoolprojectBackRefItems);
+                      if(result != null){
+                        if(result.deletedList && result.deletedList.length > 0){
+                            for(var i=0; i<result.deletedList.length; i++){
+                                var putData = {
+                                        'type': 'project',
+                                        'uuid': result.deletedList[i]['uuid'],
+                                        'ref-type': 'floating-ip-pool',
+                                        'ref-uuid': fipoolprojectBackRefs['floating-ip-pool']['uuid'],
+                                        'ref-fq-name': fipoolprojectBackRefs['floating-ip-pool']['fq_name'],
+                                         'operation': 'DELETE'
+                                        //'attr': projbackrefsData[i]['attr']
+                                    };
+                                    console.log("putData backRefs",putData)
+                                    var reqUrl = '/ref-update';
+                                    commonUtils.createReqObj(dataObjArr, reqUrl,
+                                                             global.HTTP_REQUEST_POST,
+                                                             commonUtils.cloneObj(putData), null,
+                                                             null, appData);
+                            }
+                          }
+                        if(result.addedList && result.addedList.length > 0){
+                            for(var i=0; i<result.addedList.length; i++){
+                                var putData = {
+                                        'type': 'project',
+                                        'uuid': result.addedList[i]['uuid'],
+                                        'ref-type': 'floating-ip-pool',
+                                        'ref-uuid': fipoolprojectBackRefs['floating-ip-pool']['uuid'],
+                                        'ref-fq-name': fipoolprojectBackRefs['floating-ip-pool']['fq_name'],
+                                         'operation': 'ADD'
+                                        //'attr': projbackrefsData[i]['attr']
+                                    };
+                                    console.log("putData backRefs",putData)
+                                    var reqUrl = '/ref-update';
+                                    commonUtils.createReqObj(dataObjArr, reqUrl,
+                                                             global.HTTP_REQUEST_POST,
+                                                             commonUtils.cloneObj(putData), null,
+                                                             null, appData);
+                            }
+                          }
+                    }
+                  }
+                else{
+                    for(var i=0; i<projectBackRefs.length; i++){
+                        var putData = {
+                                'type': 'project',
+                                'uuid': projectBackRefs[i]['uuid'],
+                                'ref-type': 'floating-ip-pool',
+                                'ref-uuid': data['floating-ip-pool']['uuid'],
+                                'ref-fq-name': data['floating-ip-pool']['fq_name'],
+                                 'operation': 'ADD'
+                                //'attr': projbackrefsData[i]['attr']
+                            };
+                            var reqUrl = '/ref-update';
+                            commonUtils.createReqObj(dataObjArr, reqUrl,
+                                                     global.HTTP_REQUEST_POST,
+                                                     commonUtils.cloneObj(putData), null,
+                                                     null, appData);
+                    }
+                }
+                  async.map(dataObjArr,
+                          commonUtils.getServerResponseByRestApi(configApiServer, true),
+                          function(error, results) {
+                              callback(error, results);
+                              return;
+                          }
+                      );
+                 });
+        }
+    }
+    else{
+        callback();
+    }
+}
+function deleteFippoolAsync (dataObj, callback)
+{
+    var dataObjArr = [];
+    var request = dataObj['request'];
+    var appData = dataObj['appData'];
+    var floatingIpPoolId = dataObj['uuid'];
+    var floatingIPoolURL = '/floating-ip-pool/' + floatingIpPoolId;
+    configApiServer.apiGet(floatingIPoolURL, appData, function(err, data) {
+        if (err || data == null) {
+            callback(err,null);
+            return;
+        }
+        if(data['floating-ip-pool']['project_back_refs'] != undefined){
+        var projectBackRefs = data['floating-ip-pool']['project_back_refs'];
+        for(var i=0; i<projectBackRefs.length; i++){
+            var putData = {
+                    'type': 'project',
+                    'uuid': projectBackRefs[i]['uuid'],
+                    'ref-type': 'floating-ip-pool',
+                    'ref-uuid': data['floating-ip-pool']['uuid'],
+                    'ref-fq-name': data['floating-ip-pool']['fq_name'],
+                     'operation': 'DELETE'
+                    //'attr': projbackrefsData[i]['attr']
+                };
+                var reqUrl = '/ref-update';
+                commonUtils.createReqObj(dataObjArr, reqUrl,
+                                         global.HTTP_REQUEST_POST,
+                                         commonUtils.cloneObj(putData), null,
+                                         null, appData);
+        }
+        async.map(dataObjArr,
+                commonUtils.getServerResponseByRestApi(configApiServer, true),
+                function(error, results) {
+                if (error || results == null) {
+                    callback(error,null);
+                    return;
+                }
+                configApiServer.apiDelete(floatingIPoolURL, appData,
+                        function(error, data) {
+                            callback(null, {'error': error,
+                                'data': data});
+                            return;
+                });
+                }
+            );
+        }
+        else{
+            configApiServer.apiDelete(floatingIPoolURL, appData,
+                    function(error, data) {
+                        callback(null, {'error': error,
+                            'data': data});
+                        return;
+            });
+        }
+    });
+}
 
 exports.listVirtualNetworks          = listVirtualNetworks;
 exports.getVirtualNetwork            = getVirtualNetwork;
@@ -2852,3 +3087,6 @@ exports.getVirtualNetworkCb          = getVirtualNetworkCb;
 exports.getVNListOrDetails           = getVNListOrDetails;
 exports.getAllVirtualNetworks        = getAllVirtualNetworks;
 exports.getVNDetails                 = getVNDetails;
+exports.createFloatingIPools         = createFloatingIPools;
+exports.updateFloatingIPools         = updateFloatingIPools;
+exports.deleteFippoolAsync           = deleteFippoolAsync;
