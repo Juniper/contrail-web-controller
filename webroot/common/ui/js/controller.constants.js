@@ -772,6 +772,14 @@ define([
         this.PHYSICAL_INF_LINK_PATTERN = ";";
         this.LI_VMI_DEVICE_OWNER = 'physical-router';
 
+        /* floating ip pools */
+        this.FIP_POOL_PREFIX_ID = "Floating_IP_Pool";
+        this.CONFIG_FIP_POOL_FORMAT_ID = "config-fip-pool-format-id";
+        this.CONFIG_FIP_POOL_LIST_VIEW_ID = "config-fip-pool-list-view";
+        this.FIP_POOL_GRID_ID = "fip-pool-grid-id";
+        this.CONFIG_FIP_POOL_LIST_VIEW_ID = "config-fip-pool-list-view";
+        this.CREATE_FIP_POOL = "/api/tenants/config/create-floating-ip-pool";
+        this.UPDATE_FIP_POOL = "/api/tenants/config/update-floating-ip-pool/";
         /* Port */
         this.CONFIG_PORT_PAGE_ID = "config-port-page";
         this.CONFIG_PORT_LIST_VIEW_ID = "config-port-list-view";

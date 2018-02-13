@@ -964,100 +964,100 @@ define([
                             }]
                         }]
                     },
-                    {
-                    columns: [
-                        {
-                        elementId: 'fip_pool_accordian',
-                        view: "AccordianView",
-                        viewConfig: [
-                            {
-                            elementId: 'fip_pool_vcfg',
-                            title: 'Floating IP Pool(s)',
-                            view: "SectionView",
-                            active:false,
-                            viewConfig: {
-                                    rows: [
-                                    {
-                                        columns: [
-                                        {
-                                             elementId: 'floating_ip_pools',
-                                             view: "FormEditableGridView",
-                                             viewConfig: {
-                                                 path : 'floating_ip_pools',
-                                                 class: 'col-xs-12',
-                                                 templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
-                                                 validation:
-                                                'fipPoolModelConfigValidations',
-                                                 collection:
-                                                     'floating_ip_pools',
-                                                 columns: [
-                                                    {
-                                                      elementId: 'name',
-                                                      name:
-                                                        'Pool Name',
-                                                      view: "FormInputView",
-                                                      viewConfig:
-                                                        {
-                                                         placeholder: 'Enter Pool Name',
-                                                         class: "", width: 400,
-                                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                                         path: "name",
-                                                         disabled: 'disable()',
-                                                         dataBindValue:
-                                                             'name()',
-                                                        }
-                                                    },
-                                                    {
-                                                        elementId: 'projects',
-                                                        name: 'Projects',
-                                                        view: 'FormMultiselectView',
-                                                        viewConfig: {
-                                                            path: 'projects',
-                                                            class: 'col-xs-6',
-                                                            dataBindValue: 'projects()',
-                                                            templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
-                                                            class: "", width: 400,
-                                                            disabled: 'disable()',
-                                                            elementConfig: {
-                                                                dataTextField: "text",
-                                                                dataValueField: "id",
-                                                                separator: cowc.DROPDOWN_VALUE_SEPARATOR,
-                                                                dataSource : {
-                                                                    type: 'remote',
-                                                                    url:
-                                                                    '/api/tenants/config/projects',
-                                                                    parse:
-                                                                    formatVNCfg.allProjMSFormatter,
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                ],
-                                                 rowActions: [
-                                                     {onClick: "function() {\
-                                                         $root.addFipPool();\
-                                                         }",
-                                                      iconClass: 'fa fa-plus'},
-                                                     {onClick: "function() {\
-                                                         $root.deleteFipPool($data, this);\
-                                                        }",
-                                                      iconClass: 'fa fa-minus'}
-                                                 ],
-                                                 gridActions: [
-                                                     {onClick: "function() {\
-                                                         addFipPool();\
-                                                         }",
-                                                      buttonTitle: ""}
-                                                 ]
-                                             }
-                                         }
-                                        ]
-                                    },
-                                    ]
-                                }
-                            }]
-                        }]
-                    },
+//                    {
+//                    columns: [
+//                        {
+//                        elementId: 'fip_pool_accordian',
+//                        view: "AccordianView",
+//                        viewConfig: [
+//                            {
+//                            elementId: 'fip_pool_vcfg',
+//                            title: 'Floating IP Pool(s)',
+//                            view: "SectionView",
+//                            active:false,
+//                            viewConfig: {
+//                                    rows: [
+//                                    {
+//                                        columns: [
+//                                        {
+//                                             elementId: 'floating_ip_pools',
+//                                             view: "FormEditableGridView",
+//                                             viewConfig: {
+//                                                 path : 'floating_ip_pools',
+//                                                 class: 'col-xs-12',
+//                                                 templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+//                                                 validation:
+//                                                'fipPoolModelConfigValidations',
+//                                                 collection:
+//                                                     'floating_ip_pools',
+//                                                 columns: [
+//                                                    {
+//                                                      elementId: 'name',
+//                                                      name:
+//                                                        'Pool Name',
+//                                                      view: "FormInputView",
+//                                                      viewConfig:
+//                                                        {
+//                                                         placeholder: 'Enter Pool Name',
+//                                                         class: "", width: 400,
+//                                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+//                                                         path: "name",
+//                                                         disabled: 'disable()',
+//                                                         dataBindValue:
+//                                                             'name()',
+//                                                        }
+//                                                    },
+//                                                    {
+//                                                        elementId: 'projects',
+//                                                        name: 'Projects',
+//                                                        view: 'FormMultiselectView',
+//                                                        viewConfig: {
+//                                                            path: 'projects',
+//                                                            class: 'col-xs-6',
+//                                                            dataBindValue: 'projects()',
+//                                                            templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
+//                                                            class: "", width: 400,
+//                                                            disabled: 'disable()',
+//                                                            elementConfig: {
+//                                                                dataTextField: "text",
+//                                                                dataValueField: "id",
+//                                                                separator: cowc.DROPDOWN_VALUE_SEPARATOR,
+//                                                                dataSource : {
+//                                                                    type: 'remote',
+//                                                                    url:
+//                                                                    '/api/tenants/config/projects',
+//                                                                    parse:
+//                                                                    formatVNCfg.allProjMSFormatter,
+//                                                                }
+//                                                            }
+//                                                        }
+//                                                    }
+//                                                ],
+//                                                 rowActions: [
+//                                                     {onClick: "function() {\
+//                                                         $root.addFipPoolByIndex($data, this);\
+//                                                         }",
+//                                                      iconClass: 'fa fa-plus'},
+//                                                     {onClick: "function() {\
+//                                                         $root.deleteFipPool($data, this);\
+//                                                        }",
+//                                                      iconClass: 'fa fa-minus'}
+//                                                 ],
+//                                                 gridActions: [
+//                                                     {onClick: "function() {\
+//                                                         addFipPool();\
+//                                                         }",
+//                                                      buttonTitle: ""}
+//                                                 ]
+//                                             }
+//                                         }
+//                                        ]
+//                                    },
+//                                    ]
+//                                }
+//                            }]
+//                        }]
+//                    },
                     {
                     columns: [
                         {

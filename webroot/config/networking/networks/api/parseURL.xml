@@ -81,6 +81,24 @@
         <feature>vnconfig</feature>
         <callback>vnconfigapi.createVirtualNetwork</callback>
     </item>
+     <item>
+        <url>/api/tenants/config/create-floating-ip-pool</url>
+        <method>post</method>
+        <feature>vnconfig</feature>
+        <callback>vnconfigapi.createFloatingIPools</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/update-floating-ip-pool/:id</url>
+        <method>put</method>
+        <feature>vnconfig</feature>
+        <callback>vnconfigapi.updateFloatingIPools</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/create-delete-ip-pool</url>
+        <method>post</method>
+        <feature>vnconfig</feature>
+        <callback>vnconfigapi.deleteFloatingIPools</callback>
+    </item>
     <item>
         <url>/vcenter/api/tenants/config/virtual-networks</url>
         <method>post</method>
