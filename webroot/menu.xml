@@ -1233,6 +1233,23 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>IP Address Management, IPAM</searchStrings>
                         </item>
+                         <item>
+                            <label>Floating IP Pools</label>
+                            <hash>config_networking_fippool</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/fippool/ui</rootDir>
+                                    <js>fipPoolCfg.main.js</js>
+                                    <class>fipPoolCfgLoader</class>
+                                    <function>renderFipPoolCfg</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Floating IP Pools</searchStrings>
+                        </item>
                         <item>
                             <label>Floating IPs</label>
                             <hash>config_networking_fip</hash>

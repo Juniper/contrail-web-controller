@@ -328,6 +328,19 @@ define([
            }
            return retArr;
         };
+        this.fipCfgPoolDataParser = function(response) {
+            var retArr = [];
+            if(response[0] != null &&
+               'floating-ip-pools' in response[0] &&
+                response[0]['floating-ip-pools'] != null &&
+                response[0]['floating-ip-pools'].length > 0) {
+                var length = response[0]['floating-ip-pools'].length
+                for (var i = 0; i < length; i++) {
+                    retArr.push(response[0]['floating-ip-pools'][i]['floating-ip-pool']);
+                }
+            }
+            return retArr;
+         };
 
         this.svcTemplateCfgDataParser = function(response) {
            var retArr = [];
