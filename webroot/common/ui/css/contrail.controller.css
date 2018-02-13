@@ -998,3 +998,6 @@ body #firewall_policy_rules #firewall_rules th.text-center{
 #addressgroup .select2-search-field{
     width:0;
 }
+#pool_description textarea {
+    width:525px;
+}
