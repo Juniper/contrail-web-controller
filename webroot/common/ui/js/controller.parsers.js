@@ -328,6 +328,70 @@ define([
            }
            return retArr;
         };
+        this.fipCfgPoolDataParser = function(self,response) {
+            var retArr = [];
+            var uuidTenant = [];
+            //var self = this;
+            //console.log("response",response);
+            if(response[0] != null &&
+               'floating-ip-pools' in response[0] &&
+                response[0]['floating-ip-pools'] != null &&
+                response[0]['floating-ip-pools'].length > 0) {
+                var length = response[0]['floating-ip-pools'].length
+                for (var i = 0; i < length; i++) {
+                    retArr.push(response[0]['floating-ip-pools'][i]['floating-ip-pool']);
+                    // get retArr with list of owner name
+                    //put all items in the array
+                 if(response[0]['floating-ip-pools'][i]['floating-ip-pool'].perms2.share.length > 0){
+                    for(var j = 0; j < response[0]['floating-ip-pools'][i]['floating-ip-pool'].perms2.share.length; j++){
+                        if(response[0]['floating-ip-pools'][i]['floating-ip-pool'].perms2.share[j].tenant != null ||
+                                response[0]['floating-ip-pools'][i]['floating-ip-pool'].perms2.share[j].tenant != ''){
+                            uuidTenant.push(response[0]['floating-ip-pools'][i]['floating-ip-pool'].perms2.share[j].tenant);
+                        }
+                    }
+                  } 
+                }
+                //Call contrail ajax handler with prject 
+                var ajaxConfig = {};
+                var data;
+                ajaxConfig.type = "POST";
+                ajaxConfig.url = "/api/tenants/config/get-config-list"
+                ajaxConfig.data  = JSON.stringify({data: [{type: 'projects', obj_uuids:uuidTenant}]});
+                contrail.ajaxHandler(ajaxConfig,function () {
+                }, function (response) {
+                    //console.log("retArr",retArr);
+                    for(var i = 0; i < retArr.length; i++){
+                        var resultArr = [];
+                        var exits = {};
+                        var elm;
+
+                        for(var i1=0; i1<retArr[i].perms2.share.length;i1++){
+                            elm = retArr[i].perms2.share[i1].tenant;
+                            if(!exits[elm]){
+                                resultArr.push(retArr[i].perms2.share[i1]);
+                                exits[elm] = true;
+                            }
+                        }
+//                        console.log("result Arrar",resultArr);
+//                        console.log("projects",response[0]['projects']);
+                        for(var j = 0; j < resultArr.length; j++){
+                            for(var k = 0 ; k < response[0]['projects'].length; k++){
+                                if(response[0]['projects'][k].uuid === resultArr[j].tenant){
+                                    resultArr[j]["tenant_name"] = response[0]['projects'][k].fq_name[1];
+                                }
+                            }
+                        }
+                    }
+                    self.contrailListModel.setData([]);
+                    self.contrailListModel.setData(retArr);
+                },
+                function (error) {
+                   console.log(error);
+               });
+            }
+            var emptyArr = [];
+            return emptyArr;
+         };
 
         this.svcTemplateCfgDataParser = function(response) {
            var retArr = [];
