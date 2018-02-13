@@ -3,7 +3,7 @@
  */
 
 define([
-    'underscore'
+    'lodash'
 ], function (_) {
     var CTParsers = function() {
         var self = this;
@@ -328,7 +328,74 @@ define([
            }
            return retArr;
         };
-
+        this.fipCfgPoolDataParser = function(self,response) {
+            var retArr = [],uuidTenant = [],gridEmptyArr = [],
+                fipPool,perms2Share,tenant;
+            var selectedProject = contrail.getCookie(cowc.COOKIE_PROJECT);
+            var fipPools = _.get(response, "0.floating-ip-pools", []);
+            if(fipPools.length > 0) {
+                _.each(fipPools, function (fipPoolsVal, i){
+                    fipPool = _.get(fipPoolsVal, '.floating-ip-pool', null);
+                    perms2Share = _.get(fipPool, 'perms2.share', []);
+                    retArr.push(fipPool);
+                 //get all uuid teant
+                    if(perms2Share.length > 0){
+                        _.each(perms2Share, function (perms2ShareVal, j){
+                            tenant = _.get(perms2ShareVal, '.tenant', null);
+                            if(tenant != null){
+                                uuidTenant.push(tenant);
+                            }
+                        })
+                     }
+                });
+                //Call contrail ajax handler with prject 
+              if(uuidTenant.length > 0){
+                var ajaxConfig = {};
+                var data;
+                ajaxConfig.type = "POST";
+                ajaxConfig.url = "/api/tenants/config/get-config-list"
+                ajaxConfig.data  = JSON.stringify({data: [{type: 'projects', obj_uuids:uuidTenant}]});
+                contrail.ajaxHandler(ajaxConfig,function () {
+                }, function (response) {
+                    var projects = _.get(response, '0.projects', []);
+                    _.each(retArr, function (retArrVal, i){
+                        //Remove the duplicate elements
+                        var resultArr = [], exits = {}, elm;
+                        var share = _.get(retArrVal, 'perms2.share', []);
+                        _.each(share, function (val, index){
+                            elm = share[index].tenant;
+                            if(!exits[elm]){
+                                resultArr.push(share[index]);
+                                exits[elm] = true;
+                            }
+                        })
+                        _.each(resultArr, function (resultArrVal, j){
+                            _.each(projects, function (projectsVal, k){
+                                if(projectsVal.uuid === resultArrVal.tenant){
+                                    var projectName = _.get(projectsVal, 'fq_name.1', '');
+                                    resultArrVal["tenant_name"] = projectName;
+                                }
+                            })
+                        })
+                    })
+                    var projectFilterArray = [];
+                    _.each(retArr, function(item,index){
+                        var item_fqname = _.get(item, 'fq_name.1', []);
+                        if(item_fqname === selectedProject){
+                            projectFilterArray.push(item);
+                        }
+                    });
+                    self.contrailListModel.setData(projectFilterArray);
+                },
+                function (error) {
+                });
+             }
+             else{
+                 gridEmptyArr = retArr;
+              }
+            }
+            return gridEmptyArr;
+        };
         this.svcTemplateCfgDataParser = function(response) {
            var retArr = [];
            if(response != null &&

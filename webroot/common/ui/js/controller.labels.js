@@ -1154,7 +1154,10 @@ define([
         this.SELECT_EXT_GATEWAY = "Select External Gateway";
         this.SELECT_CONN_NET = "Select Connected Network(s)";
         this.TITLE_LOGICAL_ROUTER = 'Logical Router';
-
+        //FIP POOL labels
+        this.CONFIG_FIP_POOLS_TITLE = "Floating IP Pools";
+        this.FIP_POOLS_DETAILS = "Floating IP Pools Detail";
+        this.DEL_FIPPOOLS = "Delete Floating IP pools";
         //Port Labels
         this.CONFIG_PORT_TITLE = "Ports";
         this.TITLE_ADD_PORT = "Create Port";
