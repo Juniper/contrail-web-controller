@@ -11,7 +11,7 @@ define([
     var lbCfgFormatters = new LbCfgFormatters();
     var lbCfgModel = ContrailConfigModel.extend({
         defaultConfig: {
-            'name': 'Load balancer 1',
+            'name': '',
             'display_name': '',
             'description': '',
             'ip_address': '',
@@ -24,13 +24,13 @@ define([
             'lb_admin_state': true,
             'lb_floating_ip': '',
             'lb_subnet': '',
-            'listener_name':'Listener 1',
+            'listener_name':'',
             'listener_description':'',
             'listener_protocol':'',
             'listener_port':'',
             'listener_admin_state': true,
             'connection_limit': -1,
-            'pool_name':'Pool 1',
+            'pool_name':'',
             'pool_description':'',
             'pool_method':'',
             'pool_member': [],
@@ -140,109 +140,133 @@ define([
                'global_max_conn_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 65535){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 65535){
                            return "The Maximum Connection must be a number between 1 and 65535.";
                        }
+                   }else{
+                	   		return "The Maximum Connection must be a number between 1 and 65535.";
                    }
                },
                'global_max_conn_rate_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 65535){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 65535){
                            return "The Maximum Connection Rate must be a number between 1 and 65535.";
                        }
+                   }else{
+                	   	  return "The Maximum Connection Rate must be a number between 1 and 65535.";
                    }
                },
                'global_max_sess_rate_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 65535){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 65535){
                            return "The Maximum Session Rate must be a number between 1 and 65535.";
                        }
+                   }else{
+                	   	  return "The Maximum Session Rate must be a number between 1 and 65535.";
                    }
                },
                'frontend_rate_limit_sessions_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 65535){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 65535){
                            return "The Rate Limit Session must be a number between 1 and 65535.";
                        }
+                   }else{
+                	   	  return "The Rate Limit Session must be a number between 1 and 65535.";
                    }
                },
                'default_server_timeout_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 5000000){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 5000000){
                            return "The Server Timeout must be a number between 1 and 5000000.";
                        }
+                   }else{
+                	   	  return "The Server Timeout must be a number between 1 and 5000000.";
                    }
                },
                'default_client_timeout_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 5000000){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 5000000){
                            return "The Client Timeout must be a number between 1 and 5000000.";
                        }
+                   }else{
+                	   	  return "The Client Timeout must be a number between 1 and 5000000.";
                    }
                },
                'default_connect_timeout_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 5000000){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 5000000){
                            return "The Connect Timeout must be a number between 1 and 5000000.";
                        }
+                   }else{
+                	   	  return "The Connect Timeout must be a number between 1 and 5000000.";
                    }
                },
                'global_max_ssl_conn_aatr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 65535){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 65535){
                            return "The Maximum SSL Connection must be a number between 1 and 65535.";
                        }
+                   }else{
+                	   	  return "The Maximum SSL Connection must be a number between 1 and 65535.";
                    }
                },
                'global_max_ssl_rate_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 65535){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 65535){
                            return "The Maximum SSL Rate must be a number between 1 and 65535.";
                        }
+                   }else{
+                	   	  return "The Maximum SSL Rate must be a number between 1 and 65535.";
                    }
                },
                'global_ssl_ciphers_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 100){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 100){
                            return "The SSL Ciphers must be a number between 1 and 100.";
                        }
+                   }else{
+                	   	  return "The SSL Ciphers must be a number between 1 and 100.";
                    }
                },
                'global_tune_http_max_header_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 128){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 128){
                            return "The Tune Http Maximum Header Ciphers must be a number between 1 and 128.";
                        }
+                   }else{
+                	   	  return "The Tune Http Maximum Header Ciphers must be a number between 1 and 128.";
                    }
                },
                'global_tune_ssl_max_record_attr': function(value, attr, data) {
                    var lbProvider = data.lb_provider.split(';')[1];
                    if(lbProvider === 'opencontrail' && value !== ''){
-                       var port = Number(value);
-                       if(port < 1 || port > 16384){
+                       var cusAttr = Number(value);
+                       if(cusAttr < 1 || cusAttr > 16384){
                            return "The Tune SSL Maximum Record Ciphers must be a number between 1 and 16384.";
                        }
+                   }else{
+                	   	  return "The Tune SSL Maximum Record Ciphers must be a number between 1 and 16384.";
                    }
                }
              }
