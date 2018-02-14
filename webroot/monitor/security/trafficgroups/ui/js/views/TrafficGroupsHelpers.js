@@ -491,6 +491,100 @@ define([
             }
             return vnName;
         },
+        this.formatConfigRuleData = function (ruleDetailsObj) {
+            var ruleUUID = ruleDetailsObj['uuid'];
+            var src = _.result(ruleDetailsObj, 'endpoint_1.tags', []);
+            srcType = '';
+            src = src.join(' && ')
+            if (src.length == 0) {
+                src = _.result(ruleDetailsObj, 'endpoint_1.address_group', '-');
+                srcType = 'address_group';
+            }
+            if (!src || src == '-') {
+                src = _.result(ruleDetailsObj, 'endpoint_1.any', '-');
+                if (src == true) {
+                    src = 'any';
+                }
+                srcType = ''
+            }
+            if (!src || src == '-') {
+                src = _.result(ruleDetailsObj, 'endpoint_1.virtual_network', '-');
+                srcType = 'virtual_network';
+            }
+            var dst = _.result(ruleDetailsObj, 'endpoint_2.tags', []),
+                dstType = '';
+                dst = dst.join(' && ');
+            if (!dst || dst.length == 0) {
+                dst = _.result(ruleDetailsObj, 'endpoint_2.address_group', '-');
+                dstType = 'address_group';
+            }
+            if (!dst || dst == '-') {
+                dst = _.result(ruleDetailsObj, 'endpoint_2.any', '-');
+                if (dst == true)
+                    dst = 'any';
+                dstType = ''
+            }
+            if (!dst || dst == '-') {
+                dst = _.result(ruleDetailsObj, 'endpoint_2.virtual_network', '-');
+                dstType = 'virtual_network';
+            }
+            if(!src || src == '-' || src.length == 0) {
+                srcType = '';
+                src = '-';
+            }
+            if(!dst || dst == '-' || dst.length == 0) {
+                dstType = '';
+                dst = '-';
+            }
+            var policy_name_arr = _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to', []),
+                service = _.result(ruleDetailsObj, 'service'),
+                service_group_refs = _.result(ruleDetailsObj, 'service_group_refs'),
+                serviceStr,
+                service_dst_port_obj = _.result(ruleDetailsObj, 'service.dst_ports'),
+                service_dst_port = '-',
+                service_protocol = _.result(ruleDetailsObj, 'service.protocol'),
+                policy_name = _.result(policy_name_arr.slice(-1), '0', '-'),
+                rule_name = _.result(ruleDetailsObj, 'display_name'),
+                rule_fqn =  _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to', []).join(':') + ':' + ruleUUID,
+                direction = cowu.deSanitize(_.result(ruleDetailsObj, 'direction'));
+            if (service_dst_port_obj != null && service_dst_port_obj['start_port'] != null &&
+                service_dst_port_obj['end_port'] != null) {
+                if (service_dst_port_obj['start_port'] == service_dst_port_obj['end_port']) {
+                    service_dst_port = service_dst_port_obj['start_port'];
+                } else {
+                    service_dst_port = contrail.format('{0}-{1}', service_dst_port_obj['start_port'], service_dst_port_obj['end_port']);
+                }
+                service_dst_port == '-1' ? 'any' : service_dst_port;
+                serviceStr = contrail.format('{0}: {1}', service_protocol, service_dst_port);
+            }
+            if (service_group_refs != null) {
+                serviceStr = _.result(service_group_refs, '0.to.1');
+            }
+            var simple_action = _.result(ruleDetailsObj, 'action_list.simple_action', '-');
+            if (simple_action == 'pass') {
+                simple_action = 'permit';
+            }
+            direction = direction == '>' ? 'uni': 'bi';
+            if (src == '-') {
+                src = 'any';
+            }
+            if (dst == '-') {
+                dst = 'any';
+            }
+            return {
+                policy_name: policy_name,
+                rule_name: rule_name,
+                implicitRule: '',
+                simple_action: simple_action,
+                service: serviceStr,
+                direction: direction,
+                srcType: srcType,
+                dstType: dstType,
+                src: src,
+                dst: dst,
+                rule_fqn: rule_fqn
+            }
+        }
         this.getFormattedValue = function(value) {
             var value = value;
             if(typeof value == 'string' && value.split(':').length == 3)
@@ -1023,83 +1117,9 @@ define([
                     var ruleDetailsObj = detailsObj['firewall-rule'],
                         ruleUUID = detailsObj['firewall-rule']['uuid'];
                     ruleMap[detailsObj['firewall-rule']['uuid']] = ruleDetailsObj;
-                    var src = _.result(ruleDetailsObj, 'endpoint_1.tags', []);
-                        srcType = '';
-                        src = src.join(' && ')
-                    if (src.length == 0) {
-                        src = _.result(ruleDetailsObj, 'endpoint_1.address_group', '-');
-                        srcType = 'address_group';
-                    }
-                    if (!src || src == '-') {
-                        src = _.result(ruleDetailsObj, 'endpoint_1.any', '-');
-                        if (src == true) {
-                            src = 'any';
-                        }
-                        srcType = ''
-                    }
-                    if (!src || src == '-') {
-                        src = _.result(ruleDetailsObj, 'endpoint_1.virtual_network', '-');
-                        srcType = 'virtual_network';
-                    }
-                    var dst = _.result(ruleDetailsObj, 'endpoint_2.tags', []),
-                        dstType = '';
-                        dst = dst.join(' && ');
-                    if (!dst || dst.length == 0) {
-                        dst = _.result(ruleDetailsObj, 'endpoint_2.address_group', '-');
-                        dstType = 'address_group';
-                    }
-                    if (!dst || dst == '-') {
-                        dst = _.result(ruleDetailsObj, 'endpoint_2.any', '-');
-                        if (dst == true)
-                            dst = 'any';
-                        dstType = ''
-                    }
-                    if (!dst || dst == '-') {
-                        dst = _.result(ruleDetailsObj, 'endpoint_2.virtual_network', '-');
-                        dstType = 'virtual_network';
-                    }
-                    if(!src || src == '-' || src.length == 0) {
-                        srcType = '';
-                        src = '-';
-                    }
-                    if(!dst || dst == '-' || dst.length == 0) {
-                        dstType = '';
-                        dst = '-';
-                    }
-                    var policy_name_arr = _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to', []),
-                        service = _.result(ruleDetailsObj, 'service'),
-                        service_group_refs = _.result(ruleDetailsObj, 'service_group_refs'),
-                        serviceStr,
-                        service_dst_port_obj = _.result(ruleDetailsObj, 'service.dst_ports'),
-                        service_dst_port = '-',
-                        service_protocol = _.result(ruleDetailsObj, 'service.protocol'),
-                        policy_name = _.result(policy_name_arr.slice(-1), '0', '-'),
-                        rule_name = _.result(ruleDetailsObj, 'display_name'),
-                        rule_fqn =  _.result(ruleDetailsObj, 'firewall_policy_back_refs.0.to', []).join(':') + ':' + ruleUUID,
-                        direction = cowu.deSanitize(_.result(ruleDetailsObj, 'direction'));
-                    if (service_dst_port_obj != null && service_dst_port_obj['start_port'] != null &&
-                        service_dst_port_obj['end_port'] != null) {
-                        if (service_dst_port_obj['start_port'] == service_dst_port_obj['end_port']) {
-                            service_dst_port = service_dst_port_obj['start_port'];
-                        } else {
-                            service_dst_port = contrail.format('{0}-{1}', service_dst_port_obj['start_port'], service_dst_port_obj['end_port']);
-                        }
-                        service_dst_port == '-1' ? 'any' : service_dst_port;
-                        serviceStr = contrail.format('{0}: {1}', service_protocol, service_dst_port);
-                    }
-                    if (service_group_refs != null) {
-                        serviceStr = _.result(service_group_refs, '0.to.1');
-                    }
-                    var simple_action = _.result(ruleDetailsObj, 'action_list.simple_action', '-');
-                    if (simple_action == 'pass') {
-                        simple_action = 'permit';
-                    }
+                    var formattedConfigRuleObj = self.formatConfigRuleData(ruleDetailsObj);
                     var sessionInfo = self.getCurrentSessionDetails(ruleObj.srcSessionObj, ruleObj.dstSessionObj, ruleUUID);
-                    ruleObj.formattedRuleDetails.push({
-                        policy_name: policy_name,
-                        rule_fqn: rule_fqn,
-                        rule_name: rule_name,
-                        implicitRule: '',
+                    ruleObj.formattedRuleDetails.push($.extend(true, formattedConfigRuleObj, {
                         showSessionData: ruleObj.showSessionData,
                         srcId: ruleObj.srcId,
                         src_session_initiated: _.result(ruleObj.srcSessionObj, ruleUUID+'.0.session_initiated', 0),
@@ -1113,14 +1133,7 @@ define([
                         dst_session_responded: _.result(ruleObj.dstSessionObj, ruleUUID+'.0.session_responded', 0),
                         dst_session_initiated_active: _.result(ruleObj.dstSessionObj, ruleUUID+'.0.session_initiated_active', 0),
                         dst_session_responded_active: _.result(ruleObj.dstSessionObj, ruleUUID+'.0.session_responded_active', 0),
-                        simple_action: simple_action,
-                        service: serviceStr,
-                        direction: direction == '>' ? 'uni': 'bi',
-                        srcType: srcType,
-                        dstType: dstType,
-                        src: src == '-' ? 'any' : src,
-                        dst: dst == '-' ? 'any' : dst
-                    });
+                    }));
                 }
             });
             return {
