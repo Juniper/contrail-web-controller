@@ -221,6 +221,7 @@ define(['underscore', 'contrail-view', 'contrail-list-model', 'cf-datasource', '
                               xAxisLabel: '',
                               yAxisLabel: ctwl.VROUTER_BANDWIDTH_PERCENTILE,
                               yLabels: ['Bandwidth In', 'Bandwidth Out'],
+                              yUnit: 'bps',
                               yFormatter: function(y) {
                                   return formatBytes(y, null, null, null, null, true);
                               },
@@ -374,6 +375,7 @@ define(['underscore', 'contrail-view', 'contrail-list-model', 'cf-datasource', '
                              },
                              xLabel: 'System CPU Share (%)',
                              yLabel: 'System Memory (GB)',
+                             yUnit: 'bytes',
                              sizeField: 'size',
                              showColorFilter: false,
                              bucketTooltipFn: monitorInfraUtils.vRouterBucketTooltipFn,

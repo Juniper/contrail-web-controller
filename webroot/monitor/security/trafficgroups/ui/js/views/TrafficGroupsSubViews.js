@@ -315,8 +315,8 @@ define([
                         'remote_vn','SUM(forward_logged_bytes)', 'SUM(reverse_logged_bytes)',
                         'SUM(forward_sampled_bytes)', 'SUM(reverse_sampled_bytes)', 'session_type')
                     if(resObj.type == 'both') {
-                        resObj.clientData = view.grouByColumns(columns, resObj.clientData);
-                        resObj.serverData = view.grouByColumns(columns, resObj.serverData);
+                        resObj.clientData = self.grouByColumns(columns, resObj.clientData);
+                        resObj.serverData = self.grouByColumns(columns, resObj.serverData);
                     } else {
                         resObj.curSessionData =
                             self.grouByColumns(columns, resObj.curSessionData);
