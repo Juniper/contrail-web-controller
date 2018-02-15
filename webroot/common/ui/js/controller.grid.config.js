@@ -276,6 +276,24 @@ define([
                 onClick: onClickFunction
             }
         };
+        this.getAssociateConfig = function (title, onClickFunction, divider) {
+            return {
+                title: title,
+                iconClass: 'fa fa-link',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            }
+        };
+        this.getDisassociateConfig = function (title, onClickFunction, divider) {
+            return {
+                title: title,
+                iconClass: 'fa fa-chain-broken ',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            }
+        };
         this.getDeleteConfig = function (title, onClickFunction, divider) {
             return {
                 title: title,
