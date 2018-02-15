@@ -276,6 +276,15 @@ define([
                 onClick: onClickFunction
             }
         };
+        this.getCustomConfig = function (title, iconClass, onClickFunction, divider) {
+            return {
+                title: title,
+                iconClass: iconClass,
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            }
+        };
         this.getDeleteConfig = function (title, onClickFunction, divider) {
             return {
                 title: title,
