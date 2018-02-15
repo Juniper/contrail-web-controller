@@ -265,7 +265,7 @@ define([
                 }});
             })
         ];
-        rowActionConfig.push(ctwgc.getEditConfig('Associate Floating IP', function(rowIndex) {
+        rowActionConfig.push(ctwgc.getCustomConfig('Associate Floating IP', 'fa fa-link', function(rowIndex) {
             var dataView = $('#' + ctwl.CFG_LB_GRID_ID).data("contrailGrid")._dataView;
             var item = dataView.getItem(rowIndex);
             var vmiTo = getValueByJsonPath(item, "loadbalancer;virtual_machine_interface_refs;0;to", []);
@@ -281,7 +281,7 @@ define([
                                       dataView.refreshData();
             }});
         }));
-        rowActionConfig.push(ctwgc.getEditConfig('Diassociate Floating IP', function(rowIndex) {
+        rowActionConfig.push(ctwgc.getCustomConfig('Diassociate Floating IP', 'fa fa-chain-broken', function(rowIndex) {
             var dataView = $('#' + ctwl.CFG_LB_GRID_ID).data("contrailGrid")._dataView;
             var item = dataView.getItem(rowIndex);
             var floatingIpUuid = getValueByJsonPath(item, "loadbalancer;virtual_machine_interface_refs;0;floating-ip;uuid", '');
