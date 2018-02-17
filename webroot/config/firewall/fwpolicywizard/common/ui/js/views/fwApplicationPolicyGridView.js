@@ -302,7 +302,7 @@ define([
             gridTitle = ctwl.TITLE_ASSOCIATED_POLICY;
         }
         else if(viewConfig.viewConfig.isInventory === true){
-            gridTitle = "Select Firewall Policy";
+            gridTitle = "Select Firewall Policy(s)";
         }
         else{
             gridTitle = "";
@@ -377,7 +377,7 @@ define([
             },
             {
                 "type" : "link",
-                "title" : 'Add firewall Policy from Inventory',
+                "title" : 'Select Firewall Policy(s)',
                 "iconClass": 'fa fa-link rot45_antic',
                 "linkElementId": 'btnInventoryFWPolicy',
                 "onClick" : function() {
@@ -483,7 +483,7 @@ define([
         var fwPolicyColumns = [{
             id: 'name',
             field: 'name',
-            minWidth : 190,
+            minWidth : 100,
             name: 'Name'//,
             //cssClass :'cell-hyperlink-blue',
             //events : {

@@ -140,8 +140,8 @@
                                             stringSpan = "</span> , ";
                                         }
                                         protocol += "<span class='rule-formatter-txt'>"+item.protocol+": </span>"+
-                                        "<span class='rule-formatter-txt'>"+item.dst_ports.end_port+":"+
-                                        item.dst_ports.start_port+ stringSpan;
+                                        "<span class='rule-formatter-txt'>"+item.dst_ports.start_port+":"+
+                                        item.dst_ports.end_port+ stringSpan;
                                     });
                                     if(serviceGrpInfo.length > 2){
                                         protocol = protocol.split(",");
@@ -166,13 +166,16 @@
                                 }
                                 else{
                                     if(serviceGrpInfo.length > 0){
-                                      protocol += "<div class='rule-formatter-expand-txt'>Protocol</div>" +
-                                      "<div class='rule-formatter-expand-txt'>Ports</div><br />";
+                                       protocol += "<table><tr>" +
+                                       "<th style='width:30%;'>Protocol</th><th style='width:30%;'>Source Ports</th><th style='width:30%;'>Destination Ports</th></tr>";
                                       _.each(serviceGrpInfo, function(item,index){
-                                          protocol += "<div style='width:100px;float:left;'>"+item.protocol+"</div>"+
-                                          "<div style='width:100px;float:left;'>"+item.dst_ports.end_port+" - "+
-                                          item.dst_ports.start_port+"</div><br />";
+                                          protocol += "<tr>"
+                                          protocol += "<td>"+item.protocol+"</td>"
+                                          protocol += "<td>"+item.dst_ports.start_port+"</td>"
+                                          protocol += "<td>"+item.dst_ports.end_port+"</td>"
+                                          protocol += "</tr>"
                                       });
+                                      protocol += "</table>";
                                   }
                                   if(isGlobal){
                                       serviceStr = to[to.length - 1] + "<br />" + protocol;
