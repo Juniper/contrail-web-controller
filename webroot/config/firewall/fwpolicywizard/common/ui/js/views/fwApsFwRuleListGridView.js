@@ -25,6 +25,8 @@ define([
                     getFWRuleGridViewConfig(viewConfig),null,null,null,
                     function(){
                         cowu.addGridGrouping ('aps-fw-rule-list-grid', gridGroupingOpt);
+                        var info = $('<span class="fa fa-info-circle" style="padding-left:5px;" title="Protocol:SrcPorts:DstPorts or Protocol:DstPorts"></span>');
+                        $('#config-aps-fw-rule-list .slick-header-columns div:nth-child(3)').append(info);
                     });
         }
     });

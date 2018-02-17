@@ -1062,6 +1062,10 @@ div#aps-landing-container[style='display: block;'], div#aps-landing-container[st
      text-overflow: ellipsis;
      white-space: nowrap;
  }
+ #inventory-fw-policy-id .l3{
+     text-overflow: ellipsis;
+     white-space: nowrap;
+ }
 /** Ends here **/
 #applicationpolicyset_policy_wizard.wizard > .steps > ul > li {
     width: 28%;
