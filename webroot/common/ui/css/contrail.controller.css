@@ -1178,7 +1178,7 @@ body #firewall_policy_rules #firewall_rules th.text-center, body #applicationpol
 #alarms-event-drops .item-content {
     display: block;
 }
-body.navbar-fixed{
+body.navbar-fixed:not(.modal-open){
     padding-right:0px!important;
 }
 #configure-firepolicyrulelist-form{
@@ -1202,4 +1202,8 @@ body.navbar-fixed{
 }
 #portTranslationCollection table thead{
     background: #fafafa;
+}
+#inventory-policy-grid .grid-canvas {
+    overflow: auto;
+    max-height: 340px;
 }
