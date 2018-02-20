@@ -54,10 +54,14 @@ define([
                                                         heightMultiplier : 10
                                                     },
                                                     widgetCfgList: [
-                                                        {id: 'vmi-implicit-allow-deny-scatterchart'},
+                                                        {id: 'top-apps'},
+                                                        {id: 'top-vns'},
+                                                        {id: 'top-vmis-with-acl-deny'},
+                                                        {id: 'top-acl-with-deny'}
+                                                        /*{id: 'vmi-implicit-allow-deny-scatterchart'},
                                                         {id: 'top-10-allowed-rules'},
-                                                        //{id: 'top-5-services'}
-                                                        {id: 'top-10-denied-rules'}
+                                                        {id: 'top-5-services'}
+                                                        {id: 'top-10-denied-rules'}*/
                                                     ]
                                                  }
                                              },

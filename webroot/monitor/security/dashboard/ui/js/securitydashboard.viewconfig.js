@@ -2,11 +2,13 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['lodashv4', 'contrail-view', 'contrail-list-model'],
-        function(_, ContrailView, ContrailListModel){
+define(['lodashv4', 'contrail-view', 'contrail-list-model',
+        'monitor/security/trafficgroups/ui/js/views/TrafficGroupsHelpers'],
+        function(_, ContrailView, ContrailListModel, TrafficGroupsUtils){
     var SecurityDashboardViewConfig = function () {
-        var self = this;
-        var topServiceCnt = 10;
+        var self = this,
+            tgHelpers = new TrafficGroupsUtils(),
+            topServiceCnt = 5;
         	//projectFQN = domain + ':' + projectSelectedValueData.name,
         //projectUUID = projectSelectedValueData.value;
         self.viewConfig = {
@@ -15,6 +17,280 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
             },
             'top-10-denied-rules': function () {
                 return topRulesWidgetCfg('deny');
+            },
+            'top-vns': function (){
+                return {
+                    modelCfg: {
+                        modelId: 'top-vns-model',
+                        source: 'STATTABLE',
+                        config: [{
+                            table_name: "StatTable.EndpointSecurityStats.eps.client",
+                            select: "eps.client.local_vn, SUM(eps.client.in_bytes)",
+                            where: "(name Starts with " + ctwu.getCurrentDomainProject() +')',
+                            parser: function (data, model) {
+                                data = _.filter(data, function (value) {
+                                    return value['SUM(eps.client.in_bytes)'] != 0;
+                                });
+                                return _.map(data, function (value) {
+                                    //value['local_vn'] = value['eps.client.local_vn']
+                                    value['client'] = true;
+                                    return value;
+                                });
+                            }
+                        }, {
+                            table_name: "StatTable.EndpointSecurityStats.eps.server",
+                            select: "eps.server.local_vn, SUM(eps.server.out_bytes)",
+                            where: "(name Starts with " + ctwu.getCurrentDomainProject() +')',
+                            parser: function (data, model) {
+                                return _.filter(data, function (value) {
+                                    return value['SUM(eps.server.out_bytes)'] != 0;
+                                });
+                            },
+                            type: 'concat'
+                        }]
+                    },
+                    viewCfg: {
+                        elementId : 'top-vns-view',
+                        view: 'MultiBarChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: function(y) {return formatBytes(y);},
+                                xAxisLabel: '',
+                                yAxisLabel: 'Traffic',
+                                barOrientation: 'horizontal',
+                                chartTemplate: 'plain-chart-template',
+                                stacked: true,
+                                zerofill: false,
+                                staggerLabels: true,
+                                xLblFormatter: function (x, chartData) {
+                                    if (typeof x == 'number') {
+                                        return '';
+                                    } else if (typeof x == 'string') {
+                                        return tgHelpers.getFormattedValue(x);
+                                    }
+                                    return x;
+                                },
+                                tooltipContent: function (d) {
+                                    return tooltipContent(d, {title:'Top Virtual Neworks'});
+                                },
+                                showLegend: true
+                            },
+                            parseFn: function (data) {
+                                var inBytes =  cowu.parseDataForDiscreteBarChart(data, {
+                                    groupBy: 'eps.server.local_vn',
+                                    axisField: 'SUM(eps.server.out_bytes)',
+                                    label: 'In Bytes',
+                                    topCnt: topServiceCnt,
+                                    color: cowc.FIVE_NODE_COLOR[0],
+                                    zerofill: true,
+                                });
+                                var outBytes =  cowu.parseDataForDiscreteBarChart(data, {
+                                    groupBy: 'eps.client.local_vn',
+                                    axisField: 'SUM(eps.client.in_bytes)',
+                                    label: 'Out Bytes',
+                                    topCnt: topServiceCnt,
+                                    color: cowc.FIVE_NODE_COLOR[1],
+                                    zerofill: true,
+                                });
+                                return [inBytes[0], outBytes[0]];
+                            }
+                        }
+                    },
+                    itemAttr: {
+                        width: 0.5,
+                        height: 1,
+                        title: 'Top Virtual Neworks',
+                        showTitle: true
+                    }
+                };
+            },
+            'top-apps': function (){
+                return {
+                    modelCfg: {
+                        modelId: 'top-apps-model',
+                        source: 'STATTABLE',
+                        config: [{
+                            table_name: "StatTable.EndpointSecurityStats.eps.client",
+                            select: "eps.client.app, eps.client.remote_app_id, SUM(eps.client.in_bytes)",
+                            where: "(name Starts with " + ctwu.getCurrentDomainProject() +')',
+                            parser: function (data, model) {
+                                // Bug from config/vrouter 0x00000000 is being assigned
+                                // to tag/label which is not supposed to assign
+                                data = _.filter(data, function (value) {
+                                    return value['eps.client.remote_app_id'] != '0x00000000' && value['SUM(eps.client.in_bytes)'] != 0;
+                                }); 
+                                data =  _.map(data, function (value) {
+                                   if (value['eps.client.remote_app_id'] != null) {
+                                       value['remote_app_id'] = value['eps.client.remote_app_id'];
+                                   }
+                                   if (value['eps.client.app'] != null) {
+                                       value['app'] = tgHelpers.getFormattedValue(value['eps.client.app']);
+                                   }
+                                   value['client'] = true;
+                                   return value;
+                               });
+                               return data;
+                            }
+                        }, {
+                            table_name: 'StatTable.EndpointSecurityStats.eps.server',
+                            select: 'eps.server.app, eps.server.remote_app_id, SUM(eps.server.out_bytes)',
+                            where: "(name Starts with " + ctwu.getCurrentDomainProject() +')',
+                            type: 'concat',
+                            parser: function (data, model) {
+                                data = _.filter(data, function (value) {
+                                    return value['eps.server.remote_app_id'] != '0x00000000' && value['SUM(eps.server.out_bytes)'] != 0;
+                                });
+                                data =  _.map(data, function (value) {
+                                    if (value['eps.server.remote_app_id'] != null) {
+                                        value['remote_app_id'] = value['eps.server.remote_app_id'];
+                                    }
+                                    if (value['eps.server.app'] != null) {
+                                        value['app'] = tgHelpers.getFormattedValue(value['eps.server.app']);
+                                    }
+                                    return value;
+                                });
+                                return data;
+                            }
+                        }, {
+                            source: 'APISERVER',
+                            table_name: 'tags',
+                            mergeFn: {modelKey: 'remote_app_id', joinKey: 'tag_id'}
+                        }]
+                    },
+                  viewCfg: {
+                      elementId : 'top-apps-view',
+                      view: 'MultiBarChartView',
+                      viewConfig: {
+                          chartOptions: {
+                              yFormatter: function(y) {return formatBytes(y);},
+                              xAxisLabel: '',
+                              yAxisLabel: 'Traffic',
+                              barOrientation: 'horizontal',
+                              stacked: true,
+                              zerofill: true,
+                              staggerLabels: true,
+                              chartTemplate: 'plain-chart-template',
+                              showLegend: true,
+                              xLblFormatter: function (x) {
+                                  if (typeof x == 'number') {
+                                      return '';
+                                  }
+                                  return x;
+                              },
+                              tooltipContent: function (d) {
+                                  return tooltipContent(d, {title: 'Top Applications'});
+                              }
+                          },
+                          parseFn: function (data) {
+                              var inBytes =  cowu.parseDataForDiscreteBarChart(data, {
+                                  groupBy: 'app',
+                                  axisField: 'SUM(eps.server.out_bytes)',
+                                  label: 'In Bytes',
+                                  topCnt: topServiceCnt,
+                                  color: cowc.FIVE_NODE_COLOR[0],
+                                  zerofill: true,
+                              });
+                              var outBytes =  cowu.parseDataForDiscreteBarChart(data, {
+                                  groupBy: 'remote_app_id.name',
+                                  axisField: 'SUM(eps.client.in_bytes)',
+                                  label: 'Out Bytes',
+                                  topCnt: topServiceCnt,
+                                  color: cowc.FIVE_NODE_COLOR[1],
+                                  zerofill: true,
+                              });
+                              return [inBytes[0], outBytes[0]];
+                          }
+                      }
+                  },
+                  itemAttr: {
+                      width: 0.5,
+                      height: 1,
+                      title: 'Top Applications',
+                      showTitle: true
+                  }
+                };
+            },
+            'top-vmis-with-acl-deny': function (){
+                return {
+                    modelCfg: {
+                        modelId: 'top-vmis-with-acl-deny-model',
+                        source: 'STATTABLE',
+                        config: [{
+                            table_name: "StatTable.EndpointSecurityStats.eps.client",
+                            select: "name, SUM(eps.client.in_bytes), eps.client.action",
+                            where: "(name Starts with " + ctwu.getCurrentDomainProject() +')',
+                            parser: function (data, model) {
+                                data = _.filter(data, function (value) {
+                                   return value['SUM(eps.client.in_bytes)'] != 0;
+                                });
+                                return _.map(data, function (value) {
+                                    if (value['eps.client.action'] != null && value['eps.client.action'].indexOf('deny')) {
+                                        value['vmi_uuid'] = tgHelpers.getFormattedValue(value['name']);
+                                        return value
+                                    }
+                                });
+                            }
+                        }, {
+                            table_name: 'virtual-machine-interface',
+                            source: 'UVE',
+                            cfilt: 'UveVMInterfaceAgent:vm_name',
+                            where: function (model, defObj) {
+                                var uuidArr = _.map(model.get('data'), 'name').join(',');
+                                defObj.resolve(uuidArr);
+                            },
+                            mergeFn: {modelKey: 'name', joinKey: 'name'}
+                        }]
+                    },
+                    viewCfg: {
+                        elementId : 'top-vmis-with-acl-deny-view',
+                        view: 'MultiBarChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: function(y) {return formatBytes(y);},
+                                xAxisLabel: '',
+                                yAxisLabel: 'Traffic',
+                                barOrientation: 'horizontal',
+                                stacked: true,
+                                zerofill: true,
+                                staggerLabels: true,
+                                xLblFormatter: function (x, chartData) {
+                                    if (typeof x == 'string') {
+                                        var barObj = _.filter(_.result(chartData, '0.values', []), function (value) {
+                                            return value['label'] == x;
+                                        });
+                                        return _.result(barObj, '0.data[0].name.value.UveVMInterfaceAgent.vm_name', '-');
+                                    } else if (typeof x == 'number') {
+                                        return '';
+                                    }
+                                    return x;
+                                },
+                                tooltipContent: function (d) {
+                                    d.lblValue = [{
+                                        key: 'VM Name',
+                                        value: _.result(d, 'data.data[0].name.value.UveVMInterfaceAgent.vm_name', '-'),
+                                    }]
+                                    return tooltipContent(d, {title: 'Top VMI with ACL Deny'});
+                                }
+                            },
+                            parseFn: function (data) {
+                                return  cowu.parseDataForDiscreteBarChart(data, {
+                                    groupBy: 'vmi_uuid',
+                                    axisField: 'SUM(eps.client.in_bytes)',
+                                    label: 'Traffic',
+                                    topCnt: topServiceCnt,
+                                    color: cowc.FIVE_NODE_COLOR[0],
+                                    zerofill: true,
+                                });
+                            }
+                        }
+                    },
+                    itemAttr: {
+                        width: 0.5,
+                        height: 1,
+                        title: 'Top VMI with ACL Deny',
+                        showTitle: true
+                    }
+                };
             },
         	'vmi-implicit-allow-deny-scatterchart': function (){
             	return {
@@ -132,6 +408,133 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                         showTitle: true
                     }
                 }
+            },
+            'top-acl-with-deny':function (){
+                return {
+                    modelCfg: {
+                        modelId: 'top-acl-with-deny-model',
+                        source: 'STATTABLE',
+                        config: [{
+                            table_name: "StatTable.EndpointSecurityStats.eps.client",
+                            select: "eps.__key, SUM(eps.client.in_pkts), eps.client.action",
+                            where: "(name Starts with " + ctwu.getCurrentDomainProject() +')',
+                            parser: function (data, model) {
+                                var defaultRuleUUIDs = _.keys(cowc.DEFAULT_FIREWALL_RULES);
+                                data = _.filter(data, function (value) {
+                                    return value['SUM(eps.client.in_pkts)'] != 0 &&
+                                        defaultRuleUUIDs.indexOf(value['eps.__key']) == -1
+                                        && value['eps.client.action'].indexOf('deny') > -1;
+                                });
+                                return _.map(data, function (value) {
+                                    value['formattedRuleId'] = value['eps.__key'].split(':').pop();
+                                    return value;
+                                });
+                            }
+                        }, {
+                            table_name: 'firewall-rules',
+                            source: 'APISERVER',
+                            fields: ['firewall_policy_back_refs',
+                                     'service', 'service_group_refs'],
+                            where: function (model, defObj) {
+                                return getRuleUUIDs(model.get('data'), 'eps.__key', defObj);
+                            },
+                            mergeFn: {modelKey: 'eps.__key', joinKey: 'uuid', compareFn: function (epsKey, uuid) {
+                                if (epsKey != null) {
+                                    // For default policy we need to compare with
+                                    // 2 element of array
+                                    return epsKey.split(':')[3] == uuid || epsKey.split(':')[2] == uuid;
+                                }
+                                return false;
+                            }}
+                        }]
+                    },
+                    viewCfg: {
+                        elementId : 'top-acl-with-deny-view',
+                        view: 'MultiBarChartView',
+                        viewConfig: {
+                            chartOptions: {
+                                yFormatter: function (y) {
+                                    return y;
+                                },
+                                xAxisLabel: '',
+                                yAxisLabel: 'Hits',
+                                barOrientation: 'horizontal',
+                                stacked: true,
+                                zerofill: true,
+                                staggerLabels: true,
+                                xLblFormatter: function (x, chartData) {
+                                    if (typeof x == 'string') {
+                                        var barObj = _.filter(_.result(chartData, '0.values', []), function (value) {
+                                            return value['label'] == x;
+                                        });
+                                        var formattedRuleObj = tgHelpers.formatConfigRuleData(_.result(barObj, [0, 'data', 0, 'eps.__key'], {})),
+                                            service = formattedRuleObj['serviceStr'],
+                                            ruleObj = _.result(barObj, [0, 'data', 0, 'eps.__key'], {}),
+                                            endpoint1 = _.result(ruleObj, 'endpoint_1.tags', []),
+                                            endpoint2 = _.result(ruleObj, 'endpoint_2.tags', []),
+                                            formattedRule = '';
+                                        if (endpoint1.length > 0 || endpoint2.length > 0) {
+                                            _.each([endpoint1, endpoint2], function (endpoint, i) {
+                                                var appTag = endpoint.filter(function (value) {
+                                                    return value.indexOf('application') > -1;
+                                                });
+                                                var tierTag = endpoint.filter(function (value) {
+                                                    return value.indexOf('tier') > -1;
+                                                });
+                                                appTag = _.result(appTag, '0', "").split('=')[1];
+                                                tierTag = _.result(tierTag, '0', "").split('=')[1];
+                                                if (appTag != null && tierTag != null) {
+                                                    formattedRule += appTag + ' - '+ tierTag;
+                                                } else if (appTag != null) {
+                                                    formattedRule += appTag;
+                                                } else if (tierTag != null) {
+                                                    formattedRule += tierTag;
+                                                }
+                                                if (i == 0) {
+                                                    formattedRule += ' <--> ';
+                                                }
+                                            });
+                                            return formattedRule;
+                                        } else {
+                                            return 'any <--> any';
+                                        }
+                                    } else if (typeof x == 'number') {
+                                        return '';
+                                    }
+                                    return x;
+                                },
+                                tooltipContent: function (d) {
+                                    var configRuleData = '', ruleHTML = '';
+                                    if ( _.result(d, ['data','data',0 ,'eps.__key']) != null) {
+                                        configRuleData = tgHelpers.formatConfigRuleData(_.result(d, ['data','data',0 ,'eps.__key']));
+                                        ruleHTML = contrail.getTemplate4Id('firewall-rule-template')(configRuleData);
+                                    }
+                                    d.lblValue = [{
+                                        key: 'Details',
+                                        value: ruleHTML
+                                    }]
+                                    return tooltipContent(d, {title: 'Top ACL with Deny', formatter: function (d) {return d}});
+                                }
+                            },
+                            parseFn: function (data) {
+                                return  cowu.parseDataForDiscreteBarChart(data, {
+                                    groupBy: 'formattedRuleId',
+                                    axisField: 'SUM(eps.client.in_pkts)',
+                                    label: 'Hits',
+                                    topCnt: topServiceCnt,
+                                    color: cowc.FIVE_NODE_COLOR[0],
+                                    zerofill: true,
+                                });
+                            }
+                        }
+                    },
+                    itemAttr: {
+                        width: 0.5,
+                        height: 1,
+                        title: 'Top ACL with Deny',
+                        showTitle: true
+                    }
+                };
             },
             'top-5-services': function () {
                 return {
@@ -290,6 +693,17 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
             	return d;
             }
         }
+        function tooltipContent (d, options) {
+            var lblValue = getTooltipLabelValue(d, options);
+            lblValue = _.result(d, 'lblValue', []).concat(lblValue);
+            return contrail.getTemplate4Id(cowc.TOOLTIP_LINEAREACHART_TEMPLATE)({
+                d: d,
+                lblValue: lblValue,
+                yAxisLabel:options['title'],
+                subTitle:  d.value,
+                cssClass: 'crisp-tooltip'
+            });
+        }
         function topRulesWidgetCfg (action) {
         	return {
                 modelCfg: {
@@ -330,7 +744,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
                             yFormatter: function(y) {return formatBytes(y);},
                             xAxisLabel: '',
                             yAxisLabel: 'Traffic',
-                            barOrientation: 'horizontal',
+                            barOrientation: 'vertical',
                             zerofill: true,
                             xLblFormatter: ruleUUIdFormatter
                         },
@@ -408,6 +822,21 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model'],
             
         	}
         }
+        function getTooltipLabelValue (data, options) {
+            var series = data.series, lblValArr = [];
+            var formatter = formatBytes;
+            if (options['formatter'] != null) {
+                formatter = options['formatter'];
+            }
+            _.forEach(series, function (value) {
+                lblValArr.push({
+                    key: value['key'],
+                    value: formatter(value['value']),
+                    color: value['color']
+                })
+            })
+            return lblValArr;
+        };
         self.getViewConfig = function(id) {
             return self.viewConfig[id];
         };
