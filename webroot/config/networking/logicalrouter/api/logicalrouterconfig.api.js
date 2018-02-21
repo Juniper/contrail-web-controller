@@ -264,6 +264,7 @@ function createLogicalRouterCB (dataObj, callback)
                 vmidata["virtual-machine-interface"]["display_name"] = uuid['hex'];
                 vmidata["virtual-machine-interface"]["uuid"] = uuid['hex'];
                 vmidata["virtual-machine-interface"]["name"] = uuid['hex'];
+                vmidata["virtual-machine-interface"]["port_security_enabled"] = false;
             }
             allDataArr.push({
                 request: request,
