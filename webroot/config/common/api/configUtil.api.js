@@ -61,6 +61,7 @@ var getConfigPageRespCB = {
     'virtual-network': vnConfig.getVirtualNetworkCb,
     'network-ipam': nwIpam.getIpamCb
 };
+var GENERIC_API_BASIC = 'basic';
 
 var configCBCreateEdit = 
 {
@@ -2008,7 +2009,11 @@ function createOrUpdateConfigObject (dataObj, callback)
     var body = dataObj.data;
     var type = dataObj.type;
     var objType = dataObj.objType;
-
+    if(GENERIC_API_BASIC === body.requestType) {
+        delete body.requestType;
+        createOrUpdateConfigObjectCB(type, body, appData, callback);
+        return;
+    }
     var createEditHandler = getConfigCreateEditCallbackByType(type, objType);
     if (null !== createEditHandler) {
         createEditHandler(dataObj, function(error, data) {
