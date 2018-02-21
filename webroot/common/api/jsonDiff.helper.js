@@ -236,8 +236,34 @@ var configJsonModifyObj = {
         'preProcessCB': {
             'comparators': ['to']
         },
-        'optFields': ['firewall_policy_refs', 'global_vrouter_config_refs', 'id_perms',
-            'parent_type'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
+    'firewall-policy': {
+        'isConfig': true,
+        'preProcessCB': {
+            'comparators': ['to']
+        },
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
+    'firewall-rule': {
+        'isConfig': true,
+        'preProcessCB': {
+            'comparators': ['to']
+        },
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
+    'service-group': {
+        'isConfig': true,
+        'preProcessCB': {
+            'comparators': ['to']
+        },
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
+    'address-group': {
+        'isConfig': true,
+        'preProcessCB': {
+            'comparators': ['to']
+        },
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'arrayDiff': {
