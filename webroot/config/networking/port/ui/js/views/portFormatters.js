@@ -346,7 +346,7 @@ define([
                           []);
             if(fatFlowData.length > 0) {
                 var fatFlow_length = fatFlowData.length;
-                fatFlow = "<table width='100%'><tbody><tr><th class='col-xs-4'>Protocol</th><th class='col-xs-4'>Port</th><th class='col-xs-4'>Ignore Remote Address</th></tr>"
+                fatFlow = "<table width='100%'><tbody><tr><th class='col-xs-4'>Protocol</th><th class='col-xs-4'>Port</th><th class='col-xs-4'>Ignore Address</th></tr>"
                 for(var i = 0; i < fatFlow_length;i++) {
                     var fatFlowVal = fatFlowData[i];
                     fatFlow += "<tr><td>";
@@ -354,7 +354,7 @@ define([
                     fatFlow += "</td><td>";
                     fatFlow += fatFlowVal["port"];
                     fatFlow += "</td><td>";
-                    fatFlow += fatFlowVal["ignore_remote_address"];
+                    fatFlow += fatFlowVal["ignore_address"];
                     fatFlow += "</td></tr>";
                 }
                 fatFlow += "</tbody></table>";
