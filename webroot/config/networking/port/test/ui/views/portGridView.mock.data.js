@@ -51,7 +51,6 @@
                      "to": [
                        "default-domain",
                        "admin",
-                       "test_refs",
                        "test_refs"
                      ],
                      "attr": {
@@ -147,7 +146,6 @@
                        "default-domain",
                        "admin",
                        "test_refs",
-                       "test_refs",
                        "1a5d0ca4-d969-47fc-ba9e-d302fc30a63f"
                      ],
                      "attr": null,
@@ -170,7 +168,6 @@
                      "to": [
                        "default-domain",
                        "admin",
-                       "test_refs",
                        "test_refs"
                      ],
                      "attr": {
@@ -259,7 +256,7 @@
                      {
                        "protocol": "tcp",
                        "port": 100,
-                       "ignore_remote_address": true
+                       "ignore_address": "remote"
                      }
                    ]
                  },

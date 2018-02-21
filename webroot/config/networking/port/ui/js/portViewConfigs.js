@@ -1058,16 +1058,27 @@
                                              }
                                          },
                                          {
-                                             elementId: 'ignore_remote_address',
-                                             name: "Ignore Remote Address",
-                                             view: "FormCheckboxView",
+                                             elementId: 'ignore_address',
+                                             name: "Ignore Address",
+                                             view: "FormDropdownView",
                                              viewConfig: {
-                                                 path: 'ignore_remote_address',
-                                                 label: "",
-                                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
-                                                 dataBindValue: 'ignore_remote_address()',
+                                                 path: 'ignore_address',
+                                                 templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                                 dataBindValue: 'ignore_address()',
+                                                 placeholder: 'Address ignored while creating flows',
                                                  class: "col-xs-6",
-                                                 width:190,
+                                                 width:180,
+                                                 label: 'Ignore Address',
+                                                 elementConfig:{
+                                                     dataTextField: "text",
+                                                     dataValueField: "value",
+                                                     data : [
+                                                         {'text':'None','value':'none'},
+                                                         {'text':'Remote','value':'remote'},
+                                                         {'text':'Source','value':'source'},
+                                                         {'text':'Destination','value':'destination'}
+                                                     ]
+                                                 }
                                              }
                                          }],
                                          rowActions: [{

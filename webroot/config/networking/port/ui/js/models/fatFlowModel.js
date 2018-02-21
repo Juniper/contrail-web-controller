@@ -11,7 +11,7 @@ define([
         defaultConfig: {
             'protocol': 'tcp',
             'port':'',
-            'ignore_remote_address':false,
+            'ignore_address':'none'
         },
 
         validateAttr: function (attributePath, validation, data) {

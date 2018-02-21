@@ -36,7 +36,7 @@ define([
 
         function modalTestCases() {
             var portModalMockCNInput = TestMockdata.portModalMockCNInput;
-            equal($(el).find(".data-cell-ignore_remote_address input:checkbox").is(":checked"), false,
+            equal($("#fatFlowAccordion").length, 1,
             "Fat Flows is not avilable");
             $('#configure-Portsbtn1').trigger('click');
         }
