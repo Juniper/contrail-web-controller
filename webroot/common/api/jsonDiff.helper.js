@@ -9,17 +9,13 @@ var configJsonModifyObj = {
         "isConfig": true,
         'preProcessCB': {
             'comparators': ['to']
-        },
-        "optFields": ["bgp_router_parameters",
-                      "bgp_router_refs", "perms2","tag_refs"]
+        }
     },
     "virtual-router": {
         "isConfig": true,
         'preProcessCB': {
             'comparators': ['to']
-        },
-        "optFields": ["virtual_router_ip_address",
-                      "virtual_router_type", "perms2","tag_refs", "network_ipam_refs"]
+        }
     },
     "physical-router": {
         "isConfig": true,
@@ -27,19 +23,7 @@ var configJsonModifyObj = {
             'applyOnOldJSON': modifyConfigDataByAttrHrefUUID,
             'applyOnNewJSON': modifyConfigDataByAttrHrefUUID,
             'comparators': ['to']
-        },
-        "optFields": ["physical_router_vendor_name",
-                      "physical_router_product_name",
-                      "physical_router_management_ip",
-                      "physical_router_dataplane_ip",
-                      "physical_router_loopback_ip",
-                      "physical_router_snmp_credentials",
-                      "physical_router_user_credentials",
-                      "physical_router_junos_service_ports",
-                      "virtual_router_refs",
-                      "bgp_router_refs",
-                      "physical_router_vnc_managed",
-                      "virtual_network_refs", "perms2","tag_refs", "physical_router_role"]
+        }
     },
     'virtual-network': {
         'isConfig': true,
@@ -62,39 +46,17 @@ var configJsonModifyObj = {
         'isConfig': true,
         'preProcessCB': {
             'comparators': ['to']
-        },
-        'optFields': ['network_ipam_mgmt', 'virtual_DNS_refs', 'perms2', 'ipam_subnets','tag_refs'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     'virtual-machine-interface': {
         'isConfig': true,
         'preProcessCB': {
             'applyOnOldJSON': modifyConfigDataByAttrHrefUUID,
             'applyOnNewJSON': modifyConfigDataByAttrHrefUUID
-        },
-        'optFields': ['ecmp_hashing_include_fields', 'virtual_machine_interface_bindings',
-            'virtual_machine_interface_allowed_address_pairs',
-            'service_health_check_refs', 'virtual_machine_interface_dhcp_option_list',
-            'virtual_machine_interface_fat_flow_protocols',
-            'id_perms:enable',
-            'virtual_machine_interface_refs',
-            'interface_route_table_refs',
-            'virtual_machine_interface_properties',
-            'virtual_machine_interface_mac_addresses', 'security_group_refs',
-            'virtual_network_refs', 'virtual_machine_interface_device_owner',
-            'virtual_machine_interface_disable_policy','security_logging_object_refs',
-            'qos_config_refs',
-            'annotations',
-            'port_security_enabled',
-            'perms2',
-            'tag_refs'
-        ],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     "network-policy": {
-        "isConfig": true,
-        "optFields": ["network_policy_entries", "perms2","tag_refs"],
-        "mandateFields":["fq_name", "uuid", "display_name"]
+        "isConfig": true
     },
     'security-group': {
         'isConfig': true,
@@ -108,22 +70,10 @@ var configJsonModifyObj = {
             'applyOnOldJSON': modifyConfigDataByAttrHref,
             'applyOnNewJSON': modifyConfigDataByAttrHref,
             'comparators': ['to']
-        },
-        'optFields': [
-            'virtual_machine_interface_refs',
-            'virtual_network_refs',
-            'configured_route_target_list',
-            'perms2', 'parent_type',
-            'tag_refs',
-            'vxlan_network_identifier',
-            'physical_router_refs'
-        ],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     "routing-policy": {
-        "isConfig": true,
-        "optFields": ["routing_policy_entries", "perms2","tag_refs"],
-        "mandateFields":["fq_name", "uuid", "display_name"]
+        "isConfig": true
     },
     'virtual-DNS': {
         'isConfig': true,
@@ -137,93 +87,57 @@ var configJsonModifyObj = {
     },
     'service-instance': {
         'isConfig': true,
-        'optFields': ['service_instance_properties', 'perms2','tag_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'loadbalancer': {
-        'isConfig': true,
-        'optFields': ['display_name','id_perms:description'],
-        'mandateFields': ['fq_name', 'uuid', 'name']
+        'isConfig': true
     },
     'loadbalancer-listener': {
-        'isConfig': true,
-        'optFields': ['loadbalancer_listener_properties','id_perms:description','display_name'],
-        'mandateFields': ['fq_name', 'uuid', 'name']
+        'isConfig': true
     },
     'loadbalancer-pool': {
-        'isConfig': true,
-        'optFields': ['loadbalancer_pool_properties','loadbalancer_pool_custom_attributes','display_name', 'id_perms:description'],
-        'mandateFields': ['fq_name', 'uuid', 'name']
+        'isConfig': true
     },
     'loadbalancer-healthmonitor': {
-        'isConfig': true,
-        'optFields': ['loadbalancer_healthmonitor_properties','display_name', 'id_perms:description'],
-        'mandateFields': ['fq_name', 'uuid', 'name']
+        'isConfig': true
     },
     'loadbalancer-member': {
-        'isConfig': true,
-        'optFields': ['loadbalancer_member_properties','display_name', 'id_perms:description'],
-        'mandateFields': ['fq_name', 'uuid', 'name']
+        'isConfig': true
     },
     'bgp-as-a-service': {
         'isConfig': true,
         'preProcessCB': {
             'applyOnOldJSON': modifyConfigDataByAttrHref,
             'comparators': ['to']
-        },
-        'optFields': ['bgpaas_session_attributes',
-                      'autonomous_system',
-                      'bgpaas_ip_address',
-                      'virtual_machine_interface_refs',
-                      'bgpaas_ipv4_mapped_ipv6_nexthop',
-                      'service_health_check_refs',
-                      'bgpaas_suppress_route_advertisement',
-                      'perms2','tag_refs','bgpaas_shared'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     'physical-interface': {
         'isConfig': true,
         'preProcessCB': {
             'comparators': ['to']
-        },
-        'optFields': ['physical_interface_refs', 'perms2','tag_refs', 'ethernet_segment_identifier'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     'logical-interface': {
         'isConfig': true,
         'preProcessCB': {
             'applyOnOldJSON': modifyConfigDataByAttrHref,
             'comparators': ['to']
-        },
-        'optFields': ['virtual_machine_interface_refs', 'perms2','tag_refs'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     'service-appliance': {
-        'isConfig': true,
-        'optFields': ['service_appliance_ip_address',
-            'service_appliance_user_credentials',
-            'service_appliance_properties', 'physical_interface_refs',
-            'perms2','tag_refs'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        'isConfig': true
     },
     'service-appliance-set': {
         'isConfig': true,
         'preProcessCB': {
             'comparators': ['to']
-        },
-        'optFields': ['service_appliance_ha_mode', 'service_appliance_driver',
-            'service_appliance_set_properties', 'perms2','tag_refs'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     'route-table': {
-        'isConfig': true,
-        'optFields': ['routes', 'perms2','tag_refs'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        'isConfig': true
     },
     'interface-route-table': {
-        'isConfig': true,
-        'optFields': ['interface_route_table_routes', 'perms2','tag_refs'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        'isConfig': true
     },
     'physical-topology': {
         'preProcessCB': {
@@ -242,29 +156,25 @@ var configJsonModifyObj = {
         'isConfig': true,
         'preProcessCB': {
             'comparators': ['to']
-        },
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     'firewall-rule': {
         'isConfig': true,
         'preProcessCB': {
             'comparators': ['to']
-        },
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     'service-group': {
         'isConfig': true,
         'preProcessCB': {
             'comparators': ['to']
-        },
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     'address-group': {
         'isConfig': true,
         'preProcessCB': {
             'comparators': ['to']
-        },
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        }
     },
     'arrayDiff': {
         'floating-ip-pool': {
