@@ -447,23 +447,24 @@ define([
              }
         };
 
-        self.getContainerSettingsConfig = function(options) {
+        self.getContainerSettingsConfig = function(options, prefix) {
             return {
                 elementId: "containerSettingsSection",
                 view: "SectionView",
                 viewConfig: {
                     rows: [{
                         columns: [{
-                            elementId: "toolbar_section",
+                            elementId: prefix + "toolbar_section",
                             view: "SectionView",
                             viewConfig: {
                                 rows: [{
                                     columns: [{
-                                        elementId: "toolbar",
+                                        elementId: prefix + "toolbar",
                                         title: '',
                                         view: "ToolbarView",
                                         viewConfig: {
                                             settings_type: 'container',
+                                            prefix: prefix,
                                             settings: [ {
                                                 id: cowc.CONTAINER_SETTINGS,
                                                 title: "Settings",

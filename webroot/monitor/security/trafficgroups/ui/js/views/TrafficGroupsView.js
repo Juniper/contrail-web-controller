@@ -1290,7 +1290,7 @@ define(
                     this.renderTrafficChart('onload');
                     //Render container settings
                     this.renderView4Config($('#traffic-groups-options'), '',
-                        monitorInfraUtils.getContainerSettingsConfig(tgHelpers.getContainerViewConfig));
+                        monitorInfraUtils.getContainerSettingsConfig(tgHelpers.getContainerViewConfig, 'traffic_groups_'));
                 }
             });
             return TrafficGroupsView;
