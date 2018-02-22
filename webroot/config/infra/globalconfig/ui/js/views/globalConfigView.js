@@ -196,6 +196,23 @@ define([
                    },
                    renderOnActivate: true
                }
+           },
+           {
+               elementId: 'sec_policy_options_tab',
+               title: 'Security Policy',
+               view: "securityPolicyOptionsListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
+               viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
+               viewConfig: viewConfig,
+               tabConfig: {
+                   activate: function(event, ui) {
+                       var gridId = $('#' + ctwc.GLOBAL_POLICY_MGMT_OPTIONS_GRID_ID);
+                       if (gridId.data('contrailGrid')) {
+                           gridId.data('contrailGrid').refreshView();
+                       }
+                   },
+                   renderOnActivate: true
+               }
            }]
         };
     };

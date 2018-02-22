@@ -19,18 +19,38 @@ define([
                 }else{
                     elementId = ctwc.STANDALONE_ID_PREFIX;
                 }
-                var listModelConfig = {
-                    remote: {
-                        ajaxConfig: {
-                            url: "/api/tenants/config/get-config-details",
-                            type: "POST",
-                            data: JSON.stringify(
-                                {data: [{type: 'address-groups',
-                                    parent_id: currentProject.value}]})
-                        },
-                        dataParser: self.parseAddressGroupsData,
-                    }
-                };
+                var listModelConfig;
+                if(viewConfig.dataType === ctwc.FW_DRAFTED) {
+                    listModelConfig = {
+                            remote: {
+                                ajaxConfig: {
+                                    url: "/api/tenants/config/get-config-details",
+                                    type: "POST",
+                                    data: JSON.stringify(
+                                        {data: [{type: 'address-groups',
+                                            parent_type: 'policy-management',
+                                            parent_fq_name_str:
+                                                contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
+                                                currentProject.name + ':' +
+                                                ctwc.DRAFT_POLICY_MANAGEMENT }]})
+                                },
+                                dataParser: self.parseAddressGroupsData,
+                            }
+                        };
+                } else {
+                    listModelConfig = {
+                        remote: {
+                            ajaxConfig: {
+                                url: "/api/tenants/config/get-config-details",
+                                type: "POST",
+                                data: JSON.stringify(
+                                    {data: [{type: 'address-groups',
+                                        parent_id: currentProject.value}]})
+                            },
+                            dataParser: self.parseAddressGroupsData,
+                        }
+                    };
+                }
                 var contrailListModel = new ContrailListModel(listModelConfig);
                 this.renderView4Config(this.$el,
                         contrailListModel, getAddressGroupGridViewConfig(viewConfig,elementId));

@@ -21,7 +21,8 @@
                var sequence = '', policies = getValueByJsonPath(dc,
                    "firewall_policy_back_refs", [], false),
                    currentHashParams = layoutHandler.getURLHashParams(),
-                   policyId = currentHashParams.focusedElement.uuid;
+                   policyId = getValueByJsonPath(currentHashParams,
+                           'focusedElement.uuid', '');
 
                for(var i = 0; i < policies.length; i++) {
                    if(policies[i].uuid === policyId) {

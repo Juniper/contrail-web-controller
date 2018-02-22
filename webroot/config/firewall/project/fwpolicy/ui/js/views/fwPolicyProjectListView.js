@@ -13,19 +13,40 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 currentProject = viewConfig["projectSelectedValueData"];
-            var listModelConfig = {
-                remote: {
-                    ajaxConfig: {
-                        url: "/api/tenants/config/get-config-details",
-                        type: "POST",
-                        data: JSON.stringify(
-                            {data: [{type: 'firewall-policys',
-                                fields: ['application_policy_set_back_refs'],
-                                parent_id: currentProject.value}]})
-                    },
-                    dataParser: self.parseFWPolicyData,
-                }
-            };
+            var listModelConfig;
+            if(viewConfig.dataType === ctwc.FW_DRAFTED) {
+                listModelConfig = {
+                        remote: {
+                            ajaxConfig: {
+                                url: "/api/tenants/config/get-config-details",
+                                type: "POST",
+                                data: JSON.stringify(
+                                    {data: [{type: 'firewall-policys',
+                                        fields: ['application_policy_set_back_refs'],
+                                        parent_type: 'policy-management',
+                                        parent_fq_name_str:
+                                            contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
+                                            currentProject.name + ':' +
+                                            ctwc.DRAFT_POLICY_MANAGEMENT }]})
+                            },
+                            dataParser: self.parseFWPolicyData,
+                        }
+                    };
+            } else {
+                listModelConfig = {
+                    remote: {
+                        ajaxConfig: {
+                            url: "/api/tenants/config/get-config-details",
+                            type: "POST",
+                            data: JSON.stringify(
+                                {data: [{type: 'firewall-policys',
+                                    fields: ['application_policy_set_back_refs'],
+                                    parent_id: currentProject.value}]})
+                        },
+                        dataParser: self.parseFWPolicyData,
+                    }
+                };
+            }
             var contrailListModel = new ContrailListModel(listModelConfig);
             this.renderView4Config(this.$el,
                     contrailListModel, getfwPolicyGridViewConfig(viewConfig));

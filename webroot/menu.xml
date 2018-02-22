@@ -939,6 +939,12 @@ and need to add the iconClass tag wherever we need to show some icons
                         </orchModels>
                         <accessFn>hideInGlobalController</accessFn>
                     </access>
+                    <resources>
+                        <resource>
+                            <rootDir>/config/infra/firewall/ui</rootDir>
+                            <template>firewall.tmpl</template>
+                        </resource>
+                    </resources>
                     <iconClass>menu-icon icon-contrail-network-policy</iconClass>
                     <items>
                          <item>

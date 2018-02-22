@@ -3,7 +3,7 @@
  */
 
 define([
-    'underscore',
+    'lodash',
     'contrail-view'
 ], function (_, ContrailView) {
     var fwProjectView = ContrailView.extend({
@@ -11,11 +11,51 @@ define([
         renderFirewall: function (viewConfig) {
             var self = this;
             self.newViewConfig = {viewConfig: {}};
-            self.renderView4Config(self.$el, null, self.getDomainProjectDetails(viewConfig),
-                    null, null, null, function(){
-                //$('#' + ctwc.FW_POLICY_WIZARD).on('click', function() {self.openFWPolicyWizard();});
+            self.viewConfig = viewConfig;
+            self.renderFWTabs();
+        },
+
+        renderFWTabs: function(dataType) {
+            var self = this;
+            self.renderView4Config(this.$el, null, self.getDomainProjectDetails(self.viewConfig),
+                    null, null, null, function(args) {
+                $('#Apppolicy_toggle').off().on('click', function() {
+                    $('.btn.btn-default.btn-sm.option').toggleClass('selected');
+                    self.dataType = $('.btn.btn-default.btn-sm.option.selected')[0].innerText === 'Drafted' ?
+                            ctwc.FW_DRAFTED : ctwc.FW_COMMITTED;
+                    if(self.viewMap != null) {
+                        self.refreshFWTabs(self.viewMap, self.dataType);
+                    }
+                });
+                //$('#' + ctwc.FW_REVIEW).on('click', function(){});
             });
         },
+
+        getProjectSecPolicyDetils: function(projectId) {
+            var ajaxConfig = {},
+                self = this;
+            ajaxConfig.type = "POST";
+            ajaxConfig.async = false;
+            ajaxConfig.data = JSON.stringify(
+                    {data: [{type: 'projects', obj_uuids: [projectId]}]});
+            ajaxConfig.url = ctwc.URL_GET_CONFIG_DETAILS;
+            contrail.ajaxHandler(ajaxConfig, null, function(secPolicyDetails) {
+                var secPolicyDraftMode = _.get(secPolicyDetails,
+                        '0.projects.0.project.enable_security_policy_draft', false);
+                self.viewConfig.isDraftMode = secPolicyDraftMode;
+            }, function() {
+                self.viewConfig.isDraftMode = false;
+            });
+        },
+
+        refreshFWTabs: function(viewMap, dataType, currentTab) {
+            var currentHashParams = layoutHandler.getURLHashParams();
+            currentTab = currentTab ? currentTab :  _.get(currentHashParams, 'tab.security-policy-tab', '');
+            currentTab = currentTab ? currentTab : 'application_policy_tab';
+            viewMap[currentTab].attributes.viewConfig.dataType = dataType;
+            viewMap[currentTab].render();
+        },
+
         renderProjectPolicyDetails: function(viewConfig) {
             var self = this,
             currentHashParams = layoutHandler.getURLHashParams(),
@@ -29,7 +69,7 @@ define([
                 policyNameFormat = policyName;
             }
             self.renderView4Config(self.$el, null,
-                    getProjectPolicyDetails(viewConfig,policyNameFormat));
+                    self.getProjectPolicyDetails(viewConfig,policyNameFormat));
         },
         /*openFWPolicyWizard: function () {
             var self = this;
@@ -65,8 +105,9 @@ define([
             return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams,
                                                      customDomainDropdownOptions);
         },
+
         getSecurityTabsConfig: function(viewConfig) {
-            var self = this;
+            var that = this;
             return function (projectSelectedValueData) {
                 selectedDomainProjectData = projectSelectedValueData;
                 var domain = {
@@ -82,194 +123,232 @@ define([
                 var newViewConfig =
                     $.extend(true, {}, viewConfig,
                              {projectSelectedValueData: projectSelectedValueData});
-                self.newViewConfig.viewConfig = newViewConfig;
+                that.newViewConfig.viewConfig = newViewConfig;
+
+                that.getProjectSecPolicyDetils(projectSelectedValueData.value);
+                var secPolColumns = [{
+                    elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
+                    view: 'TabsView',
+                    viewConfig: that.getSecurityPolicyTabs(newViewConfig)
+                }];
+                if(that.viewConfig.isDraftMode) {
+                    secPolColumns = secPolColumns.concat([{
+                                elementId: ctwc.FW_COMMITTED,
+                                view: 'FormRadioButtonView',
+                                viewConfig: {
+                                    templateId: 'firewall-draft-options-template',
+                                    label: ctwl.TITLE_FW_COMMITTED,
+                                    elementConfig:{
+                                        btnClass:'btn-primary'
+                                    }
+                                }
+                            }/*, {
+                                elementId: ctwc.FW_REVIEW,
+                                view: 'FormButtonView',
+                                viewConfig: {
+                                    label: ctwl.TITLE_FW_REVIEW,
+                                    elementConfig:{
+                                        btnClass:'btn-primary'
+                                    }
+                                }
+                            }*/]);
+                }
+
                 return {
                     elementId: 'fw_project_tab_section_view',
                     view: "SectionView",
                     viewConfig: {
                         rows: [{
-                            columns: [{
-                                elementId: ctwc.GLOBAL_SECURITY_POLICY_TAB_ID,
-                                view: 'TabsView',
-                                viewConfig: getSecurityPolicyTabs(newViewConfig)
-                            }/*, {
-                                elementId: ctwc.FW_POLICY_WIZARD,
-                                view: 'FormButtonView',
-                                viewConfig: {
-                                    label: ctwl.FW_POLICY_WIZARD,
-                                    elementConfig:{
-                                        btnClass:'btn-primary'
-                                    }
-                                }
-                            }*/]
+                            columns: secPolColumns
                         }]
                     }
                 };
             };
-        }
-    });
-    function getProjectPolicyDetails(viewConfig,policyNameFormat){
-        return {
-            elementId: "fwrule-project-policy-page-id",
-            view: "SectionView",
-            viewConfig: {
-                title: ctwc.FIREWALL_POLICY_HEADING + " : " + policyNameFormat,
-                elementId: "fwrule-project-policy-page-tabs",
-                rows: [{
-                    columns: [{
-                        elementId: "fwrule-project-policy-tab-id",
-                        view: 'TabsView',
-                        viewConfig: getfwRulePolicyTabs(viewConfig)
+        },
+
+        getProjectPolicyDetails: function(viewConfig, policyNameFormat) {
+            return {
+                elementId: "fwrule-project-policy-page-id",
+                view: "SectionView",
+                viewConfig: {
+                    title: ctwc.FIREWALL_POLICY_HEADING + " : " + policyNameFormat,
+                    elementId: "fwrule-project-policy-page-tabs",
+                    rows: [{
+                        columns: [{
+                            elementId: "fwrule-project-policy-tab-id",
+                            view: 'TabsView',
+                            viewConfig: this.getfwRulePolicyTabs(viewConfig)
+                        }]
                     }]
-                }]
-            }
-        };
-    };
-    /*function getDomainProjectDetails (viewConfig) {
-        var hashParams = viewConfig.hashParams,
-            customProjectDropdownOptions = {
-                config: true,
-                childView: {
-                    init: getSecurityTabsConfig(viewConfig),
-                }
-            },
-            customDomainDropdownOptions = {
-                childView: {
-                    init: ctwvc.getProjectBreadcrumbDropdownViewConfig(hashParams,
-                                                                 customProjectDropdownOptions)
                 }
             };
-        return ctwvc.getDomainBreadcrumbDropdownViewConfig(hashParams,
-                                                     customDomainDropdownOptions)
-    };*/
+        },
 
-    function getfwRulePolicyTabs(viewConfig){
-        return {
-            theme: 'default',
-            active: 1,
-            tabs: [{
-               elementId: 'project_policy_info_tab',
-               title: 'Policy Info',
-               view: "fwPolicyInfoView",
-               viewPathPrefix: "config/firewall/common/fwpolicy/ui/js/views/",
-               app: cowc.APP_CONTRAIL_CONTROLLER,
-               viewConfig: viewConfig,
-               tabConfig: {
-                   activate: function(event, ui) {
-                       var gridId = $('#' + 'fw-policy-Project-info');
-                       if (gridId.data('contrailGrid')) {
-                           gridId.data('contrailGrid').refreshView();
-                       }
-                   },
-                   renderOnActivate: false
-               }
-           }, {
-               elementId: 'project_policy_rules',
-               title: 'Rules',
-               view: "fwRuleProjectListView",
-               app: cowc.APP_CONTRAIL_CONTROLLER,
-               viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
-               app: cowc.APP_CONTRAIL_CONTROLLER,
-               viewConfig: viewConfig,
-               tabConfig: {
-                   activate: function(event, ui) {
-                       var gridId = $('#' + 'Project_policy_rules_grid_id');
-                       if (gridId.data('contrailGrid')) {
-                           gridId.data('contrailGrid').refreshView();
-                       }
-                   },
-                   renderOnActivate: true
-               }
-           }, {
-               elementId: 'project_permissions',
-               title: 'Permissions',
-               view: "fwPermissionView",
-               app: cowc.APP_CONTRAIL_CONTROLLER,
-               viewPathPrefix: "config/firewall/common/fwpolicy/ui/js/views/",
-               viewConfig: viewConfig,
-               tabConfig: {
-                   activate: function(event, ui) {
-                       var gridId = $('#' + 'Project_permissions_grid_id');
-                       if (gridId.data('contrailGrid')) {
-                           gridId.data('contrailGrid').refreshView();
-                       }
-                   },
-                   renderOnActivate: false
-               }
-           }]
-        };
-    };
-    function getSecurityPolicyTabs(viewConfig) {
-        return {
-            theme: 'default',
-            active: 0,
-            tabs: [{
-                elementId: 'application_policy_tab',
-                title: 'Application Policy Sets',
-                view: "applicationPolicyProjectListView",
-                app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewPathPrefix: "config/firewall/project/applicationpolicy/ui/js/views/",
-                viewConfig: viewConfig,
-                tabConfig: {
-                    activate: function(event, ui) {
-                        var gridId = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID);
-                        if (gridId.data('contrailGrid')) {
-                            gridId.data('contrailGrid').refreshView();
-                        }
-                    },
-                    renderOnActivate: true
-                }
-            },{
-                elementId: 'fw_policy_tab',
-                title: 'Firewall Policies',
-                view: "fwPolicyProjectListView",
-                app: cowc.APP_CONTRAIL_CONTROLLER,
-                viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
-                viewConfig: viewConfig,
-                tabConfig: {
-                    activate: function(event, ui) {
-                        var gridId = $('#' + ctwc.FW_POLICY_GRID_ID);
-                        if (gridId.data('contrailGrid')) {
-                            gridId.data('contrailGrid').refreshView();
-                        }
-                    },
-                    renderOnActivate: true
-                }
-            },
-            {
-               elementId: 'service_group_tab',
-               title: 'Service Groups',
-               view: "serviceGroupProjectListView",
-               app: cowc.APP_CONTRAIL_CONTROLLER,
-               viewPathPrefix: "config/firewall/project/servicegroup/ui/js/views/",
-               viewConfig: viewConfig,
-               tabConfig: {
-                   activate: function(event, ui) {
-                       var gridId = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID);
-                       if (gridId.data('contrailGrid')) {
-                           gridId.data('contrailGrid').refreshView();
-                       }
-                   },
-                   renderOnActivate: true
-               }
-           }, {
-               elementId: 'address_group_tab',
-               title: 'Address Groups',
-               view: "addressGroupProjectListView",
-               app: cowc.APP_CONTRAIL_CONTROLLER,
-               viewPathPrefix: "config/firewall/project/addressgroup/ui/js/views/",
-               viewConfig: viewConfig,
-               tabConfig: {
-                   activate: function(event, ui) {
-                       var gridId = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID);
-                       if (gridId.data('contrailGrid')) {
-                           gridId.data('contrailGrid').refreshView();
-                       }
-                   },
-                   renderOnActivate: true
-               }
-           }]
-        };
-    };
+        getfwRulePolicyTabs: function(viewConfig) {
+            return {
+                theme: 'default',
+                active: 1,
+                tabs: [{
+                   elementId: 'project_policy_info_tab',
+                   title: 'Policy Info',
+                   view: "fwPolicyInfoView",
+                   viewPathPrefix: "config/firewall/common/fwpolicy/ui/js/views/",
+                   app: cowc.APP_CONTRAIL_CONTROLLER,
+                   viewConfig: viewConfig,
+                   tabConfig: {
+                       activate: function(event, ui) {
+                           var gridId = $('#' + 'fw-policy-Project-info');
+                           if (gridId.data('contrailGrid')) {
+                               gridId.data('contrailGrid').refreshView();
+                           }
+                       },
+                       renderOnActivate: false
+                   }
+               }, {
+                   elementId: 'project_policy_rules',
+                   title: 'Rules',
+                   view: "fwRuleProjectListView",
+                   app: cowc.APP_CONTRAIL_CONTROLLER,
+                   viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
+                   app: cowc.APP_CONTRAIL_CONTROLLER,
+                   viewConfig: viewConfig,
+                   tabConfig: {
+                       activate: function(event, ui) {
+                           var gridId = $('#' + 'Project_policy_rules_grid_id');
+                           if (gridId.data('contrailGrid')) {
+                               gridId.data('contrailGrid').refreshView();
+                           }
+                       },
+                       renderOnActivate: true
+                   }
+               }, {
+                   elementId: 'project_permissions',
+                   title: 'Permissions',
+                   view: "fwPermissionView",
+                   app: cowc.APP_CONTRAIL_CONTROLLER,
+                   viewPathPrefix: "config/firewall/common/fwpolicy/ui/js/views/",
+                   viewConfig: viewConfig,
+                   tabConfig: {
+                       activate: function(event, ui) {
+                           var gridId = $('#' + 'Project_permissions_grid_id');
+                           if (gridId.data('contrailGrid')) {
+                               gridId.data('contrailGrid').refreshView();
+                           }
+                       },
+                       renderOnActivate: false
+                   }
+               }]
+            };
+        },
+
+        getSecurityPolicyTabs: function(viewConfig) {
+            var that = this;
+            return {
+                theme: 'default',
+                active: 0,
+                tabs: [{
+                    elementId: 'application_policy_tab',
+                    title: 'Application Policy Sets',
+                    view: "applicationPolicyProjectListView",
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewPathPrefix: "config/firewall/project/applicationpolicy/ui/js/views/",
+                    viewConfig: viewConfig,
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if(that.viewConfig.isDraftMode) {
+                                that.refreshFWTabs(that.viewMap, that.dataType, 'application_policy_tab');
+                                return;
+                            }
+                            var gridId = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID);
+                            if (gridId.data('contrailGrid')) {
+                                gridId.data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: false
+                    }
+                }, {
+                    elementId: 'fw_policy_tab',
+                    title: 'Firewall Policies',
+                    view: "fwPolicyProjectListView",
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewPathPrefix: "config/firewall/project/fwpolicy/ui/js/views/",
+                    viewConfig: viewConfig,
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if(that.viewConfig.isDraftMode) {
+                                that.refreshFWTabs(that.viewMap, that.dataType, 'fw_policy_tab');
+                                return;
+                            }
+                            var gridId = $('#' + ctwc.FW_POLICY_GRID_ID);
+                            if (gridId.data('contrailGrid')) {
+                                gridId.data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: that.viewConfig.isDraftMode ? false : true
+                    }
+                }, {
+                    elementId: 'fw_rule_tab',
+                    title: 'Firewall Rules',
+                    view: "fwRulesProjectTabListView",
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewPathPrefix: "config/firewall/common/ui/js/views/",
+                    viewConfig: viewConfig,
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if(that.viewConfig.isDraftMode) {
+                                that.refreshFWTabs(that.viewMap, that.dataType, 'fw_rule_tab');
+                                return;
+                            }
+                            var gridId = $('#' + ctwc.FW_POLICY_GRID_ID);
+                            if (gridId.data('contrailGrid')) {
+                                gridId.data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: that.viewConfig.isDraftMode ? false : true
+                    }
+                }, {
+                   elementId: 'service_group_tab',
+                   title: 'Service Groups',
+                   view: "serviceGroupProjectListView",
+                   app: cowc.APP_CONTRAIL_CONTROLLER,
+                   viewPathPrefix: "config/firewall/project/servicegroup/ui/js/views/",
+                   viewConfig: viewConfig,
+                   tabConfig: {
+                       activate: function(event, ui) {
+                           if(that.viewConfig.isDraftMode) {
+                               that.refreshFWTabs(that.viewMap, that.dataType, 'service_group_tab');
+                               return;
+                           }
+                           var gridId = $('#' + ctwc.SECURITY_POLICY_SERVICE_GRP_GRID_ID);
+                           if (gridId.data('contrailGrid')) {
+                               gridId.data('contrailGrid').refreshView();
+                           }
+                       },
+                       renderOnActivate: that.viewConfig.isDraftMode ? false : true
+                   }
+               }, {
+                   elementId: 'address_group_tab',
+                   title: 'Address Groups',
+                   view: "addressGroupProjectListView",
+                   app: cowc.APP_CONTRAIL_CONTROLLER,
+                   viewPathPrefix: "config/firewall/project/addressgroup/ui/js/views/",
+                   viewConfig: viewConfig,
+                   tabConfig: {
+                       activate: function(event, ui) {
+                           if(that.viewConfig.isDraftMode) {
+                               that.refreshFWTabs(that.viewMap, that.dataType, 'address_group_tab');
+                               return;
+                           }
+                           var gridId = $('#' + ctwc.SECURITY_POLICY_ADDRESS_GRP_GRID_ID);
+                           if (gridId.data('contrailGrid')) {
+                               gridId.data('contrailGrid').refreshView();
+                           }
+                       },
+                       renderOnActivate: that.viewConfig.isDraftMode ? false : true
+                   }
+               }]
+            };
+        }
+    });
     return fwProjectView;
 });

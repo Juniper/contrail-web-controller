@@ -854,6 +854,21 @@ div#aps-landing-container:not[style='display: block;'] #security-policy-tag-grid
 position:absolute;
 top:4px;
 right:12px;}
+#fw_review {
+    position:absolute;
+    top:11px;
+    right:12px;
+}
+#fw_committed {
+    position:absolute;
+    top:11px;
+    right:360px;
+}
+#fw_drafted {
+    position:absolute;
+    top:11px;
+    right:300px;
+}
 #gird-details-container .contrail-tab-link-list{
 	width: 100%;
     margin-left: 0px;
@@ -1204,6 +1219,48 @@ body.navbar-fixed:not(.modal-open){
     background: #fafafa;
 }
 
+#Apppolicy_toggle{
+  top:0px;
+  right:0px;
+}
+
+#Apppolicy_toggle .option:first-of-type {
+    border-left: 1px solid #898989 !important;
+    border-radius: 4px 0 0 4px;
+}
+
+#Apppolicy_toggle .option {
+    border: 1px solid #898989 !important;
+    border-left: 0 !important;
+    margin: 0;
+    color: #898989 !important;
+    border-radius: 0 3px 3px 0;
+    padding:4px 7px 4px 8px;}
+
+#Apppolicy_toggle .option.selected {
+    background: #3182bd;
+    color: #fff !important;
+}
+
+#Apppolicy_toggle .option {
+    border: 1px solid #898989 !important;
+    border-left: 0 !important;
+    margin: 0;
+    color: #898989 !important;
+    border-radius: 0 3px 3px 0;
+    padding: 5px 7px 1px9px;
+}
+#Apppolicy_toggle input {
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+#Apppolicy_toggle  .btn {
+    background: white;
+    color: #6482bd !important;
+    border-color: #6482bd !important;
+    padding: 4px 10px;
+}
 #security-dashboard-carousel-view .carousel-inner{
        padding: 0px !important;
 }

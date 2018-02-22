@@ -40,6 +40,8 @@ function FWGlobalPageLoader ()
                 hashParams: hashParams
             });
         }
+        /*var draftTmpl = contrail.getTemplate4Id('firewall-draft-options-tmpl');
+        $('body').append(draftTmpl({}));*/
     };
 
     this.updateViewByHash = function (hashObj, lastHashObj) {
