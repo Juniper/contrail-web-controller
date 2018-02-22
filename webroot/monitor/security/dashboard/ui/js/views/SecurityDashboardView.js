@@ -51,17 +51,96 @@ define([
                                                     elementId : 'security-dashboard-stackview-0',
                                                     gridAttr : {
                                                         widthMultiplier : cowc.GRID_STACK_DEFAULT_WIDTH,
-                                                        heightMultiplier : 10
+                                                        heightMultiplier : 11
                                                     },
                                                     widgetCfgList: [
-                                                        {id: 'top-apps'},
-                                                        {id: 'top-vns'},
-                                                        {id: 'top-vmis-with-acl-deny'},
-                                                        {id: 'top-acl-with-deny'}
-                                                        /*{id: 'vmi-implicit-allow-deny-scatterchart'},
-                                                        {id: 'top-10-allowed-rules'},
-                                                        {id: 'top-5-services'}
-                                                        {id: 'top-10-denied-rules'}*/
+                                                        {
+                                                            id: 'top-tags',
+                                                            itemAttr: {
+                                                                dropdown: {
+                                                                    id: 'top-tags-dropdown',
+                                                                    data: [{
+                                                                        'text': 'Top Applications',
+                                                                        'id': {
+                                                                            viewCfg: {
+                                                                              viewConfig: {
+                                                                                  chartOptions: {
+                                                                                      groupBy: ['app', 'remote_app_id.name'],
+                                                                                      title: 'Top Applications'
+                                                                                  }
+                                                                              }  
+                                                                            },
+                                                                            modelCfg: [{
+                                                                                source: 'APISERVER',
+                                                                                mergeFn: {
+                                                                                    modelKey: 'remote_app_id'
+                                                                                }
+                                                                            }]   
+                                                                        }
+                                                                    },{
+                                                                        'text': 'Top Tiers',
+                                                                        'id': {
+                                                                         viewCfg: {
+                                                                           viewConfig: {
+                                                                               chartOptions: {
+                                                                                   groupBy: ['tier', 'remote_tier_id.name'],
+                                                                                   title: 'Top Tiers'
+                                                                               }
+                                                                           }  
+                                                                         },
+                                                                         modelCfg: [{
+                                                                             source: 'APISERVER',
+                                                                             mergeFn: {
+                                                                                 modelKey: 'remote_tier_id'
+                                                                             }
+                                                                         }]   
+                                                                        }
+                                                                    },{
+                                                                        'text': 'Top Sites',
+                                                                        'id': {
+                                                                            viewCfg: {
+                                                                              viewConfig: {
+                                                                                  chartOptions: {
+                                                                                      groupBy: ['site', 'remote_site_id.name'],
+                                                                                      title: 'Top Sites'
+                                                                                  }
+                                                                              }  
+                                                                            },
+                                                                            modelCfg: [{
+                                                                                source: 'APISERVER',
+                                                                                mergeFn: {
+                                                                                    modelKey: 'remote_site_id'
+                                                                                }
+                                                                            }]
+                                                                        }
+                                                                    },{
+                                                                        'text': 'Top Deployments',
+                                                                        'id': {
+                                                                            viewCfg: {
+                                                                              viewConfig: {
+                                                                                  chartOptions: {
+                                                                                      groupBy: ['deployment', 'remote_deployment_id.name'],
+                                                                                      title: 'Top Deployments'
+                                                                                  }
+                                                                              }  
+                                                                            },
+                                                                            modelCfg: [{
+                                                                                source: 'APISERVER',
+                                                                                mergeFn: {
+                                                                                    modelKey: 'remote_deployment_id'
+                                                                                }
+                                                                            }]   
+                                                                        }
+                                                                    }]
+                                                                },
+                                                            }
+                                                        },{
+                                                            id: 'top-vns'
+                                                        },{
+                                                            id: 'top-vmis-with-acl-deny'
+                                                        },{
+                                                            id: 'top-acl-with-deny'
+                                                        }
                                                     ]
                                                  }
                                              },

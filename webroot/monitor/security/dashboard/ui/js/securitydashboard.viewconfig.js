@@ -105,27 +105,52 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                     }
                 };
             },
-            'top-apps': function (){
+            'top-tags': function (){
                 return {
                     modelCfg: {
-                        modelId: 'top-apps-model',
                         source: 'STATTABLE',
                         config: [{
                             table_name: "StatTable.EndpointSecurityStats.eps.client",
-                            select: "eps.client.app, eps.client.remote_app_id, SUM(eps.client.in_bytes)",
+                            select: 'eps.client.app, eps.client.tier, eps.client.remote_tier_id,'+
+                                    'eps.client.site, eps.client.remote_site_id, eps.client.deployment,'+
+                                    'eps.client.remote_deployment_id,'+
+                                    'eps.client.remote_app_id, SUM(eps.client.in_bytes)',
+                            //modelId: 'top-tags-eps-client',
                             where: "(name Starts with " + ctwu.getCurrentDomainProject() +')',
                             parser: function (data, model) {
                                 // Bug from config/vrouter 0x00000000 is being assigned
                                 // to tag/label which is not supposed to assign
                                 data = _.filter(data, function (value) {
-                                    return value['eps.client.remote_app_id'] != '0x00000000' && value['SUM(eps.client.in_bytes)'] != 0;
+                                    return (value['eps.client.remote_app_id'] != '0x00000000' ||
+                                            value['eps.client.remote_site_id'] != '0x00000000' ||
+                                            value['eps.client.remote_deployment_id'] != '0x00000000' ||
+                                            value['eps.client.remote_tier_id'] != '0x00000000')
+                                        && value['SUM(eps.client.in_bytes)'] != 0;
                                 }); 
                                 data =  _.map(data, function (value) {
                                    if (value['eps.client.remote_app_id'] != null) {
                                        value['remote_app_id'] = value['eps.client.remote_app_id'];
                                    }
+                                   if (value['eps.client.remote_site_id'] != null) {
+                                       value['remote_site_id'] = value['eps.client.remote_site_id'];
+                                   }
+                                   if (value['eps.client.remote_deployment_id'] != null) {
+                                       value['remote_deployment_id'] = value['eps.client.remote_deployment_id'];
+                                   }
+                                   if (value['eps.client.remote_tier_id'] != null) {
+                                       value['remote_tier_id'] = value['eps.client.remote_tier_id'];
+                                   }
                                    if (value['eps.client.app'] != null) {
                                        value['app'] = tgHelpers.getFormattedValue(value['eps.client.app']);
+                                   }
+                                   if (value['eps.client.tier'] != null) {
+                                       value['tier'] = tgHelpers.getFormattedValue(value['eps.client.tier']);
+                                   }
+                                   if (value['eps.server.site'] != null) {
+                                       value['site'] = tgHelpers.getFormattedValue(value['eps.server.site']);
+                                   }
+                                   if (value['eps.server.deployment'] != null) {
+                                       value['deployment'] = tgHelpers.getFormattedValue(value['eps.server.deployment']);
                                    }
                                    value['client'] = true;
                                    return value;
@@ -134,19 +159,45 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                             }
                         }, {
                             table_name: 'StatTable.EndpointSecurityStats.eps.server',
-                            select: 'eps.server.app, eps.server.remote_app_id, SUM(eps.server.out_bytes)',
+                            select: 'eps.server.app, eps.server.tier, eps.server.remote_tier_id,'+
+                                    'eps.server.site, eps.server.remote_site_id, eps.server.deployment,'+
+                                    'eps.server.remote_deployment_id,'+
+                                    'eps.server.remote_app_id, SUM(eps.server.out_bytes)',
+                            //modelId: 'top-tags-eps-server',
                             where: "(name Starts with " + ctwu.getCurrentDomainProject() +')',
                             type: 'concat',
                             parser: function (data, model) {
                                 data = _.filter(data, function (value) {
-                                    return value['eps.server.remote_app_id'] != '0x00000000' && value['SUM(eps.server.out_bytes)'] != 0;
+                                    return (value['eps.server.remote_app_id'] != '0x00000000' ||
+                                            value['eps.server.remote_site_id'] != '0x00000000' ||
+                                            value['eps.server.remote_deployment_id'] != '0x00000000' ||
+                                            value['eps.server.remote_tier_id'] != '0x00000000')
+                                    && value['SUM(eps.server.out_bytes)'] != 0;
                                 });
                                 data =  _.map(data, function (value) {
                                     if (value['eps.server.remote_app_id'] != null) {
                                         value['remote_app_id'] = value['eps.server.remote_app_id'];
                                     }
+                                    if (value['eps.server.remote_site_id'] != null) {
+                                        value['remote_site_id'] = value['eps.server.remote_site_id'];
+                                    }
+                                    if (value['eps.server.remote_deployment_id'] != null) {
+                                        value['remote_deployment_id'] = value['eps.server.remote_deployment_id'];
+                                    }
+                                    if (value['eps.server.remote_tier_id'] != null) {
+                                        value['remote_tier_id'] = value['eps.server.remote_tier_id'];
+                                    }
                                     if (value['eps.server.app'] != null) {
                                         value['app'] = tgHelpers.getFormattedValue(value['eps.server.app']);
+                                    }
+                                    if (value['eps.server.tier'] != null) {
+                                        value['tier'] = tgHelpers.getFormattedValue(value['eps.server.tier']);
+                                    }
+                                    if (value['eps.server.site'] != null) {
+                                        value['site'] = tgHelpers.getFormattedValue(value['eps.server.site']);
+                                    }
+                                    if (value['eps.server.deployment'] != null) {
+                                        value['deployment'] = tgHelpers.getFormattedValue(value['eps.server.deployment']);
                                     }
                                     return value;
                                 });
@@ -154,6 +205,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                             }
                         }, {
                             source: 'APISERVER',
+                            //modelId: 'top-tags-apiserver-tags',
                             table_name: 'tags',
                             mergeFn: {modelKey: 'remote_app_id', joinKey: 'tag_id'}
                         }]
@@ -170,37 +222,41 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                               barOrientation: 'horizontal',
                               stacked: true,
                               zerofill: true,
+                              groupBy: ['app', 'remote_app_id.name'],
+                              axisFields: ['SUM(eps.server.out_bytes)','SUM(eps.client.in_bytes)'],
+                              labels: ['In Bytes', 'Out Bytes'],
+                              title: 'Top Applications',
                               staggerLabels: true,
                               chartTemplate: 'plain-chart-template',
                               showLegend: true,
                               xLblFormatter: function (x) {
                                   if (typeof x == 'number') {
                                       return '';
+                                  } else if (typeof x == 'string') {
+                                      return x.split('=')[1];
                                   }
                                   return x;
                               },
-                              tooltipContent: function (d) {
-                                  return tooltipContent(d, {title: 'Top Applications'});
+                              tooltipContent: function (d, chartOptions) {
+                                  return tooltipContent(d, {title: _.result(chartOptions, 'title', '-')});
                               }
                           },
-                          parseFn: function (data) {
-                              var inBytes =  cowu.parseDataForDiscreteBarChart(data, {
-                                  groupBy: 'app',
-                                  axisField: 'SUM(eps.server.out_bytes)',
-                                  label: 'In Bytes',
-                                  topCnt: topServiceCnt,
-                                  color: cowc.FIVE_NODE_COLOR[0],
-                                  zerofill: true,
+                          parseFn: function (data, chartOptions) {
+                              var groupBy = _.result(chartOptions, 'groupBy', []);
+                              var axisFields = _.result(chartOptions, 'axisFields', []);
+                              var labels = _.result(chartOptions, 'labels', []);
+                              var chartData = [];
+                              _.each(groupBy, function (value, idx) {
+                                  chartData.push(cowu.parseDataForDiscreteBarChart(data, {
+                                      groupBy: value,
+                                      axisField: axisFields[idx] ,
+                                      label: labels[idx],
+                                      topCnt: topServiceCnt,
+                                      color: cowc.FIVE_NODE_COLOR[idx],
+                                      zerofill: true,
+                                  })[0]);
                               });
-                              var outBytes =  cowu.parseDataForDiscreteBarChart(data, {
-                                  groupBy: 'remote_app_id.name',
-                                  axisField: 'SUM(eps.client.in_bytes)',
-                                  label: 'Out Bytes',
-                                  topCnt: topServiceCnt,
-                                  color: cowc.FIVE_NODE_COLOR[1],
-                                  zerofill: true,
-                              });
-                              return [inBytes[0], outBytes[0]];
+                              return chartData;
                           }
                       }
                   },
@@ -272,7 +328,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                                         key: 'VM Name',
                                         value: _.result(d, 'data.data[0].name.value.UveVMInterfaceAgent.vm_name', '-'),
                                     }]
-                                    return tooltipContent(d, {title: 'Top VMI with ACL Deny'});
+                                    return tooltipContent(d, {title: 'Top VMIs with ACL Deny'});
                                 }
                             },
                             parseFn: function (data) {
@@ -290,7 +346,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                     itemAttr: {
                         width: 0.5,
                         height: 1,
-                        title: 'Top VMI with ACL Deny',
+                        title: 'Top VMIs with ACL Deny',
                         showTitle: true
                     }
                 };
@@ -494,7 +550,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                                                     formattedRule += tierTag;
                                                 }
                                                 if (i == 0) {
-                                                    formattedRule += ' <--> ';
+                                                    formattedRule += ' <---> ';
                                                 }
                                             });
                                             return formattedRule;
@@ -516,7 +572,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                                         key: 'Details',
                                         value: ruleHTML
                                     }]
-                                    return tooltipContent(d, {title: 'Top ACL with Deny', formatter: function (d) {return d}});
+                                    return tooltipContent(d, {title: 'Top ACLs with Deny', formatter: function (d) {return d}});
                                 }
                             },
                             parseFn: function (data) {
@@ -534,7 +590,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                     itemAttr: {
                         width: 0.5,
                         height: 1,
-                        title: 'Top ACL with Deny',
+                        title: 'Top ACLs with Deny',
                         showTitle: true
                     }
                 };
