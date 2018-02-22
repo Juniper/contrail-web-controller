@@ -860,7 +860,9 @@ define([
         this.TITLE_SERVICE_GROUP_DELETE = 'Delete Service Group';
         this.FIREWALL_POLICY_ANY = 'any';
         this.TITLE_ASSOCIATED_POLICY = 'Associated Firewall Policies';
-
+        this.TITLE_FW_COMMITTED = 'Commited';
+        this.TITLE_FW_DRAFTED = 'Drafted';
+        this.TITLE_FW_REVIEW = 'Review';
         /* RBAC labels */
         this.TITLE_RBAC = 'API Access';
         this.TITLE_GLOBAL_RBAC = 'Global API Access';
@@ -1041,6 +1043,8 @@ define([
         this.CFG_LOCATION_PREFIX_ID = 'location';
         this.TITLE_BGP_OPTIONS = "BGP Options";
         this.TITLE_EDIT_BGP_OPTIONS = "Edit BGP Options";
+        this.TITLE_SECURITY_POLICY_OPTIONS = "Security Policy Options";
+        this.TITLE_EDIT_SECURITY_POLICY_OPTIONS = "Edit Security Policy Options";
 
         this.TITLE_FORWARDING_OPTIONS = "Forwarding Options";
         this.TITLE_EDIT_FORWARDING_OPTIONS = "Edit Forwarding Options";
