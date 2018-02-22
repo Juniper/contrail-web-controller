@@ -250,7 +250,7 @@ define([
                                 {
                                     elementId: "pool_member_ip_address",
                                     view: "FormInputView",
-                                    name: 'IP Address',
+                                    name: 'IP Address *',
                                     width: 225,
                                     viewConfig: {
                                         path: "pool_member_ip_address",

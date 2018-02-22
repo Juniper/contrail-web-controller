@@ -794,7 +794,6 @@ define([
                                  viewConfig: {
                                      path: "monitor_http_status_code",
                                      visible: 'field_disable',
-                                     type:'number',
                                      label: 'Expected HTTP Status Code',
                                      dataBindValue: "monitor_http_status_code",
                                      class: "col-xs-6"

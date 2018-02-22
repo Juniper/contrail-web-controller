@@ -62,31 +62,12 @@ define([
 
         validations: {
             poolListMemberValidation: {
-                'port': function(value, attr, data) {
-                   var port = Number(value);
-                   if(port < 1 || port > 65535){
-                       return "The Port must be a number between 1 and 65535.";
+                'weight': function(value, attr, data) {
+                   var weight = Number(value);
+                   if(weight==""){
+                       return " Enter vaild number";
                    }
-                },
-                'ip_address' : function(value, attr, data) {
-                    if(value == null || value.trim() == "") {
-                        return;
-                    }
-                    if(!lbCfgFormatters.validateIP(value)){
-                        return "The IP address is not valid.";
-                    }
-                    if(data.lb_subnet != "") {
-                        var subnet = data.lb_subnet.split(';')[1];
-                        if(!isIPBoundToRange(subnet, value)){
-                            var ip = subnet.split('/')[0];
-                            return "Enter a fixed IP within the selected subnet range " + ip;
-                        }
-                        if(isStartAddress(subnet, value) == true ||
-                           isEndAddress(subnet, value) == true) {
-                            return "Fixed IP cannot be same as broadcast/start address";
-                        }
-                    }
-                 },
+                }
              }
         },
 
@@ -119,7 +100,7 @@ define([
                     getValidation : 'poolMemberValidation'
                 }
             ];
-            if (this.isDeepValid(validations)) {
+            if (self.isDeepValid(validations)) {
                 var model = $.extend(true,{},this.model().attributes);
                 var poolMember = $.extend(true,{},model.pool_member).toJSON();
                 var obj = {};
@@ -183,41 +164,56 @@ define([
         },
 
         updateMember: function(callbackObj){
-            var ajaxConfig = {};
-            var self = this;
-            var model = $.extend(true,{},this.model().attributes);
-            var obj = {};
-            obj['loadbalancer-member'] = {};
-            obj['loadbalancer-member']['fq_name'] = model.fq_name;
-            obj['loadbalancer-member']['display_name'] = model.display_name;
-            obj['loadbalancer-member']['uuid'] = model.uuid;
-            if(model.description !== ''){
-                model.id_perms.description = model.description;
-                obj['loadbalancer-member'].id_perms = model.id_perms;
-            }
-            model.loadbalancer_member_properties['address'] = model.ip_address;
-            model.loadbalancer_member_properties['weight'] = model.weight;
-            model.loadbalancer_member_properties['protocol_port'] = Number(model.port);
-            model.loadbalancer_member_properties['admin_state'] = model.admin_state;
-            obj['loadbalancer-member']['loadbalancer_member_properties'] = model.loadbalancer_member_properties;
-            ajaxConfig.url = '/api/tenants/config/lbaas/member/'+ model.uuid;
-            ajaxConfig.type  = 'PUT';
-            ajaxConfig.data  = JSON.stringify(obj);
-            contrail.ajaxHandler(ajaxConfig, function () {
-                if (contrail.checkIfFunction(callbackObj.init)) {
-                    callbackObj.init();
-                }
-            }, function (response) {
-                if (contrail.checkIfFunction(callbackObj.success)) {
-                    callbackObj.success();
-                }
-                returnFlag = true;
-            }, function (error) {
-                if (contrail.checkIfFunction(callbackObj.error)) {
-                    callbackObj.error(error);
-                }
-                returnFlag = false;
-            });
+        		var self = this;
+        	 	var validations = [
+                 {
+                     key : null,
+                     type : cowc.OBJECT_TYPE_MODEL,
+                     getValidation : 'poolListMemberValidation'
+                 }
+             ];
+             if (self.isDeepValid(validations)) {
+	            var ajaxConfig = {};
+	            var self = this;
+	            var model = $.extend(true,{},this.model().attributes);
+	            var obj = {};
+	            obj['loadbalancer-member'] = {};
+	            obj['loadbalancer-member']['fq_name'] = model.fq_name;
+	            obj['loadbalancer-member']['display_name'] = model.display_name;
+	            obj['loadbalancer-member']['uuid'] = model.uuid;
+	            if(model.description !== ''){
+	                model.id_perms.description = model.description;
+	                obj['loadbalancer-member'].id_perms = model.id_perms;
+	            }
+	            model.loadbalancer_member_properties['address'] = model.ip_address;
+	            model.loadbalancer_member_properties['weight'] = model.weight;
+	            model.loadbalancer_member_properties['protocol_port'] = Number(model.port);
+	            model.loadbalancer_member_properties['admin_state'] = model.admin_state;
+	            obj['loadbalancer-member']['loadbalancer_member_properties'] = model.loadbalancer_member_properties;
+	            ajaxConfig.url = '/api/tenants/config/lbaas/member/'+ model.uuid;
+	            ajaxConfig.type  = 'PUT';
+	            ajaxConfig.data  = JSON.stringify(obj);
+	            contrail.ajaxHandler(ajaxConfig, function () {
+	                if (contrail.checkIfFunction(callbackObj.init)) {
+	                    callbackObj.init();
+	                }
+	            }, function (response) {
+	                if (contrail.checkIfFunction(callbackObj.success)) {
+	                    callbackObj.success();
+	                }
+	                returnFlag = true;
+	            }, function (error) {
+	                if (contrail.checkIfFunction(callbackObj.error)) {
+	                    callbackObj.error(error);
+	                }
+	                returnFlag = false;
+	            });
+             }else {
+                 if (contrail.checkIfFunction(callbackObj.error)) {
+                     callbackObj.error(this.getFormErrorText
+                                      (ctwc.CONFIG_LB_POOL_MEMBER_PREFIX_ID));
+                 }
+             }
         },
 
         multiDeleteMember: function (checkedRows, callbackObj) {
