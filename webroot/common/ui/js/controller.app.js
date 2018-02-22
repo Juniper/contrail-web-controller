@@ -95,7 +95,6 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
 
             'controller-init': ctWebDir + '/common/ui/js/controller.init',
             'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
-            'security-dashboard-viewconfig': ctWebDir + '/monitor/security/dashboard/ui/js/securitydashboard.viewconfig',
             'security-dashboard': ctWebDir + '/monitor/security/dashboard/ui/js/views/SecurityDashboardView',
 
             'monitor-infra-modelcfg':ctWebDir +'/monitor/infrastructure/common/ui/js/monitor.infra.modelcfg',
@@ -104,6 +103,7 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'analyticsnode-modelcfg':ctWebDir +'/monitor/infrastructure/analyticsnode/ui/js/analyticsnode.modelcfg',
             'confignode-modelcfg':ctWebDir +   '/monitor/infrastructure/confignode/ui/js/confignode.modelcfg',
             'databasenode-modelcfg': ctWebDir +'/monitor/infrastructure/databasenode/ui/js/databasenode.modelcfg',
+            'security-dashboard-modelcfg': ctWebDir + '/monitor/security/dashboard/ui/js/securitydashboard.modelcfg',
 
             'monitor-infra-widgetcfg':ctWebDir +'/monitor/infrastructure/common/ui/js/monitor.infra.widgetcfg',
             'vrouter-widgetcfg'    : ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.widgetcfg',
@@ -111,13 +111,15 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'analyticsnode-widgetcfg':ctWebDir +'/monitor/infrastructure/analyticsnode/ui/js/analyticsnode.widgetcfg',
             'confignode-widgetcfg':ctWebDir +   '/monitor/infrastructure/confignode/ui/js/confignode.widgetcfg',
             'databasenode-widgetcfg': ctWebDir +'/monitor/infrastructure/databasenode/ui/js/databasenode.widgetcfg',
+            'security-dashboard-widgetcfg': ctWebDir + '/monitor/security/dashboard/ui/js/securitydashboard.widgetcfg',
 
             'monitor-infra-viewcfg': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.viewcfg',
             'analyticsnode-viewcfg': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/analyticsnode.viewcfg',
             'confignode-viewcfg': ctWebDir + '/monitor/infrastructure/confignode/ui/js/confignode.viewcfg',
             'controlnode-viewcfg': ctWebDir + '/monitor/infrastructure/controlnode/ui/js/controlnode.viewcfg',
             'databasenode-viewcfg': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/databasenode.viewcfg',
-            'vrouter-viewcfg': ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.viewcfg'
+            'vrouter-viewcfg': ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.viewcfg',
+            'security-dashboard-viewcfg': ctWebDir + '/monitor/security/dashboard/ui/js/securitydashboard.viewcfg'
         }
     } else if(env == "prod") {
         return {
@@ -137,7 +139,6 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'controller-dashboard-libs': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.module',
 
             'global-controller-viewconfig': ctWebDir + '/monitor/infrastructure/globalcontroller/ui/js/globalController.viewconfig',
-            'security-dashboard-viewconfig': ctWebDir + '/monitor/security/dashboard/ui/js/securitydashboard.viewconfig',
             'security-dashboard': ctWebDir + '/monitor/security/dashboard/ui/js/views/SecurityDashboardView',
 
             'monitor-infra-modelcfg':ctWebDir +'/monitor/infrastructure/common/ui/js/monitor.infra.modelcfg',
@@ -146,6 +147,7 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'analyticsnode-modelcfg':ctWebDir +'/monitor/infrastructure/analyticsnode/ui/js/analyticsnode.modelcfg',
             'confignode-modelcfg':ctWebDir +   '/monitor/infrastructure/confignode/ui/js/confignode.modelcfg',
             'databasenode-modelcfg': ctWebDir +'/monitor/infrastructure/databasenode/ui/js/databasenode.modelcfg',
+            'security-dashboard-modelcfg': ctWebDir + '/monitor/security/dashboard/ui/js/securitydashboard.modelcfg',
 
             'monitor-infra-widgetcfg':ctWebDir +'/monitor/infrastructure/common/ui/js/monitor.infra.widgetcfg',
             'vrouter-widgetcfg'    : ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.widgetcfg',
@@ -153,13 +155,15 @@ function getControllerAppPaths (ctBaseDir, ctBuildDir,env) {
             'analyticsnode-widgetcfg':ctWebDir +'/monitor/infrastructure/analyticsnode/ui/js/analyticsnode.widgetcfg',
             'confignode-widgetcfg':ctWebDir +   '/monitor/infrastructure/confignode/ui/js/confignode.widgetcfg',
             'databasenode-widgetcfg': ctWebDir +'/monitor/infrastructure/databasenode/ui/js/databasenode.widgetcfg',
+            'security-dashboard-widgetcfg': ctWebDir + '/monitor/security/dashboard/ui/js/securitydashboard.widgetcfg',
 
             'monitor-infra-viewcfg': ctWebDir + '/monitor/infrastructure/common/ui/js/monitor.infra.viewcfg',
             'analyticsnode-viewcfg': ctWebDir + '/monitor/infrastructure/analyticsnode/ui/js/analyticsnode.viewcfg',
             'confignode-viewcfg': ctWebDir + '/monitor/infrastructure/confignode/ui/js/confignode.viewcfg',
             'controlnode-viewcfg': ctWebDir + '/monitor/infrastructure/controlnode/ui/js/controlnode.viewcfg',
             'databasenode-viewcfg': ctWebDir + '/monitor/infrastructure/databasenode/ui/js/databasenode.viewcfg',
-            'vrouter-viewcfg': ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.viewcfg'
+            'vrouter-viewcfg': ctWebDir + '/monitor/infrastructure/vrouter/ui/js/vrouter.viewcfg',
+            'security-dashboard-viewcfg': ctWebDir + '/monitor/security/dashboard/ui/js/securitydashboard.viewcfg'
 
         }
     }
