@@ -49,7 +49,13 @@ define([
         this.SLO_GRID_VIEW_COMMON_TEST_MODULE = 'SLO Grid View - Common Tests';
         this.GLOBAL_SLO_GRID_VIEW_COMMON_TEST_MODULE = 'Gloabl SLO Grid View - Common Tests';
         this.QOS_GRID_VIEW_COMMON_TEST_MODULE = 'QOS Grid View - Common Tests';
-        this.GLOBAL_QOS_GRID_VIEW_COMMON_TEST_MODULE = 'Gloabl QOS Grid View - Common Tests';
+        this.GLOBAL_QOS_GRID_VIEW_COMMON_TEST_MODULE = 'Global QOS Grid View - Common Tests';
+        
+        this.GLOBAL_VROUTER_ENCRYPTION_GRID_VIEW_COMMON_TEST_MODULE = 'Global Config vRouter Encryption Grid View - Common Tests';
+        this.GLOBAL_VROUTER_ENCRYPTION_GRID_COLUMN_VALUE_CHECK = "Global Config vRouter Encryption grid check for a particular column value equality";
+        this.GLOBAL_VROUTER_ENCRYPTION_EDIT_CHECK = "Global Config vRouter Encryption Edit window";
+
+        
         this.SVC_TEMP_GRID_VIEW_COMMON_TEST_MODULE = 'Service Template Grid View - Common Tests';
         this.INSTANCE_TEMP_GRID_VIEW_COMMON_TEST_MODULE = 'Instances Grid View - Common Tests';
         this.SVC_HEALTH_CHECK_GRID_VIEW_COMMON_TEST_MODULE = 'Health Check Grid View - Common Tests';

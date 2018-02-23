@@ -710,6 +710,16 @@ define([
         this.GLOBAL_CONTROL_TRAFFIC_PREFIX_ID = "global_control_traffic";
         this.GLOBAL_CONTROL_TRAFFIC_LIST_VIEW_ID = "global-control-traffic-list-view";
 
+        // Tunnel Encryption
+        this.GLOBAL_VROUTER_ENCRYPTION_MAP =
+            [{"key": "encryption_mode", "name": "Traffic Encrypt"},
+            {"key": "encryption_tunnel_endpoints", "name": "Tunnel Mesh"}];
+        this.GLOBAL_VROUTER_ENCRYPTION_SECTION_ID = "global-vrouter-encryption-section";
+        this.GLOBAL_VROUTER_ENCRYPTION_ID = "global-vrouter-encryption";
+        this.GLOBAL_VROUTER_ENCRYPTION_GRID_ID = "global-vrouter-encryption-grid";
+        this.GLOBAL_VROUTER_ENCRYPTION_PREFIX_ID = "global_vrouter_encryption";
+        this.GLOBAL_VROUTER_ENCRYPTION_LIST_VIEW_ID = "global-vrouter-encryption-list-view";
+
         //BGP
         this.URL_GET_BGP = '/api/tenants/config/bgp/get-bgp-routers';
         this.URL_GET_ASN = '/api/tenants/admin/config/global-asn';

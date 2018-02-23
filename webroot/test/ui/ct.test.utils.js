@@ -40,7 +40,8 @@ define([
             "/api/tenant/networking/get-instances-list?startAt={0}": /\/api\/tenant\/networking\/get-instances-list\?.*$/,
             '/api/tenant/networking/get-interfaces-list':  /\/api\/tenant\/networking\/get-interfaces-list\?.*$/,
             '/api/tenant/networking/get-interfaces?count={0}&nextCount={1}': /\/api\/tenant\/networking\/get-interfaces\?.*$/,
-            '/api/tenants/config/get-config-details': /\/api\/tenants\/config\/get-config-details.*$/
+            '/api/tenants/config/get-config-details': /\/api\/tenants\/config\/get-config-details.*$/,
+            '/api/tenants/config/virtual-routers-detail': /\/api\/tenants\/config\/virtual-routers-detail.*$/
         };
 
         return regexUrlMap [url];

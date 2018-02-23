@@ -913,6 +913,42 @@ module.exports = function (grunt) {
                 feature: 'config'
             }
         },
+        globalVRouterEncryptionGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'global-vrouter-encryption-grid-view-test-results.xml',
+                    suite: 'globalVRouterEncryptionGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/global-vrouter-encryption-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/globalVRouterEncryptionGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
         gloablQosGridView : {
             options: {
                 files: [
@@ -2179,7 +2215,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', function () {
         grunt.warn('No Task specified. \n To run all the tests, run:\n grunt run \n\n ' +
-            'To run specific feature (for eg: nm) tests, run:\n grunt run:nm\n    OR \n grunt nm\n\n');
+            'To run specific feature (for eg: nm, config, sm) tests, run:\n grunt run:nm\n    OR \n grunt nm\n\n');
     });
 
     grunt.registerTask('install-hook', 'install hook for test infra', function() {
@@ -2207,6 +2243,11 @@ module.exports = function (grunt) {
             grunt.task.run('karma:runAllSMTests');
             grunt.log.writeln('Test results: ' + karmaConfig['runAllSMTests']['options']['htmlReporter']['outputFile']);
             printCoverageReportLoc(karmaConfig['runAllSMTests']['options']['coverageReporter']);
+        }else if (feature == 'config') {
+            grunt.log.writeln('>>>>>>>> Running Config feature tests. <<<<<<<');
+            grunt.task.run('karma:runAllConfigTests');
+            grunt.log.writeln('Test results: ' + karmaConfig['runAllConfigTests']['options']['htmlReporter']['outputFile']);
+            printCoverageReportLoc(karmaConfig['runAllConfigTests']['options']['coverageReporter']);
         }
     });
 
@@ -2388,9 +2429,14 @@ module.exports = function (grunt) {
                 grunt.task.run('karma:globalFwPolicyGridView');
                 testDir = 'globalFwPolicyGridView'
                 break;
+            case 'globalvrouterencryption' :
+                grunt.task.run('karma:globalVRouterEncryptionGridView');
+                testDir = 'globalVRouterEncryptionGridView'
+                	break;
             case 'globalaps' :
                 grunt.task.run('karma:globalApsGridView');
-                testDir = 'globalApsGridView'
+                testDir = 'globalApsGridView'    
+                	break;
             case 'ctunit' :
                 grunt.task.run('karma:ctUnit');
                 testDir = 'ctUnit'

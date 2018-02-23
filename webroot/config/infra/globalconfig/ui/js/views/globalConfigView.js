@@ -196,6 +196,22 @@ define([
                    },
                    renderOnActivate: true
                }
+           },{
+               elementId: 'vrouter_encryption_global_tab',
+               title: 'vRouter Encryption',
+               view: "vRouterEncryptionListView",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
+               viewPathPrefix: "config/infra/globalconfig/ui/js/views/",
+               viewConfig: viewConfig,
+               tabConfig: {
+                   activate: function(event, ui) {
+                       var gridId = $('#' + ctwc.GLOBAL_VROUTER_ENCRYPTION_GRID_ID);
+                       if (gridId.data('contrailGrid')) {
+                           gridId.data('contrailGrid').refreshView();
+                       }
+                   },
+                   renderOnActivate: true
+               }
            }]
         };
     };

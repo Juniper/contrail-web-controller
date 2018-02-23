@@ -7,3 +7,6 @@ node_modules
 **/feature.list.js
 **/rolemap.api.js
 webroot/common/api/package.js
+**/.DS_Store
+dist
+webroot/test/ui/reports
