@@ -92,7 +92,29 @@ define([
                 isValid = false;
             }
             return isValid;
-        }
+        },
+        this.validateIP = function(inputText){
+        		if(typeof inputText != 'string')
+        			return false;
+        		var ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+        		if(inputText.match(ipformat))
+        			return true;
+        		else
+        			return false;
+        };
+        this.vRouterCfgDataParser = function(response) {
+            var retArr = [];
+            if(response != null &&
+               'virtual-routers' in response &&
+                response['virtual-routers'] != null &&
+                response['virtual-routers'].length > 0) {
+                var length = response['virtual-routers'].length
+                for (var i = 0; i < length; i++) {
+                    retArr.push(response['virtual-routers'][i]['virtual-router']);
+                }
+            }
+            return retArr;
+         };
     }
     return globalConfigUtils;
 });

@@ -1053,6 +1053,9 @@ define([
 
         this.TITLE_CONTROL_TRAFFIC = "Control Traffic Options";
         this.TITLE_EDIT_CONTROL_TRAFFIC = "Edit Control Traffic Options";
+        
+        this.TITLE_TUNNEL_ENCRYPTION = "Tunnel Encryption Options";
+        this.TITLE_EDIT_TUNNEL_ENCRYPTION = "Edit Tunnel Encryption Options";
 
         /* Security Group */
         this.CONFIG_SEC_GRP_PAGE_ID = 'config-sec—grppage';

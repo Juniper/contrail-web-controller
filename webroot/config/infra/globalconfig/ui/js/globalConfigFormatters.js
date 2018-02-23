@@ -5,8 +5,9 @@
  define(["underscore", "config/infra/globalconfig/ui/js/globalConfig.utils"],
      function(_, GlobalConfigUtils){
      var gcUtils = new GlobalConfigUtils();
+     
      var globalConfigFormatters = function(){
-
+    	 	 var self = this;
          /*
           * valueFormatter
           */
@@ -128,8 +129,20 @@
                     }
                     return 'Enabled';
                 }
-
-                if("graceful_restart_parameters" == rowData["key"]) {
+                if('encryption_tunnel_endpoints' === rowData['key']) {
+                	   if(val == undefined || val.length == 0 || val == null ){
+                        return '-';
+                    }else{
+                        var endPoints = getValueByJsonPath(val, 'endpoint', []);
+                        if(endPoints.length > 0){
+                        	// vrouter variable is defined in vrouterEncryptionGridView 
+                            return self.endPointRemoteIPFormatter(endPoints,vrouter.vRouterList);
+                        }else{
+                           return '-';
+                        }
+                    }
+               }
+               if("graceful_restart_parameters" == rowData["key"]) {
                     var grTime = getValueByJsonPath(val,
                             "restart_time", "-"),
                         llgTime = getValueByJsonPath(val,
@@ -248,7 +261,39 @@
               return qosQueue = getValueByJsonPath(dc,
                       "qos_queue_refs;0;to;2", "-");
           };
-
+          
+          this.endPointRemoteIPFormatter = function(endPoint, vRouterList){
+              var subnetString = "", tunnel_remote_ip_address
+              _.each(endPoint, function(obj) {
+                  if(obj.tunnel_remote_ip_address != undefined){
+                	  	tunnel_remote_ip_address = obj.tunnel_remote_ip_address;
+                  }else{
+                	  	tunnel_remote_ip_address = '-';
+                  }
+                  var ipName="-"
+                  if(vRouterList != undefined || vRouterList.length > 0  ){
+	                	  _.each(vRouterList, function(vRouter) {
+	                		  if(obj.tunnel_remote_ip_address ==  vRouter.key){
+	                			  var nodeHash = '/#p=config_infra_nodes';
+	                			  var nodeUrl = window.location.origin + nodeHash;
+	                			  ipName = '<a href="'+ nodeUrl + '" style="color: #3184c5">' + vRouter.value + '</a>' ;
+	                		  }
+	                	  });
+                  }
+                  subnetString += "<tr style='vertical-align:top; border-bottom:1pt solid #F1F1F1;'><td>";
+                  subnetString += tunnel_remote_ip_address + "</td><td>";
+                  subnetString += ipName + "</td>";
+                  subnetString += "</tr>";
+              });
+              returnString =
+                  "<table style='width:32%'><thead style='background-color:#f9f9f9;'><tr>\
+                  <th style='width:40%'>Endpoint</th>\
+                   <th style='width:60%'>Node</th>\
+                  </tr></thead><tbody>";
+              returnString += subnetString;
+              returnString += "</tbody></table>";
+              return returnString;
+          };
           this.formatQoSQueueData = function(result) {
               var qosQueueDS = [], queueId,
                   queues = getValueByJsonPath(result, "0;qos-queues", [], false);
