@@ -137,7 +137,7 @@ define([
                                                         },{
                                                             id: 'top-vns'
                                                         },{
-                                                            id: 'top-vmis-with-acl-deny'
+                                                            id: 'top-vmis-with-deny'
                                                         },{
                                                             id: 'top-acl-with-deny'
                                                         }
