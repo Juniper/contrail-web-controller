@@ -7,6 +7,16 @@ define(['lodashv4'],
     var SecurityDashboardViewConfig = function () {
         var self = this;
         self.viewConfig = {
+            'all-tags-traffic': {
+                baseModel:'ALL_TAGS_TRAFFIC_MODEL',
+                baseView: 'ALL_TAGS_TRAFFIC_VIEW',
+                itemAttr: {
+                    width: 0.2,
+                    height: 1,
+                    title: 'Total vs Deny Traffic',
+                    showTitle: true
+                }
+            },
             'top-tags': {
                 baseModel:'TOP_TAGS_MODEL',
                 baseView: 'TOP_TAGS_VIEW',
@@ -31,7 +41,7 @@ define(['lodashv4'],
                 baseModel:'TOP_ACL_WITH_DENY_MODEL',
                 baseView: 'TOP_ACL_WITH_DENY_VIEW',
                 itemAttr: {
-                    width: 0.5,
+                    width: 0.45,
                     height: 1,
                     title: 'Top ACLs with Deny',
                     showTitle: true
@@ -41,7 +51,7 @@ define(['lodashv4'],
                 baseModel: 'TOP_VMI_WITH_DENY_MODEL',
                 baseView: 'TOP_VMI_WITH_DENY_VIEW',
                 itemAttr: {
-                    width: 0.5,
+                    width: 0.45,
                     height: 1,
                     title: 'Top VMIs with Deny',
                     showTitle: true
