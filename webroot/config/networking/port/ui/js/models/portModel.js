@@ -1155,7 +1155,7 @@ define([
                         fatFlowLocal[i] = {};
                         fatFlowLocal[i]["protocol"] = fatFlowCollection[i].protocol();
                         fatFlowLocal[i]["port"] = Number(fatFlowCollection[i].port());
-                        fatFlowLocal[i]["ignore_remote_address"] = fatFlowCollection[i].ignore_remote_address();
+                        fatFlowLocal[i]["ignore_address"] = fatFlowCollection[i].ignore_address();
                     }
                     newPortData.virtual_machine_interface_fat_flow_protocols.fat_flow_protocol = fatFlowLocal;
                 }
