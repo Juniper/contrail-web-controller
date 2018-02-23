@@ -268,7 +268,22 @@ define([
                    }else{
                 	   	  return "The Tune SSL Maximum Record Ciphers must be a number between 1 and 16384.";
                    }
-               }
+               },
+               'health_check_interval': function(value, attr, data) {
+                   if(value == ''){
+                   		return "Enter valid number.";
+                   	}
+               },               
+               'retry_count': function(value, attr, data) {
+                   if(value == ''){
+                  		return "Enter valid number.";
+                  	}
+               },               
+               'timeout': function(value, attr, data) {
+                  if(value == ''){
+                 		return "Enter valid number.";
+                 	}
+               },
              }
         },
 

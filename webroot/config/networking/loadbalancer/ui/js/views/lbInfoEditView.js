@@ -432,7 +432,6 @@ define([
                                     path : 'admin_state',
                                     class : "col-xs-6",
                                     label:'Admin State',
-                                    disabled: true,
                                     dataBindValue : 'admin_state',
                                     elementConfig : {
                                         isChecked:false

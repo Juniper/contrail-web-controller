@@ -47,7 +47,7 @@ define([
             self.renderView4Config($("#" + modalId).find(formId),
                                    this.model,
                                    monitorViewConfig(self),
-                                   "",
+                                   "poolMonitorValidation",
                                    null, null, function() {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
@@ -237,7 +237,6 @@ define([
                                 view: "FormInputView",
                                 viewConfig: {
                                     path: "expected_codes",
-                                    type:'number',
                                     visible: 'field_disable',
                                     label: 'Expected HTTP Status Code',
                                     dataBindValue: "expected_codes",
