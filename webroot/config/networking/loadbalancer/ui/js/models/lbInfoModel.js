@@ -42,6 +42,8 @@ define([
             obj.loadbalancer.uuid = model.uuid;
             model.id_perms.description = model.description;
             obj.loadbalancer.id_perms = model.id_perms;
+            obj.loadbalancer.loadbalancer_properties = {};
+            obj.loadbalancer.loadbalancer_properties['admin_state'] = model.admin_state;
             ajaxConfig.url = ' /api/tenants/config/lbaas/load-balancer/'+ model.uuid;
             ajaxConfig.type  = 'PUT';
             ajaxConfig.data  = JSON.stringify(obj);
