@@ -339,7 +339,6 @@ define([
                     ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
                     newSloObj['id_perms']['enable'] = (newSloObj.admin_state === 'true');
                 }
-                postData = {"security-logging-object": newSloObj};
                 ajaxConfig.type  = 'POST';
                 ajaxConfig.data  = JSON.stringify(postData);
 
