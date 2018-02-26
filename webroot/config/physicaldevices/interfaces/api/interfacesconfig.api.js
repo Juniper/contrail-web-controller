@@ -108,21 +108,35 @@ function readLIDetails(liObj, callback) {
  */
 function createPhysicalInterfaces (request, response, appData)
 {
+    var dataObj = {request: request, appData: appData, data: request.body};
+    createPhysicalInterfacesCB(dataObj, function(error, data) {
+        commonUtils.handleJSONResponse(error, response, data);
+    });
+}
+
+function createPhysicalInterfacesCB (dataObj, callback)
+{
+    var request = dataObj.request;
+    var appData = dataObj.appData;
+    var postData = dataObj.data;
+
+     var key = _.keys(postData)[0];
+     if ("physical-interface" == key) {
+         request.params["infType"] = "physical";
+     } else if ("logical-interface" == key) {
+         request.params["infType"] = "logical";
+     }
      var postData     =  request.body;
      var url = getInterfaceUrl(request, 'create');
      if(!url) {
          var error = new appErrors.RESTServerError('Add id');
-         commonUtils.handleJSONResponse(error, response, null);
+         callback(error, null);
          return;
      }
      setDeviceOwnerForLIPorts(request, appData, postData, function() {
          configApiServer.apiPost(url, postData, appData,
              function(error, data) {
-                if(error) {
-                   commonUtils.handleJSONResponse(error, response, null);
-                   return;
-                }
-                commonUtils.handleJSONResponse(error, response, data);
+                callback(error, data);
              });
      });
 }
@@ -174,25 +188,41 @@ function setDeviceOwnerForLIPorts (request, appData, postData, callback)
  */
 function updatePhysicalInterfaces (request, response, appData)
 {
+    var dataObj = {request: request, appData: appData, data: request.body};
+    updatePhysicalInterfacesCB(dataObj, function(error, data) {
+        commonUtils.handleJSONResponse(error, response, data);
+    });
+}
+
+
+function updatePhysicalInterfacesCB (dataObj, callback) {
+     var request = dataObj.request;
+     var appData = dataObj.appData;
+     var postData = dataObj.data;
+
+     var key = _.keys(postData)[0];
+     if ("physical-interface" == key) {
+         request.params["infType"] = "physical";
+     } else if ("logical-interface" == key) {
+         request.params["infType"] = "logical";
+     }
+     if (postData[key].uuid) {
+         request.params["pInterfaceId"] = postData[key].uuid;
+     }
      var pInterfaceId = validateQueryParam(request,'pInterfaceId');
      var url = getInterfaceUrl(request);
      if(!url) {
          var error = new appErrors.RESTServerError('Add id');
-         commonUtils.handleJSONResponse(error, response, null);
+         callback(error, null);
          return;
      }
-     var postData     =  request.body;
      setDeviceOwnerForLIPorts(request, appData, postData, function() {
          var reqUrl = url + pInterfaceId;
          jsonDiff.getJSONDiffByConfigUrl(reqUrl, appData, postData,
                                          function(err, delta) {
          configApiServer.apiPut(reqUrl, delta, appData,
              function(error, data) {
-                if(error) {
-                   commonUtils.handleJSONResponse(error, response, null);
-                   return;
-                }
-                commonUtils.handleJSONResponse(error, response, data);
+                callback(error, data);
              });
          });
      });
@@ -1120,7 +1150,9 @@ function listPhysicalInterfaces (req, res, appData)
 
  /* List all public function here */
 exports.createPhysicalInterfaces = createPhysicalInterfaces;
+exports.createPhysicalInterfacesCB = createPhysicalInterfacesCB;
 exports.updatePhysicalInterfaces = updatePhysicalInterfaces;
+exports.updatePhysicalInterfacesCB = updatePhysicalInterfacesCB;
 exports.deletePhysicalInterfaces = deletePhysicalInterfaces;
 exports.deleteInterfaces = deleteInterfaces;
 exports.mapVirtualMachineRefs = mapVirtualMachineRefs;
