@@ -18,6 +18,9 @@ define([
             value : '',
             additionalValue: '',
             additionalValueDS: [],
+            additionalValueMultiSelect: [],
+            community_match_all: false,
+            isDisable: false
         },
 
         constructor: function (parentModel, modelData) {
@@ -44,7 +47,7 @@ define([
                 fromTerms = self.model().collection,
                 fromTerm = self.model(),
                 fromTermIndex = _.indexOf(fromTerms.models, fromTerm),
-                newFromTerm = new RoutingPolicyTermFromModel(self.parentModel(), {});
+                newFromTerm = new RoutingPolicyTermFromModel(self.parentModel(), {name: 'prefix', value: '', isDisable:true});
             fromTerms.add(newFromTerm, {at: fromTermIndex + 1});
         },
 
@@ -58,12 +61,13 @@ define([
         getNameOptionList: function(viewModel) {
             var namesOption = ['community', 'prefix', 'protocol'];
             var termFromName = viewModel.model().attributes.name();
-
-            if (termFromName == "prefix") {
+            if (termFromName == "community") {
+                viewModel.model().attributes.additionalValueMultiSelect(self.getCommunityConditionOptionList(viewModel));
+            }
+            else if (termFromName == "prefix") {
                 viewModel.model().attributes.additionalValueDS(self.getPrefixConditionOptionList(viewModel));
             } else if(termFromName == "protocol") {
-                viewModel.model().attributes.additionalValueDS(self.getProtocolConditionOptionList(viewModel));
-                viewModel.model().attributes.value("");
+                viewModel.model().attributes.additionalValueMultiSelect(self.getProtocolConditionOptionList(viewModel));
             }
             return $.map(namesOption, function(optionValue, optionKey) {
                 return {id: optionValue, text: optionValue}
@@ -77,12 +81,10 @@ define([
             ]
         },
         getProtocolConditionOptionList: function(viewModel) {
-            return [{id: 'bgp', text: 'bgp'},
-                {id: 'xmpp', text: 'xmpp'},
-                {id: 'static', text: 'static'},
-                {id: 'service-chain', text: 'service-chain'},
-                {id: 'aggregate', text: 'aggregate'}
-            ]
+            return ctwc.PROTOCOL_MULTISELECT;
+        },
+        getCommunityConditionOptionList: function(viewModel) {
+            return ctwc.COMM_MULTISELECT;
         },
         //TODO: Add appropriate validations.
         validations: {

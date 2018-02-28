@@ -2,7 +2,7 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define([
-    'underscore'
+    'lodash'
 ], function (_) {
 
     var RoutingPolicyFormatter = function() {
@@ -248,10 +248,10 @@ define([
             var prefixArr = [];
             returnFromObj["protocol"] = [];
             returnFromObj["community_list"] = [];
+            var communityMatchAll = fromObj[0].model().attributes.community_match_all();
             for (var i = 0; i < fromObjCount; i++) {
                 var key = fromObj[i].model().attributes["name"](),
                     val = fromObj[i].model().attributes["value"]();
-                    protocol = fromObj[i].model().attributes["additionalValue"]();
                 if (val != "") {
                     switch (key) {
                         case "community" : {
@@ -260,6 +260,15 @@ define([
                         }
                         case "community_list" : {
                             returnFromObj["community_list"].push(val);
+                            break;
+                        }
+                        case "protocol" : {
+                            if(val !=""){
+                                var valItems = val.split(',');
+                                _.each(valItems, function (val, index){
+                                    returnFromObj["protocol"].push(valItems[index]);
+                                })
+                            }
                             break;
                         }
                         case "prefix": {
@@ -273,14 +282,12 @@ define([
                         }
                     }
                 }
-                if (protocol != "" && key == "protocol") {
-                    returnFromObj["protocol"].push(protocol);
-                }
             }
             if (prefixArr.length > 0) {
                 returnFromObj["prefix"] = [];
                 returnFromObj["prefix"] = prefixArr;
             }
+            returnFromObj["community_match_all"] = communityMatchAll;
             return returnFromObj;
         };
         // To build the post Object for Then in each term
@@ -314,6 +321,10 @@ define([
                         }
                         case "med": {
                             returnThenObj["update"]["med"] = parseInt(val);
+                            break;
+                        }
+                        case "as-path-expand": {
+                            returnThenObj["update"]["as-path-expand"] = parseInt(val);
                             break;
                         }
                     }
@@ -350,12 +361,23 @@ define([
                 return [];
             }
             var returnMatchArr = [],
+                protocolArray = [],
             communityList = getValueByJsonPath(matchObj, "community_list", []);
+            var community_match_all = getValueByJsonPath(matchObj, "community_match_all", false);
             for (var i = 0;i < communityList.length; i++) {
-                returnMatchArr.push({name: 'community_list', value: communityList[i]});
+                returnMatchArr.push({name: 'community_list', value: communityList[i], community_match_all: community_match_all, additionalValueMultiSelect: ctwc.COMM_MULTISELECT, isDisable:true});
+            }
+            returnMatchArr["community_match_all"] = community_match_all;
+            var protocol = _.get(matchObj, "protocol", []);
+            if(protocol.length > 0){
+                protocol = protocol.join();
+                protocolArray.push(protocol);
+                _.each(protocolArray, function (arrVal, index){
+                    returnMatchArr.push({name: 'protocol', value: arrVal, additionalValueMultiSelect: ctwc.PROTOCOL_MULTISELECT, isDisable:true});
+                })
             }
             var prefixVal = getValueByJsonPath(matchObj, "prefix", []),
-                prefixLen = prefixVal.length;
+            prefixLen = prefixVal.length;
             for (var i = 0; i < prefixLen; i++) {
                 var prefixIP = getValueByJsonPath(prefixVal[i], "prefix", "");
                     prefixType = getValueByJsonPath(prefixVal[i], "prefix_type", "");
@@ -363,13 +385,70 @@ define([
                     returnMatchArr.push({
                                          name: 'prefix',
                                          value: prefixIP,
-                                         additionalValue:prefixType
+                                         additionalValue:prefixType,
+                                         isDisable:true
                                         });
                 }
             }
-            protocol = getValueByJsonPath(matchObj, "protocol", []);
-            for (var i = 0;i < protocol.length; i++) {
-                returnMatchArr.push({name: 'protocol', value: '', additionalValue: protocol[i]});
+            function checkItemsExist(value,arr){
+                var status = 'Not exist';
+                _.each(arr, function (val, index){
+                    var name = val.name;
+                    if(name == value){
+                        status = 'Exist';
+                        return false;
+                    }
+                })
+                return status;
+             }
+            var statusComm = checkItemsExist('community_list', returnMatchArr);
+            var statusProtocol = checkItemsExist('protocol', returnMatchArr);
+            var statusPrefix = checkItemsExist('prefix', returnMatchArr);
+            var communityItems = {
+                    name: 'community_list',
+                    value: '',
+                    community_match_all: false,
+                    additionalValueMultiSelect: ctwc.COMM_MULTISELECT,
+                    isDisable:true
+                   };
+            var protocolItems = {
+                    name: 'protocol',
+                    value: '',
+                    additionalValueMultiSelect:ctwc.PROTOCOL_MULTISELECT,
+                    isDisable:true
+                   };
+            var prefixItems = {
+                    name: 'prefix',
+                    value: '',
+                    additionalValue:'',
+                    isDisable:true
+                };
+            if(statusComm === 'Exist' && statusProtocol === 'Not exist' &&
+                    statusPrefix === 'Not exist'){
+                returnMatchArr.push(protocolItems);
+                returnMatchArr.push(prefixItems);
+            }
+            else if(statusComm === 'Exist' && statusProtocol === 'Exist' &&
+                    statusPrefix === 'Not exist'){
+                returnMatchArr.push(prefixItems);
+            }
+            else if(statusComm === 'Not exist' && statusProtocol === 'Exist' &&
+                    statusPrefix === 'Not exist'){
+                returnMatchArr.unshift(communityItems);
+                returnMatchArr.push(prefixItems);
+            }
+            else if(statusComm === 'Not exist' && statusProtocol === 'Not exist'
+                && statusPrefix === 'Exist'){
+                returnMatchArr.unshift(communityItems);
+                returnMatchArr.splice(1, 0, protocolItems);
+            }
+            else if(statusComm === 'Not exist' && statusProtocol === 'Exist' &&
+                    statusPrefix === 'Exist'){
+                returnMatchArr.unshift(communityItems);
+            }
+            else if(statusComm === 'Exist' && statusProtocol === 'Not exist' &&
+                    statusPrefix === 'Exist'){
+                returnMatchArr.splice(1, 0, protocolItems);
             }
             return returnMatchArr;
         };
@@ -398,7 +477,10 @@ define([
             if (action != "") {
                 returnActionArr.push({name:'action', action_condition: action});
             }
-
+            var aspathexpand = getValueByJsonPath(actionObject, "as-path-expand", "");
+            if (aspathexpand != "") {
+                returnActionArr.push({name:'as-path-expand', action_condition: aspathexpand});
+            }
             return returnActionArr;
         };
 
