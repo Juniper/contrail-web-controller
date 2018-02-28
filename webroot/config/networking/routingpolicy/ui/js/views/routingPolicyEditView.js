@@ -220,6 +220,7 @@ define([
                                                                 viewConfig: {
                                                                     templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                                     path: "name",
+                                                                    disabled: "isDisable()",
                                                                     dataBindValue: "name()",
                                                                     dataBindOptionList: 'getNameOptionList',
                                                                     width: 145,
@@ -230,17 +231,50 @@ define([
                                                                 }
                                                             },
                                                             {
-                                                                elementId: 'value',
-                                                                name: 'value',
+                                                                elementId: 'value-multi',
+                                                                name: 'value-name',
+                                                                view: "FormMultiselectView",
+                                                                class: "",
+                                                                viewConfig: {
+                                                                    templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
+                                                                    path: "value",
+                                                                    dataBindValue: "value()",
+                                                                    visible: 'name()() != "prefix"',
+                                                                    dataBindOptionList: 'additionalValueMultiSelect()',
+                                                                    width: 285,
+                                                                    elementConfig: {
+                                                                        placeholder: 'Enter the value',
+                                                                        dataTextField: "text",
+                                                                        dataValueField: "id",
+                                                                        tags: true
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                elementId: 'value-input',
+                                                                name: 'value-name',
                                                                 view: "FormInputView",
                                                                 class: "",
                                                                 viewConfig: {
                                                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                                     path: "value",
-                                                                    disabled: 'name()() == "protocol"',
+                                                                    visible: 'name()() == "prefix"',
                                                                     dataBindValue: "value()",
                                                                     width: 285,
                                                                     placeholder: 'Enter Value'
+                                                                }
+                                                            },
+                                                            {
+                                                                elementId: 'community_match_all_checkbox',
+                                                                name: "Community All",
+                                                                view: "FormCheckboxView",
+                                                                viewConfig: {
+                                                                    path: 'community_match_all',
+                                                                    visible: 'name()() == "community"',
+                                                                    label: "Match all",
+                                                                    templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
+                                                                    dataBindValue: 'community_match_all()',
+                                                                    width:300,
                                                                 }
                                                             },
                                                             {
@@ -250,7 +284,7 @@ define([
                                                                 viewConfig: {
                                                                     templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                                     path: "additionalValue",
-                                                                    visible: 'name()() == "prefix" || name()() == "protocol"',
+                                                                    visible: 'name()() == "prefix"',
                                                                     dataBindValue: "additionalValue()",
                                                                     dataBindOptionList: 'additionalValueDS()',
                                                                     placeholder: '',

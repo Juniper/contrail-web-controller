@@ -55,14 +55,15 @@ define([
             }
             //This need to be fixed
             if (termMatchArrayLen == 0) {
-                routingPolicyTermFromModels.push(new routingPolicyTermFromModel(modelConfig, {name: 'community', value: ''}));
+                routingPolicyTermFromModels.push(new routingPolicyTermFromModel(modelConfig, {name: 'community', value: '', isDisable:true}));
+                routingPolicyTermFromModels.push(new routingPolicyTermFromModel(modelConfig, {name: 'protocol', value: '', isDisable:true}));
+                routingPolicyTermFromModels.push(new routingPolicyTermFromModel(modelConfig, {name: 'prefix', value: '',isDisable:true}));
             }
             if (termActionArrayLen == 0) {
                 routingPolicyTermThenModels.push(new routingPolicyTermThenModel(modelConfig, {name: 'add community'}));
             }
             routingPolicyTermFromCollectionModel = new Backbone.Collection(routingPolicyTermFromModels);
             routingPolicyTermThenCollectionModel = new Backbone.Collection(routingPolicyTermThenModels);
-
             modelConfig['from_terms'] = routingPolicyTermFromCollectionModel;
             modelConfig['then_terms'] = routingPolicyTermThenCollectionModel;
             return modelConfig;
@@ -95,7 +96,7 @@ define([
                 additionalValue = contrail.checkIfFunction(additionalValue) ? additionalValue() : additionalValue;
 
                 if (name == 'protocol') {
-                    fromTermStr += name + ' ' + additionalValue;
+                    fromTermStr += name + ' ' + value;
                     fromTermArray.push(fromTermStr);
                 }
                 if (value != '' && name != 'protocol') {
@@ -103,7 +104,6 @@ define([
                     if (name == 'prefix') {
                         fromTermStr += ' ' + additionalValue;
                     }
-
                     fromTermArray.push(fromTermStr)
                 }
             });
