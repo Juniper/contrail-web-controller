@@ -137,6 +137,8 @@ define([
                                                         },{
                                                             id: 'top-vns'
                                                         },{
+                                                            id: 'all-tags-traffic'
+                                                        },{
                                                             id: 'top-vmis-with-deny'
                                                         },{
                                                             id: 'top-acl-with-deny'

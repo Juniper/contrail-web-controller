@@ -178,7 +178,7 @@ define(['lodash', 'monitor/security/trafficgroups/ui/js/views/TrafficGroupsHelpe
                     mergeFn: {modelKey: 'name', joinKey: 'name'}
                 }]
             },
-            'TOP_ACL_WITH_DENY_MODEL' : {
+            'TOP_ACL_WITH_DENY_MODEL': {
                 type: 'securityDashboard',
                 //modelId: 'top-acl-with-deny-model',
                 source: 'STATTABLE',
@@ -212,10 +212,22 @@ define(['lodash', 'monitor/security/trafficgroups/ui/js/views/TrafficGroupsHelpe
                         if (epsKey != null) {
                             // For default policy we need to compare with
                             // 2 element of array
-                            return epsKey.split(':')[3] == uuid || epsKey.split(':')[2] == uuid;
+                            return epsKey.split(':').pop() == uuid;
                         }
                         return false;
                     }}
+                }]
+            },
+            'ALL_TAGS_TRAFFIC_MODEL': {
+                type: 'securityDashboard',
+                //modelId: 'top-acl-with-deny-model',
+                source: 'STATTABLE',
+                config: [{
+                    table_name: "StatTable.EndpointSecurityStats.eps.client",
+                    select: "eps.__key, SUM(eps.client.in_bytes), eps.client.action",
+                    where: function (model, defObj) {
+                        defObj.resolve("(name Starts with " + ctwu.getCurrentDomainProject() +')');
+                    }
                 }]
             }
         }

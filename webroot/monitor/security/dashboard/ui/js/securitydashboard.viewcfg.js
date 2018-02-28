@@ -23,7 +23,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                         stacked: true,
                         zerofill: true,
                         groupBy: ['app', 'remote_app_id.name'],
-                        axisFields: ['SUM(eps.server.out_bytes)','SUM(eps.client.in_bytes)'],
+                        axisFields: ['SUM(eps.client.in_bytes)', 'SUM(eps.server.out_bytes)'],
                         labels: ['In Bytes', 'Out Bytes'],
                         title: 'Top Applications',
                         staggerLabels: true,
@@ -33,7 +33,13 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                             if (typeof x == 'number') {
                                 return '';
                             } else if (typeof x == 'string') {
-                                return x.split('=')[1];
+                                if (x == '') {
+                                    return 'Untagged';
+                                } else if (x.indexOf('=') > -1){
+                                     x = x.split('=');x.shift();
+                                     return x.join();
+                                }
+                                return '-';
                             }
                             return x;
                         },
@@ -116,7 +122,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                 viewConfig: {
                     chartOptions: {
                         yFormatter: function (y) {
-                            return y;
+                            return cowu.numberFormatter(y);
                         },
                         xAxisLabel: '',
                         yAxisLabel: 'Hits',
@@ -125,6 +131,23 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                         stacked: true,
                         zerofill: true,
                         staggerLabels: true,
+                        xLblHTMLFormatter: function (textTagsArr) {
+                            textTagsArr.each(function (d) {
+                                var text = d3.select(this).text();
+                                    html = '',
+                                    dir = '<--->';
+                                if (text == '') {
+                                    return;
+                                }
+                                text = text.split(dir);
+                                var iconCode = dir == '<--->' ? '&#xf07e;' : '&#xf061;';
+                                html += '<tspan>'+text[0]+'</tspan>';
+                                html += '<tspan style="font-family:FontAwesome">'+ iconCode + '</tspan>';
+                                html += '<tspan>'+text[1]+'</tspan>';
+                                d3.select(this)
+                                  .html(html);
+                            })
+                        },
                         xLblFormatter: function (x, chartData) {
                             if (typeof x == 'string') {
                                 var barObj = _.filter(_.result(chartData, '0.values', []), function (value) {
@@ -235,6 +258,55 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                         });
                     }
                 }
+            },
+            'ALL_TAGS_TRAFFIC_VIEW': {
+                elementId : 'all-tags-traffic-id',
+                view: 'DonutChartView',
+                viewConfig: {
+                    class: 'col-xs-6',
+                    parseFn: function (response) {
+                        var denied = 0, implicitDenied = 0, total = 0, bytes = 0;
+                        _.each(response, function (value) {
+                            bytes = _.result(value, 'SUM(eps.client.in_bytes)', 0);
+                            total += bytes;
+                            if (_.result(value, 'eps.__key') == cowc.IMPLICIT_DENY_UUID) {
+                                implicitDenied += bytes;
+                            } else if (_.result(value, 'eps.client.action', "").indexOf('deny') > 0) {
+                                deny += bytes;
+                            }
+                        });
+                       return [{
+                           "label": "Total",
+                           "value": total,
+                           "color": cowc.FIVE_NODE_COLOR[0]
+                         },{
+                           "label": "Deny",
+                           "value": denied,
+                           "color": cowc.FIVE_NODE_COLOR[1]
+                         }, {
+                            "label": "Implicit Deny",
+                            "value": implicitDenied,
+                            "color": cowc.FIVE_NODE_COLOR[2]
+                         }];;
+                    },
+                    chartOptions: {
+                        legendPosition: 'top',
+                        margin: {
+                          top: 10,
+                          bottom: 60,
+                          right: 10,
+                          left: 10
+                        },
+                        legendPadding: 20,
+                        showLegend: true,
+                        //legendRightAlign: true,
+                        chartTemplate: 'plain-chart-template',
+                        showLabels: false,
+                        defaultDataStatusMessage: false,
+                        showEmptyDonut: true,
+                        valueFormat: formatBytes
+                    }
+                }
             }
         };
         self.getViewConfig = function(id) {
@@ -243,11 +315,15 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
         function tooltipContent (d, options) {
             var lblValue = getTooltipLabelValue(d, options);
             lblValue = _.result(d, 'lblValue', []).concat(lblValue);
+            var subTitle = d.value;
+            if (subTitle == '') {
+                subTitle = 'Untagged';
+            }
             return contrail.getTemplate4Id(cowc.TOOLTIP_LINEAREACHART_TEMPLATE)({
                 d: d,
                 lblValue: lblValue,
                 yAxisLabel:options['title'],
-                subTitle:  d.value,
+                subTitle:  subTitle,
                 cssClass: 'crisp-tooltip'
             });
         }
