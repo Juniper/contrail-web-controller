@@ -3,11 +3,12 @@
  */
 
 define([
-    'underscore',
+	'underscore',
+	'lodashv4',
     'contrail-view',
     'contrail-list-model',
     'config/infra/globalconfig/ui/js/globalConfig.utils'
-], function (_, ContrailView, ContrailListModel, GlobalConfigUtils) {
+], function (_, lodashv4, ContrailView, ContrailListModel, GlobalConfigUtils) {
     var gcUtils = new GlobalConfigUtils();
     var vRouterEncryptionListView = ContrailView.extend({
         el: $(contentContainer),
@@ -66,7 +67,7 @@ define([
                 var allVRGrpList = [];
                 var vRouterList=[];
                 allVRGrpList.push({
-					text : 'Enter a IP Address',
+					text : 'Enter or Select',
 					value : "-1",
 					disabled : true,
 					parent : "virtual_router_ip_address",
@@ -74,23 +75,23 @@ define([
 				});
                 if ('virtual-routers' in response) {
                     var vrData = response['virtual-routers'];
-                    var cnt = vrData.length;
-                    for (var i = 0; i < cnt; i++) {
-                        var vr = vrData[i]['virtual-router'];
-                        var ipAddressName = vr["virtual_router_ip_address"];
-                        var ipAddress = vr["virtual_router_ip_address"];
-                        var ipDisplayName= vr["display_name"];
-                        var ipAddressValue = ipAddressName;
-                        vRouterList.push({key:ipAddress, value: ipDisplayName});
-                        allVRGrpList.push({text : ipAddressName, value :
-                        	ipAddressName, parent : "virtual_router_ip_address",
-                            id: ipAddressValue});
-                       
-                    }
+                    vrData =  lodashv4.orderBy(vrData, 'virtual-router.virtual_router_ip_address', 'asc');
+                    _.each(vrData, function(vRouter){
+                    	 	var vr = vRouter['virtual-router'];
+                         var ipAddressName = vr["virtual_router_ip_address"];
+                         var ipAddress = vr["virtual_router_ip_address"];
+                         var ipDisplayName= vr["display_name"];
+                         var ipAddressValue = ipAddressName;
+                         vRouterList.push({key:ipAddress, value: ipDisplayName});
+                         allVRGrpList.push({text : ipAddressName, value :
+                         	ipAddressName, parent : "virtual_router_ip_address",
+                             id: ipAddressValue});
+                   
+                    	});
                 }
                 var addrFields = [];
 		        addrFields.push({
-					text : 'IP Address',
+					text : 'Virtual Router IP Address',
 					value : 'virtual_router_ip_address',
 					disabled : true,
 					id : 'virtual_router_ip_address',

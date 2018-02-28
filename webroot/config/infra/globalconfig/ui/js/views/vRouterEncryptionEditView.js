@@ -3,10 +3,11 @@
  */
 
 define([
-    'underscore',
+	'underscore',
+	'lodashv4',
     'contrail-view',
     'knockback'
-], function (_, ContrailView, Knockback) {
+], function (_, lodashv4, ContrailView, Knockback) {
     var gridElId = '#' + ctwc.GLOBAL_VROUTER_ENCRYPTION_GRID_ID,
         prefixId = ctwc.GLOBAL_VROUTER_ENCRYPTION_PREFIX_ID,
         modalId = 'configure-' + prefixId,
@@ -71,7 +72,7 @@ define([
                             viewConfig: {
                                 label: 'Traffic Encrypt',
                                 path : 'encryption_mode',
-                                class: 'col-xs-6',
+                                class: 'col-xs-4',
                                 dataBindValue :'encryption_mode',
                                 elementConfig : {
                                     dataTextField : "text",
@@ -83,7 +84,7 @@ define([
                                 }
                             }
                         }]
-                    }/*, 	
+                    }, 	
                     {
                     columns: [
                         {
@@ -92,16 +93,27 @@ define([
                             viewConfig : {
                                 path : 'select_all_endpoints',
                                 class : "col-xs-6",
-                                label:'Select All Endpoints',
+                                label:'Select All vRouters',
                                 templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                 dataBindValue : 'select_all_endpoints',
                                 elementConfig : {
                                     isChecked:false
                                 }
                             }
+                        },
+                        {
+                            elementId: 'select_all_endpoints_message',
+                            view: "FormTextView",
+                            disabled : true,
+                            viewConfig: {
+                                value: "* All existing vRouters will be added to this Tunnel Encryption.",
+                                visible: 'select_all_endpoints',
+                                class: "col-xs-12",
+                               
+                            }
                         }
                     ]
-                    }*/,
+                    },
                     tunnelMeshSection(encryptDataObj),
                 ]
             }
@@ -145,7 +157,7 @@ define([
                                                 data: encryptDataObj.vRouterGrpList,
                                                 queryMap: [
                                                     {
-                                                        name : 'IP Address',
+                                                        name : 'Virtual Router IP Address',
                                                         value : 'virtual_router_ip_address',
                                                         iconClass:
                                                             'icon-contrail-network-ipam'
@@ -176,7 +188,9 @@ define([
                             }
                         }
                         ]
-                    }]
+                    	}
+                    ]
+                    
                 }
             }]
         };
