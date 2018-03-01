@@ -39,6 +39,7 @@ define([
                 projData["project"]["fq_name"] =
                     [contrail.getCookie(cowc.COOKIE_DOMAIN),
                      contrail.getCookie(cowc.COOKIE_PROJECT)];
+		projData["project"]["uuid"] = projUUID;
                 projData["project"]["vxlan_routing"] =
                     attr.vxlan_routing === ctwc.CONFIG_VXLAN_ROUTING_ENABLED ? true : false;
 
