@@ -84,7 +84,7 @@ define([
         },
         configureLogicalRouter: function (mode, allNetworksDS, callbackObj) {
             var ajaxConfig = {}, returnFlag = true;
-            var network_subnet = allNetworksDS;
+            var network_subnet = allNetworksDS, idPermsStatus;
             var validation = [{
                   key: null,
                   type: cowc.OBJECT_TYPE_MODEL,
@@ -111,19 +111,10 @@ define([
                    && newLRData.virtual_network_refs[0].uuid == ""){
                    newLRData.virtual_network_refs = [];
                 }
-                /* Revert back once idperms is fixed from API
-                var idPerms = JSON.parse(newLRData.id_perms.enable);
-                var idPermsUUID = "";
-                if("uuid" in newLRData.id_perms) {
-                    idPermsUUID = newLRData.id_perms.uuid;
+                idPermsStatus = getValueByJsonPath(newLRData, 'id_perms;enable', '');
+                if(idPermsStatus) {
+                    newLRData["id_perms"]["enable"] = idPermsStatus.toString() === "true" ? true : false;
                 }
-                newLRData.id_perms.uuid;
-                newLRData.id_perms = {};
-                newLRData.id_perms.enable = idPerms;
-                if(idPermsUUID != "")
-                newLRData.id_perms.uuid = idPermsUUID;
-                */
-                delete(newLRData.id_perms);
                 //Externel Network
                 var extNetworkUUID = newLRData.extNetworkUUID
                 newLRData["virtual_network_refs"] = [];
