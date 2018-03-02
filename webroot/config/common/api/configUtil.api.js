@@ -35,6 +35,8 @@ var svcInst =
     require('../../services/instances/api/serviceinstanceconfig.api');
 var fwPolicy =
     require('../../firewall/common/fwpolicy/api/fwpolicyconfig.api');
+var intf =
+    require("../../physicaldevices/interfaces/api/interfacesconfig.api");
 var jsonDiff = require(process.mainModule.exports["corePath"] +
                        "/src/serverroot/common/jsondiff");
 var _ = require("lodash");
@@ -69,13 +71,17 @@ var configCBCreateEdit =
     'post' :
         {
             'virtual-machine-interface':portsConfig.createPortCB,
-            'logical-router': logicalRtr.createLogicalRouterCB
+            'logical-router': logicalRtr.createLogicalRouterCB,
+            'logical-interface': intf.createPhysicalInterfacesCB,
+            'physical-interface': intf.createPhysicalInterfacesCB
         },
     'put'  :
         {
             'virtual-machine-interface': portsConfig.updatePortsCB,
-            'logical-router': logicalRtr.updateLogicalRouterCB
-        }
+            'logical-router': logicalRtr.updateLogicalRouterCB,
+            'logical-interface': intf.updatePhysicalInterfacesCB,
+            'physical-interface': intf.updatePhysicalInterfacesCB
+        },
 };
 
 /**
