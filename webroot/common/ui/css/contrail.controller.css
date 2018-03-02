@@ -3,6 +3,12 @@
  * All rights reserved.
  */
 
+/* Global Config vRouter Encryption */
+#select_all_endpoints_message{
+   	color: #3182bd;
+   	font-size:10px;
+}
+
 /* Load Balancer Page*/
  #configure-Loadbalancer .modal-footer{
 	margin-top: -45px;

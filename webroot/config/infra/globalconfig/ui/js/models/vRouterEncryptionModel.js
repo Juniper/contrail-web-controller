@@ -3,7 +3,7 @@
  */
 
 define([
-    'underscore',
+    'lodashv4',
     'contrail-model',
     'config/infra/globalconfig/ui/js/globalConfig.utils',
     'config/infra/globalconfig/ui/js/models/vRouterEncryptionTunnelMeshModel'
@@ -12,7 +12,7 @@ define([
     var vRouterEncryptionModel = ContrailModel.extend({
         defaultConfig: {
         		"encryption_mode": "none",
-        		"select_all_endpoints": true,
+        		"select_all_endpoints": false,
         		"encryption_tunnel_endpoints": {
                     "endpoint": []
                 }
@@ -25,21 +25,21 @@ define([
             var endPoints = getValueByJsonPath(modelConfig,
                     "encryption_tunnel_endpoints;endpoint", []);
             var vRouterList = getValueByJsonPath(modelConfig, "vrouter", []);
-           for(var i = 0; i < endPoints.length; i++){
-        	   		var ipAddress={};
-        	   		addr = endPoints[i]['tunnel_remote_ip_address']+cowc.DROPDOWN_VALUE_SEPARATOR+'virtual_router_ip_address';
-        	   		if(vRouterList != undefined || vRouterList.length > 0  ){
+            _.each(endPoints, function(endPoint) {
+	            	var ipAddress={};
+	    	   		addr = endPoint['tunnel_remote_ip_address']+cowc.DROPDOWN_VALUE_SEPARATOR+'virtual_router_ip_address';
+	    	   		if(vRouterList != undefined || vRouterList.length > 0  ){
 	                	  _.each(vRouterList, function(vRouter) {
-	                		  if(endPoints[i]['tunnel_remote_ip_address'] ==  vRouter.key){
-	                			  addr = endPoints[i]['tunnel_remote_ip_address'];
+	                		  if(endPoint['tunnel_remote_ip_address'] ==  vRouter.key){
+	                			  addr = endPoint['tunnel_remote_ip_address'];
 	                		  }
 	                	  });
-                }
-        	   		var ipObj = {tunnel_remote_ip_address: addr.trim()};
-        	   		var ipModel = new TunnelMeshModel(ipObj);
-        	   		ipsModels.push(ipModel);
-            }
-            ipsCollectionModel = new Backbone.Collection(ipsModels);
+	            }
+	    	   		var ipObj = {tunnel_remote_ip_address: addr.trim()};
+	    	   		var ipModel = new TunnelMeshModel(ipObj);
+	    	   		ipsModels.push(ipModel);
+	   		});
+           ipsCollectionModel = new Backbone.Collection(ipsModels);
             modelConfig['encryption_tunnel_endpoints'] = ipsCollectionModel;
             return modelConfig;
         },
@@ -68,42 +68,30 @@ define([
         	                    if (val.trim() == "") {
         	                        return "Select a valid Traffic Encrypt.";
         	                    }
-        			 },
-        			 'select_all_endpoints' : function(val, attr, data) {
-        				 //var endpoints = data.encryption_tunnel_endpoints.models;
-        				 var endPoints =[];
-        				 var ipsModels = [];
-        				  	var vRouterList = vrouter.vRouterList;
-        		           for(var i = 0; i < vRouterList.length; i++){
-        		        	   		var ipAddress={};
-        		        	   		if(vRouterList != undefined || vRouterList.length > 0  ){
-        			                	  _.each(vRouterList, function(vRouter) {
-        			                		 
-        			                			  addr = vRouter.key;
-
-        			                	  });
-        		                }
-        		        	   		var ipObj = {tunnel_remote_ip_address: addr.trim()};
-        		        	   		var ipModel = new TunnelMeshModel(ipObj);
-        		        	   		ipsModels.push(ipModel);
-        		            }
-        		           data.encryption_tunnel_endpoints = new Backbone.Collection(ipsModels);
-        		            console.log(val);
         			 }
         		}
         },
         getEndpoints: function(attr) {
         		var endPoints = [];
+        		var selectAllFlag= attr.select_all_endpoints;
         		var tunnelMeshCollection = attr.encryption_tunnel_endpoints.toJSON();
         		var vrCnt = tunnelMeshCollection.length; 
-        		for (var i = 0; i < vrCnt; i++) {
-        			  var ipAddress = tunnelMeshCollection[i].tunnel_remote_ip_address().split(';')[0];
-	            	  console.log(ipAddress +" : Remote Address:"+ tunnelMeshCollection[i].tunnel_remote_ip_address());
+        		_.each(tunnelMeshCollection, function(tunnelMesh) {
+        			 var ipAddress = tunnelMesh.tunnel_remote_ip_address().split(';')[0];
 	            	  if(gcUtils.validateIP(ipAddress)){
 	            		  endPoints.push({tunnel_remote_ip_address: ipAddress});
 	            	  }
+        		});
+        		if(selectAllFlag){
+        			var vList = attr.vrouter;
+        			_.each(vList, function(vRouter) {
+        				endPoints.push({tunnel_remote_ip_address: vRouter.key});
+        			});
         		}
-        		return endPoints;
+			var uniqList = _.orderBy(
+					_.uniqBy(endPoints, 'tunnel_remote_ip_address'),
+					'tunnel_remote_ip_address', 'asc');
+			return uniqList;
         },
         configureVRouterEncryption: function (callbackObj) {
             var self = this, ajaxConfig = {}, returnFlag = false,

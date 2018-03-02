@@ -2,8 +2,8 @@
  * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
  */
 
- define(["underscore", "config/infra/globalconfig/ui/js/globalConfig.utils"],
-     function(_, GlobalConfigUtils){
+ define(["underscore","lodashv4", "config/infra/globalconfig/ui/js/globalConfig.utils"],
+     function(_,lodashv4 , GlobalConfigUtils){
      var gcUtils = new GlobalConfigUtils();
      
      var globalConfigFormatters = function(){
@@ -134,8 +134,10 @@
                         return '-';
                     }else{
                         var endPoints = getValueByJsonPath(val, 'endpoint', []);
+                        
                         if(endPoints.length > 0){
                         	// vrouter variable is defined in vrouterEncryptionGridView 
+                          endPoints =  lodashv4.orderBy(endPoints, 'tunnel_remote_ip_address', 'asc');
                             return self.endPointRemoteIPFormatter(endPoints,vrouter.vRouterList);
                         }else{
                            return '-';
@@ -288,7 +290,7 @@
               returnString =
                   "<table style='width:32%'><thead style='background-color:#f9f9f9;'><tr>\
                   <th style='width:40%'>Endpoint</th>\
-                   <th style='width:60%'>Node</th>\
+                   <th style='width:60%'>Virtual Router</th>\
                   </tr></thead><tbody>";
               returnString += subnetString;
               returnString += "</tbody></table>";
