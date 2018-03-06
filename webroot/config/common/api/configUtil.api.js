@@ -39,6 +39,7 @@ var configCBDelete =
 {
     'virtual-machine-interface': portsConfig.deletePortsCB,
     'logical-router': logicalRtr.deleteLogicalRouterAsync,
+    'floating-ip-pool': vnConfig.deleteFippoolAsync,
     'virtual-DNS': vdns.deleteVirtualDNSCallback,
     'network-policy': policyConfig.deletePolicyAsync,
     'routing-policy': routingPolicyConfig.deleteRoutingPolicyAsync,
