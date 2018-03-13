@@ -1240,3 +1240,40 @@ body.navbar-fixed:not(.modal-open){
     overflow: auto;
     max-height: 340px;
 }
+/*** Routing policy page CSS ***/
+#configure-routingPolicy-form .data-cell-community_match_all_checkbox{
+    position:relative;
+}
+#configure-routingPolicy-form .data-cell-community_match_all_checkbox>div{
+    position:absolute;
+    top:0px;
+    white-space:nowrap;
+}
+#configure-routingPolicy-form .data-cell-from-collection label + div{
+    padding-top:25px;
+}
+#configure-routingPolicy-form #term-collection .select2-container.select2-container-disabled .select2-choice,
+#configure-routingPolicy-form #term-collection .select2-container.select2-container-disabled{
+    border:none;
+    background:transparent;
+    color:#3182bd;
+}
+#configure-routingPolicy-form #term-collection .select2-container.select2-container-disabled .select2-choice .select2-arrow{
+    display:none;
+}
+#configure-routingPolicy-form .data-cell-from-collection table.collection-table tr:nth-child(1) td:nth-last-child(2),
+#configure-routingPolicy-form .data-cell-from-collection table.collection-table tr:nth-child(1) td:last-child,
+#configure-routingPolicy-form .data-cell-from-collection table.collection-table tr:nth-child(3) td:nth-last-child(2),
+#configure-routingPolicy-form .data-cell-from-collection table.collection-table tr:nth-child(3) td:last-child{
+    visibility: hidden;
+}
+#configure-routingPolicy-form #term-collection .select2-container.select2-container-disabled .select2-choice,
+#configure-routingPolicy-form #term-collection .select2-container.select2-container-disabled{
+    text-transform: capitalize;
+}
+#configure-routingPolicy-form .data-cell-value-input{
+    position:absolute;
+    left:175px;
+    width: 295px !important;
+}
+/*** Routing policy page Ends CSS ***/

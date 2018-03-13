@@ -111,7 +111,22 @@ define([
             'UveVirtualMachineAgent:if_bmap_list',
             //'VirtualMachineStats:if_stats'
         ];
-
+        this.COMM_MULTISELECT = [{text:"no-export",id:"no-export"},
+            {text:"accept-own",id:"accept-own"},
+            {text:"no-advertise",id:"no-advertise"},
+            {text:"no-export-subconfed",id:"no-export-subconfed"},
+            {text:"no-reoriginate",id:"no-reoriginate"}
+        ];
+        this.PROTOCOL_MULTISELECT = [{id: 'bgp', text: 'bgp'},
+            {id: 'xmpp', text: 'xmpp'},
+            {id: 'static', text: 'static'},
+            {id: 'service-chain', text: 'service-chain'},
+            {id: 'aggregate', text: 'aggregate'},
+            {id: 'interface', text: 'interface'},
+            {id: 'interface-static', text: 'interface-static'},
+            {id: 'service-interface', text: 'service-interface'},
+            {id: 'BGPaaS', text: 'BGPaaS'}
+        ];
         this.URL_NETWORK = '/#p=mon_networking_networks&q[type]=network&q[view]=details&q[focusedElement][fqName]={{key}}&q[focusedElement][type]=virtual-network';
         this.URL_INSTANCE = '/#p=mon_networking_instances&q[type]=instance&q[view]=details&q[focusedElement][fqName]={{params.vn}}&q[focusedElement][uuid]={{key}}&q[focusedElement][type]=virtual-network';
         this.URL_VROUTER = '/#p=mon_infra_vrouter&q[node]={{key}}';
