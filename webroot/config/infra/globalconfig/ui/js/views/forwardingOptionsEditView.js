@@ -228,7 +228,7 @@ define([
                                 view: 'FormCollectionView',
                                 viewConfig: {
                                     path: 'portTranslationCollection',
-                                    label:"Port Translation Pool (s)",
+                                    label:"SNAT Port Translation Pools",
                                     class: 'col-xs-12',
                                     collection: 'portTranslationCollection',
                                     validation: 'portTranslationValidation',
