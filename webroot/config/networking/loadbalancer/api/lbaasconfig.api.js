@@ -639,7 +639,7 @@ function parseInstanceIps(vmiData, appData, lbs, callback) {
 												lb_vmi_refs[vmi]['instance-ip'].instance_ip_mode = results[ip]['instance-ip']['instance_ip_mode'];
 												var vipAddress = lbs['loadbalancers'][lb]['loadbalancer']['loadbalancer_properties']['vip_address'];
 												if(vipAddress== null || vipAddress==""){
-													logutils.logger.debug("VIP Address Empty"+vipAddress);
+													//logutils.logger.debug("VIP Address Empty"+vipAddress);
 													lbs['loadbalancers'][lb]['loadbalancer']['loadbalancer_properties']['vip_address'] = results[ip]['instance-ip']['instance_ip_address'];
 										    		}
 											}
@@ -670,14 +670,16 @@ function parseVNSubnets(vmiData, appData, lbs, callback) {
 	var dataObjArr = [];
 	var i = 0, lisLength = 0;
 	var vrVMIRef = [];
-	for(i= 0;i < vmiData.length; i++){
-		vmi = vmiData[i];
+	_.each(vmiData, function(vmi) {
+		//logutils.logger.debug(JSON.stringify(vmi['virtual-machine-interface']));
 		if ('virtual_network_refs' in vmi['virtual-machine-interface']) {
-			vrVMIRef = vmi['virtual-machine-interface']['virtual_network_refs'];
+			vrVMIRef.push(vmi['virtual-machine-interface']['virtual_network_refs'][0]);
 		}
-	}
+	});
+	//logutils.logger.debug(JSON.stringify(vrVMIRef));
 	_.each(vrVMIRef, function(vrObj) {
 		reqUrl = '/virtual-network/' + vrObj['uuid'] + '?exclude_hrefs=true';
+		//logutils.logger.debug(reqUrl);
 		commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
 				null, null, null, appData);
 	});
@@ -698,20 +700,28 @@ function parseVNSubnets(vmiData, appData, lbs, callback) {
 			if (results != null && results.length > 0) {
 				if (lbs['loadbalancers'].length > 0
 						&& results != null && results.length > 0) {
-					// logutils.logger.debug(JSON.stringify(results));
+					//logutils.logger.debug(JSON.stringify(results));
 					for (var lb = 0; lb < lbs['loadbalancers'].length; lb++) {
 						var vmi_refs = lbs['loadbalancers'][lb]['loadbalancer']['virtual_machine_interface_refs'];
+						//logutils.logger.debug(JSON.stringify(vmi_refs));
 						if (lbs['loadbalancers'][lb]['loadbalancer'] != null
 								&& vmi_refs != null
 								&& vmi_refs.length > 0) {
 							for (i = 0; i < vmi_refs.length; i++) {
 								for (var l = 0; l < results.length; l++) {
 									if (results[l]['virtual-network'] != null) {
-										vmi_refs[i]['virtual-network'] = {};
-										vmi_refs[i]['virtual-network'].uuid = results[l]['virtual-network']['uuid'];
-										vmi_refs[i]['virtual-network'].display_name = results[l]['virtual-network']['display_name'];
-										vmi_refs[i]['virtual-network'].name = results[l]['virtual-network']['name'];
-										vmi_refs[i]['virtual-network'].network_ipam_refs = results[l]['virtual-network']['network_ipam_refs'];
+										var vmibackRefs = results[l]['virtual-network']['virtual_machine_interface_back_refs'];
+										_.each(vmibackRefs, function(vmibackRef) {
+											//logutils.logger.debug(JSON.stringify('vmibackRef[uuid]:'+vmibackRef['uuid']));
+											//logutils.logger.debug(JSON.stringify('vmi_refs[i][uuid]:'+vmi_refs[i]['uuid']));
+											if(vmibackRef['uuid'] === vmi_refs[i]['uuid']){
+												vmi_refs[i]['virtual-network'] = {};
+												vmi_refs[i]['virtual-network'].uuid = results[l]['virtual-network']['uuid'];
+												vmi_refs[i]['virtual-network'].display_name = results[l]['virtual-network']['display_name'];
+												vmi_refs[i]['virtual-network'].name = results[l]['virtual-network']['name'];
+												vmi_refs[i]['virtual-network'].network_ipam_refs = results[l]['virtual-network']['network_ipam_refs'];
+											}
+										});
 									}
 								}
 							}
@@ -3012,7 +3022,7 @@ function readInstanceFromVMIUUID(vmiId, appData, callback){
 		}
 		var instanceUUID= vmi['instance_ip_back_refs'][0]['uuid'];
 		readInstanceIPwithUUID(instanceUUID, appData, function(error, instanceData){
-	    		logutils.logger.debug("instanceUUID:"+instanceData);
+	    		//logutils.logger.debug("instanceUUID:"+instanceData);
 			callback(null, instanceData);
 		});
 	});

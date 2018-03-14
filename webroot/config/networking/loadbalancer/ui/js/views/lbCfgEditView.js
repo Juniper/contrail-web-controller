@@ -815,8 +815,24 @@ define([
                                  }
                              }
                          ]
+                     },{
+                         columns: [
+                        	 	{
+                                 elementId: 'monitor_admin_state',
+                                 view: "FormCheckboxView",
+                                 viewConfig : {
+                                     path : 'monitor_admin_state',
+                                     label:'Admin State',
+                                     dataBindValue : 'monitor_admin_state()',
+                                     class: "col-xs-6",
+                                     elementConfig : {
+                                         isChecked:false
+                                     }
+                                 }
+                             }
+                         ]
                      }
-                 ]
+                  ]
              }
      }
     function getPoolMemberControl(options, allData){
@@ -875,7 +891,7 @@ define([
                                 {
                                     elementId: "pool_member_ip_address",
                                     view: "FormInputView",
-                                    name: 'IP Address',
+                                    name: 'IP Address*',
                                     width: 150,
                                     viewConfig: {
                                         path: "pool_member_ip_address",
@@ -910,6 +926,21 @@ define([
                                         type:'number',
                                         label: '',
                                         dataBindValue: "pool_member_weight()"
+                                    }
+                                },
+                                {
+                                    elementId: 'pool_member_admin_state',
+                                    view: "FormCheckboxView",
+                                    name:'Admin State',
+                                    width: 200,
+                                    viewConfig : {
+                                        path : 'pool_member_admin_state',
+                                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                        label: '',
+                                        dataBindValue : 'pool_member_admin_state()',
+                                        elementConfig : {
+                                            isChecked:false
+                                        }
                                     }
                                 }]
                             }],
