@@ -1074,7 +1074,6 @@
                                                      dataValueField: "value",
                                                      data : [
                                                          {'text':'None','value':'none'},
-                                                         {'text':'Remote','value':'remote'},
                                                          {'text':'Source','value':'source'},
                                                          {'text':'Destination','value':'destination'}
                                                      ]
