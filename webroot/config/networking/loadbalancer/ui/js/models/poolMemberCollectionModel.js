@@ -15,7 +15,8 @@ define([
             'pool_member_subnet' : '',
             'pool_member_port': '80',
             'pool_member_weight':'1',
-            'pool_name':'Member 1'
+            'pool_name':'Member 1',
+            'pool_member_admin_state': true
         },
 
         formatModelConfig: function (modelConfig) {
