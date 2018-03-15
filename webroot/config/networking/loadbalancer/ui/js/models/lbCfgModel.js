@@ -46,6 +46,7 @@ define([
             'timeout':'5',
             'monitor_http_method': 'GET',
             'monitor_http_status_code':'200',
+            'monitor_admin_state': true,
             'monitor_url_path':'/',
             'field_disable': false,
             'existing_port' :'',
@@ -507,6 +508,7 @@ define([
                     obj.loadbalancer_member_properties['protocol_port'] = Number(poolObj.pool_member_port());
                     obj.loadbalancer_member_properties['weight'] = Number(poolObj.pool_member_weight());
                     obj.loadbalancer_member_properties['subnet_id'] = poolObj.pool_member_subnet().split(';')[0];
+                    obj.loadbalancer_member_properties['admin_state'] = poolObj.pool_member_admin_state();
                     poolStack.push(obj);
                 });
                 obj['loadbalancer-member'] = poolStack;
@@ -525,6 +527,7 @@ define([
             monitor.loadbalancer_healthmonitor_properties['max_retries'] = Number(model.retry_count);
             monitor.loadbalancer_healthmonitor_properties['monitor_type'] = model.monitor_type;
             monitor.loadbalancer_healthmonitor_properties['timeout'] = Number(model.timeout);
+            monitor.loadbalancer_healthmonitor_properties['admin_state'] =  model.monitor_admin_state;
             if(model.monitor_type === 'HTTP'){
                 monitor.loadbalancer_healthmonitor_properties['url_path'] = model.monitor_url_path;
                 monitor.loadbalancer_healthmonitor_properties['expected_codes'] = model.monitor_http_status_code;

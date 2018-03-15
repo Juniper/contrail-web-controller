@@ -286,6 +286,21 @@ define([
                                         label: '',
                                         dataBindValue: "pool_member_weight()"
                                     }
+                                },
+                                {
+                                    elementId: 'pool_member_admin_state',
+                                    view: "FormCheckboxView",
+                                    name:'Admin State',
+                                    width: 200,
+                                    viewConfig : {
+                                        path : 'pool_member_admin_state',
+                                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                        label:'',
+                                        dataBindValue : 'pool_member_admin_state()',
+                                        elementConfig : {
+                                            isChecked:false
+                                        }
+                                    }
                                 }]
                             }],
                             gridActions: [

@@ -17,6 +17,7 @@ define([
             "weight":"1",
             "admin_state": true,
             "pool_member_subnet": "",
+            'pool_member_admin_state': true,
             "status_description": "",
             "loadbalancer_member_properties": {},
             'pool_member': []
@@ -30,7 +31,7 @@ define([
             if(protocolPort != ''){
                 modelConfig["port"] = protocolPort;
             }
-            modelConfig["admin_state"] = getValueByJsonPath(modelConfig,
+            modelConfig["pool_member_admin_state"] = getValueByJsonPath(modelConfig,
                     "loadbalancer_member_properties;admin_state", false);
             var address = getValueByJsonPath(modelConfig,
                     "loadbalancer_member_properties;address", '');
@@ -124,6 +125,9 @@ define([
                         }
                         if(poolObj.pool_member_weight() !== ''){
                             obj.loadbalancer_member_properties['weight'] = Number(poolObj.pool_member_weight());
+                        }
+                        if(poolObj.pool_member_admin_state() !== ''){
+                            obj.loadbalancer_member_properties['admin_state'] = poolObj.pool_member_admin_state();
                         }
                         if(poolObj.pool_member_subnet() !== ''){
                             var subnet = poolObj.pool_member_subnet();
