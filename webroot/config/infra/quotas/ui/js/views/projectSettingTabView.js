@@ -67,6 +67,22 @@ define([
                    renderOnActivate: true
                }
            }, {
+               elementId: 'project-security-policy-settings',
+               title: 'Security Policy',
+               view: "projectSecurityPolicySettingsListView",
+               viewPathPrefix: "config/infra/quotas/ui/js/views/",
+               app: cowc.APP_CONTRAIL_CONTROLLER,
+               viewConfig: viewConfig,
+               tabConfig: {
+                   activate: function(event, ui) {
+                       var gridId = $('#' + ctwc.GLOBAL_POLICY_MGMT_OPTIONS_GRID_ID);
+                       if (gridId.data('contrailGrid')) {
+                           gridId.data('contrailGrid').refreshView();
+                       }
+                   },
+                   renderOnActivate: true
+               }
+           }, {
                elementId: ctwc.CONFIG_PROJECT_OTHER_SETTINGS_PAGE_ID,
                title: ctwl.TITLE_OTHER_SETTINGS,
                view: "projectOtherSettingsListView",

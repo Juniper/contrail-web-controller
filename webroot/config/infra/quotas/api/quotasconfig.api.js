@@ -225,6 +225,8 @@ function getProjectQuotaUsed (userObj, callback)
         {key : 'virtual-machine-interfaces', value : 'virtual_machine_interface'},
         {key : 'network-policys', value : 'network_policy'},
         {key : 'logical-routers', value : 'logical_router'},
+        {key : 'loadbalancers', value : 'loadbalancer'},
+        {key : 'loadbalancer-listeners', value : 'loadbalancer_listener'},
         {key : 'loadbalancer-pools', value : 'loadbalancer_pool'},
         {key : 'loadbalancer-members', value : 'loadbalancer_member'},
         {key : 'loadbalancer-healthmonitors', value : 'loadbalancer_healthmonitor'},
