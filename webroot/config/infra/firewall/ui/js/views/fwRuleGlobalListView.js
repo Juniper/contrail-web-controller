@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2018 Juniper Networks, Inc. All rights reserved.
  */
 
 define([
@@ -8,7 +8,7 @@ define([
     'contrail-list-model',
 ], function (_, ContrailView, ContrailListModel) {
     var self;
-    var fwPolicyGlobalListView = ContrailView.extend({
+    var fwRulesGlobalListView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -22,41 +22,41 @@ define([
                     ajaxConfig: {
                         url: ctwc.URL_GET_CONFIG_DETAILS,
                         type: "POST",
-                        data: JSON.stringify({data: [{type: "firewall-policys",
-                            fields: ['application_policy_set_back_refs'],
+                        data: JSON.stringify({data: [{type: "firewall-rules",
+                            fields: "firewall_policy_back_refs",
                             parent_fq_name_str: parentFqNameStr,
                             parent_type: "policy-management"}]})
                     },
-                    dataParser: self.parseFWPolicyGlobalData,
+                    dataParser: self.parseFWRuleGlobalData,
                 }
             };
             contrailListModel = new ContrailListModel(listModelConfig);
             self.renderView4Config(self.$el,
-                    contrailListModel, self.getFWPolicyGlobalGridViewConfig(viewConfig));
+                    contrailListModel, self.getFWRuleGlobalGridViewConfig(viewConfig));
         },
 
-        parseFWPolicyGlobalData: function(result) {
-            var fwPolicies = getValueByJsonPath(result,
-                "0;firewall-policys", [], false),
-                fwPolicyList = [];
-            _.each(fwPolicies, function(fwPolicy) {
-                if("firewall-policy" in fwPolicy)
-                fwPolicyList.push(fwPolicy["firewall-policy"]);
+        parseFWRuleGlobalData: function(result) {
+            var fwRules = getValueByJsonPath(result,
+                "0;firewall-rules", [], false),
+                fwRuleList = [];
+            _.each(fwRules, function(fwRule) {
+                if("firewall-rule" in fwRule)
+                    fwRuleList.push(fwRule["firewall-rule"]);
             });
-            return fwPolicyList;
+            return fwRuleList;
         },
 
-        getFWPolicyGlobalGridViewConfig: function(viewConfig) {
+        getFWRuleGlobalGridViewConfig: function(viewConfig) {
             return {
                 elementId:
-                cowu.formatElementId([ctwc.CONFIG_FW_POLICY_GLOBAL_SECTION_ID]),
+                cowu.formatElementId([ctwc.CONFIG_FW_RULE_GLOBAL_SECTION_ID]),
                 view: "SectionView",
                 viewConfig: {
                     rows: [{
                         columns: [
                             {
-                                elementId: ctwc.CONFIG_FW_POLICY_GLOBAL_ID,
-                                view: "fwPolicyGridView",
+                                elementId: ctwc.CONFIG_FW_RULE_GLOBAL_ID,
+                                view: "fwRuleGridView",
                                 viewPathPrefix:
                                     "config/firewall/common/fwpolicy/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
@@ -79,6 +79,6 @@ define([
         }
     });
 
-    return fwPolicyGlobalListView;
+    return fwRulesGlobalListView;
 });
 

@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2016 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2018 Juniper Networks, Inc. All rights reserved.
  */
 
 define([
     'underscore',
     'contrail-view',
-    'contrail-list-model'
+    'contrail-list-model',
 ], function (_, ContrailView, ContrailListModel) {
-    var applicationPolicyListView = ContrailView.extend({
+    var self;
+    var fwRulesGlobalListView = ContrailView.extend({
         el: $(contentContainer),
+
         render: function () {
-            var self = this,
-                viewConfig = this.attributes.viewConfig,
+            self = this;
+            var listModelConfig, contrailListModel,
+                viewConfig = self.attributes.viewConfig,
                 currentProject = viewConfig["projectSelectedValueData"];
             var listModelConfig;
             if(viewConfig.dataType === ctwc.FW_DRAFTED) {
@@ -21,14 +24,15 @@ define([
                                 url: "/api/tenants/config/get-config-details",
                                 type: "POST",
                                 data: JSON.stringify(
-                                    {data: [{type: 'application-policy-sets',
+                                    {data: [{type: 'firewall-rules',
                                         parent_type: 'policy-management',
+                                        fields: ["firewall_policy_back_refs"],
                                         parent_fq_name_str:
                                             contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
                                             currentProject.name + ':' +
                                             ctwc.DRAFT_POLICY_MANAGEMENT }]})
                             },
-                            dataParser: self.parseApplicationPolicyData,
+                            dataParser: self.parseFWRuleGlobalData,
                         }
                     };
             } else {
@@ -38,41 +42,43 @@ define([
                             url: "/api/tenants/config/get-config-details",
                             type: "POST",
                             data: JSON.stringify(
-                                {data: [{type: 'application-policy-sets',
+                                {data: [{type: 'firewall-rules',
+                                    fields: ["firewall_policy_back_refs"],
                                     parent_id: currentProject.value}]})
                         },
-                        dataParser: self.parseApplicationPolicyData,
+                        dataParser: self.parseFWRuleGlobalData,
                     }
                 };
             }
-            var contrailListModel = new ContrailListModel(listModelConfig);
-            this.renderView4Config(this.$el,
-                   contrailListModel, getApplicationPolicyGridViewConfig(viewConfig));
+            contrailListModel = new ContrailListModel(listModelConfig);
+            self.renderView4Config(self.$el,
+                    contrailListModel, self.getFWRuleGlobalGridViewConfig(viewConfig));
         },
-        parseApplicationPolicyData : function(response){
-            var dataItems = [],
-                appPolicyData = getValueByJsonPath(response, "0;application-policy-sets", []);
-                _.each(appPolicyData, function(val){
-                	if("application-policy-set" in val) {
-                        dataItems.push(val['application-policy-set']);
-                    }
-                }); 
-            return dataItems;
-        }
-    });
 
-    var getApplicationPolicyGridViewConfig = function (viewConfig) {
-        return {
-            elementId: cowu.formatElementId([ctwc.FIREWALL_APPLICATION_POLICY_SECTION_ID]),
-            view: "SectionView",
-            viewConfig: {
-                rows: [
-                    {
+        parseFWRuleGlobalData: function(result) {
+            var fwRules = getValueByJsonPath(result,
+                "0;firewall-rules", [], false),
+                fwRuleList = [];
+            _.each(fwRules, function(fwRule) {
+                if("firewall-rule" in fwRule)
+                    fwRuleList.push(fwRule["firewall-rule"]);
+            });
+            return fwRuleList;
+        },
+
+        getFWRuleGlobalGridViewConfig: function(viewConfig) {
+            return {
+                elementId:
+                cowu.formatElementId([ctwc.CONFIG_FW_RULE_GLOBAL_SECTION_ID]),
+                view: "SectionView",
+                viewConfig: {
+                    rows: [{
                         columns: [
                             {
-                                elementId: ctwc.FIREWALL_APP_POLICY_ID,
-                                view: "applicationPolicyGridView",
-                                viewPathPrefix: "config/firewall/common/applicationpolicy/ui/js/views/",
+                                elementId: ctwc.CONFIG_FW_RULE_GLOBAL_ID,
+                                view: "fwRuleGridView",
+                                viewPathPrefix:
+                                    "config/firewall/common/fwpolicy/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
                                     pagerOptions: {
@@ -81,18 +87,18 @@ define([
                                             pageSizeSelect: [10, 50, 100]
                                         }
                                     },
-                                    viewConfig: viewConfig,
+                                    isProject: true,
                                     isGlobal: false,
-                                    isWizard: true
+                                    viewConfig: viewConfig
                                 }
                             }
                         ]
-                    }
-                ]
+                    }]
+                }
             }
         }
-    };
+    });
 
-    return applicationPolicyListView;
+    return fwRulesGlobalListView;
 });
 

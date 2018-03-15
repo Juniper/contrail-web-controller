@@ -107,26 +107,14 @@ define([
                             }
                         ]
                     }
-                   /* {
-                        columns: [
-                            {
-                                elementId: "tag_refs",
-                                view: "FormMultiselectView",
-                                viewConfig: {
-                                    disabled: true,
-                                    path: "tag_refs",
-                                    dataBindValue: "tag_refs",
-                                    label: "Tags",
-                                    class: "col-xs-6",
-                                    elementConfig: {
-                                        dataTextField: "text",
-                                        dataValueField: "value",
-                                        data: tagsData
-                                    }
-                                }
-                            }
-                        ]
-                    }*/
+                   /*
+                     * { columns: [ { elementId: "tag_refs", view:
+                     * "FormMultiselectView", viewConfig: { disabled: true,
+                     * path: "tag_refs", dataBindValue: "tag_refs", label:
+                     * "Tags", class: "col-xs-6", elementConfig: {
+                     * dataTextField: "text", dataValueField: "value", data:
+                     * tagsData } } } ] }
+                     */
                 ]
             }
         }

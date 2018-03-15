@@ -9,6 +9,88 @@
    	font-size:10px;
 }
 
+/* Global config sub tabs*/
+
+#global-config-tab .ui-widget-header {
+  font-size: 13px;
+}
+
+#global-vrouters-config-tab .ui-widget-header {
+    border: none;
+    background: none;
+    background-color: #f9f9f9;;
+}
+#global-vrouters-config-tab .ui-widget-header .ui-state-default {
+    border-top: 1px solid #ccc;
+	border-left:1px solid #ccc;
+	border-right:1px solid #ccc;
+	border-bottom:1px solid #ccc;
+}
+#global-vrouters-config-tab .ui-widget-header .ui-tabs-active {
+    border-top: 1px solid #3182bd;
+	border-left:1px solid #3182bd;
+	border-right:1px solid #3182bd;
+	border-bottom:1px solid #3182bd;
+}
+#global-system-config-tab .ui-widget-header {
+    border: none;
+    background: none;
+    background-color: #f9f9f9;
+}
+#global-system-config-tab .ui-widget-header .ui-state-default {
+    border-top: 1px solid #ccc;
+	border-left:1px solid #ccc;
+	border-right:1px solid #ccc;
+	border-bottom:1px solid #ccc;
+}
+#global-system-config-tab .ui-widget-header .ui-tabs-active {
+    border-top: 1px solid #3182bd;
+	border-left:1px solid #3182bd;
+	border-right:1px solid #3182bd;
+	border-bottom:1px solid #3182bd;
+}
+#global-qos-config-tab .ui-widget-header {
+    border: none;
+    background: none;
+    background-color: #f9f9f9;
+}
+#global-qos-config-tab .ui-widget-header .ui-state-default {
+    border-top: 1px solid #ccc;
+	border-left:1px solid #ccc;
+	border-right:1px solid #ccc;
+	border-bottom:1px solid #ccc;
+}
+#global-qos-config-tab .ui-widget-header .ui-tabs-active {
+    border-top: 1px solid #3182bd;
+	border-left:1px solid #3182bd;
+	border-right:1px solid #3182bd;
+	border-bottom:1px solid #3182bd;
+}
+#global-security-config-tab .ui-widget-header {
+    border: none;
+    background: none;
+    background-color: #f9f9f9;
+}
+#global-security-config-tab .ui-widget-header .ui-state-default {
+    border-top: 1px solid #ccc;
+	border-left:1px solid #ccc;
+	border-right:1px solid #ccc;
+	border-bottom:1px solid #ccc;
+}
+#global-security-config-tab .ui-widget-header .ui-tabs-active {
+    border-top: 1px solid #3182bd;
+	border-left:1px solid #3182bd;
+	border-right:1px solid #3182bd;
+	border-bottom:1px solid #3182bd;
+}
+
+#global-security-config-tab .ui-widget-header {
+    border: none;
+    background: none;
+    background-color: #f9f9f9;
+}
+
+
 /* Load Balancer Page*/
  #configure-Loadbalancer .modal-footer{
 	margin-top: -45px;
@@ -860,6 +942,21 @@ div#aps-landing-container:not[style='display: block;'] #security-policy-tag-grid
 position:absolute;
 top:4px;
 right:12px;}
+#fw_review {
+    position:absolute;
+    top:11px;
+    right:12px;
+}
+#fw_committed {
+    position:absolute;
+    top:3px;
+    right:10px;
+}
+#fw_drafted {
+    position:absolute;
+    top:11px;
+    right:300px;
+}
 #gird-details-container .contrail-tab-link-list{
 	width: 100%;
     margin-left: 0px;
@@ -1214,6 +1311,48 @@ body.navbar-fixed:not(.modal-open){
     background: #fafafa;
 }
 
+#Apppolicy_toggle{
+  top:0px;
+  right:0px;
+}
+
+#Apppolicy_toggle .option:first-of-type {
+    border-left: 1px solid #898989 !important;
+    border-radius: 4px 0 0 4px;
+}
+#Apppolicy_toggle .option {
+    border: 1px solid #898989 !important;
+    border-left: 0 !important;
+    margin: 0;
+    color: #898989 !important;
+    border-radius: 0 3px 3px 0;
+    padding:4px 7px 4px 8px;
+}
+#Apppolicy_toggle .option.selected {
+    background: #3182bd;
+    color: #fff !important;
+}
+#Apppolicy_review  .btn {
+ 	border: 1px solid #898989 !important;
+    border-left: 1px solid #898989 !important;
+    margin: 0;
+    border-color: #6482bd!important;
+    border-radius: 3px 3px 3px 3px;
+    padding: 5px 7px 1px9px;
+    background: #3182bd;
+    color: #fff !important;
+}
+#Apppolicy_toggle input {
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+#Apppolicy_toggle  .btn {
+    background: white;
+    color: #6482bd !important;
+    border-color: #3182bd!important;
+    padding: 4px 10px;
+}
 #security-dashboard-carousel-view .carousel-inner{
        padding: 0px !important;
 }

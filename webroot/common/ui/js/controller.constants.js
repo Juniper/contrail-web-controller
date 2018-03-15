@@ -661,6 +661,16 @@ define([
         this.GLOBAL_FLOW_AGING_PREFIX_ID = "global_flow_aging";
         this.GLOBAL_FLOW_AGING_LIST_VIEW_ID = "global-flow-aging-list-view";
 
+        this.DEFAULT_POLICY_MANAGEMENT = "default-policy-management";
+        this.DRAFT_POLICY_MANAGEMENT = "draft-policy-management";
+        this.GLOBAL_POLICY_MANAGEMENT_OPTIONS_MAP =
+            [{"key": 'enable_security_policy_draft', 'name': 'Security Policy Draft'}];
+        this.GLOBAL_POLICY_MGMT_OPTIONS_SECTION_ID = "global-policy-mgmt-section";
+        this.GLOBAL_POLICY_MGMT_OPTIONS_ID = "global-policy-mgmt-options";
+        this.GLOBAL_POLICY_MGMT_OPTIONS_GRID_ID = "global-policy-mgmt-options-grid";
+        this.GLOBAL_POLICY_MGMT_OPTIONS_PREFIX_ID = "global_policy_mgmt_options";
+        this.GLOBAL_POLICY_MGMT_OPTIONS_LIST_VIEW_ID = "global-policy-mgmt-options-list-view";
+
         //User defined counters
         this.GLOBAL_SYSTEM_CONFIG = "/global-system-config/";
         this.USER_DEFINED_COUNTRERS_GLOBAL = "user-defined-counters-global";
@@ -996,8 +1006,10 @@ define([
         this.GLOBAL_APPLICATION_POLICY_SET = 'global-application-policy-set';
         this.FW_POLICY_GLOBAL_PAGE_ID = "config-fw-policy-global-list";
         this.CONFIG_FW_POLICY_GLOBAL_SECTION_ID = "config-fw-policy-global-section";
+        this.CONFIG_FW_RULE_GLOBAL_SECTION_ID = "config-fw-rule-global-section";
         this.CONFIG_FW_RULE_SECTION_ID = "config-fw-rule-section";
         this.CONFIG_FW_POLICY_GLOBAL_ID = "config-fw-policy-global";
+        this.CONFIG_FW_RULE_GLOBAL_ID = "config-fw-rule-global";
         this.CONFIG_FW_RULE_ID = "config-fw-rule";
         this.FW_POLICY_GLOBAL_TAB_ID = "config-fw-policy-tab";
         this.CONFIG_SECURITY_POLICY_PAGE_ID = 'config-security-policy-page';
@@ -1091,6 +1103,12 @@ define([
                      'id': 'inventory-fw-policy-id',
                      'gridId': 'inventory-policy-grid'
         };
+        this.FW_COMMITTED = 'fw_committed';
+        this.FW_DRAFTED = 'fw_drafted';
+        this.FW_REVIEW = 'fw_review';
+        this.FW_GLOBAL_REVIEW_PREFIX_ID = "fw-global-review-config";
+        this.FW_PROJECT_REVIEW_PREFIX_ID = "fw-project-review-config";
+        
         //this.NEW_APPLICATION_POLICY_SET_LIST_VIEW_ID = "new-application-policy-set-list-view";
         this.CREATE_NEW_APPLICATION_POLICY_SET_VIEW_ID = 'create-new-application-policy-set-view';
         this.NEW_APPLICATION_POLICY_SET_SECTION_ID = 'new-application-policy-set-section';
