@@ -38,7 +38,7 @@ define([
                     if(finalObj.protocol != "icmp") {
                         value = String(value).trim();
                         if(value == "") {
-                            return "Enter valid port between 1 to 65535 for Fat Flow Record";
+                            return "Enter valid port between 0 to 65535 for Fat Flow Record";
                         }
                         if (!isNumber(value)) {
                             return "Fat Flow Protocol's Port has to be a number";
