@@ -12,6 +12,8 @@ define([
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig;
+            var parentFqNameStr = viewConfig.dataType === ctwc.FW_DRAFTED ?
+                    ctwc.DRAFT_POLICY_MANAGEMENT : ctwc.DEFAULT_POLICY_MANAGEMENT;
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
@@ -20,7 +22,7 @@ define([
                         data: JSON.stringify(
                             {data: [{type: 'application-policy-sets',
                                 parent_type: "policy-management",
-                                parent_fq_name_str:"default-policy-management"}]})
+                                parent_fq_name_str: parentFqNameStr}]})
                     },
                     dataParser: self.parseApplicationPolicyData,
                 }

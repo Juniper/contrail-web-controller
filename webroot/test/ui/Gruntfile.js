@@ -1577,6 +1577,10 @@ module.exports = function (grunt) {
                         included : false
                     },
                     {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/**/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
                         pattern : 'contrail-web-controller/webroot/config/firewall/fwpolicywizard/common/ui/js/**/*.js',
                         included : false
                     },
@@ -1626,6 +1630,10 @@ module.exports = function (grunt) {
                     },
                     {
                         pattern : 'contrail-web-controller/webroot/config/firewall/common/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/firewall/common/**/ui/js/**/*.js',
                         included : false
                     },
                     {

@@ -33,7 +33,7 @@ define([
         p: 'config_infra_gblconfig',
         q: {
             tab: {
-                'global-config-tab' : 'qos_global_tab'
+                'global-config-tab' : 'global_qos_configs'
             }
         }
     };

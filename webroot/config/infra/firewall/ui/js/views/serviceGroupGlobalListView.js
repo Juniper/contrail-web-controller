@@ -18,6 +18,8 @@ define([
                 }else{
                     elementId = ctwc.STANDALONE_ID_PREFIX;
                 }
+                var parentFqNameStr = viewConfig.dataType === ctwc.FW_DRAFTED ?
+                        "draft-policy-management" : "default-policy-management";
                 var listModelConfig = {
                     remote: {
                         ajaxConfig: {
@@ -26,7 +28,7 @@ define([
                             data: JSON.stringify(
                                 {data: [{type: 'service-groups',
                                     parent_type: "policy-management",
-                                    parent_fq_name_str:"default-policy-management"}]})
+                                    parent_fq_name_str: parentFqNameStr}]})
                         },
                         dataParser: self.parseServiceData,
                     }

@@ -54,6 +54,8 @@ define([
         {key : "service_instance", name :"Service Instances"},
         {key : "security_group", name :"Security Groups"},
         {key : "security_group_rule", name :"Security Group Rules"},
+        {key : "loadbalancer", name :"Loadbalancers"},
+        {key : "loadbalancer_listener", name :"Loadbalancer Listeners"},
         {key : "loadbalancer_pool", name :"Loadbalancer Pools"},
         {key : "loadbalancer_member", name :"Loadbalancer Members"},
         {key : "loadbalancer_healthmonitor", name :"Loadbalancer Health Monitors"},

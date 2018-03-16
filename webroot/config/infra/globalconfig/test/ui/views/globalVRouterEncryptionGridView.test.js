@@ -39,7 +39,7 @@ define([
         p: 'config_infra_gblconfig',
         q: {
             tab: {
-                'global-config-tab' : 'vrouter_encryption_global_tab'
+                'global-config-tab' : 'global_security_configs'
             }
         }
     };
