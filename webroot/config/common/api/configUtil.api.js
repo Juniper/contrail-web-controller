@@ -1333,12 +1333,34 @@ function preBuildChildData (data)
     }
 }
 
+function createConfigObjectByType (data, appData, callback)
+{
+    var reqUrl = data.reqUrl;
+    var body = data.body;
+    configApiServer.apiPost(reqUrl, body, appData, function(error, configResp) {
+        callback(error, configResp);
+    });
+}
+
+function updateConfigObjectByType (data, appData, callback)
+{
+    var reqUrl = data.reqUrl;
+    var body = data.body;
+    configApiServer.apiPut(reqUrl, body, appData, function(error, configResp) {
+        callback(error, configResp);
+    });
+}
+
 function createConfigObjectCB (data, appData, callback)
 {
     /* Find the reqUrl from first key in data */
     var resType = _.keys(data)[0];
     var reqUrl = "/" + resType + "s";
     /* Filter out all children */
+    if ((null != data.reqUrl) && (null != data.body)) {
+        /* User has given instruction to execute */
+        return createConfigObjectByType(data, appData, callback);
+    }
     var dataObj = {data: data, parentType: resType, appData: appData,
                    doLookup: false};
     filterChildrenData(dataObj, function(error, data) {
@@ -1987,6 +2009,10 @@ function updateConfigObjectCB (body, appData, callback)
     var error;
     /* Update the children first */
     var resType = _.keys(body)[0];
+    if ((null != body.reqUrl) && (null != body.body)) {
+        /* User has given instruction to execute */
+        return updateConfigObjectByType(body, appData, callback);
+    }
     var resUUID = _.result(body, resType + ".uuid", null);
     if (null == resUUID) {
         error = new appErrors.RESTServerError("UUID is not provided");
