@@ -64,16 +64,7 @@ define([
                 'ip_fabric_DNS_service_name': function(value, attr, obj) {
                     if ('DNS' == obj['lls_fab_address_ip']) {
                         if ((null == value) || (value.trim() === "")) {
-                            return "DNS Service IP is required";
-                        }
-                        var ip = value.trim();
-                        if (-1 != ip.indexOf('/')) {
-                            return 'Enter valid IP address in ' +
-                                'xxx.xxx.xxx.xxx format';
-                        }
-                        if (!isValidIP(ip)) {
-                            return 'Enter valid IP address in ' +
-                                'xxx.xxx.xxx.xxx format';
+                            return "DNS Service Name is required";
                         }
                     }
                 },
