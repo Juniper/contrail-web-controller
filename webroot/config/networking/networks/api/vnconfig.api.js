@@ -1337,7 +1337,8 @@ function createVirtualNetwork (request, response, appData)
         return;
     }
 
-    vnConfigData = JSON.parse(JSON.stringify(vnPostData)); 
+    vnConfigData = JSON.parse(JSON.stringify(vnPostData));
+    console.log('POST DATA vnConfigData--- ' + JSON.stringify(vnConfigData));
     physicalRouters = vnConfigData["virtual-network"]['physical-routers'];
     delete vnConfigData["virtual-network"]['physical-routers'];
 
@@ -1351,6 +1352,7 @@ function createVirtualNetwork (request, response, appData)
 
 
     vnSeqPostData = setVNPolicySequence(vnPostData);
+    console.log('POST DATA vnSeqPostData--- ' + JSON.stringify(vnSeqPostData));
     configApiServer.apiPost(vnCreateURL, vnSeqPostData, appData,
                          function(error, data) {
                            if (error || data == null) {

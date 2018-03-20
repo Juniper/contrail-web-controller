@@ -7,10 +7,12 @@ define([
     'contrail-view',
     'config/networking/networks/ui/js/models/vnCfgModel',
     'config/networking/networks/ui/js/views/vnCfgEditView',
-    'config/networking/networks/ui/js/views/vnCfgFormatters'],
+    'config/networking/networks/ui/js/views/vnCfgFormatters',
+    'config/common/ui/js/fatFlow.utils'],
     function (_, ContrailView,
-        VNCfgModel, VNCfgEditView, VNCfgFormatters) {
+        VNCfgModel, VNCfgEditView, VNCfgFormatters, FatFlowUtils) {
     var formatVNCfg = new VNCfgFormatters();
+    var fatFlowUtils = new FatFlowUtils();
     var dataView;
 
     var vnCfgEditView = new VNCfgEditView();
@@ -604,6 +606,17 @@ define([
                                                         formatter:
                                                             'BridgeDomainFormatter',
                                                     }
+                                                },
+                                                {
+                                                    keyClass:'col-xs-3',
+                                                    valueClass:'col-xs-9',
+                                                    key: 'virtual_network_fat_flow_protocols',
+                                                    name:"virtual_network_fat_flow_protocols",
+                                                    label:"FatFlow",
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig:{
+                                                        formatter: "FatFlowFormatter"
+                                                    }
                                                 }
                                             ].concat(ctwu.getTagsExpandDetails())
                                             .concat(ipFabricForwardingExpSection())
@@ -784,6 +797,9 @@ define([
     this.BridgeDomainFormatter = function (v, dc) {
         return formatVNCfg.bridgeDomainFormatter(null,
                                         null, null, null, dc);
+    };
+    this.FatFlowFormatter = function(v, dc) {
+        return fatFlowUtils.FatFlowFormatter("", "", v, "", dc);
     };
     return vnCfgGridView;
 });
