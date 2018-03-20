@@ -8,11 +8,13 @@ define([
     'config/networking/port/ui/js/models/portModel',
     'config/networking/port/ui/js/views/portEditView',
     'config/networking/port/ui/js/views/portFormatters',
+    'config/common/ui/js/fatFlow.utils',
     'contrail-view'
 ], function (_, Backbone, PortModel, PortEditView,
-             PortFormatters, ContrailView) {
+             PortFormatters, FatFlowUtils, ContrailView) {
     var portEditView = new PortEditView(),
         portFormatters = new PortFormatters(),
+        fatFlowUtils = new FatFlowUtils(),
         gridElId = "#" + ctwc.PORT_GRID_ID;
 
     var portGridView = ContrailView.extend({
@@ -755,7 +757,7 @@ define([
         return portFormatters.AAPFormatter("", "", v, "", dc);
     };
     this.FatFlowFormatter = function(v, dc) {
-        return portFormatters.FatFlowFormatter("", "", v, "", dc);
+        return fatFlowUtils.FatFlowFormatter("", "", v, "", dc);
     };
     this.PortBindingFormatter = function(v, dc) {
         return portFormatters.PortBindingFormatter("", "", v, "", dc);

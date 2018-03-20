@@ -338,31 +338,6 @@ define([
             }
             return dispStr;
         };
-        //Grid column expand label: Fat Flow//
-        self.FatFlowFormatter = function(d, c, v, cd, dc) {
-            var fatFlow = "";
-            var fatFlowData = getValueByJsonPath(dc,
-                          "virtual_machine_interface_fat_flow_protocols;fat_flow_protocol",
-                          []);
-            if(fatFlowData.length > 0) {
-                var fatFlow_length = fatFlowData.length;
-                fatFlow = "<table width='100%'><tbody><tr><th class='col-xs-4'>Protocol</th><th class='col-xs-4'>Port</th><th class='col-xs-4'>Ignore Address</th></tr>"
-                for(var i = 0; i < fatFlow_length;i++) {
-                    var fatFlowVal = fatFlowData[i];
-                    fatFlow += "<tr><td>";
-                    fatFlow += fatFlowVal["protocol"];
-                    fatFlow += "</td><td>";
-                    fatFlow += fatFlowVal["port"];
-                    fatFlow += "</td><td>";
-                    fatFlow += _.startCase(fatFlowVal["ignore_address"]);
-                    fatFlow += "</td></tr>";
-                }
-                fatFlow += "</tbody></table>";
-            } else {
-                fatFlow = "-";
-            }
-            return fatFlow;
-        };
         //Grid column expand label: Port Binding//
         self.PortBindingFormatter = function(d, c, v, cd, dc) {
             var portBinding = "";

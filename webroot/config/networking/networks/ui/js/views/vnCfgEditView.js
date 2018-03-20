@@ -6,12 +6,14 @@ define([
     'underscore',
     'contrail-view',
     'knockback',
-    'config/networking/networks/ui/js/views/vnCfgFormatters'],
-    function (_, ContrailView, Knockback, VNCfgFormatters) {
+    'config/networking/networks/ui/js/views/vnCfgFormatters',
+    'config/common/ui/js/fatFlow.utils'],
+    function (_, ContrailView, Knockback, VNCfgFormatters, FatFlowUtils) {
     var formatVNCfg = new VNCfgFormatters();
     var gridElId = '#' + ctwl.CFG_VN_GRID_ID;
     var prefixId = ctwl.CFG_VN_PREFIX_ID;
     var modalId = 'configure-' + prefixId;
+    var fatFlowUtils = new FatFlowUtils();
 
     var vnCfgEditView = ContrailView.extend({
         renderAddVNCfg: function (options) {
@@ -73,7 +75,9 @@ define([
                 kbValidation.bind(self,
                     {collection: self.model.model().attributes.user_created_export_route_targets});
                 kbValidation.bind(self,
-                        {collection: self.model.model().attributes.bridge_domains});
+                    {collection: self.model.model().attributes.bridge_domains});
+                kbValidation.bind(self,
+                    {collection: self.model.model().attributes.fatFlowCollection});
                 //permissions
                 ctwu.bindPermissionsValidation(self);
                                     }, null, true);
@@ -136,7 +140,9 @@ define([
                 kbValidation.bind(self,
                     {collection: self.model.model().attributes.user_created_route_targets});
                 kbValidation.bind(self,
-                        {collection: self.model.model().attributes.bridge_domains});
+                    {collection: self.model.model().attributes.bridge_domains});
+                kbValidation.bind(self,
+                    {collection: self.model.model().attributes.fatFlowCollection});
                 //permissions
                 ctwu.bindPermissionsValidation(self);
                                     }, null, true);
@@ -1643,7 +1649,8 @@ define([
                                  }
                              }]
                         }]
-                    }
+                    },
+                    fatFlowUtils.fatFlowSection()
                 ]  // End Rows
             }
         }
