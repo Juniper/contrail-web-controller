@@ -210,6 +210,7 @@ define([
                                                     class:"text-center",
                                                     viewConfig: {
                                                         label: "Shared",
+                                                        disabled: disableId,
                                                         templateId: cowc.TMPL_CHECKBOX_LABEL_RIGHT_VIEW,
                                                         dataBindValue: "bgpaas_shared",
                                                         path: "bgpaas_shared",
