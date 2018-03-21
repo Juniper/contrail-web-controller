@@ -162,6 +162,11 @@ define([
                 thenValue +=  "med "
                               + self.termFormat(med) + " ";
             }
+            var asPath = getValueByJsonPath(term,
+                    "term_action_list;update;as_path;expand;asn_list", [])
+            if(asPath.length > 0) {
+                thenValue +=  "as-path " + self.termFormat(asPath.join(", ")) + " ";
+            }
             if(thenValue == "") {
                 formattedTerm += " then ";
                 //formattedTerm += self.termFormat("default");
@@ -323,8 +328,12 @@ define([
                             returnThenObj["update"]["med"] = parseInt(val);
                             break;
                         }
-                        case "as-path-expand": {
-                            returnThenObj["update"]["as-path-expand"] = parseInt(val);
+                        case "as-path": {
+                            returnThenObj["update"]["as_path"] = {};
+                            returnThenObj["update"]["as_path"]['expand'] = {};
+                            //assuming asn-list is comma separated
+                            var asnList = val.split(',');
+                            returnThenObj["update"]["as_path"]['expand']['asn_list'] = asnList;
                             break;
                         }
                     }
@@ -459,7 +468,7 @@ define([
             }
             var returnActionArr = [];
             var community = getValueByJsonPath(actionObject, "update;community", "");
-            if (community != "") {
+            if (community != "" && !_.isEmpty(community)) {
                 var communietyArr = this.getActionCommunietyObj(community);
                 if (communietyArr.length > 0) {
                     returnActionArr = communietyArr;
@@ -477,13 +486,17 @@ define([
             if (action != "") {
                 returnActionArr.push({name:'action', action_condition: action});
             }
-            var aspathexpand = getValueByJsonPath(actionObject, "as-path-expand", "");
+            var aspathexpand = getValueByJsonPath(actionObject, "update;as_path", "");
             if (aspathexpand != "") {
-                returnActionArr.push({name:'as-path-expand', action_condition: aspathexpand});
+                returnActionArr.push({name:'as-path', value: this.getAsPathObj(aspathexpand)});
             }
             return returnActionArr;
         };
 
+        this.getAsPathObj = function(asPath) {
+            var val = getValueByJsonPath(asPath,"expand;asn_list");
+            return val.join(',');
+        };
         this.getActionCommunietyObj = function(community) {
             var returnObj = [];
             val = getValueByJsonPath(community, "add;community", "");
