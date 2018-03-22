@@ -769,6 +769,10 @@ define([
                                            {
                                                text : 'inet',
                                                value : 'inet'
+                                           },
+                                           {
+                                               text : 'inet-mvpn',
+                                               value : 'inet-mvpn'
                                            }
                                        ];
         this.CN_ADDRESS_FAMILY_DATA = [
