@@ -751,8 +751,7 @@ define([
         this.BGP_ADDRESS_FAMILY_DATA = [
                                            {
                                                text : 'inet-vpn',
-                                               value : 'inet-vpn',
-                                               locked : true
+                                               value : 'inet-vpn'
                                            },
                                            {
                                                 text : 'route-target',
