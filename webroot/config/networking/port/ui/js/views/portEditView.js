@@ -9,11 +9,13 @@ define([
     'knockback',
     'contrail-view',
     'config/networking/port/ui/js/views/portFormatters',
-    'config/networking/port/ui/js/portViewConfigs'
+    'config/networking/port/ui/js/portViewConfigs',
+    'config/common/ui/js/fatFlow.utils'
 ], function (_, Backbone, ContrailListModel, Knockback, ContrailView,
-             PortFormatters, PortViewConfigs) {
+             PortFormatters, PortViewConfigs, FatFlowUtils) {
     var portFormatter = new PortFormatters();
     var portViewConfigs = new PortViewConfigs();
+    var fatFlowUtils = new FatFlowUtils();
     var prefixId = ctwc.PORT_PREFIX_ID,
         modalId = 'configure-' + prefixId,
         editTemplate = contrail.getTemplate4Id(cowc.TMPL_GENERIC_EDIT_FORM),
@@ -209,7 +211,7 @@ define([
                         portViewConfigs.advancedSection(isDisable,
                             self.selectedProjectId, portFormatter, self),
                         portViewConfigs.dhcpOptionsSection(),
-                        portViewConfigs.fatFlowSection()
+                        fatFlowUtils.fatFlowSection()
                     ]
                 }
             };

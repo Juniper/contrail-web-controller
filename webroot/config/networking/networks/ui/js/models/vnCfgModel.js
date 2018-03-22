@@ -11,9 +11,10 @@ define([
     'config/networking/networks/ui/js/models/routeTargetModel',
     'config/networking/networks/ui/js/models/fipPoolModel',
     'config/networking/networks/ui/js/models/subnetDNSModel',
-    'config/networking/networks/ui/js/views/vnCfgFormatters'
+    'config/networking/networks/ui/js/views/vnCfgFormatters',
+    'config/common/ui/js/models/fatFlowModel'
 ], function (_, ContrailConfigModel, BridgeDomainModel, SubnetModel, HostRouteModel,
-            RouteTargetModel, FipPoolModel,SubnetDNSModel, VNCfgFormatters) {
+            RouteTargetModel, FipPoolModel,SubnetDNSModel, VNCfgFormatters, FatFlowModel) {
     var formatVNCfg = new VNCfgFormatters();
 
     var vnCfgModel = ContrailConfigModel.extend({
@@ -97,7 +98,11 @@ define([
             'disable': false,
             'address_allocation_mode': 'user-defined-subnet-only',
             'user_created_flat_subnet_ipam': [],
-            'user_created_ip_fabric_forwarding': false
+            'user_created_ip_fabric_forwarding': false,
+            'disablePort':false,
+            'virtual_network_fat_flow_protocols': {
+                'fat_flow_protocol':[]
+            },
         },
 
         formatModelConfig: function (modelConfig) {
@@ -151,10 +156,64 @@ define([
             this.readProperties(modelConfig);
             this.readQoS(modelConfig);
             this.readBridgeDomains(modelConfig);
+            this.readFatFlows(modelConfig);
 
             //permissions
             this.formatRBACPermsModelConfig(modelConfig);
             return modelConfig;
+        },
+
+        readFatFlows: function(modelConfig) {
+          //Modal config default Fat Flow option formatting
+            var fatFlows = [];
+            var fatFlowList =
+              modelConfig["virtual_network_fat_flow_protocols"]["fat_flow_protocol"];
+            if(fatFlowList != null && fatFlowList.length > 0) {
+                var fatFlowLen = fatFlowList.length;
+                for(var i = 0; i < fatFlowLen; i++) {
+                    var fatFlow_obj = fatFlowList[i];
+                    var fatFlowModel = new FatFlowModel(fatFlow_obj);
+                    this.enableDisablePort(fatFlowModel);
+                    fatFlows.push(fatFlowModel);
+                }
+            }
+            var fatFlowCollectionModel = new Backbone.Collection(fatFlows);
+            modelConfig["virtual_network_fat_flow_protocols"]["fat_flow_protocol"]
+                                                = fatFlowCollectionModel;
+            modelConfig['fatFlowCollection'] = fatFlowCollectionModel;
+        },
+
+        //Fat Flow Add
+        addFatFlow: function() {
+            var fatFlowList = this.model().attributes['fatFlowCollection'],
+                fatFlowModel = new FatFlowModel();
+            this.enableDisablePort(fatFlowModel);
+            fatFlowList.add([fatFlowModel]);
+        },
+
+        //Fat Flow Add
+        addFatFlowByIndex: function(data, fatFlow) {
+            var selectedRuleIndex = data.model().collection.indexOf(fatFlow.model());
+            var fatFlowList = this.model().attributes['fatFlowCollection'],
+                fatFlowModel = new FatFlowModel();
+            this.enableDisablePort(fatFlowModel);
+            fatFlowList.add([fatFlowModel],{at: selectedRuleIndex+1});
+        },
+
+        //Fat Flow Delete
+        deleteFatFlow: function(data, fatFlow) {
+            var fatFlowCollection = data.model().collection,
+                delFatFlow = fatFlow.model();
+            fatFlowCollection.remove(delFatFlow);
+        },
+
+        enableDisablePort: function(fatFlowModel) {
+            fatFlowModel.disablePort = ko.computed((function() {
+                if(this.protocol() == "icmp") {
+                    this.port("0");
+                    return true;
+                }
+            }), fatFlowModel);
         },
 
         readBridgeDomains: function(modelConfig) {

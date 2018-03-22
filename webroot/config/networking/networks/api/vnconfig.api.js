@@ -1337,7 +1337,7 @@ function createVirtualNetwork (request, response, appData)
         return;
     }
 
-    vnConfigData = JSON.parse(JSON.stringify(vnPostData)); 
+    vnConfigData = JSON.parse(JSON.stringify(vnPostData));
     physicalRouters = vnConfigData["virtual-network"]['physical-routers'];
     delete vnConfigData["virtual-network"]['physical-routers'];
 

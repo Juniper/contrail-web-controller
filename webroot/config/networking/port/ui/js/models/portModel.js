@@ -10,7 +10,7 @@ define([
     'config/networking/port/ui/js/models/fixedIPModel',
     'config/networking/port/ui/js/models/allowAddressPairModel',
     'config/networking/port/ui/js/models/dhcpOptionModel',
-    'config/networking/port/ui/js/models/fatFlowModel',
+    'config/common/ui/js/models/fatFlowModel',
     'config/networking/port/ui/js/models/portBindingModel'
 ], function (_, ContrailConfigModel, PortFormatters, FixedIPModel,
              AllowAddressPairModel, DHCPOptionModel, FatFlowModel,
