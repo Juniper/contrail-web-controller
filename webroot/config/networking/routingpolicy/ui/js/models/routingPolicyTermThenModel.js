@@ -85,6 +85,14 @@ define([
                             return "Local preference has to be a number.";
                         }
                     }
+                    if (finalObj.name == "as-path") {
+                        var vals = value.split(',');
+                        for(var i = 0; i < vals.length; i++) {
+                            if (!isNumber(String(vals[i]).trim())){
+                                return "AS path value has to be a number.";
+                            }
+                        }
+                    }
                 }
             }
         }

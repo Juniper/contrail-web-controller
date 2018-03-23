@@ -1515,6 +1515,54 @@ define([
                         }]
                     },
                     {
+                        columns: [
+                            {
+                            elementId: 'import_policy_accordian',
+                            view: "AccordianView",
+                            viewConfig: [
+                                {
+                                elementId: 'import_policy_vcfg',
+                                title: 'Import Policy',
+                                view: "SectionView",
+                                active:false,
+                                viewConfig: {
+                                        rows: [
+                                        {
+                                            columns: [
+                                            {
+                                                elementId: 'routing_policy_refs',
+                                                view: 'FormMultiselectView',
+                                                viewConfig: {
+                                                    label: 'Routing Policy(s)',
+                                                    path: 'routing_policy_refs',
+                                                    class: 'col-xs-12',
+                                                    dataBindValue: 'routing_policy_refs',
+                                                    elementConfig: {
+                                                        placeholder: 'Select Routing Policies',
+                                                        dataTextField: "text",
+                                                        dataValueField: "id",
+                                                        separator: cowc.DROPDOWN_VALUE_SEPARATOR,
+                                                        dataSource : {
+                                                            type: 'remote',
+                                                            requestType: 'POST',
+                                                            postData: JSON.stringify({'data':
+                                                                [{'type':'routing-policys'}]}),
+                                                            url:
+                                                            '/api/tenants/config/get-config-list',
+                                                            parse:
+                                                            formatVNCfg.routingPolicyMSFormatter,
+                                                    }
+                                                }
+                                            }
+                                            }
+                                            ]
+                                        },
+                                        ]
+                                    }
+                                }]
+                            }]
+                    },
+                    {
                         columns: [{
                             elementId: 'bridge_domains_accordion',
                             view: "AccordianView",
