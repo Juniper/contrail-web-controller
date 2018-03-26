@@ -780,6 +780,27 @@ define([
                     staticRouteList.length ?
                         staticRouteList.join('<br/>'): '-';
         };
+
+        /*
+         * @routingPolicyFormatter
+         */
+        this.routingPolicyFormatter = function(d, c, v, cd, dc) {
+            var routingPolicies = getValueByJsonPath(dc,
+                    'routing_policy_refs', []);
+            var routingPolicyList = [], routingPolicyArr = [];
+
+            $.each(routingPolicies, function (i, obj) {
+                var flatName = '';
+                cd == -1 ? flatName = obj.to.join(':') :
+                        flatName = obj['to'][2] + ' (' + obj['to'][1] + ')';
+                routingPolicyList.push(flatName);
+                routingPolicyArr.push(flatName);
+            });
+
+            return cd == -1 ? routingPolicyArr :
+                    routingPolicyList.length ?
+                        routingPolicyList.join('<br/>'): '-';
+        };
         /*
          * @polMSFormatter
          */
@@ -795,6 +816,23 @@ define([
             });
 
             return polList;
+        };
+
+        /*
+         * @routingPolicyMSFormatter
+         */
+        this.routingPolicyMSFormatter = function(response) {
+            var routingPolicyResponse = getValueByJsonPath(response,
+                    '0;routing-policys', []);
+            var routingPolicyList = [];
+
+            $.each(routingPolicyResponse, function (i, obj) {
+                var flatName = obj.fq_name;
+                routingPolicyList.push({id: obj.fq_name.join(':'),
+                                text: flatName[2]+ ' (' + flatName[1] + ')'});
+            });
+
+            return routingPolicyList;
         };
 
         /*

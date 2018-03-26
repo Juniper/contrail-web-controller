@@ -462,6 +462,14 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    label: 'Attached Routing Policies',
+                                                    key: 'uuid',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'routingPolicyFormatter',
+                                                    }
+                                                },
+                                                {
                                                     label: 'Floating IP Pool(s)',
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
@@ -761,6 +769,10 @@ define([
     }
     this.staticRouteFormatter = function (v, dc) {
         return formatVNCfg.staticRouteFormatter(null,
+                                        null, null, null, dc);
+    }
+    this.routingPolicyFormatter = function (v, dc) {
+        return formatVNCfg.routingPolicyFormatter(null,
                                         null, null, null, dc);
     }
     this.QoSFormatter = function (v, dc) {

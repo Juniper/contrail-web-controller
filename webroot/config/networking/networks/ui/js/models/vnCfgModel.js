@@ -103,6 +103,7 @@ define([
             'virtual_network_fat_flow_protocols': {
                 'fat_flow_protocol':[]
             },
+            'routing_policy_refs':[]
         },
 
         formatModelConfig: function (modelConfig) {
@@ -117,6 +118,9 @@ define([
             modelConfig['route_table_refs'] =
                     formatVNCfg.staticRouteFormatter(null, null,
                                                         null, -1, modelConfig);
+            modelConfig['routing_policy_refs'] =
+                formatVNCfg.routingPolicyFormatter(null, null,
+                                                    null, -1, modelConfig);
             var vnUUID = getValueByJsonPath(modelConfig, 'uuid', null);
 
             if (vnUUID != null) {
@@ -687,6 +691,21 @@ define([
             attr['route_table_refs'] = routeList;
         },
 
+        getRoutingPolicyList: function(attr) {
+            var policies = [], routingPolicyList = [];
+
+            if (attr.routing_policy_refs.length) {
+                policies =
+                    attr.routing_policy_refs.split(cowc.DROPDOWN_VALUE_SEPARATOR);
+            }
+            policies.every(function(policy) {
+                routingPolicyList.push({'to': policy.split(':')});
+                return true;
+            });
+
+            attr['routing_policy_refs'] = routingPolicyList;
+        },
+
         setDHCPOptionList: function(subnet, dhcpOption) {
             if (typeof subnet.dhcp_option_list == "function") {
                 subnet.dhcp_option_list().dhcp_option = dhcpOption;
@@ -1247,6 +1266,7 @@ define([
                 this.getEcmpHashing(newVNCfgData);
                 this.getQoS(newVNCfgData);
                 this.getBridgeDomains(newVNCfgData);
+                this.getRoutingPolicyList(newVNCfgData);
 
                 //ip fabric forwarding
                 if(newVNCfgData.user_created_ip_fabric_forwarding === true) {

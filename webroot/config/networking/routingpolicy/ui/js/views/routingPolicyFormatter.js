@@ -333,6 +333,7 @@ define([
                             returnThenObj["update"]["as_path"]['expand'] = {};
                             //assuming asn-list is comma separated
                             var asnList = val.split(',');
+                            asnList = asnList.map(function(d,i){return d.trim();});
                             returnThenObj["update"]["as_path"]['expand']['asn_list'] = asnList;
                             break;
                         }
