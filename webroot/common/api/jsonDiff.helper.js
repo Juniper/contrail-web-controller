@@ -8,13 +8,13 @@ var configJsonModifyObj = {
     "bgp-router": {
         "isConfig": true,
         'preProcessCB': {
-            'comparators': ['to']
+            'comparators': ['to', 'attr']
         }
     },
     "virtual-router": {
         "isConfig": true,
         'preProcessCB': {
-            'comparators': ['to']
+            'comparators': ['to', 'attr']
         }
     },
     "physical-router": {
