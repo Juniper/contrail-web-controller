@@ -93,8 +93,6 @@ define([
             dataItem.virtual_machine_interface_refs = virtualMachineInterfaceRefs;
             dataItem.is_sub_interface = true;
             dataItem.disable_sub_interface = true;
-            dataItem.securityGroupValue = portFormatters.getProjectFqn()+":default";
-            dataItem.is_sec_grp = true;
             dataItem.virtual_machine_interface_properties = {};
             dataItem.virtual_machine_interface_properties.sub_interface_vlan_tag
                                                             = 'addSubInterface';
@@ -377,10 +375,7 @@ define([
                 "title": ctwl.TITLE_ADD_PORT,
                 "iconClass": "fa fa-plus",
                 "onClick": function () {
-                    var dataItem = {};
-                    dataItem.securityGroupValue = portFormatters.getProjectFqn()+":default";
-                    dataItem.is_sec_grp = true;
-                    var portModel = new PortModel(dataItem);
+                    var portModel = new PortModel();
                     portEditView.model = portModel;
                     showHideModelAttrs(portModel);
                     subscribeModelChangeEvents(portModel, ctwl.CREATE_ACTION);
@@ -401,10 +396,6 @@ define([
     function showHideModelAttrs(portModel) {
         portModel.is_sec_grp_disabled = ko.computed((function() {
             if(this.port_security_enabled() == true) {
-                if (this.securityGroupValue() == "") {
-                    var sgDefaultVal = [portFormatters.getProjectFqn()+":default"];
-                    this.securityGroupValue(sgDefaultVal);
-                }
                 return false;
             } else {
                 this.securityGroupValue([]);

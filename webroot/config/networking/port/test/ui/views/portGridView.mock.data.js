@@ -41,7 +41,56 @@
      this.portModalMockCNInput = {
              "virtualNetworkName": "test_refs"
      };
-     this.portModalMockCNOutput = {"virtual-machine-interface":{"fq_name":["default-domain","admin"],"parent_type":"project","id_perms":{"enable":true},"virtual_network_refs":[{"to":["default-domain","admin","test_refs"]}],"port_security_enabled":true,"security_group_refs":[{"to":["default-domain","admin","default"]}],"floating_ip_back_refs":[],"virtual_machine_interface_allowed_address_pairs":{},"virtual_machine_interface_device_owner":"","security_logging_object_refs":[],"service_health_check_refs":[],"instance_ip_back_refs":[{"instance_ip_address":[{"fixedIp":"","domain":"default-domain","project":"admin"}],"subnet_uuid":"26ca114a-5fb9-488a-892d-b76041530fff","instance_ip_family":"v4"}],"interface_route_table_refs":[],"virtual_machine_interface_dhcp_option_list":{},"virtual_machine_interface_fat_flow_protocols":{"fat_flow_protocol":[]},"virtual_machine_interface_bindings":{"key_value_pair":[]},"virtual_machine_interface_properties":{"local_preference":null,"interface_mirror":null},"virtual_machine_interface_refs":[],"ecmp_hashing_include_fields":{},"virtual_machine_interface_disable_policy":false,"qos_config_refs":[],"bridge_domain_refs":[],"perms2":{"owner_access":7,"global_access":0,"share":[]},"tag_refs":[]}};
+     this.portModalMockCNOutput = {
+        "virtual-machine-interface" : {
+            "fq_name" : [ "default-domain", "admin" ],
+            "parent_type" : "project",
+            "id_perms" : {
+                "enable" : true
+            },
+            "virtual_network_refs" : [ {
+                "to" : [ "default-domain", "admin", "test_refs" ]
+            } ],
+            "port_security_enabled" : true,
+            "floating_ip_back_refs" : [],
+            "virtual_machine_interface_allowed_address_pairs" : {},
+            "virtual_machine_interface_device_owner" : "",
+            "security_logging_object_refs" : [],
+            "service_health_check_refs" : [],
+            "instance_ip_back_refs" : [ {
+                "instance_ip_address" : [ {
+                    "fixedIp" : "",
+                    "domain" : "default-domain",
+                    "project" : "admin"
+                } ],
+                "subnet_uuid" : "26ca114a-5fb9-488a-892d-b76041530fff",
+                "instance_ip_family" : "v4"
+            } ],
+            "interface_route_table_refs" : [],
+            "virtual_machine_interface_dhcp_option_list" : {},
+            "virtual_machine_interface_fat_flow_protocols" : {
+                "fat_flow_protocol" : []
+            },
+            "virtual_machine_interface_bindings" : {
+                "key_value_pair" : []
+            },
+            "virtual_machine_interface_properties" : {
+                "local_preference" : null,
+                "interface_mirror" : null
+            },
+            "virtual_machine_interface_refs" : [],
+            "ecmp_hashing_include_fields" : {},
+            "virtual_machine_interface_disable_policy" : false,
+            "qos_config_refs" : [],
+            "bridge_domain_refs" : [],
+            "perms2" : {
+                "owner_access" : 7,
+                "global_access" : 0,
+                "share" : []
+            },
+            "tag_refs" : []
+        }
+     };
      this.portMockData =
          [
              {
