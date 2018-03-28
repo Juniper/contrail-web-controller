@@ -150,6 +150,7 @@ define([
                                     label: 'Protocol',
                                     path : 'protocol',
                                     class: 'col-xs-6',
+                                    disabled: true,
                                     dataBindValue :
                                         'protocol',
                                     elementConfig : {

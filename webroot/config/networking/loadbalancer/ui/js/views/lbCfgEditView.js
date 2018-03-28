@@ -409,7 +409,7 @@ define([
                                          elementConfig : {
                                              dataTextField : "text",
                                              dataValueField : "id",
-                                             allowClear: true,
+                                             //allowClear: true,
                                              placeholder : 'Select Protocol',
                                              data : [{id: 'HTTP', text:'HTTP'},
                                                      //{id: 'HTTPS', text:'HTTPS'},
@@ -1087,7 +1087,7 @@ define([
                         },
                         onNext: function(params) {
                             if(options.mode === 'loadbalancer'){
-                                if(params.model.pool_method() !== '' && params.model.pool_name() !== ''){
+                                if(params.model.pool_method() !== '' && params.model.pool_protocol() !== '' && params.model.pool_name() !== ''){
                                     $('#loadbalancer_loadbalancer_wizard-p-2 .alert-error').css({'display': 'none'});
                                     $('#loadbalancer_loadbalancer_wizard-p-2 > div > span').text('');
                                     return true;
@@ -1096,7 +1096,7 @@ define([
                                     $('#loadbalancer_loadbalancer_wizard-p-2 > div > span').text('Please enter the required field.');
                                 }
                             }else{
-                                if(params.model.pool_method() !== '' && params.model.pool_name() !== ''){
+                                if(params.model.pool_method() !== '' && params.model.pool_protocol() !== '' && params.model.pool_name() !== ''){
                                     $('#loadbalancer_loadbalancer_wizard .actions > ul > li > a')[0].setAttribute('style','visibility: visible');
                                     $('#loadbalancer_loadbalancer_wizard-p-1 .alert-error').css({'display': 'none'});
                                     $('#loadbalancer_loadbalancer_wizard-p-1 > div > span').text('');
