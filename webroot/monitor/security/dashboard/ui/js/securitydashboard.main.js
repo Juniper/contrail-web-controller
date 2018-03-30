@@ -7,10 +7,11 @@ var securityDashboardLoader = new SecurityDashboardLoader();
 
 function SecurityDashboardLoader() {
     this.load = function (paramObject) {
+        var self = this;
     	var hashParams = paramObject['hashParams'];
         requirejs(['security-dashboard'], function (SecurityDashboard) {
-            var securityDashboard = new SecurityDashboard();
-            securityDashboard.render({hashParams: hashParams});
+            self.securityDashboard = new SecurityDashboard();
+            self.securityDashboard.render({hashParams: hashParams});
         });
 
     };

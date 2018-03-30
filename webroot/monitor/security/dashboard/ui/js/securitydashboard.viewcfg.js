@@ -2,9 +2,9 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['lodashv4', 'contrail-view', 'contrail-list-model',
+define(['lodashv4', 'contrail-view', 'contrail-list-model', 'legend-view', 'node-color-mapping',
         'monitor/security/trafficgroups/ui/js/views/TrafficGroupsHelpers'],
-        function(_, ContrailView, ContrailListModel, TrafficGroupsUtils){
+        function(_, ContrailView, ContrailListModel, LegendView, NodeColorMapping, TrafficGroupsUtils){
     var SecurityDashboradViewConfig = function () {
         var self = this,
             tgHelpers = new TrafficGroupsUtils(),
@@ -29,6 +29,8 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                         staggerLabels: true,
                         chartTemplate: 'plain-chart-template',
                         showLegend: true,
+                        isChartSettingsOverride: false,
+                        legendView: LegendView,
                         xLblFormatter: function (x) {
                             if (typeof x == 'number') {
                                 return '';
@@ -71,6 +73,7 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                 view: 'MultiBarChartView',
                 viewConfig: {
                     chartOptions: {
+                        colors: cowc.FIVE_NODE_COLOR,
                         yFormatter: function(y) {return formatBytes(y);},
                         xAxisLabel: '',
                         yAxisLabel: 'Traffic',
@@ -84,6 +87,9 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                         stacked: true,
                         zerofill: false,
                         staggerLabels: true,
+                        showLegend: true,
+                        isChartSettingsOverride: false,
+                        legendView: LegendView,
                         xLblFormatter: function (x, chartData) {
                             if (typeof x == 'number') {
                                 return '';
@@ -95,7 +101,9 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                         tooltipContent: function (d, chartOptions) {
                             return tooltipContent(d, chartOptions);
                         },
-                        showLegend: true
+                        showLegend: true,
+                        isChartSettingsOverride: false,
+                        legendView: LegendView
                     },
                     parseFn: function (data, chartOptions) {
                         var groupBy = _.result(chartOptions, 'groupBy', []);
@@ -131,6 +139,9 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                         stacked: true,
                         zerofill: true,
                         staggerLabels: true,
+                        showLegend: true,
+                        isChartSettingsOverride: false,
+                        legendView: LegendView,
                         xLblHTMLFormatter: function (textTagsArr) {
                             textTagsArr.each(function (d) {
                                 var text = d3.select(this).text();
@@ -228,6 +239,9 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                         stacked: true,
                         zerofill: true,
                         staggerLabels: true,
+                        showLegend: true,
+                        isChartSettingsOverride: false,
+                        legendView: LegendView,
                         xLblFormatter: function (x, chartData) {
                             if (typeof x == 'string') {
                                 var barObj = _.filter(_.result(chartData, '0.values', []), function (value) {
@@ -299,6 +313,8 @@ define(['lodashv4', 'contrail-view', 'contrail-list-model',
                         },
                         legendPadding: 20,
                         showLegend: true,
+                        isChartSettingsOverride: false,
+                        legendView: LegendView,
                         //legendRightAlign: true,
                         chartTemplate: 'plain-chart-template',
                         showLabels: false,
