@@ -21,7 +21,7 @@ define(['lodashv4'],
                 baseModel:'TOP_TAGS_MODEL',
                 baseView: 'TOP_TAGS_VIEW',
                 itemAttr: {
-                    width: 0.5,
+                    width: 0.85,
                     height: 1,
                     title: 'Top Applications',
                     showTitle: true
@@ -31,7 +31,7 @@ define(['lodashv4'],
                 baseModel:'TOP_VN_MODEL',
                 baseView: 'TOP_VN_VIEW',
                 itemAttr: {
-                    width: 0.5,
+                    width: 0.34,
                     height: 1,
                     title: 'Top Virtual Neworks',
                     showTitle: true
@@ -41,7 +41,7 @@ define(['lodashv4'],
                 baseModel:'TOP_ACL_WITH_DENY_MODEL',
                 baseView: 'TOP_ACL_WITH_DENY_VIEW',
                 itemAttr: {
-                    width: 0.45,
+                    width: 0.34,
                     height: 1,
                     title: 'Top ACLs with Deny',
                     showTitle: true
@@ -51,7 +51,7 @@ define(['lodashv4'],
                 baseModel: 'TOP_VMI_WITH_DENY_MODEL',
                 baseView: 'TOP_VMI_WITH_DENY_VIEW',
                 itemAttr: {
-                    width: 0.45,
+                    width: 0.34,
                     height: 1,
                     title: 'Top VMIs with Deny',
                     showTitle: true
