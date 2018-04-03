@@ -243,7 +243,7 @@ define([
                                                                     dataBindOptionList: 'additionalValueMultiSelect()',
                                                                     width: 285,
                                                                     elementConfig: {
-                                                                        placeholder: 'Enter the value',
+                                                                        placeholder: 'Select or Enter value',
                                                                         dataTextField: "text",
                                                                         dataValueField: "id",
                                                                         tags: true
@@ -261,7 +261,7 @@ define([
                                                                     visible: 'name()() == "prefix"',
                                                                     dataBindValue: "value()",
                                                                     width: 285,
-                                                                    placeholder: 'Enter Value'
+                                                                    placeholder: 'Select or Enter value'
                                                                 }
                                                             },
                                                             {

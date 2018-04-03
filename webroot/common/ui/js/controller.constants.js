@@ -125,7 +125,7 @@ define([
             {id: 'interface', text: 'interface'},
             {id: 'interface-static', text: 'interface-static'},
             {id: 'service-interface', text: 'service-interface'},
-            {id: 'BGPaaS', text: 'BGPaaS'}
+            {id: 'bgpaas', text: 'BGPaaS'}
         ];
         this.URL_NETWORK = '/#p=mon_networking_networks&q[type]=network&q[view]=details&q[focusedElement][fqName]={{key}}&q[focusedElement][type]=virtual-network';
         this.URL_INSTANCE = '/#p=mon_networking_instances&q[type]=instance&q[view]=details&q[focusedElement][fqName]={{params.vn}}&q[focusedElement][uuid]={{key}}&q[focusedElement][type]=virtual-network';
