@@ -116,7 +116,7 @@ define([
                     var currentPeer = selectedPeers[i];
                     var authData = null;
                     var adminDown = false, passive = false;
-                    var holdTime = 0, loopCount = 0;
+                    var holdTime = 0, loopCount = 0, localAutonomousSystem = 0;
                     var familyAttrs = [];
                     var attr = getValueByJsonPath(currentPeer,
                         "attr;session;0;attributes;0", null);
@@ -126,6 +126,7 @@ define([
                         passive = getValueByJsonPath(attr, "passive", false);
                         holdTime = getValueByJsonPath(attr, "hold_time", 0);
                         loopCount = getValueByJsonPath(attr, "loop_count", 0);
+                        localAutonomousSystem = getValueByJsonPath(attr, "local_autonomous_system", 0);
                         familyAttrs = getValueByJsonPath(attr, "family_attributes", []);
                     }
                     peerModel = new BGPPeersModel({
@@ -136,6 +137,7 @@ define([
                         passive : passive,
                         hold_time : holdTime,
                         loop_count : loopCount,
+                        local_autonomous_system : localAutonomousSystem,
                         /*peerASN :
                             currentPeer.bgp_router_parameters.autonomous_system,*/
                         family_attributes: familyAttrs,
@@ -254,6 +256,7 @@ define([
                     passive : peer.passive(),
                     holdTime : peer.hold_time() ? Number(peer.hold_time()) : 0,
                     loopCount : peer.loop_count() ? Number(peer.loop_count()) : 0,
+                    localAutonomousSystem : peer.local_autonomous_system() ? Number(peer.local_autonomous_system()) : 0,
                     authData : authData,
                     familyAttrs : peer.getFamilyAttrs(peer.family_attrs())
                 });
@@ -317,6 +320,7 @@ define([
                                             passive : peerAttr.passive,
                                             hold_time : peerAttr.holdTime,
                                             loop_count : peerAttr.loopCount,
+                                            local_autonomous_system : peerAttr.localAutonomousSystem,
                                             auth_data : selectedData[i].authData,
                                             family_attributes : selectedData[i].familyAttrs
                                         }

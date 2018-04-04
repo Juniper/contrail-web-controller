@@ -238,7 +238,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                                 elementId: "admin_state",
                                                 name: "State",
                                                 view: "FormCheckboxView",
-                                                width: 70,
+                                                width: 50,
                                                 class: "bgp-peer-text-center",
                                                 viewConfig: {
                                                     path: "admin_state",
@@ -251,7 +251,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                                 elementId: "passive",
                                                 name: "Passive",
                                                 view: "FormCheckboxView",
-                                                width: 70,
+                                                width: 50,
                                                 class: "bgp-peer-text-center",
                                                 viewConfig: {
                                                     path: "passive",
@@ -264,7 +264,7 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                                 elementId: "hold_time",
                                                 name: "Hold Time",
                                                 view: "FormInputView",
-                                                width: 120,
+                                                width: 100,
                                                 viewConfig: {
                                                     path: "hold_time",
                                                     placeholder: "0",
@@ -277,11 +277,24 @@ define(['underscore', 'config/infra/bgp/ui/js/bgpFormatters'],
                                                 elementId: "loop_count",
                                                 name: "Loop Count",
                                                 view: "FormInputView",
-                                                width: 120,
+                                                width: 100,
                                                 viewConfig: {
                                                     path: "loop_count",
                                                     placeholder: "0",
                                                     dataBindValue: "loop_count()",
+                                                    width: 120,
+                                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW
+                                                }
+                                            },
+                                            {
+                                                elementId: "local_autonomous_system",
+                                                name: "Local ASN",
+                                                view: "FormInputView",
+                                                width: 100,
+                                                viewConfig: {
+                                                    path: "local_autonomous_system",
+                                                    placeholder: "0",
+                                                    dataBindValue: "local_autonomous_system()",
                                                     width: 120,
                                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW
                                                 }
