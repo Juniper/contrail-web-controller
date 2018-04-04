@@ -66,6 +66,7 @@ define(['underscore'], function(_){
                     <th class='col-xs-1'>Passive</th>\
                     <th class='col-xs-1'>Hold Time (seconds)</th>\
                     <th class='col-xs-1'>Loop Count</th>\
+                    <th class='col-xs-1'>Local ASN</th>\
                     <th class='col-xs-1'>Auth Mode</th>\
                     <th class='col-xs-2'>Family Attributes</th></tr></thead>";
                 bgpRefs.forEach(function(bgp){
@@ -88,6 +89,7 @@ define(['underscore'], function(_){
                     peerString += passive + "</td><td>";
                     peerString += getValueByJsonPath(attr, "hold_time", "-") + "</td><td>";
                     peerString += getValueByJsonPath(attr, "loop_count", "-") + "</td><td>";
+                    peerString += getValueByJsonPath(attr, "local_autonomous_system", "-") + "</td><td>";
                     peerString += getValueByJsonPath(attr, 'auth_data;key_type', '-')
                     peerString += "</td><td>";
                     var familyAttrs = getValueByJsonPath(attr, "family_attributes", []);

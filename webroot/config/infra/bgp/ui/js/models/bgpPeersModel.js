@@ -20,7 +20,8 @@ define([
             'passive' : false,
             'hold_time' : null,
             'loop_count' : null,
-            'family_attributes': []
+            'family_attributes': [],
+            'local_autonomous_system': null
         },
 
         formatModelConfig: function(modelConfig){
@@ -133,6 +134,14 @@ define([
                         var holdTime = Number(value);
                         if (isNaN(holdTime) || holdTime < 1 || holdTime > 65535) {
                             return "Enter valid  Hold Time between 1 - 65535" ;
+                        }
+                    }
+                },
+                'local_autonomous_system' : function(value, attr, finalObj){
+                    if(value) {
+                        var asn = Number(value);
+                        if (isNaN(asn) || asn < 1 || asn > 65534) {
+                            return "Enter valid Local ASN between 1-65534";
                         }
                     }
                 },
