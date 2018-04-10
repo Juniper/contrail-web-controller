@@ -25,6 +25,11 @@ define([
             self = this;
             var viewConfig = self.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+            var draftMode ="";
+                if(viewConfig.viewMode == ctwc.FW_DRAFTED){
+                    draftMode = " - Drafts";
+                }
+                viewConfig.draftTitle = draftMode;
             self.renderView4Config(self.$el, self.model,
                 getFWPolicyGridViewConfig(viewConfig));
         }
@@ -109,7 +114,7 @@ define([
             title = '';
         }
         else{
-            title = ctwl.TITLE_FW_POLICY;
+            title = ctwl.TITLE_FW_POLICY  + viewConfig.draftTitle;
         }
         var gridElementConfig = {
             header: {

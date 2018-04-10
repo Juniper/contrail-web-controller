@@ -447,8 +447,7 @@ function getConfigDetails (req, res, appData)
     });
 }
 
-function getConfigAsync (postData, detail, appData, callback)
-{
+function getConfigAsync (postData, detail, appData, callback){
     var dataList = _.result(postData, "data", null);
     if (null == dataList) {
         var error = new appErrors.RESTServerError("Invalid data format");
@@ -2216,6 +2215,7 @@ function setTags(setTagsMap, results, appData, callback)
 exports.getConfigUUIDList = getConfigUUIDList;
 exports.deleteMultiObject = deleteMultiObject;
 exports.getConfigDetails = getConfigDetails;
+exports.getConfigAsync= getConfigAsync;
 exports.createConfigObject = createConfigObject;
 exports.updateConfigObject = updateConfigObject;
 exports.createConfigObjects = createConfigObjects;

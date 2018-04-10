@@ -32,8 +32,7 @@ define([
                 $('#Apppolicy_review').off().on('click', function() {
                     fwProjectReview.renderReviewFW({
                         "title": 'Review Project Polices',
-                        //'mode': 'add',
-                      // 'isDraftMode': viewConfig.isDraftMode,
+                        viewConfig:self.viewConfig,
                         callback: function () {
                              self.refreshFWTabs(self.viewMap, self.dataType);
                         }});
@@ -43,7 +42,8 @@ define([
 
         getProjectSecPolicyDetils: function(projectId) {
             var ajaxConfig = {},
-                self = this;
+                self = this,
+                scopeUUID="";
             ajaxConfig.type = "POST";
             ajaxConfig.async = false;
             ajaxConfig.data = JSON.stringify(
@@ -52,9 +52,13 @@ define([
             contrail.ajaxHandler(ajaxConfig, null, function(secPolicyDetails) {
                 var secPolicyDraftMode = _.get(secPolicyDetails,
                         '0.projects.0.project.enable_security_policy_draft', false);
+                scopeUUID =  _.get(secPolicyDetails,
+                        '0.projects.0.project.uuid', "");
                 self.viewConfig.isDraftMode = secPolicyDraftMode;
+                self.viewConfig.scopeUUID = scopeUUID;
             }, function() {
                 self.viewConfig.isDraftMode = false;
+                self.viewConfig.scopeUUID = scopeUUID;
             });
         },
 

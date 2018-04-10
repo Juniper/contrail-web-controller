@@ -661,6 +661,7 @@ define([
         this.GLOBAL_FLOW_AGING_PREFIX_ID = "global_flow_aging";
         this.GLOBAL_FLOW_AGING_LIST_VIEW_ID = "global-flow-aging-list-view";
 
+        this.DEFAULT_GLOBAL_SYSTEM_CONFIG = 'default-global-system-config';
         this.DEFAULT_POLICY_MANAGEMENT = "default-policy-management";
         this.DRAFT_POLICY_MANAGEMENT = "draft-policy-management";
         this.GLOBAL_POLICY_MANAGEMENT_OPTIONS_MAP =
@@ -1108,6 +1109,9 @@ define([
         this.FW_REVIEW = 'fw_review';
         this.FW_GLOBAL_REVIEW_PREFIX_ID = "fw-global-review-config";
         this.FW_PROJECT_REVIEW_PREFIX_ID = "fw-project-review-config";
+        this.URL_SECURITY_POLICY_DRAFT_ACTION = "/api/tenants/config/security-policy-draft";
+        this.URL_SECURITY_POLICY_DRAFT_DIFF = "/api/tenants/config/security-policy-drafts-diff";
+
         //this.NEW_APPLICATION_POLICY_SET_LIST_VIEW_ID = "new-application-policy-set-list-view";
         this.CREATE_NEW_APPLICATION_POLICY_SET_VIEW_ID = 'create-new-application-policy-set-view';
         this.NEW_APPLICATION_POLICY_SET_SECTION_ID = 'new-application-policy-set-section';
