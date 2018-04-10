@@ -118,7 +118,7 @@ define([
                         if (isGlobal) {
                             ajaxConfig.data = JSON.stringify({
                                 data : [ {
-                                    type : 'policy-managements'
+                                    type : 'global-system-configs'
                                 } ]
                             });
                         } else {
@@ -138,7 +138,7 @@ define([
                                             if (isGlobal) {
                                                 var globalSecOptions = _.get(
                                                         result,
-                                                        '0.policy-managements',
+                                                        '0.global-system-configs',
                                                         []);
                                                 secPolicyMgmtConfig = _
                                                         .find(
@@ -148,14 +148,14 @@ define([
                                                                     var fqName = _
                                                                             .get(
                                                                                     policyMgmt,
-                                                                                    'policy-management.fq_name.0',
+                                                                                    'global-system-config.fq_name.0',
                                                                                     '');
-                                                                    return fqName === ctwc.DEFAULT_POLICY_MANAGEMENT;
+                                                                    return fqName === ctwc.DEFAULT_GLOBAL_SYSTEM_CONFIG;
                                                                 });
                                                 secPolicyMgmtConfig = _
                                                         .get(
                                                                 secPolicyMgmtConfig,
-                                                                'policy-management',
+                                                                'global-system-config',
                                                                 {});
                                             } else {
                                                 secPolicyMgmtConfig = _.get(

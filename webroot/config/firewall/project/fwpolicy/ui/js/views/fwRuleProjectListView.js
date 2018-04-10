@@ -123,7 +123,8 @@ define([
                                             pageSizeSelect: [10, 50, 100]
                                         }
                                     },
-                                    isGlobal: viewConfig.isGlobal
+                                    isGlobal: viewConfig.isGlobal,
+                                    viewMode: viewConfig.dataType
                                 }
                             }
                         ]
