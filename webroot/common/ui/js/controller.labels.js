@@ -810,6 +810,7 @@ define([
         this.TMPL_CORE_GENERIC_EDIT = 'core-generic-edit-form-template';
         this.TMPL_CORE_GENERIC_DEL = 'core-generic-delete-form-template';
         this.TMPL_APPLICATION_POLICY_SET = 'application-policy-set-edit-form-template';
+        this.TMPL_SECURITY_POLICY_SET_REVIEW = 'security-policy-draft-review-template';
         this.CONFIG_LINK_LOCAL_SERVICES_PAGE_ID = 'config-link-local-services-page';
         this.CONFIG_LINK_LOCAL_SERVICES_LIST_VIEW_ID = 'config-link-local-services-list';
         this.CONFIG_LINK_LOCAL_SERVICES_SECTION_ID = 'lls';
@@ -863,7 +864,7 @@ define([
         this.TITLE_FW_COMMITTED = 'Commited';
         this.TITLE_FW_DRAFTED = 'Drafted';
         this.TITLE_FW_REVIEW = 'Review';
-        /* RBAC labels */
+       /* RBAC labels */
         this.TITLE_RBAC = 'API Access';
         this.TITLE_GLOBAL_RBAC = 'Global API Access';
         this.TITLE_DOMAIN_RBAC = 'Domain API Access';

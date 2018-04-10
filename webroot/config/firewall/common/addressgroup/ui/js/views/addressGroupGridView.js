@@ -23,6 +23,11 @@ define([
                 viewConfig = this.attributes.viewConfig,
                 elementId = _.get(viewConfig, 'elementIdPrefix', '');
                 pagerOptions = viewConfig['pagerOptions'];
+                var draftMode ="";
+                if(viewConfig.viewMode == ctwc.FW_DRAFTED){
+                    draftMode = " - Drafts";
+                }
+                viewConfig.draftTitle = draftMode;
             self.renderView4Config(self.$el, self.model,
                                    getAddressGroupGridViewConfig(viewConfig,elementId));
             $("#aps-back-button").off('click').on('click', function(){
@@ -67,7 +72,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.TITLE_SEC_GRP_ADDRESS_GROUP
+                    text: ctwl.TITLE_SEC_GRP_ADDRESS_GROUP + viewConfig.draftTitle
                 },
                 advanceControls: getHeaderActionConfig(viewConfig),
             },
@@ -361,7 +366,6 @@ define([
                                                         formatter: 'addressGroupFormatter'
                                                     }
                                                 }
-                                                
                                             ].concat(ctwu.getTagsExpandDetails())
                                         }
                                     ]

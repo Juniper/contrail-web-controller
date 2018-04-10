@@ -89,6 +89,7 @@ define([
                                     },
                                     isProject: true,
                                     isGlobal: false,
+                                    viewMode: viewConfig.dataType,
                                     viewConfig: viewConfig
                                 }
                             }

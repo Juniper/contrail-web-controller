@@ -56,7 +56,7 @@ define([
                 	if("application-policy-set" in val) {
                         dataItems.push(val['application-policy-set']);
                     }
-                }); 
+                });
             return dataItems;
         }
     });
@@ -83,6 +83,7 @@ define([
                                     },
                                     viewConfig: viewConfig,
                                     isGlobal: false,
+                                    viewMode: viewConfig.dataType,
                                     isWizard: true
                                 }
                             }

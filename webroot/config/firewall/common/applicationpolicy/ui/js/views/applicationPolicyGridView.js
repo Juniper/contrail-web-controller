@@ -23,6 +23,11 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+                var draftMode ="";
+                if(viewConfig.viewMode == ctwc.FW_DRAFTED){
+                    draftMode = " - Drafts";
+                }
+                viewConfig.draftTitle = draftMode;
             self.renderView4Config(self.$el, self.model,
                                    getApplicationPolicyGridViewConfig(viewConfig));
         }
@@ -54,7 +59,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.TITLE_FIREWALL_APPLICATION_POLICY
+                    text: ctwl.TITLE_FIREWALL_APPLICATION_POLICY + viewConfig.draftTitle
                 },
                 advanceControls: getHeaderActionConfig(viewConfig),
             },
@@ -158,7 +163,8 @@ define([
                     dataView = $('#' + ctwc.FIREWALL_APPLICATION_POLICY_GRID_ID).data("contrailGrid")._dataView;
                     var rowData = dataView.getItem(rowIndex);
                     var policy = rowData.firewall_policy_refs;
-                    delete rowData.perms2;
+                    //TODO double check why we are removing the perms2, we are commenting below to fix perms2 owner is required
+                    //delete rowData.perms2;
                     var apsName = rowData.fq_name[rowData.fq_name.length - 1];
                     fwPolicyWizardEditView.model = new FWPolicyWizardModel(rowData);
                     fwPolicyWizardEditView.renderFwWizard({

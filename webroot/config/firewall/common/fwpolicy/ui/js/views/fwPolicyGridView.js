@@ -25,6 +25,11 @@ define([
             self = this;
             var viewConfig = self.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
+            var draftMode ="";
+                if(viewConfig.viewMode == ctwc.FW_DRAFTED){
+                    draftMode = " - Drafts";
+                }
+                viewConfig.draftTitle = draftMode;
             self.renderView4Config(self.$el, self.model,
                 getFWPolicyGridViewConfig(viewConfig));
         }
@@ -69,7 +74,7 @@ define([
                     fwPolicyWizardEditView.model = new FWPolicyWizardModel(dataItem);
                     fwPolicyWizardEditView.renderFwWizard({
                                     "title": 'Edit Firewall Policy',
-                                    'viewConfig': $.extend(viewConfig.viewConfig, { mode: 'edit', isGlobal: viewConfig.isGlobal , 
+                                    'viewConfig': $.extend(viewConfig.viewConfig, { mode: 'edit', isGlobal: viewConfig.isGlobal ,
                                      seletedRows : [], isWizard: true, wizardMode: 'policy', model: dataItem}),
                                      callback: function () {
                                            $(gridElId).data("contrailGrid")._dataView.refreshData();
@@ -109,7 +114,7 @@ define([
             title = '';
         }
         else{
-            title = ctwl.TITLE_FW_POLICY;
+            title = ctwl.TITLE_FW_POLICY  + viewConfig.draftTitle;
         }
         var gridElementConfig = {
             header: {
@@ -194,7 +199,7 @@ define([
                             fwPolicyWizardEditView.model = new FWPolicyWizardModel();
                             fwPolicyWizardEditView.renderFwWizard({
                                             "title": 'Create Firewall Policy',
-                                            'viewConfig': $.extend(viewConfig.viewConfig, { mode: 'add', isGlobal: viewConfig.isGlobal , 
+                                            'viewConfig': $.extend(viewConfig.viewConfig, { mode: 'add', isGlobal: viewConfig.isGlobal ,
                                              seletedRows : [], isWizard: true, wizardMode: 'policy'}),
                                              callback: function () {
                                                    $(gridElId).data("contrailGrid")._dataView.refreshData();

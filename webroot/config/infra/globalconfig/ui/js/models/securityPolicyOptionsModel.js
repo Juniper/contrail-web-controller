@@ -19,7 +19,7 @@ define([
             //if(self.isDeepValid(validations)) {
                 newSecPolicyOptionsConfig =
                     $.extend({}, true, self.model().attributes);
-                var configObjType = isGlobal ? "policy-management" : "project";
+                var configObjType = isGlobal ? "global-system-config" : "project";
                 policyMgmtConfigData[configObjType] = {};
                 if (null != newSecPolicyOptionsConfig['uuid']) {
                     policyMgmtConfigData[configObjType]['uuid'] =
