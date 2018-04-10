@@ -15,7 +15,7 @@ define([
             self.getGlobalSecPolicyDetils();
         },
 
-        renderFWTabs: function (isDraftMode) {
+        renderFWTabs: function (isDraftMode, scopeUUID) {
             var self = this;
             var fwGlobalReview = new FWGlobalReview();
             self.viewConfig.isDraftMode = isDraftMode;
@@ -35,7 +35,8 @@ define([
                 $('#Apppolicy_review').off().on('click', function() {
                 		fwGlobalReview.renderReviewFW({
                             "title": 'Review Global Polices',
-                            //'mode': 'add',
+                            viewConfig:self.viewConfig,
+                            scopeUUID: scopeUUID,
                           // 'isDraftMode': viewConfig.isDraftMode,
                             callback: function () {
                             	 self.refreshFWTabs(self.viewMap, self.dataType);
@@ -49,19 +50,24 @@ define([
                 self = this;
             ajaxConfig.type = "POST";
             ajaxConfig.data = JSON.stringify(
-                    {data: [{type: 'policy-managements', fields: ['enable_security_policy_draft']}]});
+                    {data: [{type: 'global-system-configs', fields: ['enable_security_policy_draft']}]});
             ajaxConfig.url = ctwc.URL_GET_CONFIG_DETAILS;
+            var scopeUUID ="";
             contrail.ajaxHandler(ajaxConfig, null, function(secPolicyDetails) {
-                var result = _.get(secPolicyDetails, '0.policy-managements', []),
+                var result = _.get(secPolicyDetails, '0.global-system-configs', []),
                 secPolicyMgmtConfig = _.find(result, function(policyMgmt) {
-                         return _.get(policyMgmt, 'policy-management.fq_name.0', '')
-                             === ctwc.DEFAULT_POLICY_MANAGEMENT;
+                         return _.get(policyMgmt, 'global-system-config.fq_name.0', '')
+                             === ctwc.DEFAULT_GLOBAL_SYSTEM_CONFIG;
                 }),
                 secPolicyDraftMode = _.get(secPolicyMgmtConfig,
-                        'policy-management.enable_security_policy_draft', false);
-                self.renderFWTabs(secPolicyDraftMode);
+                        'global-system-config.enable_security_policy_draft', false);
+                scopeUUID =  _.get(secPolicyMgmtConfig,
+                        'global-system-config.uuid', false);
+                self.viewConfig.isDraftMode = secPolicyDraftMode;
+                self.viewConfig.scopeUUID = scopeUUID;
+                self.renderFWTabs(secPolicyDraftMode, scopeUUID);
             }, function() {
-                self.renderFWTabs(false);
+                self.renderFWTabs(false,scopeUUID);
             });
         },
         renderInfraPolicyDetails: function(viewConfig) {

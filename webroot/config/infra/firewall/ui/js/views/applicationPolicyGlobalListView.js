@@ -62,7 +62,8 @@ define([
                                         }
                                     },
                                     viewConfig: viewConfig,
-                                    isGlobal: true
+                                    isGlobal: true,
+                                    viewMode: viewConfig.dataType
                                 }
                             }
                         ]

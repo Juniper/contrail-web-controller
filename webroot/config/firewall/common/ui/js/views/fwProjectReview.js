@@ -5,73 +5,96 @@
 define([
     'underscore',
     'contrail-view',
-    "contrail-config-model",
+    "contrail-model",
     'knockback',
     'config/firewall/common/ui/js/views/fwReviewConfigs'
-], function (_, ContrailView, ContrailConfigModel, Knockback, FWReviewConfigs) {
+], function (_, ContrailView, ContrailModel, Knockback, FWReviewConfigs) {
     var prefixId = ctwc.FW_PROJECT_REVIEW_PREFIX_ID;
     var modalId = 'review-' + prefixId;
     var formId = '#' + modalId + '-form';
     var self, reviewConfigs = new FWReviewConfigs();
-    
     var fwProjectReview = ContrailView.extend({
         renderReviewFW: function (options) {
             var editTemplate =
             contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_VIEW),
             editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
             self = this;
-            
+            viewConfig = options.viewConfig;
+            currentProject = viewConfig["projectSelectedValueData"];
             cowu.createModal({
             		'modalId': modalId,
                 'className': 'modal-980',
                 'title': options['title'],
                 'body': editLayout,
-            	    'onCommit': function () {
-                    self.configReviewFW(options);
-            }, 'onRevert': function () {
-                Knockback.release(self.model, document.getElementById(modalId));
-                kbValidation.unbind(self);
-                $("#" + modalId).modal('hide');
-            }, 'onCancel': function () {
-                Knockback.release(self.model, document.getElementById(modalId));
-                kbValidation.unbind(self);
-                $("#" + modalId).modal('hide');
-            }});
+                'onCommit': function () {
+                        self.configDraftReviewProject(options, viewConfig.scopeUUID,"commit");
+                }, 'onRevert': function () {
+                        self.configDraftReviewProject(options, viewConfig.scopeUUID, "revert");
+                }, 'onCancel': function () {
+                    Knockback.release(self.model, document.getElementById(modalId));
+                    kbValidation.unbind(self);
+                    $("#" + modalId).modal('hide');
+                }});
             self.fwRenderReview4Config();
         },
 
-       configReviewFW : function(options) {
-           Knockback.release(self.model, document.getElementById(modalId));
-           kbValidation.unbind(self);
-           $("#" + modalId).modal('hide');
+        configDraftReviewProject : function(options, scopeUUID, action) {
+            var postData = {scope_uuid: scopeUUID, action: action};
+            var self = this;
+            var ajaxConfig = {};
+            ajaxConfig.async = false;
+            ajaxConfig.type = 'POST';
+            ajaxConfig.url = ctwc.URL_SECURITY_POLICY_DRAFT_ACTION;
+            ajaxConfig.data  = JSON.stringify(postData);
+            contrail.ajaxHandler(ajaxConfig, null,
+                function (response) {
+                    options['callback']();
+                    $("#" + modalId).modal('hide');
+                    },
+                function (error) {
+                    cowu.disableModalLoading(modalId, function () {
+                        //self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+                        //                         error.responseText);
+                    });
+                }
+           );
         },
 
         fwRenderReview4Config : function() {
-            this.renderView4Config(
-            		$("#" + modalId).find("#core-view"),
-               new ContrailConfigModel(),
+            var self = this;
+            var review= "";
+            this.getReviews(function(error, results) {
+                review =results;
+                var modelReview= new ContrailModel(results)
+                self.renderView4Config(
+                    $("#" + modalId).find("#core-view"),
+                    modelReview,
                 reviewConfigs.viewConfig(prefixId),
                 "", null, null,
                 function () {
-                   /* self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
-                                             false);
-                    Knockback.applyBindings(self.model,
-                        document.getElementById(modalId));
-                    kbValidation.bind(self,
-                       {collection:
-                           self.model.model().attributes.dscp_entries_fc_pair});
-                    kbValidation.bind(self,
-                        {collection:
-                            self.model.model().attributes.
-                                vlan_priority_entries_fc_pair});
-                    kbValidation.bind(self,
-                        {collection:
-                            self.model.model().attributes.
-                            mpls_exp_entries_fc_pair});
-                    //permissions
-                    ctwu.bindPermissionsValidation(self);*/
                 }, null, null
-            );
+                );
+            });
+           function parseSecurityPolicyDraftDiff(result){
+               return result;
+            }
+        },
+        getReviews: function(callback) {
+            var postData = { parent_fq_name_str:contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
+                    contrail.getCookie(cowc.COOKIE_PROJECT) + ':' +
+             ctwc.DRAFT_POLICY_MANAGEMENT };
+            var ajaxConfig = {};
+            ajaxConfig.type = 'POST';
+            ajaxConfig.url = ctwc.URL_SECURITY_POLICY_DRAFT_DIFF;
+            ajaxConfig.data  = JSON.stringify(postData);
+            contrail.ajaxHandler(ajaxConfig, null,
+                function (response) {
+                    callback(null, response);
+                },
+                function (error) {
+                    callback(error, null);
+                }
+           );
         }
     });
 

@@ -10,6 +10,10 @@
         <define>fwpolicyconfigapi</define>
         <path>./fwpolicyconfig.api</path>
     </require>
+     <require>
+        <define>securitypolicyconfigapi</define>
+        <path>./securitypolicyconfig.api</path>
+    </require>
     <!-- API / Feature definition for Ipam configuration -->
     <!-- 1. create firewall rule - /api/tenants/config/firewall-rules,
                                              createFirewallRules
@@ -25,6 +29,18 @@
         <method>post</method>
         <feature>fwpolicyconfig</feature>
         <callback>fwpolicyconfigapi.createFirewallRule</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/security-policy-drafts-diff</url>
+        <method>post</method>
+        <feature>configUtil</feature>
+        <callback>securitypolicyconfigapi.getDraftsReviewInJSONDiff</callback>
+    </item>
+     <item>
+        <url>/api/tenants/config/security-policy-draft</url>
+        <method>post</method>
+        <feature>fwpolicyconfig</feature>
+        <callback>securitypolicyconfigapi.modifySecurityPolicyDraft</callback>
     </item>
 </urlLists>
 

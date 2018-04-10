@@ -22,6 +22,11 @@ define([
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
                 elementId = _.get(viewConfig, 'elementIdPrefix', '');
+                var draftMode ="";
+                if(viewConfig.viewMode == ctwc.FW_DRAFTED){
+                    draftMode = " - Drafts";
+                }
+                    viewConfig.draftTitle = draftMode;
             self.renderView4Config(self.$el, self.model,
                                    getServiceGroupGridViewConfig(viewConfig,elementId));
             $("#aps-back-button").off('click').on('click', function(){
@@ -66,7 +71,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.TITLE_SEC_GRP_SERVICE_GROUP
+                    text: ctwl.TITLE_SEC_GRP_SERVICE_GROUP + viewConfig.draftTitle
                 },
                 advanceControls: getHeaderActionConfig(viewConfig),
             },

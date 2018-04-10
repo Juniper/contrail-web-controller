@@ -13,18 +13,6 @@ define(["underscore"],
                     title: "Review Policies",
                     viewConfig:{
                         rows: [
-                            { columns:[{
-                                elementId: 'apsReviews',
-                                view: "FormTextView",
-                                viewConfig: {
-                                    width: 800,
-                                    value: "Working in progress",
-                                    elementConfig: {
-                                        class: "and-clause-text"
-                                    }
-                                }
-                                }]
-                            },
                             {
                                  columns:[{
                                    elementId: "aps_entries_accordion",
@@ -42,17 +30,17 @@ define(["underscore"],
                                }]
                             },{
                                 columns:[{
-                                    elementId: "fp_entries_accordion",
+                                    elementId: "fwp_entries_accordion",
                                     view: "AccordianView",
                                     viewConfig:[{
-                                       elementId: "fp_entries_section",
+                                       elementId: "fwp_entries_section",
                                        active:false,
                                        view:  "SectionView",
                                        title: "Firewall Policies",
                                        viewConfig:{
                                            rows: [{
                                                columns:
-                                                  this.FPEntriesSection()
+                                                  this.FWPEntriesSection()
                                             }]
                                         }
                                     }]
@@ -60,17 +48,17 @@ define(["underscore"],
                              },{
                                 columns:[{
                                     elementId:
-                                        "fr_entries_accordion",
+                                        "fwr_entries_accordion",
                                     view: "AccordianView",
                                     viewConfig:[{
-                                       elementId:"fr_entries_section",
+                                       elementId:"fwr_entries_section",
                                        active:false,
                                        view:  "SectionView",
                                        title: "Firewall Rules",
                                        viewConfig:{
                                            rows: [{
                                                columns:
-                                              this.FREntriesSection()
+                                              this.FWREntriesSection()
                                             }]
                                         }
                                     }]
@@ -123,65 +111,67 @@ define(["underscore"],
         this.APSEntriesSection = function(){
             return  [{
                 elementId: 'apsReviews',
-                view: "FormTextView",
+                view: "ReviewCollectionView",
+                viewPathPrefix: "/config/firewall/common/ui/js/views/",
                 viewConfig: {
-                    width: 800,
-                    value: "Working in progress",
-                    elementConfig: {
-                        class: "and-clause-text"
-                    }
+                    label:"",
+                    path: "aps_reviews",
+                    class: 'col-xs-12',
+                    collection: "aps_reviews",
+                    collapsed: true
                 }
             }];
         };
-        this.FPEntriesSection = function(){
+        this.FWPEntriesSection = function(){
             return  [{
-                elementId: 'fpReviews',
-                view: "FormTextView",
+                elementId: 'fwpReviews',
+                view: "ReviewCollectionView",
+                viewPathPrefix: "/config/firewall/common/ui/js/views/",
                 viewConfig: {
-                    width: 800,
-                    value: "Working in progress",
-                    elementConfig: {
-                        class: "and-clause-text"
-                    }
+                    label:"",
+                    path: "fwp_reviews",
+                    class: 'col-xs-12',
+                    collection: "fwp_reviews"
                 }
             }];
         };
-        this.FREntriesSection = function(){
+        this.FWREntriesSection = function(){
             return  [{
-                elementId: 'frReviews',
-                view: "FormTextView",
+                elementId: 'fwrReviews',
+                view: "ReviewCollectionView",
+                viewPathPrefix: "/config/firewall/common/ui/js/views/",
                 viewConfig: {
-                    width: 800,
-                    value: "Working in progress",
-                    elementConfig: {
-                        class: "and-clause-text"
-                    }
+                    label:"",
+                    path: "fwr_reviews",
+                    class: 'col-xs-12',
+                    collection: "fwr_reviews"
                 }
             }];
         };
         this.SGEntriesSection = function(){
             return  [{
                 elementId: 'sgReviews',
-                view: "FormTextView",
+                view: "ReviewCollectionView",
+                viewPathPrefix: "/config/firewall/common/ui/js/views/",
                 viewConfig: {
-                    width: 800,
-                    value: "Working in progress",
-                    elementConfig: {
-                        class: "and-clause-text"
-                    }
+                    label:"",
+                    path: "sg_reviews",
+                    class: 'col-xs-12',
+                    collection: "sg_reviews",
+                    collapsed: true
                 }
             }];
-        };
+       };
         this.AGEntriesSection = function(){
             return  [{
                 elementId: 'agReviews',
-                view: "FormTextView",
+                view: "ReviewCollectionView",
+                viewPathPrefix: "/config/firewall/common/ui/js/views/",
                 viewConfig: {
-                    width: 800,
-                    value: "Working in progress",
-                    elementConfig: {
-                        class: "and-clause-text"
-                    }
+                    label:"",
+                    path: "ag_reviews",
+                    class: 'col-xs-12',
+                    collection: "ag_reviews"
                 }
             }];
         };

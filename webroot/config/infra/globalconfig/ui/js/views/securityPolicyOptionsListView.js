@@ -17,7 +17,7 @@ define(
                                         type : "POST",
                                         data : JSON.stringify({
                                             data : [ {
-                                                type : 'policy-managements'
+                                                type : 'global-system-configs'
                                             } ]
                                         })
                                     },
@@ -31,17 +31,17 @@ define(
                         },
                         parseSecPolicyOptionsData : function(result) {
                             var gridDS = [], result = _.get(result,
-                                    '0.policy-managements', []), secPolicyMgmtConfig = _
+                                    '0.global-system-configs', []), secPolicyMgmtConfig = _
                                     .find(
                                             result,
                                             function(policyMgmt) {
                                                 return _
                                                         .get(
                                                                 policyMgmt,
-                                                                'policy-management.fq_name.0',
-                                                                '') === ctwc.DEFAULT_POLICY_MANAGEMENT;
+                                                                'global-system-config.fq_name.0',
+                                                                '') === ctwc.DEFAULT_GLOBAL_SYSTEM_CONFIG;
                                             }), globalPolicyMgmt = _.get(
-                                    secPolicyMgmtConfig, 'policy-management',
+                                    secPolicyMgmtConfig, 'global-system-config',
                                     {});
                             _
                                     .each(
