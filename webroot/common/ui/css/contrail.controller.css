@@ -19,12 +19,7 @@
     padding:3px 1px 0px 10px;
 }
 #global-vrouters-config-tab .ui-widget-header .ui-tabs-active {
-    border-top: 1px solid #ccc;
-    border-left:1px solid #ccc;
-    border-right:1px solid #ccc;
-    border-bottom:1px solid #ffff;
     margin-bottom:-1px;
-
 }
 #global-system-config-tab .ui-widget-header {
     font-size: 12px;
@@ -98,7 +93,50 @@
 .bgCol{
     background-color:#f9f9f9;
 }
-
+#reviewJson .delete {
+	text-decoration: none;
+	color: #b30000;
+	background: #fadad7;
+}
+#reviewJson .insert {
+	background: #eaf2c2;
+	color: #406619;
+	text-decoration: none;
+}
+#reviewJson .panel-title{
+	font-size: 12px;
+    color: #3182bd;
+}
+#reviewJson .panel-heading{
+	font-size: 12px;
+	background-color: #f9f9f9;
+    padding:10px 10px 10px 10px;
+}
+#reviewJson .panel-heading  a:before {
+   font-family: 'FontAwesome';
+   content: "\f078";
+   float: left;
+   transition: all 0.5s;
+   padding: 1px 10px 0px 5px;
+   color: #1d1e1dc7;
+}
+#reviewJson  .panel-heading.active a:before {
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+#reviewJson .fa-lg{
+    font-size: 1.2em;
+    padding: 0px 1px 0px 1px;
+}
+#reviewJson .fa-file-excel-o{
+    color: #b30000;
+    background: #fadad7;
+}
+#reviewJson .fa-file-o{
+    background: #eaf2c2;
+    color: #406619;
+}
 /* policy rules */
 .rule-item, .rule-item-header {
     min-height:20px;

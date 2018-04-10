@@ -20,6 +20,11 @@ define([
             var viewConfig = self.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
             isGlobal = viewConfig.isGlobal;
+            var draftMode ="";
+                if(viewConfig.viewMode == ctwc.FW_DRAFTED){
+                    draftMode = " - Drafts";
+                }
+                viewConfig.draftTitle = draftMode;
             self.renderView4Config(self.$el, self.model,
                 getFWRuleGridViewConfig(viewConfig));
         }
@@ -55,7 +60,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.TITLE_FW_RULE
+                    text: ctwl.TITLE_FW_RULE  + viewConfig.draftTitle
                 },
                advanceControls: getHeaderActionConfig(viewConfig)
             },

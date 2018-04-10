@@ -93,6 +93,7 @@ define([
                                         }
                                     },
                                     isGlobal: false,
+                                    viewMode: viewConfig.dataType,
                                     elementIdPrefix:elementId,
                                     projectSelectedValueData: viewConfig.projectSelectedValueData,
                                     hashParams:viewConfig.hashParams,

@@ -73,6 +73,7 @@ define([
                                         }
                                     },
                                     isGlobal: true,
+                                    viewMode: viewConfig.dataType,
                                     elementIdPrefix:elementId,
                                     isWizard: viewConfig.isWizard,
                                     wizardMode:viewConfig.wizardMode

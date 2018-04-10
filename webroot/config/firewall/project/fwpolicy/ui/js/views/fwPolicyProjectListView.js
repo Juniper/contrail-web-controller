@@ -88,7 +88,8 @@ define([
                                     },
                                     viewConfig: viewConfig,
                                     isWizard: false,
-                                    isGlobal: false
+                                    isGlobal: false,
+                                    viewMode: viewConfig.dataType,
                                 }
                             }
                         ]

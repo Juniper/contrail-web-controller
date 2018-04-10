@@ -32,6 +32,7 @@ define([
                  contrailListModel, getApplicationPolicyGridViewConfig(viewConfig));
         },
         parseApplicationPolicyData : function(response){
+            console.log(response);
             var dataItems = [],
                 addressGroupData = getValueByJsonPath(response, "0;application-policy-sets", []);
                 _.each(addressGroupData, function(val){
@@ -62,7 +63,8 @@ define([
                                         }
                                     },
                                     viewConfig: viewConfig,
-                                    isGlobal: true
+                                    isGlobal: true,
+                                    viewMode: viewConfig.dataType
                                 }
                             }
                         ]
