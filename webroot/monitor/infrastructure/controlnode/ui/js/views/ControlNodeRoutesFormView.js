@@ -386,7 +386,7 @@ define([
         }
     });
     function parseRoutingInstanceResp (response){
-        var ret = [];
+        routingInstancesDropdownList = [{text:'All',value:'All'}]
         if(response != null && response['ShowRoutingInstanceSummaryResp'] != null &&
                 response['ShowRoutingInstanceSummaryResp']['instances'] != null &&
                 response['ShowRoutingInstanceSummaryResp']['instances']['list'] != null &&
