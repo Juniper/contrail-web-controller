@@ -22,7 +22,7 @@ define([
             viewConfig = options.viewConfig;
             currentProject = viewConfig["projectSelectedValueData"];
             cowu.createModal({
-            		'modalId': modalId,
+                'modalId': modalId,
                 'className': 'modal-980',
                 'title': options['title'],
                 'body': editLayout,
@@ -81,8 +81,10 @@ define([
         },
         getReviews: function(callback) {
             var postData = { parent_fq_name_str:contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
-                    contrail.getCookie(cowc.COOKIE_PROJECT) + ':' +
-             ctwc.DRAFT_POLICY_MANAGEMENT };
+                                contrail.getCookie(cowc.COOKIE_PROJECT) + ':' + ctwc.DRAFT_POLICY_MANAGEMENT,
+                             domain:contrail.getCookie(cowc.COOKIE_DOMAIN),
+                             project:contrail.getCookie(cowc.COOKIE_PROJECT),
+                             scope:"project"};
             var ajaxConfig = {};
             ajaxConfig.type = 'POST';
             ajaxConfig.url = ctwc.URL_SECURITY_POLICY_DRAFT_DIFF;

@@ -61,7 +61,7 @@ function modifySecurityPolicyDraft(request, response, appData) {
         callback(error, null);
         return;
     }
-    logutils.logger.debug('modifySecurityPolicyDraft:postData:' + JSON.stringify(postData));
+    logutils.logger.debug('modifySecurityPolicyDraft');
     configApiServer.apiPost(modifyPolicyDraftURL, postData,
             appData, function(error, results) {
                 logutils.logger.debug('error:' + JSON.stringify(error));
@@ -69,7 +69,7 @@ function modifySecurityPolicyDraft(request, response, appData) {
                     commonUtils.handleJSONResponse(error, response, null);
                     return;
                 }
-                logutils.logger.debug('response:' + JSON.stringify(results));
+               // logutils.logger.debug('response:' + JSON.stringify(results));
                 commonUtils.handleJSONResponse(error, response, results);
             });
 }
@@ -88,12 +88,15 @@ function getDraftsReviewInJSONDiff(request, response, appData) {
         return;
     }
     reviewDiff.parent_fq_name_str = request.param('parent_fq_name_str');
+    reviewDiff.scope = request.param('scope');
+    reviewDiff.domain = request.param('domain');
+    reviewDiff.project = request.param('project');
     getConfigDraftsReviewsCB(reviewDiff, appData, function(error, results) {
         if (error) {
             commonUtils.handleJSONResponse(error, response, null);
             return;
         }
-       // logutils.logger.debug('getDraftsReviewInJSONDiff' + JSON.stringify(results));
+        //logutils.logger.debug('getDraftsReviewInJSONDiff' + JSON.stringify(results));
         commonUtils.handleJSONResponse(error, response, results);
     });
 }
@@ -161,7 +164,6 @@ function getConfigDraftsReviewsCB(reviewDiff, appData, callback) {
 }
 
 function getApplicationPolicySetsDiff(draftAps, appData, reviewDiff, callback) {
-    console.log("getApplicationPolicySetsDiff");
     if (draftAps.length < 1) {
         callback(null, reviewDiff);
         return
@@ -176,10 +178,19 @@ function getApplicationPolicySetsDiff(draftAps, appData, reviewDiff, callback) {
         var draft_mode_state = commonUtils.getValueByJsonPath( aps, 'application-policy-set;draft_mode_state', '', false);
         if (draft_mode_state === DRAFT_STATE_UPDATED || draft_mode_state === DRAFT_STATE_DELETED){
             updateAps.push(aps);
-            var fqName=[];
-            fqName.push('default-policy-management');
-            fqName.push(policyName);
-            data.push(fqName);
+            var scope = commonUtils.getValueByJsonPath( reviewDiff, 'scope', '', false);
+            if(scope === "global"){
+                var fqName=[];
+                fqName.push('default-policy-management');
+                fqName.push(policyName);
+                data.push(fqName);
+            }else{
+                var fqName=[];
+                fqName.push(reviewDiff.domain);
+                fqName.push(reviewDiff.project);
+                fqName.push(policyName);
+                data.push(fqName);
+            }
         }else{
             var deltaAps = jsdiffpatch.diffJson(commitAps, draftAps);
             var review = {};
@@ -193,7 +204,6 @@ function getApplicationPolicySetsDiff(draftAps, appData, reviewDiff, callback) {
     var postData = {
             type : 'application-policy-sets',
             fq_names:data};
-    console.log(reviewDiff.aps_reviews);
     getConfigCommitedReviewsCB(postData, appData, function(error, results) {
         if (error) {
             callback(error, null);
@@ -226,13 +236,12 @@ function getApplicationPolicySetsDiff(draftAps, appData, reviewDiff, callback) {
                 }
             });
         });
-      // logutils.logger.debug('getDraftsReviewInJSONDiff' + JSON.stringify(results));
+      logutils.logger.debug('getDraftsReviewInJSONDiff');
         callback(null, reviewDiff);
         return
     });
 }
 function getFirewallPoliciesDiff(draftFps, appData, reviewDiff, callback) {
-    console.log("getFirewallPoliciesDiff");
     if (draftFps.length < 1) {
         callback(null, reviewDiff);
         return;
@@ -243,15 +252,23 @@ function getFirewallPoliciesDiff(draftFps, appData, reviewDiff, callback) {
         var draftFps = JSON.stringify(fps, null, 2); //draft
         var policyName = commonUtils.getValueByJsonPath( fps, 'firewall-policy;name', '', false);
         var uuid = commonUtils.getValueByJsonPath( fps, 'firewall-policy;uuid', '', false);
-        //console.log(draftFps);
         var commitFps = {}; //committed
         var draft_mode_state = commonUtils.getValueByJsonPath( fps, 'firewall-policy;draft_mode_state', '', false);
         if (draft_mode_state === DRAFT_STATE_UPDATED || draft_mode_state === DRAFT_STATE_DELETED){
             updateFps.push(fps);
-            var fqName=[];
-            fqName.push('default-policy-management');
-            fqName.push(policyName);
-            data.push(fqName);
+            var scope = commonUtils.getValueByJsonPath( reviewDiff, 'scope', '', false);
+            if(scope === "global"){
+                var fqName=[];
+                fqName.push('default-policy-management');
+                fqName.push(policyName);
+                data.push(fqName);
+            }else{
+                var fqName=[];
+                fqName.push(reviewDiff.domain);
+                fqName.push(reviewDiff.project);
+                fqName.push(policyName);
+                data.push(fqName);
+            }
         }else{
             var deltaFps = jsdiffpatch.diffJson(commitFps, draftFps);
             var review = {};
@@ -265,7 +282,6 @@ function getFirewallPoliciesDiff(draftFps, appData, reviewDiff, callback) {
     var postData = {
             type : 'firewall-policys',
             fq_names:data};
-    console.log(postData);
     getConfigCommitedReviewsCB(postData, appData, function(error, results) {
         if (error) {
             callback(error, null);
@@ -304,7 +320,6 @@ function getFirewallPoliciesDiff(draftFps, appData, reviewDiff, callback) {
     });
 }
 function getFirewallRulesDiff(draftFrs, appData, reviewDiff, callback) {
-    console.log("getFirewallRulesDiff");
     if (draftFrs.length < 1) {
         callback(null, reviewDiff);
         return;
@@ -315,15 +330,23 @@ function getFirewallRulesDiff(draftFrs, appData, reviewDiff, callback) {
             var draftFrs = JSON.stringify(frs, null, 2); //draft
             var policyName = commonUtils.getValueByJsonPath( frs, 'firewall-rule;name', '', false);
             var uuid = commonUtils.getValueByJsonPath( frs, 'firewall-rule;uuid', '', false);
-            //console.log(draftFrs);
             var commitFrs = {}; //committed
             var draft_mode_state = commonUtils.getValueByJsonPath( frs, 'firewall-rule;draft_mode_state', '', false);
             if (draft_mode_state === DRAFT_STATE_UPDATED || draft_mode_state === DRAFT_STATE_DELETED){
                 updateFrs.push(frs);
-                var fqName=[];
-                fqName.push('default-policy-management');
-                fqName.push(policyName);
-                data.push(fqName);
+                var scope = commonUtils.getValueByJsonPath( reviewDiff, 'scope', '', false);
+                if(scope === "global"){
+                    var fqName=[];
+                    fqName.push('default-policy-management');
+                    fqName.push(policyName);
+                    data.push(fqName);
+                }else{
+                    var fqName=[];
+                    fqName.push(reviewDiff.domain);
+                    fqName.push(reviewDiff.project);
+                    fqName.push(policyName);
+                    data.push(fqName);
+                }
 
             }else{
                 var deltaFrs = jsdiffpatch.diffJson(commitFrs, draftFrs);
@@ -331,7 +354,6 @@ function getFirewallRulesDiff(draftFrs, appData, reviewDiff, callback) {
                 review.name = policyName;
                 review.uuid = uuid;
                 review.draft_state = draft_mode_state;
-                console.log("getFirewallRulesDiff:draft_mode_state:"+draft_mode_state);
                 review.delta = deltaFrs;
                 reviewDiff.fwr_reviews.push(review);
             }
@@ -339,9 +361,7 @@ function getFirewallRulesDiff(draftFrs, appData, reviewDiff, callback) {
         var postData = {
                 type : 'firewall-rules',
                 fq_names:data};
-        console.log(postData);
         getConfigCommitedReviewsCB(postData, appData, function(error, results) {
-            console.log(results);
             if (error) {
                 callback(error, null);
                 return;
@@ -355,7 +375,6 @@ function getFirewallRulesDiff(draftFrs, appData, reviewDiff, callback) {
                 _.each(updateFrs, function(uFrs) {
                     var uPolicyName = commonUtils.getValueByJsonPath( uFrs, 'firewall-rule;name', '', false);
                     var draft_mode_state = commonUtils.getValueByJsonPath( uFrs, 'firewall-rule;draft_mode_state', '', false);
-                    console.log("getFirewallRulesDiff:getConfigCommitedReviewsCB:draft_mode_state:"+draft_mode_state);
                     var deltaFrs;
                     if(policyName === uPolicyName){
                        draftAps=JSON.stringify(uFrs, null, 2);;
@@ -380,7 +399,6 @@ function getFirewallRulesDiff(draftFrs, appData, reviewDiff, callback) {
         });
 }
 function getServiceGroupsDiff(draftSgs, appData, reviewDiff, callback) {
-    console.log("getServiceGroupsDiff");
     if (draftSgs.length < 1) {
         callback(null, reviewDiff);
         return;
@@ -391,15 +409,23 @@ function getServiceGroupsDiff(draftSgs, appData, reviewDiff, callback) {
         var draftSgs = JSON.stringify(sgs, null, 2); //draft
         var policyName = commonUtils.getValueByJsonPath(sgs, 'service-group;name', '', false);
         var uuid = commonUtils.getValueByJsonPath(sgs, 'service-group;uuid', '', false);
-        //console.log(draftSgs);
         var commitSgs = {}; //committed
         var draft_mode_state = commonUtils.getValueByJsonPath( sgs, 'service-group;draft_mode_state', '', false);
         if (draft_mode_state === DRAFT_STATE_UPDATED || draft_mode_state === DRAFT_STATE_DELETED){
             updateSgs.push(sgs);
-            var fqName=[];
-            fqName.push('default-policy-management');
-            fqName.push(policyName);
-            data.push(fqName);
+            var scope = commonUtils.getValueByJsonPath( reviewDiff, 'scope', '', false);
+            if(scope === "global"){
+                var fqName=[];
+                fqName.push('default-policy-management');
+                fqName.push(policyName);
+                data.push(fqName);
+            }else{
+                var fqName=[];
+                fqName.push(reviewDiff.domain);
+                fqName.push(reviewDiff.project);
+                fqName.push(policyName);
+                data.push(fqName);
+            }
         }else {
             var deltaSg = jsdiffpatch.diffJson(commitSgs, draftSgs);
             var review = {};
@@ -413,7 +439,6 @@ function getServiceGroupsDiff(draftSgs, appData, reviewDiff, callback) {
     var postData = {
             type : 'service-groups',
             fq_names:data};
-    console.log(postData);
     getConfigCommitedReviewsCB(postData, appData, function(error, results) {
         if (error) {
             callback(error, null);
@@ -439,7 +464,7 @@ function getServiceGroupsDiff(draftSgs, appData, reviewDiff, callback) {
                     }
                     var review = {};
                     review.name = policyName;
-                    review.name = uuid;
+                    review.uuid = uuid;
                     review.draft_state = draft_mode_state;
                     review.delta = deltaSg;
                     reviewDiff.sg_reviews.push(review);
@@ -452,7 +477,7 @@ function getServiceGroupsDiff(draftSgs, appData, reviewDiff, callback) {
     });
 }
 function getAddressGroupDiff(draftAgs, appData, reviewDiff, callback) {
-    console.log("getAddressGroupDiff");
+    logutils.logger.debug("getAddressGroupDiff");
     if (draftAgs.length < 1) {
         callback(null, reviewDiff);
         return
@@ -463,16 +488,23 @@ function getAddressGroupDiff(draftAgs, appData, reviewDiff, callback) {
             var draftAgs = JSON.stringify(ags, null, 2); //draft
             var policyName = commonUtils.getValueByJsonPath(ags, 'address-group;name', '', false);
             var uuid = commonUtils.getValueByJsonPath(ags, 'address-group;uuid', '', false);
-            //console.log(draftAgs);
             var commitAgs = {}; //committed
             var draft_mode_state = commonUtils.getValueByJsonPath( ags, 'address-group;draft_mode_state', '', false);
             if (draft_mode_state === DRAFT_STATE_UPDATED || draft_mode_state === DRAFT_STATE_DELETED){
                 updateAgs.push(ags);
-                var fqName=[];
-                fqName.push('default-policy-management');
-                fqName.push(policyName);
-                data.push(fqName);
-
+                var scope = commonUtils.getValueByJsonPath( reviewDiff, 'scope', '', false);
+                if(scope === "global"){
+                    var fqName=[];
+                    fqName.push('default-policy-management');
+                    fqName.push(policyName);
+                    data.push(fqName);
+                }else{
+                    var fqName=[];
+                    fqName.push(reviewDiff.domain);
+                    fqName.push(reviewDiff.project);
+                    fqName.push(policyName);
+                    data.push(fqName);
+                }
             }else {
               var deltaAg = jsdiffpatch.diffJson(commitAgs, draftAgs);
               var review = {};
@@ -486,21 +518,20 @@ function getAddressGroupDiff(draftAgs, appData, reviewDiff, callback) {
         var postData = {
                 type : 'address-groups',
                 fq_names:data};
-        console.log(postData);
         getConfigCommitedReviewsCB(postData, appData, function(error, results) {
             if (error) {
                 callback(error, null);
                 return;
             }
             var application_policy_sets = commonUtils.getValueByJsonPath(
-                    results, '0;application-policy-sets', [], false);
+                    results, '0;address-groups', [], false);
             _.each(application_policy_sets, function(ag) {
-                var policyName = commonUtils.getValueByJsonPath( ag, 'application-policy-set;name', '', false);
-                var uuid = commonUtils.getValueByJsonPath( ag, 'application-policy-set;uuid', '', false);
+                var policyName = commonUtils.getValueByJsonPath( ag, 'address-group;name', '', false);
+                var uuid = commonUtils.getValueByJsonPath( ag, 'address-group;uuid', '', false);
                 var commitAg = JSON.stringify(ag, null, 2);;
                 _.each(updateAgs, function(uAg) {
-                    var uPolicyName = commonUtils.getValueByJsonPath( uAg, 'application-policy-set;name', '', false);
-                    var draft_mode_state = commonUtils.getValueByJsonPath( uAg, 'application-policy-set;draft_mode_state', '', false);
+                    var uPolicyName = commonUtils.getValueByJsonPath( uAg, 'address-group;name', '', false);
+                    var draft_mode_state = commonUtils.getValueByJsonPath( uAg, 'address-group;draft_mode_state', '', false);
                     var deltaAg;
                     if(policyName === uPolicyName){
                         draftAg=JSON.stringify(uAg, null, 2);;
@@ -515,7 +546,7 @@ function getAddressGroupDiff(draftAgs, appData, reviewDiff, callback) {
                         review.uuid = uuid;
                         review.draft_state = draft_mode_state;
                         review.delta = deltaAg;
-                        reviewDiff.aps_reviews.push(review);
+                        reviewDiff.ag_reviews.push(review);
                     }
                 });
             });
@@ -529,15 +560,13 @@ function getConfigCommitedReviewsCB(fq_names, appData, callback) {
     var postData = {
         data : [fq_names]
     };
-    console.log("getConfigCommitedReviewsCB:"+postData);
     configUtils.getConfigAsync(postData, true, appData,
             function(error, results) {
                 if (error) {
                     callback(error, null);
                     return;
                 }
-                logutils.logger.debug('getConfigCommitedReviewsCB' + JSON.stringify(results));
-                console.log(results);
+                logutils.logger.debug('getConfigCommitedReviewsCB');
                 callback(null, results);
     });
 }

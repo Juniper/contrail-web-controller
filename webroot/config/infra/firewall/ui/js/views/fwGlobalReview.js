@@ -22,7 +22,7 @@ define([
             viewConfig = options.viewConfig;
             var scopeUUID = options.scopeUUID;
             cowu.createModal({
-            		'modalId': modalId,
+                'modalId': modalId,
                 'className': 'modal-980',
                 'title': options['title'],
                 'body': editLayout,
@@ -67,7 +67,7 @@ define([
                 var modelReview= new ContrailModel(results);
                 reviewConfigs.model = modelReview;
                 self.renderView4Config(
-            		$("#" + modalId).find("#core-view"),
+                    $("#" + modalId).find("#core-view"),
                     modelReview,
                     reviewConfigs.viewConfig(prefixId),
                     "", null, null,
@@ -80,7 +80,8 @@ define([
             }
         },
         getReviews: function(callback) {
-            var postData = {parent_fq_name_str: ctwc.DRAFT_POLICY_MANAGEMENT };
+            var postData = { parent_fq_name_str: ctwc.DRAFT_POLICY_MANAGEMENT,
+                             scope:"global"};
             var ajaxConfig = {};
             ajaxConfig.type = 'POST';
             ajaxConfig.url = ctwc.URL_SECURITY_POLICY_DRAFT_DIFF;
