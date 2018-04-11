@@ -1071,7 +1071,7 @@ define([
                 },
                 ethernet_segment_identifier : function(value, attr, finalObj){
                     if(finalObj.type === 'physical'){
-                        if(!ctwp.isValidEsi(value)){
+                        if(value != null && value.trim() != "" && !ctwp.isValidEsi(value)){
                             return 'Please enter valid ESI string format.';
                         }
                     }
