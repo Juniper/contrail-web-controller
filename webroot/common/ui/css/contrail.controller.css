@@ -1343,7 +1343,7 @@ body.navbar-fixed:not(.modal-open){
     padding:4px 7px 4px 8px;
 }
 #Apppolicy_toggle .option.selected {
-    background: #3182bd;
+    background: #6baed6;
     color: #fff !important;
 }
 #Apppolicy_review  .btn {
