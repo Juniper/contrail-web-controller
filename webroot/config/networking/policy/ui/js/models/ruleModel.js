@@ -300,14 +300,6 @@ define([
                     if (error != "") {
                         return error;
                     }
-                    var srcProt = getValueByJsonPath(data, "src_ports_text", "");
-                    if(srcProt.toUpperCase() != "ANY") {
-                        return "Only 'ANY' protocol allowed while mirroring services."
-                    }
-                    var dscProt = getValueByJsonPath(data, "dst_ports_text", "");
-                    if(dscProt.toUpperCase() != "ANY") {
-                        return "Only 'ANY' protocol allowed while mirroring services."
-                    }
                 },
                 'qos': function(val, attr, data) {
                     if (data.qos_action_check && !val) {
