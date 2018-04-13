@@ -106,8 +106,6 @@ define([
         showHideServiceInstance: function(ruleModels) {
             ruleModels.showService = ko.computed((function() {
                 if (this.apply_service_check() == true) {
-                        this.direction("<>");
-                        this.simple_action("PASS");
                         return true;
                 } else {
                     return false;
@@ -115,9 +113,6 @@ define([
             }), ruleModels);
             ruleModels.showMirror = ko.computed((function(){
                 if (this.mirror_to_check() == true) {
-                    this.protocol("ANY");
-                    this.src_ports_text("ANY");
-                    this.dst_ports_text("ANY");
                     return (this.mirror_to_check);
                 } else {
                     return false;
