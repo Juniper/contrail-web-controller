@@ -446,7 +446,6 @@ define([
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                      path: "simple_action",
-                                     disabled: "showService()",
                                      dataBindValue: "simple_action()",
                                      elementConfig:{
                                          data:['PASS','DENY']
@@ -462,7 +461,6 @@ define([
                                      templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
                                      path: "protocol",
                                      dataBindValue: "protocol()",
-                                     disabled: "mirror_to_check()",
                                      elementConfig:{
                                          dataTextField: 'text',
                                          dataValueField: 'value',
@@ -531,7 +529,6 @@ define([
                                  class: "",
                                  width: 40,
                                  viewConfig: {
-                                    disabled: "mirror_to_check()",
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     path: 'src_ports_text',
                                     dataBindValue: 'src_ports_text()'
@@ -547,7 +544,6 @@ define([
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                      path: "direction",
                                      dataBindValue: "direction()",
-                                     disabled: "showService()",
                                      elementConfig:{
                                          data:['<>', '>']
                                      }}
@@ -605,7 +601,6 @@ define([
                                  class: "",
                                  width: 40,
                                  viewConfig: {
-                                    disabled: "mirror_to_check()",
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     path: 'dst_ports_text',
                                     dataBindValue: 'dst_ports_text()'
