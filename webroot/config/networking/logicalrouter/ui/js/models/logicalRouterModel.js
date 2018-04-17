@@ -129,6 +129,10 @@ define([
                             var obj = {};
                             obj.to = extNetworkUUIDData[i].fqname.split(":");
                             obj.uuid = extNetworkUUIDData[i].value;
+                            //Set attr type as ExternalGateway
+                            obj.attr = {
+                                "logical_router_virtual_network_type" : "ExternalGateway"
+                            };
                             newLRData["virtual_network_refs"][0] = obj;
                             break;
                         }
