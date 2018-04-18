@@ -20,6 +20,9 @@ var global      = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/global');
 var appErrors   = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/errors/app.errors');
+var jsonDiff    = require(process.mainModule.exports["corePath"] +
+                          '/src/serverroot/common/jsondiff');
+
 var util        = require('util');
 var url         = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
@@ -306,6 +309,19 @@ function deleteFirewalPolicyRefs (ruleId, appData, callback)
     );
 }
 
+function updateFirewallPoliciesAsync(dataObject, callback) {
+    var appData =  dataObject.appData;
+    var body = dataObject.data;
+    var resType = _.keys(body)[0];
+    var resUUID = body['firewall-rule']['uuid'];
+    var firewallPutURL ='/firewall-rule/'+ resUUID;
+
+    jsonDiff.getConfigDiffAndMakeCall(firewallPutURL, appData, body,
+            function(error, data) {
+        callback(error, data);
+    });
+}
+
 function deleteFirewallPoliciesAsync(dataObject, callback) {
     var appData =  dataObject.appData;
     var policyId = dataObject.uuid;
@@ -355,3 +371,4 @@ exports.createFirewallRules = createFirewallRules;
 exports.createFirewallRule = createFirewallRule;
 exports.deleteFirewallRulesAsync = deleteFirewallRulesAsync;
 exports.deleteFirewallPoliciesAsync = deleteFirewallPoliciesAsync;
+exports.updateFirewallPoliciesAsync = updateFirewallPoliciesAsync;
