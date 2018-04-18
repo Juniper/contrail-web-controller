@@ -74,11 +74,12 @@ define([
                         {
                             class: GridViewTestSuite,
                             groups: ['all']
-                        },
+                        }
+                        /*,
                         {
                             class: portModalTestSuite,
                             groups: ['all']
-                        }
+                        }*/
                     ]
                 }
             ]
