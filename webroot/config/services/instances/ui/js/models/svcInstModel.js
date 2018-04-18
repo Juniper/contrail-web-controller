@@ -286,7 +286,8 @@ define([
                         getValueByJsonPath(tmpl,
                                            'service_template_properties;service_virtualization_type',
                                            null);
-                    if ('physical-device' == svcVirtType) {
+                    if ('physical-device' == svcVirtType ||
+                            'network-namespace' == svcVirtType) {
                         return;
                     }
                     if (null == imgName) {
