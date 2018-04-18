@@ -737,6 +737,14 @@ module.exports = function (grunt) {
             options: {
                 files: [
                     {
+                        pattern : 'contrail-web-controller/webroot/config/common/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/common/ui/js/models/*.js',
+                        included : false
+                    },
+                    {
                         pattern : 'contrail-web-controller/webroot/config/networking/port/ui/js/*.js',
                         included : false
                     },
