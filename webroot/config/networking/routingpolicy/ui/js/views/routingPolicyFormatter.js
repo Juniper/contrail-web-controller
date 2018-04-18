@@ -260,7 +260,12 @@ define([
                 if (val != "") {
                     switch (key) {
                         case "community" : {
-                            returnFromObj["community_list"].push(val);
+                            if(val !=""){
+                                var valItems = val.split(',');
+                                _.each(valItems, function (val, index){
+                                    returnFromObj["community_list"].push(valItems[index]);
+                                })
+                            }
                             break;
                         }
                         case "community_list" : {
@@ -374,9 +379,7 @@ define([
                 protocolArray = [],
             communityList = getValueByJsonPath(matchObj, "community_list", []);
             var community_match_all = getValueByJsonPath(matchObj, "community_match_all", false);
-            for (var i = 0;i < communityList.length; i++) {
-                returnMatchArr.push({name: 'community_list', value: communityList[i], community_match_all: community_match_all, additionalValueMultiSelect: ctwc.COMM_MULTISELECT, isDisable:true});
-            }
+            returnMatchArr.push({name: 'community_list', value: communityList.join(','), community_match_all: community_match_all, additionalValueMultiSelect: ctwc.COMM_MULTISELECT, isDisable:true});
             returnMatchArr["community_match_all"] = community_match_all;
             var protocol = _.get(matchObj, "protocol", []);
             if(protocol.length > 0){
