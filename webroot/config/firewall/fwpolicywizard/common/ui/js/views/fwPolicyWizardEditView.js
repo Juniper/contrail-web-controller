@@ -90,7 +90,7 @@ define([
                                 createTags(e,"create-tag-endpoints");
                             });
                             var info = $('<i class="fa fa-info-circle" aria-hidden="true" title="Enter Port format ( Protocol:SrcPort:DstPort or Protocol:DstPort )"></i>');
-                            $('#applicationpolicyset_rules table thead tr th:nth-child(2').append(info);
+                            $('#applicationpolicyset_rules table thead tr th:nth-child(2)').append(info);
                     },null,false);
                 });
                 $("#save-aps").off('click').on('click', function(){
