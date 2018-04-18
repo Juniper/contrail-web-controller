@@ -913,42 +913,42 @@ module.exports = function (grunt) {
                 feature: 'config'
             }
         },
-        globalVRouterEncryptionGridView : {
-            options: {
-                files: [
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/*.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js',
-                        included : false
-                    },
-                    {
-                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/test/ui/views/*.js',
-                        included : false
-                    }
-                ],
-                preprocessors: {
-                    'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js': ['coverage']
-                },
-                junitReporter: {
-                    outputDir:__dirname + '/reports/tests/config/views/',
-                    outputFile: 'global-vrouter-encryption-grid-view-test-results.xml',
-                    suite: 'globalVRouterEncryptionGridView',
-                    useBrowserName: false
-                },
-                htmlReporter: {
-                    outputFile:__dirname + '/reports/tests/config/views/global-vrouter-encryption-grid-view-test-results.html'
-                },
-                coverageReporter: {
-                    type: 'html',
-                    dir: __dirname + '/reports/coverage/config/views/globalVRouterEncryptionGridView/',
-                    subdir : browserSubdirFn
-                },
-                feature: 'config'
-            }
-        },
+//        globalVRouterEncryptionGridView : {
+//            options: {
+//                files: [
+//                    {
+//                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/*.js',
+//                        included : false
+//                    },
+//                    {
+//                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js',
+//                        included : false
+//                    },
+//                    {
+//                        pattern : 'contrail-web-controller/webroot/config/infra/globalconfig/test/ui/views/*.js',
+//                        included : false
+//                    }
+//                ],
+//                preprocessors: {
+//                    'contrail-web-controller/webroot/config/infra/globalconfig/ui/js/**/*.js': ['coverage']
+//                },
+//                junitReporter: {
+//                    outputDir:__dirname + '/reports/tests/config/views/',
+//                    outputFile: 'global-vrouter-encryption-grid-view-test-results.xml',
+//                    suite: 'globalVRouterEncryptionGridView',
+//                    useBrowserName: false
+//                },
+//                htmlReporter: {
+//                    outputFile:__dirname + '/reports/tests/config/views/global-vrouter-encryption-grid-view-test-results.html'
+//                },
+//                coverageReporter: {
+//                    type: 'html',
+//                    dir: __dirname + '/reports/coverage/config/views/globalVRouterEncryptionGridView/',
+//                    subdir : browserSubdirFn
+//                },
+//                feature: 'config'
+//            }
+//        },
         gloablQosGridView : {
             options: {
                 files: [
@@ -2439,7 +2439,7 @@ module.exports = function (grunt) {
                 break;
             case 'globalvrouterencryption' :
                 grunt.task.run('karma:globalVRouterEncryptionGridView');
-                testDir = 'globalVRouterEncryptionGridView'
+                            testDir = 'globalVRouterEncryptionGridView'
                 	break;
             case 'globalaps' :
                 grunt.task.run('karma:globalApsGridView');
