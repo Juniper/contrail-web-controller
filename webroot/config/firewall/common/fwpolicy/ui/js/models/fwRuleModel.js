@@ -319,7 +319,7 @@ define([
                     if(getSelectedService.isServiceGroup){
                         newFWRuleData['service_group_refs'] = getSelectedService['service_group_refs'];
                         if(attr['service'] !== undefined){
-                            newFWRuleData['service'] = {};
+                            newFWRuleData['service'] = null;
                         }
                     }else{
                         if(getSelectedService['service'] !== undefined){
