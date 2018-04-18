@@ -80,7 +80,8 @@ var configCBCreateEdit =
             'virtual-machine-interface': portsConfig.updatePortsCB,
             'logical-router': logicalRtr.updateLogicalRouterCB,
             'logical-interface': intf.updatePhysicalInterfacesCB,
-            'physical-interface': intf.updatePhysicalInterfacesCB
+            'physical-interface': intf.updatePhysicalInterfacesCB,
+            'firewall-rule': fwPolicy.updateFirewallPoliciesAsync
         },
 };
 
