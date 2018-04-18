@@ -67,8 +67,6 @@ var configJsonModifyObj = {
     'logical-router': {
         'isConfig': true,
         'preProcessCB': {
-            'applyOnOldJSON': modifyConfigDataByAttrHref,
-            'applyOnNewJSON': modifyConfigDataByAttrHref,
             'comparators': ['to']
         }
     },
