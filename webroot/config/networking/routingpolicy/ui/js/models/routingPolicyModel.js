@@ -151,7 +151,6 @@ define([
                 if ("parent_href" in newRoutingPolicyData) {
                     delete newRoutingPolicyData.parent_href;
                 }
-                console.log(newRoutingPolicyData);
                 var postData = {};
                 postData["routing-policy"] = {};
                 postData["routing-policy"] = newRoutingPolicyData;
