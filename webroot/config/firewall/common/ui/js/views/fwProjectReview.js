@@ -28,8 +28,8 @@ define([
                 'body': editLayout,
                 'onCommit': function () {
                         self.configDraftReviewProject(options, viewConfig.scopeUUID,"commit");
-                }, 'onRevert': function () {
-                        self.configDraftReviewProject(options, viewConfig.scopeUUID, "revert");
+                }, 'onDiscard': function () {
+                        self.configDraftReviewProject(options, viewConfig.scopeUUID, "discard");
                 }, 'onCancel': function () {
                     Knockback.release(self.model, document.getElementById(modalId));
                     kbValidation.unbind(self);
