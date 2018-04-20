@@ -442,10 +442,11 @@ define([
                                  name: 'Action',
                                  view: "FormDropdownView",
                                  class: "",
-                                 width: 60,
+                                 width: 80,
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                      path: "simple_action",
+                                     disabled: "showService()",
                                      dataBindValue: "simple_action()",
                                      elementConfig:{
                                          data:['PASS','DENY']
@@ -456,7 +457,7 @@ define([
                                  name: 'Protocol',
                                  view: "FormComboboxView",
                                  class: "",
-                                 width: 150,
+                                 width: 130,
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
                                      path: "protocol",
@@ -534,20 +535,22 @@ define([
                                     dataBindValue: 'src_ports_text()'
                                     }
                                 },
-                                {
-                                 elementId: 'direction',
-                                 name: 'Direction',
-                                 view: "FormDropdownView",
-                                 class: "",
-                                 width: 60,
-                                 viewConfig: {
-                                     templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                     path: "direction",
-                                     dataBindValue: "direction()",
-                                     elementConfig:{
-                                         data:['<>', '>']
-                                     }}
-                                },
+                                /*Disabling the direction as we only support bidirectional*/
+//                                {
+//                                 elementId: 'direction',
+//                                 name: 'Direction',
+//                                 view: "FormDropdownView",
+//                                 class: "",
+//                                 width: 60,
+//                                 viewConfig: {
+//                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+//                                     path: "direction",
+//                                     dataBindValue: "direction()",
+//                                     disabled: true,
+//                                     elementConfig:{
+//                                         data:['<>','>']
+//                                     }}
+//                                },
                                 {
                                     elementId: 'dst_address',
                                     view:
