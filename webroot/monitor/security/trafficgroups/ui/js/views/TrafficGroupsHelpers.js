@@ -141,7 +141,7 @@ define([
                         });
                         endpoint2Data.push({
                             'name' : (tag == 'app' ? 'application' : tag),
-                            'value' : session['eps.traffic.remote_' + tag + '_id_fqn']
+                            'value' : session['eps.traffic.remote_' + tag + '_id_id']
                         });
                     });
                 });
