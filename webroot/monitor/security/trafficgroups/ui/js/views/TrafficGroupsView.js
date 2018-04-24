@@ -996,6 +996,7 @@ define(
                                     currentTagMap = tagMap[value[val]];
                                 if(!_.isEmpty(currentTagMap) && !_.isEmpty(currentTagMap.name)
                                     && value[val] != '0x00000000' && value[val] != '0') {
+                                    value[val + '_id'] = value[val];
                                     value[val] = currentTagMap.name;
                                     remoteFQN = currentTagMap.fqn;
                                 } else {
