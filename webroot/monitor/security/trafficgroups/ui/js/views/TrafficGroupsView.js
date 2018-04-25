@@ -979,7 +979,7 @@ define(
                 },
                 updateRemoteIds: function (data) {
                     data = cowu.ifNull(data, []);
-                    var tagMap = {}, tagsResponse = TrafficGroupsView.tagsResponse;
+                    var tagMap = {}, tagIDMap = {}, tagsResponse = TrafficGroupsView.tagsResponse;
                     var tagRecords = _.result(tagsResponse,'0.tags',[]);
                     tagRecords.forEach(function(val,idx) {
                         var currTag = val['tag'];
@@ -987,6 +987,7 @@ define(
                             name :currTag.name,
                             fqn : currTag.fq_name ? currTag.fq_name.join(':') : ''
                         }
+                        tagIDMap[currTag.name] = currTag.tag_id;
                     });
                     $.each(data, function (idx, value) {
                         $.each(['eps.traffic.remote_app_id', 'eps.traffic.remote_deployment_id',
@@ -1006,6 +1007,8 @@ define(
                         });
                         //Strip-off the domain and project form FQN
                         $.each(['app','site','tier','deployment', 'name'],function(idx,tagName) {
+                            var currentTagId = tagIDMap[value[tagName]];
+                            value[tagName + '_id'] = currentTagId;
                             value[tagName + '_fqn'] = value[tagName];
                             value[tagName] = tgHelpers.getFormattedValue(value[tagName]);
                         });

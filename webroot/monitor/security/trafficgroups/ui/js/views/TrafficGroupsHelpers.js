@@ -137,11 +137,15 @@ define([
                         tag = tag.trim();
                         endpoint1Data.push({
                             'name' : (tag == 'app' ? 'application' : tag),
-                            'value' : session[tag + '_fqn']
+                            'value' : session[tag + '_fqn'],
+                            'id' : session[tag + '_id'],
+                            'fqname' : session[tag + '_fqn']
                         });
                         endpoint2Data.push({
                             'name' : (tag == 'app' ? 'application' : tag),
-                            'value' : session['eps.traffic.remote_' + tag + '_id_id']
+                            'value' : session['eps.traffic.remote_' + tag + '_id_id'],
+                            'id' : session['eps.traffic.remote_' + tag + '_id_id'],
+                            'fqname' : session['eps.traffic.remote_' + tag + '_id_fqn']
                         });
                     });
                 });
