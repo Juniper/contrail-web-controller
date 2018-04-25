@@ -384,19 +384,33 @@ define([
                         tag.value =  cowc.UNKNOWN_VALUE;
                     var vnLevel = (data.option == 'policy') ? 4 : 3;
                     if (tag.name != 'vn' || level < vnLevel) {
-                        where.push({
-                            "suffix": null, "value2": null, "name": tag.name,
-                            "value": tag.value, "op": tag.operator ? tag.operator : 1
-                        });
+                        if (tag.name == 'vn') {
+                            where.push({
+                                "suffix": null, "value2": null, "name": tag.name,
+                                "value": tag.value, "op": tag.operator ? tag.operator : 1
+                            });
+                        } else {
+                            where.push({
+                                "suffix": null, "value2": null, "name": tag.name,
+                                "value": tag.fqname, "op": tag.operator ? tag.operator : 1
+                            });
+                        }
                     }
                 });
                _.each(whereTags[1], function(tag) {
                     if (!tag.value)
                         tag.value =  cowc.UNKNOWN_VALUE;
-                    where.push({
-                        "suffix": null, "value2": null, "name": "remote_" + tag.name,
-                        "value": tag.value, "op": tag.operator ? tag.operator : 1
-                    });
+                    if (tag.name == 'vn') {
+                        where.push({
+                            "suffix": null, "value2": null, "name": "remote_" + tag.name,
+                            "value": tag.value, "op": tag.operator ? tag.operator : 1
+                        });
+                    } else {
+                        where.push({
+                            "suffix": null, "value2": null, "name": "remote_" + tag.name,
+                            "value": tag.id, "op": tag.operator ? tag.operator : 1
+                        });
+                    }
                 });
                _.each(data.filter, function(tag) {
                     if (!tag.value)
