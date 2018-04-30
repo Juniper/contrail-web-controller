@@ -380,8 +380,9 @@ define([
                     whereTags = whereTags.reverse();
                 }
                 _.each(whereTags[0], function(tag) {
-                    if (!tag.value)
+                    if (!tag.value) {
                         tag.value =  cowc.UNKNOWN_VALUE;
+                    }
                     var vnLevel = (data.option == 'policy') ? 4 : 3;
                     if (tag.name != 'vn' || level < vnLevel) {
                         if (tag.name == 'vn') {
@@ -390,6 +391,9 @@ define([
                                 "value": tag.value, "op": tag.operator ? tag.operator : 1
                             });
                         } else {
+                            if (!tag.fqname) {
+                                tag.fqname =  cowc.UNKNOWN_VALUE;
+                            }
                             where.push({
                                 "suffix": null, "value2": null, "name": tag.name,
                                 "value": tag.fqname, "op": tag.operator ? tag.operator : 1
@@ -398,14 +402,18 @@ define([
                     }
                 });
                _.each(whereTags[1], function(tag) {
-                    if (!tag.value)
+                    if (!tag.value) {
                         tag.value =  cowc.UNKNOWN_VALUE;
+                    }
                     if (tag.name == 'vn') {
                         where.push({
                             "suffix": null, "value2": null, "name": "remote_" + tag.name,
                             "value": tag.value, "op": tag.operator ? tag.operator : 1
                         });
                     } else {
+                        if (!tag.id) {
+                            tag.id =  cowc.UNKNOWN_VALUE;
+                        }
                         where.push({
                             "suffix": null, "value2": null, "name": "remote_" + tag.name,
                             "value": tag.id, "op": tag.operator ? tag.operator : 1
@@ -413,8 +421,9 @@ define([
                     }
                 });
                _.each(data.filter, function(tag) {
-                    if (!tag.value)
+                    if (!tag.value) {
                         tag.value =  cowc.UNKNOWN_VALUE;
+                    }
                     filter.push({
                         "suffix": null, "value2": null, "name": "remote_" + tag.name,
                         "value": tag.value, "op": tag.operator ? tag.operator : 1
