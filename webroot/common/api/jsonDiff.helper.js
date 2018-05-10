@@ -148,20 +148,19 @@ var configJsonModifyObj = {
     'application-policy-set': {
         'isConfig': true,
         'preProcessCB': {
-            'comparators': ['to']
-        },
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+            'comparators': ['to', 'attr']
+        }
     },
     'firewall-policy': {
         'isConfig': true,
         'preProcessCB': {
-            'comparators': ['to']
+            'comparators': ['to', 'attr']
         }
     },
     'firewall-rule': {
         'isConfig': true,
         'preProcessCB': {
-            'comparators': ['to']
+            'comparators': ['to', 'attr']
         }
     },
     'service-group': {

@@ -186,24 +186,6 @@ define([
                            ]
                        },
                        {
-                           columns: [
-                               {
-                                   elementId: "fw-policy-global-grid-id",
-                                   view: "fwApplicationPolicyListView",
-                                   viewPathPrefix:
-                                       "config/firewall/fwpolicywizard/project/ui/js/views/",
-                                   app: cowc.APP_CONTRAIL_CONTROLLER,
-                                   viewConfig: $.extend(true, {}, viewConfig,{
-                                       projectSelectedValueData: viewConfig.projectSelectedValueData,
-                                       seletedRows : seletedRows,
-                                       policyList : slecectedPolicyList,
-                                       apsName : apsName,
-                                       girdId : viewConfig.girdId
-                                   })
-                               }
-                           ]
-                       },
-                       {
                            columns:[{
                                elementId: "fw_security_application_permission_accordion_create",
                                view: "AccordianView",
