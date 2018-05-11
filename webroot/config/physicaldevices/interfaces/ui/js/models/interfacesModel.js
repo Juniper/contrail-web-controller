@@ -325,7 +325,7 @@ define([
             var data = this.editView.vnDataSrc;
             for(var i = 0; i < data.length; i++) {
                 if(val === data[i].value) {
-                    return data[i];
+                    return JSON.parse(data[i].data);
                 }
             }
             return {};
@@ -368,45 +368,83 @@ define([
             postObj["virtual-machine-interface"]
                 ["virtual_machine_interface_device_owner"] =
                     ctwc.LI_VMI_DEVICE_OWNER;
-            postObj["virtual-machine-interface"]["security_group_refs"] =
+            if (input.isDefaultSG) {
+                            postObj["virtual-machine-interface"]["security_group_refs"] =
                 [{"to" :[curDomain,curProject,"default"]}];
+            }
             return postObj;
         },
         createPort : function(portDetails, attr, callbackObj, ajaxOpt,
             editView) {
-            var postObjInput = {};
-            var ajaxConfig = {};
             var selVN = self.getSelectedVNItem(attr.user_created_virtual_network);
-            selVN = JSON.parse(selVN.data);
-            postObjInput.subnetId = selVN.subnetId;
-            postObjInput.fqName = selVN.fqName;
-            if(portDetails.mac != '') {
-                postObjInput.mac = portDetails.mac;
-            }
-            postObjInput.ip = portDetails.ip;
+            self.checkDefaultSG(selVN.fqName,function(isDefaultSG) {
+                var postObjInput = {};
+                var ajaxConfig = {};
+                postObjInput.subnetId = selVN.subnetId;
+                postObjInput.fqName = selVN.fqName;
+                postObjInput.isDefaultSG = isDefaultSG;
+                if(portDetails.mac != '') {
+                    postObjInput.mac = portDetails.mac;
+                }
+                postObjInput.ip = portDetails.ip;
 
-            ajaxConfig.type = "POST";
-            ajaxConfig.url = '/api/tenants/config/ports';
-            ajaxConfig.data =
-                JSON.stringify(self.prepareVMIPostObject(postObjInput));
-            contrail.ajaxHandler(ajaxConfig, function () {
-                    callbackObj.init();
-            }, function (result) {
-                if(result != null && result['virtual-machine-interface']
-                    && result['virtual-machine-interface']['fq_name']) {
-                    self.vmiDetails = [result];
-                    var vmiId =
-                        result['virtual-machine-interface']['fq_name'][2];
-                    self.createUpdatePhysicalInterface(attr, callbackObj,
-                        ajaxOpt, editView);
-                    if (attr.logical_interface_type === ctwl.LOGICAL_INF_L3_TYPE) {
-                        self.setVMIRefsToSubnet(vmiId, attr.subnet_back_refs);
+                ajaxConfig.type = "POST";
+                ajaxConfig.url = '/api/tenants/config/ports';
+                ajaxConfig.data =
+                    JSON.stringify(self.prepareVMIPostObject(postObjInput));
+                contrail.ajaxHandler(ajaxConfig, function () {
+                        callbackObj.init();
+                }, function (result) {
+                    if(result != null && result['virtual-machine-interface']
+                        && result['virtual-machine-interface']['fq_name']) {
+                        self.vmiDetails = [result];
+                        var vmiId =
+                            result['virtual-machine-interface']['fq_name'][2];
+                        self.createUpdatePhysicalInterface(attr, callbackObj,
+                            ajaxOpt, editView);
+                        if (attr.logical_interface_type === ctwl.LOGICAL_INF_L3_TYPE) {
+                            self.setVMIRefsToSubnet(vmiId, attr.subnet_back_refs);
+                        }
+                    } else {
+                        callbackObj.success();
                     }
+                }, function (error) {
+                        callbackObj.error(error);
+                });
+            });
+        },
+        /**Checks if a sg name default is present in the project**/
+        checkDefaultSG : function(fqName,callback) {
+            var ajaxConfig = {};
+            ajaxConfig.type = "POST";
+            ajaxConfig.url = 'api/tenants/config/get-config-list';
+            ajaxConfig.data =
+                 JSON.stringify({
+                                "data" : [ {
+                                    "type" : "security-groups"
+                                } ]
+                            });
+            contrail.ajaxHandler(ajaxConfig, null, function (result) {
+                if(result != null && result.length > 0 &&
+                        result[0]['security-groups']) {
+                    var securityGroups = result[0]['security-groups'];
+                    var isDefaultSG = false;
+                    var defaultSG = fqName[0] + ":" + fqName[1] + ':default';
+                    for(var i = 0 ; i < securityGroups.length; i++) {
+                        var sgfqname =
+                            cowu.getValueByJsonPath(securityGroups[i],
+                                    'fq_name');
+                        if(sgfqname.join(':') == defaultSG){
+                            isDefaultSG = true;
+                            break;
+                        }
+                    }
+                    callback(isDefaultSG);
                 } else {
-                    callbackObj.success();
+                    callback(false);
                 }
             }, function (error) {
-                    callbackObj.error(error);
+                callback(false);
             });
         },
         setVMIRefsToSubnet : function(vmiId, subnet_back_refs) {
@@ -433,66 +471,66 @@ define([
         },
         createPorts : function(portsDetails, attr, callbackObj, ajaxOpt,
             editView) {
-            var portCreateAjaxs = [];
-            for(var i = 0; i < portsDetails.length; i++){
-                var postObjInput = {};
-                var selVN = self.getSelectedVNItem(attr.user_created_virtual_network);
-                if(selVN != {}) {
-                    selVN = JSON.parse(selVN.data);
+            var selVN = self.getSelectedVNItem(attr.user_created_virtual_network);
+            self.checkDefaultSG(selVN.fqName, function(isDefaultSG) {
+                var portCreateAjaxs = [];
+                for(var i = 0; i < portsDetails.length; i++){
+                    var postObjInput = {};
                     postObjInput.subnetId = selVN.subnetId;
                     postObjInput.fqName = selVN.fqName;
+                    postObjInput.isDefaultSG = isDefaultSG;
+                    if(portsDetails[i].mac != '') {
+                        postObjInput.mac = portsDetails[i].mac;
+                    }
+                    postObjInput.ip = portsDetails[i].ip;
+                    portCreateAjaxs.push($.ajax({
+                        url : '/api/tenants/config/ports',
+                        type : "POST",
+                        contentType : 'application/json',
+                        data :
+                            JSON.stringify(self.prepareVMIPostObject(postObjInput))
+                    }));
                 }
-                if(portsDetails[i].mac != '') {
-                    postObjInput.mac = portsDetails[i].mac;
-                }
-                postObjInput.ip = portsDetails[i].ip;
-                portCreateAjaxs.push($.ajax({
-                    url : '/api/tenants/config/ports',
-                    type : "POST",
-                    contentType : 'application/json',
-                    data :
-                        JSON.stringify(self.prepareVMIPostObject(postObjInput))
-                }));
-            }
-            var defer = $.when.apply($, portCreateAjaxs);
-            defer.done(function(){
-
-                /* This is executed only after every ajax request has been
-                completed */
-                if(portCreateAjaxs.length > 1){
-                    $.each(arguments, function(index, result){
-                        result = result[0];//0 element contains the response
+                var defer = $.when.apply($, portCreateAjaxs);
+                defer.done(function(){
+    
+                    /* This is executed only after every ajax request has been
+                    completed */
+                    if(portCreateAjaxs.length > 1){
+                        $.each(arguments, function(index, result){
+                            result = result[0];//0 element contains the response
+                            if(result != null && result['virtual-machine-interface']
+                                    && result['virtual-machine-interface']
+                                    ['fq_name']) {
+                                self.vmiDetails.push(result);
+                            } else {
+                                callbackObj.success();
+                            }
+                        });
+                        if(self.vmiDetails.length >= 1) {
+                            self.createUpdatePhysicalInterface(attr, callbackObj,
+                            ajaxOpt, editView);
+                        }
+                    } else {
+                        var result = arguments[0];
                         if(result != null && result['virtual-machine-interface']
-                                && result['virtual-machine-interface']
-                                ['fq_name']) {
+                                && result['virtual-machine-interface']['fq_name']) {
                             self.vmiDetails.push(result);
+                            self.createUpdatePhysicalInterface(attr, callbackObj,
+                            ajaxOpt, editView);
                         } else {
                             callbackObj.success();
                         }
-                    });
-                    if(self.vmiDetails.length >= 1) {
-                        self.createUpdatePhysicalInterface(attr, callbackObj,
-                        ajaxOpt, editView);
                     }
-                } else {
-                    var result = arguments[0];
-                    if(result != null && result['virtual-machine-interface']
-                            && result['virtual-machine-interface']['fq_name']) {
-                        self.vmiDetails.push(result);
-                        self.createUpdatePhysicalInterface(attr, callbackObj,
-                        ajaxOpt, editView);
-                    } else {
-                        callbackObj.success();
-                    }
-                }
-            }).fail(function(error){
-                 //failure
-                 var r = arguments;
-                 callbackObj.error(error);
-                 if(self.vmiDetails.length > 0) {
-                     self.deleteVirtulMachineInterfaces(
-                         self.prepareDeletePortListForFailedLI());
-                 }
+                }).fail(function(error){
+                     //failure
+                     var r = arguments;
+                     callbackObj.error(error);
+                     if(self.vmiDetails.length > 0) {
+                         self.deleteVirtulMachineInterfaces(
+                             self.prepareDeletePortListForFailedLI());
+                     }
+                });
             });
         },
         getMacFromText : function(mac) {
