@@ -1424,7 +1424,6 @@ function buildSetTagMaps (mapObj, data, objType)
     var fqName = _.get(data, [objType, "fq_name"], []).join(":");
     partialKey = (null != uuid) ? uuid : fqName;
     mapObj[objType + ';'+ partialKey] = tagRefs;
-    delete data[objType].tag_refs;
 }
 
 function createConfigObject (req, res, appData)
