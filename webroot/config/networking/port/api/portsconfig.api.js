@@ -423,6 +423,10 @@ function portSendResponse (error, req, portConfig, orginalPortData, appData, cal
 function updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portConfig, callback)
 {
     async.map(instIpPostDataObjArr, createInstIP, function(err, result) {
+        if ((null != err) || (null == result)) {
+            callback(err, result);
+            return;
+        }
     if (DataObjectArr.length === 0) {
         callback(null, portConfig)
         return;
