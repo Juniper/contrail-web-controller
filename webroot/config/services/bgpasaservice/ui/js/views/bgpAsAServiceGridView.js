@@ -343,6 +343,15 @@ define([
                                 },{
                                     keyClass:'col-xs-3',
                                     valueClass:'col-xs-9',
+                                    key: "bgpaas_session_attributes.local_autonomous_system",
+                                    templateGenerator: "TextGenerator",
+                                    label: "Local ASN",
+                                    templateGeneratorConfig: {
+                                        formatter: "LocalASNFormatter"
+                                    }
+                                },{
+                                    keyClass:'col-xs-3',
+                                    valueClass:'col-xs-9',
                                     key: 'bgpaas_session_attributes.admin_down',
                                     templateGenerator: 'TextGenerator',
                                     label: 'Admin State',
@@ -453,6 +462,9 @@ define([
     };
     this.LoopCountFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.loopCountFormatter("", "", v, "", dc);
+    };
+    this.LocalASNFormatter = function(v, dc) {
+        return bgpAsAServiceFormatter.localASNFormatter("", "", v, "", dc);
     };
     this.IPv4MappedIPv6NexthopFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.
