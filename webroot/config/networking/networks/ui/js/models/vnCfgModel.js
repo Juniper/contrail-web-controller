@@ -1044,8 +1044,8 @@ define([
                         'user_created_sriov_enabled', false),
                         vlanId = Number(value);
                     if (sriovEnabled) {
-                        if (isNaN(vlanId) || (vlanId < 1 || vlanId > 4094))  {
-                            return "Enter valid VLAN between 1 - 4094";
+                        if (isNaN(vlanId) || (vlanId < 0 || vlanId > 4094))  {
+                            return "Enter valid VLAN between 0 - 4094";
                         }
                     }
                 },
