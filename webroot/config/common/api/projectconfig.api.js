@@ -236,7 +236,7 @@ function getAllDomainAsync (dataObj, callback)
     var appData = dataObj.appData;
     var request = dataObj.request;
      if(dataObj.type === identity) {
-         var identityData = [], domainObj, domainId;
+         var identityData = [], domainObj, domainId, domainName;
          if (('v2.0' == request.session.authApiVersion) ||
                  (null == request.session.authApiVersion)) {
                  identityData.push({uuid: defaultDomainId,
@@ -247,6 +247,13 @@ function getAllDomainAsync (dataObj, callback)
          domainObj = commonUtils.getValueByJsonPath(request,
                  "session;last_token_used;project;domain", null, false);
          domainId = commonUtils.getValueByJsonPath(domainObj, 'id', '', false);
+         domainName = commonUtils.getValueByJsonPath(domainObj, 'name', '',
+                                                     false);
+         if ('' == domainId) {
+             logutils.logger.error("Did not find domain in last_token");
+             callback(null, {error: null, data: identityData});
+             return;
+         }
          if(domainId === defaultDomainId) {
              identityData.push({uuid: domainId, fq_name: [defaultDomainName]});
          } else {
@@ -257,11 +264,11 @@ function getAllDomainAsync (dataObj, callback)
                  function(error, data){
                      if ((null != error) || (null == data)) {
                          logutils.logger.error(
-                                 'Domain Sync failed for ' + domainObj.name);
+                                 'Domain Sync failed for ' + domainName);
                      }
              });
              identityData.push({uuid: commonUtils.convertUUIDToString(domainId),
-                 fq_name: [domainObj.name]})
+                 fq_name: [domainName]})
          }
          callback(null, {error: null, data: identityData});
      } else {
