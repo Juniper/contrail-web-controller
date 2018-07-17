@@ -24,6 +24,7 @@ define([
                 "as_override": false,
                 "hold_time": null,
                 "loop_count": null,
+                "local_autonomous_system":null,
                 "address_families": {
                     "family": []
                 },
@@ -246,6 +247,10 @@ define([
                 newBGPAsAServiceData["bgpaas_session_attributes"]["loop_count"] =
                     sessionAttrs.loop_count ? Number(sessionAttrs.loop_count) : 0;
 
+                //loop count
+                newBGPAsAServiceData["bgpaas_session_attributes"]["local_autonomous_system"] =
+                    sessionAttrs.local_autonomous_system ? Number(sessionAttrs.local_autonomous_system) : null;
+
                 /*//auth key
                 if(newBGPAsAServiceData.user_created_auth_key_type != 'none') {
                     newBGPAsAServiceData["bgpaas_session_attributes"]["auth_data"] = {
@@ -382,7 +387,16 @@ define([
                             return "Enter Loop count between 0-16"
                         }
                     }
-                },/*
+                },
+                'bgpaas_session_attributes.local_autonomous_system' : function(value, attr, finalObj){
+                    if (value) {
+                        var asn = Number(value);
+                        if (isNaN(asn) || asn < 1 || asn > 65534) {
+                            return "Enter Local ASN number between 1-65534";
+                        }
+                    }
+                },
+                /*
                 'user_created_auth_key' : function(value, attr, finalObj){
                     if (finalObj['user_created_auth_key_type'] != 'none'
                         && (value == null || value.trim() == '')) {
