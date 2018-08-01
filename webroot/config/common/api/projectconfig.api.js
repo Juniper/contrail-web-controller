@@ -258,7 +258,7 @@ function getAllDomainAsync (dataObj, callback)
              identityData.push({uuid: domainId, fq_name: [defaultDomainName]});
          } else {
              //sync domain to api server
-             var domainUrl = "/domain/" + domainId + "?exclude_children=true" +
+             var domainUrl = "/domain/" + commonUtils.convertUUIDToString(domainId) + "?exclude_children=true" +
                                "&exclude_back_refs=true";
              configApiServer.apiGet(domainUrl, appData,
                  function(error, data){
