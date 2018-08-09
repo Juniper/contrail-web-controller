@@ -1085,7 +1085,7 @@ define([
                                             elementId: 'segmentation_id',
                                             view: 'FormInputView',
                                             viewConfig: {
-                                                placeholder: '1 - 4094',
+                                                placeholder: '0 - 4094',
                                                 label: 'VLAN',
                                                 path: 'provider_properties.segmentation_id',
                                                 class: 'col-xs-6',
