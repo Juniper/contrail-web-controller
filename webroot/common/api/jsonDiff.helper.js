@@ -67,8 +67,8 @@ var configJsonModifyObj = {
     'logical-router': {
         'isConfig': true,
         'preProcessCB': {
-            'applyOnOldJSON': modifyConfigDataByAttrHref,
-            'applyOnNewJSON': modifyConfigDataByAttrHref,
+            'applyOnOldJSON': modifyConfigDataByHref,
+            'applyOnNewJSON': modifyConfigDataByHref,
             'comparators': ['to']
         }
     },
@@ -232,6 +232,7 @@ function modifyPhyTopoData (type, jsonData, optFields, mandateFields)
 
 var configArrSkipObjsUUID = ['href', 'uuid'];
 var configArrSkipObjsAttrHref = ['href', 'attr'];
+var configArrSkipObjsHref = ['href'];
 var configArrSkipObjsAttrHrefUUID = ['href', 'attr', 'uuid'];
 
 function modifyConfigDataByAttrHref (type, configData,
@@ -253,6 +254,13 @@ function modifyConfigDataByHrefUUID (type, configData,
 {
     return modifyConfigData(type, configData, optFields, mandateFields,
             configArrSkipObjsUUID);
+};
+
+function modifyConfigDataByHref (type, configData,
+        optFields, mandateFields)
+{
+    return modifyConfigData(type, configData, optFields, mandateFields,
+            configArrSkipObjsHref);
 };
 
 
