@@ -161,6 +161,14 @@
           };
 
           /*
+           * localASNFormatter
+           */
+           this.localASNFormatter = function(r, c, v, cd, dc) {
+               return getValueByJsonPath(dc,
+                   "bgpaas_session_attributes;local_autonomous_system", "-");
+           };
+
+          /*
            * bgpaasASOverrideFormatter
            */
            this.bgpaasASOverrideFormatter = function(r, c, v, cd, dc) {
