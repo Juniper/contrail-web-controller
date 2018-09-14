@@ -72,7 +72,8 @@ define([
                                    data('contrailGrid').refreshView();
                            }
                        },
-                       renderOnActivate: true
+                       renderOnActivate: true,
+                       reqdPackages: cowc.ANALYTICS_QUERY_PACKAGES
                    }
                },
                {
@@ -91,7 +92,8 @@ define([
                                    data('contrailGrid').refreshView();
                            }
                        },
-                       renderOnActivate: true
+                       renderOnActivate: true,
+                       reqdPackages: cowc.ANALYTICS_ALARM_PACKAGES
                    }
                }
             ]
