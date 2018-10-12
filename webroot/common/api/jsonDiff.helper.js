@@ -153,6 +153,7 @@ var configJsonModifyObj = {
     },
     'firewall-policy': {
         'isConfig': true,
+        'exception_list': ['firewall_rule_refs'],
         'preProcessCB': {
             'comparators': ['to', 'attr']
         }
