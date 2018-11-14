@@ -912,8 +912,8 @@ function buildLIDataObjArr (reqObj, appData)
     var chunk = 200;
     for (var i = 0, j = parentIDListCnt; i < j; i += chunk) {
         tmpArray = parentIDList.slice(i, i + chunk);
-        reqUrl = reqUrl + '&parent_id=' + tmpArray.join(',');
-        commonUtils.createReqObj(dataObjGetArr, reqUrl, null, null, null, null,
+        var piUrl = reqUrl + '&parent_id=' + tmpArray.join(',');
+        commonUtils.createReqObj(dataObjGetArr, piUrl, null, null, null, null,
                                  appData);
     }
     return dataObjGetArr;
