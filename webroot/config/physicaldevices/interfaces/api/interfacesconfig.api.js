@@ -751,6 +751,9 @@ function updatePhysicalRouterWithoutInterfaces (prUUID, appData, callback)
         if (null != data['physical-router']['logical_interfaces']) {
             data['physical-router']['logical_interfaces'] = [];
         }
+        /* do not touch credentials */
+        delete data['physical-router']['physical_router_user_credentials'];
+
         configApiServer.apiPut(prUrl, data, appData, function(err, data) {
             callback(err, data);
         });
