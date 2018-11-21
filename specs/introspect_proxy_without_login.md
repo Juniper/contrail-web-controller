@@ -43,7 +43,7 @@ https://<web_server_ip>:8143/forward-proxy?<all_introspect_arguments>&proxyURL=h
 ```
 Here is an example of request:
 ```
-curl https://10.10.10.10:8143/forward-proxy?name=default-domain:demo:mgmt&uuid=&vxlan_id=&ipam_name=&proxyURL=http://20.20.220.20:8085/Snh_VnListReq --insecure -H "X-Auth-Token: 0123456789"
+curl "https://10.10.10.10:8143/forward-proxy?name=default-domain:demo:mgmt&uuid=&vxlan_id=&ipam_name=&proxyURL=http://20.20.220.20:8085/Snh_VnListReq" --insecure -H "X-Auth-Token: 0123456789"
 ```
 
 There will be a config for list of allowed introspect names to be specified in config file.
