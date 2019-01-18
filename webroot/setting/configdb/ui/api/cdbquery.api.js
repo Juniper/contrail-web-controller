@@ -2,6 +2,8 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
+var fs = require('fs')
+
 var cdbqueryapi = module.exports,
     commonUtils = require(process.mainModule.exports.corePath + "/src/serverroot/utils/common.utils"),
     configUtils = require(process.mainModule.exports.corePath +
@@ -16,12 +18,18 @@ var hosts = getCassandraHostList(config.cassandra.server_ips, config.cassandra.s
     cPassword = config.cassandra.password,
     cClient;
 
-    if(cUsername && cPassword) {
-        var cAuthProvider = new cassandra.auth.PlainTextAuthProvider(cUsername, cPassword);
-        cClient = new cassandra.Client({ contactPoints: hosts, keyspace: "config_db_uuid", authProvider: cAuthProvider});
-    } else {
-        cClient = new cassandra.Client({ contactPoints: hosts, keyspace: "config_db_uuid"});
+var cass_options = { contactPoints: hosts, keyspace: "config_db_uuid" };
+if (cUsername && cPassword) {
+    var cAuthProvider = new cassandra.auth.PlainTextAuthProvider(cUsername, cPassword);
+    cass_options.authProvider = cAuthProvider;
+}
+if (config.cassandra.use_ssl) {
+    cass_options.sslOptions = { rejectUnauthorized: false };
+    if ('ca_certs' in config.cassandra && config.cassandra.ca_certs) {
+        cass_options.sslOptions.ca = [ fs.readFileSync(config.cassandra.ca_certs) ];
     }
+}
+cClient = new cassandra.Client(cass_options);
 
 cClient.on("error", function (err) {
     logutils.logger.error(err.stack);
