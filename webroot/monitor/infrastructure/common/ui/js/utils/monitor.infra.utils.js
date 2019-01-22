@@ -2156,7 +2156,14 @@ define([
             });
         }
         self.getIPOrHostName = function(obj) {
-            return (obj['ip'] == noDataStr) ? obj['name'] : obj['ip'];
+            var ret = obj['hostname']
+            if ((ret == null) || (ret == noDataStr)) {
+                ret = obj['ip'];
+            }
+            if ((ret == null) || (ret == noDataStr)) {
+                ret = obj['name'];
+            }
+            return ret;
         }
 
         self.appendHostNameInWidgetTitleForUnderlayPage = function (viewConfig) {
