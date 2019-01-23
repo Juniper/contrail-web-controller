@@ -219,7 +219,7 @@ define([
                     }
                 }
             } else {
-                sg = "-";
+                sg += "-";
             }
             return sg;
         };
