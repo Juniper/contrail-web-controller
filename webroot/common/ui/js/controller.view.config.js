@@ -742,7 +742,8 @@ define([
                                     data('contrailGrid').refreshView();
                             }
                         },
-                        renderOnActivate: true
+                        renderOnActivate: true,
+                        reqdPackages: cowc.ANALYTICS_QUERY_PACKAGES
                     }
                 },{
                     elementId:
@@ -760,7 +761,8 @@ define([
                                     data('contrailGrid').refreshView();
                             }
                         },
-                        renderOnActivate: true
+                        renderOnActivate: true,
+                        reqdPackages: cowc.ANALYTICS_ALARM_PACKAGES
                     }
                 }
             ];

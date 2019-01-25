@@ -113,10 +113,13 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>mon_infra_underlay</hash>
                             <label>Physical Topology</label>
                             <access>
-                            <roles>
-                                <role>cloudAdmin</role>
-                            </roles>
-                            <accessFn>hideInGlobalController</accessFn>
+                                <roles>
+                                    <role>cloudAdmin</role>
+                                </roles>
+                                <accessFn>hideInGlobalController</accessFn>
+                                <reqdPackages>
+                                    <package>ANALYTICS_SNMP_ENABLE</package>
+                                </reqdPackages>
                             </access>
                             <resources>
                                 <resource>
@@ -239,6 +242,9 @@ and need to add the iconClass tag wherever we need to show some icons
                             <role>member</role>
                         </roles>
                         <accessFn>hideInGlobalController</accessFn>
+                        <reqdPackages>
+                            <package>ANALYTICSDB_ENABLE</package>
+                        </reqdPackages>
                     </access>
                     <items>
                         <item optional="true">
@@ -275,6 +281,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>Networking</label>
                     <iconClass>menu-icon fa fa-sitemap</iconClass>
+                    <hash>mon_networking</hash>
                     <access>
                         <roles>
                             <role>cloudAdmin</role>
@@ -503,6 +510,9 @@ and need to add the iconClass tag wherever we need to show some icons
                             <model>openstack</model>
                         </orchModels>
                         <accessFn>hideInGlobalController</accessFn>
+                        <reqdPackages>
+                            <package>ANALYTICS_ALARM_ENABLE</package>
+                        </reqdPackages>
                     </access>
                     <resources>
                         <resource>
@@ -1876,6 +1886,7 @@ and need to add the iconClass tag wherever we need to show some icons
         <item>
             <label>Query</label>
             <name>query</name>
+            <hash>query</hash>
             <iconClass>fa fa-search</iconClass>
             <resources>
                 <resource>
@@ -1901,6 +1912,9 @@ and need to add the iconClass tag wherever we need to show some icons
                     <model>cloudstack</model>
                     <model>vcenter</model>
                 </orchModels>
+                <reqdPackages>
+                    <package>ANALYTICSDB_ENABLE</package>
+                </reqdPackages>
             </access>
             <items>
                 <item>
