@@ -668,10 +668,8 @@
              rbacModel.__kb.view_model.model().on("change:rule_object",
                      function(model, newValue){
                      if(!newValue || newValue.trim() === "" ||
-                             newValue.trim() === '*'){
+                             newValue.trim() === '*') {
                          return;
-                     } else {
-                         newValue = newValue.substring(0, newValue.length - 1);
                      }
                      var ajaxConfig = {
                              url : "/api/tenants/config/get-object-properties/"
