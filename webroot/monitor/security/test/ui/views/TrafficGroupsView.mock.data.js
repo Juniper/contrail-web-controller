@@ -2742,7 +2742,7 @@ define(['underscore'], function (_) {
             }
          }
       ],
-      'expected' : ["6fa2b152-e86d-4ad6-b6b0-2cdbfcb648a1","7ce6a34e-1af4-4dd8-9aaf-9f9c0350a2de","ca2c348e-be34-431c-83e4-a8b4db58a0cb","451be384-ae38-4412-97db-e797638398f7","12d2a1f3-7260-4eec-8098-bf13640b2c68"]
+      'expected' : ["6fa2b152-e86d-4ad6-b6b0-2cdbfcb648a1", "7ce6a34e-1af4-4dd8-9aaf-9f9c0350a2de", "ca2c348e-be34-431c-83e4-a8b4db58a0cb", "451be384-ae38-4412-97db-e797638398f7", "12d2a1f3-7260-4eec-8098-bf13640b2c68"]
     };
     return {
         tgSettingsMockData : tgSettingsMockData,
