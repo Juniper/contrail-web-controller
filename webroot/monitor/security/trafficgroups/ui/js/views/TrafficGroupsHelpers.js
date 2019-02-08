@@ -820,7 +820,7 @@ define([
         },
         this.sortPolicyList = function(baseArray, path, array) {
             baseArray.sort(function(p1, p2){
-                  return (array.indexOf(_.result(p1, path, {}).uuid) >
+                  return (array.indexOf(_.result(p1, path, {}).uuid) -
                          array.indexOf(_.result(p2, path, {}).uuid));
             });
             return baseArray;
@@ -831,7 +831,7 @@ define([
                     fPolicyRefs = curAps['firewall_policy_refs'];
                 if(fPolicyRefs) {
                     fPolicyRefs.sort(function(a, b) {
-                        return a.attr.sequence > b.attr.sequence;
+                        return a.attr.sequence - b.attr.sequence;
                     });
                     _.each(fPolicyRefs, function(ref) {
                         policyObj.push(ref.uuid);
@@ -1050,7 +1050,7 @@ define([
                         ruleRefs = obj.firewall_rule_refs;
                     if(ruleRefs) {
                         ruleRefs.sort(function(a, b) {
-                            return a.attr.sequence > b.attr.sequence;
+                            return a.attr.sequence - b.attr.sequence;
                         });
                         _.each(ruleRefs, function(ref) {
                             ruleUUIDs.push(ref.uuid);
