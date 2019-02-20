@@ -520,7 +520,7 @@ define([
                 if (newSvcTemplateCfgData['display_name'] == '') {
                     newSvcTemplateCfgData['display_name'] = newSvcTemplateCfgData['name'];
                 }
-                if (newSvcTemplateCfgData['fq_name'] == [] ||
+                if (!newSvcTemplateCfgData['fq_name'].length ||
                     newSvcTemplateCfgData['fq_name'] == null) {
                     newSvcTemplateCfgData['fq_name'] = [];
                     newSvcTemplateCfgData['fq_name'][0] = domain;

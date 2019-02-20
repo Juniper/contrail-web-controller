@@ -40,7 +40,7 @@ define([
 
                 ctwu.setNameFromDisplayName(newDatabaseNodeData);
 
-                if(newDatabaseNodeData["fq_name"] === [] ||
+                if(!newDatabaseNodeData["fq_name"].length ||
                         newDatabaseNodeData["fq_name"] === null) {
                     newDatabaseNodeData["fq_name"] =
                         [

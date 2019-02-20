@@ -139,7 +139,7 @@ define([
                 if (newsvcHealthChkCfgData['display_name'] == '') {
                     newsvcHealthChkCfgData['display_name'] = newsvcHealthChkCfgData['name'];
                 }
-                if (newsvcHealthChkCfgData['fq_name'] == [] ||
+                if (!newsvcHealthChkCfgData['fq_name'].length ||
                     newsvcHealthChkCfgData['fq_name'] == null) {
                     newsvcHealthChkCfgData['fq_name'] = [];
                     newsvcHealthChkCfgData['fq_name'][0] = domain;

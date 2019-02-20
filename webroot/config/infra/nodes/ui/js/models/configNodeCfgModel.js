@@ -40,7 +40,7 @@ define([
 
                 ctwu.setNameFromDisplayName(newConfigNodeData);
 
-                if(newConfigNodeData["fq_name"] === [] ||
+                if(!newConfigNodeData["fq_name"].length ||
                         newConfigNodeData["fq_name"] === null) {
                     newConfigNodeData["fq_name"] =
                         [

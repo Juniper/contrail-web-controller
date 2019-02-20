@@ -796,7 +796,7 @@ define([
             attr['route_target_list']['route_target'] =
                                              this.getRouteTargetList(attr,
                                                       'user_created_route_targets');
-            if (attr['route_target_list']['route_target'] == []) {
+            if (!attr['route_target_list']['route_target'].length) {
                 attr['route_target_list'] = {};
             }
 
@@ -804,7 +804,7 @@ define([
             attr['export_route_target_list']['route_target'] =
                                              this.getRouteTargetList(attr,
                                                       'user_created_export_route_targets');
-            if (attr['export_route_target_list']['route_target'] == []) {
+            if (!attr['export_route_target_list']['route_target'].length) {
                 attr['export_route_target_list'] = {};
             }
 
@@ -812,7 +812,7 @@ define([
             attr['import_route_target_list']['route_target'] =
                                              this.getRouteTargetList(attr,
                                                       'user_created_import_route_targets');
-            if (attr['import_route_target_list']['route_target'] == []) {
+            if (!attr['import_route_target_list']['route_target'].length) {
                 attr['import_route_target_list'] = {};
             }
         },
@@ -1147,7 +1147,7 @@ define([
 
                 ctwu.setNameFromDisplayName(newVNCfgData);
 
-                if (newVNCfgData['fq_name'] == [] ||
+                if (!newVNCfgData['fq_name'].length ||
                     newVNCfgData['fq_name'] == null) {
                     newVNCfgData['fq_name'] = [];
                     newVNCfgData['fq_name'][0] = domain;
