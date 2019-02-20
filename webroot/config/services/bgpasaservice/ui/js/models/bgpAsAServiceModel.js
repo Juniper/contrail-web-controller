@@ -204,7 +204,7 @@ define([
                 var newBGPAsAServiceData = $.extend(true, {}, attr);
 
                 ctwu.setNameFromDisplayName(newBGPAsAServiceData);
-                if(newBGPAsAServiceData["fq_name"] == [] ||
+                if(!newBGPAsAServiceData["fq_name"].length ||
                     newBGPAsAServiceData["fq_name"] == null) {
                     newBGPAsAServiceData["fq_name"] =
                         [
