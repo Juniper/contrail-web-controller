@@ -221,8 +221,8 @@ define([
                 newQOSConfigData = $.extend(true, {}, attr);
                 ctwu.setNameFromDisplayName(newQOSConfigData);
                 if(isGlobal) {
-                    if(newQOSConfigData["fq_name"] === [] ||
-                            newQOSConfigData["fq_name"] === null) {
+                    if(newQOSConfigData["fq_name"] === null ||
+                        !newQOSConfigData["fq_name"].length) {
                             newQOSConfigData["fq_name"] =
                                 [
                                     "default-global-system-config",
@@ -233,8 +233,8 @@ define([
                     newQOSConfigData["parent_type"] = "global-qos-config";
 
                 } else {
-                    if(newQOSConfigData["fq_name"] === [] ||
-                        newQOSConfigData["fq_name"] === null) {
+                    if(newQOSConfigData["fq_name"] === null ||
+                        !newQOSConfigData["fq_name"].length) {
                         newQOSConfigData["fq_name"] =
                             [
                                 contrail.getCookie(cowc.COOKIE_DOMAIN),

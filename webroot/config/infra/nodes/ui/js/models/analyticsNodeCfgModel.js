@@ -40,8 +40,8 @@ define([
 
                 ctwu.setNameFromDisplayName(newAnalyticsNodeData);
 
-                if(newAnalyticsNodeData["fq_name"] === [] ||
-                    newAnalyticsNodeData["fq_name"] === null) {
+                if(newAnalyticsNodeData["fq_name"] === null ||
+                    !newAnalyticsNodeData["fq_name"].length) {
                     newAnalyticsNodeData["fq_name"] =
                         [
                             'default-global-system-config',
