@@ -297,7 +297,7 @@ define([
 
                 ctwu.setNameFromDisplayName(newBGPRouterCfgData);
 
-                if (newBGPRouterCfgData['fq_name'] == [] ||
+                if (!newBGPRouterCfgData['fq_name'].length ||
                     newBGPRouterCfgData['fq_name'] == null) {
                     partialFQName.push(newBGPRouterCfgData["name"]);
                     newBGPRouterCfgData['fq_name'] = partialFQName;

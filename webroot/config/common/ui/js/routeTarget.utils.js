@@ -13,7 +13,7 @@ define([
             attr['configured_route_target_list']['route_target'] =
                                              self.getRouteTargetList(attr,
                                                       'user_created_configured_route_target_list');
-            if (attr['configured_route_target_list']['route_target'] == []) {
+            if (!attr['configured_route_target_list']['route_target'].length) {
                 attr['configured_route_target_list'] = {};
             }
         },
