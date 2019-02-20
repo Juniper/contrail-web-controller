@@ -891,7 +891,7 @@ define([
             attr['import_route_target_list']['route_target'] =
                                              this.getRouteTargetList(attr,
                                                       'user_created_import_route_targets');
-            if (attr['import_route_target_list']['route_target'] == []) {
+            if (!attr['import_route_target_list']['route_target'].length) {
                 attr['import_route_target_list'] = {};
             }
         },
