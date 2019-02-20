@@ -40,8 +40,8 @@ define([
 
                 ctwu.setNameFromDisplayName(newConfigNodeData);
 
-                if(newConfigNodeData["fq_name"] === [] ||
-                        newConfigNodeData["fq_name"] === null) {
+                if(newConfigNodeData["fq_name"] === null ||
+                    !newConfigNodeData["fq_name"].length) {
                     newConfigNodeData["fq_name"] =
                         [
                             'default-global-system-config',
