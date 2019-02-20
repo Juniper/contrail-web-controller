@@ -88,8 +88,8 @@ define([
 
                 ctwu.setNameFromDisplayName(newRouteAggregateData);
 
-                if(newRouteAggregateData["fq_name"] === [] ||
-                    newRouteAggregateData["fq_name"] === null) {
+                if(newRouteAggregateData["fq_name"] === null ||
+                    !newRouteAggregateData["fq_name"].length) {
                     newRouteAggregateData["fq_name"] =
                         [
                             domain,
