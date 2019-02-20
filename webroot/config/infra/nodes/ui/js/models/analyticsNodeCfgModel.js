@@ -40,7 +40,7 @@ define([
 
                 ctwu.setNameFromDisplayName(newAnalyticsNodeData);
 
-                if(newAnalyticsNodeData["fq_name"] === [] ||
+                if(!newAnalyticsNodeData["fq_name"].length ||
                     newAnalyticsNodeData["fq_name"] === null) {
                     newAnalyticsNodeData["fq_name"] =
                         [

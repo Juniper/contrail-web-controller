@@ -221,7 +221,7 @@ define([
                 newQOSConfigData = $.extend(true, {}, attr);
                 ctwu.setNameFromDisplayName(newQOSConfigData);
                 if(isGlobal) {
-                    if(newQOSConfigData["fq_name"] === [] ||
+                    if(!newQOSConfigData["fq_name"].length ||
                             newQOSConfigData["fq_name"] === null) {
                             newQOSConfigData["fq_name"] =
                                 [
@@ -233,7 +233,7 @@ define([
                     newQOSConfigData["parent_type"] = "global-qos-config";
 
                 } else {
-                    if(newQOSConfigData["fq_name"] === [] ||
+                    if(!newQOSConfigData["fq_name"].length ||
                         newQOSConfigData["fq_name"] === null) {
                         newQOSConfigData["fq_name"] =
                             [

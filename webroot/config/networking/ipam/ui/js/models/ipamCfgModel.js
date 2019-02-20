@@ -415,7 +415,7 @@ define([
                 if (newipamCfgData['display_name'] == '') {
                     newipamCfgData['display_name'] = newipamCfgData['name'];
                 }
-                if (newipamCfgData['fq_name'] == [] ||
+                if (!newipamCfgData['fq_name'].length ||
                     newipamCfgData['fq_name'] == null) {
                     newipamCfgData['fq_name'] = [];
                     newipamCfgData['fq_name'][0] = domain;
