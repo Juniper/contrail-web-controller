@@ -204,8 +204,8 @@ define([
                 var newBGPAsAServiceData = $.extend(true, {}, attr);
 
                 ctwu.setNameFromDisplayName(newBGPAsAServiceData);
-                if(newBGPAsAServiceData["fq_name"] == [] ||
-                    newBGPAsAServiceData["fq_name"] == null) {
+                if(newBGPAsAServiceData["fq_name"] == null ||
+                    !newBGPAsAServiceData["fq_name"].length) {
                     newBGPAsAServiceData["fq_name"] =
                         [
                             contrail.getCookie(cowc.COOKIE_DOMAIN),

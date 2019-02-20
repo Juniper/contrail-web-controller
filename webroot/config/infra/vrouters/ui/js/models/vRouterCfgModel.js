@@ -13,9 +13,9 @@ define([
     var vRouterCfgModel = ContrailConfigModel.extend({
         constructor: function () {
             ContrailConfigModel.apply(this,arguments);
-            if (this.virtual_router_type() == '' ||
-                this.virtual_router_type() == [] ||
-                this.virtual_router_type() == null) {
+            const vRouterType = this.virtual_router_type();
+
+            if (vRouterType == null || vRouterType == '' || !vRouterType.length) {
                 this.virtual_router_type('hypervisor');
             }
         },
@@ -215,8 +215,8 @@ define([
                 if (newvRouterCfgData['display_name'] == '') {
                     newvRouterCfgData['display_name'] = newvRouterCfgData['name'];
                 }
-                if (newvRouterCfgData['fq_name'] == [] ||
-                    newvRouterCfgData['fq_name'] == null) {
+                if (newvRouterCfgData['fq_name'] == null ||
+                    !newvRouterCfgData['fq_name'].length) {
                     newvRouterCfgData['fq_name'] = [];
                     newvRouterCfgData['fq_name'][0] = 'default-global-system-config';
                     newvRouterCfgData['fq_name'][1] = newvRouterCfgData['name'];
