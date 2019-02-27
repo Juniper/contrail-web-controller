@@ -84,6 +84,7 @@ define(["underscore", "config/rbac/common/ui/js/rbacFormatters"],
                                             class: "col-xs-6",
                                             elementConfig: {
                                                 disabled: disableId,
+                                                onlyAllowListedValue: true,
                                                 placeholder:
                                                     "Enter or Select object",
                                                 dataTextField: "text",
