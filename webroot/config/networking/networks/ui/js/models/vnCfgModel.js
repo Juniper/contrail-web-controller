@@ -797,7 +797,7 @@ define([
                                              this.getRouteTargetList(attr,
                                                       'user_created_route_targets');
             if (!attr['route_target_list']['route_target'].length) {
-                attr['route_target_list'] = {};
+                delete attr['route_target_list'];
             }
 
             attr['export_route_target_list'] = {};
@@ -805,7 +805,7 @@ define([
                                              this.getRouteTargetList(attr,
                                                       'user_created_export_route_targets');
             if (!attr['export_route_target_list']['route_target'].length) {
-                attr['export_route_target_list'] = {};
+                delete attr['export_route_target_list'];
             }
 
             attr['import_route_target_list'] = {};
@@ -813,7 +813,7 @@ define([
                                              this.getRouteTargetList(attr,
                                                       'user_created_import_route_targets');
             if (!attr['import_route_target_list']['route_target'].length) {
-                attr['import_route_target_list'] = {};
+                delete attr['import_route_target_list'];
             }
         },
 
