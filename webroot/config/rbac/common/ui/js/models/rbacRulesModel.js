@@ -70,16 +70,23 @@ define([
                 });
             });
             return actRulePerms;
-        }/*,
+        },
 
         validations: {
-            rbacValidations: {
+            rbacValidations: { /*
                 rule_object : {
                     required : true,
                     msg : "Object is Required"
+                }, */
+                rule_perms: function(value) {
+                    if (!value || !value.length) {
+                        return "Rule list can't be empty";
+                    }
+
+                    return true;
                 }
             }
-        }*/
+        }
     });
 
     return rbacRulesModel;
