@@ -797,7 +797,7 @@ define([
                                              this.getRouteTargetList(attr,
                                                       'user_created_route_targets');
             if (!attr['route_target_list']['route_target'].length) {
-                delete attr['route_target_list'];
+                attr['route_target_list'] = {};
             }
 
             attr['export_route_target_list'] = {};
@@ -805,7 +805,7 @@ define([
                                              this.getRouteTargetList(attr,
                                                       'user_created_export_route_targets');
             if (!attr['export_route_target_list']['route_target'].length) {
-                delete attr['export_route_target_list'];
+                attr['export_route_target_list'] = {};
             }
 
             attr['import_route_target_list'] = {};
@@ -813,7 +813,7 @@ define([
                                              this.getRouteTargetList(attr,
                                                       'user_created_import_route_targets');
             if (!attr['import_route_target_list']['route_target'].length) {
-                delete attr['import_route_target_list'];
+                attr['import_route_target_list'] = {};
             }
         },
 
@@ -1216,6 +1216,20 @@ define([
                 var putURL         = '/api/tenants/config/virtual-network/' +
                                      newVNCfgData['uuid'];
                 ajaxConfig.type    = ajaxType;
+
+                if (ajaxType === "POST") {
+                    // For creation, below attributes shouldn't be sent if empty
+                    [
+                        'route_target_list',
+                        'import_route_target_list',
+                        'export_route_target_list',
+                    ].forEach(function (routeTargetListAttrName) {
+                        if (_.isEmpty(newVNCfgData[routeTargetListAttrName])) {
+                            delete newVNCfgData[routeTargetListAttrName];
+                        }
+                    });
+                }
+
                 ajaxConfig.data    = JSON.stringify(postData);
                 ajaxConfig.url     = ajaxType == 'PUT' ? putURL : postURL;
                 ajaxConfig.timeout = 300000;
