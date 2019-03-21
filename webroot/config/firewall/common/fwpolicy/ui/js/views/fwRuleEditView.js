@@ -210,22 +210,22 @@ define([
                             var tagVal, tagData;
                             if(tagList[j] === 'Application'){
                                 tagVal = 'application';
-                                tagData = applicationChild;
+                                tagData = sortTagsByText(applicationChild);
                             }else if(tagList[j] === 'Tier'){
                                 tagVal = 'tier';
-                                tagData = tierChild;
+                                tagData = sortTagsByText(tierChild);
                             }else if(tagList[j] === 'Deployment'){
                                 tagVal = 'deployment';
-                                tagData = deploymentChild;
+                                tagData = sortTagsByText(deploymentChild);
                             }else if(tagList[j] === 'Site'){
                                 tagVal = 'site';
-                                tagData = siteChild;
+                                tagData = sortTagsByText(siteChild);
                             }else if(tagList[j] === 'Label'){
                                 tagVal = 'label';
-                                tagData = labelChild;
+                                tagData = sortTagsByText(labelChild);
                             } else {
                                 tagVal = 'udtag';
-                                tagData = udTagChild;
+                                tagData = sortTagsByText(udTagChild);
                             }
                             addrFields.push({text : tagList[j], value : tagVal, children : tagData});
                         }
@@ -240,7 +240,8 @@ define([
                                  id : fqNameValue + cowc.DROPDOWN_VALUE_SEPARATOR + "address_group",
                                  parent : "address_group" });
                         }
-                        addrFields.push({text : 'Address Group', value : 'address_group', children : addressGrpChild});
+                        var sortedAddressGroups = sortTagsByText(addressGrpChild);
+                        addrFields.push({text : 'Address Group', value : 'address_group', children : sortedAddressGroups});
                     }
                     if(virtualNet.length > 0){
                         var virtualNetworkList = [{text:'Enter or Select a Virtual Network',
@@ -266,7 +267,8 @@ define([
                                             parent : "virtual_network" });
                               //}
                           }
-                          addrFields.push({text : 'Virtual Networks', value : 'virtual_network', children : virtualNetworkList});
+                          var sortedVirtualNetworkList = sortTagsByText(virtualNetworkList);
+                          addrFields.push({text : 'Virtual Networks', value : 'virtual_network', children : sortedVirtualNetworkList});
                     }
                     var anyList = [{text:'',
                         value:"dummy" + cowc.DROPDOWN_VALUE_SEPARATOR + "any_workload",
@@ -303,6 +305,16 @@ define([
         }
 
     });
+    function sortTagsByText(tagsWithPlaceholder) {
+        var placeholder = tagsWithPlaceholder[0];
+        var tags = tagsWithPlaceholder.slice(1);
+        var sortedTags = _.sortBy(tags, function(tag) { return tag.text; });
+        var partitionResult = _.partition(sortedTags, function (tag) { return tag.text.indexOf("global:") === 0; });
+        var globalTags = partitionResult[0];
+        var projectTags = partitionResult[1];
+
+        return [].concat(placeholder, projectTags, globalTags);
+    }
     function tagDropDownFormatter(response){
         var matchList = [{text:'Application', id:'application' },
             {text:'Tier', id:'tier' },
