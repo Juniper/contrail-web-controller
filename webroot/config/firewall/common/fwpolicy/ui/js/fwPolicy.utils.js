@@ -8,19 +8,40 @@ define([
     var fwPolicyUtils = function() {
         var self = this;
         this.validateEndPoint = function (src,finalObj) {
-
+            
+            var CUSTOM_TAG_TYPE = "udtag";
             var endPoints = finalObj[src].split(',');
             var typesMap = {};
+            /**
+             * @type {{ [tagName: string]: number }}
+             */
+            var customTagsDictionary = {};
+
             _.each(endPoints,function(ep){
-                var type = (ep.split(';').length > 1)? ep.split(';')[1]: null;
-                if(type != null) {
-                    if(type.indexOf("global:") == 0) {
-                        type = type.substring(7,type.length);
-                    }
-                    if(!_.has(typesMap, type)) {
-                        typesMap[type] = 1
+                var splitEndpoint = ep.split(';');
+                if (splitEndpoint.length < 2) {
+                    return;
+                }
+
+                var tagType = splitEndpoint[1];
+                if(tagType.indexOf("global:") == 0) {
+                    tagType = tagType.substring(7,tagType.length);
+                }
+
+                if(!_.has(typesMap, tagType)) {
+                    typesMap[tagType] = 1;
+                } else {
+                    typesMap[tagType] = typesMap[tagType] + 1;
+                }
+
+                if (tagType === CUSTOM_TAG_TYPE) {
+                    var tag = splitEndpoint[0];
+                    var splitTag = tag.split("=");
+                    var tagName = splitTag[0];
+                    if (!_.has(customTagsDictionary, tagName)) {
+                        customTagsDictionary[tagName] = 1;
                     } else {
-                        typesMap[type] = typesMap[type] + 1;
+                        customTagsDictionary[tagName] += 1;
                     }
                 }
             });
@@ -29,12 +50,21 @@ define([
                     (typesMap['address_group'] > 0 && _.keys(typesMap).length > 1)) {
                 return "Please select only Tags or Address Group or Virtual Network or Any Workload";
             }
-            for (type in typesMap) {
-                if(type !== ctwc.LABEL_TAG_TYPE && typesMap[type] > 1) {
-                    return "Please select only one tag from each Tag type";
+
+            for (var tagName in customTagsDictionary) {
+                if(customTagsDictionary[tagName] > 1) {
+                    return "Please select only one tag from custom tags";
                 }
             }
 
+            var tagTypesThatCanAppearMultipleTimes = [ctwc.LABEL_TAG_TYPE, CUSTOM_TAG_TYPE];
+
+            for (var type in typesMap) {
+                var tagCanAppearMultipleTimes = _.contains(tagTypesThatCanAppearMultipleTimes, type);
+                if(!tagCanAppearMultipleTimes && typesMap[type] > 1) {
+                    return "Please select only one tag from each Tag type";
+                }
+            }
         };
 
         this.portValidation = function(port){
