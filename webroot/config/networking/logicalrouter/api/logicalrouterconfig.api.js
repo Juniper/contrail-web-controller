@@ -28,6 +28,7 @@ var appErrors = require(process.mainModule.exports["corePath"] +
 var util = require('util');
 var url = require('url');
 var UUID = require('uuid-js');
+var _ = require("lodash");
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var networkManager = require(process.mainModule.exports["corePath"] +
@@ -586,12 +587,32 @@ function deleteLogicalRouterAsync (dataObj, callback)
     var appData = dataObj['appData'];
     var logicalRouterId = dataObj['uuid'];
     var logicalRouterDelURL = '/logical-router/' + logicalRouterId;
-    
+
     configApiServer.apiGet(logicalRouterDelURL, appData, function(err, data) {
-        deleteLogicalRouterCb(err, logicalRouterDelURL, data, request, appData,
-            function (error, data) {
-            callback(null, {'error': error, 'data': data});
+        var backRefs = _.keys(data["logical-router"]).filter(function (key) {
+            return _.endsWith(key, "_back_refs");
+        });
+
+        if (!backRefs.length) {
+            deleteLogicalRouterCb(err, logicalRouterDelURL, data, request, appData,
+                function (error, data) {
+                callback(null, {'error': error, 'data': data});
             });
+        } else {
+            var errMsg = [
+                "Logical Router",
+                logicalRouterId,
+                "contains back references:",
+                backRefs.join(", "),
+                "and can't be deleted."
+            ].join(" ");
+            var error = new appErrors.RESTServerError(errMsg);
+
+            callback(null, {
+                error: error,
+                data: null,
+            });
+        }
     });
 
 }
