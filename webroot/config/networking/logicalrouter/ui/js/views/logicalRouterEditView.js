@@ -330,7 +330,7 @@ define([
                                                  viewConfig:
                                                    {
                                                     class: "", width: 400,
-                                                    placeholder: 'ASN 1 - 65534 or IP',
+                                                    placeholder: 'ASN 1 - 65535 or IP',
                                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                     path: "asn",
                                                     dataBindValue:

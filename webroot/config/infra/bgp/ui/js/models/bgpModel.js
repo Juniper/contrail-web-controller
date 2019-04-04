@@ -484,15 +484,15 @@ define([
                 },
                 'user_created_autonomous_system' : function(value, attr, finalObj){
                      var asn = Number(value);
-                     if (isNaN(asn) || asn < 1 || asn > 65534) {
-                         return "Enter valid Autonomous System Number between 1-65534";
+                     if (isNaN(asn) || asn < 1 || asn > 65535) {
+                         return "Enter valid Autonomous System Number between 1-65535";
                      }
                 },
                 'bgp_router_parameters.local_autonomous_system' : function(value, attr, finalObj){
                      if(value) {
                          var asn = Number(value);
-                         if (isNaN(asn) || asn < 1 || asn > 65534) {
-                             return "Enter valid BGP Router ASN between 1-65534";
+                         if (isNaN(asn) || asn < 1 || asn > 65535) {
+                             return "Enter valid BGP Router ASN between 1-65535";
                          }
                      }
                 },
