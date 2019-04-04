@@ -34,8 +34,8 @@ define([
             bgpOptionsValidations: {
                 'autonomous_system': function(value, attr, finalObj) {
                     var asn = Number(value);
-                    if (isNaN(asn) || asn < 1 || asn > 65534) {
-                        return "Enter ASN number between 1-65534";
+                    if (isNaN(asn) || asn < 1 || asn > 65535) {
+                        return "Enter ASN number between 1-65535";
                     }
                 },
                 'user_created_bgpaas_parameters': function(value, attr, finalObj) {

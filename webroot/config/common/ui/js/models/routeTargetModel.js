@@ -31,11 +31,11 @@ define([
             routeTargetModelConfigValidations: {
                 'asn':
                     function (value, attr, finalObj) {
-                    msg = "Enter ASN between 1 - 65534 or IP Address";
+                    msg = "Enter ASN between 1 - 65535 or IP Address";
                     if (value) {
                         var asn = Number(value);
                         if (!isNaN(asn)) {
-                            if (asn < 1 || asn > 65534 || (asn % 1) != 0) {
+                            if (asn < 1 || asn > 65535 || (asn % 1) != 0) {
                                 return msg;
                             }
                         } else if (!isValidIP(value)) {

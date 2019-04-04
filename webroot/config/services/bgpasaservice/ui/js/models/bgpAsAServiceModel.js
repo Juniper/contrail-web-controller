@@ -369,8 +369,8 @@ define([
                 },
                 'autonomous_system' : function(value, attr, finalObj){
                      var asn = Number(value);
-                     if (isNaN(asn) || asn < 1 || asn > 65534) {
-                         return "Enter ASN number between 1-65534";
+                     if (isNaN(asn) || asn < 1 || asn > 65535) {
+                         return "Enter ASN number between 1-65535";
                      }
                 },
                 'bgpaas_session_attributes.hold_time' :  function(value, attr, finalObj){
@@ -391,8 +391,8 @@ define([
                 'bgpaas_session_attributes.local_autonomous_system' : function(value, attr, finalObj){
                     if (value) {
                         var asn = Number(value);
-                        if (isNaN(asn) || asn < 1 || asn > 65534) {
-                            return "Enter Local ASN number between 1-65534";
+                        if (isNaN(asn) || asn < 1 || asn > 65535) {
+                            return "Enter Local ASN number between 1-65535";
                         }
                     }
                 },

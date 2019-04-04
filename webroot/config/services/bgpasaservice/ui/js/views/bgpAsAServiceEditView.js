@@ -125,7 +125,7 @@ define([
                                     elementId: "autonomous_system",
                                     view: "FormInputView",
                                     viewConfig: {
-                                        placeholder: "1 - 65534",
+                                        placeholder: "1 - 65535",
                                         path: "autonomous_system",
                                         dataBindValue: "autonomous_system",
                                         label : "Autonomous System",
