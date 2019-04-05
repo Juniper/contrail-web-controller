@@ -1028,7 +1028,7 @@ function getInstanceConnectedGraph(req, res, appData) {
 function processInstanceConnectedGraph(instanceGraphData, callback) {
     var connectedGraphJSON = {nodes: [], links: []},
         instance = instanceGraphData['instance'],
-        networkList = instanceGraphData['networks'],
+        networkList = instanceGraphData['networks'] || [],
         instanceFQN = instance['UveVirtualMachineAgent']['vm_name'],
         interfaceMap = instance['UveVirtualMachineAgent']['interface_map'],
         instanceNode = {name: instanceFQN, fqName: instance['UveVirtualMachineAgent']['uuid'], uve: instance, node_type: "virtual-machine", status: "Active"};
@@ -1038,7 +1038,7 @@ function processInstanceConnectedGraph(instanceGraphData, callback) {
     for (var i = 0; i < networkList.length; i++) {
         var networkName = networkList[i]['name'],
             interfaceDetails = interfaceMap[networkName],
-            interfaceStats = interfaceDetails['value']['UveVMInterfaceAgent']['if_stats'],
+            interfaceStats = interfaceDetails['value']['UveVMInterfaceAgent']['if_stats'] || {},
             isHealthCheckActive = interfaceDetails['value']['UveVMInterfaceAgent']['is_health_check_active'],
             networkNode = {name: networkName, more_attributes: getVNNodeAttributes(networkList[i]), node_type: "virtual-network", status: "Active"};
 
