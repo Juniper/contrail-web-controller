@@ -21,7 +21,9 @@ var portsConfig = require('../../networking/port/api/portsconfig.api'),
     commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
     configApiServer = require(process.mainModule.exports["corePath"] +
-                              '/src/serverroot/common/configServer.api');
+                              '/src/serverroot/common/configServer.api'),
+    messages = require(process.mainModule.exports["corePath"] +
+                              '/src/serverroot/common/messages');
 var vnConfig = require('../../networking/networks/api/vnconfig.api');
 var nwIpam = require('../../networking/ipam/api/ipamconfig.api');
 var logicalRtr =
@@ -1369,7 +1371,10 @@ function createConfigObjectCB (data, appData, callback)
         configApiServer.apiPost(reqUrl, postData, appData,
                                 function(error, configData) {
             if ((null != error) || (null == configData)) {
-                callback(error, {configData: configData});
+                logutils.logger.error(error);
+
+                var err = new appErrors.RESTServerError(messages.error.unexpected);
+                callback(err, {configData: configData});
                 return;
             }
             var configObj = process.mainModule.exports['configJsonModifyObj'];
@@ -1402,7 +1407,12 @@ function createConfigObjectCB (data, appData, callback)
                 }
             ],
             function(error, data) {
-                callback(error, {configData: configData, otherData: data});
+                var err = null;
+                if (error) {
+                    logutils.logger.error(error);
+                    err = new appErrors.RESTServerError(messages.error.unexpected);
+                }
+                callback(err, {configData: configData, otherData: data});
             });
         });
     });
@@ -2030,7 +2040,12 @@ function updateConfigObjectCB (body, appData, callback)
             updateResource
         ],
         function(error, data) {
-            callback(error, {configData: body, otherData: data});
+            var err = null;
+            if (error) {
+                logutils.logger.error(error);
+                err = new appErrors.RESTServerError(messages.error.unexpected);
+            }
+            callback(err, {configData: body, otherData: data});
         });
     });
 }
