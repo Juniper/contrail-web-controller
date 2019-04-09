@@ -21,7 +21,9 @@ var portsConfig = require('../../networking/port/api/portsconfig.api'),
     commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
     configApiServer = require(process.mainModule.exports["corePath"] +
-                              '/src/serverroot/common/configServer.api');
+                              '/src/serverroot/common/configServer.api'),
+    messages = require(process.mainModule.exports["corePath"] +
+                              '/src/serverroot/common/messages');
 var vnConfig = require('../../networking/networks/api/vnconfig.api');
 var nwIpam = require('../../networking/ipam/api/ipamconfig.api');
 var logicalRtr =
@@ -81,7 +83,12 @@ function deleteMultiObject (request, response, appData)
     var postBody = request.body;
     var found = false;
     deleteMultiObjectCB(postBody, request, appData, function(err, data) {
-        sendBackDeleteResult(err, response, data);
+        var unexpectedErr = null;
+        if (err) {
+            logutils.logger.error(err);
+            unexpectedErr = new appErrors.RESTServerError(messages.error.unexpected);
+        }
+        sendBackDeleteResult(unexpectedErr, response, data);
     });
 }
 
@@ -111,8 +118,7 @@ function deleteMultiObjectCB (postBody, request, appData, callback)
         return;
     } else {
         async.mapSeries(dataObj, deleteByType, function(err, data) {
-                callback(err, data);
-                return;
+            callback(err, data);
         });
     }
 }
@@ -128,7 +134,7 @@ function deleteByType(dataObj, callback)
 {
     var delCB = getConfigDeleteCallbackByType(dataObj[0]["type"]);
     if (null == delCB || "" == delCB) {
-        console.log("Didnt find the handler");
+        console.log("Didn't find the handler");
         delCB = defaultConfigDeleteHandler;
     }
     async.mapLimit(dataObj, 100, delCB,
@@ -336,7 +342,12 @@ function getConfigAsync (postData, detail, appData, callback)
         }
     }
     async.map(dataObjArr, getConfigDetailsAsync, function(err, results) {
-        callback(err, results);
+        var unexpectedErr = null;
+        if (err) {
+            logutils.logger.error(err);
+            unexpectedErr = new appErrors.RESTServerError(messages.error.unexpected);
+        }
+        callback(unexpectedErr, results);
     });
 }
 
@@ -370,7 +381,12 @@ function getConfigObjects (req, res, appData)
         dataObjArr[i]['uuid'] = postData[i]["uuid"];
     }
     async.map(dataObjArr, getConfigObjectsAsync, function(err, data) {
-        commonUtils.handleJSONResponse(err, res, data);
+        var unexpectedErr = null;
+        if (err) {
+            logutils.logger.error(err);
+            unexpectedErr = new appErrors.RESTServerError(messages.error.unexpected);
+        }
+        commonUtils.handleJSONResponse(unexpectedErr, res, data);
     });
 }
 
@@ -380,7 +396,12 @@ function deleteConfigObj (req, res, appData)
     var uuid = req.param('uuid');
     var dataObj = {'type': configType, 'uuid': uuid, 'appData': appData};
     deleteConfigObjCB(dataObj, function(err, data) {
-        commonUtils.handleJSONResponse(err, res, data);
+        var unexpectedErr = null;
+        if (err) {
+            logutils.logger.error(err);
+            unexpectedErr = new appErrors.RESTServerError(messages.error.unexpected);
+        }
+        commonUtils.handleJSONResponse(unexpectedErr, res, data);
     });
 }
 
@@ -536,7 +557,12 @@ function getConfigUUIDList (req, res, appData)
     configApiServer.apiGet(configUrl, appData, function(err, configData) {
         if ((null != err) || (null == configData) ||
             (null == configData[type])) {
-            commonUtils.handleJSONResponse(err, res, resultJSON);
+            var unexpectedErr = null;
+            if (err) {
+                logutils.logger.error(err);
+                unexpectedErr = new appErrors.RESTServerError(messages.error.unexpected);
+            }
+            commonUtils.handleJSONResponse(unexpectedErr, res, resultJSON);
             return;
         }
         configData = configData[type];
@@ -605,7 +631,12 @@ function getConfigPaginatedResponse (req, res, appData)
         }
         async.map(configReqObjArr, getConfigPageRespAsync,
                   function(err, customConfigData) {
-            commonUtils.handleJSONResponse(err, res, customConfigData);
+            var unexpectedErr = null;
+            if (err) {
+                logutils.logger.error(err);
+                unexpectedErr = new appErrors.RESTServerError(messages.error.unexpected);
+            }
+            commonUtils.handleJSONResponse(unexpectedErr, res, customConfigData);
             return;
         });
     });
@@ -656,7 +687,12 @@ function createConfigObject (req, res, appData)
     }
     createOrUpdateConfigObject(body, global.HTTP_REQUEST_POST,
                                appData, function(error, results) {
-        commonUtils.handleJSONResponse(error, res, results);
+        var unexpectedErr = null;
+        if (error) {
+            logutils.logger.error(error);
+            unexpectedErr = new appErrors.RESTServerError(messages.error.unexpected);
+        }
+        commonUtils.handleJSONResponse(unexpectedErr, res, results);
     });
 }
 
@@ -670,7 +706,12 @@ function updateConfigObject (req, res, appData)
     }
     createOrUpdateConfigObject(body, global.HTTP_REQUEST_PUT,
                                appData, function(error, results) {
-        commonUtils.handleJSONResponse(error, res, results);
+        var unexpectedErr = null;
+        if (error) {
+            logutils.logger.error(error);
+            unexpectedErr = new appErrors.RESTServerError(messages.error.unexpected);
+        }
+        commonUtils.handleJSONResponse(unexpectedErr, res, results);
     });
 }
 
