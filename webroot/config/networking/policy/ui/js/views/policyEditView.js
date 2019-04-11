@@ -535,22 +535,21 @@ define([
                                     dataBindValue: 'src_ports_text()'
                                     }
                                 },
-                                /*Disabling the direction as we only support bidirectional*/
-//                                {
-//                                 elementId: 'direction',
-//                                 name: 'Direction',
-//                                 view: "FormDropdownView",
-//                                 class: "",
-//                                 width: 60,
-//                                 viewConfig: {
-//                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-//                                     path: "direction",
-//                                     dataBindValue: "direction()",
-//                                     disabled: true,
-//                                     elementConfig:{
-//                                         data:['<>','>']
-//                                     }}
-//                                },
+                                {
+                                    elementId: "direction",
+                                    name: "Direction",
+                                    view: "FormDropdownView",
+                                    class: "",
+                                    width: 60,
+                                    viewConfig: {
+                                        templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                        path: "direction",
+                                        dataBindValue: "direction()",
+                                        elementConfig: {
+                                            data:["<>",">"]
+                                        }
+                                    }
+                                },
                                 {
                                     elementId: 'dst_address',
                                     view:
