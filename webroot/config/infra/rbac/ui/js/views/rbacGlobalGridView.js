@@ -186,6 +186,8 @@ define([
                       gridData: gridData,
                       configData: rbacUtils.getConfigData(viewConfig),
                       rowIndexes: [rowIndex],
+                      isProject: viewConfig.isProject,
+                      isGlobal: viewConfig.isGlobal
                   }
               );
         })];
@@ -218,7 +220,9 @@ define([
                                 gridData: gridData,
                                 configData:
                                     rbacUtils.getConfigData(viewConfig),
-                                rowIndexes: rowIndexes
+                                rowIndexes: rowIndexes,
+                                isProject: viewConfig.isProject,
+                                isGlobal: viewConfig.isGlobal
                             }
                         );
                     }

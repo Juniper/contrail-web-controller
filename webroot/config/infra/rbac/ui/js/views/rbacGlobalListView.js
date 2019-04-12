@@ -36,13 +36,27 @@ define([
         },
 
         parseRBACGlobalData: function(result) {
-            var rbacRules;
-            self.rbacData.configData = getValueByJsonPath(result,
-                "0;api-access-lists;0",
-                {}, false);
-            rbacRules = getValueByJsonPath(self.rbacData.configData,
-                "api-access-list;api_access_list_entries;rbac_rule", [], false);
-            return rbacRules;
+            var allRbacRules = [];
+            var apiAccessLists = getValueByJsonPath(result, "0;api-access-lists", [], false);
+            apiAccessLists = _.sortBy(apiAccessLists, function(apiAccessList) {
+                return apiAccessList["api-access-list"].name;
+            });
+            self.rbacData.configData = apiAccessLists;
+
+            _.each(apiAccessLists, function(apiAccessList) {
+                var apiAccessListRbacRules = getValueByJsonPath(apiAccessList,
+                    "api-access-list;api_access_list_entries;rbac_rule",
+                    [], false),
+                    apiAccessListName = getValueByJsonPath(apiAccessList,
+                            "api-access-list;fq_name;1", "", false);
+                _.each(apiAccessListRbacRules, function(rule, index){
+                    rule.apiAccessListName = apiAccessListName;
+                    rule.subIndex = index;
+                    allRbacRules.push(rule);
+                });
+            });
+            
+            return allRbacRules;
         },
 
         getRBACGlobalGridViewConfig: function() {
