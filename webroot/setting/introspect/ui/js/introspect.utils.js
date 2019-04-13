@@ -9,7 +9,9 @@ define([
     var introspectUtils = function() {
         var self = this;
         this.getProxyURL = function(nodeIP, port, args) {
-            var introspectURL = "http://" + nodeIP + ":" + port;
+            var isSSLEnabled = getValueByJsonPath(globalObj, "webServerInfo;isIntrospectSSLEnabled");
+            var protocol = isSSLEnabled ? "https" : "http";
+            var introspectURL = protocol + "://" + nodeIP + ":" + port;
             var proxyURLPrefix = "/proxy?proxyURL=";
             if (null == args) {
                 if (true === loadIntrospectViaProxy) {
@@ -30,7 +32,7 @@ define([
             if (null != args.params) {
                 if (true === loadIntrospectViaProxy) {
                     introspectURL = "/proxy" + ($.isEmptyObject(args.params) ? "?" : ("?" + $.param(args.params) + "&")) +
-                        "proxyURL=http://" + nodeIP + ":" + port;
+                        "proxyURL=" + protocol + "://" + nodeIP + ":" + port;
                     if (null != args.moduleRequest) {
                         introspectURL += "/Snh_" + args.moduleRequest;
                     }

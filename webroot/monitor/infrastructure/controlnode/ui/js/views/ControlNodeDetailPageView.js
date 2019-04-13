@@ -77,12 +77,18 @@ define([
         if(ips.length > 0){
            $.each(ips,function(idx,obj){
               if(obj != null && ipList.indexOf(obj) == -1){
-                 ipList.push(obj);
+                 ipList.push({
+                     ip: obj
+                 });
               }
            });
         }
         if(configip != null && ipList.indexOf(configip) == -1){
-           ipList.push(configip);
+            var configHostname = getValueByJsonPath(data, 'derived-uve;ConfigData;bgp-router;name');
+            ipList.push({
+               ip: configip,
+               hostname: configHostname
+           });
         }
         return ipList;
      }

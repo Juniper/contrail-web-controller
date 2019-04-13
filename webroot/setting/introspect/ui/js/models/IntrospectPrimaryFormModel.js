@@ -48,6 +48,7 @@ define([
 
         getNodeIpAddressOptionList: function(nodeType, callback) {
             var ip = null;
+            var hostname;
             var ipAddressOptionList = [];
             var url = "/api/admin/monitor/infrastructure/";
             if ("control" === nodeType) {
@@ -68,21 +69,25 @@ define([
                             ip = getValueByJsonPath(value,
                                                     "value;ConfigData;bgp-router;bgp_router_parameters;address",
                                                     null);
+                            hostname = getValueByJsonPath(value, "value;ConfigData;bgp-router;name", null);
                         } else if ("vrouter" === nodeType) {
                             ip = getValueByJsonPath(value,
                                                     "value;ConfigData;virtual-router;virtual_router_ip_address",
                                                     null);
+                            hostname = getValueByJsonPath(value, "value;ConfigData;virtual-router;name", null);
                         } else if ("config" === nodeType) {
                             ip = getValueByJsonPath(value,
                                                     "value;derived-uve;ConfigData;config_node_ip_address",
                                                     null);
+                            hostname = getValueByJsonPath(value, "value;derived-uve;ConfigData;name", null);
                         } else if ("analytics" === nodeType) {
                             ip = getValueByJsonPath(value,
                                                     "value;derived-uve;ConfigData;analytics-node;analytics_node_ip_address",
                                                     null);
+                            hostname = getValueByJsonPath(value, "value;derived-uve;ConfigData;analytics-node;name", null);
                         }
                         if(ip != null){
-                            ipAddressOptionList.push({id: ip, text: ip});
+                            ipAddressOptionList.push({id: ip, text: [hostname, " (", ip, ")"].join(""), hostname: hostname});
                         }
                   })
                    callback(ipAddressOptionList);
@@ -162,9 +167,10 @@ define([
                 model = self.model(),
                 node = model.attributes.node,
                 ipAddress = model.attributes.ip_address,
+                hostname = self.resolveIP2Hostname(ipAddress),
                 port = model.attributes.port,
                 uiAddedParameters = model.attributes.ui_added_parameters,
-                url = iUtils.getProxyURL(ipAddress, port),
+                url = iUtils.getProxyURL(hostname, port),
                 modules = [];
 
             if (ipAddress !== "") {
@@ -227,10 +233,11 @@ define([
                 model = self.model(),
                 node = model.attributes.node,
                 ipAddress = model.attributes.ip_address,
+                hostname = self.resolveIP2Hostname(ipAddress),
                 port = model.attributes.port,
                 module = model.attributes.module,
                 uiAddedParameters = model.attributes.ui_added_parameters,
-                url = iUtils.getProxyURL(ipAddress, port, {module: module}),
+                url = iUtils.getProxyURL(hostname, port, {module: module}),
                 moduleIntrospects = [];
 
             if (!$.isEmptyObject(uiAddedParameters[node][port][ipAddress][module])) {
@@ -293,6 +300,18 @@ define([
                     msg: ctwm.getRequiredMessage("ip address")
                 }
             }
+        },
+
+        resolveIP2Hostname: function (ipAddress) {
+            var self = this,
+                model = self.model(),
+                ipOptionsList = model.attributes.ip_address_option_list;
+
+            var resolvedHostname = ipOptionsList
+                .filter(function(ipOpt) { return ipOpt.id === ipAddress; })
+                .map(function (matchedOpt) { return matchedOpt.hostname; })[0];
+
+            return resolvedHostname || ipAddress;
         }
     });
 

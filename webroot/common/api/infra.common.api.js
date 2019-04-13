@@ -884,6 +884,7 @@ function getConfigApiNetworkReachableIP (dataObj, callback)
 function getNetworkReachableIP (dataObj, callback)
 {
     var ip = dataObj['ip'];
+    var hostname = dataObj['hostname'];
     var port = dataObj['port'];
     var req = dataObj['req'];
     var isConfig = dataObj['isConfig'];
@@ -953,6 +954,7 @@ function getNetworkReachableIP (dataObj, callback)
     resultJSON['data'] = null;
     resultJSON['ip'] = ip;
     resultJSON['port'] = port;
+    resultJSON['hostname'] = hostname;
 
     if ('true' == isConfig) {
         getConfigApiNetworkReachableIP(dataObj, callback);
@@ -1034,7 +1036,7 @@ function getReachableIP (req, res, appData)
         if (null != data[i]['isConfig']) {
             isConfig = data[i]['isConfig'];
         }
-        dataObjArr.push({'ip': data[i]['ip'], 'port': data[i]['port'],
+        dataObjArr.push({'ip': data[i]['ip'], 'port': data[i]['port'], 'hostname': data[i]['hostname'],
                          'req': req, isConfig: isConfig});
     }
 
@@ -1048,6 +1050,7 @@ function getReachableIP (req, res, appData)
             if (null == data[i]['error']) {
                 resultJSON['ip'] = data[i]['ip'];
                 resultJSON['port'] = data[i]['port'];
+                resultJSON['hostname'] = data[i]['hostname'];
                 break;
             }
         }

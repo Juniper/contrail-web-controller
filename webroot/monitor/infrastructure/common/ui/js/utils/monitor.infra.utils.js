@@ -1236,7 +1236,7 @@ define([
         self.getPostDataForReachableIpsCall = function(ipPortList) {
             var list = [];
             $.each(ipPortList,function(idx,obj){
-                var postObj = {ip:obj.ip,port:obj.port};
+                var postObj = {ip:obj.ip,hostname:obj.hostname,port:obj.port};
                 if (null != obj['isConfig']) {
                     postObj['isConfig'] = obj['isConfig'];
                 }
@@ -1337,7 +1337,8 @@ define([
             var ipPortList = [];
             $.each(ipList,function(i,d) {
                ipPortList.push({
-                   "ip" : d,
+                   "ip" : d.ip,
+                   "hostname": d.hostname,
                    "port" : port
                });
             });
@@ -1351,7 +1352,7 @@ define([
                           name:'introspect',
                           onClick: function () {
                                     monitorInfraUtils.
-                                        onIntrospectLinkClick(res.ip,
+                                        onIntrospectLinkClick(res.hostname || res.ip,
                                                 res.port);
                                 }
                       },
@@ -1359,7 +1360,7 @@ define([
                           name:'status',
                           onClick : function () {
                                     monitorInfraUtils.
-                                        onStatusLinkClick(res.ip);
+                                        onStatusLinkClick(res.hostname || res.ip);
                                 }
                       }
                     ]);
@@ -1400,7 +1401,7 @@ define([
                           name:'introspect',
                           onClick: function () {
                                       monitorInfraUtils.
-                                          onIntrospectLinkClick(res.ip,
+                                          onIntrospectLinkClick(res.hostname || res.ip,
                                                   introspectPort);
                                 }
                         });
@@ -1409,7 +1410,7 @@ define([
                             label: linkLabel,
                             onClick: function () {
                                       monitorInfraUtils.
-                                          onConfigLinkClick(res.ip,
+                                          onConfigLinkClick(res.hostname || res.ip,
                                                   res.port);
                                   }
                         });
@@ -1417,7 +1418,7 @@ define([
                             name:'status',
                             onClick : function () {
                                       monitorInfraUtils.
-                                          onStatusLinkClick(res.ip);
+                                          onStatusLinkClick(res.hostname || res.ip);
                                   }
                         });
                     }
@@ -1508,7 +1509,9 @@ define([
         };
 
         self.onConfigLinkClick = function (nodeIp, introspectPort) {
-            window.open('/proxy?proxyURL=http://'+nodeIp+':'+ introspectPort , '_blank');
+            var isSSLEnabled = getValueByJsonPath(globalObj, "webServerInfo;isIntrospectSSLEnabled");
+            var protocol = isSSLEnabled ? "https" : "http";
+            window.open('/proxy?proxyURL=' + protocol + '://'+nodeIp+':'+ introspectPort , '_blank');
         }
 
         self.onStatusLinkClick = function (nodeIp) {
