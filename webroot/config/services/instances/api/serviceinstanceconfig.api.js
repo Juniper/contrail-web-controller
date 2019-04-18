@@ -463,7 +463,7 @@ function siGetListAggCB (results, appData, callback)
         var vmList = [];
         var vmBackRefsCnt = vmBackRefs.length;
         for (var j = 0; j < vmBackRefsCnt; j++) {
-            var vmUUID = vmBackRefs[i]['uuid'];
+            var vmUUID = vmBackRefs[j]['uuid'];
             vmList.push(vmUUID);
         }
 
