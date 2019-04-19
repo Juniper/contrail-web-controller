@@ -275,6 +275,9 @@ define([
                         globalSysConfigData["global-system-config"]};
                 }
 
+                if ('bgp_router_refs' in newBGPOptionsConfig) {
+                    putData['global-system-config']['bgp_router_refs'] = newBGPOptionsConfig['bgp_router_refs']
+                }
                 ajaxConfig.type = "POST";
                 ajaxConfig.data = JSON.stringify(putData);
                 ajaxConfig.url = ctwc.URL_UPDATE_CONFIG_OBJECT;
