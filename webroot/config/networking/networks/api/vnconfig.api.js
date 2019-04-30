@@ -28,8 +28,6 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var jsonDiff    = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/jsondiff');
-
-var vCenterAPI  = require('./vnconfig.vcenter.api');
 var  _ = require('lodash');
                           
 /**
@@ -1491,12 +1489,11 @@ function deleteVirtualNetworkAsync (dataObj, callback)
                     return;
                 }
                 if ('vcenter' == loggedInOrchMode) {
-                    vCenterAPI.deletevCenterPortGroup(data['virtual-network'],
-                                                        appData, function (error, data) {
-                                                            callback(null, {'error': error,
-                                                                            'data': data});
-                                                            return;
-                                                        });
+                    configApiServer.apiDelete(vnDelURL, appData,
+                        function(error, data) {
+                            callback(null, {'error': error, 'data': data});
+                            return;
+                        });
                 } else {
                     deleteBridgeDomains(bdDataList, appData, function(){
                         configApiServer.apiDelete(vnDelURL, appData,
@@ -1510,12 +1507,11 @@ function deleteVirtualNetworkAsync (dataObj, callback)
             });
         } else {
            if ('vcenter' == loggedInOrchMode) {
-                vCenterAPI.deletevCenterPortGroup(data['virtual-network'],
-                                                    appData, function (error, data) {
-                                                        callback(null, {'error': error,
-                                                                        'data': data});
-                                                        return;
-                                                    });
+                configApiServer.apiDelete(vnDelURL, appData,
+                    function(error, data) {
+                        callback(null, {'error': error, 'data': data});
+                        return;
+                    });
             } else {
                 deleteBridgeDomains(bdDataList, appData, function(){
                     configApiServer.apiDelete(vnDelURL, appData,
