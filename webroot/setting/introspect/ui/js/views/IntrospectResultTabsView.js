@@ -15,11 +15,11 @@ define([
         render: function() {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
-                ipAddress = viewConfig.ip_address,
+                hostname = viewConfig.hostname,
                 port = viewConfig.port,
                 moduleRequest = viewConfig.module_request,
                 params = viewConfig.params,
-                url = iUtils.getProxyURL(ipAddress, port,
+                url = iUtils.getProxyURL(hostname, port,
                                          {params: params, moduleRequest: moduleRequest});
             self.fetchIntrospect(url);
         },
@@ -40,11 +40,11 @@ define([
             }, function(error) {
                 if (null != error) {
                     var viewConfig = getValueByJsonPath(self, "attributes;viewConfig", {});
-                    var remoteIP = viewConfig.ip_address;
+                    var remoteHostname = viewConfig.hostname;
                     var remotePort = viewConfig.port;
                     var defaultErrorStr = "Request could not be established";
-                    if ((null != remoteIP) && (null != remotePort)) {
-                        defaultErrorStr += " with " + remoteIP + ":" + remotePort;
+                    if ((null != remoteHostname) && (null != remotePort)) {
+                        defaultErrorStr += " with " + remoteHostname + ":" + remotePort;
                     }
                     var errorText = (null != error.responseText) ? error.responseText :
                         defaultErrorStr;
@@ -60,7 +60,7 @@ define([
             var self = this,
                 viewConfig = (self.attributes) ? self.attributes.viewConfig : {},
                 node = viewConfig.node,
-                ipAddress = viewConfig.ip_address,
+                hostname = viewConfig.hostname,
                 port = viewConfig.port,
                 modelMap = contrail.handleIfNull(self.modelMap, {});
 
@@ -88,7 +88,7 @@ define([
                         .parent("li").show()
                         .off("click")
                         .on("click", function() {
-                            var url = iUtils.getProxyURL(ipAddress, port,
+                            var url = iUtils.getProxyURL(hostname, port,
                                                          {moduleRequest: moduleRequest,
                                                           params: {x: text}});
                             self.fetchIntrospect(url);
