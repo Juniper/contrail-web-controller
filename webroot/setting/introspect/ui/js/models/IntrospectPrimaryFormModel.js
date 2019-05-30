@@ -69,22 +69,22 @@ define([
                             ip = getValueByJsonPath(value,
                                                     "value;ConfigData;bgp-router;bgp_router_parameters;address",
                                                     null);
-                            hostname = getValueByJsonPath(value, "value;ConfigData;bgp-router;name", null);
+                            hostname = getValueByJsonPath(value, "name", null);
                         } else if ("vrouter" === nodeType) {
                             ip = getValueByJsonPath(value,
                                                     "value;ConfigData;virtual-router;virtual_router_ip_address",
                                                     null);
-                            hostname = getValueByJsonPath(value, "value;ConfigData;virtual-router;name", null);
+                            hostname = getValueByJsonPath(value, "name", null);
                         } else if ("config" === nodeType) {
                             ip = getValueByJsonPath(value,
                                                     "value;derived-uve;ConfigData;config_node_ip_address",
                                                     null);
-                            hostname = getValueByJsonPath(value, "value;derived-uve;ConfigData;name", null);
+                            hostname = getValueByJsonPath(value, "name", null);
                         } else if ("analytics" === nodeType) {
                             ip = getValueByJsonPath(value,
                                                     "value;derived-uve;ConfigData;analytics-node;analytics_node_ip_address",
                                                     null);
-                            hostname = getValueByJsonPath(value, "value;derived-uve;ConfigData;analytics-node;name", null);
+                            hostname = getValueByJsonPath(value, "name", null);
                         }
                         if(ip != null){
                             ipAddressOptionList.push({id: ip, text: [hostname, " (", ip, ")"].join(""), hostname: hostname});
