@@ -182,9 +182,13 @@ var configJsonModifyObj = {
                 'comparators': ['to', 'projects']
             },
         },
-        'bgp-router':{},
-        'bridge-domain':
-        {},
+        'bgp-router': {},
+        'bridge-domain': {},
+        'physical-interface': {
+            'preProcessCB': {
+                'comparators': ['uuid', 'to']
+            }
+        },
         'service_health_check_back_refs': {
             'preProcessCB': {
                 'comparators': ['to', 'uuid', 'attr']
