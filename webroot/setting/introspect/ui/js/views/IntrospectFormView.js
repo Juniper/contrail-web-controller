@@ -194,7 +194,8 @@ define([
                 introspectResultId = "#introspect-" + introspectNode + "-" + introspectType + "-results",
                 primaryModelAttributes = self.primary.model.model().attributes,
                 ipAddress = primaryModelAttributes.ip_address,
-                introspectResultTabViewConfig = getIntrospectResultTabViewConfig(introspectNode, ipAddress, introspectPort, moduleRequest, introspectType, params);
+                hostname = self.primary.model.resolveIP2Hostname(ipAddress),
+                introspectResultTabViewConfig = getIntrospectResultTabViewConfig(introspectNode, hostname, introspectPort, moduleRequest, introspectType, params);
             
             if (widgetConfig !== null) {
                 $(introspectFormId).parents(".widget-box").data("widget-action").collapse();
@@ -319,7 +320,7 @@ define([
         return modelData;
     }
 
-    function getIntrospectResultTabViewConfig(introspectNode, ipAddress, port, moduleRequest, introspectType, secondaryModelAttributes) {
+    function getIntrospectResultTabViewConfig(introspectNode, hostname, port, moduleRequest, introspectType, secondaryModelAttributes) {
         return {
             elementId: "introspect-" + introspectType + "-results",
             view: "IntrospectResultTabsView",
@@ -327,7 +328,7 @@ define([
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {
                 node: introspectNode,
-                ip_address: ipAddress,
+                hostname: hostname,
                 port: port,
                 module_request: moduleRequest,
                 params: _.omit(secondaryModelAttributes, ["_type", "errors", "locks"])
