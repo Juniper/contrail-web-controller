@@ -302,9 +302,9 @@ define([
                     partialFQName.push(newBGPRouterCfgData["name"]);
                     newBGPRouterCfgData['fq_name'] = partialFQName;
                 }
-                if(!newBGPRouterCfgData.isAutoMeshEnabled ||
-                    newBGPRouterCfgData.user_created_router_type !==
-                    ctwl.CONTROL_NODE_TYPE) {
+                var isControlNode = newBGPRouterCfgData.user_created_router_type === ctwl.CONTROL_NODE_TYPE;
+                var isEditing = ajaxMethod === "PUT";
+                if(!newBGPRouterCfgData.isAutoMeshEnabled || !isControlNode || (isControlNode && isEditing)) {
                     var selectedData = self.getPeers(newBGPRouterCfgData);
                     for (var i = 0; i < selectedData.length; i++) {
                         for (var j = 0; j < self.bgpData.length; j++) {
