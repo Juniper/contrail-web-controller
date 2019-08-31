@@ -11,6 +11,10 @@
         <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/parseURLRequire'</path>
     </require>
     <require>
+        <define>routesHandler</define>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/web/routes/handler'</path>
+    </require>
+    <require>
         <define>underlayApi</define>
         <path>./underlay_overlay.api</path>
     </require>
