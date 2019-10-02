@@ -133,6 +133,7 @@ define([
                 });
             });
         }
+        console.log(retUUID);
         return retUUID;
     };
 
