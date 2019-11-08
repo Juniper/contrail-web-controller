@@ -617,7 +617,7 @@ define([
 
             if (attr.route_table_refs.length) {
                 routes =
-                    attr.route_table_refs.split(cowc.DROPDOWN_VALUE_SEPARATOR);
+                    attr.route_table_refs.split(',');
             }
             routes.every(function(route) {
                 routeList.push({'to': route.split(':')});
