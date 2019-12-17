@@ -41,4 +41,3 @@ Note: All the directories mentioned above in turn has the following directory st
 * Sign the [CLA](https://secure.echosign.com/public/hostedForm?formid=6G36BHPX974EXY)
 * Push your changes to a topic branch in your fork of the repository.
 * Submit a pull request to the contrail repository.
-
