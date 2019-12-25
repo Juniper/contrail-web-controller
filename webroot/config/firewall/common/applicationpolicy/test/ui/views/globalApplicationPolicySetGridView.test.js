@@ -39,6 +39,7 @@ define([
         }
     };
     pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 2;
+    a = b
 
     var getTestConfig = function() {
         return {
