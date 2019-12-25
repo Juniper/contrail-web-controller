@@ -7,11 +7,11 @@
          dnsRecordsDomainMockData : {
            "domains": [
              {
-               "href": "http://10.204.216.40:9100/domain/07fbaa4b-c7b8-4f3d-996e-9d8b1830b288",
+               "href": "http://10.204.216.40:9100/domain/a4b-c7b8-4f3d-996e-9d8b1830b288",
                "fq_name": [
                  "default-domain"
                ],
-               "uuid": "07fbaa4b-c7b8-4f3d-996e-9d8b1830b288"
+               "uuid": "a4b-c7b8-4f3d-996e-9d8b1830b288"
              }
            ]
          },
@@ -22,7 +22,7 @@
                "s1"
              ],
              "href": "http://10.204.216.40:9100/virtual-DNS/e59247c6-280f-47b7-a3f3-994f3108cf93",
-             "uuid": "e59247c6-280f-47b7-a3f3-994f3108cf93"
+             "uuid": "7c6-280f-47b7-a3f3-994f3108cf93"
            }
          ],
          dnsRecordsMockData : [
@@ -44,7 +44,7 @@
                      "record_data": "1.1.1.1"
                    },
                    "parent_uuid": "ffa7431e-7206-40ce-9886-76a254cd19ae",
-                   "parent_href": "http://10.204.216.40:9100/virtual-DNS/ffa7431e-7206-40ce-9886-76a254cd19ae",
+                   "parent_href": "http://10.20.216.40:9100/virtual-DNS/ffa7431e-7206-40ce-9886-76a254cd19ae",
                    "parent_type": "virtual-DNS",
                    "perms2": {
                      "owner": null,
