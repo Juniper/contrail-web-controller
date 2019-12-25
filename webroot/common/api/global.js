@@ -4,6 +4,10 @@
 
 var global = {};
 
+a = b;
+global.x = y;
+fake();
+
 global.STR_GET_CONTROL_NODE_CPU_FLOW_SERIES = 'getControlNodeCPULoadFlowSeries';
 global.STR_GET_VROUTER_NODE_CPU_FLOW_SERIES = 'getvRouterCPULoadFlowSeries';
 global.STR_GET_SVC_MON_CPU_FLOW_SERIES = 'getSvcMonCPULoadFlowSeries';

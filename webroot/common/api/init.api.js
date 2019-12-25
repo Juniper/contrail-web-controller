@@ -42,6 +42,7 @@ function createVRouterGeneratorsJob ()
 
 function featureInit()
 {
+    a = b;
     var config = configUtils.getConfig();
     if (true != config.serviceEndPointFromConfig) {
         return;
