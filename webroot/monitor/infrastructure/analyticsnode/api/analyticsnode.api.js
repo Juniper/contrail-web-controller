@@ -449,7 +449,7 @@ function processAnalyticsQueryStats (collUVE, appData, details, callback)
                 }
             }
             opServerAPI =
-                rest.getAPIServer({apiName:'Op-Server',
+                rest.getAPIServer({apiName: global.label.OPS_API_SERVER,
                                    server: serverIP,
                                    port: anaPort});
             var headers = {};
