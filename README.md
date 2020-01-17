@@ -9,7 +9,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 ### Overview
 ---
-The Contrail Web Controller repository contains front end Web UI code for the management of Contrail network virtualization solution. This repository contains code specific to Dashboard, Configuration, Monitoring, Reporting features available through Contrail Web UI. 
+The Contrail Web Controller repository contains front end Web UI code for the management of Contrail network virtualization solution. This repository contains code specific to Dashboard, Configuration, Monitoring, Reporting features available through Contrail Web UI.
 
 The code to retreive data from other components of the system(such as vrouter, analytics etc) as requested by the features mentioned above is available in a separate code repository (<https://github.com/Juniper/contrail-web-core/>)
 
