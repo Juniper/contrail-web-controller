@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "14673b8f_b6ceb793",
+        "filename": "webroot/common/ui/js/controller.parsers.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 972
+      },
+      "writtenOn": "2020-06-15T15:55:57Z",
+      "side": 1,
+      "message": "I will fix that",
+      "parentUuid": "df6a3d3d_6dd967cc",
+      "revId": "569440bfb8fc35d665b4451080f0677fb462c436",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "03fa7a64_98078676",
         "filename": "webroot/common/ui/js/controller.parsers.js",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2020-06-15T15:37:17Z",
       "side": 1,
       "message": "Is this logic documented somewhere?\n\nSpecifically, what does it mean if `is_shared` is true?",
+      "revId": "569440bfb8fc35d665b4451080f0677fb462c436",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9d3ffc7_a90212d8",
+        "filename": "webroot/common/ui/js/controller.parsers.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 972
+      },
+      "writtenOn": "2020-06-15T15:55:57Z",
+      "side": 1,
+      "message": "There is no documentation for this as far as I know. At least I\u0027m not aware of it.\n\nThe logic here is a replication of what is currently implemented in CCUI (which in fact was created when working on multiple bugs that something was not shown in UI due to UI filtering).\n\nThere is a ticket to fix this behavior on the backend, where UI will receive only the objects it suppose to see https://contrail-jws.atlassian.net/browse/CEM-15054. But that ticket targets the R2008 release.\n\nAs for the `is_shared` property, it kind of works like `global access`, when it\u0027s marked an entity is visible across all projects.\n\nThis was also the case in the previous implementation.",
+      "parentUuid": "03fa7a64_98078676",
       "revId": "569440bfb8fc35d665b4451080f0677fb462c436",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
