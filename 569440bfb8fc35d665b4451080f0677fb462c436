@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df6a3d3d_6dd967cc",
+        "filename": "webroot/common/ui/js/controller.parsers.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 302
+      },
+      "writtenOn": "2020-06-15T15:37:17Z",
+      "side": 1,
+      "message": "No usage of arrow function, the old ui assumes es3/5 environment.",
+      "revId": "569440bfb8fc35d665b4451080f0677fb462c436",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03fa7a64_98078676",
+        "filename": "webroot/common/ui/js/controller.parsers.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 302
+      },
+      "writtenOn": "2020-06-15T15:37:17Z",
+      "side": 1,
+      "message": "Is this logic documented somewhere?\n\nSpecifically, what does it mean if `is_shared` is true?",
+      "revId": "569440bfb8fc35d665b4451080f0677fb462c436",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
