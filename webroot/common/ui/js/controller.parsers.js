@@ -567,23 +567,27 @@ define([
             return retArr;
         };
 
-        this.vnCfgDataParser = function(response, isShared) {
+        this.vnCfgDataParser = function(response, projectId) {
             var retArr = [];
-            var domain  = contrail.getCookie(cowc.COOKIE_DOMAIN);
-            var project = contrail.getCookie(cowc.COOKIE_PROJECT);
 
             if(response != null &&
                 'virtual-networks' in response &&
                 response['virtual-networks'].length > 0) {
                 var len = response['virtual-networks'].length
                 for (var i = 0; i < len; i++) {
-                    if (isShared && isShared == true) {
-                        var vn = response['virtual-networks'][i]['virtual-network']
-                        if (!(domain == vn['fq_name'][0] && project == vn['fq_name'][1])) {
-                            retArr.push(response['virtual-networks'][i]['virtual-network']);
+                    var vn = getValueByJsonPath(response, 'virtual-networks;' + i + ';virtual-network', null, false);
+                    if (vn) {
+
+                        var isInCurrentProject = vn.parent_uuid === projectId;
+                        var hasSharedFlag = vn.is_shared;
+                        var hasGlobalAccess = vn.perms2.global_access >= 4;
+                        var isSharedWithCurrentProject = vn.perms2.share.some(
+                            (entry) => entry.tenant === projectId && entry.tenant_access >= 4,
+                        );
+
+                        if (isInCurrentProject || hasSharedFlag || hasGlobalAccess || isSharedWithCurrentProject) {
+                            retArr.push(vn);
                         }
-                    } else {
-                        retArr.push(response['virtual-networks'][i]['virtual-network']);
                     }
                 }
             }
