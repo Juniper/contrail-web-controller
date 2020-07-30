@@ -12,15 +12,17 @@ define([
 
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig;
+            var projectId = viewConfig.projectSelectedValueData.value;
 
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.get(ctwc.URL_CFG_VN_DETAILS) + '?tenant_id=' +
-                            viewConfig.projectSelectedValueData.value,
+                        url: ctwc.get(ctwc.URL_CFG_VN_DETAILS),
                         type: "GET"
                     },
-                    dataParser: ctwp.vnCfgDataParser
+                    dataParser: function(response) {
+                        return ctwp.vnCfgDataParser(response, projectId);
+                    }
                 },
                 vlRemoteConfig:{
                     vlRemoteList: [
@@ -38,19 +40,6 @@ define([
                         }, 
                         successCallback: function (response, contrailListModel) {
                             setFIPEnabledNets(response, contrailListModel);
-                        }
-                    },
-                    {
-                        getAjaxConfig  : function () {
-                            return {
-                                url: ctwc.get(ctwc.URL_CFG_VN_DETAILS) +
-                                         '?filters=is_shared==true',
-                                type: "GET",
-                                timeout: 300000
-                            }
-                        }, 
-                        successCallback: function (response, contrailListModel) {
-                            contrailListModel.addData(ctwp.vnCfgDataParser(response, true));
                         }
                     },
                     {
