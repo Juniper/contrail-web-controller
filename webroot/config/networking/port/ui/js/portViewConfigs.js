@@ -81,6 +81,7 @@
                      validation: 'fixedIPValidations',
                      templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
                      collection: "fixedIPCollection",
+                     userVisible: "userVisible()",
                      columns: [{
                          elementId: 'subnet_uuid',
                          name: "Subnet",

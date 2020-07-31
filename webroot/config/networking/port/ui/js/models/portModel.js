@@ -269,6 +269,8 @@ define([
                     fixedIP_obj.subnetDataSource = [];
                     var fixedIP = getValueByJsonPath(fixedIPobj,
                         "fixedip", null, false);
+                    var userVisible = getValueByJsonPath(fixedIPobj,
+                        "fixedip;userVisible");
                     if(fixedIP !== null) {
                         var val = JSON.stringify(
                                   {"subnet_uuid":fixedIP.subnet_uuid});
@@ -279,6 +281,7 @@ define([
                         fixedIP_obj.uuid = fixedIPobj.uuid;
                         fixedIP_obj.disableFIP = true;
                         fixedIP_obj.visibleSubnet = false;
+                        fixedIP_obj.userVisible = userVisible;
                         var fixedIPModel = new FixedIPModel(fixedIP_obj);
                         fixedIPModels.push(fixedIPModel);
                     }

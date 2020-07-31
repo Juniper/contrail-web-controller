@@ -1969,7 +1969,10 @@ function buildVMIData (vmiData, dataObj)
             vmiData[i]['virtual-machine-interface']['instance_ip_back_refs']
                    [j]['fixedip']['ip'] =
                instIpsObjs[vmiInstIps[j]['uuid']]['instance_ip_address'];
-            if (null != instIpsObjs[vmiInstIps[j]['uuid']]['subnet_uuid']) {
+            vmiData[i]['virtual-machine-interface']['instance_ip_back_refs']
+                    [j]['fixedip']['userVisible'] =
+                instIpsObjs[vmiInstIps[j]['uuid']]['id_perms']['user_visible'];
+        if (null != instIpsObjs[vmiInstIps[j]['uuid']]['subnet_uuid']) {
                 vmiData[i]['virtual-machine-interface']['instance_ip_back_refs']
                        [j]['fixedip']['subnet_uuid'] =
                     instIpsObjs[vmiInstIps[j]['uuid']]['subnet_uuid'];

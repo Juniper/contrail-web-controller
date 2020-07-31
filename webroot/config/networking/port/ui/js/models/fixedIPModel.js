@@ -14,7 +14,8 @@ define([
             'subnetDataSource' : [],
             'uuid':'',
             'disableFIP':false,
-            'visibleSubnet':true
+            'visibleSubnet':true,
+            'userVisible':true
         },
 
         validateAttr: function (attributePath, validation, data) {
