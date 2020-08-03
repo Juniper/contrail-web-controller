@@ -699,7 +699,7 @@ define([
                     attr.routing_policy_refs.split(cowc.DROPDOWN_VALUE_SEPARATOR);
             }
             policies.every(function(policy) {
-                routingPolicyList.push({'to': policy.split(':')});
+                routingPolicyList.push({'to': policy.split(':'), attr: {}});
                 return true;
             });
 
