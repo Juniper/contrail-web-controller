@@ -484,7 +484,7 @@ function siGetListAggCB (results, appData, callback)
     for (var i = 0, j = vmPortTuplesCnt; i < j; i += chunk) {
         var tempArray = vmPortTupleList.slice(i, i + chunk);
         var vmiUrl = '/virtual-machine-interfaces?detail=true&' +
-            'fields=port_tuple_refs,virtual_mchine_refs&back_ref_id=' +
+            'fields=port_tuple_refs,virtual_machine_refs&back_ref_id=' +
             tempArray.join(',');
         commonUtils.createReqObj(dataObjArr, vmiUrl, null, null, null, null,
                                  appData);
@@ -582,12 +582,14 @@ function siGetListAggCB (results, appData, callback)
                                 commonUtils.getValueByJsonPath(filteredResults[i],
                                                                'service-instance;uuid',
                                                                null);
-                            var parentVMI =
+                            var parentVMIs =
                                 commonUtils.getValueByJsonPath(vmiObjs[k],
-                                                               'virtual_machine_interface_refs;0;uuid',
-                                                               null);
-                            if (null != parentVMI) {
-                                parentIntfList.push(parentVMI);
+                                                               'virtual_machine_interface_refs',
+                                                               []);
+                            for (var l = 0; l < parentVMIs.length; l++) {
+                                if (parentVMIs[l].uuid) {
+                                    parentIntfList.push(parentVMIs[l].uuid);
+                                }
                             }
                         }
                     }
@@ -624,45 +626,47 @@ function siGetListAggCB (results, appData, callback)
                 var vmiId = commonUtils.getValueByJsonPath(vmis[i],
                                                            "virtual-machine-interface;uuid",
                                                            null);
-                var parentVMIId =
+                var parentVMIs =
                     commonUtils.getValueByJsonPath(vmis[i],
-                                                   "virtual-machine-interface;"
-                                                   + "virtual_machine_interface_refs;0;uuid",
-                                                   null);
-                var vmRefs = commonUtils.getValueByJsonPath(vmis[i],
-                                                            "virtual-machine-interface;"
-                                                            + "virtual_machine_refs;0",
-                                                            null);
-                if (null == vmRefs) {
-                    continue;
-                }
-                var portTuples = vmiToPortTupleMap[parentVMIId];
-                if (null != portTuples) {
-                    var portTuplesLen = portTuples.length;
-                    for (j = 0; j < portTuplesLen; j++) {
-                        var idxObj = portTupleToSIIdxMaps[portTuples[j]];
-                        if (null == idxObj) {
-                            continue;
-                        }
-                        try {
-                            var vmiIdx =
-                                getVMIIdx(filteredResults[idxObj.siIndex]["service-instance"]
-                                        ["port_tuples"][idxObj.portTupleIdx]["vmis"],
-                                        parentVMIId);
-                        } catch(e) {
-                            logutils.logger.error("In siGetListAggCB(): " +
-                                                  "getVMIIdx error:" + e);
-                            vmiIdx = null;
-                        }
-                        if (null == vmiIdx) {
-                            continue;
-                        }
-                        try {
-                            filteredResults[idxObj.siIndex]["service-instance"]["port_tuples"][idxObj.portTupleIdx]
-                                ["vmis"][vmiIdx]["virtual_machine_refs"].push(vmRefs);
-                        } catch(e) {
-                            logutils.logger.error("In siGetListAggCB(): " +
-                                                  "idxObj assign error:" + e);
+                        "virtual-machine-interface;virtual_machine_interface_refs",
+                        []);
+                for (var j = 0; j < parentVMIs.length; j++) {
+                    var parentVMIId = parentVMIs[j].uuid;
+                    var vmRefs = commonUtils.getValueByJsonPath(vmis[i],
+                                                                "virtual-machine-interface;"
+                                                                + "virtual_machine_refs;0",
+                                                                null);
+                    if (null == vmRefs) {
+                        continue;
+                    }
+                    var portTuples = vmiToPortTupleMap[parentVMIId];
+                    if (null != portTuples) {
+                        var portTuplesLen = portTuples.length;
+                        for (k = 0; k < portTuplesLen; k++) {
+                            var idxObj = portTupleToSIIdxMaps[portTuples[k]];
+                            if (null == idxObj) {
+                                continue;
+                            }
+                            try {
+                                var vmiIdx =
+                                    getVMIIdx(filteredResults[idxObj.siIndex]["service-instance"]
+                                            ["port_tuples"][idxObj.portTupleIdx]["vmis"],
+                                            parentVMIId);
+                            } catch(e) {
+                                logutils.logger.error("In siGetListAggCB(): " +
+                                                    "getVMIIdx error:" + e);
+                                vmiIdx = null;
+                            }
+                            if (null == vmiIdx) {
+                                continue;
+                            }
+                            try {
+                                filteredResults[idxObj.siIndex]["service-instance"]["port_tuples"][idxObj.portTupleIdx]
+                                    ["vmis"][vmiIdx]["virtual_machine_refs"].push(vmRefs);
+                            } catch(e) {
+                                logutils.logger.error("In siGetListAggCB(): " +
+                                                    "idxObj assign error:" + e);
+                            }
                         }
                     }
                 }
