@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f79baffc_64fe3c80",
+        "filename": "webroot/config/networking/networks/ui/js/models/vnCfgModel.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 302
+      },
+      "writtenOn": "2020-08-07T17:22:00Z",
+      "side": 1,
+      "message": "The ticket says \"Issue is caused by the lack of ability of WebUI to check the address family of the subnet when we toggle the subnet properties.\"\n\nIt\u0027s not suitable to assume that the subnet family is IPv4, if default gateway isn\u0027t set. Rather, you\u0027d need to check the subnet family first before setting the default gateway.",
+      "revId": "a89c9fef46db4470078c3e48a10abf249fc842a3",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
