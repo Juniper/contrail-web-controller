@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48e3a321_70920293",
+        "filename": "webroot/config/networking/networks/ui/js/models/vnCfgModel.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 302
+      },
+      "writtenOn": "2020-08-07T18:00:23Z",
+      "side": 1,
+      "message": "I think the default value for `attr` is *null*.",
+      "revId": "d94862c054c2ef2d4742de24787db5af5b8da0db",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
