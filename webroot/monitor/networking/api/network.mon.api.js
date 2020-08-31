@@ -2313,7 +2313,7 @@ function getUveVmVmiListByFqns (fqns, type, req, appData, callback) {
     var reqId = req.body["id"];
     redisUtils.getRedisData(reqId, function(error, vmiList) {
         if (null != vmiList) {
-            callback(null, {vmiList: vmiList});
+            callback(null, vmiList);
             return;
         }
 
