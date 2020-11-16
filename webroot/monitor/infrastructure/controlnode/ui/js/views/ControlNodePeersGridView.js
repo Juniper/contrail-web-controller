@@ -159,6 +159,8 @@ define([
     this.processPeerDetails = function(bgpPeerInfo,type,ret,hostname){
       var noDataStr = monitorInfraConstants.noDataStr;
       for(var i = 0; i < bgpPeerInfo.length; i++) {
+	if(type == 'bgp' || (type == 'xmpp' && bgpPeerInfo[i].value.XmppPeerInfoData.event_info.last_event != 'xmsm::EvStop'))
+ 	{
          var obj = {};
          obj['raw_json'] = bgpPeerInfo[i];
          var peerInfodata ;
@@ -227,6 +229,7 @@ define([
                                     noDataStr);
             obj['introspect_state'] = getValueByJsonPath(obj,'state','-');
             ret.push(obj);
+	}
       }//for loop for bgp peers END
       return ret;
     }
