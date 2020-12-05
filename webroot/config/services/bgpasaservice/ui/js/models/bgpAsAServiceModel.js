@@ -286,6 +286,10 @@ define([
                 /*delete newBGPAsAServiceData.user_created_auth_key_type;
                 delete newBGPAsAServiceData.user_created_auth_key;*/
                 delete newBGPAsAServiceData.familyAttrs;
+                /* Do not send bgp_router_refs from UI, as nodejs does not
+                 * do any operation on this object
+                 */
+                delete newBGPAsAServiceData['bgp_router_refs'];
 
                 postBGPAsAServiceData['bgp-as-a-service'] = newBGPAsAServiceData;
 
