@@ -92,6 +92,9 @@ define([
         self.loadConfigEditorModal = function(schema, json, viewConfig, disableKeys, refs, oldJson, enumKeys){
             self.formRadioFlag = true;
             self.formJson = json;
+	    if(disableKeys.length>=13){
+                disableKeys.push('name');
+            }
             self.disableKeys = disableKeys;
             var schemaProp = getValueByJsonPath(schema,'properties;'+Object.keys(schema.properties)[0]+';properties');
             var updatedProp = self.setEmptyForChildEnum(schemaProp, schemaProp);
