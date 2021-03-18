@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e47be5b_3f116b27",
+        "filename": "webroot/config/configEditor/ui/js/utils/ConfigObjectDetail.utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 302
+      },
+      "writtenOn": "2021-03-18T17:14:33Z",
+      "side": 1,
+      "message": "what\u0027s the reason of using this condition?",
+      "revId": "3af9bcf35b5ff6655a38594f489c5857f50ae32c",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
