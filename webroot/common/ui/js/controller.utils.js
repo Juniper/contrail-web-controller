@@ -399,8 +399,12 @@ define([
             var fqnArray = [];
             if(vnFQN){
                 fqnArray = vnFQN.split(":");
+                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
+                var selectedProject = contrail.getCookie(cowc.COOKIE_PROJECT);
 
-                if(ctwc.SERVICE_VN_EXCLUDE_LIST.indexOf(fqnArray[2]) != -1) {
+                if(domain === ctwc.DEFAULT_DOMAIN &&
+                    selectedProject === ctwc.DEFAULT_PROJECT &&
+                    ctwc.SERVICE_VN_EXCLUDE_LIST.indexOf(fqnArray[2]) != -1) {
                     return true;
                 }
             }

@@ -1250,12 +1250,17 @@ define([
 
     function createNodeElements(nodes, elements, elementMap, config) {
         var newElement, nodeName;
+        var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
+        var selectedProject = contrail.getCookie(cowc.COOKIE_PROJECT);
         if (nodes && nodes.length){
             for (var i = 0; i < nodes.length; i++) {
             	 var node = nodes[i];
                  if (node != null && node['name'] != null) {
                      var nodeName = node['name'];
-                     if (typeof nodeName == 'string' && ctwc.SERVICE_VN_EXCLUDE_LIST.indexOf(nodeName.split(':')[2]) >= 0) {
+                     if (domain === ctwc.DEFAULT_DOMAIN &&
+                         selectedProject === ctwc.DEFAULT_PROJECT &&
+                         typeof nodeName == 'string' &&
+                         ctwc.SERVICE_VN_EXCLUDE_LIST.indexOf(nodeName.split(':')[2]) >= 0) {
                         continue;
                      }
                  }

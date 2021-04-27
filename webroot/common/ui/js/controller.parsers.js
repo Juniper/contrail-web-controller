@@ -661,7 +661,11 @@ define([
                 for (var i = 0; i < len; i++) {
                     var vn = getValueByJsonPath(response, 'virtual-networks;' + i + ';virtual-network', null, false);
                     if (vn) {
-                        var isAllowedVnByName = _.indexOf(ctwc.NOT_ALLOWED_VN_LIST, vn.name) === -1;
+                        var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
+                        var selectedProject = contrail.getCookie(cowc.COOKIE_PROJECT);
+                        var isAllowedVnByName = 1;
+                        if (domain === ctwc.DEFAULT_DOMAIN && selectedProject === ctwc.DEFAULT_PROJECT)
+                            isAllowedVnByName = _.indexOf(ctwc.NOT_ALLOWED_VN_LIST, vn.name) === -1;
                         if (isAllowedVnByName) {
                             var isInCurrentProject = vn.parent_uuid === projectId;
                             var hasSharedFlag = vn.is_shared;
