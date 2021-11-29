@@ -21,7 +21,8 @@ module.exports = function (config) {
             'karma-chrome-launcher'
         ],
         browsers: [
-            'PhantomJS',
+            'ChromeHeadless'
+	    //'PhantomJS',
             //'Firefox',
             //'Chrome'
         ],
